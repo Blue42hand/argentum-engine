@@ -943,16 +943,30 @@ data class PlayersCantCastSpells(
  *    ("During your turn, your opponents can't activate abilities of artifacts, creatures, or
  *    enchantments.")
  *
+ * Two further axes, both off by default:
+ *  - [nonManaAbilitiesOnly] exempts mana abilities ("… abilities that aren't mana abilities").
+ *  - [anyZone] extends the prohibition past the battlefield to abilities of cards in any zone —
+ *    graveyard and hand abilities, cycling, and the crew/saddle actions — for the unqualified
+ *    "players can't activate abilities" wording. Off, it speaks of permanents only.
+ *
+ *  - Yuriko, Blade of the Mighty's activate clause: `PlayersCantActivateAbilities(Player.Each,
+ *    condition = IsInPhase(COMBAT, yoursOnly = false), nonManaAbilitiesOnly = true, anyZone = true)`
+ *    ("During combat, players can't … activate abilities that aren't mana abilities.")
+ *
  * @property affected Who is forbidden, relative to the source's controller.
  * @property permanentFilter Which permanents' abilities are forbidden (matched against the source).
  * @property condition Optional timing/state gate, evaluated in the controller's context; null = always.
+ * @property nonManaAbilitiesOnly When true, mana abilities stay activatable.
+ * @property anyZone When true, abilities of cards outside the battlefield are forbidden too.
  */
 @SerialName("PlayersCantActivateAbilities")
 @Serializable
 data class PlayersCantActivateAbilities(
     val affected: Player = Player.EachOpponent,
     val permanentFilter: GameObjectFilter = GameObjectFilter.Any,
-    val condition: Condition? = null
+    val condition: Condition? = null,
+    val nonManaAbilitiesOnly: Boolean = false,
+    val anyZone: Boolean = false
 ) : StaticAbility {
     override val description: String = buildString {
         when (condition) {
@@ -966,8 +980,9 @@ data class PlayersCantActivateAbilities(
             else -> append("${affected.description} can't activate ")
         }
         append(
-            if (permanentFilter == GameObjectFilter.Any) "activated abilities"
-            else "abilities of ${permanentFilter.description}"
+            if (permanentFilter == GameObjectFilter.Any) {
+                if (nonManaAbilitiesOnly) "abilities that aren't mana abilities" else "activated abilities"
+            } else "abilities of ${permanentFilter.description}"
         )
         when (condition) {
             is IsYourTurn, is IsNotYourTurn, null -> {}

@@ -428,6 +428,24 @@ class CastPermissionUtils(
         hasActiveEquipPermission(state, playerId) { it is EquipAbilitiesAtInstantSpeed }
 
     /**
+     * True when [playerId] holds a turn-scoped instant-speed loyalty grant
+     * ([com.wingedsheep.engine.state.components.player.InstantSpeedLoyaltyGrantsComponent] —
+     * Jace's Machinations) whose planeswalker filter matches [sourceId], read on projected state
+     * from [playerId]'s perspective. Lifts only the sorcery-timing half of CR 606.3; the caller
+     * still enforces the once-per-turn limit.
+     */
+    fun canActivateLoyaltyAtInstantSpeed(state: GameState, playerId: EntityId, sourceId: EntityId): Boolean {
+        val grants = state.getEntity(playerId)
+            ?.get<com.wingedsheep.engine.state.components.player.InstantSpeedLoyaltyGrantsComponent>()
+            ?: return false
+        if (grants.filters.isEmpty()) return false
+        val context = PredicateContext(controllerId = playerId, sourceId = sourceId)
+        return grants.filters.any { filter ->
+            predicateEvaluator.matches(state, state.projectedState, sourceId, filter, context)
+        }
+    }
+
+    /**
      * True when [playerId] controls a permanent granting [FreeFirstEquipEachTurn] whose
      * condition (if any) currently holds. The caller still gates the discount on
      * `EquipActivationsThisTurnComponent.count == 0` so only the turn's *first* equip is free.
@@ -967,13 +985,23 @@ class CastPermissionUtils(
      * can't activate abilities of artifacts, creatures, or enchantments." Mirrors
      * [isActivationPrevented] (Cursed Totem's who/when-blind block), but additionally scopes by
      * who is activating and when. Face-down permanents (no abilities) are skipped as granters.
+     *
+     * [abilityIsManaAbility] exempts the ability from a
+     * [nonManaAbilitiesOnly][PlayersCantActivateAbilities.nonManaAbilitiesOnly] prohibition. A
+     * [sourceId] that isn't on the battlefield (a graveyard, hand, exile or command-zone ability —
+     * cycling included) is only caught by a prohibition with
+     * [anyZone][PlayersCantActivateAbilities.anyZone] set; the others speak of permanents only.
+     * Yuriko, Blade of the Mighty: "During combat, players can't cast spells or activate
+     * abilities that aren't mana abilities."
      */
     fun isActivationPreventedForPlayer(
         state: GameState,
         sourceId: EntityId,
-        activatingPlayerId: EntityId
+        activatingPlayerId: EntityId,
+        abilityIsManaAbility: Boolean = false
     ): Boolean {
         val projected = state.projectedState
+        val sourceOnBattlefield = sourceId in state.getBattlefield()
         for (permanentId in state.getBattlefield()) {
             val container = state.getEntity(permanentId) ?: continue
             if (container.has<FaceDownComponent>()) continue
@@ -981,6 +1009,8 @@ class CastPermissionUtils(
                 ?.let { cardRegistry.getCard(it.cardDefinitionId) } ?: continue
             for (sa in cardDef.script.staticAbilities) {
                 if (sa !is PlayersCantActivateAbilities) continue
+                if (sa.nonManaAbilitiesOnly && abilityIsManaAbility) continue
+                if (!sourceOnBattlefield && !sa.anyZone) continue
                 val controller = projected.getController(permanentId)
                     ?: container.get<ControllerComponent>()?.playerId
                     ?: continue

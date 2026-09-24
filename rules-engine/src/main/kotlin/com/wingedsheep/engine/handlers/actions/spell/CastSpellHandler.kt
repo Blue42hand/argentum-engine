@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.actions.spell
 import com.wingedsheep.engine.handlers.TargetingSourceType
+import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.giftKeyword
 
@@ -146,6 +147,7 @@ import com.wingedsheep.engine.core.Outcome
  * additional cost processing, and trigger detection.
  */
 class CastSpellHandler(
+    private val zones: ZoneTransitionService,
     private val cardRegistry: CardRegistry,
     private val turnManager: TurnManager,
     private val manaSolver: ManaSolver,
@@ -169,8 +171,9 @@ class CastSpellHandler(
     private val castCostTotaller = CastCostTotaller(
         cardRegistry, costCalculator, alternativePaymentHandler, zoneResolver, predicateEvaluator
     )
-    private val paymentProcessor = CastPaymentProcessor(manaSolver, costHandler, manaAbilitySideEffectExecutor)
+    private val paymentProcessor = CastPaymentProcessor(zones, manaSolver, costHandler, manaAbilitySideEffectExecutor)
     private val castCostPayer = CastCostPayer(
+        zones,
         cardRegistry, costHandler, costCalculator, manaSolver, alternativePaymentHandler, paymentProcessor,
         castCostTotaller, zoneResolver, castPermissionUtils, conditionEvaluator, predicateEvaluator,
     )
@@ -284,6 +287,7 @@ class CastSpellHandler(
             castCardName = cardComponent.name,
             cardDefinitionName = cardDef?.name,
             cardRegistry = cardRegistry,
+            zones = zones,
             declaredSlotCosts = declaredSlotCosts,
         )
         val paid = when (val outcome = castCostPayer.pay(ledger, cardComponent, cardDef, totalCost, owedCosts, playForFree)) {
@@ -1221,6 +1225,7 @@ class CastSpellHandler(
     companion object {
         fun create(services: EngineServices): CastSpellHandler {
             return CastSpellHandler(
+                services.zones,
                 services.cardRegistry,
                 services.turnManager,
                 services.manaSolver,

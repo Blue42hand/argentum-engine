@@ -265,8 +265,12 @@ object Effects {
         amount: Int,
         target: EffectTarget,
         damageSource: EffectTarget? = null,
-        cantBePrevented: Boolean = false
-    ): Effect = DealDamageEffect(amount, target, cantBePrevented = cantBePrevented, damageSource = damageSource)
+        cantBePrevented: Boolean = false,
+        excessDamageVariable: String? = null
+    ): Effect = DealDamageEffect(
+        DynamicAmount.Fixed(amount), target, cantBePrevented = cantBePrevented, damageSource = damageSource,
+        excessDamageVariable = excessDamageVariable
+    )
 
     /**
      * Deal dynamic damage to a target.
@@ -276,8 +280,12 @@ object Effects {
         amount: DynamicAmount,
         target: EffectTarget,
         damageSource: EffectTarget? = null,
-        cantBePrevented: Boolean = false
-    ): Effect = DealDamageEffect(amount, target, cantBePrevented = cantBePrevented, damageSource = damageSource)
+        cantBePrevented: Boolean = false,
+        excessDamageVariable: String? = null
+    ): Effect = DealDamageEffect(
+        amount, target, cantBePrevented = cantBePrevented, damageSource = damageSource,
+        excessDamageVariable = excessDamageVariable
+    )
 
     /**
      * Deal damage to a creature, dealing any excess (CR 120.4a — damage beyond lethal) to that
@@ -3183,8 +3191,9 @@ object Effects {
      */
     fun Behold(
         filter: com.wingedsheep.sdk.scripting.GameObjectFilter,
-        ifBeheld: Effect? = null
-    ): Effect = com.wingedsheep.sdk.scripting.effects.BeholdEffect(filter, ifBeheld)
+        ifBeheld: Effect? = null,
+        otherwise: Effect? = null
+    ): Effect = com.wingedsheep.sdk.scripting.effects.BeholdEffect(filter, ifBeheld, otherwise)
 
     /**
      * Create Meteorite artifact tokens (Roxanne, Starfall Savant).
@@ -3309,6 +3318,18 @@ object Effects {
      */
     fun CreateLotus(count: Int = 1, controller: EffectTarget? = null): Effect =
         CreatePredefinedTokenEffect("Lotus", count, controller)
+
+    /**
+     * Create Forest Tentacle tokens (Reality Fracture — Verdant Kraken).
+     * A 3/3 green "Land Creature — Forest Tentacle"; its "{T}: Add {G}." is the Forest type's
+     * intrinsic mana ability (CR 305.6), subject to summoning sickness like any creature's.
+     *
+     * @param count Number of tokens to create
+     * @param tapped Whether the tokens enter the battlefield tapped
+     * @param controller Who controls the tokens (null = the ability's controller)
+     */
+    fun CreateForestTentacle(count: Int = 1, tapped: Boolean = false, controller: EffectTarget? = null): Effect =
+        CreatePredefinedTokenEffect("Forest Tentacle", count, controller, tapped)
 
     /**
      * Create Mutavault land tokens.
@@ -5248,6 +5269,22 @@ object Effects {
      */
     fun CantActivateLoyaltyAbilities(target: EffectTarget, duration: Duration = Duration.EndOfTurn): Effect =
         CantActivateLoyaltyAbilitiesEffect(target, duration)
+
+    /**
+     * "[You] may activate loyalty abilities of [planeswalkerFilter] planeswalkers on any player's
+     * turn any time you could cast an instant" for [duration] (Jace's Machinations). Lifts only the
+     * sorcery-timing half of CR 606.3 — the once-per-turn limit still applies.
+     */
+    fun InstantSpeedLoyaltyAbilities(
+        planeswalkerFilter: com.wingedsheep.sdk.scripting.GameObjectFilter =
+            com.wingedsheep.sdk.scripting.GameObjectFilter.Planeswalker.youControl(),
+        duration: Duration = Duration.EndOfTurn,
+        target: EffectTarget = EffectTarget.Controller,
+    ): Effect = com.wingedsheep.sdk.scripting.effects.GrantInstantSpeedLoyaltyAbilitiesEffect(
+        target = target,
+        planeswalkerFilter = planeswalkerFilter,
+        duration = duration,
+    )
 
     /**
      * Target player skips their next [count] turns (default one).

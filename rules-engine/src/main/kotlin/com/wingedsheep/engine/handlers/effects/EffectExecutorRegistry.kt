@@ -39,6 +39,7 @@ import kotlin.reflect.KClass
  * dynamic executor registration.
  */
 class EffectExecutorRegistry(
+    private val zones: ZoneTransitionService,
     private val amountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator(),
     private val decisionHandler: DecisionHandler = DecisionHandler(),
     private val cardRegistry: com.wingedsheep.engine.registry.CardRegistry,
@@ -49,41 +50,42 @@ class EffectExecutorRegistry(
     private val executors = mutableMapOf<KClass<out Effect>, EffectExecutor<*>>()
     private val compositeExecutors = CompositeExecutors(cardRegistry, TargetFinder(), decisionHandler)
     private val drawingExecutors = DrawingExecutors(
+        zones,
         amountEvaluator,
         decisionHandler,
         cardRegistry = cardRegistry,
         replacementProcessor = replacementProcessor
     )
-    private val playerExecutors = PlayerExecutors(decisionHandler, cardRegistry)
+    private val playerExecutors = PlayerExecutors(zones, decisionHandler, cardRegistry)
     private val chainExecutors = ChainExecutors()
     // Held as a field so its recursion (for ModifyKeywordAction's Composite delegation) can be wired
     // before the module is registered, mirroring libraryExecutors.
-    private val permanentExecutors = PermanentExecutors(decisionHandler, amountEvaluator, cardRegistry)
+    private val permanentExecutors = PermanentExecutors(zones, decisionHandler, amountEvaluator, cardRegistry)
     // Held as a field so its recursion (for an entering permanent's OnEnterRun) can be wired
     // before the module is registered, mirroring permanentExecutors.
-    private val zonesExecutors = ZonesExecutors(cardRegistry)
+    private val zonesExecutors = ZonesExecutors(zones, cardRegistry)
 
     /**
      * Exposed so [com.wingedsheep.engine.core.EngineServices] can call
      * [LibraryExecutors.initialize] once the rest of the service graph is wired.
      */
-    val libraryExecutors: LibraryExecutors = LibraryExecutors(cardRegistry = cardRegistry, targetFinder = TargetFinder())
+    val libraryExecutors: LibraryExecutors = LibraryExecutors(zones, cardRegistry = cardRegistry, targetFinder = TargetFinder())
 
     init {
         // Register all effect executors by module
-        registerModule(LifeExecutors(amountEvaluator, cardRegistry))
-        registerModule(DamageExecutors(amountEvaluator, decisionHandler))
+        registerModule(LifeExecutors(zones, amountEvaluator, cardRegistry))
+        registerModule(DamageExecutors(zones, amountEvaluator, decisionHandler))
         // Wire the recursion (for ModifyKeywordAction's Composite delegation) before registering, so the
         // ref is read lazily at explore time (order is not load-bearing — see libraryExecutors).
         permanentExecutors.initializeRecursion(::recurse)
         registerModule(permanentExecutors)
         registerModule(ManaExecutors(amountEvaluator, cardRegistry))
-        registerModule(TokenExecutors(amountEvaluator, StaticAbilityHandler(cardRegistry), cardRegistry, tokenArtRegistry))
+        registerModule(TokenExecutors(zones, amountEvaluator, StaticAbilityHandler(cardRegistry), cardRegistry, tokenArtRegistry))
         // The scry/surveil macro executors expand to a composite pipeline and delegate back through
         // [recurse]; wire it in before registering (the ref is read lazily, so order is not load-bearing).
         libraryExecutors.initializeRecursion(::recurse)
         registerModule(libraryExecutors)
-        registerModule(StackExecutors(amountEvaluator, cardRegistry))
+        registerModule(StackExecutors(zones, amountEvaluator, cardRegistry))
         registerModule(InformationExecutors())
         registerModule(CombatExecutors(amountEvaluator, cardRegistry))
         // Wire the recursion (so a card put onto the battlefield by an effect can run its
@@ -91,7 +93,7 @@ class EffectExecutorRegistry(
         // time, so order is not load-bearing.
         zonesExecutors.initializeRecursion(::recurse)
         registerModule(zonesExecutors)
-        registerModule(LinkedExileExecutors())
+        registerModule(LinkedExileExecutors(zones))
         registerModule(RegenerationExecutors())
         registerModule(BendExecutors())
 

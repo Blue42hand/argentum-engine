@@ -44,6 +44,7 @@ import kotlin.reflect.KClass
  *   `PermanentExecutors.initializeRecursion`).
  */
 class ExploreEffectExecutor(
+    private val zones: ZoneTransitionService,
     private val recurse: (GameState, Effect, EffectContext) -> EffectResult
 ) : EffectExecutor<ExploreEffect> {
 
@@ -112,7 +113,7 @@ class ExploreEffectExecutor(
 
         return if (topCardComponent.typeLine.isLand) {
             // Land: move directly to hand
-            val transition = ZoneTransitionService.moveToZone(state, topCardId, Zone.HAND)
+            val transition = zones.moveToZone(state, topCardId, Zone.HAND)
             EffectResult.success(
                 transition.state,
                 listOf(revealEvent) + transition.events + exploredEvent(true)

@@ -2,6 +2,7 @@ package com.wingedsheep.engine.core
 
 import com.wingedsheep.engine.handlers.DecisionHandler
 import com.wingedsheep.engine.handlers.EffectContext
+import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.mechanics.combat.CombatManager
 import com.wingedsheep.engine.mechanics.StateBasedActionChecker
 import com.wingedsheep.engine.state.GameState
@@ -25,6 +26,7 @@ import com.wingedsheep.engine.state.components.player.CardsDrawnThisTurnComponen
 import com.wingedsheep.engine.state.components.player.CardsPutIntoExileThisTurnComponent
 import com.wingedsheep.engine.state.components.player.EquipActivationsThisTurnComponent
 import com.wingedsheep.engine.state.components.player.ExhaustAbilitiesActivatedThisTurnComponent
+import com.wingedsheep.engine.state.components.player.LoyaltyAbilitiesActivatedThisTurnComponent
 import com.wingedsheep.engine.state.components.player.ManaSpentOnSpellsThisTurnComponent
 import com.wingedsheep.engine.state.components.player.LoseAtEndStepComponent
 import com.wingedsheep.engine.state.components.player.LossReason
@@ -66,12 +68,14 @@ import com.wingedsheep.sdk.scripting.Duration
  * - [CleanupPhaseManager] — cleanup step, end-of-turn expiration
  */
 class TurnManager(
+    private val zones: ZoneTransitionService,
     private val cardRegistry: CardRegistry,
     private val combatManager: CombatManager = CombatManager(
+        zones,
         cardRegistry,
-        ManaAbilitySideEffectExecutor.noOp(cardRegistry)
+        ManaAbilitySideEffectExecutor.noOp(zones)
     ),
-    private val sbaChecker: StateBasedActionChecker = StateBasedActionChecker(cardRegistry = cardRegistry),
+    private val sbaChecker: StateBasedActionChecker = StateBasedActionChecker(zones, cardRegistry = cardRegistry),
     private val decisionHandler: DecisionHandler = DecisionHandler(),
     private val effectExecutor: ((GameState, Effect, EffectContext) -> EffectResult)? = null,
     replacementProcessor: ReplacementEffectProcessor = ReplacementEffectProcessor()
@@ -172,6 +176,8 @@ class TurnManager(
                     // Exhaust activations reset each turn (Elvish Refueler's "you haven't
                     // activated an exhaust ability this turn" gate).
                     .with(ExhaustAbilitiesActivatedThisTurnComponent(count = 0))
+                    // Loyalty activations reset each turn (Kiora of Salt and Sand's gate).
+                    .with(LoyaltyAbilitiesActivatedThisTurnComponent(count = 0))
                     // Cards discarded this turn reset for every player (Mayhem gate + Green Goblin count).
                     .with(CardsDiscardedThisTurnComponent(cardIds = emptyList()))
                     // Lands played this turn (with zone-of-origin) reset (Spider-Man 2099).
@@ -1007,7 +1013,7 @@ class TurnManager(
 
         // CR 724.1b: exile every remaining spell and ability on the stack. Snapshot the ids first
         // because exiling mutates the stack.
-        val resolver = StackResolver(cardRegistry = cardRegistry)
+        val resolver = StackResolver(zones, cardRegistry = cardRegistry)
         for (entityId in newState.stack.toList()) {
             if (entityId !in newState.stack) continue
             val onStack = newState.getEntity(entityId) ?: continue

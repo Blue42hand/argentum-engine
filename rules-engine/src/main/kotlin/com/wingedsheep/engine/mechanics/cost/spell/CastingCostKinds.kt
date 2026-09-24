@@ -257,6 +257,7 @@ internal object ForageCostKind : SpellCostKind<AdditionalCost.Forage> {
     // The spell is cast from hand here, so it's not in the exile pool — no exclusion needed.
     override fun pay(ledger: SpellCostLedger, cost: AdditionalCost.Forage): String? =
         when (val forageResult = ForageCostResolver.pay(
+            ledger.zones,
             ledger.state, ledger.playerId,
             exileChoices = ledger.payment.exiledCards,
             sacrificeChoices = ledger.payment.sacrificedPermanents,

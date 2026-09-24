@@ -97,7 +97,7 @@ class SourceZoneIdentityTest : FunSpec({
                 Effects.Exile(EffectTarget.Self),
                 GatedEffect(Gate.MayDecide("Continue?"), Effects.ReturnToHand(EffectTarget.Self)),
             )
-            val result = EffectExecutorRegistry(cardRegistry = d.cardRegistry).execute(d.state, effect, context)
+            val result = EffectExecutorRegistry(d.zones, cardRegistry = d.cardRegistry).execute(d.state, effect, context)
             result.error shouldBe null
             d.replaceState(result.state)
             d.pendingDecision.shouldBeInstanceOf<YesNoDecision>()
@@ -155,7 +155,7 @@ class SourceZoneIdentityTest : FunSpec({
         com.wingedsheep.engine.handlers.DynamicAmountEvaluator().evaluate(d.state, DynamicAmounts.triggeringPower(), current) shouldBe 7
         for (cardSource in listOf(com.wingedsheep.sdk.scripting.effects.CardSource.Self,
             com.wingedsheep.sdk.scripting.effects.CardSource.TriggeringEntity)) {
-            val gathered = EffectExecutorRegistry(cardRegistry = d.cardRegistry).execute(d.state,
+            val gathered = EffectExecutorRegistry(d.zones, cardRegistry = d.cardRegistry).execute(d.state,
                 com.wingedsheep.sdk.scripting.effects.GatherCardsEffect(cardSource, "stale"),
                 current.copy(sourceId = source, objectReferences = current.objectReferences.copy(source = ref)))
             gathered.updatedCollections?.get("stale") shouldBe emptyList()
@@ -218,7 +218,7 @@ class SourceZoneIdentityTest : FunSpec({
         val source = d.putCreatureOnBattlefield(d.player1, observer.name)
         val other = d.putCreatureOnBattlefield(d.player1, "Grizzly Bears")
         val origin = d.state.objectRef(source)
-        val result = EffectExecutorRegistry(cardRegistry = d.cardRegistry).execute(d.state,
+        val result = EffectExecutorRegistry(d.zones, cardRegistry = d.cardRegistry).execute(d.state,
             Effects.DestroyAll(com.wingedsheep.sdk.dsl.Filters.Creature),
             EffectContext(sourceId = null, controllerId = d.player1))
         result.error shouldBe null
@@ -248,7 +248,7 @@ class SourceZoneIdentityTest : FunSpec({
                 "life-bid" -> com.wingedsheep.sdk.scripting.effects.OpenLifeBidEffect(onWin = bounce)
                 else -> GatedEffect(Gate.MayDecide("Return?"), bounce)
             }
-            val result = EffectExecutorRegistry(cardRegistry = d.cardRegistry).execute(d.state, effect, context)
+            val result = EffectExecutorRegistry(d.zones, cardRegistry = d.cardRegistry).execute(d.state, effect, context)
             result.error shouldBe null
             d.replaceState(result.state)
             move(d, source, Zone.BATTLEFIELD, Zone.EXILE)
@@ -283,7 +283,7 @@ class SourceZoneIdentityTest : FunSpec({
         val d = driver()
         val source = d.putCreatureOnBattlefield(d.player1, "Grizzly Bears")
         val ref = d.state.objectRef(source)!!
-        val result = EffectExecutorRegistry(cardRegistry = d.cardRegistry).execute(d.state,
+        val result = EffectExecutorRegistry(d.zones, cardRegistry = d.cardRegistry).execute(d.state,
             Effects.ChooseNumberForSource(minValue = 0, maxValue = 7),
             EffectContext(sourceId = source, controllerId = d.player1,
                 objectReferences = ObjectReferenceEnvironment(captured = true, origin = ref, source = ref)))
@@ -300,7 +300,7 @@ class SourceZoneIdentityTest : FunSpec({
         val d = driver()
         val source = d.putCreatureOnBattlefield(d.player1, "Grizzly Bears")
         val ref = d.state.objectRef(source)!!
-        val result = EffectExecutorRegistry(cardRegistry = d.cardRegistry).execute(d.state,
+        val result = EffectExecutorRegistry(d.zones, cardRegistry = d.cardRegistry).execute(d.state,
             Effects.Composite(
                 com.wingedsheep.sdk.scripting.effects.AnyPlayerMayPayEffect(
                     cost = Costs.pay.Sacrifice(com.wingedsheep.sdk.dsl.Filters.Creature),
@@ -329,7 +329,7 @@ class SourceZoneIdentityTest : FunSpec({
         d.registerCards(listOf(dredger))
         val source = d.putCreatureOnBattlefield(d.player1, dredger.name)
         move(d, source, Zone.BATTLEFIELD, Zone.GRAVEYARD)
-        val result = EffectExecutorRegistry(cardRegistry = d.cardRegistry).execute(d.state,
+        val result = EffectExecutorRegistry(d.zones, cardRegistry = d.cardRegistry).execute(d.state,
             Effects.DrawCards(1), EffectContext(sourceId = null, controllerId = d.player1))
         result.error shouldBe null
         d.replaceState(result.state)
@@ -347,7 +347,7 @@ class SourceZoneIdentityTest : FunSpec({
             val d = driver()
             val source = d.putCreatureOnBattlefield(d.player1, "Grizzly Bears")
             val original = d.state.objectRef(source)!!
-            val result = EffectExecutorRegistry(cardRegistry = d.cardRegistry).execute(d.state,
+            val result = EffectExecutorRegistry(d.zones, cardRegistry = d.cardRegistry).execute(d.state,
                 com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect(
                     step = Step.END, effect = Effects.ReturnToHand(EffectTarget.Self)),
                 EffectContext(sourceId = source, controllerId = d.player1,

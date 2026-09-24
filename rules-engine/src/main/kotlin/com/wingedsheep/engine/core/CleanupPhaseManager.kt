@@ -60,6 +60,7 @@ import com.wingedsheep.engine.state.components.player.PlayerCantPlayFromHandComp
 import com.wingedsheep.engine.state.components.player.PlayerProtectionComponent
 import com.wingedsheep.engine.state.components.player.CardsLeftGraveyardThisTurnComponent
 import com.wingedsheep.engine.state.components.player.CreatureCardsPutIntoGraveyardThisTurnComponent
+import com.wingedsheep.engine.state.components.player.CardsPutIntoGraveyardFromLibraryThisTurnComponent
 import com.wingedsheep.engine.state.components.player.LandDropsComponent
 import com.wingedsheep.engine.state.components.player.PermanentsEnteredUnderControlThisTurnComponent
 import com.wingedsheep.engine.state.components.player.LifeGainedAmountThisTurnComponent
@@ -704,6 +705,10 @@ class CleanupPhaseManager(
                 if (spellsUncounterable?.removeOn == PlayerEffectRemoval.EndOfTurn) {
                     result = result.without<SpellsCantBeCounteredComponent>()
                 }
+                val loyaltyGrants = result.get<com.wingedsheep.engine.state.components.player.InstantSpeedLoyaltyGrantsComponent>()
+                if (loyaltyGrants?.removeOn == PlayerEffectRemoval.EndOfTurn) {
+                    result = result.without<com.wingedsheep.engine.state.components.player.InstantSpeedLoyaltyGrantsComponent>()
+                }
                 val flashGrants = result.get<FlashGrantsThisTurnComponent>()
                 if (flashGrants?.removeOn == PlayerEffectRemoval.EndOfTurn) {
                     result = result.without<FlashGrantsThisTurnComponent>()
@@ -754,6 +759,9 @@ class CleanupPhaseManager(
                 }
                 if (result.has<CreatureCardsPutIntoGraveyardThisTurnComponent>()) {
                     result = result.without<CreatureCardsPutIntoGraveyardThisTurnComponent>()
+                }
+                if (result.has<CardsPutIntoGraveyardFromLibraryThisTurnComponent>()) {
+                    result = result.without<CardsPutIntoGraveyardFromLibraryThisTurnComponent>()
                 }
                 if (result.has<FlippedCoinsThisTurnComponent>()) {
                     result = result.without<FlippedCoinsThisTurnComponent>()

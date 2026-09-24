@@ -6,6 +6,7 @@ import com.wingedsheep.engine.handlers.PipelineState
 import com.wingedsheep.engine.handlers.actions.spell.CastSpellHandler
 import com.wingedsheep.engine.handlers.TargetFinder
 import com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
+import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.handlers.effects.library.CascadeExecutor
 import com.wingedsheep.engine.handlers.effects.library.ChooseOnePerCategoryExecutor
 import com.wingedsheep.engine.handlers.effects.library.CastFromCollectionWithoutPayingCostExecutor
@@ -85,7 +86,7 @@ class LibraryAndZoneContinuationResumer(
         }
 
         // Delegate zone movement to ZoneTransitionService for full cleanup + entry setup
-        val transitionResult = com.wingedsheep.engine.handlers.effects.ZoneTransitionService.moveToZone(
+        val transitionResult = services.zones.moveToZone(
             state, cardId, destZone,
             com.wingedsheep.engine.handlers.effects.ZoneEntryOptions(controllerId = playerId),
             ZoneKey(playerId, Zone.GRAVEYARD)
@@ -218,7 +219,7 @@ class LibraryAndZoneContinuationResumer(
         }
 
         // Delegate zone movement to ZoneTransitionService for full entry setup (including Saga entry)
-        val transitionResult = com.wingedsheep.engine.handlers.effects.ZoneTransitionService.moveToZone(
+        val transitionResult = services.zones.moveToZone(
             state, cardId, Zone.BATTLEFIELD,
             com.wingedsheep.engine.handlers.effects.ZoneEntryOptions(
                 controllerId = playerId,
@@ -258,6 +259,7 @@ class LibraryAndZoneContinuationResumer(
 
         // Use MoveCollectionExecutor's helper to move aura to battlefield with attachment
         val executor = com.wingedsheep.engine.handlers.effects.library.MoveCollectionExecutor(
+            services.zones,
             cardRegistry = services.cardRegistry,
             targetFinder = services.targetFinder
         )
@@ -390,6 +392,7 @@ class LibraryAndZoneContinuationResumer(
         }
 
         val executor = com.wingedsheep.engine.handlers.effects.library.MoveCollectionExecutor(
+            services.zones,
             cardRegistry = services.cardRegistry,
             targetFinder = services.targetFinder
         )
@@ -757,7 +760,7 @@ class LibraryAndZoneContinuationResumer(
         val currentZone = state.zones.entries.firstOrNull { (_, entities) -> cardId in entities }?.key
             ?: return checkForMore(state, emptyList()) // Card no longer exists in any zone
 
-        val transitionResult = com.wingedsheep.engine.handlers.effects.ZoneTransitionService.moveToZone(
+        val transitionResult = services.zones.moveToZone(
             state, cardId, Zone.LIBRARY,
             com.wingedsheep.engine.handlers.effects.ZoneEntryOptions(
                 controllerId = continuation.ownerId,
@@ -860,6 +863,7 @@ class LibraryAndZoneContinuationResumer(
         if (!response.choice) {
             var newState = state
             val events = CascadeExecutor.bottomRandomize(
+                services.zones,
                 state = state,
                 playerId = continuation.playerId,
                 cards = continuation.exiledCards
@@ -871,6 +875,7 @@ class LibraryAndZoneContinuationResumer(
         val others = continuation.exiledCards.filter { it != continuation.cascadeCardId }
         var afterBottom = state
         val bottomEvents = CascadeExecutor.bottomRandomize(
+            services.zones,
             state = state,
             playerId = continuation.playerId,
             cards = others
@@ -891,6 +896,7 @@ class LibraryAndZoneContinuationResumer(
         if (targetPrep is CastFromCollectionWithoutPayingCostExecutor.TargetPrep.NoLegalTargets) {
             var finalState = afterBottom
             val tailEvents = CascadeExecutor.bottomRandomize(
+                services.zones,
                 state = afterBottom,
                 playerId = continuation.playerId,
                 cards = listOf(continuation.cascadeCardId)
@@ -934,6 +940,7 @@ class LibraryAndZoneContinuationResumer(
             )
             var finalState = revoked
             val tailEvents = CascadeExecutor.bottomRandomize(
+                services.zones,
                 state = revoked,
                 playerId = continuation.playerId,
                 cards = listOf(continuation.cascadeCardId)
@@ -988,6 +995,7 @@ class LibraryAndZoneContinuationResumer(
         // Bottom-randomize every other exiled card first (CR 701.57a).
         var afterBottom = state
         val bottomEvents = CascadeExecutor.bottomRandomize(
+            services.zones,
             state = state,
             playerId = continuation.playerId,
             cards = others
@@ -999,7 +1007,7 @@ class LibraryAndZoneContinuationResumer(
 
         if (!response.choice) {
             // Put the discovered card into the controller's hand, then run the follow-up.
-            val moveResult = ZoneMovementUtils.moveCardToZone(afterBottom, discovered, Zone.HAND)
+            val moveResult = ZoneMovementUtils.moveCardToZone(services.zones, afterBottom, discovered, Zone.HAND)
             var afterHand = afterBottom
             val leadingEvents = bottomEvents.toMutableList()
             if (moveResult.outcome is Outcome.Done) {
@@ -1024,7 +1032,7 @@ class LibraryAndZoneContinuationResumer(
             targetFinder = targetFinder,
         )
         if (targetPrep is CastFromCollectionWithoutPayingCostExecutor.TargetPrep.NoLegalTargets) {
-            val moveResult = ZoneMovementUtils.moveCardToZone(afterBottom, discovered, Zone.HAND)
+            val moveResult = ZoneMovementUtils.moveCardToZone(services.zones, afterBottom, discovered, Zone.HAND)
             var afterHand = afterBottom
             val handEvents = bottomEvents.toMutableList()
             if (moveResult.outcome is Outcome.Done) {
@@ -1088,7 +1096,7 @@ class LibraryAndZoneContinuationResumer(
                 discovered,
                 permId,
             )
-            val moveResult = ZoneMovementUtils.moveCardToZone(withoutThen, discovered, Zone.HAND)
+            val moveResult = ZoneMovementUtils.moveCardToZone(services.zones, withoutThen, discovered, Zone.HAND)
             var afterHand = withoutThen
             val handEvents = bottomEvents.toMutableList()
             if (moveResult.outcome is Outcome.Done) {
@@ -1177,7 +1185,7 @@ class LibraryAndZoneContinuationResumer(
             when (continuation.onCastFailure) {
                 FreeCastFallback.LEAVE -> {}
                 FreeCastFallback.HAND -> {
-                    val moveResult = ZoneMovementUtils.moveCardToZone(cleaned, continuation.cardId, Zone.HAND)
+                    val moveResult = ZoneMovementUtils.moveCardToZone(services.zones, cleaned, continuation.cardId, Zone.HAND)
                     if (moveResult.outcome is Outcome.Done) {
                         cleaned = moveResult.state
                         fallbackEvents.addAll(moveResult.events)
@@ -1186,6 +1194,7 @@ class LibraryAndZoneContinuationResumer(
                 FreeCastFallback.BOTTOM_OF_LIBRARY -> {
                     fallbackEvents.addAll(
                         CascadeExecutor.bottomRandomize(
+                            services.zones,
                             state = cleaned,
                             playerId = continuation.casterId,
                             cards = listOf(continuation.cardId)

@@ -3,6 +3,7 @@ package com.wingedsheep.engine.mechanics.sba.permanent
 import com.wingedsheep.engine.core.ExecutionResult
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.ZoneMovementUtils.unattachEmittingEvent
+import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.mechanics.sba.SbaOrder
 import com.wingedsheep.engine.mechanics.sba.SbaZoneMovementHelper
@@ -48,6 +49,7 @@ import com.wingedsheep.sdk.model.EntityId
  * its host is exempt ("This effect doesn't remove this Aura", the Ward cycle).
  */
 class UnattachedAurasCheck(
+    private val zones: ZoneTransitionService,
     private val cardRegistry: CardRegistry
 ) : StateBasedActionCheck {
     override val name = "704.5m/n/p Unattached Auras"
@@ -104,6 +106,7 @@ class UnattachedAurasCheck(
                     if (isAura) {
                         // CR 704.5m: an Aura whose host left is put into its owner's graveyard.
                         val result = SbaZoneMovementHelper.putPermanentInGraveyard(
+                            zones,
                             newState, entityId, cardComponent,
                             lastKnownAttachedTo = hostLeft.lastKnownHostId
                         )
@@ -125,6 +128,7 @@ class UnattachedAurasCheck(
                 if (isAura) {
                     // Aura not attached to anything - goes to graveyard
                     val result = SbaZoneMovementHelper.putPermanentInGraveyard(
+                        zones,
                         newState, entityId, cardComponent
                     )
                     newState = result.newState
@@ -143,6 +147,7 @@ class UnattachedAurasCheck(
                     if (isAura) {
                         // Aura's target gone - goes to graveyard
                         val result = SbaZoneMovementHelper.putPermanentInGraveyard(
+                            zones,
                             newState, entityId, cardComponent,
                             lastKnownAttachedTo = attachedTo.targetId
                         )
@@ -178,6 +183,7 @@ class UnattachedAurasCheck(
                     // restriction (control changed hands, the host stopped being a creature, …),
                     // so the Aura is illegally attached and goes to its owner's graveyard.
                     val result = SbaZoneMovementHelper.putPermanentInGraveyard(
+                        zones,
                         newState, entityId, cardComponent,
                         lastKnownAttachedTo = attachedTo.targetId
                     )
@@ -192,6 +198,7 @@ class UnattachedAurasCheck(
                     // (704.5m); Equipment -> unattaches, stays on the battlefield (704.5n).
                     if (isAura) {
                         val result = SbaZoneMovementHelper.putPermanentInGraveyard(
+                            zones,
                             newState, entityId, cardComponent,
                             lastKnownAttachedTo = attachedTo.targetId
                         )

@@ -1,7 +1,9 @@
 package com.wingedsheep.sdk.serialization
 
+import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.TypeLine
+import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.scripting.StaticAbility
@@ -108,6 +110,7 @@ object CardLinter {
         checkSlots(card.name, slots, findings)
         checkOpponentChoosers(card.name, explicitTree, withinActivatedAbility = false, findings)
         checkAttachedScope(card, findings)
+        checkProwessTrigger(card, findings)
         checkManaAbilityClassification(card.name, fullTree, findings)
         return findings
     }
@@ -419,6 +422,36 @@ object CardLinter {
     }
 
     /**
+     * `Keyword.PROWESS` on its own is display-only: the "+1/+1 whenever you cast a noncreature
+     * spell" trigger is added by the `prowess()` builder, not read off the keyword. A card that
+     * lists the keyword through `keywords(...)` compiles, shows "Prowess", and never pumps — as
+     * thirteen cards across the corpus once did. Checked per face, since each face carries its
+     * own keywords and triggers.
+     */
+    private fun checkProwessTrigger(
+        card: CardDefinition,
+        findings: MutableList<CardValidationError>
+    ) {
+        fun missing(keywords: Set<Keyword>, script: CardScript) =
+            Keyword.PROWESS in keywords &&
+                script.triggeredAbilities.none { it.trigger == Triggers.YouCastNoncreature.event }
+
+        val offends = missing(card.keywords, card.script) ||
+            card.cardFaces.any { missing(it.keywords, it.script) }
+        if (offends) {
+            findings.add(
+                CardValidationError.ProwessWithoutTrigger(
+                    cardName = card.name,
+                    message = "'${card.name}' has Keyword.PROWESS but no \"whenever you cast a " +
+                        "noncreature spell\" trigger, so its prowess is display-only. Use the " +
+                        "prowess() builder, which adds both the keyword and the trigger."
+                )
+            )
+        }
+        card.backFace?.let { checkProwessTrigger(it, findings) }
+    }
+
+    /**
      * The card's printed static abilities across every face — the ones that describe the card as
      * printed, and so must make sense for the card as printed. Class levels count: an unlocked
      * level's statics are printed on the Class, just gated behind the level.
@@ -620,6 +653,7 @@ object CardLinter {
         put("ForEachCapturedController" to "countVariable", write(Space.NUMBER))
         put("DrawUpTo" to "storeNotDrawnAs", write(Space.NUMBER))
         put("Fight" to "excessDamageVariable", write(Space.NUMBER))
+        put("DealDamage" to "excessDamageVariable", write(Space.NUMBER))
         put("PayCounters" to "storeAmountAs", write(Space.NUMBER))
         put("CollectEvidenceChosenAmount" to "storeAmountAs", write(Space.NUMBER))
         put("PayManaCostRepeatedly" to "storeCountAs", write(Space.NUMBER))

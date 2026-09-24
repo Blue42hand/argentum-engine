@@ -5,6 +5,7 @@ import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.EffectHandler
 import com.wingedsheep.engine.handlers.PipelineState
 import com.wingedsheep.engine.handlers.PredicateEvaluator
+import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.handlers.effects.composite.PreTargetedEffectContext
 import com.wingedsheep.engine.handlers.effects.composite.processPreTargetedEffectQueue
 import com.wingedsheep.engine.handlers.effects.permanent.types.returnDfcFace
@@ -36,6 +37,7 @@ import com.wingedsheep.sdk.scripting.targets.*
  * that flashback, rebound, an Adventure, an Omen, or a resolution rider sends it to instead.
  */
 internal class NonPermanentSpellResolver(
+    private val zones: ZoneTransitionService,
     private val cardRegistry: CardRegistry,
     private val effectHandler: EffectHandler,
     private val predicateEvaluator: PredicateEvaluator
@@ -609,6 +611,7 @@ internal class NonPermanentSpellResolver(
 
         redirect.additionalEffect?.let { extra ->
             val (updatedState, extraEvents) = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils.applyReplacementAdditionalEffect(
+                zones,
                 newState, extra, redirect.effectControllerId, spellId,
                 sourceId = redirect.effectSourceId
             )
@@ -741,7 +744,7 @@ internal class NonPermanentSpellResolver(
             }
         }
 
-        val transition = returnDfcFace(working, cardRegistry, spellId, DoubleFacedComponent.Face.BACK)
+        val transition = returnDfcFace(zones, working, cardRegistry, spellId, DoubleFacedComponent.Face.BACK)
         working = transition.state
         events.addAll(transition.events)
 

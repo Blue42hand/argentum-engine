@@ -10,6 +10,7 @@ import com.wingedsheep.engine.handlers.costs.GraveyardTotalExileResolver
 import com.wingedsheep.engine.handlers.effects.TargetResolutionUtils.toEntityId
 import com.wingedsheep.engine.legalactions.utils.CastPermissionUtils
 import com.wingedsheep.engine.legality.LegalityKernel
+import com.wingedsheep.engine.mechanics.SplitSecond
 import com.wingedsheep.engine.mechanics.SummoningSicknessRules
 import com.wingedsheep.engine.mechanics.cost.VariablePermanentsCost
 import com.wingedsheep.engine.mechanics.mana.AlternativePaymentHandler
@@ -92,6 +93,7 @@ internal class ActivationValidator(
         val ability = abilityLookup.ability
 
         checkManaPaymentWindow(state, action, ability, manaPaymentWindow)?.let { return it }
+        checkSplitSecond(state, ability)?.let { return it }
         checkPowerUpActivation(state, ability)?.let { return it }
         checkSourceZoneAndController(state, action, container, cardComponent, ability)?.let { return it }
 
@@ -128,6 +130,13 @@ internal class ActivationValidator(
      */
     private fun rejectClientResumeFlag(action: ActivateAbility): String? =
         if (action.opponentTargetsChosen) "Internal resume flag cannot be set by a player" else null
+
+    /**
+     * Split second (CR 702.61a): while a spell with it is on the stack, only mana abilities may be
+     * activated.
+     */
+    private fun checkSplitSecond(state: GameState, ability: ActivatedAbility): String? =
+        if (!ability.isManaAbility && SplitSecond.isLocked(state, cardRegistry)) SplitSecond.REJECTION else null
 
     /**
      * The mana-payment window (CR 605.3a) opens the door for mana abilities only — everything
@@ -168,6 +177,14 @@ internal class ActivationValidator(
             val inZone = state.getZone(ownerId, ability.activateFromZone).contains(action.sourceId)
             if (!inZone) return "This ability can only be activated from the ${ability.activateFromZone.name.lowercase()}"
             if (ownerId != action.playerId) return "You don't own this card"
+            // An unqualified "players can't activate abilities" (Yuriko, Blade of the Mighty)
+            // reaches abilities of cards in every zone, not just permanents.
+            if (castPermissionUtils.isActivationPreventedForPlayer(
+                    state, action.sourceId, action.playerId, abilityIsManaAbility = ability.isManaAbility
+                )
+            ) {
+                return "An effect prevents you from activating that ability right now"
+            }
             return null
         }
         return checkBattlefieldController(state, action, container, ability)
@@ -236,7 +253,10 @@ internal class ActivationValidator(
         // PlayersCantActivateAbilities (Grand Abolisher etc.) blocks abilities by *who* is
         // activating and *when* — "During your turn, your opponents can't activate abilities
         // of artifacts, creatures, or enchantments." Scoped to the activating player.
-        if (castPermissionUtils.isActivationPreventedForPlayer(state, action.sourceId, action.playerId)) {
+        if (castPermissionUtils.isActivationPreventedForPlayer(
+                state, action.sourceId, action.playerId, abilityIsManaAbility = ability.isManaAbility
+            )
+        ) {
             return "An effect prevents you from activating that ability right now"
         }
 
@@ -330,7 +350,11 @@ internal class ActivationValidator(
         if (state.getEntity(action.playerId)?.has<CantActivateLoyaltyAbilitiesComponent>() == true) {
             return "You can't activate loyalty abilities this turn"
         }
-        if (!turnManager.canPlaySorcerySpeed(state, action.playerId)) {
+        // CR 606.3 — sorcery timing, unless an instant-speed grant (Jace's Machinations) covers
+        // this planeswalker. Priority itself is already required to activate at all.
+        if (!turnManager.canPlaySorcerySpeed(state, action.playerId) &&
+            !castPermissionUtils.canActivateLoyaltyAtInstantSpeed(state, action.playerId, action.sourceId)
+        ) {
             return "Loyalty abilities can only be activated at sorcery speed"
         }
         // Rule 606.3: Only one loyalty ability per planeswalker per turn

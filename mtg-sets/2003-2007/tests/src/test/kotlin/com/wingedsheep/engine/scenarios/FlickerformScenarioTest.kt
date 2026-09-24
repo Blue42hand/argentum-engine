@@ -1,7 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.ActivateAbility
-import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
 import com.wingedsheep.engine.state.components.identity.TokenComponent
 import com.wingedsheep.engine.support.ScenarioTestBase
@@ -126,7 +125,7 @@ class FlickerformScenarioTest : ScenarioTestBase() {
                 game.resolveStack()
 
                 // The exiled creature card moves to its owner's graveyard before the end step (CR 603.7c).
-                game.state = ZoneTransitionService.moveToZone(game.state, bears, Zone.GRAVEYARD).state
+                game.state = zones.moveToZone(game.state, bears, Zone.GRAVEYARD).state
 
                 game.passUntilPhase(Phase.ENDING, Step.END)
                 game.resolveStack()

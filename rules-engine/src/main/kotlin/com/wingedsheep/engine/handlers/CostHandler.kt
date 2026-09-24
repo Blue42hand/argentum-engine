@@ -34,7 +34,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
 /**
  * Validates and pays costs for spells and abilities.
  */
-class CostHandler {
+class CostHandler(private val zones: ZoneTransitionService) {
 
     private val predicateEvaluator = PredicateEvaluator()
 
@@ -275,7 +275,7 @@ class CostHandler {
                 if (amount == 0) {
                     CostPaymentResult.success(state, manaPool)
                 } else {
-                    val (newState, events) = LifePaymentService.pay(state, controllerId, amount)
+                    val (newState, events) = LifePaymentService.pay(zones, state, controllerId, amount)
                         ?: return CostPaymentResult.failure("Player has no life total")
                     CostPaymentResult.success(newState, manaPool, events = events)
                 }
@@ -294,8 +294,7 @@ class CostHandler {
                 if (cardsInHand.isEmpty()) {
                     return CostPaymentResult.success(state, manaPool)
                 }
-                val result = ZoneTransitionService
-                    .discardCards(state, controllerId, cardsInHand)
+                val result = zones.discardCards(state, controllerId, cardsInHand)
                 CostPaymentResult.success(result.state, manaPool, result.events)
             }
             is AbilityCost.ExileXFromGraveyard -> {
@@ -325,8 +324,7 @@ class CostHandler {
                     return CostPaymentResult.failure("Source card is not in its owner's hand")
                 }
 
-                val result = ZoneTransitionService
-                    .discardCard(state, ownerId, sourceId)
+                val result = zones.discardCard(state, ownerId, sourceId)
                 CostPaymentResult.success(result.state, manaPool, result.events)
             }
             is AbilityCost.DiscardLastDrawnThisTurn -> {
@@ -338,8 +336,7 @@ class CostHandler {
                 if (!state.getZone(ZoneKey(controllerId, Zone.HAND)).contains(tracked)) {
                     return CostPaymentResult.failure("The card you drew last this turn is no longer in your hand")
                 }
-                val result = ZoneTransitionService
-                    .discardCard(state, controllerId, tracked)
+                val result = zones.discardCard(state, controllerId, tracked)
                 CostPaymentResult.success(result.state, manaPool, result.events)
             }
             is AbilityCost.SacrificeSelf -> {
@@ -359,7 +356,7 @@ class CostHandler {
                 val preState = ZoneTransitionService.trackPermanentSacrifice(state, listOf(sourceId), sourceController)
 
                 // Delegate zone movement to ZoneTransitionService for full cleanup
-                val transitionResult = ZoneTransitionService.moveToZone(
+                val transitionResult = zones.moveToZone(
                     preState, sourceId, Zone.GRAVEYARD
                 )
 
@@ -381,7 +378,7 @@ class CostHandler {
                     ?: return CostPaymentResult.failure("Source permanent not found")
 
                 // Delegate zone movement to ZoneTransitionService for full cleanup
-                val transitionResult = ZoneTransitionService.moveToZone(
+                val transitionResult = zones.moveToZone(
                     state, sourceId, Zone.EXILE
                 )
 
@@ -394,7 +391,7 @@ class CostHandler {
                 state.getEntity(sourceId)
                     ?: return CostPaymentResult.failure("Source permanent not found")
 
-                val transitionResult = ZoneTransitionService.moveToZone(
+                val transitionResult = zones.moveToZone(
                     state, sourceId, Zone.HAND
                 )
 
@@ -406,7 +403,7 @@ class CostHandler {
                 state.getEntity(granterId)
                     ?: return CostPaymentResult.failure("Granting permanent not found")
 
-                val transitionResult = ZoneTransitionService.moveToZone(
+                val transitionResult = zones.moveToZone(
                     state, granterId, Zone.EXILE
                 )
 
@@ -445,7 +442,7 @@ class CostHandler {
                 // then move to the graveyard — mirrors the SacrificeSelf branch, but on the granter.
                 val preState = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
                     .trackPermanentSacrifice(state, listOf(granterId), granterController)
-                val transitionResult = com.wingedsheep.engine.handlers.effects.ZoneTransitionService.moveToZone(
+                val transitionResult = zones.moveToZone(
                     preState, granterId, Zone.GRAVEYARD
                 )
 
@@ -492,6 +489,7 @@ class CostHandler {
                 // back to a legal auto-payment only when no valid choice was supplied. See
                 // [com.wingedsheep.engine.handlers.costs.ForageCostResolver].
                 when (val result = com.wingedsheep.engine.handlers.costs.ForageCostResolver.pay(
+                    zones,
                     state, controllerId,
                     exileChoices = choices.exileChoices,
                     sacrificeChoices = choices.sacrificeChoices,
@@ -735,12 +733,12 @@ class CostHandler {
             if (cardsInHand.isEmpty()) {
                 CostPaymentResult.success(state, manaPool)
             } else {
-                val result = ZoneTransitionService.discardCards(state, controllerId, cardsInHand)
+                val result = zones.discardCards(state, controllerId, cardsInHand)
                 CostPaymentResult.success(result.state, manaPool, result.events)
             }
         }
         is CostAtom.PayLife -> {
-            val (newState, events) = LifePaymentService.pay(state, controllerId, atom.amount)
+            val (newState, events) = LifePaymentService.pay(zones, state, controllerId, atom.amount)
                 ?: return CostPaymentResult.failure("Player has no life total")
             CostPaymentResult.success(newState, manaPool, events = events)
         }
@@ -771,8 +769,7 @@ class CostHandler {
                 }
                 choices.discardChoices.take(atom.count)
             }
-            val result = ZoneTransitionService
-                .discardCards(workState, controllerId, toDiscard)
+            val result = zones.discardCards(workState, controllerId, toDiscard)
             CostPaymentResult.success(result.state, manaPool, result.events)
         }
         is CostAtom.ExileFrom ->
@@ -783,6 +780,7 @@ class CostHandler {
         is CostAtom.CollectEvidence ->
             when (
                 val result = com.wingedsheep.engine.handlers.costs.CollectEvidenceResolver.collect(
+                    zones,
                     state, controllerId,
                     com.wingedsheep.engine.handlers.costs.CostAtomAmounts
                         .evaluate(state, atom.amount, choices.xValue),
@@ -811,7 +809,7 @@ class CostHandler {
                         "${candidates.total}"
                 )
             } else {
-                val (exiledState, exileEvents) = resolver.exile(state, toExile)
+                val (exiledState, exileEvents) = resolver.exile(zones, state, toExile)
                 CostPaymentResult.success(exiledState, manaPool, exileEvents)
             }
         }
@@ -824,7 +822,7 @@ class CostHandler {
             // what mill triggers match on.
             val effectiveCount = MillAmountModifier.apply(state, controllerId, atom.count)
             val milled = state.getZone(ZoneKey(controllerId, Zone.LIBRARY)).take(effectiveCount)
-            val result = ZoneTransitionService.moveToZoneBatch(state, milled, Zone.GRAVEYARD)
+            val result = zones.moveToZoneBatch(state, milled, Zone.GRAVEYARD)
             CostPaymentResult.success(result.state, manaPool, result.events)
         }
         is CostAtom.ExileTopOfLibrary -> {
@@ -832,7 +830,7 @@ class CostHandler {
             // the announced count is the paid count, and the affordability check above already
             // guaranteed the library holds it. Emits ordinary library→exile zone changes.
             val exiled = state.getZone(ZoneKey(controllerId, Zone.LIBRARY)).take(atom.count)
-            val result = ZoneTransitionService.moveToZoneBatch(state, exiled, Zone.EXILE)
+            val result = zones.moveToZoneBatch(state, exiled, Zone.EXILE)
             CostPaymentResult.success(result.state, manaPool, result.events)
         }
         is CostAtom.TapPermanents -> payTapPermanents(state, atom, sourceId, controllerId, manaPool, choices)
@@ -853,7 +851,7 @@ class CostHandler {
                 return CostPaymentResult.failure("Invalid choice of cards to put on top of your library")
             }
             // Each card goes on top in turn, so the last chosen ends up on top.
-            val result = ZoneTransitionService.moveToZoneBatch(
+            val result = zones.moveToZoneBatch(
                 state, chosen, Zone.LIBRARY,
                 com.wingedsheep.engine.handlers.effects.ZoneEntryOptions(
                     libraryPlacement = com.wingedsheep.engine.handlers.effects.LibraryPlacement.Top
@@ -1070,7 +1068,7 @@ class CostHandler {
             newState = ZoneTransitionService.trackPermanentSacrifice(newState, listOf(toSacrifice), sacrificeController)
 
             // Delegate zone movement to ZoneTransitionService for full cleanup
-            val transitionResult = ZoneTransitionService.moveToZone(
+            val transitionResult = zones.moveToZone(
                 newState, toSacrifice, Zone.GRAVEYARD
             )
             newState = transitionResult.state
@@ -1215,7 +1213,7 @@ class CostHandler {
             if (excludeSelf && id == sourceId) {
                 return CostPaymentResult.failure("Cannot exile the source permanent for this cost")
             }
-            val transitionResult = ZoneTransitionService.moveToZone(newState, id, Zone.EXILE)
+            val transitionResult = zones.moveToZone(newState, id, Zone.EXILE)
             newState = transitionResult.state
             events.addAll(transitionResult.events)
         }
@@ -1305,7 +1303,7 @@ class CostHandler {
             }
 
             // Delegate zone movement to ZoneTransitionService for full cleanup
-            val transitionResult = ZoneTransitionService.moveToZone(
+            val transitionResult = zones.moveToZone(
                 newState, toBounce, Zone.HAND
             )
             newState = transitionResult.state
@@ -1538,7 +1536,7 @@ class CostHandler {
         //    as a craft-material exile so a SELF "exiled from the battlefield while you're activating
         //    a craft ability" trigger (Market Gnome) fires on materials that left the battlefield.
         for (materialId in chosen) {
-            val transition = ZoneTransitionService.moveToZone(
+            val transition = zones.moveToZone(
                 newState, materialId, Zone.EXILE,
                 options = com.wingedsheep.engine.handlers.effects.ZoneEntryOptions(craftMaterial = true)
             )
@@ -1549,7 +1547,7 @@ class CostHandler {
         // 2. Exile the source itself. The Craft resolution effect will lift it back to the
         //    battlefield as its back face; the materials remain in exile so the back face's
         //    CDA can keep reading their power.
-        val selfTransition = ZoneTransitionService.moveToZone(
+        val selfTransition = zones.moveToZone(
             newState, sourceId, Zone.EXILE
         )
         newState = selfTransition.state

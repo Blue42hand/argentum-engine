@@ -35,12 +35,14 @@ import kotlin.reflect.KClass
  * from their current zone — they are only referenced for subsequent
  * pipeline steps (SelectFromCollection, MoveCollection).
  */
-class GatherCardsExecutor : EffectExecutor<GatherCardsEffect> {
+class GatherCardsExecutor(
+    cardRegistry: com.wingedsheep.engine.registry.CardRegistry? = null
+) : EffectExecutor<GatherCardsEffect> {
 
     override val effectType: KClass<GatherCardsEffect> = GatherCardsEffect::class
 
     private val amountEvaluator = DynamicAmountEvaluator()
-    private val predicateEvaluator = PredicateEvaluator()
+    private val predicateEvaluator = PredicateEvaluator(cardRegistry)
 
     override fun execute(
         state: GameState,

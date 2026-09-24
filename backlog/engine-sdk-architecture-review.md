@@ -348,12 +348,17 @@ other "target" Oracle text scripted without a target requirement. That can becom
 
 ## Smaller, real issues
 
-- **Global mutable singletons.**
+- ✅ **Global mutable singletons.** — DONE
   - `DamageUtils.cardRegistry`, `ZoneTransitionService.cardRegistry` and
     `ZoneTransitionService.staticAbilityHandler` are `lateinit var`s, and
     `ZoneMovementUtils.tokenExecutor` is a `var`. All are set from the `EngineServices` constructor.
   - With two engines in one JVM (server plus gym, or parallel tests), the last one constructed wins.
   - Pass them through the service graph instead.
+  - _Done: `ZoneTransitionService` is a per-engine instance (`EngineServices.zones`) holding the
+    card and token-art registries. The `ZoneMovementUtils`, `DamageUtils` and SBA helpers that move
+    cards take it as a parameter, and the executors, resumers and checks that call them receive it
+    by injection. `CardPredicate.CouldEnchant` reads the registry `PredicateEvaluator` was built
+    with. `EngineServicesIsolationTest` pins the two-engines case._
 - **Object graphs rebuilt during execution.**
   - `StackResolver(cardRegistry = …)` is constructed ad hoc at 14 sites outside `EngineServices`,
     including `CounterEffectExecutor`, `StormCopyEffectExecutor`, `ExileTargetSpellExecutor` and
@@ -403,7 +408,7 @@ other "target" Oracle text scripted without a target requirement. That can becom
 
 1. **Cheap, high leverage (weeks):**
    - ~~§1 fail-closed dispatch and its coverage tests~~ (done);
-   - remove the global singletons and the ad-hoc `StackResolver`s;
+   - ~~remove the global singletons~~ (done) and the ad-hoc `StackResolver`s;
    - delete the `ContextTarget(0)` defaults;
    - ~~the single `settle()` boundary from §2~~ (done).
 2. **Medium:**
