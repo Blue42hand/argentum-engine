@@ -8,6 +8,7 @@ import com.wingedsheep.tooling.coverage.arg
 import com.wingedsheep.tooling.coverage.asArr
 import com.wingedsheep.tooling.coverage.call
 import com.wingedsheep.tooling.coverage.compact
+import com.wingedsheep.tooling.coverage.dot
 import com.wingedsheep.tooling.coverage.findInteger
 import com.wingedsheep.tooling.coverage.jsonContains
 import com.wingedsheep.tooling.coverage.strField
@@ -61,7 +62,7 @@ internal val playerContinuousHandlers: Map<String, ActionHandler> = actionHandle
                 call("Effects.PreventCombatDamageToAndBy", arg(Lit(tvar)))
             // "prevent all damage attacking creatures would deal to you this turn" (Deep Wood)
             "IsAttacking" in blob && "PreventThatDamage" in blob && jsonContains(node, "_Player", "You") ->
-                call("Effects.PreventDamageFromAttackingCreatures")
+                preventDamageToYouFromAttackers()
             // "prevent all combat damage that would be dealt this turn" (Leery Fogbeast): the unrestricted
             // CombatDamageWouldBeDealt event (no source/recipient filter) + PreventThatDamage until EOT.
             jsonContains(node, "_ReplacableEventWouldDealDamage", "CombatDamageWouldBeDealt") &&
@@ -91,7 +92,7 @@ internal val playerContinuousHandlers: Map<String, ActionHandler> = actionHandle
                 "PreventThatDamage" in blob && jsonContains(node, "_Expiration", "UntilEndOfTurn") ->
                 call("Effects.PreventCombatDamageToAndBy", arg(Lit(tvar)))
             "IsAttacking" in blob && "PreventThatDamage" in blob && jsonContains(node, "_Player", "You") ->
-                call("Effects.PreventDamageFromAttackingCreatures")
+                preventDamageToYouFromAttackers()
             "CombatDamageWouldBeDealt" in blob &&
                 "CombatDamageWouldBeDealtToRecipient" !in blob &&
                 "CombatDamageWouldBeDealtByCreature" !in blob &&
@@ -517,3 +518,17 @@ internal fun EmitCtx.renderForEachTargetPlayerBody(node: JsonObject): Dsl? {
     val list = call("listOf", *effects.map { arg(it) }.toTypedArray())
     return call("ForEachTargetEffect", arg(list))
 }
+
+/**
+ * "Prevent all damage that would be dealt to you this turn by attacking creatures" (Deep Wood): the
+ * controller-only recipient shield narrowed to attacking sources.
+ */
+private fun preventDamageToYouFromAttackers(): Dsl =
+    call(
+        "Effects.PreventDamage",
+        arg("alsoToYou", "true"),
+        arg(
+            "sources",
+            call("PreventionSourceFilter.Matching", arg(Lit("GameObjectFilter.Creature").dot("attacking")))
+        ),
+    )
