@@ -3720,6 +3720,18 @@ object Effects {
     }
 
     /**
+     * Cast any number of the cards stored under [from] **with total mana value [maxTotalManaValue]
+     * or less** without paying their mana costs, during this effect's resolution — "you may cast
+     * any number of spells with total mana value 6 or less from among the copies without paying
+     * their mana costs" (Uldaros Theorix). Each pick spends its mana value from the budget; only
+     * cards that still fit are offered, and the controller may stop at any point.
+     */
+    fun CastWithTotalManaValueFromCollectionWithoutPayingCost(from: String, maxTotalManaValue: Int): Effect {
+        require(maxTotalManaValue >= 0) { "maxTotalManaValue must not be negative (was $maxTotalManaValue)" }
+        return CastAnyNumberFromCollectionWithoutPayingCostEffect(from = from, maxTotalManaValue = maxTotalManaValue)
+    }
+
+    /**
      * Cast any number of the cards stored under [from], **paying each one's normal mana cost**,
      * during this effect's resolution (the "you may cast any number of [them]" wording without
      * "without paying their mana costs" — The Tale of Tamiyo IV). The controller is offered the

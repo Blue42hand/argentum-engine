@@ -732,7 +732,20 @@ class TriggerProcessor(
             // "Any number of target ..." (unlimited) caps at however many legal targets exist,
             // mirroring the cast-time path (TargetEnumerationUtils). Using req.count (always 1
             // for an unlimited requirement) would wrongly clamp the decision to a single target.
-            val maxTargets = if (req.unlimited) (allLegalTargets[index]?.size ?: 0) else req.count
+            val legalCount = allLegalTargets[index]?.size ?: 0
+            val maxTargets = when {
+                // "Up to one ... of each card type" can never take more targets than there are
+                // distinct card types among the legal ones.
+                (req as? com.wingedsheep.sdk.scripting.targets.TargetObject)?.onePerCardType == true ->
+                    minOf(
+                        legalCount,
+                        allLegalTargets[index].orEmpty()
+                            .flatMapTo(mutableSetOf()) { com.wingedsheep.engine.mechanics.targeting.OnePerCardType.cardTypesOf(state, it) }
+                            .size,
+                    )
+                req.unlimited -> legalCount
+                else -> req.count
+            }
             TargetRequirementInfo(
                 index = index,
                 description = req.description,
@@ -744,7 +757,8 @@ class TriggerProcessor(
                 totalManaValueAtMost = resolveTotalManaValueAtMost(state, trigger, req),
                 differentNames = (req as? com.wingedsheep.sdk.scripting.targets.TargetObject)?.differentNames == true,
                 differentControllers =
-                    (req as? com.wingedsheep.sdk.scripting.targets.TargetObject)?.differentControllers == true
+                    (req as? com.wingedsheep.sdk.scripting.targets.TargetObject)?.differentControllers == true,
+                onePerCardType = (req as? com.wingedsheep.sdk.scripting.targets.TargetObject)?.onePerCardType == true
             )
         }
 

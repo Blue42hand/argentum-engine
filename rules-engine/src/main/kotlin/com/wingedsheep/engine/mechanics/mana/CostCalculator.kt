@@ -1206,6 +1206,27 @@ class CostCalculator(
         return true
     }
 
+    /**
+     * Resolve [amount] for a card-definition filter owned by the permanent [sourceEntityId], with
+     * "you" bound to that permanent's (projected) controller. Null when there is no source or state
+     * to resolve against — callers then treat the predicate as unmatched (fail closed).
+     */
+    private fun sourceDynamicValue(
+        state: GameState?,
+        sourceEntityId: EntityId?,
+        amount: DynamicAmount
+    ): Int? {
+        if (state == null || sourceEntityId == null) return null
+        val controllerId = state.projectedState.getController(sourceEntityId)
+            ?: state.getEntity(sourceEntityId)?.get<com.wingedsheep.engine.state.components.identity.ControllerComponent>()?.playerId
+            ?: return null
+        return dynamicAmountEvaluator.evaluate(
+            state,
+            amount,
+            EffectContext(sourceId = sourceEntityId, controllerId = controllerId),
+        )
+    }
+
     private fun matchesCardPredicate(
         cardDef: CardDefinition,
         predicate: CardPredicate,
@@ -1275,8 +1296,16 @@ class CostCalculator(
             is CardPredicate.ManaValueAtMostEntity -> false
             is CardPredicate.ManaValueAtMostEntityManaSpent -> false
             is CardPredicate.ManaValueAtMostColorsSpent -> false
-            is CardPredicate.ManaValueAtMostDynamic -> false
-        is CardPredicate.ManaValueEqualsDynamic -> false
+            // A dynamic cap/target is resolved against the source permanent's controller at the
+            // moment the filter is checked (Omnipresence: "mana value less than or equal to the
+            // number of creatures you control"). With no source or state there is nothing to
+            // resolve "you" against, so the predicate stays closed.
+            is CardPredicate.ManaValueAtMostDynamic ->
+                sourceDynamicValue(state, sourceEntityId, predicate.amount)
+                    ?.let { cardDef.manaCost.cmc <= it } ?: false
+        is CardPredicate.ManaValueEqualsDynamic ->
+            sourceDynamicValue(state, sourceEntityId, predicate.amount)
+                ?.let { cardDef.manaCost.cmc == it } ?: false
         is CardPredicate.PowerEqualsDynamic -> false
         is CardPredicate.ToughnessEqualsDynamic -> false
             is CardPredicate.PowerGreaterThanEntity -> false
@@ -1586,6 +1615,9 @@ class CostCalculator(
                 // zone is unknown (a coarse "any free-cast source?" probe), such a source doesn't
                 // count toward a hand cast — require an explicit EXILE zone.
                 if (ability.fromExileOnly && castFromZone != com.wingedsheep.sdk.core.Zone.EXILE) continue
+                // `fromHandOnly` (Omnipresence — "from your hand") frees only hand casts. The coarse
+                // probe (unknown zone) still counts it, since a matching card may be in hand.
+                if (ability.fromHandOnly && castFromZone != null && castFromZone != com.wingedsheep.sdk.core.Zone.HAND) continue
                 if (ability.controllerOnly) {
                     val controllerId = state.projectedState.getController(entityId) ?: continue
                     if (controllerId != casterId) continue
@@ -1683,6 +1715,7 @@ class CostCalculator(
                 if (ability !is MayCastWithoutPayingManaCost) continue
                 if (ability.firstSpellOfTurnOnly || ability.oncePerTurn) continue
                 if (ability.fromExileOnly && castFromZone != com.wingedsheep.sdk.core.Zone.EXILE) continue
+                if (ability.fromHandOnly && castFromZone != null && castFromZone != com.wingedsheep.sdk.core.Zone.HAND) continue
                 if (ability.controllerOnly && emblemController != casterId) continue
                 if (spellCardDef != null && ability.spellFilter != GameObjectFilter.Any &&
                     !matchesCardDefinition(spellCardDef, ability.spellFilter, entityId, state, state.projectedState)
@@ -1723,6 +1756,7 @@ class CostCalculator(
                 // A `fromExileOnly` source (Warped Space) is only a candidate for an exile cast, so
                 // it isn't burned by a free hand cast granted by a different source.
                 if (ability.fromExileOnly && castFromZone != com.wingedsheep.sdk.core.Zone.EXILE) continue
+                if (ability.fromHandOnly && castFromZone != null && castFromZone != com.wingedsheep.sdk.core.Zone.HAND) continue
                 if (ability.controllerOnly) {
                     val controllerId = state.projectedState.getController(entityId) ?: continue
                     if (controllerId != casterId) continue

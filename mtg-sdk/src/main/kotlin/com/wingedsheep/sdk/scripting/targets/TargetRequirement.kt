@@ -557,6 +557,19 @@ data class TargetObject(
      */
     val differentControllers: Boolean = false,
     /**
+     * When true, the chosen targets must be **at most one of each card type** — "up to one target
+     * nonland card of each card type from your graveyard" (Uldaros Theorix). It is one instance of
+     * the word "target", so a card can be chosen only once (CR 115.3) and counts toward exactly
+     * one of its card types: the set is legal when each chosen card can be paired with a
+     * *different* card type it has (CR 205.2a — supertypes and subtypes don't count). An artifact
+     * creature may therefore fill either the artifact or the creature slot, and an artifact
+     * creature plus a creature is legal (artifact + creature), while two plain creatures are not.
+     * Pair with `unlimited = true` — the pairing rule itself bounds the count. Enforced
+     * cross-target by `TargetValidator` (authoritative) and the interactive `DecisionValidators`;
+     * card types are read from projected state on the battlefield and from the card elsewhere.
+     */
+    val onePerCardType: Boolean = false,
+    /**
      * Who picks which legal object this requirement lands on. See [TargetChooser] — the target
      * stays the *controller's* target either way (legality, respondability and CR 115 all still
      * run relative to the controller); only the selection decision is routed elsewhere.
@@ -573,6 +586,8 @@ data class TargetObject(
                 // Master of Healing's "up to X target creatures"). Only add the quantifier when
                 // the id doesn't already begin with it, so we don't render "up to up to …".
                 val quantifier = when {
+                    // "up to one … of each card type" carries its own quantifier in the id.
+                    onePerCardType -> ""
                     unlimited -> "any number of "
                     optional -> "up to "
                     minCount < count -> "$minCount to "
@@ -583,7 +598,9 @@ data class TargetObject(
             }
         } else {
             buildString {
-                if (unlimited) {
+                if (onePerCardType) {
+                    append("up to one target ${filter.description} of each card type")
+                } else if (unlimited) {
                     append("any number of target ")
                     append("${filter.description}s")
                 } else {

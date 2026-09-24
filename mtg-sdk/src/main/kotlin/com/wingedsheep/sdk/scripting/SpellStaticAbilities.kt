@@ -781,19 +781,35 @@ data class MayCastWithoutPayingManaCost(
      * true, oncePerTurn = true, fromExileOnly = true)`. The engine gates this on the cast's source
      * zone in `CostCalculator.hasFreeCastPermission` / `oncePerTurnFreeCastSourceToConsume`.
      */
-    val fromExileOnly: Boolean = false
+    val fromExileOnly: Boolean = false,
+    /**
+     * When true, the permission applies only to spells **cast from their caster's hand** — the
+     * "from your hand" wording. A cast from exile, a graveyard, the top of the library, or the
+     * command zone is withheld, including on the client-supplied validation path. Omnipresence:
+     * "You may cast spells with mana value less than or equal to the number of creatures you
+     * control from your hand without paying their mana costs." → `MayCastWithoutPayingManaCost(
+     * controllerOnly = true, fromHandOnly = true, spellFilter = GameObjectFilter.Any.manaValueAtMostDynamic(
+     * DynamicAmounts.creaturesYouControl()))`. The zone mirror of [fromExileOnly]; the two are
+     * mutually exclusive. The engine gates this on the cast's source zone in
+     * `CostCalculator.hasFreeCastPermission`.
+     */
+    val fromHandOnly: Boolean = false
 ) : StaticAbility {
+    init {
+        require(!(fromExileOnly && fromHandOnly)) { "fromExileOnly and fromHandOnly are mutually exclusive" }
+    }
+
     override val description: String = buildString {
         val noun = if (spellFilter == GameObjectFilter.Any) "spells" else "${spellFilter.description} spells"
         val singular = if (spellFilter == GameObjectFilter.Any) "spell" else "${spellFilter.description} spell"
-        val fromExile = if (fromExileOnly) " from exile" else ""
+        val fromExile = if (fromExileOnly) " from exile" else if (fromHandOnly) " from your hand" else ""
         if (oncePerTurn) {
             append("Once during each of your turns, you may cast a $singular$fromExile without paying its mana cost")
         } else if (firstSpellOfTurnOnly) {
             if (controllerOnly) append("The first spell you cast each turn may be cast without paying its mana cost")
             else append("The first spell each player casts during each of their turns may be cast without paying its mana cost")
         } else {
-            if (controllerOnly) append("You may cast $noun without paying their mana costs")
+            if (controllerOnly) append("You may cast $noun$fromExile without paying their mana costs")
             else append("Each player may cast $noun without paying their mana costs")
         }
     }
