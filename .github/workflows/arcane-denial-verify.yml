@@ -34,7 +34,35 @@ jobs:
 
       - name: Dump Scryfall printing evidence
         if: failure()
-        run: cat ~/.cache/scryfall/printings/arcane-denial.json
+        run: |
+          python3 - <<'PY'
+          import json, time, urllib.request
+          from pathlib import Path
+
+          wanted = {"c13", "c16", "cmr", "voc", "woc", "otc", "soc", "msc"}
+          rows = json.loads(Path.home().joinpath(".cache/scryfall/printings/arcane-denial.json").read_text())
+          for row in rows:
+              if row["set_code"] not in wanted:
+                  continue
+              time.sleep(0.12)
+              req = urllib.request.Request(
+                  f"https://api.scryfall.com/cards/{row['scryfall_id']}",
+                  headers={"User-Agent": "argentum-engine-arcane-denial-proof/1.0", "Accept": "application/json"},
+              )
+              with urllib.request.urlopen(req) as resp:
+                  card = json.loads(resp.read().decode("utf-8"))
+              print(json.dumps({
+                  "set_code": card["set"],
+                  "set_name": card["set_name"],
+                  "collector_number": card["collector_number"],
+                  "oracle_id": card["oracle_id"],
+                  "scryfall_id": card["id"],
+                  "artist": card.get("artist"),
+                  "image_uri": (card.get("image_uris") or {}).get("normal"),
+                  "released_at": card["released_at"],
+                  "rarity": card["rarity"],
+              }, sort_keys=True))
+          PY
 
       - name: Verify snapshot stays clean
         if: success()
