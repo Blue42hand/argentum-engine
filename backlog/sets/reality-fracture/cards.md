@@ -2,7 +2,7 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 276 / 285
+**Implemented:** 285 / 285
 | Section    | Total | Done |
 |------------|-------|------|
 | Extras     | 285   | 78   |
@@ -45,7 +45,7 @@
 - [x] Chandra, Torch of Defiance
 - [x] Charge the Sanctum
 - [x] Clash of Elements
-- [ ] Codie, Ravenous Codex
+- [x] Codie, Ravenous Codex
 - [x] Command the Stage
 - [x] Compel Brutality
 - [x] Countersculpt
@@ -69,14 +69,14 @@
 - [x] Edgar, Ancient Bloodlord
 - [x] Edgar, Moonlit Sovereign
 - [x] Emergency Phytomedic
-- [ ] Emrakul, the Exigent Doom
+- [x] Emrakul, the Exigent Doom
 - [x] Enlightened Confidant
 - [x] Entrust the Spark
 - [x] Essence Burn
 - [x] Extended Absence
-- [ ] Extrapolate the Impossible
+- [x] Extrapolate the Impossible
 - [x] Eye of Jace
-- [ ] Face Yourself
+- [x] Face Yourself
 - [x] Fatehold Annex
 - [x] Fatehold Charm
 - [x] Fatehold Chronologist
@@ -106,7 +106,7 @@
 - [x] Greenhouse Propagator
 - [x] Grim Repriser
 - [x] Guiding Hydra
-- [ ] Hall of Echoes
+- [x] Hall of Echoes
 - [x] Hallway Heckler
 - [x] Hapatra, the Desert Fang
 - [x] Hapatra, the Desert Frost
@@ -166,8 +166,8 @@
 - [x] Multiply by Zero
 - [x] Murmuring Volume
 - [x] No Admittance
-- [ ] Null Summoner
-- [ ] Omnipresence
+- [x] Null Summoner
+- [x] Omnipresence
 - [x] Overgrown Farmland
 - [x] Overwrite the Multiverse
 - [x] Paradox Shaper
@@ -221,7 +221,7 @@
 - [x] Solve for Disappointment
 - [x] Something Worth Saving
 - [x] Sphinx of False Conclusions
-- [ ] Sphinx's Approach
+- [x] Sphinx's Approach
 - [x] Stingcaster Mage
 - [x] Stingerquill Annex
 - [x] Stingerquill Charm
@@ -260,7 +260,7 @@
 - [x] Traxos, Scourge Eternal
 - [x] Twinned Vision
 - [x] Twisted Fates
-- [ ] Uldaros Theorix
+- [x] Uldaros Theorix
 - [x] Undulating Witness
 - [x] Unflinching Hortimancer
 - [x] Unsummon

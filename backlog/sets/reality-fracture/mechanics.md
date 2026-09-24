@@ -96,7 +96,7 @@ Move the specified number of cards from the top of a library into its graveyard 
 
 Cards: Dark Matter Manipulator; Liliana the Repentant; Paradox Shaper; Primal Witchstalker; Something Worth Saving; Theorix Charm; Theorix Metamage; Void Extrapolator
 
-### - [ ] Scry and surveil payoffs (8 cards)
+### - [x] Scry and surveil payoffs (8 cards)
 
 Reward scry/surveil events or test whether either action occurred this turn.
 
