@@ -1078,7 +1078,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   `Any`) it is the printed global "Damage can't be prevented" (Sunspine Lynx, Leyline of Punishment).
   Narrow the pattern for a card that names one end of the damage instance: **Excruciator**'s "damage that
   would be dealt by this creature can't be prevented" is
-  `DamageCantBePrevented(EventPattern.DamageEvent(source = SourceFilter.Self))`, which leaves every other
+  `DamageCantBePrevented(EventPattern.DamageEvent(source = GameObjectFilter.Any.sourceItself()))`, which leaves every other
   source's damage preventable. `DamageUtils.isDamagePreventionDisabled(state, recipientId, sourceId)`
   matches the pattern against the concrete damage instance through the same `damageSourceMatches` /
   `damageRecipientMatches` pair every other damage replacement uses, so a filter supported by one is
@@ -3995,6 +3995,8 @@ for "from a creature source" — Echo, Perceptive Prodigy);
 specific zone — `StatePredicate.WasCastFromZone`, reading `SpellOnStackComponent.castFromZone`; e.g.
 `TargetFilter.SpellOnStack.notCastFromZone(Zone.HAND)` for "target spell that wasn't cast from its
 owner's hand" — Wash Away, since a card in a hand is owned by that hand's player, CR 108.3);
+`.currentlyIn(zone)` (`StatePredicate.InZone` — the object is in that zone right now; `currentlyIn(Zone.STACK)`
+is "a spell", the damage-source reading of Hostility's "a spell you control");
 plus `TargetFilter.excludeSelf` to exclude the source.
 
 ### Cross-zone union targets (`TargetFilter.or` / `TargetFilter.anyOf`)
@@ -5722,7 +5724,7 @@ Named sugar for the common cases; reach for the factories for any other combinat
 **Factories** (axes: `damageType` × `recipient` × `sourceFilter` × `binding` for outgoing; `source` × `binding` for incoming):
 
 - `dealsDamage(damageType?, recipient?, sourceFilter?, binding?, requireExcess?, batch?, requires?)` — outgoing-damage trigger. Pick `DamageType.{Any,Combat,NonCombat}`, `Recipient.{Any,AnyPlayer,AnyPlayerOrPlaneswalker,AnyCreature,…}`, an optional source `GameObjectFilter`, and `TriggerBinding.{SELF,ANY,ATTACHED}`. Covers "deals combat damage to a player or planeswalker", "creature you control deals combat damage to a player" (`binding = ANY` + `sourceFilter = Creature.youControl()`), "nontoken creature you control deals…" (`.nontoken()`), and "enchanted creature deals damage" (`binding = ATTACHED`). The conjunctive `requires` set adds damage-event facts: `DamagePredicate.SourceSoleTargetIsRecipient` requires the source to have exactly one chosen target and that target to be this damage recipient, so "a spell that targets only a single creature deals damage to that creature" does not fire for the same spell's collateral damage (Imodane, the Pyrohammer). Pass `requireExcess = true` to fire only when the recipient was dealt damage past lethal (CR 120.4a) — Fall of Cair Andros' "is dealt excess noncombat damage". Pass `batch = true` for recipient-side **"one or more" batch wording** (CR 603.2c) — "whenever one or more creatures your opponents control are dealt excess noncombat damage" (Magmatic Galleon): simultaneous damage to several matching recipients (a sweeper, combat damage to multiple blockers) fires the trigger once per event batch instead of once per damaged recipient. Batch is only honored on the `binding = ANY` observer path; SELF/ATTACHED damage triggers are inherently per-source-event. Read the excess via `DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_EXCESS_DAMAGE_AMOUNT)`. For a creature recipient, read its toughness *as it last existed at damage time* (CR 603.10 LKI — survives a lethal hit) via `DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_RECIPIENT_TOUGHNESS)`; pair it with a `triggerRestriction` such as `Conditions.CompareAmounts(ContextProperty(TRIGGER_DAMAGE_AMOUNT), ComparisonOperator.EQ, ContextProperty(TRIGGER_RECIPIENT_TOUGHNESS))` for "deals noncombat damage to a creature equal to that creature's toughness" (Taii Wakeen, Perfect Shot). On the observer path (`binding = ANY` + `sourceFilter`), `EffectTarget.TriggeringEntity` is the damage SOURCE, but the recipient toughness is still carried in this context key. **Dead recipients:** combat-damage state-based actions run *before* trigger detection, so a recipient killed by the same damage has already left the battlefield (a token has ceased to exist). The recipient is then read from `DamageDealtEvent.targetLastKnown`, the snapshot taken as the damage was dealt (CR 603.10), so "a creature an opponent controls is dealt damage" still fires for the killing blow. That snapshot answers types, subtypes, keywords, token-ness and controller; a filter asking anything else of a departed recipient (colour, P/T) fails closed.
-- `takesDamage(source?, binding?)` — incoming-damage trigger. Pick `SourceFilter.{Any,Creature,Spell,Combat,NonCombat,HasColor(c),…}` and `TriggerBinding.{SELF,ATTACHED}`. Covers "damaged by a creature/spell" and "enchanted creature is dealt damage" (`binding = ATTACHED`, Frozen Solid shape). For "*you* are dealt damage" use `YouAreDealtDamage` / `damageDealtToYou` above — the recipient is a player, not this permanent.
+- `takesDamage(source?, binding?)` — incoming-damage trigger. `source` is a `GameObjectFilter` (default `Any`) evaluated against the damage source as it is when the trigger is detected — its card's own characteristics if it has already left the battlefield, which is why Tephraderm's "a spell" is `GameObjectFilter.InstantOrSorcery` rather than an on-the-stack test (the spell has finished resolving by then). Pair it with `TriggerBinding.{SELF,ATTACHED}`. Covers "damaged by a creature/spell" and "enchanted creature is dealt damage" (`binding = ATTACHED`, Frozen Solid shape). For "*you* are dealt damage" use `YouAreDealtDamage` / `damageDealtToYou` above — the recipient is a player, not this permanent.
 - `becomesTapped(binding?, filter?, reason?, firstTimeEachTurn?)` — "becomes tapped" trigger. `BecomesTapped` is the SELF constant; pass `binding = TriggerBinding.ANY` with an optional `filter: GameObjectFilter` for "whenever a [filter] becomes tapped" (e.g. `GameObjectFilter.CreatureOrLand` — Temporal Distortion). The filter is matched against the tapped permanent via projected state. Fires once **per** tapped permanent. `reason: TapReason?` restricts *why* it became tapped — see `BecomesTappedForTeamwork` below; the default `null` is cause-agnostic and matches every tap. Use `null` for "any cause", **never `TapReason.UNSPECIFIED`** — that would match only the taps the engine has not classified, a predicate whose meaning shrinks the day a new cause is named, and it renders as no clause at all.
 - `firstTimeEachTurn = true` on `becomesTapped` / `OneOrMoreBecomeTapped` — the **per-permanent** "if it's the first time that creature has become tapped this turn" rider (Captain America, Living Legend: `becomesTapped(binding = ANY, filter = Creature.youControl(), firstTimeEachTurn = true)` + `triggerRestriction = Conditions.IsYourTurn` + `Effects.Untap(EffectTarget.TriggeringEntity)`; "during your turn" narrows the trigger event, so it is a `triggerRestriction` rather than an `interveningIf`, while the "first time" clause — the actual CR 603.4 intervening-`if` — rides on the event pattern and is therefore checked only when the tap happens). **Not the same as `oncePerTurn`**, which caps the *ability* at one firing per turn: with several creatures tapping in one turn, `firstTimeEachTurn` fires once for *each* of them while `oncePerTurn` answers only the first. Reach for this one whenever the printed "first time" clause names the object rather than the ability; the two are composable and can be used together. The window is a *becomes tapped* window, not a *was tapped* one — a permanent that **entered the battlefield tapped** never became tapped (CR 701.26a), so it is never stamped and tapping it later that turn is still its first time. Backed by `TappedEvent.firstThisTurn`, computed in the `tap()` atom — the chokepoint every tap transition goes through, regeneration's tap included (CR 701.19a: "its controller taps it"), with `TapEventEnforcementTest` banning new bypasses — against the permanent's `HasBecomeTappedComponent(lastBecameTappedTurn)` turn stamp, read *before* the stamp is updated. The stamp is a turn number rather than a cleanup-cleared marker — the window closes on its own when `turnNumber` moves — and is stripped on a zone change (CR 400.7: what comes back is a new object). **It is only half of the clause.** "if it's the first time…" is a printed intervening-`if` (CR 603.4), which is checked when the trigger event occurs *and again as the ability resolves*; this rider carries the first check only. Pair it with `interveningIf = Conditions.TriggeringPermanentBecameTappedOnlyOnceThisTurn` (backed by `StatePredicate.BecameTappedOnlyOnceThisTurn`, which reads the same tap counter *live*) for the second — untap the creature and tap it again in response and it has become tapped twice by resolution, so the ability is removed from the stack, which a frozen copy of the event flag could never produce. **Cannot be combined with the batch wording:** `TapEvent` rejects `batch = true` alongside it, because no printed card pairs them and the two readings of that pairing are not distinguishable without one — the first real card decides, rather than inheriting a guess.
 - `BecomesTappedForTeamwork` — SELF constant for "Whenever this becomes tapped **to pay a teamwork cost**" (CR 702.194a — Agent Maria Hill). The cause travels on the tap event as `TapReason` (`com.wingedsheep.sdk.scripting.TapReason`), matched by `EventPattern.TapEvent.reason`. **This is a separate axis from `tapper`**: a teamwork tap, an attack tap and a crew tap are all performed by the permanent's own controller, so `tappedById` is identical across them and only the cause separates them. `TapReason` has exactly two members today — `UNSPECIFIED` (every tap site the engine has not been taught to name: attacking, crew, saddle, convoke, mana abilities, a `{T}` activation cost, any "tap target permanent" effect) and `TEAMWORK`, stamped by `CastSpellHandler` on the creatures tapped to pay an optional additional cost declared under `ChoiceSlot.TEAMWORK` (`TapReason.forChoiceSlot`). **Deliberately under-claimed:** an unclassified tap reports `UNSPECIFIED` rather than being guessed at, because a wrong cause makes a reading card fire wrongly while a missing one only makes it stay silent. To name a further cause, add the enum constant, pass it at that cause's tap site (`AttackPhaseManager` for attack taps, `CrewVehicleHandler` for crew, …), and test both directions. Most taps run through the `tap()` atom, which takes the reason as a parameter, but two mana-payment sites build a `TappedEvent` by hand and never call it (`ManaPaymentWindow.tapOrSacrifice` and `ManaPaymentContinuationResumer`, for a `{T}, Sacrifice this` source) — a mana-flavoured cause has to be stamped in all three.
@@ -12363,17 +12365,17 @@ The priority groups are (CR 616.1a–f):
   `DynamicAmount`, else the flat `minAmount`) is evaluated against the **replacement's source**
   permanent, like `ModifyDamageAmount.dynamicModifier`. Applied after all amplification/capping. Ojer
   Axonil, Deepest Might: `SetMinimumDamage(dynamicMinimum = DynamicAmounts.sourcePower(), appliesTo =
-  DamageEvent(recipient = Opponent, source = SourceFilter.Matching(GameObjectFilter.Any.withColor(RED).youControl()),
+  DamageEvent(recipient = Opponent, source = GameObjectFilter.Any.withColor(RED).youControl(),
   damageType = NonCombat))`.
 - `DoubleDamage(restrictions?, appliesTo)` — double matching damage (Gratuitous Violence, Furnace of
   Rath). `restrictions: List<Condition>` (default empty) gates the doubling on extra conditions
   evaluated against the source's controller — the same pattern as `PreventDamage.restrictions`. The
   doubling also honours `appliesTo.damageType` (`Combat` / `NonCombat` / `Any`). The Rollercrusher
   Ride: `DoubleDamage(restrictions = listOf(Conditions.Delirium(4)), appliesTo = DamageEvent(source =
-  SourceFilter.Matching(GameObjectFilter.Any.youControl()), damageType = DamageType.NonCombat))` — a
+  GameObjectFilter.Any.youControl(), damageType = DamageType.NonCombat))` — a
   delirium-gated "double all noncombat damage from sources you control". The doubled damage stays
   attributed to the original source (the engine scales the amount in place). Source and recipient
-  filters are matched by the shared `DamageUtils` matchers, so every `SourceFilter` /
+  filters are matched by the shared `DamageUtils` matchers, so every source `GameObjectFilter` /
   `Recipient` the prevention and `ModifyDamageAmount` paths understand works here too —
   including `Recipient.OpponentOrPermanentTheyControl` (Twinflame Tyrant). Each hosting
   permanent is its own replacement and applies once (CR 616.1): two Twinflame Tyrants quadruple.
@@ -12387,7 +12389,7 @@ The priority groups are (CR 616.1a–f):
   the `DoubleDamage` pass and shares its `restrictions` / `damageType` / source / recipient handling.
   It is **not** a prevention effect, so `DamageCantBePrevented` (Excruciator) does not switch it off.
   A player who is a legal recipient sees a "Damage Doubled" badge on their life orb — **except** when
-  the source filter is attachment-scoped (`SourceFilter.EquippedCreature` / `EnchantedCreature`), which
+  the source filter is attachment-scoped (`GameObjectFilter.Any.attachedToBySource()` / `EnchantedCreature`), which
   badges the attached creature's card instead, and only while it is attached. That case is a property
   of one creature's *outgoing* damage rather than of whoever might be damaged, so a player badge would
   read as "all damage dealt to you doubles" and would show even for an Equipment attached to nothing.
@@ -12398,7 +12400,7 @@ The priority groups are (CR 616.1a–f):
   permanent (so `DynamicAmount.EntityProperty(Self, …)` / `DynamicAmounts.countersOnSelf(…)` reads
   the source's own characteristics/counters). Fated Firepower: `dynamicModifier =
   DynamicAmounts.countersOnSelf(CounterType.FIRE)` with `appliesTo = DamageEvent(source =
-  SourceFilter.YouControl, recipient = Recipient.OpponentOrPermanentTheyControl)` — "a source you
+  GameObjectFilter.Any.youControl(), recipient = Recipient.OpponentOrPermanentTheyControl)` — "a source you
   control deals that much damage plus the number of fire counters on this enchantment to an opponent or
   a permanent an opponent controls". Applied in `DamageUtils.applyStaticDamageAmplification` (both the
   general and combat damage paths), once per damage event, after `DoubleDamage`. `restrictions` (a
@@ -12416,7 +12418,7 @@ The priority groups are (CR 616.1a–f):
   damage would be redirected (mirrors `PreventDamage.restrictions`); a `null` condition always applies.
   Martyrs of Korlis uses `Conditions.SourceIsUntapped` for "As long as this creature is untapped, all
   damage that would be dealt to you by artifacts is dealt to this creature instead" (`redirectTo =
-  EffectTarget.Self`, `source = SourceFilter.Matching(GameObjectFilter.Artifact)`).
+  EffectTarget.Self`, `source = GameObjectFilter.Artifact`).
 - `ReplaceDamageWithCounters(counterType, sacrificeThreshold = null, appliesTo = DamageEvent(recipient =
   You), counterRecipient = DamageCounterRecipient.ReplacementHost)` — replace matching damage
   (CR 614.1a, an "instead" effect: the damage is never dealt, so nothing that keys on damage being
@@ -12431,26 +12433,26 @@ The priority groups are (CR 616.1a–f):
   - `DamagedPermanent` — on the permanent that would have been dealt the damage. **Soul-Scar Mage**:
     "If a source you control would deal noncombat damage to a creature an opponent controls, put that
     many -1/-1 counters on that creature instead" — `DamageEvent(recipient =
-    Recipient.CreatureOpponentControls, source = SourceFilter.YouControl, damageType =
+    Recipient.CreatureOpponentControls, source = GameObjectFilter.Any.youControl(), damageType =
     DamageType.NonCombat)`. A player recipient has nowhere to put counters, so the replacement
     declines rather than eating the damage.
 
   **`damagedPlayerMills = true`** adds a second result to the same replacement: when the damage was
   headed for a player, that player also mills that many cards (through the mill-amount
   replacements). **Szadek, Lord of Secrets**: `DamageEvent(recipient = AnyPlayer, source =
-  SourceFilter.Self, damageType = Combat)` + `damagedPlayerMills = true` — one replacement, so the
+  GameObjectFilter.Any.sourceItself(), damageType = Combat)` + `damagedPlayerMills = true` — one replacement, so the
   counters and the mill can't be split across two replacements competing for one damage event.
   The recipient is matched by the shared damage-replacement recipient matcher, so every
   `Recipient` works here.
 
   Wired in both damage paths (`DamageUtils.applyReplaceDamageWithCounters` for the general path,
   `CombatDamageManager` for combat); combat callers pass `isCombatDamage = true` so a noncombat-only
-  pattern isn't applied to combat damage. Supported source filters are `Any`, `Self` and `YouControl`
-  — any other `SourceFilter` declines rather than guessing.
+  pattern isn't applied to combat damage. The source and recipient are matched by the same shared
+  matchers as every other damage replacement.
 - `ReplaceDamageWithMill(appliesTo = DamageEvent(recipient = Opponent))` — replace matching damage
   (CR 615, neither dealt nor prevented): each opponent of the replacement's controller mills that many
   cards instead. The Mindskinner: `DamageEvent(recipient = Recipient.Opponent, source =
-  SourceFilter.Matching(GameObjectFilter.Any.youControl()))` covers both the unblockable creature's
+  GameObjectFilter.Any.youControl())` covers both the unblockable creature's
   combat damage and noncombat damage from any source you control. Mirrors `ReplaceDamageWithCounters`;
   wired in both damage paths (`DamageUtils.applyReplaceDamageWithMill` for the general path,
   `CombatDamageManager` for combat). Damage-type filtering is not applied (matches any type).
@@ -12476,29 +12478,31 @@ The priority groups are (CR 616.1a–f):
   `CombatDamageManager.applyCombatDamage`.
 - **DamageEvent filters (gap #7):** `EventPattern.DamageEvent(recipient, source, damageType, amount)`.
   `amount: AmountFilter` (`Any` / `AtMost(n)` / `AtLeast(n)` / `Exactly(n)`) gates on the would-be
-  amount (Callous Giant: `AtMost(3)`). `source = SourceFilter.Matching(filter)` can carry relational
+  amount (Callous Giant: `AtMost(3)`). `source` is a plain `GameObjectFilter` (default
+  `GameObjectFilter.Any`), evaluated against the damage source with the replacement's host as the
+  filter's source and its controller as "you". It can carry relational
   predicates: `GameObjectFilter.sharingColorWithRecipient()` (`CardPredicate.SharesColorWithRecipient`,
   Well-Laid Plans — "another creature that shares a color") and `sharingChosenColorWithSource()`
   (`CardPredicate.SharesChosenColorWithSource`, reads the replacement source's `ChosenColorComponent`).
-  `source = SourceFilter.YouControl` matches any source (permanent, spell, ability) controlled by the
-  replacement's controller — "a source you control" (Fated Firepower) — without enumerating a
-  `GameObjectFilter`. `source = SourceFilter.SpellYouControl` narrows that to a *spell* (a source still
-  on the stack as a spell, copies included) — "a spell you control" (Hostility); `SourceFilter.Spell`
-  is the same test without the controller check. `recipient = Recipient.OpponentOrPermanentTheyControl` matches an opponent
+  `source = GameObjectFilter.Any.youControl()` matches any source (permanent, spell, ability) controlled by the
+  replacement's controller — "a source you control" (Fated Firepower); the controller predicate falls
+  back to a spell's caster and to a departed permanent's last-known controller, so a creature
+  sacrificed to pay for its own damage ability still counts (Fanatical Firebrand).
+  `source = GameObjectFilter.Any.currentlyIn(Zone.STACK).youControl()` narrows that to a *spell* (a
+  source still on the stack as a spell, copies included — `StatePredicate.InZone`) — "a spell you
+  control" (Hostility). `recipient = Recipient.OpponentOrPermanentTheyControl` matches an opponent
   player **or** any permanent an opponent controls — "an opponent or a permanent an opponent controls".
-  `recipient = Recipient.Self` / `source = SourceFilter.Self` match the permanent that owns the
+  `recipient = Recipient.Self` / `source = GameObjectFilter.Any.sourceItself()` match the permanent that owns the
   replacement — "damage dealt *to* / *by* this permanent" — for source-relative static foggers like
   Fog Bank (`DamageEvent(recipient = Recipient.Self, damageType = Combat)` +
-  `DamageEvent(source = SourceFilter.Self, damageType = Combat)` = "prevent all combat damage that would
+  `DamageEvent(source = GameObjectFilter.Any.sourceItself(), damageType = Combat)` = "prevent all combat damage that would
   be dealt to and dealt by this creature").
-  `source = SourceFilter.EnchantedCreature` / `SourceFilter.EquippedCreature` match damage dealt **by**
-  the permanent the replacement's host Aura/Equipment is attached to — the source-side mirror of the
-  `Recipient` pair, resolved from the host's `AttachedToComponent`. Mjölnir, Hammer of Thor
-  ("Double all damage equipped creature would deal") is `DoubleDamage(appliesTo = DamageEvent(source =
-  SourceFilter.EquippedCreature))`; with the default `recipient = Any` and `damageType = Any` that
-  covers combat and noncombat damage to players and permanents alike. The two constants behave
-  identically (both read the host's attachment) and exist so an Equipment's definition reads in
-  Equipment vocabulary — pick the one matching the host's card type.
+  `source = GameObjectFilter.Any.attachedToBySource()` matches damage dealt **by** the permanent the
+  replacement's host Aura/Equipment is attached to — the source-side mirror of
+  `Recipient.EnchantedCreature` / `EquippedCreature`. Mjölnir, Hammer of Thor ("Double all damage
+  equipped creature would deal") is `DoubleDamage(appliesTo = DamageEvent(source =
+  GameObjectFilter.Any.attachedToBySource()))`; with the default `recipient = Any` and `damageType = Any` that
+  covers combat and noncombat damage to players and permanents alike.
 - `EntersTapped(unlessCondition?, payLifeCost?)` — "this permanent enters tapped" (`unlessCondition = null`),
   or "enters tapped unless `<condition>`" when an `unlessCondition` is supplied. The "slow land" cycle
   (Deathcap Glade, Dreamroot Cascade, Sundown Pass — "enters tapped unless you control two or more other

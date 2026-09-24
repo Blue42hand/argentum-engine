@@ -10834,8 +10834,14 @@
                     "appliesTo": {
                         "type": "DamageEvent",
                         "source": {
-                            "type": "SourceMatching",
-                            "filter": "creature Wizard ctrl:you"
+                            "cardPredicates": [
+                                "IsCreature",
+                                {
+                                    "type": "HasSubtype",
+                                    "subtype": "Wizard"
+                                }
+                            ],
+                            "controllerPredicate": "ControlledByYou"
                         }
                     }
                 }

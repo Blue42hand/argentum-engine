@@ -3104,7 +3104,9 @@
                         "type": "RecipientObject",
                         "filter": "creature ctrl:opponent"
                     },
-                    "source": "SourceYouControl",
+                    "source": {
+                        "controllerPredicate": "ControlledByYou"
+                    },
                     "damageType": "DamageNonCombat"
                 },
                 "counterRecipient": "DamagedPermanent"

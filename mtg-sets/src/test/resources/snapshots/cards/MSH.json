@@ -7460,7 +7460,9 @@
                             }
                         ]
                     },
-                    "source": "SourceYouControl",
+                    "source": {
+                        "controllerPredicate": "ControlledByYou"
+                    },
                     "damageType": "DamageNonCombat"
                 }
             }
@@ -11101,7 +11103,11 @@
                 "type": "DoubleDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "source": "SourceEquippedCreature"
+                    "source": {
+                        "statePredicates": [
+                            "IsAttachedToBySource"
+                        ]
+                    }
                 }
             }
         ]

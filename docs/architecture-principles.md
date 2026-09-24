@@ -892,7 +892,7 @@ serialize the state even when a replacement choice is pending.
 - **Composability.** The `appliesTo` field uses the same `EventPattern` pattern system as trigger
   conditions. A replacement effect that applies to "damage dealt to creatures you control" reuses
   the same predicate composition as a trigger that fires on the same event — `Recipient`,
-  `SourceFilter`, and `DamageType` are shared between both systems.
+  `GameObjectFilter` (for the source), and `DamageType` are shared between both systems.
 
 **Ordering multiple replacement effects (Rule 616.1).** When multiple replacement effects would apply
 to the same event, the `ReplacementEffectProcessor` implements the full CR 616.1 pipeline as a

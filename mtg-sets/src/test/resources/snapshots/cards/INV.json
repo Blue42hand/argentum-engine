@@ -5917,19 +5917,16 @@
                         "player": "You"
                     },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": {
-                            "cardPredicates": [
-                                {
-                                    "type": "Or",
-                                    "predicates": [
-                                        "IsInstant",
-                                        "IsSorcery"
-                                    ]
-                                },
-                                "SharesChosenColorWithSource"
-                            ]
-                        }
+                        "cardPredicates": [
+                            {
+                                "type": "Or",
+                                "predicates": [
+                                    "IsInstant",
+                                    "IsSorcery"
+                                ]
+                            },
+                            "SharesChosenColorWithSource"
+                        ]
                     }
                 }
             }
@@ -17752,13 +17749,10 @@
                         "filter": "creature"
                     },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": {
-                            "cardPredicates": [
-                                "IsCreature",
-                                "SharesColorWithRecipient"
-                            ]
-                        }
+                        "cardPredicates": [
+                            "IsCreature",
+                            "SharesColorWithRecipient"
+                        ]
                     }
                 }
             }

@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.AttackPredicate
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 
 import com.wingedsheep.sdk.scripting.references.Player
@@ -1610,7 +1609,7 @@ object Triggers {
      * is dealt damage": `takesDamage(binding = TriggerBinding.ATTACHED)`).
      */
     fun takesDamage(
-        source: SourceFilter = SourceFilter.Any,
+        source: GameObjectFilter = GameObjectFilter.Any,
         binding: TriggerBinding = TriggerBinding.SELF,
     ): TriggerSpec = TriggerSpec(
         event = DamageReceivedEvent(source = source),

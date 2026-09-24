@@ -10641,16 +10641,13 @@
                 "appliesTo": {
                     "type": "DamageEvent",
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": {
-                            "cardPredicates": [
-                                "IsCreature"
-                            ],
-                            "statePredicates": [
-                                "EnteredThisTurn"
-                            ],
-                            "controllerPredicate": "ControlledByYou"
-                        }
+                        "cardPredicates": [
+                            "IsCreature"
+                        ],
+                        "statePredicates": [
+                            "EnteredThisTurn"
+                        ],
+                        "controllerPredicate": "ControlledByYou"
                     }
                 }
             }

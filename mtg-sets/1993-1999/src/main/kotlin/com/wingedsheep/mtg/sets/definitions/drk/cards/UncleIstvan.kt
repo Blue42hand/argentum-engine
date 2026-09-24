@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PreventDamage
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 
 /**
  * Uncle Istvan
@@ -33,7 +32,7 @@ val UncleIstvan = card("Uncle Istvan") {
             amount = null,
             appliesTo = EventPattern.DamageEvent(
                 recipient = Recipient.Self,
-                source = SourceFilter.Matching(GameObjectFilter.Creature)
+                source = GameObjectFilter.Creature
             )
         )
     )

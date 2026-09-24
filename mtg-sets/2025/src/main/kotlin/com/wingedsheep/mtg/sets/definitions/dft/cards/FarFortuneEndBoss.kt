@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.ModifyDamageAmount
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -64,7 +64,7 @@ val FarFortuneEndBoss = card("Far Fortune, End Boss") {
             ModifyDamageAmount(
                 modifier = 1,
                 appliesTo = EventPattern.DamageEvent(
-                    source = SourceFilter.YouControl,
+                    source = GameObjectFilter.Any.youControl(),
                     recipient = Recipient.OpponentOrPermanentTheyControl,
                 ),
             )

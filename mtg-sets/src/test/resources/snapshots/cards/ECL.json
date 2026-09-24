@@ -4221,13 +4221,10 @@
                 "appliesTo": {
                     "type": "DamageEvent",
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": {
-                            "cardPredicates": [
-                                "HasChosenSubtype"
-                            ],
-                            "controllerPredicate": "ControlledByYou"
-                        }
+                        "cardPredicates": [
+                            "HasChosenSubtype"
+                        ],
+                        "controllerPredicate": "ControlledByYou"
                     }
                 }
             }

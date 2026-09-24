@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.RedirectDamage
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -39,9 +38,9 @@ val HarshJudgment = card("Harsh Judgment") {
             redirectTo = EffectTarget.ControllerOfDamageSource,
             appliesTo = EventPattern.DamageEvent(
                 recipient = Recipient.You,
-                source = SourceFilter.Matching(
+                source = 
                     GameObjectFilter.InstantOrSorcery.sharingChosenColorWithSource()
-                )
+                
             )
         )
     )

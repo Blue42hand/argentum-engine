@@ -12487,10 +12487,7 @@
                 "effect": {
                     "type": "GrantDamageBonus",
                     "bonusAmount": 2,
-                    "sourceFilter": {
-                        "type": "HasColor",
-                        "color": "RED"
-                    }
+                    "sourceFilter": "red"
                 }
             }
         ]

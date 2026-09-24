@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PreventDamage
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
 /**
@@ -55,7 +54,7 @@ val ArtifactWard = card("Artifact Ward") {
         PreventDamage(
             appliesTo = EventPattern.DamageEvent(
                 recipient = Recipient.EnchantedCreature,
-                source = SourceFilter.Matching(GameObjectFilter.Artifact)
+                source = GameObjectFilter.Artifact
             )
         )
     )

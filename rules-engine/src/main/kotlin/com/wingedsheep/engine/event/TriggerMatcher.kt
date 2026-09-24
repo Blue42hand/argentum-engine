@@ -244,7 +244,7 @@ class TriggerMatcher(
             is EventPattern.DamageReceivedEvent -> {
                 // Generic (source=Any) DamageReceivedEvent can match in the main loop
                 // Specific source-filtered ones are handled in detectDamagedBySourceTriggers
-                if (trigger.source != SourceFilter.Any) return false
+                if (trigger.source != GameObjectFilter.Any) return false
                 event is DamageDealtEvent && (binding != TriggerBinding.SELF || event.targetId == sourceId)
             }
             is EventPattern.SpellCastEvent -> {
@@ -2262,6 +2262,7 @@ class TriggerMatcher(
         // state). Returning true preserves the prior "don't gate" behavior, but listing
         // every variant forces a compile-time choice when a new predicate is added.
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.IsOnBattlefield,
+        is com.wingedsheep.sdk.scripting.predicates.StatePredicate.InZone,
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.HasLockedDoor,
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.IsTapped,
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.IsUntapped,

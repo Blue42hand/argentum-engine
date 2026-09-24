@@ -4690,7 +4690,7 @@ object Effects {
      */
     fun GrantDamageBonus(
         bonusAmount: Int,
-        sourceFilter: com.wingedsheep.sdk.scripting.events.SourceFilter = com.wingedsheep.sdk.scripting.events.SourceFilter.Any,
+        sourceFilter: GameObjectFilter = GameObjectFilter.Any,
         target: EffectTarget = EffectTarget.Controller,
         duration: Duration = Duration.EndOfTurn
     ): Effect = GrantDamageBonusEffect(bonusAmount, sourceFilter, target, duration)

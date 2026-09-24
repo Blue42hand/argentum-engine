@@ -1,5 +1,6 @@
 package com.wingedsheep.sdk.dsl
 
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.ActivationRestriction
@@ -109,7 +110,7 @@ fun CardBuilder.startYourEngines() {
  *         ModifyDamageAmount(
  *             modifier = 1,
  *             appliesTo = EventPattern.DamageEvent(
- *                 source = SourceFilter.YouControl,
+ *                 source = GameObjectFilter.Any.youControl(),
  *                 recipient = Recipient.OpponentOrPermanentTheyControl,
  *             ),
  *         )

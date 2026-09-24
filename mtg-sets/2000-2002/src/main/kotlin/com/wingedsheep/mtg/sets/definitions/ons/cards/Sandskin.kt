@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -7,7 +8,6 @@ import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.PreventDamage
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 
 /**
  * Sandskin
@@ -40,7 +40,7 @@ val Sandskin = card("Sandskin") {
         PreventDamage(
             amount = null,
             appliesTo = EventPattern.DamageEvent(
-                source = SourceFilter.EnchantedCreature,
+                source = GameObjectFilter.Any.attachedToBySource(),
                 damageType = DamageType.Combat
             )
         )

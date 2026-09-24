@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.scripting.DoubleDamage
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 
 /**
  * Twinflame Tyrant
@@ -40,7 +39,7 @@ val TwinflameTyrant = card("Twinflame Tyrant") {
     replacementEffect(
         DoubleDamage(
             appliesTo = EventPattern.DamageEvent(
-                source = SourceFilter.Matching(GameObjectFilter.Any.youControl()),
+                source = GameObjectFilter.Any.youControl(),
                 recipient = Recipient.OpponentOrPermanentTheyControl,
             )
         )

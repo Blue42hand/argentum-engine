@@ -17438,8 +17438,7 @@
                         "player": "EachOpponent"
                     },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "ctrl:you"
+                        "controllerPredicate": "ControlledByYou"
                     }
                 }
             }
@@ -17517,8 +17516,7 @@
                 "appliesTo": {
                     "type": "DamageEvent",
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "ctrl:you"
+                        "controllerPredicate": "ControlledByYou"
                     },
                     "damageType": "DamageNonCombat"
                 }

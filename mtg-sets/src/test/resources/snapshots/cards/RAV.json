@@ -5673,7 +5673,11 @@
                 "type": "DamageCantBePrevented",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "source": "SourceSelf"
+                    "source": {
+                        "statePredicates": [
+                            "IsSource"
+                        ]
+                    }
                 }
             }
         ]
@@ -8988,7 +8992,11 @@
                         "type": "RecipientObject",
                         "filter": "creature red"
                     },
-                    "source": "SourceSelf"
+                    "source": {
+                        "statePredicates": [
+                            "IsSource"
+                        ]
+                    }
                 }
             }
         ]
@@ -9585,7 +9593,9 @@
                         "type": "RecipientObject",
                         "filter": "creature ctrl:you"
                     },
-                    "source": "SourceYouControl"
+                    "source": {
+                        "controllerPredicate": "ControlledByYou"
+                    }
                 }
             }
         ]
@@ -15560,7 +15570,11 @@
                         "type": "RecipientPlayer",
                         "player": "Any"
                     },
-                    "source": "SourceSelf",
+                    "source": {
+                        "statePredicates": [
+                            "IsSource"
+                        ]
+                    },
                     "damageType": "DamageCombat"
                 },
                 "damagedPlayerMills": true

@@ -7897,8 +7897,10 @@
                 "appliesTo": {
                     "type": "DamageEvent",
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "creature ctrl:you"
+                        "cardPredicates": [
+                            "IsCreature"
+                        ],
+                        "controllerPredicate": "ControlledByYou"
                     }
                 }
             }
@@ -12919,7 +12921,11 @@
                 "type": "PreventDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "source": "SourceEnchantedCreature",
+                    "source": {
+                        "statePredicates": [
+                            "IsAttachedToBySource"
+                        ]
+                    },
                     "damageType": "DamageCombat"
                 }
             }
@@ -15749,7 +15755,11 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "DamageReceivedEvent",
-                    "source": "SourceCreature"
+                    "source": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ]
+                    }
                 },
                 "effect": {
                     "type": "DealDamage",
@@ -15764,7 +15774,17 @@
                 "id": "ability_2",
                 "trigger": {
                     "type": "DamageReceivedEvent",
-                    "source": "Spell"
+                    "source": {
+                        "cardPredicates": [
+                            {
+                                "type": "Or",
+                                "predicates": [
+                                    "IsInstant",
+                                    "IsSorcery"
+                                ]
+                            }
+                        ]
+                    }
                 },
                 "effect": {
                     "type": "DealDamage",

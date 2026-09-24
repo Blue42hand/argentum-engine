@@ -450,6 +450,12 @@ interface ObjectFilterBuilder<out Self> {
      */
     fun onBattlefield() = withStatePredicate(StatePredicate.IsOnBattlefield)
 
+    /**
+     * Must currently be in [zone] — [StatePredicate.InZone]. `currentlyIn(Zone.STACK)` is "a spell":
+     * the damage-source reading of "a spell you control" (Hostility).
+     */
+    fun currentlyIn(zone: Zone) = withStatePredicate(StatePredicate.InZone(zone))
+
     /** Must be attacking */
     fun attacking() = withStatePredicate(StatePredicate.IsAttacking)
 

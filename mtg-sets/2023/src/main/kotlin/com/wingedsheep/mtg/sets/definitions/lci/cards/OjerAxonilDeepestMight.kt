@@ -18,7 +18,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -69,7 +68,7 @@ private val OjerAxonilDeepestMightFront = card("Ojer Axonil, Deepest Might") {
             dynamicMinimum = DynamicAmounts.sourcePower(),
             appliesTo = EventPattern.DamageEvent(
                 recipient = Recipient.Opponent,
-                source = SourceFilter.Matching(GameObjectFilter.Any.withColor(Color.RED).youControl()),
+                source = GameObjectFilter.Any.withColor(Color.RED).youControl(),
                 damageType = DamageType.NonCombat,
             ),
         )

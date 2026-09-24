@@ -9073,8 +9073,7 @@
                         ]
                     },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "ctrl:you"
+                        "controllerPredicate": "ControlledByYou"
                     }
                 }
             }

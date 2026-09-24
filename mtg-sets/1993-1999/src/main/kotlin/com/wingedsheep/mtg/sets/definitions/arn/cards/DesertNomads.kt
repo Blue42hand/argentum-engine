@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PreventDamage
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 
 /**
  * Desert Nomads
@@ -39,7 +38,7 @@ val DesertNomads = card("Desert Nomads") {
         PreventDamage(
             appliesTo = EventPattern.DamageEvent(
                 recipient = Recipient.Self,
-                source = SourceFilter.Matching(GameObjectFilter.Land.withSubtype("Desert"))
+                source = GameObjectFilter.Land.withSubtype("Desert")
             )
         )
     )

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.RedirectDamage
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -43,7 +42,7 @@ val MartyrsOfKorlis = card("Martyrs of Korlis") {
             redirectTo = EffectTarget.Self,
             appliesTo = EventPattern.DamageEvent(
                 recipient = Recipient.You,
-                source = SourceFilter.Matching(GameObjectFilter.Artifact),
+                source = GameObjectFilter.Artifact,
             ),
             condition = Conditions.SourceIsUntapped,
         )

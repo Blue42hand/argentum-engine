@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PreventDamage
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 
 /**
  * Well-Laid Plans
@@ -30,9 +29,9 @@ val WellLaidPlans = card("Well-Laid Plans") {
         PreventDamage(
             appliesTo = EventPattern.DamageEvent(
                 recipient = Recipient.AnyCreature,
-                source = SourceFilter.Matching(
+                source = 
                     GameObjectFilter.Creature.sharingColorWithRecipient()
-                )
+                
             )
         )
     )

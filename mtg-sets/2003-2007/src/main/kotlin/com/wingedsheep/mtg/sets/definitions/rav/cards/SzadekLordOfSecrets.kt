@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.rav.cards
 
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.card
@@ -8,7 +9,6 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.ReplaceDamageWithCounters
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 
 /**
  * Szadek, Lord of Secrets — Ravnica: City of Guilds #234
@@ -21,7 +21,7 @@ import com.wingedsheep.sdk.scripting.events.SourceFilter
  * One [ReplaceDamageWithCounters] carrying both results: counters on its host (Szadek) and, via
  * `damagedPlayerMills`, a mill of the player the damage was headed for. Two separate replacements
  * could not model it — whichever applied first would consume the damage event and the other would
- * never see it. The pattern is Szadek's own combat damage (`SourceFilter.Self`, `DamageType.Combat`)
+ * never see it. The pattern is Szadek's own combat damage (`GameObjectFilter.Any.sourceItself()`, `DamageType.Combat`)
  * to any player, so noncombat damage and combat damage to creatures or planeswalkers are dealt
  * normally. The damage is replaced, never dealt: no life is lost and "deals combat damage to a
  * player" triggers don't fire. The count is the damage Szadek would actually deal after other
@@ -44,7 +44,7 @@ val SzadekLordOfSecrets = card("Szadek, Lord of Secrets") {
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
             appliesTo = EventPattern.DamageEvent(
                 recipient = Recipient.AnyPlayer,
-                source = SourceFilter.Self,
+                source = GameObjectFilter.Any.sourceItself(),
                 damageType = DamageType.Combat,
             ),
             damagedPlayerMills = true,

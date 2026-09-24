@@ -2,19 +2,19 @@ package com.wingedsheep.engine.event
 
 import com.wingedsheep.engine.core.DamageDealtEvent
 import com.wingedsheep.engine.core.GameEvent as EngineGameEvent
+import com.wingedsheep.engine.handlers.PredicateContext
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 
 /**
  * Handles all damage-related triggers.
@@ -24,10 +24,12 @@ class DamageTriggerDetector(
     private val matcher: TriggerMatcher
 ) {
 
+    private val predicateEvaluator = PredicateEvaluator()
+
     companion object {
         /**
          * Whether [ability] is the SELF-bound "whenever a source deals damage to this creature"
-         * shape ([SourceFilter.Any]) — the one whose triggering entity is the **damage source**
+         * shape ([GameObjectFilter.Any]) — the one whose triggering entity is the **damage source**
          * rather than the creature that was dealt the damage.
          *
          * "That source's controller mills that many cards" (Belltower Sphinx) has nothing to name
@@ -45,7 +47,7 @@ class DamageTriggerDetector(
             val trigger = ability.trigger
             return ability.binding == TriggerBinding.SELF &&
                 trigger is EventPattern.DamageReceivedEvent &&
-                trigger.source == SourceFilter.Any
+                trigger.source == GameObjectFilter.Any
         }
 
         /** The trigger context for [bindsDamageSource] abilities, built off the damage event. */
@@ -154,13 +156,14 @@ class DamageTriggerDetector(
     }
 
     /**
-     * Detect "whenever a creature/spell deals damage to this" triggers.
-     * For DamageReceivedEvent(source=Creature): source must be a creature on the battlefield.
-     * For DamageReceivedEvent(source=Spell): source must be an instant or sorcery.
-     * TriggeringEntityId is set to the damage SOURCE for retaliation effects.
+     * Detect source-filtered "whenever [a source matching X] deals damage to this" triggers
+     * (Tephraderm: "a creature", "a spell"). The triggering entity is the damage SOURCE, for
+     * retaliation effects.
      *
-     * Handles both on-battlefield and off-battlefield cases (e.g., creature
-     * dies from lethal damage but trigger still fires per Rule 603.10).
+     * Neither end has to still be on the battlefield: the damaged permanent may have died to the
+     * damage, and combat damage is dealt simultaneously, so the attacker may have died to the same
+     * exchange (CR 603.10). The source filter is evaluated against the source as it is now —
+     * projected characteristics while it is still a permanent, its card's own once it has left.
      */
     fun detectDamagedBySourceTriggers(
         state: GameState,
@@ -179,43 +182,28 @@ class DamageTriggerDetector(
 
         // Face-down creatures have no abilities (Rule 708.2)
         if (container.has<FaceDownComponent>() || event.targetWasFaceDown) return
+        if (state.getEntity(sourceId) == null) return
 
         val abilities = abilityResolver.getTriggeredAbilities(damagedEntityId, cardComponent.cardDefinitionId, state, statics)
-
-        // Determine source type
-        val sourceContainer = state.getEntity(sourceId) ?: return
-        val sourceCard = sourceContainer.get<CardComponent>()
-        // Do NOT require the source to still be on the battlefield: combat damage is dealt
-        // simultaneously, so the attacker may have died from Tephraderm's damage in the same
-        // combat step (Rule 603.10 look-back). We check the card's type line instead of
-        // current zone to determine what it was when it dealt the damage.
-        val isCreatureSource = sourceCard?.typeLine?.isCreature == true
-        val isSpellSource = sourceCard != null && (sourceCard.typeLine.isInstant || sourceCard.typeLine.isSorcery)
+        val context = PredicateContext(controllerId = controllerId, sourceId = damagedEntityId)
 
         for (ability in abilities) {
             val trigger = ability.trigger
-            val matches = when {
-                trigger is EventPattern.DamageReceivedEvent && ability.binding == TriggerBinding.SELF &&
-                    trigger.source == SourceFilter.Creature && isCreatureSource -> true
-                trigger is EventPattern.DamageReceivedEvent && ability.binding == TriggerBinding.SELF &&
-                    trigger.source == SourceFilter.Spell && isSpellSource -> true
-                else -> false
-            }
-
-            if (matches) {
-                triggers.add(
-                    PendingTrigger(
-                        ability = ability,
-                        sourceId = damagedEntityId,
-                        sourceName = cardComponent.name,
-                        controllerId = controllerId,
-                        triggerContext = TriggerContext(
-                            triggeringEntityId = sourceId,
-                            damageAmount = event.amount
-                        )
+            if (trigger !is EventPattern.DamageReceivedEvent || ability.binding != TriggerBinding.SELF) continue
+            if (trigger.source == GameObjectFilter.Any) continue
+            if (!predicateEvaluator.matches(state, state.projectedState, sourceId, trigger.source, context)) continue
+            triggers.add(
+                PendingTrigger(
+                    ability = ability,
+                    sourceId = damagedEntityId,
+                    sourceName = cardComponent.name,
+                    controllerId = controllerId,
+                    triggerContext = TriggerContext(
+                        triggeringEntityId = sourceId,
+                        damageAmount = event.amount
                     )
                 )
-            }
+            )
         }
     }
 

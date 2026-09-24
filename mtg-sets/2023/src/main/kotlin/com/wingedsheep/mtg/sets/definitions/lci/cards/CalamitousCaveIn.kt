@@ -21,7 +21,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *   - Battlefield: permanents with the Cave land subtype you control
  *     ([DynamicAmount.Count] over [Zone.BATTLEFIELD] filtered by [GameObjectFilter.Land.withSubtype("Cave")])
  *   - Graveyard:   any card with the Cave subtype in your graveyard
- *     ([DynamicAmount.Count] over [Zone.GRAVEYARD] filtered by [GameObjectFilter.Any.withSubtype("Cave")])
+ *     ([DynamicAmount.Count] over [Zone.GRAVEYARD] filtered by `GameObjectFilter.Any.withSubtype("Cave")`)
  *
  * The two counts are summed via [DynamicAmount.Add] and fed into
  * [Patterns.Group.dealDamageToAll] over [GroupFilter]([GameObjectFilter.CreatureOrPlaneswalker]).

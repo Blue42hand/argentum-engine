@@ -201,8 +201,10 @@
                         }
                     },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "artifact creature"
+                        "cardPredicates": [
+                            "IsArtifact",
+                            "IsCreature"
+                        ]
                     }
                 }
             }
@@ -245,8 +247,9 @@
                         }
                     },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "artifact"
+                        "cardPredicates": [
+                            "IsArtifact"
+                        ]
                     }
                 }
             }
@@ -478,8 +481,9 @@
                         }
                     },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "artifact"
+                        "cardPredicates": [
+                            "IsArtifact"
+                        ]
                     }
                 }
             }
@@ -2237,8 +2241,9 @@
                         "player": "You"
                     },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "artifact"
+                        "cardPredicates": [
+                            "IsArtifact"
+                        ]
                     }
                 },
                 "condition": {

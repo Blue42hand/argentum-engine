@@ -27,7 +27,6 @@ import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.EventPattern
@@ -828,7 +827,7 @@ class CardDslTest : DescribeSpec({
             // Combat damage from red sources to creatures you control
             val damageFilter = EventPattern.DamageEvent(
                 recipient = Recipient.CreatureYouControl,
-                source = SourceFilter.HasColor(com.wingedsheep.sdk.core.Color.RED),
+                source = GameObjectFilter.Any.withColor(com.wingedsheep.sdk.core.Color.RED),
                 damageType = DamageType.Combat
             )
             damageFilter.recipient shouldBe Recipient.CreatureYouControl

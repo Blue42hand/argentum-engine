@@ -632,8 +632,13 @@
                         }
                     },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "land Desert"
+                        "cardPredicates": [
+                            "IsLand",
+                            {
+                                "type": "HasSubtype",
+                                "subtype": "Desert"
+                            }
+                        ]
                     }
                 }
             }
@@ -1150,8 +1155,13 @@
                         }
                     },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "land Desert"
+                        "cardPredicates": [
+                            "IsLand",
+                            {
+                                "type": "HasSubtype",
+                                "subtype": "Desert"
+                            }
+                        ]
                     }
                 }
             }

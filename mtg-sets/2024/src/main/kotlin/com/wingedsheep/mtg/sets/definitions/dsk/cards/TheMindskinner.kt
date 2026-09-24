@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ReplaceDamageWithMill
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.events.SourceFilter
 
 /**
  * The Mindskinner (DSK 66)
@@ -40,7 +39,7 @@ val TheMindskinner = card("The Mindskinner") {
         ReplaceDamageWithMill(
             appliesTo = EventPattern.DamageEvent(
                 recipient = Recipient.Opponent,
-                source = SourceFilter.Matching(GameObjectFilter.Any.youControl()),
+                source = GameObjectFilter.Any.youControl(),
             )
         )
     )

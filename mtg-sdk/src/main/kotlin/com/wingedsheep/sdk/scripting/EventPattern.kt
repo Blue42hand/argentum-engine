@@ -48,13 +48,13 @@ enum class ExploreReveal { ANY, LAND, NONLAND }
  * // "Combat damage from red sources to creatures you control"
  * EventPattern.DamageEvent(
  *     recipient = Recipient.CreatureYouControl,
- *     source = SourceFilter.HasColor(Color.RED),
+ *     source = GameObjectFilter.Any.withColor(Color.RED),
  *     damageType = DamageType.Combat
  * )
  * ```
  *
  * Supporting filter types are organized in the events/ subdirectory:
- * - EventFilters.kt - Recipient, SourceFilter, DamageType,
+ * - EventFilters.kt - Recipient, DamageType,
  *                     ControllerFilter, Player
  * - Zone.kt - Zone enumeration
  */
@@ -88,13 +88,13 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
      * Examples:
      * - "damage would be dealt to you" → DamageEvent(recipient = Recipient.You)
      * - "combat damage would be dealt" → DamageEvent(damageType = DamageType.Combat)
-     * - "damage from red sources" → DamageEvent(source = SourceFilter.HasColor(RED))
+     * - "damage from red sources" → DamageEvent(source = GameObjectFilter.Any.withColor(RED))
      */
     @SerialName("DamageEvent")
     @Serializable
     data class DamageEvent(
         val recipient: Recipient = Recipient.Any,
-        val source: SourceFilter = SourceFilter.Any,
+        val source: GameObjectFilter = GameObjectFilter.Any,
         val damageType: DamageType = DamageType.Any,
         val amount: AmountFilter = AmountFilter.Any
     ) : EventPattern {
@@ -109,7 +109,7 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
             }
             append("damage would be dealt to ")
             append(recipient.description)
-            if (source != SourceFilter.Any) {
+            if (source != GameObjectFilter.Any) {
                 append(" from ")
                 append(source.description)
             }
@@ -1221,11 +1221,11 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
     @SerialName("DamageReceivedEvent")
     @Serializable
     data class DamageReceivedEvent(
-        val source: SourceFilter = SourceFilter.Any
+        val source: GameObjectFilter = GameObjectFilter.Any
     ) : EventPattern {
         override val description: String = buildString {
             append("this is dealt damage")
-            if (source != SourceFilter.Any) {
+            if (source != GameObjectFilter.Any) {
                 append(" by ")
                 append(source.description)
             }

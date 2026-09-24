@@ -84,6 +84,27 @@ sealed interface StatePredicate {
         override val description: String = "on the battlefield"
     }
 
+    /**
+     * The object is in [zone] *right now* — a zone-agnostic, current-location test. A spell is an
+     * object on the stack (CR 112.1), so `InZone(Zone.STACK)` is "a spell" as a damage source
+     * ("a spell you control would deal damage", Hostility): a spell stays on the stack until it has
+     * finished resolving, so its damage is dealt from there. A pipeline collection re-reads it to
+     * keep only the cards still where they were gathered ("…if you don't cast it, put that card
+     * into your hand").
+     *
+     * Only true of an object that is still that object: a card that has since moved on is in its
+     * new zone. For the battlefield prefer [IsOnBattlefield], which also cancels other predicates'
+     * last-known fallbacks.
+     */
+    @SerialName("InZone")
+    @Serializable
+    data class InZone(val zone: com.wingedsheep.sdk.core.Zone) : Entity {
+        override val description: String = when (zone) {
+            com.wingedsheep.sdk.core.Zone.STACK -> "spell"
+            else -> "in ${zone.displayName}"
+        }
+    }
+
     // =============================================================================
     // Combat (Entity)
     // =============================================================================

@@ -7811,7 +7811,9 @@
                             }
                         ]
                     },
-                    "source": "SourceYouControl"
+                    "source": {
+                        "controllerPredicate": "ControlledByYou"
+                    }
                 }
             }
         ]

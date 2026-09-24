@@ -8179,7 +8179,15 @@
                         "type": "RecipientPlayer",
                         "player": "EachOpponent"
                     },
-                    "source": "SourceSpellYouControl"
+                    "source": {
+                        "statePredicates": [
+                            {
+                                "type": "InZone",
+                                "zone": "Stack"
+                            }
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    }
                 },
                 "onPrevented": {
                     "type": "CreateToken",

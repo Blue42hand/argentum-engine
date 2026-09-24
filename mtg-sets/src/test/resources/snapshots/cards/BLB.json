@@ -20370,22 +20370,19 @@
                 "appliesTo": {
                     "type": "DamageEvent",
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": {
-                            "cardPredicates": [
-                                "IsCreature",
-                                {
-                                    "type": "HasAnyOfSubtypes",
-                                    "subtypes": [
-                                        "Lizard",
-                                        "Mouse",
-                                        "Otter",
-                                        "Raccoon"
-                                    ]
-                                }
-                            ],
-                            "controllerPredicate": "ControlledByYou"
-                        }
+                        "cardPredicates": [
+                            "IsCreature",
+                            {
+                                "type": "HasAnyOfSubtypes",
+                                "subtypes": [
+                                    "Lizard",
+                                    "Mouse",
+                                    "Otter",
+                                    "Raccoon"
+                                ]
+                            }
+                        ],
+                        "controllerPredicate": "ControlledByYou"
                     }
                 }
             }

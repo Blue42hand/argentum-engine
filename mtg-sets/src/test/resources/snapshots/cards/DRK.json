@@ -6250,8 +6250,9 @@
                         }
                     },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "creature"
+                        "cardPredicates": [
+                            "IsCreature"
+                        ]
                     }
                 }
             }

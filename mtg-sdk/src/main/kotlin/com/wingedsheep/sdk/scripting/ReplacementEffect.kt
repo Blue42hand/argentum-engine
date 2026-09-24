@@ -51,7 +51,7 @@ import kotlinx.serialization.Serializable
  * PreventDamage(
  *     appliesTo = EventPattern.DamageEvent(
  *         recipient = Recipient.You,
- *         source = SourceFilter.HasColor(Color.RED),
+ *         source = GameObjectFilter.Any.withColor(Color.RED),
  *         damageType = DamageType.Combat
  *     )
  * )
@@ -927,7 +927,7 @@ data class HalveDamage(
  *   permanent an opponent controls, it deals that much damage plus an amount of damage
  *   equal to the number of fire counters on this enchantment instead.") →
  *   `ModifyDamageAmount(dynamicModifier = DynamicAmounts.countersOnSelf(CounterType.FIRE),
- *                       appliesTo = DamageEvent(source = SourceFilter.YouControl,
+ *                       appliesTo = DamageEvent(source = GameObjectFilter.Any.youControl(),
  *                                               recipient = Recipient.OpponentOrPermanentTheyControl))`.
  *
  * When [dynamicModifier] is non-null it is evaluated with the replacement's source
@@ -1012,7 +1012,7 @@ data class CapDamage(
  * amount of noncombat damage less than Ojer Axonil's power to an opponent, that source deals
  * damage equal to Ojer Axonil's power instead." →
  * `SetMinimumDamage(dynamicMinimum = DynamicAmount.SourcePower, appliesTo = DamageEvent(
- *   recipient = Opponent, source = SourceFilter.Matching(red you-control), damageType = NonCombat))`.
+ *   recipient = Opponent, source = red you-control, damageType = NonCombat))`.
  */
 @SerialName("SetMinimumDamage")
 @Serializable

@@ -12194,8 +12194,13 @@
                         "player": "EachOpponent"
                     },
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": "red ctrl:you"
+                        "cardPredicates": [
+                            {
+                                "type": "HasColor",
+                                "color": "RED"
+                            }
+                        ],
+                        "controllerPredicate": "ControlledByYou"
                     },
                     "damageType": "DamageNonCombat"
                 }
