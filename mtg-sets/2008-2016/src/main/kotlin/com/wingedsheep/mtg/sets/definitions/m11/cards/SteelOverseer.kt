@@ -37,6 +37,6 @@ val SteelOverseer = card("Steel Overseer") {
         collectorNumber = "214"
         artist = "Chris Rahn"
         flavorText = "\"The world is already run by all manner of machines. One day, they'll remind us of that fact.\"\n—Sargis Haz, artificer"
-        imageUri = "https://cards.scryfall.io/normal/front/b/9/b9da673d-7cc0-4435-b5a5-5098630f7712.jpg"
+        imageUri = "https://cards.scryfall.io/normal/front/b/9/b9da673d-7cc0-4435-b5a5-5098630f7712.jpg?1783941788"
     }
 }
