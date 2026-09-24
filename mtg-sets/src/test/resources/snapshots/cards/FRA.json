@@ -274,7 +274,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "loyalty",
+                    "counterType": "LOYALTY",
                     "count": 1,
                     "target": "Self"
                 },
@@ -325,7 +325,7 @@
                             "binding": "ANY",
                             "effect": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": "Self"
                             },
@@ -429,12 +429,12 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "HASTE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -523,7 +523,7 @@
                             "type": "Fixed",
                             "amount": 4
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "timing": "SorcerySpeed",
@@ -2047,67 +2047,64 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "TopOfLibrary",
-                                "count": {
-                                    "type": "Fixed",
-                                    "amount": 1
-                                }
-                            },
-                            "storeAs": "surveiled"
-                        },
-                        {
-                            "type": "SelectFromCollection",
-                            "from": "surveiled",
-                            "selection": {
-                                "type": "ChooseUpTo",
-                                "count": {
-                                    "type": "Fixed",
-                                    "amount": 1
-                                }
-                            },
-                            "storeSelected": "toGraveyard",
-                            "storeRemainder": "toTop",
-                            "selectedLabel": "Put in graveyard",
-                            "remainderLabel": "Put on top"
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "toGraveyard",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Graveyard"
-                            },
-                            "storeMovedAs": "milled"
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "toTop",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Library",
-                                "placement": "Top"
-                            },
-                            "order": "ControllerChooses"
-                        },
-                        "EmitSurveiledEvent",
-                        {
-                            "type": "FilterCollection",
-                            "from": "milled",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "noncreature nonland"
-                            },
-                            "storeMatching": "returned"
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "TopOfLibrary",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "storeAs": "surveiled"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "surveiled",
+                                    "selection": {
+                                        "type": "ChooseUpTo",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "storeSelected": "toGraveyard",
+                                    "storeRemainder": "toTop",
+                                    "selectedLabel": "Put in graveyard",
+                                    "remainderLabel": "Put on top"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "toGraveyard",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    },
+                                    "storeMovedAs": "stored0"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "toTop",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Library",
+                                        "placement": "Top"
+                                    },
+                                    "order": "ControllerChooses"
+                                },
+                                "EmitSurveiledEvent"
+                            ]
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "returned",
+                            "from": "stored0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"
-                            }
+                            },
+                            "filter": "noncreature nonland"
                         }
                     ]
                 },
@@ -2149,7 +2146,7 @@
                         },
                         {
                             "type": "AddDynamicCounters",
-                            "counterType": "stun",
+                            "counterType": "STUN",
                             "amount": "XValue",
                             "target": {
                                 "type": "BoundVariable",
@@ -2493,7 +2490,10 @@
                         "type": "DealDamage",
                         "amount": {
                             "type": "EntityProperty",
-                            "entity": "Target",
+                            "entity": {
+                                "type": "BoundVariable",
+                                "name": "target creature you control"
+                            },
                             "numericProperty": "Power"
                         },
                         "target": {
@@ -2528,10 +2528,13 @@
                         "type": "DealDamage",
                         "amount": {
                             "type": "EntityProperty",
-                            "entity": "Target",
+                            "entity": {
+                                "type": "BoundVariable",
+                                "name": "target planeswalker you control"
+                            },
                             "numericProperty": {
                                 "type": "CounterCount",
-                                "counterType": "Loyalty"
+                                "counterType": "LOYALTY"
                             }
                         },
                         "target": {
@@ -2632,7 +2635,7 @@
                         {
                             "type": "AddCountersToCollection",
                             "collectionName": "empower_jace",
-                            "counterType": "loyalty",
+                            "counterType": "LOYALTY",
                             "amount": {
                                 "type": "Fixed",
                                 "amount": 1
@@ -2857,8 +2860,8 @@
             "count": {
                 "type": "TurnTracking",
                 "player": {
-                    "type": "ContextPlayer",
-                    "index": 0
+                    "type": "BoundVariable",
+                    "name": "target player"
                 },
                 "tracker": "CARDS_PUT_INTO_GRAVEYARD_FROM_LIBRARY"
             }
@@ -4190,7 +4193,7 @@
                                         "type": "ToZone",
                                         "zone": "Graveyard"
                                     },
-                                    "storeMovedAs": "surveiledIntoGraveyard"
+                                    "storeMovedAs": "stored0"
                                 },
                                 {
                                     "type": "MoveCollection",
@@ -4207,7 +4210,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "surveiledIntoGraveyard",
+                            "from": "stored0",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"
@@ -5026,17 +5029,17 @@
                                 "zone": "Library",
                                 "filter": "basicland"
                             },
-                            "storeAs": "searchable",
+                            "storeAs": "gathered0",
                             "search": true
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "searchable",
+                            "from": "gathered0",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": "XValue"
                             },
-                            "storeSelected": "found",
+                            "storeSelected": "selected1",
                             "prompt": "Search for up to X basic land cards with different names",
                             "restrictions": [
                                 "OnePerCardName"
@@ -5044,7 +5047,7 @@
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "found",
+                            "from": "selected1",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"
@@ -5221,8 +5224,8 @@
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "Target",
-                            "index": 1
+                            "type": "BoundVariable",
+                            "name": "target creature you control"
                         },
                         "numericProperty": "Power"
                     },
@@ -5625,7 +5628,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -5643,13 +5646,10 @@
                     "color": "GREEN",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     }
                 },
@@ -5791,12 +5791,12 @@
                                         "type": "Fixed",
                                         "amount": 2
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 },
                                 {
                                     "type": "GrantKeyword",
                                     "keyword": "TRAMPLE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             ]
                         }
@@ -5934,11 +5934,11 @@
                                     "type": "FromZone",
                                     "zone": "Hand"
                                 },
-                                "storeAs": "garruk_hand"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "SelectFromCollection",
-                                "from": "garruk_hand",
+                                "from": "gathered0",
                                 "selection": {
                                     "type": "ChooseExactly",
                                     "count": {
@@ -5946,22 +5946,22 @@
                                         "amount": 2
                                     }
                                 },
-                                "storeSelected": "garruk_discard",
+                                "storeSelected": "selected1",
                                 "prompt": "Choose two cards to discard"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "garruk_discard",
+                                "from": "selected1",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Graveyard"
                                 },
                                 "moveType": "Discard",
-                                "storeMovedAs": "garruk_discarded"
+                                "storeMovedAs": "moved2"
                             },
                             {
                                 "type": "ConditionalOnCollection",
-                                "collection": "garruk_discarded",
+                                "collection": "moved2",
                                 "ifNotEmpty": {
                                     "type": "Composite",
                                     "effects": []
@@ -6825,7 +6825,7 @@
                     "space": "IterationSpace.Targets",
                     "body": {
                         "type": "AddDynamicCounters",
-                        "counterType": "-1/-1",
+                        "counterType": "MINUS_ONE_MINUS_ONE",
                         "amount": {
                             "type": "AggregateZone",
                             "player": "You",
@@ -7689,7 +7689,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "revealed1",
-                            "filter": {
+                            "collectionFilter": {
                                 "type": "ExcludeOtherCollection",
                                 "otherCollectionName": "matched1"
                             },
@@ -7955,14 +7955,14 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "CountersPlacedEvent",
-                    "counterType": "loyalty",
+                    "counterType": "LOYALTY",
                     "filter": "planeswalker",
                     "placedBy": "You"
                 },
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -8025,7 +8025,7 @@
                         {
                             "type": "AddCountersToCollection",
                             "collectionName": "empower_jace",
-                            "counterType": "loyalty",
+                            "counterType": "LOYALTY",
                             "amount": {
                                 "type": "Fixed",
                                 "amount": 2
@@ -8118,7 +8118,7 @@
                         {
                             "type": "AddCountersToCollection",
                             "collectionName": "empower_jace",
-                            "counterType": "loyalty",
+                            "counterType": "LOYALTY",
                             "amount": {
                                 "type": "Fixed",
                                 "amount": 8
@@ -8202,7 +8202,7 @@
                         {
                             "type": "AddCountersToCollection",
                             "collectionName": "empower_jace",
-                            "counterType": "loyalty",
+                            "counterType": "LOYALTY",
                             "amount": {
                                 "type": "AggregateBattlefield",
                                 "player": "You",
@@ -8291,11 +8291,11 @@
                                         }
                                     }
                                 },
-                                "storeAs": "realitySculptorExiled"
+                                "storeAs": "gathered0"
                             },
                             {
                                 "type": "MoveCollection",
-                                "from": "realitySculptorExiled",
+                                "from": "gathered0",
                                 "destination": {
                                     "type": "ToZone",
                                     "zone": "Exile"
@@ -8315,7 +8315,7 @@
                                 "player": "You",
                                 "filter": "planeswalker Jace",
                                 "aggregation": "SUM",
-                                "counterType": "Loyalty"
+                                "counterType": "LOYALTY"
                             },
                             "operator": "GTE",
                             "right": {
@@ -8423,7 +8423,7 @@
                         },
                         {
                             "type": "AddDynamicCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "amount": {
                                 "type": "TurnTracking",
                                 "player": "You",
@@ -11496,7 +11496,7 @@
                         {
                             "type": "AddCountersToCollection",
                             "collectionName": "empower_jace",
-                            "counterType": "loyalty",
+                            "counterType": "LOYALTY",
                             "amount": {
                                 "type": "Fixed",
                                 "amount": 1
@@ -13903,18 +13903,19 @@
                             ]
                         },
                         {
+                            "type": "FilterCollection",
+                            "from": "discarded",
+                            "filter": "nonland",
+                            "storeMatching": "matching2"
+                        },
+                        {
                             "type": "ConditionalOnCollection",
-                            "collection": "discarded",
+                            "collection": "matching2",
                             "ifNotEmpty": {
                                 "type": "ReflexiveTrigger",
                                 "action": {
-                                    "type": "FilterCollection",
-                                    "from": "discarded",
-                                    "filter": {
-                                        "type": "MatchesFilter",
-                                        "filter": "nonland"
-                                    },
-                                    "storeMatching": "discardedNonland"
+                                    "type": "Composite",
+                                    "effects": []
                                 },
                                 "optional": false,
                                 "reflexiveEffect": {
@@ -13932,7 +13933,7 @@
                                             },
                                             {
                                                 "type": "AddCounters",
-                                                "counterType": "stun",
+                                                "counterType": "STUN",
                                                 "count": 1,
                                                 "target": {
                                                     "type": "ContextTarget",
@@ -13951,13 +13952,12 @@
                                         },
                                         "dynamicMaxCount": {
                                             "type": "VariableReference",
-                                            "variableName": "discardedNonland_count"
+                                            "variableName": "matching2_count"
                                         }
                                     }
                                 ],
                                 "descriptionOverride": "When you discard one or more nonland cards this way, tap up to that many target creatures and put a stun counter on each of them."
-                            },
-                            "filter": "nonland"
+                            }
                         }
                     ]
                 },
@@ -16410,7 +16410,7 @@
                             },
                             "body": {
                                 "type": "AddDynamicCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "amount": {
                                     "type": "Count",
                                     "player": "You",
@@ -16683,7 +16683,7 @@
                         {
                             "type": "AddCountersToCollection",
                             "collectionName": "empower_jace",
-                            "counterType": "loyalty",
+                            "counterType": "LOYALTY",
                             "amount": {
                                 "type": "Fixed",
                                 "amount": 2
@@ -17250,7 +17250,7 @@
                                 "statePredicates": [
                                     {
                                         "type": "HasCounter",
-                                        "counterType": "+1/+1"
+                                        "counterType": "PLUS_ONE_PLUS_ONE"
                                     }
                                 ]
                             }
@@ -18305,7 +18305,7 @@
                         "type": "BoundVariable",
                         "name": "target creature or planeswalker"
                     },
-                    "excessDamageVariable": "violentEchoesExcess"
+                    "excessDamageVariable": "storedNumber0"
                 },
                 {
                     "type": "Gated",
@@ -18315,7 +18315,7 @@
                             "type": "Compare",
                             "left": {
                                 "type": "VariableReference",
-                                "variableName": "violentEchoesExcess"
+                                "variableName": "storedNumber0"
                             },
                             "operator": "GT",
                             "right": {
@@ -18364,20 +18364,20 @@
                                     }
                                 },
                                 "storeSelected": "empower_jace",
-                                "prompt": "Empower Jace the stored violentEchoesExcess — choose a Jace token you control",
+                                "prompt": "Empower Jace that much — choose a Jace token you control",
                                 "useTargetingUI": true
                             },
                             {
                                 "type": "AddCountersToCollection",
                                 "collectionName": "empower_jace",
-                                "counterType": "loyalty",
+                                "counterType": "LOYALTY",
                                 "amount": {
                                     "type": "VariableReference",
-                                    "variableName": "violentEchoesExcess"
+                                    "variableName": "storedNumber0"
                                 }
                             }
                         ],
-                        "descriptionOverride": "Empower Jace the stored violentEchoesExcess"
+                        "descriptionOverride": "Empower Jace that much"
                     }
                 }
             ]
@@ -19443,7 +19443,7 @@
                         {
                             "type": "AddCountersToCollection",
                             "collectionName": "empower_jace",
-                            "counterType": "loyalty",
+                            "counterType": "LOYALTY",
                             "amount": {
                                 "type": "Fixed",
                                 "amount": 5

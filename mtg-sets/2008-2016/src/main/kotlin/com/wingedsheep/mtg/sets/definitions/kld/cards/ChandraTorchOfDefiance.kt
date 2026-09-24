@@ -90,7 +90,7 @@ val ChandraTorchOfDefiance = card("Chandra, Torch of Defiance") {
         effect = Effects.CreateGlobalTriggeredAbility(
             ability = grantedTriggeredAbility {
                 trigger = TriggerSpec(Triggers.YouCastSpell.event, TriggerBinding.ANY)
-                val anyTarget = target("target any", Targets.Any)
+                val anyTarget = target("any target", Targets.Any)
                 effect = Effects.DealDamage(5, anyTarget)
                 description = "Whenever you cast a spell, this emblem deals 5 damage to any target."
             },
