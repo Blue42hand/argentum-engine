@@ -31,7 +31,7 @@ val WingnutBatOnTheBelfry = card("Wingnut, Bat on the Belfry") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.OtherCreatureEnters
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
         effect = Effects.Modal(
             modes = listOf(
                 Mode.noTarget(
@@ -54,7 +54,7 @@ val WingnutBatOnTheBelfry = card("Wingnut, Bat on the Belfry") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(
                 GameObjectFilter.Creature.attacking(),

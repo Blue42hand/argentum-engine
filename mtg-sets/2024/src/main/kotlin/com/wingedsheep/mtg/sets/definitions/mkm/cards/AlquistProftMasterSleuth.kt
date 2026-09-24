@@ -28,7 +28,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  *   type like any other (2024-02-02 ruling), so a printed Clue artifact such as Wrench pays it just
  *   as well as an investigated token. Because it is a cost, the sacrifice is spent: the same Clue
  *   can't also pay for its own "{2}, Sacrifice this token: Draw a card", and any
- *   `Triggers.YouSacrificeA(Clue)` payoff on the board sees it.
+ *   `Triggers.you.sacrifices(Clue)` payoff on the board sees it.
  * - **X is one value read twice.** `{X}` is announced when the ability is activated (CR 601.2b via
  *   the activation path), and both halves of the payoff read the same
  *   [DynamicAmount.XValue] — so the draw and the lifegain can never disagree, which a pair of
@@ -52,7 +52,7 @@ val AlquistProftMasterSleuth = card("Alquist Proft, Master Sleuth") {
     keywords(Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Investigate()
         description = "When Alquist Proft enters, investigate."
     }

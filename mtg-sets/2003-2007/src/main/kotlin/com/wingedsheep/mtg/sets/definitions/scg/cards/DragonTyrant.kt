@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Dragon Tyrant
@@ -31,7 +32,7 @@ val DragonTyrant = card("Dragon Tyrant") {
     keywords(Keyword.FLYING, Keyword.TRAMPLE, Keyword.DOUBLE_STRIKE)
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Mana(ManaCost.parse("{R}{R}{R}{R}")),
             suffer = SacrificeSelfEffect

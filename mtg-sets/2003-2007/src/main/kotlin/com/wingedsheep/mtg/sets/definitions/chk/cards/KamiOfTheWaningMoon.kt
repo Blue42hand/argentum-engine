@@ -17,7 +17,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  * Whenever you cast a Spirit or Arcane spell, target creature gains fear until end of turn.
  *
  * The Kamigawa block's signature payoff trigger. "Whenever you cast a Spirit or Arcane spell" is a
- * [Triggers.youCastSpell] over a homogeneous OR of two subtype filters, which the SDK collapses to
+ * `Triggers.you.casts(spell, requires)` over a homogeneous OR of two subtype filters, which the SDK collapses to
  * a single `CardPredicate.Or` — the flat shape the whole engine already resolves subtypes against.
  * The binding is `ANY` (the factory's default), not `OTHER`: the card watches every Spirit or
  * Arcane spell *you* cast, including the one that is this card itself when a later copy is cast
@@ -39,9 +39,7 @@ val KamiOfTheWaningMoon = card("Kami of the Waning Moon") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.Any.withAnySubtype("Spirit", "Arcane")
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.Any.withAnySubtype("Spirit", "Arcane"))
         val creature = target("target", Targets.Creature)
         effect = Effects.GrantKeyword(Keyword.FEAR, creature)
         description = "Whenever you cast a Spirit or Arcane spell, target creature gains fear " +

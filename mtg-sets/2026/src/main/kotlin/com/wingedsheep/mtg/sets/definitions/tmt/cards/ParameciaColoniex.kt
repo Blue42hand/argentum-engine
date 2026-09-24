@@ -28,7 +28,7 @@ val ParameciaColoniex = card("Paramecia Coloniex") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.mill(3)
         description = "When this creature enters, mill three cards."
     }
@@ -37,7 +37,7 @@ val ParameciaColoniex = card("Paramecia Coloniex") {
     // top of your library." triggerZone = GRAVEYARD lets "it" reference Self; the
     // reflexive trigger picks its graveyard target only after the optional exile.
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         triggerZone = Zone.GRAVEYARD
         effect = Effects.ReflexiveTrigger(
             action = Effects.Exile(EffectTarget.Self),

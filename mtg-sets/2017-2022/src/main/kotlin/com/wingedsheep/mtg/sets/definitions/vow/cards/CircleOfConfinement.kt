@@ -34,7 +34,7 @@ val CircleOfConfinement = card("Circle of Confinement") {
         "this enchantment, you gain 2 life."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target",
             TargetCreature(filter = TargetFilter.Creature.manaValueAtMost(3).opponentControls())
@@ -43,16 +43,14 @@ val CircleOfConfinement = card("Circle of Confinement") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 
     triggeredAbility {
-        trigger = Triggers.opponentCasts(
-            spellFilter = GameObjectFilter.Any
+        trigger = Triggers.anOpponent.casts(GameObjectFilter.Any
                 .withSubtype("Vampire")
-                .sharingNameWith(EffectTarget.LinkedExiledCard()),
-        )
+                .sharingNameWith(EffectTarget.LinkedExiledCard()))
         effect = Effects.GainLife(2)
         description = "Whenever an opponent casts a Vampire spell with the same name as a card " +
             "exiled with Circle of Confinement, you gain 2 life."

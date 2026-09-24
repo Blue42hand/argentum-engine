@@ -39,7 +39,7 @@ val PicturesOfSpiderMan = card("Pictures of Spider-Man") {
         "Sacrifice this token: Add one mana of any color.\")"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val looked = gather(CardSource.TopOfLibrary(5))
             // You may reveal up to two creature cards from among them and put them into your hand.

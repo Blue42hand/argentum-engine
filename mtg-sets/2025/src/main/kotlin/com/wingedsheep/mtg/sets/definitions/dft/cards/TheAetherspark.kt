@@ -8,9 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBeAttackedWhileAttached
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -37,11 +34,7 @@ val TheAetherspark = card("The Aetherspark") {
     }
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.Combat,
-            recipient = Recipient.Any,
-            binding = TriggerBinding.ATTACHED,
-        )
+        trigger = Triggers.attached.dealsCombatDamage()
         triggerRestriction = Conditions.IsYourTurn
         effect = Effects.AddDynamicCounters(
             CounterType.LOYALTY,

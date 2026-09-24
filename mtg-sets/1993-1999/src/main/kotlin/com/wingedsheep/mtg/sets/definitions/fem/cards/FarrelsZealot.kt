@@ -33,7 +33,7 @@ val FarrelsZealot = card("Farrel's Zealot") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.AttacksAndIsntBlocked
+        trigger = Triggers.self.attacksAndIsntBlocked()
         val t = target("target creature", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.May(
             Effects.Composite(

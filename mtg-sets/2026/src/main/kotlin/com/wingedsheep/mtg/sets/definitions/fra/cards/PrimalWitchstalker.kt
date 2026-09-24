@@ -28,7 +28,7 @@ val PrimalWitchstalker = card("Primal Witchstalker") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Patterns.Library.mill(4),
             optional = false) {

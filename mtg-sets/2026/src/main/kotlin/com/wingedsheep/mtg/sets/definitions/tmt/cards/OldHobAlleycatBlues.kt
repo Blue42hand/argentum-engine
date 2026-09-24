@@ -48,7 +48,7 @@ val OldHobAlleycatBlues = card("Old Hob, Alleycat Blues") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,

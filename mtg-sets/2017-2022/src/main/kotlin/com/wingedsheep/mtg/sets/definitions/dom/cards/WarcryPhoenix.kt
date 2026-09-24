@@ -5,12 +5,10 @@ import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern.YouAttackEvent
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Warcry Phoenix
@@ -32,7 +30,7 @@ val WarcryPhoenix = card("Warcry Phoenix") {
     keywords(Keyword.FLYING, Keyword.HASTE)
 
     triggeredAbility {
-        trigger = TriggerSpec(YouAttackEvent(minAttackers = 3), TriggerBinding.ANY)
+        trigger = Triggers.you.attacks(minAttackers = 3)
         triggerZone = Zone.GRAVEYARD
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}{R}"),

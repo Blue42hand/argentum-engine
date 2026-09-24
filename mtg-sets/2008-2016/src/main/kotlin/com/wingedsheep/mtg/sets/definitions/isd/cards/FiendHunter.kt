@@ -41,7 +41,7 @@ val FiendHunter = card("Fiend Hunter") {
 
     // ETB: you may exile another target creature (until this leaves).
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "another target creature",
             TargetCreature(filter = TargetFilter.OtherCreature, optional = true)
@@ -51,7 +51,7 @@ val FiendHunter = card("Fiend Hunter") {
 
     // LTB: return the exiled card under its owner's control.
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

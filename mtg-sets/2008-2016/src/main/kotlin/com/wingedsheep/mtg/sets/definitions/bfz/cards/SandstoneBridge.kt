@@ -27,7 +27,7 @@ val SandstoneBridge = card("Sandstone Bridge") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", Targets.Creature)
         effect = Effects.Composite(
             Effects.ModifyStats(power = 1, toughness = 1, target = t),

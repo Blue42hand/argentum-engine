@@ -23,7 +23,7 @@ val ShamblingGoblin = card("Shambling Goblin") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val creature = target("target creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.ModifyStats(-1, -1, creature)
         description = "When this creature dies, target creature an opponent controls gets -1/-1 until end of turn."

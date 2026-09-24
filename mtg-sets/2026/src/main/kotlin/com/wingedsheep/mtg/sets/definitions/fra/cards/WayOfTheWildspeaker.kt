@@ -20,7 +20,7 @@ val WayOfTheWildspeaker = card("Way of the Wildspeaker") {
         "Planeswalkers you control have \"[−4]: Create a 4/4 green Beast creature token with trample.\""
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Mechanic.empowerJace(7)
     }
 

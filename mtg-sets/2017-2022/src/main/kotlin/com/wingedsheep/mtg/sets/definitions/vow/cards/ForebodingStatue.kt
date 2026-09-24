@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Foreboding Statue // Forsaken Thresher (Innistrad: Crimson Vow)
@@ -57,7 +58,7 @@ private val ForebodingStatueFront = card("Foreboding Statue") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.SourceCounterCountAtLeast(CounterType.OMEN, 3)
         effect = Effects.Untap(EffectTarget.Self) then Effects.Transform(EffectTarget.Self)
         description = "At the beginning of your end step, if there are three or more omen counters " +
@@ -88,7 +89,7 @@ private val ForsakenThresher = card("Forsaken Thresher") {
     oracleText = "At the beginning of your first main phase, add one mana of any color."
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.AddAnyColorMana(1)
         description = "At the beginning of your first main phase, add one mana of any color."
     }

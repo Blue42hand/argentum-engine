@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Enlightened Confidant — "if you gained life this turn" is an intervening-if
@@ -34,7 +35,7 @@ val EnlightenedConfidant = card("Enlightened Confidant") {
     keywords(Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.YouGainedLifeThisTurn
         effect = Effects.Pipeline {
             val surveiledIntoGraveyard = runStoringCollection { Patterns.Library.surveil(1, storeGraveyardAs = it) }

@@ -30,7 +30,7 @@ val MisterNegative = card("Mister Negative") {
     keywords(Keyword.VIGILANCE, Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.May(
             effect = Effects.ExchangeLifeTotals(target = opponent, drawEqualToLifeLost = true)

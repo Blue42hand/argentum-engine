@@ -28,7 +28,7 @@ val CartoucheOfKnowledge = card("Cartouche of Knowledge") {
     auraTarget = Targets.CreatureYouControl
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(1)
     }
 

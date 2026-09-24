@@ -29,7 +29,7 @@ val IngeniousThief = card("Ingenious Thief") {
     toughness = 1
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetPlayer())
         effect = Effects.LookAtHand(t)
     }

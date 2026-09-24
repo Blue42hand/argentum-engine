@@ -27,7 +27,7 @@ val FlametongueKavu = card("Flametongue Kavu") {
     power = 4
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.DealDamage(4, t)
     }

@@ -29,7 +29,7 @@ val MistfireWeaver = card("Mistfire Weaver") {
     morph = "{2}{U}"
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val t = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.GrantKeyword(Keyword.HEXPROOF, t)
     }

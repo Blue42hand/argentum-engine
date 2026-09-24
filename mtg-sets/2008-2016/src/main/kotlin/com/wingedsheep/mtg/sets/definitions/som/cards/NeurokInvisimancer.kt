@@ -31,7 +31,7 @@ val NeurokInvisimancer = card("Neurok Invisimancer") {
     flags(AbilityFlag.CANT_BE_BLOCKED)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", Targets.Creature)
         effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t)
     }

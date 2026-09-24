@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
+import com.wingedsheep.sdk.scripting.ControlChangeDirection
 
 /**
  * Zidane, Tantalus Thief
@@ -18,7 +19,7 @@ import com.wingedsheep.sdk.scripting.Duration
  * Untap it. It gains lifelink and haste until end of turn.
  * Whenever an opponent gains control of a permanent from you, you create a Treasure token.
  *
- * The second ability uses [Triggers.OpponentGainsControlOfYourPermanent] — a resident, battlefield-
+ * The second ability uses `Triggers.a().controlChanges(ControlChangeDirection.LOST, toOpponent = true)` — a resident, battlefield-
  * wide control-change watcher that fires once for each permanent an opponent takes from you. Per the
  * official ruling it fires for each such permanent (creating one Treasure each), including Zidane
  * itself when it is the permanent being stolen (the trigger still resolves for its old controller).
@@ -31,7 +32,7 @@ val ZidaneTantalusThief = card("Zidane, Tantalus Thief") {
     power = 3
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.Composite(
             Effects.GainControl(t, Duration.EndOfTurn),
@@ -41,7 +42,7 @@ val ZidaneTantalusThief = card("Zidane, Tantalus Thief") {
         )
     }
     triggeredAbility {
-        trigger = Triggers.OpponentGainsControlOfYourPermanent
+        trigger = Triggers.a().controlChanges(ControlChangeDirection.LOST, toOpponent = true)
         effect = Effects.CreateTreasure(1)
     }
     metadata {

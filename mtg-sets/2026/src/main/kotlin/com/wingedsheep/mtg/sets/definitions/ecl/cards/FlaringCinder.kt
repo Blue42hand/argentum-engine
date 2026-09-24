@@ -5,11 +5,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern.SpellCastEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.references.Player
 
 /**
  * Flaring Cinder
@@ -29,7 +25,7 @@ val FlaringCinder = card("Flaring Cinder") {
         "you may discard a card. If you do, draw a card."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             effect = Patterns.Hand.discardCards(1)
                 .then(Effects.DrawCards(1)),
@@ -38,13 +34,7 @@ val FlaringCinder = card("Flaring Cinder") {
     }
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            SpellCastEvent(
-                spellFilter = GameObjectFilter.Any.manaValueAtLeast(4),
-                player = Player.You
-            ),
-            TriggerBinding.ANY
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.Any.manaValueAtLeast(4))
         effect = Effects.May(
             effect = Patterns.Hand.discardCards(1)
                 .then(Effects.DrawCards(1)),

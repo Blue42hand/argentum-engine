@@ -36,7 +36,7 @@ val SunspineLynx = card("Sunspine Lynx") {
     replacementEffect(DamageCantBePrevented())
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachPlayer(
             players = Player.Each,
             effect = Effects.DealDamage(

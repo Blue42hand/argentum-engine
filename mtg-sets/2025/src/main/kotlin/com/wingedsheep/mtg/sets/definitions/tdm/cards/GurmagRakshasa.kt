@@ -30,7 +30,7 @@ val GurmagRakshasa = card("Gurmag Rakshasa") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponentCreature = target("creature an opponent controls", Targets.CreatureOpponentControls)
         val yourCreature = target("creature you control", Targets.CreatureYouControl)
         effect = Effects.ModifyStats(-2, -2, opponentCreature)

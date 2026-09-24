@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Ornery Tumblewagg
@@ -39,13 +40,13 @@ val OrneryTumblewagg = card("Ornery Tumblewagg") {
     keywordAbility(KeywordAbility.saddle(2))
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val creature = target("target creature", TargetCreature())
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         triggerRestriction = Conditions.SourceIsSaddled
         val creature = target("target creature", TargetCreature())
         effect = Effects.DoubleCounters(CounterType.PLUS_ONE_PLUS_ONE, creature)

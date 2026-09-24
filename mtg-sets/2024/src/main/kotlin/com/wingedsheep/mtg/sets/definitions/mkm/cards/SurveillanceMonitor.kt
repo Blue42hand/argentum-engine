@@ -38,13 +38,13 @@ val SurveillanceMonitor = card("Surveillance Monitor") {
         "with flying."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(Effects.CollectEvidence(4))
         description = "When this creature enters, you may collect evidence 4."
     }
 
     triggeredAbility {
-        trigger = Triggers.WheneverYouCollectEvidence
+        trigger = Triggers.you.collectsEvidence()
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

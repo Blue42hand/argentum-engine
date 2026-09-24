@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 private val CryptolithFragmentFront = card("Cryptolith Fragment") {
     manaCost = "{3}"
@@ -33,7 +34,7 @@ private val CryptolithFragmentFront = card("Cryptolith Fragment") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.EachPlayerLifeAtMost(10)
         effect = Effects.Transform(EffectTarget.Self)
     }
@@ -57,7 +58,7 @@ private val AuroraOfEmrakul = card("Aurora of Emrakul") {
     keywords(Keyword.FLYING, Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.LoseLife(3, EffectTarget.PlayerRef(Player.EachOpponent))
     }
 

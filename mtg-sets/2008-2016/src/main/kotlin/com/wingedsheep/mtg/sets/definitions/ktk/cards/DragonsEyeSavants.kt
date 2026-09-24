@@ -28,7 +28,7 @@ val DragonsEyeSavants = card("Dragon's Eye Savants") {
     morphCost = Costs.pay.RevealCard(filter = GameObjectFilter.Any.withColor(Color.BLUE))
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val t = target("target opponent", Targets.Opponent)
         effect = Effects.LookAtHand(t)
     }

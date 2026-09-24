@@ -47,7 +47,7 @@ val GastalThrillroller = card("Gastal Thrillroller") {
     keywords(Keyword.TRAMPLE, Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.BecomeCreature(
             target = EffectTarget.Self,
             power = 4,

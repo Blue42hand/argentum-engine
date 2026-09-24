@@ -34,7 +34,7 @@ val CunningCoyote = card("Cunning Coyote") {
     keywordAbility(KeywordAbility.plot("{1}{R}"))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
         effect = Effects.Composite(
             Effects.ModifyStats(power = 1, toughness = 1, target = t),

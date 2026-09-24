@@ -32,7 +32,7 @@ val RocketPoweredGoblinGlider = card("Rocket-Powered Goblin Glider") {
     oracleText = "When this Equipment enters, if it was cast from your graveyard, attach it to target creature you control.\nEquipped creature gets +2/+0 and has flying and haste.\nEquip {2}\nMayhem {2}"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.WasCastFromGraveyard
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.AttachEquipment(creature)

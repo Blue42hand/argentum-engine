@@ -29,7 +29,7 @@ val AgrusKosWojekVeteran = card("Agrus Kos, Wojek Veteran") {
     power = 3
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withColor(Color.RED).attacking()),

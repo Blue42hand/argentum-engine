@@ -24,7 +24,7 @@ val PriestOfAncientLore = card("Priest of Ancient Lore") {
     oracleText = "When this creature enters, you gain 1 life and draw a card."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.GainLife(1),
             Effects.DrawCards(1),

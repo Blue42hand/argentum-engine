@@ -28,7 +28,7 @@ val Kingfisher = card("Kingfisher") {
     toughness = 2
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.DrawCards(1)
     }
     metadata {

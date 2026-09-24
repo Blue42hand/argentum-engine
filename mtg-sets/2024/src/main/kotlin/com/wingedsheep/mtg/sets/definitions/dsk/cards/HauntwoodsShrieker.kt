@@ -42,7 +42,7 @@ val HauntwoodsShrieker = card("Hauntwoods Shrieker") {
         "{1}{G}: Reveal target face-down permanent. If it's a creature card, you may turn it face up."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Patterns.Library.manifestDread()
     }
 

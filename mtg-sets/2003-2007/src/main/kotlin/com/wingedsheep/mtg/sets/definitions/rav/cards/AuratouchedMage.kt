@@ -40,7 +40,7 @@ val AuratouchedMage = card("Auratouched Mage") {
         "Otherwise, reveal the Aura card and put it into your hand. Then shuffle."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val searchable = gather(
                 CardSource.FromZone(

@@ -27,7 +27,7 @@ val EarthVillageRuffians = card("Earth Village Ruffians") {
     power = 3
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val t = target("target", TargetPermanent(filter = TargetFilter.Land.youControl()))
         effect = Effects.Earthbend(2, t)
     }

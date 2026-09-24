@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -62,7 +61,7 @@ val MeathookMassacreII = card("Meathook Massacre II") {
 
     // When Meathook Massacre II enters, each player sacrifices X creatures of their choice.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Sacrifice(
             filter = GameObjectFilter.Creature,
             count = DynamicAmounts.castX(),
@@ -73,7 +72,7 @@ val MeathookMassacreII = card("Meathook Massacre II") {
     // Whenever a creature you control dies, you may pay 3 life. If you do, return that card under
     // your control with a finality counter on it.
     triggeredAbility {
-        trigger = Triggers.YourCreatureDies
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dies()
         effect = Effects.MayPay(
             cost = Effects.PayLife(3),
             then = returnDeadCreatureUnderYourControl(),
@@ -85,11 +84,7 @@ val MeathookMassacreII = card("Meathook Massacre II") {
     // Whenever a creature an opponent controls dies, they may pay 3 life. If they don't, return that
     // card under your control with a finality counter on it.
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.opponentControls(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.opponentControls()).dies()
         effect = Effects.PayOrSuffer(
             // The dying creature's last-known controller (the opponent) decides and pays the 3 life.
             player = EffectTarget.PlayerRef(Player.TriggeringPlayer),

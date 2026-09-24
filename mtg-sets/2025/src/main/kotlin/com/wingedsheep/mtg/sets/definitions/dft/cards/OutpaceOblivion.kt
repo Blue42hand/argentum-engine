@@ -45,7 +45,7 @@ val OutpaceOblivion = card("Outpace Oblivion") {
     startYourEngines()
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "up to one target creature or planeswalker",
             TargetCreatureOrPlaneswalker(optional = true),

@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
  * Plot {R}
  *
  * Reach for the Sky's aura shape (static [ModifyStats] + per-keyword static [GrantKeyword]) with a
- * self [Triggers.PutIntoGraveyardFromBattlefield] draw trigger. Plot is the standard
+ * self `Triggers.self.dies()` draw trigger. Plot is the standard
  * [KeywordAbility.plot] exile-and-cast-later mechanic.
  */
 val DemonicRuckus = card("Demonic Ruckus") {
@@ -48,7 +48,7 @@ val DemonicRuckus = card("Demonic Ruckus") {
     }
 
     triggeredAbility {
-        trigger = Triggers.PutIntoGraveyardFromBattlefield
+        trigger = Triggers.self.dies()
         effect = Effects.DrawCards(1)
     }
 

@@ -30,7 +30,7 @@ val PileatedProvisioner = card("Pileated Provisioner") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("creature without flying", TargetObject(
             filter = TargetFilter.CreatureYouControl.withoutKeyword(Keyword.FLYING)
         ))

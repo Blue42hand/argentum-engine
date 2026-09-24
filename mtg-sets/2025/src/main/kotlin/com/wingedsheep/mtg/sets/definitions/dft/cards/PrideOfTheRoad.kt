@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Pride of the Road — Aetherdrift #24
@@ -48,7 +49,7 @@ val PrideOfTheRoad = card("Pride of the Road") {
 
     maxSpeed {
         triggeredAbility {
-            trigger = Triggers.BeginCombat
+            trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
             val t = target(
                 "creature or Vehicle you control",
                 TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrVehicle.youControl()))

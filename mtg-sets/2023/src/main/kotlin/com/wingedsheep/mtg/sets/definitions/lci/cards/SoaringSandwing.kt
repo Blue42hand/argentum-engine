@@ -31,7 +31,7 @@ val SoaringSandwing = card("Soaring Sandwing") {
     toughness = 5
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(3)
     }
     keywordAbility(KeywordAbility.typecycling("Plains", ManaCost.parse("{2}")))

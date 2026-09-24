@@ -257,7 +257,7 @@ data class CounterEffect(
  *   countered (see [exileSpell]'s non-counter semantics).
  * @property emitAirbend When true, exiling the spell counts as an **airbend** (CR 701.65b): the
  *   executor records a [com.wingedsheep.sdk.core.BendType.AIR] bend for the controller and fires
- *   [com.wingedsheep.sdk.dsl.Triggers.YouBend], but only if the spell was actually exiled (a target
+ *   `Triggers.you.bends(types)`, but only if the spell was actually exiled (a target
  *   that already left the stack exiles nothing → no bend). Set via [com.wingedsheep.sdk.dsl.Effects.AirbendSpell];
  *   left false for a plain non-airbend exile-spell (Aven Interrupter).
  * @property linkToSource When true, the exiled card is appended to the effect source's

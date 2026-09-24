@@ -4,11 +4,8 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.core.Subtype
-import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Wirewood Savage
@@ -26,10 +23,7 @@ val WirewoodSavage = card("Wirewood Savage") {
     oracleText = "Whenever a Beast enters the battlefield, you may draw a card."
 
     triggeredAbility {
-        trigger = TriggerSpec(
-                ZoneChangeEvent(filter = GameObjectFilter.Creature.withSubtype(Subtype("Beast")), to = Zone.BATTLEFIELD),
-                TriggerBinding.ANY
-            )
+        trigger = Triggers.a(GameObjectFilter.Creature.withSubtype(Subtype("Beast"))).enters()
         effect = Effects.May(Effects.DrawCards(1))
     }
 

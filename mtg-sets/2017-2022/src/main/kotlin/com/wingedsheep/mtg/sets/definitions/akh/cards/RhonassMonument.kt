@@ -36,7 +36,7 @@ val RhonassMonument = card("Rhonas's Monument") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouCastCreature
+        trigger = Triggers.you.casts(GameObjectFilter.Creature)
         val t = target("target", Targets.CreatureYouControl)
         effect = Effects.Composite(
             Effects.ModifyStats(2, 2, t),

@@ -28,7 +28,7 @@ val SiltCrawler = card("Silt Crawler") {
     power = 3
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Land.youControl()), Effects.Tap(EffectTarget.IterationEntity))
     }
     metadata {

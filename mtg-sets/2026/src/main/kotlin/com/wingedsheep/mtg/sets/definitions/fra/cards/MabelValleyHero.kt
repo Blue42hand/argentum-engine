@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -19,10 +18,7 @@ val MabelValleyHero = card("Mabel, Valley Hero") {
     oracleText = "Whenever Mabel or another creature you control enters, put a +1/+1 counter on target creature that entered this turn."
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Creature.youControl(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).enters()
         val t = target(
             "target creature that entered this turn",
             TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.enteredThisTurn()))

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.EntersAsCopy
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Mirrorhall Mimic // Ghastly Mimicry (Innistrad: Crimson Vow #68)
@@ -106,7 +107,7 @@ private val GhastlyMimicry = card("Ghastly Mimicry") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.CreateTokenCopyOfTarget(
             target = EffectTarget.EnchantedCreature,
             addedSubtypes = setOf(Subtype.SPIRIT),

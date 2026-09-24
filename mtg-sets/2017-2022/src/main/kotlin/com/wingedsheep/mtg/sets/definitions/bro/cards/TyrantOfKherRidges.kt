@@ -34,7 +34,7 @@ val TyrantOfKherRidges = card("Tyrant of Kher Ridges") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val anyTarget = target("any target", Targets.Any)
         effect = Effects.DealDamage(4, anyTarget)
     }

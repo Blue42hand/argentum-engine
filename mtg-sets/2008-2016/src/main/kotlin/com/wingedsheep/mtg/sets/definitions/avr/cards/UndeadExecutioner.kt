@@ -25,7 +25,7 @@ val UndeadExecutioner = card("Undead Executioner") {
     oracleText = "When this creature dies, you may have target creature get -2/-2 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         optional = true
         val t = target("target", Targets.Creature)
         effect = Effects.ModifyStats(-2, -2, t)

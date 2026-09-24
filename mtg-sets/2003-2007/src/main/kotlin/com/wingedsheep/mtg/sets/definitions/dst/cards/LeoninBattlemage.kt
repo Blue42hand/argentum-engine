@@ -35,7 +35,7 @@ val LeoninBattlemage = card("Leonin Battlemage") {
         effect = Effects.ModifyStats(1, 1, t)
     }
     triggeredAbility {
-        trigger = Triggers.YouCastSpell
+        trigger = Triggers.you.casts()
         optional = true
         effect = Effects.Untap(EffectTarget.Self)
     }

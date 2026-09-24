@@ -31,7 +31,7 @@ val StingerflingSpider = card("Stingerfling Spider") {
     toughness = 5
     keywords(Keyword.REACH)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.withKeyword(Keyword.FLYING)))
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)

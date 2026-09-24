@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  *
  * Mardu Strike Leader's shape in green: `dash` is a builder property rather than a keyword constant,
  * and setting it is what adds the `KeywordAbility.Dash` the cast enumerator reads. The printed body
- * is one [Triggers.Attacks] trigger whose target the Elf can pick itself — "target creature you
+ * is one `Triggers.self.attacks()` trigger whose target the Elf can pick itself — "target creature you
  * control" is unrestricted, so a dashed Ambusher normally pumps the attacker that paid for it.
  */
 val TreetopAmbusher = card("Treetop Ambusher") {
@@ -31,7 +31,7 @@ val TreetopAmbusher = card("Treetop Ambusher") {
     dash = "{1}{G}"
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val t = target("target", Targets.CreatureYouControl)
         effect = Effects.ModifyStats(1, 1, t)
         description = "Whenever this creature attacks, target creature you control gets +1/+1 until end of turn."

@@ -27,7 +27,7 @@ val Mournwhelk = card("Mournwhelk") {
     evoke = "{3}{B}"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val player = target("target player", Targets.Player)
         effect = Effects.Discard(2, player)
         description = "target player discards two cards."

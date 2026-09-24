@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Carnage, Crimson Chaos — Marvel's Spider-Man #125
@@ -40,7 +41,7 @@ val CarnageCrimsonChaos = card("Carnage, Crimson Chaos") {
     mayhem("{B}{R}")
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "target creature card",
             TargetObject(filter = TargetFilter.CreatureInYourGraveyard.manaValueAtMost(3))
@@ -50,8 +51,7 @@ val CarnageCrimsonChaos = card("Carnage, Crimson Chaos") {
             Effects.GrantStaticAbility(MustAttack(), creature, Duration.Permanent),
             Effects.GrantTriggeredAbility(
                 ability = TriggeredAbility.create(
-                    trigger = Triggers.DealsCombatDamageToPlayer.event,
-                    binding = Triggers.DealsCombatDamageToPlayer.binding,
+                    trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer),
                     effect = SacrificeSelfEffect
                 ),
                 target = creature,

@@ -28,10 +28,7 @@ val VeilOfAssimilation = card("Veil of Assimilation") {
         "you control gets +1/+1 and gains vigilance until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Artifact.youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Artifact.youControl()).enters()
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.Composite(
             Effects.ModifyStats(1, 1, creature),

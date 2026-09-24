@@ -28,7 +28,7 @@ val SandalsOfAbdallah = card("Sandals of Abdallah") {
         val creature = target("target creature", Targets.Creature)
         effect = Effects.GrantKeyword(Keyword.ISLANDWALK, creature, Duration.EndOfTurn).then(
             Effects.CreateDelayedTrigger(
-                trigger = Triggers.Dies,
+                trigger = Triggers.self.dies(),
                 watchedTarget = creature,
                 expiry = DelayedTriggerExpiry.EndOfTurn,
                 effect = Effects.Destroy(EffectTarget.Self),

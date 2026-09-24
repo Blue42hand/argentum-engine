@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Haphazard Bombardment
@@ -32,7 +33,7 @@ val HaphazardBombardment = card("Haphazard Bombardment") {
 
     // ETB: Choose four nonenchantment permanents you don't control, put aim counters on them
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val candidates = gather(
                 CardSource.BattlefieldMatching(
@@ -51,7 +52,7 @@ val HaphazardBombardment = card("Haphazard Bombardment") {
 
     // End step: If 2+ opponent permanents have aim counters, destroy one at random
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.CompareAmounts(
             left = DynamicAmounts.battlefield(
                 Player.EachOpponent,

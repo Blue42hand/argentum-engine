@@ -31,12 +31,7 @@ val UrzasMiter = card("Urza's Miter") {
         "if it wasn't sacrificed, you may pay {3}. If you do, draw a card."
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Artifact.youControl(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY,
-            excludeSacrifice = true,
-        )
+        trigger = Triggers.a(GameObjectFilter.Artifact.youControl()).leaves(to = Zone.GRAVEYARD, excludeSacrifice = true)
         effect = Effects.MayPay(ManaCost.parse("{3}"), Effects.DrawCards(1))
     }
 

@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 private val MayorOfAvabruckFront = card("Mayor of Avabruck") {
     manaCost = "{1}{G}"
@@ -35,7 +36,7 @@ private val MayorOfAvabruckFront = card("Mayor of Avabruck") {
         )
     }
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.spellsCastLastTurn(),
             ComparisonOperator.EQ,
@@ -77,7 +78,7 @@ private val HowlpackAlpha = card("Howlpack Alpha") {
         )
     }
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,
@@ -87,7 +88,7 @@ private val HowlpackAlpha = card("Howlpack Alpha") {
         )
     }
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.spellsCastLastTurn(),
             ComparisonOperator.GTE,

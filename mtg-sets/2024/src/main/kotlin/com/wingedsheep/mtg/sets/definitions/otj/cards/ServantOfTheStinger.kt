@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Servant of the Stinger
@@ -39,7 +40,7 @@ val ServantOfTheStinger = card("Servant of the Stinger") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         interveningIf = Conditions.YouCommittedCrimeThisTurn
         effect = Effects.MayPay(
             cost = SacrificeSelfEffect,

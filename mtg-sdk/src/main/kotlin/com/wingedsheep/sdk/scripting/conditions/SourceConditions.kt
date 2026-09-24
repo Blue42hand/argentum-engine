@@ -89,7 +89,7 @@ data object SourceIsRingBearer : Condition {
 /**
  * Condition: "if you chose a creature other than this as your Ring-bearer" (CR 701.54a).
  *
- * Pairs with `Triggers.RingTemptsYou` as an intervening-if on cards whose payoff fires only when
+ * Pairs with `Triggers.you.isTemptedByTheRing()` as an intervening-if on cards whose payoff fires only when
  * the player picked someone other than the source — Aragorn (Company Leader), Faramir (Field
  * Commander), Gandalf (Friend of the Shire), Galadriel of Lothlórien. True when the ability's
  * controller currently has a Ring-bearer AND that Ring-bearer isn't the source permanent. If the
@@ -177,7 +177,7 @@ data object NoManaSpentToCast : Condition {
  * True iff **every** captured permanent satisfies [NoManaSpentToCast] (was put onto the
  * battlefield without being cast, or was cast with zero total mana spent). An empty capture is
  * vacuously true. Use as a resolution-time gate ([Effects.If]) on a
- * [com.wingedsheep.sdk.dsl.Triggers.OneOrMorePermanentsEnter] payoff — Satoru, the Infiltrator
+ * `Triggers.oneOrMore(filter).enter()` payoff — Satoru, the Infiltrator
  * ("Whenever Satoru and/or one or more other nontoken creatures you control enter, if none of
  * them were cast or no mana was spent to cast them, draw a card.").
  */
@@ -193,7 +193,7 @@ data object NoManaSpentToCastEntered : Condition {
  * The batch-enters, any-of counterpart of
  * [com.wingedsheep.sdk.scripting.conditions.TriggeringEntityEnteredOrWasCastFromGraveyard]:
  * evaluated over the permanents a batch-enters trigger captured (the
- * `Triggers.OneOrMorePermanentsEnter` batch, exposed as the `trigger.captured` pipeline
+ * `Triggers.oneOrMore(filter).enter()` batch, exposed as the `trigger.captured` pipeline
  * collection), it is true iff **at least one** captured permanent came from exile — either put
  * onto the battlefield directly from exile or cast from exile. An empty capture is false.
  *

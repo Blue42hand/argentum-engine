@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Katara, Bending Prodigy
@@ -20,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * creatures to help. Each one pays for {1}.)
  *
  * Implementation notes:
- *  - The end-step trigger is an intervening-"if" [Triggers.YourEndStep] gated on the source
+ *  - The end-step trigger is an intervening-"if" `Triggers.you.beginningOf(Step.END)` gated on the source
  *    being tapped ([Conditions.SourceIsTapped]); the payoff adds a +1/+1 counter to the source
  *    ([Effects.AddCounters] with [EffectTarget.Self]).
  *  - "Waterbend {6}" is an activated ability whose mana cost carries the waterbend
@@ -40,7 +41,7 @@ val KataraBendingProdigy = card("Katara, Bending Prodigy") {
 
     // At the beginning of your end step, if Katara is tapped, put a +1/+1 counter on her.
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.SourceIsTapped
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }

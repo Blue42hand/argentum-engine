@@ -43,7 +43,7 @@ val KillmongerScourgeOfWakanda = card("Killmonger, Scourge of Wakanda") {
         "As long as there are two or more creature cards in your graveyard, Killmonger gets +2/+1."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Effects.Pipeline {
                 val killmongerSacrifice = selectTarget(TargetObject(filter = TargetFilter.CreatureYouControl.other()))

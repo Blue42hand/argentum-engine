@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Yawgmoth Demon
@@ -37,7 +38,7 @@ val YawgmothDemon = card("Yawgmoth Demon") {
     keywords(Keyword.FLYING, Keyword.FIRST_STRIKE)
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         optional = true
         effect = Effects.SacrificeOwn(GameObjectFilter.Artifact)
         elseEffect = Effects.Composite(

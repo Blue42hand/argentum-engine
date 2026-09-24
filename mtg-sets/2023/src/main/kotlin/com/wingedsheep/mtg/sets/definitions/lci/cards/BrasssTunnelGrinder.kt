@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Brass's Tunnel-Grinder // Tecutlan, the Searing Rift (The Lost Caverns of Ixalan)
@@ -57,7 +58,7 @@ private val BrasssTunnelGrinderFront = card("Brass's Tunnel-Grinder") {
         "from anywhere.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val discarded = runStoringCollection { Patterns.Hand.discardAnyNumber(storeAs = it) }
             run(Effects.DrawCards(discarded.count + 1))
@@ -67,7 +68,7 @@ private val BrasssTunnelGrinderFront = card("Brass's Tunnel-Grinder") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.YouDescendedThisTurn()
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.BORE, 1, EffectTarget.Self),
@@ -108,10 +109,7 @@ private val Tecutlan = card("Tecutlan, the Searing Rift") {
     }
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.Permanent,
-            requires = setOf(SpellCastPredicate.PaidWithManaFromSource),
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.Permanent, requires = setOf(SpellCastPredicate.PaidWithManaFromSource))
         effect = Effects.Discover(DynamicAmounts.triggeringSpellManaValue())
         description = "Whenever you cast a permanent spell using mana produced by Tecutlan, " +
             "discover X, where X is that spell's mana value."

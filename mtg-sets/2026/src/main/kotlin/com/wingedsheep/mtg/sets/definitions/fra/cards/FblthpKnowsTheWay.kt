@@ -37,7 +37,7 @@ val FblthpKnowsTheWay = card("Fblthp, Knows the Way") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val searchable = gather(
                 CardSource.FromZone(Zone.LIBRARY, Player.You, GameObjectFilter.BasicLand),

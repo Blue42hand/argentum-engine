@@ -27,7 +27,7 @@ val EyeblightAssassin = card("Eyeblight Assassin") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.ModifyStats(-1, -1, t)
     }

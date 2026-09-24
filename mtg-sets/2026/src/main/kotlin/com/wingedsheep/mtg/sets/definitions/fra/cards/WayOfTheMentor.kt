@@ -18,12 +18,12 @@ val WayOfTheMentor = card("Way of the Mentor") {
         "Whenever you gain life, put a loyalty counter on each planeswalker you control."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Mechanic.empowerJace(5)
     }
 
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Planeswalker.youControl()),
             Effects.AddCounters(CounterType.LOYALTY, 1, EffectTarget.IterationEntity)

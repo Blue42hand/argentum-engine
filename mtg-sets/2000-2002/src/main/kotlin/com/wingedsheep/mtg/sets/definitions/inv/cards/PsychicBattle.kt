@@ -43,7 +43,7 @@ val PsychicBattle = card("Psychic Battle") {
         "permanents named Psychic Battle."
 
     triggeredAbility {
-        trigger = Triggers.AnyPlayerChoosesTargets
+        trigger = Triggers.anyPlayer.choosesTargets()
         effect = Effects.Pipeline {
             val revealed = gather(
                 CardSource.TopOfLibrary(count = 1, player = Player.Each),

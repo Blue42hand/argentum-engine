@@ -38,10 +38,7 @@ val GoliathDaydreamer = card("Goliath Daydreamer") {
 
     // First ability — re-route resolution to exile with a dream counter.
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.InstantOrSorcery,
-            requires = setOf(SpellCastPredicate.CastFromZone(Zone.HAND)),
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery, requires = setOf(SpellCastPredicate.CastFromZone(Zone.HAND)))
         effect = Effects.MarkSpellExileWithCounters(
             target = EffectTarget.TriggeringEntity,
             counterType = CounterType.DREAM,
@@ -55,7 +52,7 @@ val GoliathDaydreamer = card("Goliath Daydreamer") {
     // CastFromCollectionWithoutPayingCostEffect — never a lingering until-end-of-turn grant.
     // Casting mid-resolution also ignores card-type timing (a sorcery is cast in combat).
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Pipeline {
             val dreamPool = gather(
                 CardSource.FromZone(

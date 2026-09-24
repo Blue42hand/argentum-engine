@@ -34,7 +34,7 @@ val AngelOfFinality = card("Angel of Finality") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target("target player", Targets.Player)
         effect = Effects.Pipeline {
             val targetGraveyard = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.TargetPlayer))

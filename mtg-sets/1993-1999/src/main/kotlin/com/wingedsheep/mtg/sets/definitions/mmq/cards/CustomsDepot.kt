@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Customs Depot
@@ -31,7 +32,7 @@ val CustomsDepot = card("Customs Depot") {
     oracleText = "Whenever you cast a creature spell, you may pay {1}. If you do, draw a card, then discard a card."
 
     triggeredAbility {
-        trigger = Triggers.YouCastCreature
+        trigger = Triggers.you.casts(GameObjectFilter.Creature)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
             then = Patterns.Hand.loot(draw = 1, discard = 1),

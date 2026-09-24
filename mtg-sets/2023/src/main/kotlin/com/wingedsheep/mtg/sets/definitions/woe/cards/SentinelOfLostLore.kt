@@ -26,7 +26,7 @@ val SentinelOfLostLore = card("Sentinel of Lost Lore") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Modal(
             modes = listOf(
                 mode("Return target card you own in exile that has an Adventure to your hand.") {

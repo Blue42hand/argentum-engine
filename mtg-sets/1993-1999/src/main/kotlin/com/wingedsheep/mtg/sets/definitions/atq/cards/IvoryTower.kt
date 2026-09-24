@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Ivory Tower
@@ -26,7 +27,7 @@ val IvoryTower = card("Ivory Tower") {
     oracleText = "At the beginning of your upkeep, you gain X life, where X is the number of cards in your hand minus 4."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.GainLife(
             DynamicAmounts.nonNegative(
                 DynamicAmounts.zone(Player.You, Zone.HAND).count() - 4

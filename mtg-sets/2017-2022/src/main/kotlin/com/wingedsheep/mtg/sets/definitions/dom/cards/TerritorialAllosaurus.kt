@@ -29,7 +29,7 @@ val TerritorialAllosaurus = card("Territorial Allosaurus") {
     keywordAbility(KeywordAbility.kicker("{2}{G}"))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = WasKicked
         val t = target("another target creature", TargetCreature(filter = TargetFilter.OtherCreature))
         effect = Effects.Fight(EffectTarget.Self, t)

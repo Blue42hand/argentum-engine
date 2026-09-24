@@ -27,7 +27,7 @@ val ShelteringBoughs = card("Sheltering Boughs") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(1)
     }
 

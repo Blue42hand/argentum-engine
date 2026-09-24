@@ -38,7 +38,7 @@ val TerritorialBruntar = card("Territorial Bruntar") {
     keywords(Keyword.REACH)
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = Effects.Pipeline {
             val (impulseCard, exiledCards) = gatherUntilMatch(GameObjectFilter.Nonland)
             exile(exiledCards)

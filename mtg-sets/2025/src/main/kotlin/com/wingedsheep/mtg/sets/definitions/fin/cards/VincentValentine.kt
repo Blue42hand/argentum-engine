@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -10,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -49,7 +47,7 @@ private val GalianBeast = card("Galian Beast") {
 
     // When Galian Beast dies, return it to the battlefield tapped (front face up).
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.PutOntoBattlefield(EffectTarget.Self, tapped = true)
     }
 
@@ -75,11 +73,7 @@ private val VincentValentineFront = card("Vincent Valentine") {
     // Whenever a creature an opponent controls dies, put a number of +1/+1 counters on
     // Vincent Valentine equal to that creature's power.
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.opponentControls(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.opponentControls()).dies()
         effect = Effects.AddDynamicCounters(
             CounterType.PLUS_ONE_PLUS_ONE,
             DynamicAmounts.triggeringPower(),
@@ -89,7 +83,7 @@ private val VincentValentineFront = card("Vincent Valentine") {
 
     // Whenever Vincent Valentine attacks, you may transform it.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.May(effect = Effects.Transform(EffectTarget.Self))
     }
 

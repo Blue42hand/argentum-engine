@@ -28,7 +28,7 @@ val SwarmCuller = card("Swarm Culler") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
+        trigger = Triggers.self.becomesTapped()
         val sacrificeTarget = target(
             "another creature or artifact",
             TargetPermanent(

@@ -43,7 +43,7 @@ val FeralDeathgorger = card("Feral Deathgorger") {
 
     // ETB: exile up to two target cards, both from the same graveyard (sameOwner).
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target(
             "up to two target cards from a single graveyard",
             TargetObject(

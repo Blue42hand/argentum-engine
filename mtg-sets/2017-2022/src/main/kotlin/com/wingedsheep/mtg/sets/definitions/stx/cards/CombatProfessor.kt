@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Combat Professor
@@ -26,7 +27,7 @@ val CombatProfessor = card("Combat Professor") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val t = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.Composite(
             Effects.ModifyStats(1, 0, t),

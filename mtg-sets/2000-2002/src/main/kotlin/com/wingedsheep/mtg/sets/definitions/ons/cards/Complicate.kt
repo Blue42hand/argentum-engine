@@ -30,7 +30,7 @@ val Complicate = card("Complicate") {
 
     triggeredAbility {
         val spell = target("target spell", Targets.Spell)
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         effect = Effects.May(Effects.CounterUnlessPays("{1}"))
     }
 

@@ -43,7 +43,7 @@ val MysterioMasterOfIllusion = card("Mysterio, Master of Illusion") {
 
     // ETB: one 3/3 blue Illusion Villain token per nontoken Villain you control.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             count = DynamicAmounts.count(
                 Player.You,
@@ -62,7 +62,7 @@ val MysterioMasterOfIllusion = card("Mysterio, Master of Illusion") {
 
     // Leaves: exile exactly the tokens this Mysterio created.
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.Pipeline {
             val tokens = gather(
                 CardSource.BattlefieldMatching(

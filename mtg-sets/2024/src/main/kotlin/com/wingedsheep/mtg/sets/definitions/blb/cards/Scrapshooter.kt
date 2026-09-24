@@ -42,7 +42,7 @@ val Scrapshooter = card("Scrapshooter") {
 
     triggeredAbility {
         val target = target("target", TargetObject(filter = TargetFilter.ArtifactOrEnchantment.opponentControls()))
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.GiftWasPromised
         effect = Effects.Destroy(target)
     }

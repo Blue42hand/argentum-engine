@@ -35,7 +35,7 @@ val Weftwalking = card("Weftwalking") {
         "The first spell each player casts during each of their turns may be cast without paying its mana cost."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.WasCast
         effect = Effects.Pipeline {
             // Gather hand + graveyard in a single pass (one combined "shuffle ... into your library"

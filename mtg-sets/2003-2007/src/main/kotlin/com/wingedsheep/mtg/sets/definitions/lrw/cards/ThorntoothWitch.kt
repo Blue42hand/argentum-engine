@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Thorntooth Witch
@@ -14,7 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  * 3/4
  * Whenever you cast a Treefolk spell, you may have target creature get +3/-3 until end of turn.
  *
- * `Triggers.YouCastSubtype` matches the *spell's* subtype, so a Kindred card with the Treefolk type
+ * `Triggers.you.casts(GameObjectFilter.Any.withSubtype(subtype))` matches the *spell's* subtype, so a Kindred card with the Treefolk type
  * triggers it as much as a Treefolk creature spell does — which is what the printed noun says.
  *
  * "You may have" is the ability's `optional` shorthand, which lowers to a `Gate.MayDecide` around
@@ -30,7 +31,7 @@ val ThorntoothWitch = card("Thorntooth Witch") {
     oracleText = "Whenever you cast a Treefolk spell, you may have target creature get +3/-3 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.YouCastSubtype(Subtype.TREEFOLK)
+        trigger = Triggers.you.casts(GameObjectFilter.Any.withSubtype(Subtype.TREEFOLK))
         val creature = target("target creature", Targets.Creature)
         optional = true
         effect = Effects.ModifyStats(3, -3, creature)

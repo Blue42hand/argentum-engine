@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Seymour Flux
@@ -29,7 +30,7 @@ val SeymourFlux = card("Seymour Flux") {
         "put a +1/+1 counter on Seymour Flux."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.MayPay(
             cost = Effects.PayLife(1),
             then = Effects.Composite(

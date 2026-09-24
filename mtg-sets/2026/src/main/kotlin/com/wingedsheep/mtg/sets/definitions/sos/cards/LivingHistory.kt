@@ -31,7 +31,7 @@ val LivingHistory = card("Living History") {
         "creature gets +2/+0 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,
@@ -42,7 +42,7 @@ val LivingHistory = card("Living History") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         interveningIf = Conditions.CardsLeftGraveyardThisTurn(1)
         val attacker = target("attacking creature", Targets.AttackingCreature)
         effect = Effects.ModifyStats(2, 0, attacker)

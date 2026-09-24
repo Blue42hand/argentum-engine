@@ -31,12 +31,12 @@ val BlightedBlackthorn = card("Blighted Blackthorn") {
         "and lose 1 life. (To blight 2, put two -1/-1 counters on a creature you control.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = blightedBlackthornEffect()
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = blightedBlackthornEffect()
     }
 

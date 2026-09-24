@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
  * Whenever one or more +1/+1 counters are put on this creature, you may create a 4/4 green Beast
  * creature token.
  *
- * [Triggers.countersPlacedOn] is a per-*batch* watcher, which is exactly what "one or more … are
+ * `Triggers.<subject>.getsCounters(type, by, firstTimeEachTurn, batch)` is a per-*batch* watcher, which is exactly what "one or more … are
  * put on" asks for: five counters arriving from one resolution make one token, not five.
  * [TriggerBinding.SELF] scopes it to the Baloth itself, so the event filter can stay
  * [GameObjectFilter.Any].
@@ -36,12 +36,7 @@ val HerdBaloth = card("Herd Baloth") {
     oracleText = "Whenever one or more +1/+1 counters are put on this creature, you may create a 4/4 green Beast creature token."
 
     triggeredAbility {
-        trigger = Triggers.countersPlacedOn(
-            filter = GameObjectFilter.Any,
-            counterType = CounterType.PLUS_ONE_PLUS_ONE,
-            firstTimeEachTurn = false,
-            binding = TriggerBinding.SELF,
-        )
+        trigger = Triggers.self.getsCounters(CounterType.PLUS_ONE_PLUS_ONE)
         optional = true
         effect = Effects.CreateToken(
             power = 4,

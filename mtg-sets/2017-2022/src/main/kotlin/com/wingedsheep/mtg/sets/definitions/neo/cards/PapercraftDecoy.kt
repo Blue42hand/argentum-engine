@@ -25,7 +25,7 @@ val PapercraftDecoy = card("Papercraft Decoy") {
     oracleText = "When this creature leaves the battlefield, you may pay {2}. If you do, draw a card."
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}"),
             then = Effects.DrawCards(1),

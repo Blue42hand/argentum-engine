@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.references.Player
@@ -46,10 +45,7 @@ val ConnectingTheDots = card("Connecting the Dots") {
         "enchantment into their owners' hands."
 
     triggeredAbility {
-        trigger = Triggers.attacks(
-            filter = GameObjectFilter.Creature.youControl(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).attacks()
         effect = Effects.Pipeline {
             val clue = gather(CardSource.TopOfLibrary(count = 1, player = Player.You))
             exile(clue, faceDown = FaceDownMode.HIDDEN, linkToSource = true)

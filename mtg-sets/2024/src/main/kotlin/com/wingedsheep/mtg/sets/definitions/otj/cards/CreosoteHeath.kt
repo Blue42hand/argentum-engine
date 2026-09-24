@@ -29,7 +29,7 @@ val CreosoteHeath = card("Creosote Heath") {
     oracleText = "This land enters tapped.\nWhen this land enters, it deals 1 damage to target opponent.\n{T}: Add {G} or {W}."
     replacementEffect(EntersTapped())
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetOpponent())
         effect = Effects.DealDamage(1, t)
     }

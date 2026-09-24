@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Primeval Bounty
@@ -31,7 +32,7 @@ val PrimevalBounty = card("Primeval Bounty") {
         "Landfall — Whenever a land you control enters, you gain 3 life."
 
     triggeredAbility {
-        trigger = Triggers.YouCastCreature
+        trigger = Triggers.you.casts(GameObjectFilter.Creature)
         effect = Effects.CreateToken(
             power = 3,
             toughness = 3,
@@ -42,13 +43,13 @@ val PrimevalBounty = card("Primeval Bounty") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         val creature = target("creature", Targets.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, creature)
     }
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = Effects.GainLife(3)
     }
 

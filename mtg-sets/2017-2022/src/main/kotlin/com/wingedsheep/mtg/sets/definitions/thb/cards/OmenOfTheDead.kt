@@ -37,7 +37,7 @@ val OmenOfTheDead = card("Omen of the Dead") {
 
     // When this enchantment enters, return target creature card from your graveyard to your hand.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creatureCard = target("target", Targets.CreatureCardInYourGraveyard)
         effect = Effects.ReturnToHand(creatureCard)
     }

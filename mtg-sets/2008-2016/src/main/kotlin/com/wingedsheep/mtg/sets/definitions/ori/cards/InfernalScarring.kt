@@ -37,8 +37,7 @@ val InfernalScarring = card("Infernal Scarring") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.Dies.event,
-                binding = Triggers.Dies.binding,
+                trigger = Triggers.self.dies(),
                 effect = Effects.DrawCards(1)
             )
         )

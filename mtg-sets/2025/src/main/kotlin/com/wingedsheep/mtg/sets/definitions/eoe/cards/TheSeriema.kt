@@ -41,7 +41,7 @@ val TheSeriema = card("The Seriema") {
     // When The Seriema enters, search your library for a legendary creature card, reveal it,
     // put it into your hand, then shuffle.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.searchLibrary(
             filter = GameObjectFilter.Creature.legendary(),
             count = 1,

@@ -48,7 +48,7 @@ private val SaheelisLatticeFront = card("Saheeli's Lattice") {
 
     // ETB: you may discard a card. If you do, draw two cards.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),

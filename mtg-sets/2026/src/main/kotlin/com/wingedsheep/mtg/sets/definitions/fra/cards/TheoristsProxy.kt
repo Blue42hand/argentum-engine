@@ -21,7 +21,7 @@ val TheoristsProxy = card("Theorist's Proxy") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Mechanic.empowerJace(3)
     }
 

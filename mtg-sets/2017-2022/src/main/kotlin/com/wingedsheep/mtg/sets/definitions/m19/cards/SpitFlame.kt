@@ -38,10 +38,7 @@ val SpitFlame = card("Spit Flame") {
     }
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Permanent.withSubtype(Subtype.DRAGON).youControl(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Permanent.withSubtype(Subtype.DRAGON).youControl()).enters()
         effect = Effects.MayPay(
             cost = Effects.PayMana("{R}"),
             then = Effects.ReturnToHandFromGraveyard(EffectTarget.Self)

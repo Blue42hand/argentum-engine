@@ -27,7 +27,7 @@ val SiegeRhino = card("Siege Rhino") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.LoseLife(3, EffectTarget.PlayerRef(Player.EachOpponent))
             .then(Effects.GainLife(3))
     }

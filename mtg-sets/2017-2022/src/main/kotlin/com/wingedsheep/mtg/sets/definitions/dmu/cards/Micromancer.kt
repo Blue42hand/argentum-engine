@@ -28,7 +28,7 @@ val Micromancer = card("Micromancer") {
         "with mana value 1, reveal it, put it into your hand, then shuffle."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.InstantOrSorcery.manaValue(1),

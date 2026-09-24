@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * leaves the battlefield. Create a Food token.
  *
  * The O-Ring shape (Banishing Light): [Effects.ExileUntilLeaves] on the ETB plus a companion
- * [Triggers.LeavesBattlefield] trigger that returns the linked exile. The Food rides along in the
+ * `Triggers.self.leaves()` trigger that returns the linked exile. The Food rides along in the
  * *same* ability, so it shares the target's fate — per the 2024-11-08 Food ruling, if the exile
  * target is illegal as the ability resolves the whole ability is countered and no Food is created.
  * [Effects.Composite] gives that for free; a second triggered ability would not.
@@ -30,7 +30,7 @@ val FoodComa = card("Food Coma") {
         "\"{2}, {T}, Sacrifice this token: You gain 3 life.\")"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val victim = target("target", TargetCreature(filter = TargetFilter.CreatureOpponentControls))
         effect = Effects.Composite(
             Effects.ExileUntilLeaves(victim),
@@ -41,7 +41,7 @@ val FoodComa = card("Food Coma") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

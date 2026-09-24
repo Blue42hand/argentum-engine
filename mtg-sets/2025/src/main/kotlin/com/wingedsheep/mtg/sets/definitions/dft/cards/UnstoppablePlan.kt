@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Unstoppable Plan — Aetherdrift #72
@@ -26,7 +27,7 @@ val UnstoppablePlan = card("Unstoppable Plan") {
     oracleText = "At the beginning of your end step, untap all nonland permanents you control."
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.ForEachInGroup(
             GroupFilter.AllNonlandPermanents.youControl(),
             Effects.Untap(EffectTarget.IterationEntity)

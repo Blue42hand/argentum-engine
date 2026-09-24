@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.references.Player
 
 /**
  * Brimstone Roundup
@@ -32,7 +31,7 @@ val BrimstoneRoundup = card("Brimstone Roundup") {
         "on a later turn without paying its mana cost. Plot only as a sorcery.)"
 
     triggeredAbility {
-        trigger = Triggers.NthSpellCast(2, Player.You)
+        trigger = Triggers.you.castsNth(2)
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

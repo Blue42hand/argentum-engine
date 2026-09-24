@@ -37,7 +37,7 @@ val LostIsleCalling = card("Lost Isle Calling") {
         "this one. Activate only as a sorcery."
 
     triggeredAbility {
-        trigger = Triggers.WheneverYouScry
+        trigger = Triggers.you.scries()
         effect = Effects.AddCounters(CounterType.VERSE, 1, EffectTarget.Self)
     }
 

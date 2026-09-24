@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetOther
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Runo Stromkirk // Krothuss, Lord of the Deep — Innistrad: Crimson Vow #246
@@ -80,7 +81,7 @@ private val RunoStromkirkFront = card("Runo Stromkirk") {
 
     // When Runo enters, put up to one target creature card from your graveyard on top of your library.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val fromGraveyard = target(
             "creature card from your graveyard",
             TargetObject(optional = true, filter = TargetFilter.CreatureInYourGraveyard)
@@ -97,7 +98,7 @@ private val RunoStromkirkFront = card("Runo Stromkirk") {
     // At the beginning of your upkeep, look at the top card of your library. You may reveal that
     // card. If a creature card with mana value 6 or greater is revealed this way, transform Runo.
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.Pipeline {
             val runoLooked = gather(CardSource.TopOfLibrary(1))
             val runoRevealed = chooseUpTo(
@@ -141,7 +142,7 @@ private val KrothussLordOfTheDeep = card("Krothuss, Lord of the Deep") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val copied = target(
             "another attacking creature",
             TargetOther(baseRequirement = Targets.AttackingCreature)

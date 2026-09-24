@@ -27,7 +27,7 @@ val DwarvenShortsword = card("Dwarven Shortsword") {
         "Equip {2} ({2}: Attach to target creature you control. Equip only as a sorcery.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,

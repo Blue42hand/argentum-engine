@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Lightning, Security Sergeant — Final Fantasy #560
@@ -42,7 +43,7 @@ val LightningSecuritySergeant = card("Lightning, Security Sergeant") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.Pipeline {
             val exiledCard = gather(CardSource.TopOfLibrary(1))
             exile(exiledCard)

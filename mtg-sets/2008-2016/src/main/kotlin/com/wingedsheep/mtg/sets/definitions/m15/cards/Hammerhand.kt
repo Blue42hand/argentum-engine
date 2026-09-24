@@ -32,7 +32,7 @@ val Hammerhand = card("Hammerhand") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target creature", Targets.Creature)
         effect = Effects.CantBlock(t)
         description = "When this Aura enters, target creature can't block this turn."

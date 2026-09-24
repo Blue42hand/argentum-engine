@@ -46,7 +46,7 @@ val Boommobile = card("Boommobile") {
         "Crew 2"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.AddAnyColorMana(4, ManaRestriction.AbilityActivationOnly)
         description = "When this Vehicle enters, add four mana of any one color. Spend this mana " +
             "only to activate abilities."

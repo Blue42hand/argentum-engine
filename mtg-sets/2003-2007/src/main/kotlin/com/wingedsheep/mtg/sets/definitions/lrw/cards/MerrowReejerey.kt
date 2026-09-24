@@ -47,7 +47,7 @@ val MerrowReejerey = card("Merrow Reejerey") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouCastSubtype(Subtype.MERFOLK)
+        trigger = Triggers.you.casts(GameObjectFilter.Any.withSubtype(Subtype.MERFOLK))
         val permanent = target("target permanent", Targets.Permanent)
         effect = Effects.May(
             Effects.Modal(

@@ -34,7 +34,7 @@ val RooftopAssassin = card("Rooftop Assassin") {
     keywords(Keyword.FLASH, Keyword.FLYING, Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target",
             TargetCreature(

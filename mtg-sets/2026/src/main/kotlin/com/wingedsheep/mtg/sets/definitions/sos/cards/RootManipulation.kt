@@ -22,7 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * resolution (Rule 611.2c — the set of affected creatures is locked in when the spell
  * resolves; creatures entering later in the turn are unaffected). Each affected creature
  * receives +2/+2, the menace keyword, and a granted "Whenever this creature attacks, you
- * gain 1 life" triggered ability ([TriggerBinding.SELF] via [Triggers.Attacks]), all for
+ * gain 1 life" triggered ability ([TriggerBinding.SELF] via `Triggers.self.attacks()`), all for
  * the duration of the turn.
  */
 val RootManipulation = card("Root Manipulation") {
@@ -35,8 +35,7 @@ val RootManipulation = card("Root Manipulation") {
 
     spell {
         val attackGainLife = TriggeredAbility.create(
-            trigger = Triggers.Attacks.event,
-            binding = Triggers.Attacks.binding,
+            trigger = Triggers.self.attacks(),
             effect = Effects.GainLife(1),
             descriptionOverride = "Whenever this creature attacks, you gain 1 life.",
         )

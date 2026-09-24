@@ -32,7 +32,7 @@ val KnightOfAutumn = card("Knight of Autumn") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Modal(
             modes = listOf(
                 Mode.noTarget(

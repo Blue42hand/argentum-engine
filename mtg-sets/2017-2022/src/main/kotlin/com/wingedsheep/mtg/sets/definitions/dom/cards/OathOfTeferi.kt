@@ -25,7 +25,7 @@ val OathOfTeferi = card("Oath of Teferi") {
     oracleText = "When Oath of Teferi enters, exile another target permanent you control. Return it to the battlefield under its owner's control at the beginning of the next end step.\nYou may activate the loyalty abilities of planeswalkers you control twice each turn rather than only once."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("permanent", TargetPermanent(
             filter = TargetFilter(GameObjectFilter.Permanent.youControl(), excludeSelf = true)
         ))

@@ -27,7 +27,7 @@ val NimbleHobbit = card("Nimble Hobbit") {
     oracleText = "Whenever this creature attacks, you may sacrifice a Food or pay {2}{W}. When you do, tap target creature an opponent controls."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ReflexiveTrigger(
             // "you may sacrifice a Food or pay {2}{W}"
             action = Effects.ChooseAction(

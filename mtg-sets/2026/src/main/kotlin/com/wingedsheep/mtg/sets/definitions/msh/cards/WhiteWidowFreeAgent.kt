@@ -41,7 +41,7 @@ val WhiteWidowFreeAgent = card("White Widow, Free Agent") {
         "• Return target artifact or enchantment card from your graveyard to your hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             Mode(
                 effect = Effects.ForEachTarget(

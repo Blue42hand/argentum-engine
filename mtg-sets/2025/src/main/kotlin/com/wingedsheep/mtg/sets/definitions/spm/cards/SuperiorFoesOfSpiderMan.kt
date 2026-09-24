@@ -5,12 +5,10 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern.SpellCastEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Superior Foes of Spider-Man
@@ -41,13 +39,7 @@ val SuperiorFoesOfSpiderMan = card("Superior Foes of Spider-Man") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = SpellCastEvent(
-                spellFilter = GameObjectFilter.Any.manaValueAtLeast(4),
-                player = Player.You
-            ),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.Any.manaValueAtLeast(4))
         effect = Effects.May(
             Patterns.Exile.impulse(count = 1, expiry = MayPlayExpiry.UntilSourceExilesAnother)
         )

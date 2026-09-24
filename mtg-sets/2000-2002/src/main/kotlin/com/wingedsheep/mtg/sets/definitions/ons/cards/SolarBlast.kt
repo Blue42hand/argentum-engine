@@ -29,7 +29,7 @@ val SolarBlast = card("Solar Blast") {
     keywordAbility(KeywordAbility.cycling("{1}{R}{R}"))
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         val t = target("target", Targets.Any)
         effect = Effects.May(
             Effects.DealDamage(1, t)

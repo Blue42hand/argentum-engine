@@ -267,5 +267,42 @@ data class TriggeredAbility(
                 triggersOnce = triggersOnce,
                 descriptionOverride = descriptionOverride
             )
+
+        /**
+         * [create] from a whole [TriggerSpec] — the form a card uses, since a card spells its trigger
+         * with `Triggers.<subject>.<verb>()` and the subject already fixes the binding.
+         */
+        fun create(
+            trigger: TriggerSpec,
+            effect: Effect,
+            targetRequirement: TargetRequirement? = null,
+            additionalTargetRequirements: List<TargetRequirement> = emptyList(),
+            elseEffect: Effect? = null,
+            activeZones: Set<Zone> = setOf(Zone.BATTLEFIELD),
+            interveningIf: Condition? = null,
+            triggerRestriction: Condition? = null,
+            controlledByTriggeringEntityController: Boolean = false,
+            oncePerTurn: Boolean = false,
+            effectOncePerTurn: Boolean = false,
+            triggersOnce: Boolean = false,
+            descriptionOverride: String? = null,
+            id: AbilityId = AbilityId.next(),
+        ): TriggeredAbility = create(
+            trigger = trigger.event,
+            binding = trigger.binding,
+            effect = effect,
+            targetRequirement = targetRequirement,
+            additionalTargetRequirements = additionalTargetRequirements,
+            elseEffect = elseEffect,
+            activeZones = activeZones,
+            interveningIf = interveningIf,
+            triggerRestriction = triggerRestriction,
+            controlledByTriggeringEntityController = controlledByTriggeringEntityController,
+            oncePerTurn = oncePerTurn,
+            effectOncePerTurn = effectOncePerTurn,
+            triggersOnce = triggersOnce,
+            descriptionOverride = descriptionOverride,
+            id = id,
+        )
     }
 }

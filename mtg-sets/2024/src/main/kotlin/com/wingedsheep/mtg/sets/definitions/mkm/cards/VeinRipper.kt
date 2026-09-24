@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Ward—Sacrifice a creature.
  * Whenever a creature dies, target opponent loses 2 life and you gain 2 life.
  *
- * The drain trigger is [Triggers.AnyCreatureDies] — *any* creature, either side of the table,
+ * The drain trigger is `Triggers.a(GameObjectFilter.Creature).dies()` — *any* creature, either side of the table,
  * including the Ripper itself. That last case matters and falls out for free: the Ripper dying is a
  * creature dying, so it drains once on the way out (the trigger is detected from the zone-change
  * event, which is emitted whether or not the source survives to see it).
@@ -50,7 +50,7 @@ val VeinRipper = card("Vein Ripper") {
 
     triggeredAbility {
         val opponent = target("target opponent", Targets.Opponent)
-        trigger = Triggers.AnyCreatureDies
+        trigger = Triggers.a(GameObjectFilter.Creature).dies()
         effect = Effects.DrainLife(
             amount = 2,
             from = opponent,

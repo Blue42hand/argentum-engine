@@ -26,7 +26,7 @@ val ChanceMetElves = card("Chance-Met Elves") {
         "This ability triggers only once each turn."
 
     triggeredAbility {
-        trigger = Triggers.WheneverYouScry
+        trigger = Triggers.you.scries()
         oncePerTurn = true
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }

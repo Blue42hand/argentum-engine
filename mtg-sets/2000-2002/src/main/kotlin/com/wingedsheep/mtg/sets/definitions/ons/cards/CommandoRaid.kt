@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Commando Raid
@@ -26,7 +27,7 @@ val CommandoRaid = card("Commando Raid") {
         val t = target("target", Targets.CreatureYouControl)
         effect = Effects.GrantTriggeredAbility(
             ability = grantedTriggeredAbility {
-                trigger = Triggers.DealsCombatDamageToPlayer
+                trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
                 val creatureOpponentControls = target(
                     "target creature opponent controls",
                     Targets.CreatureOpponentControls

@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TapReason
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldNotBeEmpty
@@ -63,10 +62,7 @@ class TapReasonScenarioTest : ScenarioTestBase() {
             "Whenever enchanted creature becomes tapped to pay a teamwork cost, draw a card."
         auraTarget = Targets.Creature
         triggeredAbility {
-            trigger = Triggers.becomesTapped(
-                binding = TriggerBinding.ATTACHED,
-                reason = TapReason.TEAMWORK,
-            )
+            trigger = Triggers.attached.becomesTapped(TapReason.TEAMWORK)
             effect = Effects.DrawCards(1)
         }
     }
@@ -81,10 +77,7 @@ class TapReasonScenarioTest : ScenarioTestBase() {
         oracleText = "Whenever one or more creatures you control become tapped to pay a teamwork " +
             "cost, draw a card."
         triggeredAbility {
-            trigger = Triggers.OneOrMoreBecomeTapped(
-                GameObjectFilter.Creature.youControl(),
-                reason = TapReason.TEAMWORK,
-            )
+            trigger = Triggers.oneOrMore(GameObjectFilter.Creature.youControl()).becomeTapped(TapReason.TEAMWORK)
             effect = Effects.DrawCards(1)
         }
     }

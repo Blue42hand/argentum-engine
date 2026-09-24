@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Twilight Diviner
@@ -33,12 +34,12 @@ val TwilightDiviner = card("Twilight Diviner") {
         "only once each turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.surveil(2)
     }
 
     triggeredAbility {
-        trigger = Triggers.OtherCreatureEnters
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
         interveningIf = Conditions.TriggeringEntityEnteredOrWasCastFromGraveyard
         oncePerTurn = true
         effect = Effects.CreateTokenCopyOfTarget(EffectTarget.TriggeringEntity)

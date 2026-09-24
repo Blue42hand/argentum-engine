@@ -34,7 +34,7 @@ val EmbalmedBrawler = card("Embalmed Brawler") {
 
     // "Whenever ~ attacks or blocks" needs two triggered abilities
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.LoseLife(
             amount = DynamicAmounts.countersOnSelf(CounterType.PLUS_ONE_PLUS_ONE),
             target = EffectTarget.Controller
@@ -42,7 +42,7 @@ val EmbalmedBrawler = card("Embalmed Brawler") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Blocks
+        trigger = Triggers.self.blocks()
         effect = Effects.LoseLife(
             amount = DynamicAmounts.countersOnSelf(CounterType.PLUS_ONE_PLUS_ONE),
             target = EffectTarget.Controller

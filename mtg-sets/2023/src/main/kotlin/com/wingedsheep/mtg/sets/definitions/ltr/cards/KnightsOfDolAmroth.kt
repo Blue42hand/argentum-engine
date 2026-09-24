@@ -24,7 +24,7 @@ val KnightsOfDolAmroth = card("Knights of Dol Amroth") {
     oracleText = "Whenever you draw your second card each turn, put a +1/+1 counter on this creature."
 
     triggeredAbility {
-        trigger = Triggers.NthCardDrawn(2)
+        trigger = Triggers.you.drawsNth(2)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

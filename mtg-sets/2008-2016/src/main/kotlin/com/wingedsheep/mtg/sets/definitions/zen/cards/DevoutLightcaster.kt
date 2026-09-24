@@ -32,7 +32,7 @@ val DevoutLightcaster = card("Devout Lightcaster") {
     keywordAbility(KeywordAbility.protectionFrom(Color.BLACK))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target("permanent", TargetPermanent(filter = TargetFilter.Permanent.withColor(Color.BLACK)))
         effect = Effects.Exile(permanent)
     }

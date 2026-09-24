@@ -36,7 +36,7 @@ val ReptilianRecruiter = card("Reptilian Recruiter") {
 
     // ETB: conditional Threaten
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature", Targets.Creature)
         effect = Effects.If(
             condition = AnyCondition(

@@ -32,14 +32,14 @@ val CarrotCake = card("Carrot Cake") {
 
     // When this artifact enters — create Rabbit token + scry 1
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = createRabbitAndScry
     }
 
     // When you sacrifice it — same effect (create Rabbit token + scry 1).
     // Sacrifice only: destruction or other battlefield→graveyard moves must not trigger this.
     triggeredAbility {
-        trigger = Triggers.Sacrificed
+        trigger = Triggers.self.isSacrificed()
         effect = createRabbitAndScry
     }
 

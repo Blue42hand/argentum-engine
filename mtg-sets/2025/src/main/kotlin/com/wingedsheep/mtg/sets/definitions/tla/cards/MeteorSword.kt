@@ -27,7 +27,7 @@ val MeteorSword = card("Meteor Sword") {
     typeLine = "Artifact — Equipment"
     oracleText = "When this Equipment enters, destroy target permanent.\nEquipped creature gets +3/+3.\nEquip {3} ({3}: Attach to target creature you control. Equip only as a sorcery.)"
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetPermanent())
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }

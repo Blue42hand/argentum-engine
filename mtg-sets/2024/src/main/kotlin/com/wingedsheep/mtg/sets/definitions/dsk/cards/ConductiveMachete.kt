@@ -37,7 +37,7 @@ val ConductiveMachete = card("Conductive Machete") {
         "Equip {4}"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Patterns.Library.manifestDread(),
             Effects.AttachEquipment(EffectTarget.PipelineTarget("manifestDreadManifested"))

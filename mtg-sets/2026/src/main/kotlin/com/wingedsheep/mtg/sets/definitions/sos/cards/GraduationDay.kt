@@ -26,9 +26,7 @@ val GraduationDay = card("Graduation Day") {
     typeLine = "Enchantment"
     oracleText = "Repartee — Whenever you cast an instant or sorcery spell that targets a creature, put a +1/+1 counter on target creature you control."
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature)
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature))
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }

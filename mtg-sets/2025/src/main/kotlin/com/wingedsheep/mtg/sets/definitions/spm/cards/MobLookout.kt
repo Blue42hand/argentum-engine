@@ -16,7 +16,7 @@ val MobLookout = card("Mob Lookout") {
         "(Draw a card, then discard a card. If you discarded a nonland card, put a +1/+1 counter on that creature.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.Connive(target = creature)
         description = "When this creature enters, target creature you control connives."

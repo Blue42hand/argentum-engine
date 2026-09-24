@@ -33,7 +33,7 @@ val CuriousColossus = card("Curious Colossus") {
     oracleText = "When this creature enters, each creature target opponent controls loses all abilities, becomes a Coward in addition to its other types, and has base power and toughness 1/1."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponent = target("target opponent", TargetOpponent())
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Creature.targetPlayerControls(opponent)),

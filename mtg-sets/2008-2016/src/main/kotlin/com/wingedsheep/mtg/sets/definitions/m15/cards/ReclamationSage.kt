@@ -28,7 +28,7 @@ val ReclamationSage = card("Reclamation Sage") {
     power = 2
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target("target", TargetPermanent(filter = TargetFilter.ArtifactOrEnchantment))
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)

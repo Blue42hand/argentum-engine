@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.MayPlayLandsFromGraveyard
 import com.wingedsheep.sdk.scripting.ModeOption
 import com.wingedsheep.sdk.scripting.conditions.SourceChosenModeIs
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Glacierwood Siege
@@ -55,7 +56,7 @@ val GlacierwoodSiege = card("Glacierwood Siege") {
 
     // Temur — Whenever you cast an instant or sorcery spell, target player mills four cards.
     triggeredAbility {
-        trigger = Triggers.YouCastInstantOrSorcery
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         triggerRestriction = SourceChosenModeIs("temur")
         val t = target("target", Targets.Player)
         effect = Patterns.Library.mill(4, t)

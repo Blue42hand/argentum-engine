@@ -96,7 +96,7 @@ class SiegePendingObjectIdentityTest : FunSpec({
                 val original = d.state.objectRef(siege)!!
                 val refs = ObjectReferenceEnvironment(captured = true, origin = original, source = original)
                 var state = d.state.updateEntity(siege) { it.with(CountersComponent()) }
-                val trigger = PendingTrigger(TriggeredAbility(id = com.wingedsheep.sdk.scripting.AbilityId("SiegePendingObjectIdentityTest_1"), trigger = Triggers.EntersBattlefield.event,
+                val trigger = PendingTrigger(TriggeredAbility(id = com.wingedsheep.sdk.scripting.AbilityId("SiegePendingObjectIdentityTest_1"), trigger = Triggers.self.enters().event,
                     effect = Effects.GainLife(1)), siege, siegeCard.name,
                     objectReferences = refs, controllerId = d.player1, triggerContext = TriggerContext())
                 val stackId = EntityId.generate()

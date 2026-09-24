@@ -17,7 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The two halves are deliberately linked: the Clue the enters trigger leaves behind is itself a
  * draw, so cracking it on a turn you've already drawn for the turn is what turns the second clause
- * on. `Triggers.NthCardDrawn(2)` counts *draws* (CR 121.2) — a card put into hand without the word
+ * on. `Triggers.you.drawsNth(2)` counts *draws* (CR 121.2) — a card put into hand without the word
  * "draw" (CR 121.5) doesn't advance it, and a single multi-card draw that crosses two still fires
  * the trigger exactly once.
  *
@@ -39,12 +39,12 @@ val LoxodonEavesdropper = card("Loxodon Eavesdropper") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Investigate()
     }
 
     triggeredAbility {
-        trigger = Triggers.NthCardDrawn(2)
+        trigger = Triggers.you.drawsNth(2)
         effect = Effects.Composite(
             Effects.ModifyStats(1, 1, EffectTarget.Self),
             Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.Self)

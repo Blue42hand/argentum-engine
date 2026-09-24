@@ -73,7 +73,7 @@ val ThorinMountainKing = card("Thorin, Mountain-king") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         // Declared first so its ContextTarget index stays stable ahead of the unbounded slot.
         val equippedCreature = target("target creature you control", Targets.CreatureYouControl)
         target(

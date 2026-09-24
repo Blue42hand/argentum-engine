@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Narset, Jeskai Waymaster — Tarkir: Dragonstorm #209
@@ -34,7 +35,7 @@ val NarsetJeskaiWaymaster = card("Narset, Jeskai Waymaster") {
         "cards equal to the number of spells you've cast this turn."
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.May(
             Effects.IfYouDo(
                 action = Patterns.Hand.discardHand(EffectTarget.Controller),

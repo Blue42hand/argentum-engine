@@ -126,12 +126,12 @@ val CemeteryDesecrator = card("Cemetery Desecrator") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = desecrate
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = desecrate
     }
 

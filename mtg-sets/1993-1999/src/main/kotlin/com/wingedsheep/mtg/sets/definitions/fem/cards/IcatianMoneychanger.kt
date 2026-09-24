@@ -48,13 +48,13 @@ val IcatianMoneychanger = card("Icatian Moneychanger") {
     )
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DealDamage(3, EffectTarget.Controller)
         description = "When this creature enters, it deals 3 damage to you."
     }
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.AddCounters(CounterType.CREDIT, 1, EffectTarget.Self)
         description = "At the beginning of your upkeep, put a credit counter on this creature."
     }

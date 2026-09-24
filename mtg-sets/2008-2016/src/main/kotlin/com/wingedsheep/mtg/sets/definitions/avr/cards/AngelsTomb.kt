@@ -40,10 +40,7 @@ val AngelsTomb = card("Angel's Tomb") {
         "white Angel artifact creature with flying until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = Filters.Creature.youControl(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(Filters.Creature.youControl()).enters()
         effect = Effects.May(
             Effects.BecomeCreature(
                 target = EffectTarget.Self,

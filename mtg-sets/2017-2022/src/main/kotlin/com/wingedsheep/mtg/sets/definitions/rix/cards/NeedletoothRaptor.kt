@@ -24,7 +24,7 @@ val NeedletoothRaptor = card("Needletooth Raptor") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.TakesDamage
+        trigger = Triggers.self.isDealtDamage()
         val victim = target(
             "target creature an opponent controls",
             Targets.CreatureOpponentControls

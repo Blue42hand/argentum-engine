@@ -21,7 +21,7 @@ private val ConduitOfStormsFront = card("Conduit of Storms") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.CreateDelayedTrigger(
             step = Step.POSTCOMBAT_MAIN,
             effect = Effects.AddMana(Color.RED),
@@ -55,7 +55,7 @@ private val ConduitOfEmrakul = card("Conduit of Emrakul") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.CreateDelayedTrigger(
             step = Step.POSTCOMBAT_MAIN,
             effect = Effects.AddColorlessMana(2),

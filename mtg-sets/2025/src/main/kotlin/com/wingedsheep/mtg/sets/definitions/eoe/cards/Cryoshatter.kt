@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -32,7 +31,7 @@ val Cryoshatter = card("Cryoshatter") {
     }
 
     triggeredAbility {
-        trigger = Triggers.becomesTapped(binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.becomesTapped()
         effect = Effects.Move(
             target = EffectTarget.EnchantedCreature,
             destination = Zone.GRAVEYARD,
@@ -41,7 +40,7 @@ val Cryoshatter = card("Cryoshatter") {
     }
 
     triggeredAbility {
-        trigger = Triggers.takesDamage(binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.isDealtDamage()
         effect = Effects.Move(
             target = EffectTarget.EnchantedCreature,
             destination = Zone.GRAVEYARD,

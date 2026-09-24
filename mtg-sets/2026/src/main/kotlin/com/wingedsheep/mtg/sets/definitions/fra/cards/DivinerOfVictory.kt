@@ -22,7 +22,7 @@ val DivinerOfVictory = card("Diviner of Victory") {
     keywords(Keyword.PREPARED)
 
     triggeredAbility {
-        trigger = Triggers.WheneverYouScryOrSurveil
+        trigger = Triggers.you.scriesOrSurveils()
         effect = Effects.ModifyStats(1, 1, EffectTarget.Self)
         description = "Whenever you scry or surveil, this creature gets +1/+1 until end of turn."
     }

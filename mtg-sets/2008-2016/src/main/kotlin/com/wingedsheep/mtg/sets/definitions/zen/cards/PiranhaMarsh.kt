@@ -26,7 +26,7 @@ val PiranhaMarsh = card("Piranha Marsh") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val player = target("target player", Targets.Player)
         effect = Effects.LoseLife(1, player)
         description = "When this land enters, target player loses 1 life."

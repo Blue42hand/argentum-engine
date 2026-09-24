@@ -32,7 +32,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  *
  * The static gate uses [Conditions.CounterKindAmongYouControlAtLeast] to sum lore counters across
  * Sagas you control (CR 714 lore counters), and a ConditionalStaticAbility granting hexproof +
- * indestructible to itself. The trigger fires on [Triggers.WheneverFinalChapterOfYourSagaResolves]
+ * indestructible to itself. The trigger fires on `Triggers.you.sagaChapterResolves(true)`
  * (`oncePerTurn`) and composes GatherUntilMatch (until a Saga, from your library) + RevealCollection
  * + two filtered MoveCollections: the Saga → your battlefield, the rest → the bottom of your library
  * in random order.
@@ -71,7 +71,7 @@ val TomBombadil = card("Tom Bombadil") {
     }
 
     triggeredAbility {
-        trigger = Triggers.WheneverFinalChapterOfYourSagaResolves
+        trigger = Triggers.you.sagaChapterResolves(true)
         oncePerTurn = true
         effect = Effects.Pipeline {
             val (revealedSaga, allRevealed) = gatherUntilMatch(

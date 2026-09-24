@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Stromkirk Bloodthief
@@ -33,7 +34,7 @@ val StromkirkBloodthief = card("Stromkirk Bloodthief") {
         "counter on target Vampire you control."
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.OpponentLostLifeThisTurn
         val vampire = target(
             "target Vampire you control",

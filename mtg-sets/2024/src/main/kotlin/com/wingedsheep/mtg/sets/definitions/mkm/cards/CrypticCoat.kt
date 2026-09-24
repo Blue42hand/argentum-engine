@@ -49,7 +49,7 @@ val CrypticCoat = card("Cryptic Coat") {
         "{1}{U}: Return this Equipment to its owner's hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val crypticCoatCloak = gather(CardSource.TopOfLibrary(1))
             val crypticCoatCloaked = moveTracked(

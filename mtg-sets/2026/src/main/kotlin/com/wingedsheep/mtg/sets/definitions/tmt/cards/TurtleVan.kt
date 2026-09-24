@@ -32,7 +32,7 @@ val TurtleVan = card("Turtle Van") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val crewer = target(
             "target creature that crewed it this turn",
             TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.crewedOrSaddledSourceThisTurn()))

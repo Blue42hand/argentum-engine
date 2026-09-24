@@ -36,7 +36,7 @@ val EnchantedRiversGrasp = card("Enchanted River's Grasp") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Tap(EffectTarget.EnchantedCreature)
             .then(Effects.RemoveAllCounters(EffectTarget.EnchantedCreature))
     }

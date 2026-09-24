@@ -45,7 +45,7 @@ val MournersShield = card("Mourner's Shield") {
 
     // "Imprint — When this artifact enters, you may exile target card from a graveyard."
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val exiled = target("target card from a graveyard", Targets.CardInGraveyard)
         effect = Effects.ExileLinkedToSource(exiled)

@@ -26,7 +26,7 @@ val FirefistAdept = card("Firefist Adept") {
     oracleText = "When Firefist Adept enters the battlefield, it deals X damage to target creature an opponent controls, where X is the number of Wizards you control."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature", Targets.CreatureOpponentControls)
         effect = Effects.DealDamage(
             DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.withSubtype("Wizard")).count(),

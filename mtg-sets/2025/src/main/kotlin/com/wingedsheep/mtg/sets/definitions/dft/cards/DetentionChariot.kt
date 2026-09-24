@@ -31,7 +31,7 @@ val DetentionChariot = card("Detention Chariot") {
     power = 6
     toughness = 6
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrArtifact.opponentControls()))
@@ -41,7 +41,7 @@ val DetentionChariot = card("Detention Chariot") {
     keywordAbility(KeywordAbility.crew(3))
     keywordAbility(KeywordAbility.cycling("{W}"))
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
     metadata {

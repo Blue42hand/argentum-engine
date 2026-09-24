@@ -8,11 +8,11 @@ import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModeOption
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.conditions.SourceChosenModeIs
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Outpost Siege
@@ -62,7 +62,7 @@ val OutpostSiege = card("Outpost Siege") {
 
     // Khans — At the beginning of your upkeep, impulse-draw the top card.
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         triggerRestriction = SourceChosenModeIs("khans")
         effect = Effects.Pipeline {
             val exiledCard = gather(CardSource.TopOfLibrary(1))
@@ -73,10 +73,7 @@ val OutpostSiege = card("Outpost Siege") {
 
     // Dragons — Whenever a creature you control leaves the battlefield, deal 1 damage.
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).leaves()
         triggerRestriction = SourceChosenModeIs("dragons")
         val any = target("target", Targets.Any)
         effect = Effects.DealDamage(1, any)

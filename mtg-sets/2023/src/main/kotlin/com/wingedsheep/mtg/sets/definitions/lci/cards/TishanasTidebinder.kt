@@ -66,7 +66,7 @@ val TishanasTidebinder = card("Tishana's Tidebinder") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
 
         target(
             "up to one target activated or triggered ability",

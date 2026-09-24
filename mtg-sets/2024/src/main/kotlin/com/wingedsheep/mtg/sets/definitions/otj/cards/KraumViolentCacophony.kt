@@ -33,7 +33,7 @@ val KraumViolentCacophony = card("Kraum, Violent Cacophony") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.NthSpellCast(2, Player.You)
+        trigger = Triggers.you.castsNth(2)
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             Effects.DrawCards(1),

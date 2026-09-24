@@ -26,7 +26,7 @@ val MeltstridersGear = card("Meltstrider's Gear") {
 
     // When this Equipment enters, attach it to target creature you control
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature you control", Targets.CreatureYouControl)
         effect = Effects.AttachEquipment(creature)
     }

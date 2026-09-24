@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Khabál Ghoul
@@ -27,7 +28,7 @@ val KhabalGhoul = card("Khabál Ghoul") {
     oracleText = "At the beginning of each end step, put a +1/+1 counter on this creature for each creature that died this turn."
 
     triggeredAbility {
-        trigger = Triggers.EachEndStep
+        trigger = Triggers.anyPlayer.beginningOf(Step.END)
         effect = Effects.AddDynamicCounters(
             CounterType.PLUS_ONE_PLUS_ONE,
             DynamicAmounts.creaturesDiedThisTurn(Player.You) +

@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 
 /**
@@ -31,7 +32,7 @@ val MarkovWaltzer = card("Markov Waltzer") {
     toughness = 3
     keywords(Keyword.FLYING, Keyword.HASTE)
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val t = target(
             "target",
             TargetCreature(optional = true, count = 2, filter = TargetFilter.Creature.youControl())

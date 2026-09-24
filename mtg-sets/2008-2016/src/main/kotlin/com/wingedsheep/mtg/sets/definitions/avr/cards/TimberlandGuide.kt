@@ -25,7 +25,7 @@ val TimberlandGuide = card("Timberland Guide") {
     oracleText = "When this creature enters, put a +1/+1 counter on target creature."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", Targets.Creature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
     }

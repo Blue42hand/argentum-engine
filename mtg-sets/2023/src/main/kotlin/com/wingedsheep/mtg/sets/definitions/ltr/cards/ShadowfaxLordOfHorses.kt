@@ -55,7 +55,7 @@ val ShadowfaxLordOfHorses = card("Shadowfax, Lord of Horses") {
     // Whenever Shadowfax attacks, you may put a creature card with lesser power from your
     // hand onto the battlefield tapped and attacking.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Patterns.Hand.putFromHand(
             filter = GameObjectFilter.Creature.powerLessThanEntity(EffectTarget.Self),
             entersAttacking = true

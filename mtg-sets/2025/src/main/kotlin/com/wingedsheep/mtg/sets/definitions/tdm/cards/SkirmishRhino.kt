@@ -28,7 +28,7 @@ val SkirmishRhino = card("Skirmish Rhino") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             listOf(
                 Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)),

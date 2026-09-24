@@ -27,7 +27,7 @@ val HazardrootHerbalist = card("Hazardroot Herbalist") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         val creature = target("creature you control", TargetCreature(filter = TargetFilter.CreatureYouControl))
         effect = Effects.ModifyStats(1, 0, creature)
             .then(Effects.If(

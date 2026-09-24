@@ -22,7 +22,7 @@ val GoblinShortcutter = card("Goblin Shortcutter") {
     oracleText = "When this creature enters, target creature can't block this turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature", Targets.Creature)
         effect = Effects.CantBlock(creature)
     }

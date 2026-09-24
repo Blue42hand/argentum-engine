@@ -29,7 +29,7 @@ val RamosDragonEngine = card("Ramos, Dragon Engine") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YouCastSpell
+        trigger = Triggers.you.casts()
         effect = Effects.AddDynamicCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
             amount = DynamicAmounts.colorCountOf(EffectTarget.TriggeringEntity),

@@ -33,7 +33,7 @@ val TabletOfDiscovery = card("Tablet of Discovery") {
         "{T}: Add {R}{R}. Spend this mana only to cast instant and sorcery spells."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val milledThisWay = gather(CardSource.TopOfLibrary(1))
             toGraveyard(milledThisWay)

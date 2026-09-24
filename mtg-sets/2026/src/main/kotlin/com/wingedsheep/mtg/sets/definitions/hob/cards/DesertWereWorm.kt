@@ -60,7 +60,7 @@ val DesertWereWorm = card("Desert Were-Worm") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         triggerRestriction = Conditions.CompareAmounts(
             left = DynamicAmounts.battlefield(
                 Player.You,

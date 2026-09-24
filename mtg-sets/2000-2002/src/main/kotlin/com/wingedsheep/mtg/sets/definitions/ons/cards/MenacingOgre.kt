@@ -31,7 +31,7 @@ val MenacingOgre = card("Menacing Ogre") {
     keywords(Keyword.TRAMPLE, Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.SecretBid(
             highestBidderEffect = Effects.Composite(listOf(
                 // Each highest bidder loses life equal to their bid

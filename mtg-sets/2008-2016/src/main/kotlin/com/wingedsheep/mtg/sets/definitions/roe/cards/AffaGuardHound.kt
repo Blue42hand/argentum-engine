@@ -27,7 +27,7 @@ val AffaGuardHound = card("Affa Guard Hound") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature", Targets.Creature)
         effect = Effects.ModifyStats(0, 3, creature)
         description = "When this creature enters, target creature gets +0/+3 until end of turn."

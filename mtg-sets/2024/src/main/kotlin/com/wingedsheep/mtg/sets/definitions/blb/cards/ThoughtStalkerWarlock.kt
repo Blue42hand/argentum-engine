@@ -36,7 +36,7 @@ val ThoughtStalkerWarlock = card("Thought-Stalker Warlock") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponent = target("opponent", Targets.Opponent)
         effect = Effects.If(
             // "If THEY lost life this turn" — bound to the chosen target opponent,

@@ -21,13 +21,13 @@ val TitanbonesToweringHeart = card("Titanbones, Towering Heart") {
     keywords(Keyword.REACH)
 
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         description = "Whenever you gain life, put two +1/+1 counters on Titanbones."
     }
 
     triggeredAbility {
-        trigger = Triggers.YouDiscardThis
+        trigger = Triggers.self.isDiscarded()
         effect = Effects.GainLife(3)
         description = "When you discard this card, you gain 3 life."
     }

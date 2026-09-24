@@ -46,7 +46,7 @@ val StuckInSummonersSanctum = card("Stuck in Summoner's Sanctum") {
     auraTarget = Targets.CreatureOrArtifact
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Tap(EffectTarget.EnchantedPermanent)
     }
 

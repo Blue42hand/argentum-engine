@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Midnight Snack
@@ -34,7 +35,7 @@ val MidnightSnack = card("Midnight Snack") {
         "of life you gained this turn."
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.YouAttackedThisTurn
         effect = Effects.CreateFood()
         description = "At the beginning of your end step, if you attacked this turn, create a Food token."

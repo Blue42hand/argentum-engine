@@ -27,7 +27,7 @@ val HavocDemon = card("Havoc Demon") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreatures,
             effect = Effects.ModifyStats(-5, -5, EffectTarget.IterationEntity)

@@ -35,7 +35,7 @@ val ToughCookie = card("Tough Cookie") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateFood(1)
     }
 

@@ -24,7 +24,7 @@ val LawlessBroker = card("Lawless Broker") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
         description = "When this creature dies, put a +1/+1 counter on target creature you control."

@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Dreamborn Muse
@@ -26,7 +27,7 @@ val DreambornMuse = card("Dreamborn Muse") {
     oracleText = "At the beginning of each player's upkeep, that player mills X cards, where X is the number of cards in their hand."
 
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         effect = Patterns.Library.mill(
             DynamicAmounts.count(Player.TriggeringPlayer, Zone.HAND),
             EffectTarget.PlayerRef(Player.TriggeringPlayer)

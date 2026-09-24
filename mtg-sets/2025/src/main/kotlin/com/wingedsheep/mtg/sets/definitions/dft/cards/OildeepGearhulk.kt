@@ -50,7 +50,7 @@ val OildeepGearhulk = card("Oildeep Gearhulk") {
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{1}")))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val player = target("target player", Targets.Player)
         effect = Effects.Pipeline {
             run(Effects.LookAtHand(player))

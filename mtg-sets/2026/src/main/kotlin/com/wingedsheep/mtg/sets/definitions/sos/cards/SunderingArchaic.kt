@@ -39,7 +39,7 @@ val SunderingArchaic = card("Sundering Archaic") {
         "{2}: Put target card from a graveyard on the bottom of its owner's library."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "nonland permanent an opponent controls with mana value less than or equal to the " +
                 "number of colors of mana spent to cast this creature",

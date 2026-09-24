@@ -24,7 +24,7 @@ val SeparatistVoidmage = card("Separatist Voidmage") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target("target creature", Targets.Creature)
         effect = Effects.Move(t, Zone.HAND)

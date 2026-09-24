@@ -39,7 +39,7 @@ val HonestWork = card("Honest Work") {
 
     // "When this Aura enters, tap enchanted creature and remove all counters from it."
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Tap(EffectTarget.EnchantedCreature)
             .then(Effects.RemoveAllCounters(EffectTarget.EnchantedCreature))
     }

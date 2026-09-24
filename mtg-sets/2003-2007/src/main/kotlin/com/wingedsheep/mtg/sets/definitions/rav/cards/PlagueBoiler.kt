@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Plague Boiler — Ravnica: City of Guilds #269
@@ -55,7 +56,7 @@ val PlagueBoiler = card("Plague Boiler") {
         "destroy all nonland permanents."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.AddCounters(CounterType.PLAGUE, 1, EffectTarget.Self)
         description = "At the beginning of your upkeep, put a plague counter on this artifact."
     }

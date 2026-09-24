@@ -31,7 +31,7 @@ val SentinelOfThePearlTrident = card("Sentinel of the Pearl Trident") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("historic", TargetPermanent(
             filter = TargetFilter(GameObjectFilter.Historic.youControl())
         ))

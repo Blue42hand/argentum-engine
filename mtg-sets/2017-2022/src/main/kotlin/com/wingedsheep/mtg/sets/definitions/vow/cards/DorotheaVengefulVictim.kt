@@ -49,7 +49,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * The back face quotes the *other* half of the card's design onto the enchanted creature, which is
  * [GrantTriggeredAbility] — the same shape [MischievousCatgeist]'s Aura face uses. Inside the
  * quotes, "this creature" is the creature that has the ability (the enchanted one), which is what
- * `Triggers.Attacks`'s SELF binding already means for a granted ability. The token half is Geist of
+ * `Triggers.self.attacks()`'s SELF binding already means for a granted ability. The token half is Geist of
  * Saint Traft's exactly: [CreateTokenEffect] with `tapped`/`attacking` (CR 508.1 — put onto the
  * battlefield attacking, never "declared", so it triggers nothing that watches attack declaration)
  * followed by a delayed trigger over `CREATED_TOKENS`, which is how "that token" names the object
@@ -72,13 +72,13 @@ private val DorotheaVengefulVictimFront = card("Dorothea, Vengeful Victim") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.CreateDelayedTrigger(step = Step.END_COMBAT, effect = SacrificeSelfEffect)
         description = "When Dorothea attacks or blocks, sacrifice it at end of combat."
     }
 
     triggeredAbility {
-        trigger = Triggers.Blocks
+        trigger = Triggers.self.blocks()
         effect = Effects.CreateDelayedTrigger(step = Step.END_COMBAT, effect = SacrificeSelfEffect)
         description = "When Dorothea attacks or blocks, sacrifice it at end of combat."
     }
@@ -110,8 +110,7 @@ private val DorotheasRetribution = card("Dorothea's Retribution") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.Attacks.event,
-                binding = Triggers.Attacks.binding,
+                trigger = Triggers.self.attacks(),
                 effect = Effects.CreateToken(
                     power = 4,
                     toughness = 4,

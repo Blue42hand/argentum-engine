@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Homarid
@@ -53,7 +54,7 @@ val Homarid = card("Homarid") {
     )
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.AddCounters(CounterType.TIDE, 1, EffectTarget.Self)
         description = "At the beginning of your upkeep, put a tide counter on this creature."
     }

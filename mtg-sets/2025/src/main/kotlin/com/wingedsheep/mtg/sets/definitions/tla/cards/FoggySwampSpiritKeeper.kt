@@ -32,7 +32,7 @@ val FoggySwampSpiritKeeper = card("Foggy Swamp Spirit Keeper") {
     keywords(Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.NthCardDrawn(2)
+        trigger = Triggers.you.drawsNth(2)
         effect = Effects.CreateToken(
             count = 1,
             power = 1,

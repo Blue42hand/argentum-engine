@@ -67,7 +67,7 @@ private fun article(noun: String): String =
  *    cards that actually reached exile, not merely the ones picked. Its `otherwise` is
  *    [SacrificeSelfEffect]; its `then` is [EmitChampionedEventEffect], the CR 702.72c signal that
  *    drives Mistbind Clique's "when a Faerie is championed with this creature".
- *  - **Leaves.** An ordinary [Triggers.LeavesBattlefield] trigger running
+ *  - **Leaves.** An ordinary `Triggers.self.leaves()` trigger running
  *    [Effects.ReturnLinkedExileUnderOwnersControl], which reads the same originating visit's pile.
  *
  * Modelling this as **two separate triggers** rather than an "exile until this leaves" replacement
@@ -92,8 +92,7 @@ fun CardBuilder.champion(quality: GameObjectFilter, qualityDescription: String) 
 
     triggeredAbilities.add(
         TriggeredAbility.create(
-            trigger = Triggers.EntersBattlefield.event,
-            binding = Triggers.EntersBattlefield.binding,
+            trigger = Triggers.self.enters(),
             effect = Effects.IfYouDo(
                 action = CompositeEffect(
                     listOf(
@@ -134,8 +133,7 @@ fun CardBuilder.champion(quality: GameObjectFilter, qualityDescription: String) 
 
     triggeredAbilities.add(
         TriggeredAbility.create(
-            trigger = Triggers.LeavesBattlefield.event,
-            binding = Triggers.LeavesBattlefield.binding,
+            trigger = Triggers.self.leaves(),
             effect = Effects.ReturnLinkedExileUnderOwnersControl(),
             descriptionOverride = "When this permanent leaves the battlefield, return the exiled " +
                 "card to the battlefield under its owner's control."

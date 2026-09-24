@@ -34,12 +34,12 @@ val Nazgul = card("Nazgûl") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.TheRingTemptsYou()
     }
 
     triggeredAbility {
-        trigger = Triggers.RingTemptsYou
+        trigger = Triggers.you.isTemptedByTheRing()
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.allCreaturesWithSubtype("Wraith").youControl(),
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)

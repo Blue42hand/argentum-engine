@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  * Whenever you cast your second spell each turn, this creature deals 2 damage to target opponent.
  * Scry 1.
  *
- * "Your second spell each turn" → [Triggers.NthSpellCast] with n = 2 scoped to [Player.You]. The
+ * "Your second spell each turn" → `Triggers.<player>.castsNth(n, spell)` with n = 2 scoped to [Player.You]. The
  * damage source defaults to this permanent. Scry 1 resolves after the damage as part of the same
  * resolution.
  */
@@ -36,7 +36,7 @@ val IronFistPulverizer = card("Iron-Fist Pulverizer") {
     keywords(Keyword.REACH)
 
     triggeredAbility {
-        trigger = Triggers.NthSpellCast(2, Player.You)
+        trigger = Triggers.you.castsNth(2)
         val opponent = target("opponent", Targets.Opponent)
         effect = Effects.Composite(
             listOf(

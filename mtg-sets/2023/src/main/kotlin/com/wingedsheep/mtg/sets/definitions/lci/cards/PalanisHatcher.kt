@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Palani's Hatcher
@@ -45,7 +46,7 @@ val PalanisHatcher = card("Palani's Hatcher") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 0,
             toughness = 1,
@@ -57,7 +58,7 @@ val PalanisHatcher = card("Palani's Hatcher") {
     }
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         interveningIf = Conditions.YouControl(GameObjectFilter.Creature.withSubtype("Egg"))
         effect = Effects.Composite(listOf(
             Effects.Sacrifice(

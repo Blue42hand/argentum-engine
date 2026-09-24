@@ -38,7 +38,7 @@ val SunWarriors = card("Sun Warriors") {
     keywordAbility(KeywordAbility.Variable(Keyword.FIREBENDING, "X"))
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.AddMana(
             Color.RED,
             DynamicAmounts.creaturesYouControl(),

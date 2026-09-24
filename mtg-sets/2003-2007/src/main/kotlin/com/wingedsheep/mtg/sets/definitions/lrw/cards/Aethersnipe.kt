@@ -31,7 +31,7 @@ val Aethersnipe = card("Aethersnipe") {
     evoke = "{1}{U}{U}"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target("target nonland permanent", Targets.NonlandPermanent)
         effect = Effects.ReturnToHand(permanent)
         description = "return target nonland permanent to its owner's hand."

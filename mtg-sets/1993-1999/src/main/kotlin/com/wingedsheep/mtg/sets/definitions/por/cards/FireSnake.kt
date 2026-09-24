@@ -28,7 +28,7 @@ val FireSnake = card("Fire Snake") {
     power = 3
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val t = target("target", TargetPermanent(filter = TargetFilter.Land))
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }

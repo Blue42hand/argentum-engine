@@ -25,7 +25,7 @@ val ElvishHandservant = card("Elvish Handservant") {
     oracleText = "Whenever a player casts a Giant spell, you may put a +1/+1 counter on this creature."
 
     triggeredAbility {
-        trigger = Triggers.anyPlayerCasts(GameObjectFilter.Any.withSubtype(Subtype.GIANT))
+        trigger = Triggers.anyPlayer.casts(GameObjectFilter.Any.withSubtype(Subtype.GIANT))
         optional = true
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever a player casts a Giant spell, you may put a +1/+1 counter on this creature."

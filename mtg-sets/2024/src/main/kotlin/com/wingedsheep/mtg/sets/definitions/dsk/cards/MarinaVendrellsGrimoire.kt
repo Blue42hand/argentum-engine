@@ -35,7 +35,7 @@ val MarinaVendrellsGrimoire = card("Marina Vendrell's Grimoire") {
 
     // When ~ enters, if you cast it, draw five cards.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.WasCast
         effect = Effects.DrawCards(5)
     }
@@ -52,13 +52,13 @@ val MarinaVendrellsGrimoire = card("Marina Vendrell's Grimoire") {
 
     // Whenever you gain life, draw that many cards.
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         effect = Effects.DrawCards(DynamicAmounts.triggerLifeGained())
     }
 
     // Whenever you lose life, discard that many cards. Then if you have no cards in hand, you lose the game.
     triggeredAbility {
-        trigger = Triggers.YouLoseLife
+        trigger = Triggers.you.losesLife()
         effect = Effects.Composite(
             Effects.Discard(DynamicAmounts.triggerLifeLost()),
             Effects.If(

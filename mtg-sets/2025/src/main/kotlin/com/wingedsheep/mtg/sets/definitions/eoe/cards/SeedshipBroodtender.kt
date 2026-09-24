@@ -30,7 +30,7 @@ val SeedshipBroodtender = card("Seedship Broodtender") {
 
     // ETB ability: mill three cards
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.mill(3)
     }
 

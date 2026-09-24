@@ -44,7 +44,7 @@ val MutagenManLivingOoze = card("Mutagen Man, Living Ooze") {
 
     // "create X Mutagen tokens" — X is the cast value (CastX, durable onto the permanent).
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateMutagenToken(DynamicAmounts.castX())
         description = "When Mutagen Man enters, create X Mutagen tokens."
     }

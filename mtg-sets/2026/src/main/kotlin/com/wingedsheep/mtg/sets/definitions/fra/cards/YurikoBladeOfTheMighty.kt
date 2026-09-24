@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PlayersCantActivateAbilities
 import com.wingedsheep.sdk.scripting.PlayersCantCastSpells
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.conditions.IsInPhase
 import com.wingedsheep.sdk.scripting.events.AttackPredicate
 import com.wingedsheep.sdk.scripting.references.Player
@@ -54,11 +53,7 @@ val YurikoBladeOfTheMighty = card("Yuriko, Blade of the Mighty") {
     }
 
     triggeredAbility {
-        trigger = Triggers.attacks(
-            filter = GameObjectFilter.Creature.youControl().attackingAnOpponent(),
-            requires = setOf(AttackPredicate.Alone),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl().attackingAnOpponent()).attacks(setOf(AttackPredicate.Alone))
         effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, EffectTarget.TriggeringEntity, Duration.EndOfTurn)
         description = "Whenever a creature you control attacks a player alone, it gains double strike until " +
             "end of turn."

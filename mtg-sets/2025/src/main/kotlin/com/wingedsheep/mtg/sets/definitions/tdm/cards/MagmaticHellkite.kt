@@ -56,7 +56,7 @@ val MagmaticHellkite = card("Magmatic Hellkite") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val land = target(
             "nonbasic land an opponent controls",
             TargetPermanent(

@@ -55,8 +55,8 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                     triggeredAbilities = listOf(
                         TriggeredAbility(
                             id = AbilityId("GatedEffectScenarioTest_1"),
-                            trigger = Triggers.EntersBattlefield.event,
-                            binding = Triggers.EntersBattlefield.binding,
+                            trigger = Triggers.self.enters().event,
+                            binding = Triggers.self.enters().binding,
                             effect = Effects.MayPay(
                                 cost = PayLifeEffect(2),
                                 then = DrawCardsEffect(1)
@@ -80,8 +80,8 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                     triggeredAbilities = listOf(
                         TriggeredAbility(
                             id = AbilityId("GatedEffectScenarioTest_2"),
-                            trigger = Triggers.EntersBattlefield.event,
-                            binding = Triggers.EntersBattlefield.binding,
+                            trigger = Triggers.self.enters().event,
+                            binding = Triggers.self.enters().binding,
                             effect = Effects.MayPay(
                                 cost = PayLifeEffect(2),
                                 then = Effects.Destroy(EffectTarget.ContextTarget(0))
@@ -105,8 +105,8 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                     triggeredAbilities = listOf(
                         TriggeredAbility(
                             id = AbilityId("GatedEffectScenarioTest_3"),
-                            trigger = Triggers.EntersBattlefield.event,
-                            binding = Triggers.EntersBattlefield.binding,
+                            trigger = Triggers.self.enters().event,
+                            binding = Triggers.self.enters().binding,
                             effect = GatedEffect(
                                 gate = Gate.MayDecide(),
                                 then = DrawCardsEffect(1)
@@ -140,8 +140,8 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                     triggeredAbilities = listOf(
                         TriggeredAbility(
                             id = AbilityId("GatedEffectScenarioTest_4"),
-                            trigger = Triggers.EntersBattlefield.event,
-                            binding = Triggers.EntersBattlefield.binding,
+                            trigger = Triggers.self.enters().event,
+                            binding = Triggers.self.enters().binding,
                             effect = Effects.May(DrawCardsEffect(1))
                         )
                     )
@@ -162,8 +162,8 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                     triggeredAbilities = listOf(
                         TriggeredAbility(
                             id = AbilityId("GatedEffectScenarioTest_5"),
-                            trigger = Triggers.EntersBattlefield.event,
-                            binding = Triggers.EntersBattlefield.binding,
+                            trigger = Triggers.self.enters().event,
+                            binding = Triggers.self.enters().binding,
                             effect = Effects.May(DrawCardsEffect(1), sourceRequiredZone = Zone.GRAVEYARD)
                         )
                     )
@@ -185,8 +185,8 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                     triggeredAbilities = listOf(
                         TriggeredAbility(
                             id = AbilityId("GatedEffectScenarioTest_6"),
-                            trigger = Triggers.EntersBattlefield.event,
-                            binding = Triggers.EntersBattlefield.binding,
+                            trigger = Triggers.self.enters().event,
+                            binding = Triggers.self.enters().binding,
                             effect = GatedEffect(
                                 gate = Gate.DoAction(action = Patterns.Library.mill(1)),
                                 then = DrawCardsEffect(1),
@@ -211,8 +211,8 @@ class GatedEffectScenarioTest : ScenarioTestBase() {
                     triggeredAbilities = listOf(
                         TriggeredAbility(
                             id = AbilityId("GatedEffectScenarioTest_7"),
-                            trigger = Triggers.EntersBattlefield.event,
-                            binding = Triggers.EntersBattlefield.binding,
+                            trigger = Triggers.self.enters().event,
+                            binding = Triggers.self.enters().binding,
                             effect = Effects.IfYouDo(
                                 action = Patterns.Library.mill(1),
                                 then = DrawCardsEffect(1),

@@ -42,9 +42,7 @@ val ScoldingAdministrator = card("Scolding Administrator") {
 
     // Repartee — cast an instant or sorcery targeting a creature: +1/+1 counter on this creature.
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature)
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Repartee — Whenever you cast an instant or sorcery spell that targets a creature, put a +1/+1 counter on this creature."
     }
@@ -52,7 +50,7 @@ val ScoldingAdministrator = card("Scolding Administrator") {
     // When this creature dies, if it had counters on it, move those counters to up to one target creature.
     triggeredAbility {
         val creature = target("target creature", TargetCreature(optional = true))
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         interveningIf = Conditions.TriggeringEntityHadCounters
         effect = Effects.MoveAllLastKnownCounters(creature)
         description = "When this creature dies, if it had counters on it, put those counters on up to one target creature."

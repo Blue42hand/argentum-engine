@@ -11,6 +11,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Airbender Ascension — {1}{W} Enchantment
@@ -22,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  * owner's control.
  *
  * Modeling notes (same Ascension cycle as Earthbender/Waterbender Ascension):
- *  - The counter trigger is [Triggers.OtherCreatureEnters] (filter = creatures you control, OTHER
+ *  - The counter trigger is `Triggers.another(GameObjectFilter.Creature.youControl()).enters()` (filter = creatures you control, OTHER
  *    binding) — for an enchantment source every creature you control is "other", so it reads as
  *    "whenever a creature you control enters".
  *  - The end-step ability is an intervening-"if" (CR 603.4): gated by
@@ -40,19 +42,19 @@ val AirbenderAscension = card("Airbender Ascension") {
         "At the beginning of your end step, if this enchantment has four or more quest counters on it, exile up to one target creature you control, then return it to the battlefield under its owner's control."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target("up to one target creature", Targets.UpToCreatures(1))
         effect = Effects.Airbend()
     }
 
     triggeredAbility {
-        trigger = Triggers.OtherCreatureEnters
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
         effect = Effects.AddCounters(CounterType.QUEST, 1, EffectTarget.Self)
         description = "Whenever a creature you control enters, put a quest counter on this enchantment."
     }
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.If(
             condition = Conditions.SourceCounterCountAtLeast(CounterType.QUEST, 4),
             then = Effects.Pipeline {

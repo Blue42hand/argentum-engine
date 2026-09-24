@@ -39,7 +39,7 @@ val AltanakTheThriceCalled = card("Altanak, the Thrice-Called") {
 
     // Whenever Altanak becomes the target of a spell or ability an opponent controls, draw a card.
     triggeredAbility {
-        trigger = Triggers.BecomesTargetByOpponent
+        trigger = Triggers.self.becomesTarget(byOpponent = true)
         effect = Effects.DrawCards(1)
     }
 

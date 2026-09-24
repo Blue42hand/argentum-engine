@@ -5,6 +5,8 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Lifecrafter's Bestiary
@@ -25,12 +27,12 @@ val LifecraftersBestiary = card("Lifecrafter's Bestiary") {
         "Whenever you cast a creature spell, you may pay {G}. If you do, draw a card."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.Scry(1)
     }
 
     triggeredAbility {
-        trigger = Triggers.YouCastCreature
+        trigger = Triggers.you.casts(GameObjectFilter.Creature)
         effect = Effects.MayPay(ManaCost.parse("{G}"), Effects.DrawCards(1))
     }
 

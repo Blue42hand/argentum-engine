@@ -23,9 +23,9 @@ import com.wingedsheep.engine.core.Outcome
 /**
  * Market Gnome (LCI #22) — the two "gain 1 life and draw a card" triggers.
  *
- *  1. "When this creature dies, you gain 1 life and draw a card." — plain [Triggers.Dies].
+ *  1. "When this creature dies, you gain 1 life and draw a card." — plain `Triggers.self.dies()`.
  *  2. "When this creature is exiled from the battlefield while you're activating a craft
- *     ability, you gain 1 life and draw a card." — the new [Triggers.ExiledAsCraftMaterial]
+ *     ability, you gain 1 life and draw a card." — the new `Triggers.self.leaves(to = Zone.EXILE, asCraftMaterial = true)`
  *     SELF exile trigger, gated on the craft-material fact stamped by the Craft cost payment
  *     (CR 702.167).
  *

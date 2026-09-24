@@ -28,7 +28,7 @@ val SanctumGargoyle = card("Sanctum Gargoyle") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target(
             "target",

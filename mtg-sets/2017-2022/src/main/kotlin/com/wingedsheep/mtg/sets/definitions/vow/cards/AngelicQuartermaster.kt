@@ -36,7 +36,7 @@ val AngelicQuartermaster = card("Angelic Quartermaster") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target(
             "up to two other target creatures",
             TargetCreature(count = 2, optional = true, filter = TargetFilter.OtherCreature),

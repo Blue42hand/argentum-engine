@@ -37,7 +37,7 @@ val AbundantMaw = card("Abundant Maw") {
     emerge("{6}{B}")
 
     triggeredAbility {
-        trigger = Triggers.WhenYouCastThisSpell()
+        trigger = Triggers.self.isCast()
         val victim = target("target opponent", TargetOpponent())
         effect = Effects.Composite(
             Effects.LoseLife(3, target = victim),

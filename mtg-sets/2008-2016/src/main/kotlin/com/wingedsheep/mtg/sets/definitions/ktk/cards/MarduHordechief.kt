@@ -25,7 +25,7 @@ val MarduHordechief = card("Mardu Hordechief") {
     oracleText = "Raid — When Mardu Hordechief enters, if you attacked this turn, create a 1/1 white Warrior creature token."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.YouAttackedThisTurn
         effect = Effects.CreateToken(
             count = 1,

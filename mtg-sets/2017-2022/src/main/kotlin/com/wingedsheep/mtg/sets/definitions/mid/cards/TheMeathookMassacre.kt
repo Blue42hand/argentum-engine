@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.mid.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -8,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -38,7 +36,7 @@ val TheMeathookMassacre = card("The Meathook Massacre") {
 
     // When The Meathook Massacre enters, each creature gets -X/-X until end of turn.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreatures,
             effect = Effects.ModifyStats(
@@ -51,17 +49,13 @@ val TheMeathookMassacre = card("The Meathook Massacre") {
 
     // Whenever a creature you control dies, each opponent loses 1 life.
     triggeredAbility {
-        trigger = Triggers.YourCreatureDies
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dies()
         effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent))
     }
 
     // Whenever a creature an opponent controls dies, you gain 1 life.
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.opponentControls(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.opponentControls()).dies()
         effect = Effects.GainLife(1)
     }
 

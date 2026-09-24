@@ -41,7 +41,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    red source you control to an opponent player. It raises the would-be amount up to Axonil's
  *    power; larger amounts are untouched.
  *  - Dies-return uses the shared [Effects.ReturnSelfFromGraveyardTransformed]`(tapped = true)`
- *    wired to [Triggers.Dies].
+ *    wired to `Triggers.self.dies()`.
  *  - Back land: `{T}: Add {R}` mana ability + a `{2}{R}, {T}` sorcery-speed [TransformEffect]
  *    gated on [Conditions.YouDealtRedNoncombatDamageThisTurn]`(4)` (backed by the per-player
  *    RED_NONCOMBAT_DAMAGE_DEALT tracker).
@@ -74,7 +74,7 @@ private val OjerAxonilDeepestMightFront = card("Ojer Axonil, Deepest Might") {
     )
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.ReturnSelfFromGraveyardTransformed(tapped = true)
         description = "When Ojer Axonil dies, return it to the battlefield tapped and transformed " +
             "under its owner's control."

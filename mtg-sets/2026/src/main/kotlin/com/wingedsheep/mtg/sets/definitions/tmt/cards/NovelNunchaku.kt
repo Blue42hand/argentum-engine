@@ -30,7 +30,7 @@ val NovelNunchaku = card("Novel Nunchaku") {
     // ETB: attach to a creature you control, then that (now equipped) creature fights
     // up to one opponent creature — the Chelonian Tackle "X then fights up to one" shape.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val yourCreature = target(
             "target creature you control",
             TargetCreature(filter = TargetFilter.CreatureYouControl)

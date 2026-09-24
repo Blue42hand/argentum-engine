@@ -44,7 +44,7 @@ val SpeedYoungAvenger = card("Speed, Young Avenger") {
     keywords(Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.ReflexiveTrigger(
             // "you may pay {1}"
             action = Effects.PayMana("{1}"),

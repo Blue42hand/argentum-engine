@@ -31,7 +31,7 @@ val Nekrataal = card("Nekrataal") {
     toughness = 1
     keywords(Keyword.FIRST_STRIKE)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.nonartifact().notColor(Color.BLACK)))
         effect = Effects.Destroy(t, noRegenerate = true)
     }

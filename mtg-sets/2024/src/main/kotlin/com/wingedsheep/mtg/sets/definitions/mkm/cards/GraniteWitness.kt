@@ -28,7 +28,7 @@ import com.wingedsheep.sdk.scripting.effects.Mode
  *
  * The trigger is a real triggered ability, not a replacement — it uses the stack and can be
  * responded to, unlike the flip itself (a special action, CR 701.34a). It fires only on *this*
- * creature turning face up ([Triggers.TurnedFaceUp] is SELF-bound), and never on the card entering
+ * creature turning face up (`Triggers.self.turnedFaceUp()` is SELF-bound), and never on the card entering
  * face up: turning face up is not entering (CR 707.9a).
  */
 val GraniteWitness = card("Granite Witness") {
@@ -47,7 +47,7 @@ val GraniteWitness = card("Granite Witness") {
     disguise = "{W/U}{W/U}"
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val creature = target("target creature", Targets.Creature)
         effect = Effects.May(
             Effects.Modal(

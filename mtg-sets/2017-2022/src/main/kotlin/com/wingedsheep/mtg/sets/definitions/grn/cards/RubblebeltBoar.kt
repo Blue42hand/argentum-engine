@@ -22,7 +22,7 @@ val RubblebeltBoar = card("Rubblebelt Boar") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target", Targets.Creature)
         effect = Effects.ModifyStats(2, 0, creature)
     }

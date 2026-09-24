@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.references.Player
@@ -89,7 +87,7 @@ val ChandraTorchOfDefiance = card("Chandra, Torch of Defiance") {
     loyaltyAbility(-7) {
         effect = Effects.CreateGlobalTriggeredAbility(
             ability = grantedTriggeredAbility {
-                trigger = TriggerSpec(Triggers.YouCastSpell.event, TriggerBinding.ANY)
+                trigger = Triggers.you.casts()
                 val anyTarget = target("any target", Targets.Any)
                 effect = Effects.DealDamage(5, anyTarget)
                 description = "Whenever you cast a spell, this emblem deals 5 damage to any target."

@@ -55,12 +55,12 @@ val FortuneLoyalSteed = card("Fortune, Loyal Steed") {
     keywordAbility(KeywordAbility.saddle(1))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.scry(2)
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         triggerRestriction = Conditions.SourceIsSaddled
         effect = Effects.CreateDelayedTrigger(
             step = Step.END_COMBAT,

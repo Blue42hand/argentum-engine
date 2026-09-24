@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 /**
  * Judge of Currents
@@ -16,7 +15,7 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
  * Whenever a Merfolk you control becomes tapped, you may gain 1 life.
  *
  * "a Merfolk you control" covers Judge of Currents itself, so this is the ANY binding with a
- * filter rather than [Triggers.BecomesTapped]'s SELF one. It is per-permanent, not batched —
+ * filter rather than `Triggers.self.becomesTapped()`'s SELF one. It is per-permanent, not batched —
  * attacking with three Merfolk gains three separate triggers.
  */
 val JudgeOfCurrents = card("Judge of Currents") {
@@ -28,10 +27,7 @@ val JudgeOfCurrents = card("Judge of Currents") {
     oracleText = "Whenever a Merfolk you control becomes tapped, you may gain 1 life."
 
     triggeredAbility {
-        trigger = Triggers.becomesTapped(
-            binding = TriggerBinding.ANY,
-            filter = GameObjectFilter.Permanent.withSubtype(Subtype.MERFOLK).youControl()
-        )
+        trigger = Triggers.a(GameObjectFilter.Permanent.withSubtype(Subtype.MERFOLK).youControl()).becomesTapped()
         effect = Effects.May(Effects.GainLife(1))
         description = "Whenever a Merfolk you control becomes tapped, you may gain 1 life."
     }

@@ -43,7 +43,7 @@ val SoulFoundry = card("Soul Foundry") {
 
     // Imprint — When this artifact enters, you may exile a creature card from your hand.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Patterns.Hand.revealHandAndExileChosen(
                 target = EffectTarget.Controller,

@@ -21,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Whenever a Villain you control dies, return it to the battlefield under its owner's control with a
  * finality counter on it. That creature is a Hero in addition to its other types.
  *
- * The Valkyrie's Call template: a filtered dies trigger ([Triggers.leavesBattlefield] to
+ * The Valkyrie's Call template: a filtered dies trigger (`Triggers.<subject>.leaves(to, excludeTo, excludeSacrifice)` to
  * [Zone.GRAVEYARD], [TriggerBinding.ANY]) whose filter is "Villain creature you control".
  * [EffectTarget.TriggeringEntity] resolves to the dying card, now in the graveyard;
  * [Effects.Move] returns it to the battlefield under its owner's control (the reanimation default)
@@ -48,11 +48,7 @@ val ThunderboltsConspiracy = card("Thunderbolts Conspiracy") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.withSubtype(Subtype.VILLAIN).youControl(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.withSubtype(Subtype.VILLAIN).youControl()).dies()
         effect = Effects.Composite(
             // Return it to the battlefield under its owner's control *with* a finality counter on
             // it — `addCounterType`, not a following AddCounters, because "with a counter on it"

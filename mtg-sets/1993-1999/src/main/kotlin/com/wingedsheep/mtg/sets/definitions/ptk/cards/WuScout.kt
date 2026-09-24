@@ -29,7 +29,7 @@ val WuScout = card("Wu Scout") {
     keywordAbility(KeywordAbility.Simple(Keyword.HORSEMANSHIP))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", Targets.Opponent)
         effect = Effects.LookAtHand(t)
     }

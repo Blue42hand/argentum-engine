@@ -40,8 +40,7 @@ val NotDeadAfterAll = card("Not Dead After All") {
         val t = target("target", Targets.CreatureYouControl)
         effect = Effects.GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.Dies.event,
-                binding = Triggers.Dies.binding,
+                trigger = Triggers.self.dies(),
                 effect = Effects.Composite(
                     Effects.Move(
                         target = EffectTarget.Self,

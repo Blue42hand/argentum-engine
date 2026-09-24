@@ -38,7 +38,7 @@ val CheeringCrowd = card("Cheering Crowd") {
         "counter on this creature. If they do, they add {C} for each counter on it."
 
     triggeredAbility {
-        trigger = Triggers.phase(Step.PRECOMBAT_MAIN, Player.Each)
+        trigger = Triggers.anyPlayer.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.ForEachPlayer(
             Player.TriggeringPlayer,
             listOf(

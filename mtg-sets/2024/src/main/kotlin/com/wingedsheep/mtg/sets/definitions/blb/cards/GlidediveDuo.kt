@@ -28,7 +28,7 @@ val GlidediveDuo = card("Glidedive Duo") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             listOf(
                 Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)),

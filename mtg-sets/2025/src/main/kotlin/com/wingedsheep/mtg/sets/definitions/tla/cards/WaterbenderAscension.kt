@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -27,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Modeling notes:
  *  - The combat-damage trigger fires for any creature you control (binding ANY, source-filtered)
- *    via [Triggers.dealsDamage] — same shape as Impostor Syndrome.
+ *    via `Triggers.<subject>.dealsDamage(to, damageType, requireExcess, batch, requires)` — same shape as Impostor Syndrome.
  *  - Intervening-"if" payoff (CR 603.4): putting the quest counter is mandatory; only if the
  *    enchantment then has four or more quest counters does the draw happen. The counter add is
  *    sequenced first, then [Effects.If] gates the draw on the live count
@@ -45,12 +43,7 @@ val WaterbenderAscension = card("Waterbender Ascension") {
     // Whenever a creature you control deals combat damage to a player, put a quest counter on this
     // enchantment. Then if it has four or more quest counters on it, draw a card.
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.Combat,
-            recipient = Recipient.AnyPlayer,
-            sourceFilter = GameObjectFilter.Creature.youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.QUEST, 1, EffectTarget.Self),
             Effects.If(

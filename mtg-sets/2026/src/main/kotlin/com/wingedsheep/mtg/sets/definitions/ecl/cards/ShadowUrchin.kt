@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Shadow Urchin
@@ -33,12 +34,12 @@ val ShadowUrchin = card("Shadow Urchin") {
         "from the top of your library. Until your next end step, you may play those cards."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Patterns.Mechanic.blight(1)
     }
 
     triggeredAbility {
-        trigger = Triggers.YourCreatureDies
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dies()
         triggerRestriction = Conditions.CompareAmounts(
             DynamicAmounts.lastKnownCounterCount(),
             ComparisonOperator.GTE,

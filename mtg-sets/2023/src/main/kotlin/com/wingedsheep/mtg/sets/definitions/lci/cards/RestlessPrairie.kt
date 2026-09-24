@@ -59,7 +59,7 @@ val RestlessPrairie = card("Restless Prairie") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.OtherCreaturesYouControl,
             effect = Effects.ModifyStats(

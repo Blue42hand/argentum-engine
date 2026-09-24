@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Woebringer Demon
@@ -44,7 +45,7 @@ val WoebringerDemon = card("Woebringer Demon") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         effect = Effects.Composite(
             Effects.Sacrifice(
                 filter = GameObjectFilter.Creature,

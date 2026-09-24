@@ -36,7 +36,7 @@ val TheMouthOfSauron = card("The Mouth of Sauron") {
         "create a 0/0 black Orc Army creature token first.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val player = target("target player", Targets.Player)
         effect = Effects.Composite(
             Patterns.Library.mill(3, player),

@@ -24,7 +24,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  * dynamic, toughness stays a printed 3, so we use the single-stat `dynamicPower(...)` helper
  * rather than the both-stats `dynamicStats(...)`.
  *
- * The crime trigger is the standard [Triggers.YouCommitCrime] capped with `oncePerTurn = true`
+ * The crime trigger is the standard `Triggers.you.commitsCrime()` capped with `oncePerTurn = true`
  * and runs the optional loot ([Effects.May] wrapping [Patterns.Hand.loot]) — the same composition
  * as Jeskai Elder.
  */
@@ -41,7 +41,7 @@ val DuelistOfTheMind = card("Duelist of the Mind") {
     keywords(Keyword.FLYING, Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.YouCommitCrime
+        trigger = Triggers.you.commitsCrime()
         oncePerTurn = true
         effect = Effects.May(Patterns.Hand.loot())
         description = "Whenever you commit a crime, you may draw a card. If you do, discard a card. This ability triggers only once each turn."

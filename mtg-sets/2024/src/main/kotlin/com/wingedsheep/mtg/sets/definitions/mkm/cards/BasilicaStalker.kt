@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Basilica Stalker — Murders at Karlov Manor #78
@@ -38,7 +39,7 @@ val BasilicaStalker = card("Basilica Stalker") {
     disguise = "{4}{B}"
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.Composite(
             Effects.GainLife(1),
             Effects.Surveil(1)

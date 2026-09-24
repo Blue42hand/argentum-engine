@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.NoMaximumHandSize
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 
@@ -43,12 +42,7 @@ val NivMizzetVisionary = card("Niv-Mizzet, Visionary") {
     }
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.NonCombat,
-            recipient = Recipient.Opponent,
-            sourceFilter = GameObjectFilter.Any.youControl(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Any.youControl()).dealsDamage(Recipient.Opponent, damageType = DamageType.NonCombat)
         effect = Effects.DrawCards(DynamicAmounts.triggerDamageAmount())
     }
 

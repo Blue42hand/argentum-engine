@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Ouroboroid
@@ -25,7 +26,7 @@ val Ouroboroid = card("Ouroboroid") {
     oracleText = "At the beginning of combat on your turn, put X +1/+1 counters on each creature you control, where X is this creature's power."
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         // Snapshot source power before iteration so counter gains on Ouroboroid don't
         // increase X for the remaining creatures mid-loop.
         effect = Effects.Pipeline {

@@ -13,7 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
  * 1 / 1
  * When this creature enters, target creature gets -1/-1 until end of turn.
  *
- * A plain [Triggers.EntersBattlefield] (SELF binding) with one named target. The shrink is
+ * A plain `Triggers.self.enters()` (SELF binding) with one named target. The shrink is
  * [Effects.ModifyStats] with negative modifiers rather than a counter effect — the printed line
  * says "until end of turn", which is a floating layer-7c modification and the effect's default
  * `Duration.EndOfTurn`, not a -1/-1 counter.
@@ -27,7 +27,7 @@ val BlisterBeetle = card("Blister Beetle") {
     oracleText = "When this creature enters, target creature gets -1/-1 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target", Targets.Creature)
         effect = Effects.ModifyStats(-1, -1, creature)
     }

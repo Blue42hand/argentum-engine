@@ -34,7 +34,7 @@ val CryptAngel = card("Crypt Angel") {
     keywordAbility(KeywordAbility.Protection(ProtectionScope.Color(Color.WHITE)))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val card = target(
             "target blue or red creature card from your graveyard",
             TargetObject(

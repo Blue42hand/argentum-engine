@@ -28,11 +28,9 @@ val DinosaurHunter = card("Dinosaur Hunter") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            recipient = Recipient.Object(
+        trigger = Triggers.self.dealsDamage(Recipient.Object(
                 GameObjectFilter.Permanent.withSubtype(Subtype.DINOSAUR)
-            )
-        )
+            ))
         effect = Effects.Destroy(EffectTarget.TriggeringEntity)
     }
 

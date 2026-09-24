@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Ardyn, the Usurper
@@ -45,7 +46,7 @@ val ArdynTheUsurper = card("Ardyn, the Usurper") {
     // Starscourge — At the beginning of combat on your turn, exile up to one target creature
     // card from a graveyard, then create a 5/5 black Demon token copy of it.
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         // "Up to one target" — exile and copy both no-op if no target is chosen, which
         // naturally satisfies the oracle's "if you exiled a card this way" guard.
         val graveyardCard = target(

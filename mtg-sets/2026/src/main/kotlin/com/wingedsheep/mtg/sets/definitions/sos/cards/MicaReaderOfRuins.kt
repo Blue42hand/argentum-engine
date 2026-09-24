@@ -42,7 +42,7 @@ val MicaReaderOfRuins = card("Mica, Reader of Ruins") {
 
     // Whenever you cast an instant or sorcery spell, you may sacrifice an artifact to copy it.
     triggeredAbility {
-        trigger = Triggers.YouCastInstantOrSorcery
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         effect = Effects.MayPay(
             cost = Effects.SacrificeOwn(filter = GameObjectFilter.Artifact),
             then = Effects.CopyTargetSpell(target = EffectTarget.TriggeringEntity),

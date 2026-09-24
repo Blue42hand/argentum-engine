@@ -24,7 +24,7 @@ val MarduWarshrieker = card("Mardu Warshrieker") {
     oracleText = "Raid — When this creature enters, if you attacked this turn, add {R}{W}{B}."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.YouAttackedThisTurn
         effect = Effects.Composite(
             Effects.AddMana(Color.RED),

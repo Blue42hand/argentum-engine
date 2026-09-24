@@ -32,7 +32,7 @@ val DrunauCorpseTrawler = card("Drunau Corpse Trawler") {
     power = 1
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,

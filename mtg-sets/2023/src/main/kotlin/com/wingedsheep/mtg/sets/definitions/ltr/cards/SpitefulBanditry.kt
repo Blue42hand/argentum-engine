@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Spiteful Banditry
@@ -26,7 +27,7 @@ val SpitefulBanditry = card("Spiteful Banditry") {
 
     // When this enchantment enters, it deals X damage to each creature.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreatures,
             effect = Effects.DealDamage(DynamicAmounts.xValue(), EffectTarget.IterationEntity)
@@ -37,7 +38,7 @@ val SpitefulBanditry = card("Spiteful Banditry") {
     // This ability triggers only once each turn. Batched (fires once per death event), so a
     // board wipe that kills several of an opponent's creatures still makes a single Treasure.
     triggeredAbility {
-        trigger = Triggers.OneOrMoreCreaturesAnOpponentControlsDie()
+        trigger = Triggers.oneOrMore(GameObjectFilter.Creature.opponentControls()).die()
         oncePerTurn = true
         effect = Effects.CreateTreasure(1)
     }

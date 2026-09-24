@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Tony Stark // The Invincible Iron Man — Marvel Super Heroes #80 (mythic)
@@ -105,7 +106,7 @@ private val TheInvincibleIronManBack = card("The Invincible Iron Man") {
     // At the beginning of combat on your turn, you may put an artifact card from your hand onto
     // the battlefield. If it's an Equipment, attach it to The Invincible Iron Man.
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = putArtifactFromHandAndAttach()
         description = "At the beginning of combat on your turn, you may put an artifact card from " +
             "your hand onto the battlefield. If it's an Equipment, attach it to The Invincible " +

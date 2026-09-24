@@ -9,15 +9,13 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
-import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Jace, Reality Sculptor
@@ -57,12 +55,7 @@ val JaceRealitySculptor = card("Jace, Reality Sculptor") {
 
     loyaltyAbility(-3) {
         effect = Effects.CreateDelayedTrigger(
-            trigger = TriggerSpec(
-                event = EventPattern.AttackEvent(
-                    filter = GameObjectFilter.Creature.attackingYouOrYourPlaneswalkers(),
-                ),
-                binding = TriggerBinding.ANY,
-            ),
+            trigger = Triggers.a(GameObjectFilter.Creature.attackingYouOrYourPlaneswalkers()).attacks(),
             effect = Effects.ModifyStats(-5, 0, EffectTarget.TriggeringEntity),
             expiry = DelayedTriggerExpiry.UntilControllersNextTurn,
         )

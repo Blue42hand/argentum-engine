@@ -29,7 +29,7 @@ val VedalkenDismisser = card("Vedalken Dismisser") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Move(t, Zone.LIBRARY, ZonePlacement.Top)
     }

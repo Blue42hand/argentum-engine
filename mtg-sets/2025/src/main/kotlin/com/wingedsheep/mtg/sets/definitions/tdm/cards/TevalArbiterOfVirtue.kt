@@ -46,7 +46,7 @@ val TevalArbiterOfVirtue = card("Teval, Arbiter of Virtue") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouCastSpell
+        trigger = Triggers.you.casts()
         effect = Effects.LoseLife(
             DynamicAmounts.triggeringManaValue(),
             EffectTarget.Controller

@@ -42,14 +42,14 @@ val BristlebudFarmer = card("Bristlebud Farmer") {
 
     // When this creature enters, create two Food tokens.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateFood(2)
     }
 
     // Whenever this creature attacks, you may sacrifice a Food. If you do, mill three cards.
     // You may put a permanent card from among them into your hand.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.May(
             Effects.Sacrifice(
                 GameObjectFilter.Any.withSubtype("Food"),

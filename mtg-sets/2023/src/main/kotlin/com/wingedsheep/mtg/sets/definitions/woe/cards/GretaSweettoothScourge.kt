@@ -44,7 +44,7 @@ val GretaSweettoothScourge = card("Greta, Sweettooth Scourge") {
         "{1}{B}, Sacrifice a Food: You draw a card and you lose 1 life."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateFood()
     }
 

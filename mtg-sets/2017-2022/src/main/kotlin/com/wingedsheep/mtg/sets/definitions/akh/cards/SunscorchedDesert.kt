@@ -20,7 +20,7 @@ val SunscorchedDesert = card("Sunscorched Desert") {
         "{T}: Add {C}."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val victim = target("target", Targets.PlayerOrPlaneswalker)
         effect = Effects.DealDamage(1, victim)
     }

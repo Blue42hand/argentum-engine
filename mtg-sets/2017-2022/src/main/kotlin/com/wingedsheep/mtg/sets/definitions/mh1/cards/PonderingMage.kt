@@ -27,7 +27,7 @@ val PonderingMage = card("Pondering Mage") {
     oracleText = "When this creature enters, look at the top three cards of your library, then put them back in any order. You may shuffle. Draw a card."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Patterns.Library.lookAtTopAndReorder(count = 3),
             Effects.May(Effects.ShuffleLibrary()),

@@ -30,7 +30,7 @@ val RustsporeRam = card("Rustspore Ram") {
     power = 1
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT)))

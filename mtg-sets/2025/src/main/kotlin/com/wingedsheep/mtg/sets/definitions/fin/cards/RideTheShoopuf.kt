@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Ride the Shoopuf — Final Fantasy #197
@@ -18,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * Landfall — Whenever a land you control enters, put a +1/+1 counter on target creature you control.
  * {5}{G}{G}: This enchantment becomes a 7/7 Beast creature in addition to its other types.
  *
- * The landfall trigger uses [Triggers.LandYouControlEnters] (fires for any land you control entering,
+ * The landfall trigger uses `Triggers.a(GameObjectFilter.Land.youControl()).enters()` (fires for any land you control entering,
  * not just lands you play) and targets a creature you control via [TargetFilter.CreatureYouControl].
  *
  * The animation is a permanent [Effects.BecomeCreature] on the source: it adds the CREATURE type
@@ -34,7 +35,7 @@ val RideTheShoopuf = card("Ride the Shoopuf") {
         "{5}{G}{G}: This enchantment becomes a 7/7 Beast creature in addition to its other types."
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         val t = target("target creature you control", TargetCreature(filter = TargetFilter.CreatureYouControl))
         effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
         description = "Landfall — Whenever a land you control enters, put a +1/+1 counter on target creature you control."

@@ -30,7 +30,7 @@ val FleshBurrower = card("Flesh Burrower") {
     toughness = 2
     keywords(Keyword.DEATHTOUCH)
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val t = target("target", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
         effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, t)
     }

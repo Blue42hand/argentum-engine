@@ -33,7 +33,7 @@ val RooftopPercher = card("Rooftop Percher") {
     keywords(Keyword.CHANGELING, Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target(
             "cards from graveyards",
             TargetObject(count = 2, optional = true, filter = TargetFilter.CardInGraveyard)

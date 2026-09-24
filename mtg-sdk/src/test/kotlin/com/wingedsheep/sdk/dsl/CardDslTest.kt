@@ -319,7 +319,7 @@ class CardDslTest : DescribeSpec({
                 toughness = 2
 
                 triggeredAbility {
-                    trigger = Triggers.EntersBattlefield
+                    trigger = Triggers.self.enters()
                     effect = Effects.DealDamage(4, EffectTarget.ContextTarget(0))
                     target = Targets.Creature
                 }
@@ -341,12 +341,12 @@ class CardDslTest : DescribeSpec({
                 toughness = 3
 
                 triggeredAbility {
-                    trigger = Triggers.EntersBattlefield
+                    trigger = Triggers.self.enters()
                     effect = Effects.GainLife(5)
                 }
 
                 triggeredAbility {
-                    trigger = Triggers.LeavesBattlefield
+                    trigger = Triggers.self.leaves()
                     effect = Effects.CreateToken(power = 3, toughness = 3, creatureTypes = setOf("Beast"))
                 }
             }
@@ -443,7 +443,7 @@ class CardDslTest : DescribeSpec({
                 }
 
                 triggeredAbility {
-                    trigger = Triggers.PutIntoGraveyardFromBattlefield
+                    trigger = Triggers.self.dies()
                     effect = Effects.ReturnToHand(EffectTarget.Self)
                 }
             }
@@ -993,7 +993,7 @@ class CardDslTest : DescribeSpec({
                     typeLine = "Enchantment — Room"
                     oracleText = "At the beginning of your end step, draw a card."
                     triggeredAbility {
-                        trigger = Triggers.YourEndStep
+                        trigger = Triggers.you.beginningOf(Step.END)
                         effect = Effects.DrawCards(1)
                     }
                 }
@@ -1003,7 +1003,7 @@ class CardDslTest : DescribeSpec({
                     typeLine = "Enchantment — Room"
                     oracleText = "When this enters, do something."
                     triggeredAbility {
-                        trigger = Triggers.EntersBattlefield
+                        trigger = Triggers.self.enters()
                         effect = Effects.DrawCards(1)
                     }
                 }
@@ -1050,17 +1050,12 @@ class CardDslTest : DescribeSpec({
             // attackerFilter is only honored by the SELF detector branch; the ANY branch
             // ignores it, so the combination must fail fast rather than silently misfire.
             val ex = io.kotest.assertions.throwables.shouldThrow<IllegalArgumentException> {
-                Triggers.blocks(
-                    binding = TriggerBinding.ANY,
-                    attackerFilter = GameObjectFilter.Creature.withKeyword(Keyword.FLYING),
-                )
+                Triggers.a().blocks(attackerFilter = GameObjectFilter.Creature.withKeyword(Keyword.FLYING))
             }
             ex.message?.contains("attackerFilter") shouldBe true
 
             // SELF binding (the default) is accepted.
-            Triggers.blocks(
-                attackerFilter = GameObjectFilter.Creature.withKeyword(Keyword.FLYING),
-            ).binding shouldBe TriggerBinding.SELF
+            Triggers.self.blocks(attackerFilter = GameObjectFilter.Creature.withKeyword(Keyword.FLYING)).binding shouldBe TriggerBinding.SELF
         }
     }
 })

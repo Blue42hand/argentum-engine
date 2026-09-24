@@ -8,11 +8,7 @@ import com.wingedsheep.sdk.scripting.AddCreatureTypeByCounter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.GrantKeywordByCounter
 import com.wingedsheep.sdk.dsl.Triggers
-import com.wingedsheep.sdk.scripting.EventPattern.DealsDamageEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -35,10 +31,7 @@ val Aurification = card("Aurification") {
     triggeredAbility {
         // "a creature deals damage to you" — the creature restriction is the trigger's own
         // sourceFilter, not an assumption the detector makes on its behalf.
-        trigger = TriggerSpec(
-            DealsDamageEvent(recipient = Recipient.You, sourceFilter = GameObjectFilter.Creature),
-            TriggerBinding.ANY
-        )
+        trigger = Triggers.you.isDealtDamage(GameObjectFilter.Creature)
         effect = Effects.AddCounters(CounterType.GOLD, 1, EffectTarget.TriggeringEntity)
     }
 
@@ -46,7 +39,7 @@ val Aurification = card("Aurification") {
     staticAbility { ability = GrantKeywordByCounter(Keyword.DEFENDER, CounterType.GOLD) }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ForEachInGroup(GroupFilter.AllCreatures, Effects.RemoveCounters(CounterType.GOLD, Int.MAX_VALUE, EffectTarget.IterationEntity))
     }
 

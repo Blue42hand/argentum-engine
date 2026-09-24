@@ -23,7 +23,7 @@ val GolgariFindbroker = card("Golgari Findbroker") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val card = target("target", TargetObject(filter = TargetFilter.PermanentInYourGraveyard))
         effect = Effects.ReturnToHand(card)
     }

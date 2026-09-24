@@ -28,7 +28,7 @@ val GhituJourneymage = card("Ghitu Journeymage") {
     oracleText = "When Ghitu Journeymage enters the battlefield, if you control another Wizard, Ghitu Journeymage deals 2 damage to each opponent."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         // "If you control another Wizard" — count Wizards OTHER than Ghitu Journeymage itself and
         // require at least one. Counting all Wizards (including self) >= 2 would be wrong whenever
         // Ghitu Journeymage is not a Wizard when the intervening-if is checked (CR 603.4) — e.g. a

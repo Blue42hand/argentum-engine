@@ -25,7 +25,7 @@ val VeteranOfTheDepths = card("Veteran of the Depths") {
     oracleText = "Whenever this creature becomes tapped, you may put a +1/+1 counter on it."
 
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
+        trigger = Triggers.self.becomesTapped()
         effect = Effects.May(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         )

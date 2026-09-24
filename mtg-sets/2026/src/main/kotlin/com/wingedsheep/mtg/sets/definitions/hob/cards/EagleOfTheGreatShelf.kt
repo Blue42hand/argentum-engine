@@ -33,7 +33,7 @@ val EagleOfTheGreatShelf = card("Eagle of the Great Shelf") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val otherCreatures = DynamicAmounts.battlefield(
             Player.You,
             GameObjectFilter.Creature,

@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Inventive Wingsmith
@@ -34,7 +35,7 @@ val InventiveWingsmith = card("Inventive Wingsmith") {
         "this turn and this creature doesn't have a flying counter on it, put a flying counter on it."
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.All(
             Conditions.Not(Conditions.YouCastSpellsThisTurn(1, fromZone = Zone.HAND)),
             Conditions.Not(Conditions.SourceHasCounter(CounterType.FLYING)),

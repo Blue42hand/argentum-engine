@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * The Rack
@@ -24,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * The choose-an-opponent-as-it-enters half reuses the existing [EntersWithChoice]`(ChoiceType.OPPONENT)`
  * replacement (same as Cursed Rack / Jihad), storing the chosen player on the permanent under
  * `ChoiceSlot.OPPONENT`. The upkeep trigger is keyed to that chosen player via
- * [Player.ChosenOpponent]: [Triggers.ChosenOpponentUpkeep] (`StepEvent(UPKEEP, ChosenOpponent)`) now
+ * [Player.ChosenOpponent]: `Triggers.chosenOpponent.beginningOf(Step.UPKEEP)` (`StepEvent(UPKEEP, ChosenOpponent)`) now
  * resolves in `TriggerMatcher.matchesPlayerForStep` against the source's stored choice, so it fires
  * only on the chosen player's upkeep — not on every player's. Damage and the dynamic amount both read
  * `Player.ChosenOpponent` off the source, so "that player" / "their hand" resolve to the chosen player.
@@ -41,7 +42,7 @@ val TheRack = card("The Rack") {
     replacementEffect(EntersWithChoice(ChoiceType.OPPONENT))
 
     triggeredAbility {
-        trigger = Triggers.ChosenOpponentUpkeep
+        trigger = Triggers.chosenOpponent.beginningOf(Step.UPKEEP)
         effect = Effects.DealDamage(
             amount = 3 - DynamicAmounts.zone(Player.ChosenOpponent, Zone.HAND).count(),
             target = EffectTarget.PlayerRef(Player.ChosenOpponent)

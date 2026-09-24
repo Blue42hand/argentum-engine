@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -31,7 +30,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  * Composed entirely from existing primitives:
  *   1. [GrantKeyword] first strike + [GrantDynamicStats] +X/+0 on [Filters.EquippedCreature],
  *      where X is a graveyard-count [DynamicAmount] over instant/sorcery cards in your graveyard.
- *   2. A [Triggers.DealsCombatDamageToPlayer]-shaped trigger bound to the equipped creature
+ *   2. A `Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)`-shaped trigger bound to the equipped creature
  *      ([TriggerBinding.ATTACHED]). "That damage" is read from the triggering damage event via
  *      [ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT] and stored as the free-cast mana-value cap, then
  *      the same Press-the-Enemy free-cast pipeline (gather hand instants/sorceries → keep MV ≤ cap
@@ -69,11 +68,7 @@ val Glamdring = card("Glamdring") {
     // Whenever equipped creature deals combat damage to a player, you may cast an instant or
     // sorcery spell from your hand with MV ≤ that damage without paying its mana cost.
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.Combat,
-            recipient = Recipient.AnyPlayer,
-            binding = TriggerBinding.ATTACHED
-        )
+        trigger = Triggers.attached.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.Pipeline {
             // Capture "that damage" — the combat damage just dealt to the player.
             val combatDamage = storeNumber(DynamicAmounts.triggerDamageAmount())

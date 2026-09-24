@@ -8,9 +8,9 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Temporal Distortion
@@ -39,10 +39,7 @@ val TemporalDistortion = card("Temporal Distortion") {
 
     // Whenever a creature or land becomes tapped, put an hourglass counter on it.
     triggeredAbility {
-        trigger = Triggers.becomesTapped(
-            binding = TriggerBinding.ANY,
-            filter = GameObjectFilter.CreatureOrLand
-        )
+        trigger = Triggers.a(GameObjectFilter.CreatureOrLand).becomesTapped()
         effect = Effects.AddCounters(CounterType.HOURGLASS, 1, EffectTarget.TriggeringEntity)
     }
 
@@ -57,7 +54,7 @@ val TemporalDistortion = card("Temporal Distortion") {
     // At the beginning of each player's upkeep, remove all hourglass counters from permanents
     // that player controls (the upkeep player is the active player).
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Permanent.controlledByActivePlayer()),
             Effects.RemoveCounters(CounterType.HOURGLASS, Int.MAX_VALUE, EffectTarget.IterationEntity)

@@ -50,7 +50,7 @@ class CardsPutIntoExileBatchTriggerTest : FunSpec({
         power = 0
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.CardsPutIntoExile()
+            trigger = Triggers.oneOrMore(GameObjectFilter.Any).putIntoExile()
             effect = Effects.DrawCards(1)
         }
     }
@@ -62,11 +62,7 @@ class CardsPutIntoExileBatchTriggerTest : FunSpec({
         power = 0
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.CardsPutIntoExile(
-                fromZones = setOf(Zone.BATTLEFIELD, Zone.GRAVEYARD),
-                filter = GameObjectFilter.Creature.youControl(),
-                includeTokens = true,
-            )
+            trigger = Triggers.oneOrMore(GameObjectFilter.Creature.youControl()).putIntoExile(setOf(Zone.BATTLEFIELD, Zone.GRAVEYARD), includeTokens = true)
             effect = Effects.DrawCards(1)
         }
     }

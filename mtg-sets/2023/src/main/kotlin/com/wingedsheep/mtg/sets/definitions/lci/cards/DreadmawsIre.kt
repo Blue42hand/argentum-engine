@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Dreadmaw's Ire
@@ -33,7 +34,7 @@ val DreadmawsIre = card("Dreadmaw's Ire") {
                 Effects.GrantKeyword(Keyword.TRAMPLE, t),
                 Effects.GrantTriggeredAbility(
                     ability = grantedTriggeredAbility {
-                        trigger = Triggers.DealsCombatDamageToPlayer
+                        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
                         val artifact = target("target artifact", TargetPermanent(
                             filter = TargetFilter(GameObjectFilter.Artifact.controlledByTriggeringPlayer())
                         ))

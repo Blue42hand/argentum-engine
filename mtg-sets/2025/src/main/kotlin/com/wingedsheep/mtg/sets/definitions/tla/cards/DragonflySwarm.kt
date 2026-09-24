@@ -48,7 +48,7 @@ val DragonflySwarm = card("Dragonfly Swarm") {
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{1}")))
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         interveningIf = Conditions.GraveyardContainsSubtype(Subtype.LESSON)
         effect = Effects.DrawCards(1)
         description = "When this creature dies, if there's a Lesson card in your graveyard, draw a card."

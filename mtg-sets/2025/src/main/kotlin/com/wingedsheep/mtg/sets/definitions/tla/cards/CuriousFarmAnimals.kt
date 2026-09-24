@@ -26,7 +26,7 @@ val CuriousFarmAnimals = card("Curious Farm Animals") {
         "{2}, Sacrifice this creature: Destroy up to one target artifact or enchantment."
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.GainLife(3)
     }
 

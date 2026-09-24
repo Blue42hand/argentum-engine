@@ -21,7 +21,7 @@ val CuratorOfSunsCreation = card("Curator of Sun's Creation") {
     toughness = 3
     oracleText = "Whenever you discover, discover again for the same value. This ability triggers only once each turn."
     triggeredAbility {
-        trigger = Triggers.WheneverYouDiscover
+        trigger = Triggers.you.discovers()
         // "This ability triggers only once each turn." — prevents the discover-again from
         // recursively re-triggering this same ability (its own discover would otherwise chain).
         oncePerTurn = true

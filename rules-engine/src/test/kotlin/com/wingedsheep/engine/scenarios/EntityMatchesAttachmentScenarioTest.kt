@@ -81,8 +81,7 @@ class EntityMatchesAttachmentScenarioTest : FunSpec({
                 ability = GrantTriggeredAbility(
                     ability = TriggeredAbility.create(
                         id = AbilityId("EntityMatchesAttachmentScenarioTest_1"),
-                        trigger = Triggers.YourUpkeep.event,
-                        binding = Triggers.YourUpkeep.binding,
+                        trigger = Triggers.you.beginningOf(Step.UPKEEP),
                         effect = Effects.DrawCards(1)
                     ),
                     filter = GroupFilter.attachedCreature()

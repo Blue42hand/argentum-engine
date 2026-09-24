@@ -34,7 +34,7 @@ val GeistOfSaintTraft = card("Geist of Saint Traft") {
     keywords(Keyword.HEXPROOF)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.CreateToken(
             power = 4,
             toughness = 4,

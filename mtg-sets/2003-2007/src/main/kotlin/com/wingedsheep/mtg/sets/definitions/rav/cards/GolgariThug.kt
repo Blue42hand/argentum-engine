@@ -18,7 +18,7 @@ val GolgariThug = card("Golgari Thug") {
     keywordAbility(KeywordAbility.dredge(4))
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val creature = target("creature", Targets.CreatureCardInYourGraveyard)
         effect = Effects.PutOnTopOfLibrary(creature)
     }

@@ -26,7 +26,7 @@ val SummitIntimidator = card("Summit Intimidator") {
 
     triggeredAbility {
         val creature = target("target creature", Targets.Creature)
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CantBlock(target = creature)
     }
 

@@ -33,7 +33,7 @@ val Plaguecrafter = card("Plaguecrafter") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val cant = forEachPlayerCollecting(Player.ActivePlayerFirst) {
                 listOf(storePlayer(onlyIf = Conditions.YouControl(GameObjectFilter.CreatureOrPlaneswalker, negate = true)))

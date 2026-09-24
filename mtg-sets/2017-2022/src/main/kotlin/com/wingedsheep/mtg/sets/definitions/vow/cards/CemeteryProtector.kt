@@ -43,7 +43,7 @@ val CemeteryProtector = card("Cemetery Protector") {
 
     // When this creature enters, exile a card from a graveyard.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val graveyards = gather(
                 CardSource.FromZone(Zone.GRAVEYARD, Player.Each, GameObjectFilter.Any),
@@ -62,7 +62,7 @@ val CemeteryProtector = card("Cemetery Protector") {
 
     // Whenever you play a land …
     triggeredAbility {
-        trigger = Triggers.youPlayLand()
+        trigger = Triggers.you.playsLand()
         interveningIf = Conditions.TriggeringSpellMatches(
             GameObjectFilter.Any.sharingCardTypeWith(EffectTarget.LinkedExiledCard())
         )
@@ -73,7 +73,7 @@ val CemeteryProtector = card("Cemetery Protector") {
 
     // … or cast a spell, if it shares a card type with the exiled card, create a Human.
     triggeredAbility {
-        trigger = Triggers.YouCastSpell
+        trigger = Triggers.you.casts()
         interveningIf = Conditions.TriggeringSpellMatches(
             GameObjectFilter.Any.sharingCardTypeWith(EffectTarget.LinkedExiledCard())
         )

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 /**
  * Roiling Canopy (Reality Fracture #187) — Land.
@@ -34,10 +33,7 @@ val RoilingCanopy = card("Roiling Canopy") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = Filters.ForestCard.youControl(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(Filters.ForestCard.youControl()).enters()
         interveningIf = Conditions.YouControlAtLeastOtherThanTriggering(5, Filters.ForestCard)
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.ModifyStats(3, 3, creature)

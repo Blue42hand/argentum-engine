@@ -24,7 +24,7 @@ val Henchbots = card("Henchbots") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "tapped creature an opponent controls",
             TargetPermanent(filter = TargetFilter.Creature.opponentControls().tapped())
@@ -33,7 +33,7 @@ val Henchbots = card("Henchbots") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

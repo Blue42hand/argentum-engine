@@ -31,7 +31,7 @@ val DarkHatchling = card("Dark Hatchling") {
     toughness = 3
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.notColor(Color.BLACK)))
         effect = Effects.Destroy(t, noRegenerate = true)
     }

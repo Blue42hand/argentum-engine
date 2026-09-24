@@ -22,7 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The conditional enters-with-counter clause is a self-only [EntersWithCounters] replacement
  * gated on the intervening condition "you control a permanent with mana value 4 or greater"
- * (CR 614). The cast trigger is [Triggers.youCastSpell] filtered to mana value >= 4; because
+ * (CR 614). The cast trigger is `Triggers.you.casts(spell, requires)` filtered to mana value >= 4; because
  * the spell's mana value is fixed on the stack, the filter reads it directly with no cast-time
  * choice involved.
  */
@@ -46,7 +46,7 @@ val AscendantPackleader = card("Ascendant Packleader") {
     )
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Any.manaValueAtLeast(4))
+        trigger = Triggers.you.casts(GameObjectFilter.Any.manaValueAtLeast(4))
         effect = Effects.AddCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 1,

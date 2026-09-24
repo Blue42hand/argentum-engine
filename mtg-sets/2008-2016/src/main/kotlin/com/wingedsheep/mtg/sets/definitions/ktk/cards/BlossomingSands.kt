@@ -24,7 +24,7 @@ val BlossomingSands = card("Blossoming Sands") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(1)
     }
 

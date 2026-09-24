@@ -31,7 +31,7 @@ val JunkDiver = card("Junk Diver") {
     toughness = 1
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val t = target(
             "target",
             TargetObject(filter = TargetFilter.ArtifactInYourGraveyard)

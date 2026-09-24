@@ -31,7 +31,7 @@ val TesharAncestorsApostle = card("Teshar, Ancestor's Apostle") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YouCastHistoric
+        trigger = Triggers.you.casts(GameObjectFilter.Historic)
         val t = target("target", TargetObject(
             filter = TargetFilter(
                 GameObjectFilter.Creature.ownedByYou().manaValueAtMost(3),

@@ -49,7 +49,7 @@ val RhovanionRampager = card("Rhovanion Rampager") {
         "Army, create a 0/0 black Goblin Army creature token first.)"
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Pipeline {
             val others = gather(
                 CardSource.BattlefieldMatching(
@@ -80,7 +80,7 @@ val RhovanionRampager = card("Rhovanion Rampager") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.Amass(DynamicAmounts.sourcePower(), "Goblin")
         description = "When this creature dies, amass Goblins X, where X is this creature's power."
     }

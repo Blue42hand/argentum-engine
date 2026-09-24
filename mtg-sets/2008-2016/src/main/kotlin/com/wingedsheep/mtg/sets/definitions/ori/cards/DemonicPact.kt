@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Demonic Pact
@@ -42,7 +43,7 @@ val DemonicPact = card("Demonic Pact") {
         "• You lose the game."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = ModalEffect.chooseOneNotYetChosen(
             // • This enchantment deals 4 damage to any target and you gain 4 life.
             mode("This enchantment deals 4 damage to any target and you gain 4 life") {

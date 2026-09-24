@@ -37,7 +37,7 @@ val OutcasterGreenblade = card("Outcaster Greenblade") {
         "for each Desert you control."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.searchLibrary(
             filter = GameObjectFilter.BasicLand or GameObjectFilter.Land.withSubtype(Subtype.DESERT),
             destination = SearchDestination.HAND,

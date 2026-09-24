@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
  * Equip {2}
  *
  * The static buff is the usual [ModifyStats] over [Filters.EquippedCreature]. The attack trigger
- * binds to the attached creature ([TriggerBinding.ATTACHED] on [Triggers.attacks], i.e. "whenever
+ * binds to the attached creature ([TriggerBinding.ATTACHED] on `Triggers.<subject>.attacks(requires)`, i.e. "whenever
  * equipped creature attacks"). The "you may sacrifice … If you do, draw" pay-then-payoff is a
  * [GatedEffect] with a [Gate.MayPay] whose cost is a [SacrificeEffect] over permanents you control;
  * `excludeSource = true` removes this Equipment from the choices and `notAttachedToBySource()`
@@ -41,7 +41,7 @@ val Saw = card("Saw") {
     }
 
     triggeredAbility {
-        trigger = Triggers.attacks(binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.attacks()
         effect = Effects.MayPay(
             cost = Effects.SacrificeOwn(
                     filter = GameObjectFilter.Permanent.notAttachedToBySource(),

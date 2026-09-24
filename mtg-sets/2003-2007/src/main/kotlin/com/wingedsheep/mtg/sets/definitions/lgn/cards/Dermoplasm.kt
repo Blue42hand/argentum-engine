@@ -35,7 +35,7 @@ val Dermoplasm = card("Dermoplasm") {
     morph = "{2}{U}{U}"
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         effect = Effects.Pipeline {
             val candidates = gather(CardSource.FromZone(Zone.HAND, Player.You, GameObjectFilter.Creature.withMorph()))
             val putting = chooseUpTo(1, from = candidates)

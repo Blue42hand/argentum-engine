@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Silent Hallcreeper
@@ -52,7 +53,7 @@ val SilentHallcreeper = card("Silent Hallcreeper") {
     }
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = ModalEffect.chooseOneNotYetChosen(
             // • Put two +1/+1 counters on this creature.
             Mode.noTarget(

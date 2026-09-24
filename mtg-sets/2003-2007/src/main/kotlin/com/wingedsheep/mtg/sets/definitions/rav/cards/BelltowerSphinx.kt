@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * A 2/5 flying wall that taxes every answer: block it, burn it, or fight it, and you mill yourself
  * for the trouble. Both halves are ordinary vocabulary, but the join between them was the gap —
  * "**that source's** controller" needs the *damage source*, and a SELF-bound
- * [Triggers.TakesDamage] used to bind the creature that was *dealt* the damage instead. The
+ * `Triggers.self.isDealtDamage()` used to bind the creature that was *dealt* the damage instead. The
  * detector now binds `event.sourceId`, matching what the two neighbouring damage paths already did
  * (`detectDamagedBySourceTriggers` for the `GameObjectFilter.Creature`/`Spell` variants, and
  * `TriggerContext.fromEvent`'s `DamagePreventedEvent` branch), so
@@ -55,7 +55,7 @@ val BelltowerSphinx = card("Belltower Sphinx") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.TakesDamage
+        trigger = Triggers.self.isDealtDamage()
         effect = Patterns.Library.mill(
             DynamicAmounts.triggerDamageAmount(),
             EffectTarget.ControllerOfTriggeringEntity,

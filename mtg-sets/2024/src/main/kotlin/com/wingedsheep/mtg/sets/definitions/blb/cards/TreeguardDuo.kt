@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -28,7 +27,7 @@ val TreeguardDuo = card("Treeguard Duo") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature you control", TargetCreature(filter = TargetFilter.CreatureYouControl))
         val x = DynamicAmounts.creaturesYouControl()
         effect = Effects.GrantKeyword(Keyword.VIGILANCE, creature)

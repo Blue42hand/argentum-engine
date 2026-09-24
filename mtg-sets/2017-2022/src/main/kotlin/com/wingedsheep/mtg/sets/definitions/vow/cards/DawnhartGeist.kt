@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Dawnhart Geist
@@ -20,7 +21,7 @@ val DawnhartGeist = card("Dawnhart Geist") {
     power = 1
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.YouCastEnchantment
+        trigger = Triggers.you.casts(GameObjectFilter.Enchantment)
         effect = Effects.GainLife(2)
     }
     metadata {

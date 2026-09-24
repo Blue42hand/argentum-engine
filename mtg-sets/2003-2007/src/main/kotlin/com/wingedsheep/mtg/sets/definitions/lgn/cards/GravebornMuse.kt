@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Graveborn Muse
@@ -25,7 +26,7 @@ val GravebornMuse = card("Graveborn Muse") {
     oracleText = "At the beginning of your upkeep, you draw X cards and you lose X life, where X is the number of Zombies you control."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.DrawCards(
             count = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Permanent.withSubtype("Zombie")).count(),
             target = EffectTarget.Controller

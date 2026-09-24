@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
  * with "Whenever this token attacks, you gain 1 life."
  *
  * The created Pest carries its own self-attack life-gain trigger, granted via
- * [CreateTokenEffect.triggeredAbilities] — a `Triggers.Attacks` (SELF binding) event with
+ * [CreateTokenEffect.triggeredAbilities] — a `Triggers.self.attacks()` (SELF binding) event with
  * `Effects.GainLife(1)` as the payoff, gained by the token's controller.
  */
 val SendInThePest = card("Send in the Pest") {
@@ -36,8 +36,7 @@ val SendInThePest = card("Send in the Pest") {
                     creatureTypes = setOf("Pest"),
                     triggeredAbilities = listOf(
                         TriggeredAbility.create(
-                            trigger = Triggers.Attacks.event,
-                            binding = Triggers.Attacks.binding,
+                            trigger = Triggers.self.attacks(),
                             effect = Effects.GainLife(1)
                         )
                     ),

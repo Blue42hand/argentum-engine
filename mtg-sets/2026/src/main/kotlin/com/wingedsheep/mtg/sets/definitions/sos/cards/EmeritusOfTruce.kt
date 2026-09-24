@@ -52,7 +52,7 @@ val EmeritusOfTruce = card("Emeritus of Truce") {
     // When this creature enters, target player creates a 1/1 W/B Inkling with flying.
     // Then if an opponent controls more creatures than you, it becomes prepared.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val recipient = target("target player", Targets.Player)
         effect = Effects.CreateToken(
             power = 1,

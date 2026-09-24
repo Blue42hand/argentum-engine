@@ -30,10 +30,7 @@ val SageOfMysteries = card("Sage of Mysteries") {
     oracleText = "Constellation — Whenever an enchantment you control enters, target player mills two cards."
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Enchantment.youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Enchantment.youControl()).enters()
         val t = target("target", Targets.Player)
         effect = Patterns.Library.mill(2, t)
         description = "Constellation — Whenever an enchantment you control enters, target player mills two cards."

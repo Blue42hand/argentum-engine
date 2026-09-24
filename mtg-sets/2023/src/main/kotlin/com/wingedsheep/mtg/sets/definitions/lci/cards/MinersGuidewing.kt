@@ -26,7 +26,7 @@ val MinersGuidewing = card("Miner's Guidewing") {
     keywords(Keyword.FLYING, Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val t = target("target creature you control", TargetCreature(filter = TargetFilter.CreatureYouControl))
         effect = Effects.Explore(t)
     }

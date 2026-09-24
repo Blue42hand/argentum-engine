@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Flickering Hound
@@ -32,7 +33,7 @@ val FlickeringHound = card("Flickering Hound") {
         "control, then return that card to the battlefield under its owner's control."
 
     triggeredAbility {
-        trigger = Triggers.YouCastCreature
+        trigger = Triggers.you.casts(GameObjectFilter.Creature)
         val creature = target(
             "up to one other target creature you control",
             TargetCreature(optional = true, filter = TargetFilter.OtherCreatureYouControl),

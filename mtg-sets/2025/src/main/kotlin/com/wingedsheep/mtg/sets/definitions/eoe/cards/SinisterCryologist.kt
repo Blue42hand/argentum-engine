@@ -25,7 +25,7 @@ val SinisterCryologist = card("Sinister Cryologist") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val target = target("creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.ModifyStats(-3, 0, target)
     }

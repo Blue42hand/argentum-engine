@@ -29,7 +29,7 @@ val QuarryBeetle = card("Quarry Beetle") {
     oracleText = "When this creature enters, you may return target land card from your graveyard to the battlefield."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target(
             "target",

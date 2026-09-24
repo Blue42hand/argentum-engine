@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Bottled Cloister — Ravnica: City of Guilds #256
@@ -40,7 +41,7 @@ val BottledCloister = card("Bottled Cloister") {
         "hand, then draw a card."
 
     triggeredAbility {
-        trigger = Triggers.EachOpponentUpkeep
+        trigger = Triggers.anOpponent.beginningOf(Step.UPKEEP)
         effect = Effects.Pipeline {
             val cloisterHand = gather(CardSource.FromZone(Zone.HAND, Player.You, GameObjectFilter.Any))
             exile(cloisterHand, faceDown = FaceDownMode.HIDDEN, linkToSource = true)
@@ -48,7 +49,7 @@ val BottledCloister = card("Bottled Cloister") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.Pipeline {
             val cloisterExiled = gather(CardSource.FromLinkedExile())
             val cloisterMine = filter(cloisterExiled, GameObjectFilter.Any.ownedByYou())

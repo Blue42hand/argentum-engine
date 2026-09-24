@@ -34,7 +34,7 @@ val CleanupCrew = card("Cleanup Crew") {
     toughness = 6
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Destroy target artifact") {
                 val artifact = target("target artifact", TargetObject(filter = TargetFilter.Artifact))

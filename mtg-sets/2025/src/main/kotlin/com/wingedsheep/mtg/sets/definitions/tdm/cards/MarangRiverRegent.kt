@@ -37,7 +37,7 @@ val MarangRiverRegent = card("Marang River Regent") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target(
             "up to two other target nonland permanents",
             TargetPermanent(count = 2, optional = true, filter = TargetFilter.NonlandPermanent.other())

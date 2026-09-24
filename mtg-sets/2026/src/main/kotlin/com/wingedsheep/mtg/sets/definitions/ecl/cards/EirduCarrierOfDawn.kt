@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.GrantKeywordToOwnSpells
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Eirdu, Carrier of Dawn // Isilu, Carrier of Twilight
@@ -53,7 +54,7 @@ private val IsiluCarrierOfTwilight = card("Isilu, Carrier of Twilight") {
     }
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{W}"),
             then = Effects.Transform(EffectTarget.Self)
@@ -89,7 +90,7 @@ private val EirduFrontFace = card("Eirdu, Carrier of Dawn") {
     }
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{B}"),
             then = Effects.Transform(EffectTarget.Self)

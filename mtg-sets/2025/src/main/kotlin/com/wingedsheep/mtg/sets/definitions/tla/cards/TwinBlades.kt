@@ -38,7 +38,7 @@ val TwinBlades = card("Twin Blades") {
         val creature = target("target creature", TargetCreature(
             filter = TargetFilter(GameObjectFilter.Creature.youControl())
         ))
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.AttachEquipment(creature),
             Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, creature, Duration.EndOfTurn)

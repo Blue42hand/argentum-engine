@@ -17,7 +17,7 @@ val SpringjackKnight = card("Springjack Knight") {
     oracleText = "Whenever this creature attacks, clash with an opponent. If you win, target creature gains double strike until end of turn. (Each clashing player reveals the top card of their library, then puts that card on their choice of the top or bottom. A player wins if their card had a greater mana value.)"
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val creature = target("creature", Targets.Creature)
         effect = Patterns.Mechanic.clash(Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, creature))
         description = "Clash with an opponent. If you win, target creature gains double strike until end of turn."

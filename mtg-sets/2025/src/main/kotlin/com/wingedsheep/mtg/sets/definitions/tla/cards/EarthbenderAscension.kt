@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Earthbender Ascension
@@ -50,7 +51,7 @@ val EarthbenderAscension = card("Earthbender Ascension") {
     // When this enchantment enters, earthbend 2. Then search your library for a basic land card,
     // put it onto the battlefield tapped, then shuffle.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val land = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
         effect = Effects.Composite(
             Effects.Earthbend(2, land),
@@ -68,7 +69,7 @@ val EarthbenderAscension = card("Earthbender Ascension") {
     // you do, if it has four or more quest counters on it, put a +1/+1 counter on target creature
     // you control. It gains trample until end of turn.
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.QUEST, 1, EffectTarget.Self),
             Effects.If(

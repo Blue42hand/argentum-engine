@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 
 /**
@@ -27,7 +28,7 @@ val SpiritMascot = card("Spirit Mascot") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.CardsLeaveYourGraveyard()
+        trigger = Triggers.oneOrMore(GameObjectFilter.Any).leaveYourGraveyard()
         effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {

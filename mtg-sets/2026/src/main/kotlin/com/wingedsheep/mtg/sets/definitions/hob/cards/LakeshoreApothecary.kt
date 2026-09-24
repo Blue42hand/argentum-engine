@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Vigilance
  * Whenever you draw your second card each turn, put a +1/+1 counter on this creature.
  *
- * The draw trigger is [Triggers.NthCardDrawn] (CR 121.2) — it reads the per-player draw counter and
+ * The draw trigger is `Triggers.<player>.drawsNth(n)` (CR 121.2) — it reads the per-player draw counter and
  * fires exactly once per turn, on the crossing into the second draw, so a single two-card draw fires
  * it once rather than twice. No target: the counter always goes on this creature.
  */
@@ -32,7 +32,7 @@ val LakeshoreApothecary = card("Lakeshore Apothecary") {
     keywords(Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.NthCardDrawn(2)
+        trigger = Triggers.you.drawsNth(2)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

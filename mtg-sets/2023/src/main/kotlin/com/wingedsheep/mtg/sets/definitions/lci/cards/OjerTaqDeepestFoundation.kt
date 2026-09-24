@@ -39,7 +39,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    tokens use a different executor that isn't multiplied), so the effect's scope coincides with
  *    the oracle's "creature tokens".
  *  - Dies-return uses the shared [Effects.ReturnSelfFromGraveyardTransformed]`(tapped = true)`
- *    wired to [Triggers.Dies].
+ *    wired to `Triggers.self.dies()`.
  *  - Back land: `{T}: Add {W}` mana ability + a `{2}{W}, {T}` sorcery-speed [TransformEffect]
  *    gated on [Conditions.YouAttackedWithCreaturesThisTurn]`(Creature, 3)`.
  */
@@ -61,7 +61,7 @@ private val OjerTaqDeepestFoundationFront = card("Ojer Taq, Deepest Foundation")
     replacementEffect(MultiplyTokenCreation(factor = 3))
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.ReturnSelfFromGraveyardTransformed(tapped = true)
         description = "When Ojer Taq dies, return it to the battlefield tapped and transformed " +
             "under its owner's control."

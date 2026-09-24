@@ -28,7 +28,7 @@ val Somnomancer = card("Somnomancer") {
     oracleText = "When this creature enters, you may tap target creature."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val creature = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Tap(creature)

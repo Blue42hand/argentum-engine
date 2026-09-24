@@ -40,7 +40,7 @@ val SelflessPoliceCaptain = card("Selfless Police Captain") {
 
     triggeredAbility {
         val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.MoveAllLastKnownCounters(creatureYouControl)
         description = "When this creature leaves the battlefield, put its +1/+1 counters on target creature you control."
     }

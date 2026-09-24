@@ -37,7 +37,7 @@ val LotuslightDancers = card("Lotuslight Dancers") {
     keywords(Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.searchLibrary(
             filter = GameObjectFilter.Any.withColor(Color.BLACK),
             count = 1,

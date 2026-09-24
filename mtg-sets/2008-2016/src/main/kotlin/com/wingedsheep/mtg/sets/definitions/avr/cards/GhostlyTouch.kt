@@ -18,7 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.Mode
  * Enchanted creature has "Whenever this creature attacks, you may tap or untap target permanent."
  *
  * The Contaminated Bond shape: the quoted trigger is granted *to* the enchanted creature via
- * [GrantTriggeredAbility] (default attached-creature filter) with [Triggers.Attacks]' own event and
+ * [GrantTriggeredAbility] (default attached-creature filter) with `Triggers.self.attacks()`' own event and
  * SELF binding passed through verbatim. An ATTACHED-bound attack trigger is not indexed by the
  * engine, so installing it on the creature is what makes it fire; it also puts "you" on the
  * creature's controller, which is the printed reading of a granted ability.
@@ -41,7 +41,7 @@ val GhostlyTouch = card("Ghostly Touch") {
     staticAbility {
         ability = GrantTriggeredAbility(
             grantedTriggeredAbility {
-                trigger = Triggers.Attacks
+                trigger = Triggers.self.attacks()
                 val permanent = target("target permanent", Targets.Permanent)
                 effect = Effects.May(
                     Effects.Modal(

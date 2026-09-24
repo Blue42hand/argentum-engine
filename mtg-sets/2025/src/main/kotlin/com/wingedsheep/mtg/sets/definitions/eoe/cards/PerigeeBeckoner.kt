@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -36,15 +34,14 @@ val PerigeeBeckoner = card("Perigee Beckoner") {
         "at the beginning of the next end step, then you may cast it from exile on a later turn.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "another target creature you control",
             TargetCreature(filter = TargetFilter.OtherCreatureYouControl)
         )
 
         val diesReturnTapped = TriggeredAbility.create(
-            trigger = ZoneChangeEvent(from = Zone.BATTLEFIELD, to = Zone.GRAVEYARD),
-            binding = TriggerBinding.SELF,
+            trigger = Triggers.self.dies(),
             effect = Effects.Move(
                 target = EffectTarget.Self,
                 destination = Zone.BATTLEFIELD,

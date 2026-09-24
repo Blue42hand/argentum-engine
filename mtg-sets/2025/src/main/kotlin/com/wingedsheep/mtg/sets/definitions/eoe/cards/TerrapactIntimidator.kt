@@ -31,7 +31,7 @@ val TerrapactIntimidator = card("Terrapact Intimidator") {
         "(A Lander token is an artifact with \"{2}, {T}, Sacrifice this token: Search your library for a basic land card, put it onto the battlefield tapped, then shuffle.\")"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.ChooseAction(
             choices = listOf(

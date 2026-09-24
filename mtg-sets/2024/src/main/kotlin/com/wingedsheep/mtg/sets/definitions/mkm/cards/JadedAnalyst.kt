@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * doesn't even tap. Both halves are [Duration.EndOfTurn] — the printed defender comes back at
  * cleanup, so the Analyst blocks again on the opponent's turn and needs unlocking afresh each turn.
  *
- * [Triggers.NthCardDrawn]`(2)` (CR 121.2) reads the per-turn draw counter rather than counting
+ * `Triggers.<player>.drawsNth(n)``(2)` (CR 121.2) reads the per-turn draw counter rather than counting
  * draw *events*, so a single "draw two cards" spell crosses the threshold once and fires the
  * trigger once, and a card put into hand without the word "draw" (CR 121.5) doesn't advance it at
  * all. The turn's first draw — including the draw step's — counts toward the two, so on your own
@@ -44,7 +44,7 @@ val JadedAnalyst = card("Jaded Analyst") {
     keywords(Keyword.DEFENDER)
 
     triggeredAbility {
-        trigger = Triggers.NthCardDrawn(2)
+        trigger = Triggers.you.drawsNth(2)
         effect = Effects.Composite(
             listOf(
                 Effects.RemoveKeyword(Keyword.DEFENDER, EffectTarget.Self, Duration.EndOfTurn),

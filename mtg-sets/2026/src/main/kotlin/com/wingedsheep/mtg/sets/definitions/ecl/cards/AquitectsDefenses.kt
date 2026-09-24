@@ -29,7 +29,7 @@ val AquitectsDefenses = card("Aquitect's Defenses") {
     auraTarget = Targets.CreatureYouControl
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GrantHexproof(EffectTarget.EnchantedCreature)
     }
 

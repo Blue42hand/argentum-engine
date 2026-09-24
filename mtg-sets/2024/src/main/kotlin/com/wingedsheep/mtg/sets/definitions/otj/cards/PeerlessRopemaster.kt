@@ -29,7 +29,7 @@ val PeerlessRopemaster = card("Peerless Ropemaster") {
     oracleText = "When this creature enters, return up to one target tapped creature to its owner's hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("creature", TargetCreature(filter = TargetFilter.TappedCreature, optional = true))
         effect = Effects.ReturnToHand(t)
         description = "When this creature enters, return up to one target tapped creature to its owner's hand."

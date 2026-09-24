@@ -35,7 +35,7 @@ val WhiskervaleForerunner = card("Whiskervale Forerunner") {
     // Valiant trigger: look at top 5, may pick a creature MV≤3
     // If your turn: choose battlefield or hand. If not your turn: hand.
     triggeredAbility {
-        trigger = Triggers.Valiant
+        trigger = Triggers.self.becomesTarget(byYou = true, firstTimeEachTurn = true)
         effect = Effects.Pipeline {
             // Look at top 5
             val looked = gather(CardSource.TopOfLibrary(5))

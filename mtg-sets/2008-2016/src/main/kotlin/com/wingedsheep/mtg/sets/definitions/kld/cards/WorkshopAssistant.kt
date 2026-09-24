@@ -28,7 +28,7 @@ val WorkshopAssistant = card("Workshop Assistant") {
     power = 1
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val t = target(
             "target",
             TargetObject(filter = TargetFilter.ArtifactInYourGraveyard)

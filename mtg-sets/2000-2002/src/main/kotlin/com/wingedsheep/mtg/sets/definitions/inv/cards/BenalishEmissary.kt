@@ -28,7 +28,7 @@ val BenalishEmissary = card("Benalish Emissary") {
     keywordAbility(KeywordAbility.kicker("{1}{G}"))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = WasKicked
         val t = target("land", Targets.Land)
         effect = Effects.Destroy(t)

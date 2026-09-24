@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 /**
  * Righteous Cause
@@ -19,7 +18,7 @@ val RighteousCause = card("Righteous Cause") {
     oracleText = "Whenever a creature attacks, you gain 1 life."
 
     triggeredAbility {
-        trigger = Triggers.attacks(binding = TriggerBinding.ANY)
+        trigger = Triggers.a().attacks()
         effect = Effects.GainLife(1)
     }
 

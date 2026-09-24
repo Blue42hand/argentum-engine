@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Ojer Kaslem, Deepest Growth // Temple of Cultivation (The Lost Caverns of Ixalan)
@@ -45,7 +46,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    of each, and a creature-land picked as the creature can't be double-counted) → [MoveCollectionEffect]s
  *    put the picks onto the battlefield and bottom the rest in a random order.
  *  - Dies-return uses the shared [Effects.ReturnSelfFromGraveyardTransformed]`(tapped = true)`
- *    wired to [Triggers.Dies]: the God dies to the graveyard and the trigger returns it to the
+ *    wired to `Triggers.self.dies()`: the God dies to the graveyard and the trigger returns it to the
  *    battlefield tapped, back face up (Temple of Cultivation).
  *  - Back land: `{T}: Add {G}` mana ability + a `{2}{G}, {T}` sorcery-speed [TransformEffect]
  *    gated on [Conditions.YouControlAtLeast]`(10, Permanent)`.
@@ -67,7 +68,7 @@ private val OjerKaslemDeepestGrowthFront = card("Ojer Kaslem, Deepest Growth") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         val damageDealt = DynamicAmounts.triggerDamageAmount()
         effect = Effects.Pipeline {
             val kaslemRevealed = gather(
@@ -102,7 +103,7 @@ private val OjerKaslemDeepestGrowthFront = card("Ojer Kaslem, Deepest Growth") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.ReturnSelfFromGraveyardTransformed(tapped = true)
         description = "When Ojer Kaslem dies, return it to the battlefield tapped and transformed " +
             "under its owner's control."

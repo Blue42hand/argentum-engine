@@ -32,9 +32,7 @@ val StirringHopesinger = card("Stirring Hopesinger") {
     toughness = 3
     keywords(Keyword.FLYING, Keyword.LIFELINK)
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature)
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature))
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)

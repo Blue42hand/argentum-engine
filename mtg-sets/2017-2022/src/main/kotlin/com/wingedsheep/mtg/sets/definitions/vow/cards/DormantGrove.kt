@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Dormant Grove // Gnarled Grovestrider (Innistrad: Crimson Vow)
@@ -48,7 +49,7 @@ private val DormantGroveFront = card("Dormant Grove") {
         "you control. Then if that creature has toughness 6 or greater, transform this enchantment."
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.toughnessAtLeast(6), creature),

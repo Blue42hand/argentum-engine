@@ -23,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  * Mounts and/or Vehicles.
  * Saddle 1
  *
- * "Attacks while saddled" is [Triggers.Attacks] gated by [Conditions.SourceIsSaddled] as an
+ * "Attacks while saddled" is `Triggers.self.attacks()` gated by [Conditions.SourceIsSaddled] as an
  * intervening-if (CR 603.4) — per the printed rulings the ability triggers only if Lagorin was
  * saddled *when it was declared as an attacker*, which is exactly when the attack trigger is
  * checked. Same shape as Brightfield Glider and the rest of the DFT saddled-attacker cycle.
@@ -55,7 +55,7 @@ val LagorinSoulOfAlacria = card("Lagorin, Soul of Alacria") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         triggerRestriction = Conditions.SourceIsSaddled
         target = TargetPermanent(
             count = 2,

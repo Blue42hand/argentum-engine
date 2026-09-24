@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Yuna, Hope of Spira — Final Fantasy #250
@@ -61,7 +62,7 @@ val YunaHopeOfSpira = card("Yuna, Hope of Spira") {
 
     // Clause 2: end-step return of an enchantment card with a finality counter.
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         val enchantment = target(
             "up to one target enchantment card from your graveyard",
             TargetObject(

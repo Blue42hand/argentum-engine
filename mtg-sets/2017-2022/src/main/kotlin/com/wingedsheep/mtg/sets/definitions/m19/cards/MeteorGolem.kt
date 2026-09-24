@@ -24,7 +24,7 @@ val MeteorGolem = card("Meteor Golem") {
     power = 3
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         // "an opponent controls" is part of the printed text, not flavour: without it the golem
         // can be pointed at your own board, and the engine would offer those as legal targets.
         val t = target("target", TargetPermanent(filter = TargetFilter.NonlandPermanentOpponentControls))

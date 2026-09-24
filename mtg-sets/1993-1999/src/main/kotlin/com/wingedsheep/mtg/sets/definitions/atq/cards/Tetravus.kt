@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Tetravus
@@ -64,7 +65,7 @@ val Tetravus = card("Tetravus") {
 
     // Upkeep: remove any number of +1/+1 counters; create that many Tetravite tokens.
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         optional = true
         effect = Effects.ConvertCountersToTokens(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
@@ -87,7 +88,7 @@ val Tetravus = card("Tetravus") {
 
     // Upkeep: exile any number of tokens created with this creature; add that many +1/+1 counters.
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         optional = true
         effect = Effects.Pipeline {
             val mine = gather(

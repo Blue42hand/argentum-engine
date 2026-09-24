@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Mistbreath Elder {G}
@@ -30,7 +31,7 @@ val MistbreathElder = card("Mistbreath Elder") {
     oracleText = "At the beginning of your upkeep, return another creature you control to its owner's hand. If you do, put a +1/+1 counter on this creature. Otherwise, you may return this creature to its owner's hand."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         // The effect tree below (Exists → Gather → Select → Move) would otherwise render a
         // garbled auto-description ("...look at all other creature permanents...Put those cards
         // into a hand..."), so pin the player-facing text to the oracle wording.

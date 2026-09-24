@@ -39,7 +39,7 @@ val WindcallerAven = card("Windcaller Aven") {
     keywordAbility(KeywordAbility.cycling("{U}"))
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         val creature = target("target creature", Targets.Creature)
         effect = Effects.GrantKeyword(Keyword.FLYING, creature)
     }

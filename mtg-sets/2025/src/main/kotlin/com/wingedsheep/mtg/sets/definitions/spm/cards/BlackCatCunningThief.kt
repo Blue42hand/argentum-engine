@@ -49,7 +49,7 @@ val BlackCatCunningThief = card("Black Cat, Cunning Thief") {
         "can be spent to cast spells this way."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Pipeline {
             val topNine = gather(

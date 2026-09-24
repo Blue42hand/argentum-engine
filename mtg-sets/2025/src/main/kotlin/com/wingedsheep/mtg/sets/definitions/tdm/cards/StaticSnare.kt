@@ -50,7 +50,7 @@ val StaticSnare = card("Static Snare") {
 
     // ETB: exile target artifact or creature an opponent controls until this leaves.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "artifact or creature an opponent controls",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrArtifact.opponentControls()))
@@ -60,7 +60,7 @@ val StaticSnare = card("Static Snare") {
 
     // LTB: return the exiled card under its owner's control.
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

@@ -36,7 +36,7 @@ val WoodfallPrimus = card("Woodfall Primus") {
 
     triggeredAbility {
         val permanent = target("target permanent", TargetPermanent(filter = TargetFilter.NoncreaturePermanent))
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Destroy(permanent)
         description = "When this creature enters, destroy target noncreature permanent."
     }

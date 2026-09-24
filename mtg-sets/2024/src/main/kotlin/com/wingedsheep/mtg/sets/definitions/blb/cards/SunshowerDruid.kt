@@ -24,7 +24,7 @@ val SunshowerDruid = card("Sunshower Druid") {
     oracleText = "When this creature enters, put a +1/+1 counter on target creature and you gain 1 life."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature", Targets.Creature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
             .then(Effects.GainLife(1))

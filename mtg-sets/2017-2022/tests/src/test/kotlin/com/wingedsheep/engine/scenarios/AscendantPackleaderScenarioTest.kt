@@ -20,7 +20,7 @@ import com.wingedsheep.engine.core.Outcome
  * Two independent mana-value-gated mechanics:
  *   - a conditional [EntersWithCounters] replacement gated on the intervening condition "you control
  *     a permanent with mana value 4 or greater" (evaluated as it enters, CR 614), and
- *   - a [Triggers.youCastSpell] filtered to mana value >= 4 that adds a +1/+1 counter.
+ *   - a `Triggers.you.casts(spell, requires)` filtered to mana value >= 4 that adds a +1/+1 counter.
  *
  * Force of Nature ({3}{G}{G}, mana value 5) serves as both the qualifying permanent and the
  * qualifying spell; Grizzly Bears ({1}{G}, mana value 2) is the sub-threshold control.

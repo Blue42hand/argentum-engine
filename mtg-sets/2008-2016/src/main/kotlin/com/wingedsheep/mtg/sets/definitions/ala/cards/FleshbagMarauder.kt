@@ -28,7 +28,7 @@ val FleshbagMarauder = card("Fleshbag Marauder") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Sacrifice(
             GameObjectFilter.Creature,
             1,

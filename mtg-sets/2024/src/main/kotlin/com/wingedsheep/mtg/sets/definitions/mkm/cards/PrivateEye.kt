@@ -22,7 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * The lord half is the standard `excludeSelf = true` [GroupFilter] — Private Eye is itself a
  * Detective, and "other" is what keeps it from pumping itself.
  *
- * The second half is [Triggers.NthCardDrawn] with `n = 2`, which is the CR 121.2 "your second card
+ * The second half is `Triggers.<player>.drawsNth(n)` with `n = 2`, which is the CR 121.2 "your second card
  * each turn" shape rather than "the second time you draw this turn": a single draw-two crosses the
  * threshold and fires the trigger exactly once, and cards put into hand without the word "draw"
  * (CR 121.5) never advance the count. Because MKM's Detective deck is built on investigate — Clues
@@ -54,7 +54,7 @@ val PrivateEye = card("Private Eye") {
     }
 
     triggeredAbility {
-        trigger = Triggers.NthCardDrawn(2)
+        trigger = Triggers.you.drawsNth(2)
         val detective = target(
             "detective",
             TargetCreature(filter = TargetFilter.Creature.withSubtype(Subtype.DETECTIVE))

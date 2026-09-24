@@ -25,7 +25,7 @@ val WirewoodHerald = card("Wirewood Herald") {
     oracleText = "When Wirewood Herald dies, you may search your library for an Elf card, reveal that card, put it into your hand, then shuffle."
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.Any.withSubtype("Elf"),

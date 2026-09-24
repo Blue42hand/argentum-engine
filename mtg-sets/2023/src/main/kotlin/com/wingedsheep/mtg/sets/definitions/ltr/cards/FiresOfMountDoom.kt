@@ -35,7 +35,7 @@ val FiresOfMountDoom = card("Fires of Mount Doom") {
 
     // ETB: 2 damage to target creature an opponent controls, then destroy all Equipment on it.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature", Targets.CreatureOpponentControls)
         effect = Effects.Composite(
             listOf(

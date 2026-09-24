@@ -35,7 +35,7 @@ val StarscapeCleric = card("Starscape Cleric") {
 
     // Offspring ETB: create token copy when kicked
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = WasKicked
         effect = Effects.CreateTokenCopyOfSelf(overridePower = 1, overrideToughness = 1)
     }
@@ -47,7 +47,7 @@ val StarscapeCleric = card("Starscape Cleric") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent))
     }
 

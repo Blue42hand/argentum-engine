@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Clockwork Dragon — Mirrodin #155
@@ -26,7 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * dies as a state-based action once the last counter is shed.
  *
  * The counter-shed line is a trigger that *sets up a delayed trigger* ("…remove a counter from it at
- * end of combat"). [Triggers.EachEndOfCombat] with the intervening-if
+ * end of combat"). `Triggers.anyPlayer.beginningOf(Step.END_COMBAT)` with the intervening-if
  * [Conditions.SourceAttackedOrBlockedThisCombat] is observationally identical — one counter shed per
  * combat the Dragon fought in, on any player's turn — because the delayed trigger and the tracker
  * are keyed to the same object and both go away when it leaves the battlefield.
@@ -57,7 +58,7 @@ val ClockworkDragon = card("Clockwork Dragon") {
     )
 
     triggeredAbility {
-        trigger = Triggers.EachEndOfCombat
+        trigger = Triggers.anyPlayer.beginningOf(Step.END_COMBAT)
         triggerRestriction = Conditions.SourceAttackedOrBlockedThisCombat
         effect = Effects.RemoveCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever this creature attacks or blocks, remove a +1/+1 counter from it at end of combat."

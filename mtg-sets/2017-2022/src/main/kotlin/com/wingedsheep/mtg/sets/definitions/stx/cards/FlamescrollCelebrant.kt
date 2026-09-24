@@ -36,7 +36,7 @@ val FlamescrollCelebrant = card("Flamescroll Celebrant") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.OpponentActivatesAbility
+        trigger = Triggers.anOpponent.activatesAbility()
         effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.TriggeringPlayer))
     }
 

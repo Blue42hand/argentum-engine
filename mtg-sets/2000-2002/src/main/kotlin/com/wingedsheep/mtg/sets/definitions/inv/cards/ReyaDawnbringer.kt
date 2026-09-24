@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Reya Dawnbringer
@@ -28,7 +29,7 @@ val ReyaDawnbringer = card("Reya Dawnbringer") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         val t = target("target creature card from your graveyard", Targets.CreatureCardInYourGraveyard)
         effect = Effects.May(Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD))
     }

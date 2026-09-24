@@ -43,7 +43,7 @@ val RiptideGearhulk = card("Riptide Gearhulk") {
     prowess()
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val victim = target(
             "target nonland permanent that player controls",
             TargetPermanent(optional = true, filter = TargetFilter.NonlandPermanentOpponentControls)

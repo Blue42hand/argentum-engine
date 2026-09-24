@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Shantotto, Tactician Magician
@@ -33,7 +34,7 @@ val ShantottoTacticianMagician = card("Shantotto, Tactician Magician") {
         "where X is the amount of mana spent to cast that spell. If X is 4 or more, draw a card."
 
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.ModifyStats(
             power = DynamicAmounts.manaSpentOnTriggeringSpell(),
             toughness = DynamicAmounts.fixed(0),

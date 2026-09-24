@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Ruinous Waterbending
@@ -42,7 +43,7 @@ val RuinousWaterbending = card("Ruinous Waterbending") {
             Effects.If(
                 condition = Conditions.WaterbendWasPaid,
                 then = Effects.CreateDelayedTrigger(
-                    trigger = Triggers.AnyCreatureDies,
+                    trigger = Triggers.a(GameObjectFilter.Creature).dies(),
                     effect = Effects.GainLife(1),
                     expiry = DelayedTriggerExpiry.EndOfTurn,
                     fireOnce = false

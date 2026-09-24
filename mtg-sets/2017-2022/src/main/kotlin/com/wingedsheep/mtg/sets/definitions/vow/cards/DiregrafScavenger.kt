@@ -40,7 +40,7 @@ val DiregrafScavenger = card("Diregraf Scavenger") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target(
             "up to one target card from a graveyard",
             TargetObject(

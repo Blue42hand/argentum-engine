@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Relic Bane — Mirrodin #76 (canonical printing, only printing)
@@ -37,8 +38,7 @@ val RelicBane = card("Relic Bane") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.YourUpkeep.event,
-                binding = Triggers.YourUpkeep.binding,
+                trigger = Triggers.you.beginningOf(Step.UPKEEP),
                 effect = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.You)),
             ),
             filter = GroupFilter.attachedCreature(),

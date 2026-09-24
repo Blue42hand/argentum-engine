@@ -34,7 +34,7 @@ val VoraciousVampire = card("Voracious Vampire") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val vampire = target(
             "target Vampire you control",
             TargetPermanent(

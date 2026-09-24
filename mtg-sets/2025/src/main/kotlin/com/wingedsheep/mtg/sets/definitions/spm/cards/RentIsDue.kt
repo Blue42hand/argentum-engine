@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 val RentIsDue = card("Rent Is Due") {
     manaCost = "{W}"
@@ -16,7 +17,7 @@ val RentIsDue = card("Rent Is Due") {
     oracleText = "At the beginning of your end step, you may tap two untapped creatures and/or Treasures you control. If you do, draw a card. Otherwise, sacrifice this enchantment."
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         val tapCost = Effects.Pipeline {
             val rentTargets = gather(
                 CardSource.ControlledPermanents(

@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.effects.SelectionRestriction
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Thelon's Curse
@@ -46,7 +47,7 @@ val ThelonsCurse = card("Thelon's Curse") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         effect = Effects.Pipeline {
             val eligible = gather(
                 CardSource.ControlledPermanents(

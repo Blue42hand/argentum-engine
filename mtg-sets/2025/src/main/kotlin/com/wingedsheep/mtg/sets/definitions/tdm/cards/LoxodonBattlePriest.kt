@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Loxodon Battle Priest
@@ -26,7 +27,7 @@ val LoxodonBattlePriest = card("Loxodon Battle Priest") {
     oracleText = "At the beginning of combat on your turn, put a +1/+1 counter on another target creature you control."
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val t = target(
             "another target creature you control",
             TargetCreature(filter = TargetFilter.OtherCreatureYouControl)

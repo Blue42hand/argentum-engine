@@ -44,7 +44,7 @@ val SagesNouliths = card("Sage's Nouliths") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = grantedTriggeredAbility {
-                trigger = Triggers.Attacks
+                trigger = Triggers.self.attacks()
                 val attackingCreature = target("target attacking creature", Targets.AttackingCreature)
                 effect = Effects.Untap(attackingCreature)
             },

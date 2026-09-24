@@ -37,7 +37,7 @@ val IronHillsStalwart = card("Iron Hills Stalwart") {
     keywords(Keyword.REACH, Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val equipment = target(
             "Equipment you control",
             TargetPermanent(

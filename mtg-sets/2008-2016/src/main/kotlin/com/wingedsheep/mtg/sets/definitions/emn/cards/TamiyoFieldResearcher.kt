@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.MayCastWithoutPayingManaCost
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -70,7 +69,7 @@ val TamiyoFieldResearcher = card("Tamiyo, Field Researcher") {
         effect = Effects.ForEachTarget(
             Effects.CreateDelayedTrigger(
                 effect = Effects.DrawCards(1),
-                trigger = Triggers.dealsDamage(damageType = DamageType.Combat),
+                trigger = Triggers.self.dealsCombatDamage(),
                 watchedTarget = EffectTarget.ContextTarget(0),
                 expiry = DelayedTriggerExpiry.UntilControllersNextTurn
             )

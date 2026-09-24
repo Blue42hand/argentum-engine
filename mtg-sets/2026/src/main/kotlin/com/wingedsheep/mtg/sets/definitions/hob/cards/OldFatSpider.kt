@@ -34,7 +34,7 @@ val OldFatSpider = card("Old Fat Spider") {
         ability = CantBeBlockedBy(blockerFilter = GameObjectFilter.Creature.powerAtMost(2))
     }
     triggeredAbility {
-        trigger = Triggers.BecomesTargetByOpponent
+        trigger = Triggers.self.becomesTarget(byOpponent = true)
         effect = Effects.DrawCards(1)
     }
     metadata {

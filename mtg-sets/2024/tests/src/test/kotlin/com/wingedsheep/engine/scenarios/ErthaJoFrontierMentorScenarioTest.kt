@@ -26,7 +26,7 @@ import com.wingedsheep.engine.core.Outcome
  *  Whenever you activate an ability that targets a creature or player, copy that ability. You may
  *  choose new targets for the copy."
  *
- * Exercises the new `Triggers.youActivateAbilityTargeting(Recipient.CreatureOrPlayer)`
+ * Exercises the new `Triggers.you.activatesAbility(targeting = Recipient.CreatureOrPlayer)`
  * trigger + matcher: the copy fires only when the activated ability targets a creature or player,
  * and the copy reprompts for new targets (CR 707.10 / 707.10c) so a second creature can be hit.
  */

@@ -32,7 +32,7 @@ val GlintNestCrane = card("Glint-Nest Crane") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.lookAtTopRevealMatchingToHand(
             count = 4,
             filter = GameObjectFilter.Artifact,

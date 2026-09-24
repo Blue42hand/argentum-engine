@@ -40,7 +40,7 @@ val DominatingVampire = card("Dominating Vampire") {
         "creature. It gains haste until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "target creature",
             TargetCreature(

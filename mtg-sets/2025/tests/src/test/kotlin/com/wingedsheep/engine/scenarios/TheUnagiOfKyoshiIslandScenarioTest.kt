@@ -26,7 +26,7 @@ import com.wingedsheep.engine.core.Outcome
  *    controller pays {4}. They may tap their untapped artifacts and creatures to help, each
  *    paying {1} — the ward mana payment routes through the shared waterbend tap-to-help path.
  *  - "Whenever an opponent draws their second card each turn, you draw two cards."
- *    (the [com.wingedsheep.sdk.dsl.Triggers.NthCardDrawn] facade scoped to each opponent).
+ *    (the `Triggers.<player>.drawsNth(n)` facade scoped to each opponent).
  */
 class TheUnagiOfKyoshiIslandScenarioTest : FunSpec({
 

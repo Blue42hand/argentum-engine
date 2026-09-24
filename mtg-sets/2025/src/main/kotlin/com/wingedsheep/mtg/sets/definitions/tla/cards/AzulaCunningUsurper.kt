@@ -53,7 +53,7 @@ val AzulaCunningUsurper = card("Azula, Cunning Usurper") {
     firebending(2)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Pipeline {
             // Opponent exiles a nontoken creature they control (their choice), linked to Azula.

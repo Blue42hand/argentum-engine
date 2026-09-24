@@ -36,7 +36,7 @@ val Broodspinner = card("Broodspinner") {
     toughness = 3
     keywords(Keyword.REACH)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.surveil(2)
     }
     activatedAbility {

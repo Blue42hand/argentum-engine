@@ -30,7 +30,7 @@ val RalCracklingWit = card("Ral, Crackling Wit") {
 
     // Whenever you cast a noncreature spell, put a loyalty counter on Ral.
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.AddCounters(CounterType.LOYALTY, 1, EffectTarget.Self)
     }
 

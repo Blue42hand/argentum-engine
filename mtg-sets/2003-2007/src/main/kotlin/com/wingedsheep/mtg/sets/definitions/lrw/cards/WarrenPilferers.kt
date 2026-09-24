@@ -36,7 +36,7 @@ val WarrenPilferers = card("Warren Pilferers") {
         "If that card is a Goblin card, this creature gains haste until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creatureCard = target(
             "target creature card from your graveyard",
             TargetObject(filter = TargetFilter.CreatureInYourGraveyard)

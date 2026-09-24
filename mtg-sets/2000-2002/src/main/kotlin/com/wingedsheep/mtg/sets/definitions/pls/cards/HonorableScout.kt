@@ -31,7 +31,7 @@ val HonorableScout = card("Honorable Scout") {
     power = 1
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetOpponent())
         effect = Effects.GainLife(
             DynamicAmounts.battlefield(

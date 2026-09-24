@@ -29,12 +29,12 @@ val CelebornTheWise = card("Celeborn the Wise") {
         "Whenever you scry, Celeborn gets +1/+1 until end of turn for each card looked at while scrying this way."
 
     triggeredAbility {
-        trigger = Triggers.YouAttackWithFilter(GameObjectFilter.Creature.withSubtype(Subtype.ELF))
+        trigger = Triggers.you.attacks(GameObjectFilter.Creature.withSubtype(Subtype.ELF))
         effect = Patterns.Library.scry(1)
     }
 
     triggeredAbility {
-        trigger = Triggers.WheneverYouScry
+        trigger = Triggers.you.scries()
         effect = Effects.ModifyStats(
             power = DynamicAmounts.triggerScryCount(),
             toughness = DynamicAmounts.triggerScryCount(),

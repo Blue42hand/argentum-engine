@@ -18,7 +18,7 @@ val RampartHunter = card("Rampart Hunter") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature", Targets.Creature)
         effect = Effects.Composite(
             Effects.ModifyStats(2, 2, creature),

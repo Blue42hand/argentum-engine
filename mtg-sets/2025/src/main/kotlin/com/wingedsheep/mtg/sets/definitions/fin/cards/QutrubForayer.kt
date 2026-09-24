@@ -38,7 +38,7 @@ val QutrubForayer = card("Qutrub Forayer") {
         "• Exile up to two target cards from a single graveyard."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             // Mode 1: Destroy target creature that was dealt damage this turn.
             mode("Destroy target creature that was dealt damage this turn") {

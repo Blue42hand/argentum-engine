@@ -17,7 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * Whenever you draw your second card each turn, put a +1/+1 counter on target creature. It gains
  * lifelink until end of turn.
  *
- *  - **"Whenever you draw your second card each turn"** is [Triggers.NthCardDrawn]`(2)`, whose default
+ *  - **"Whenever you draw your second card each turn"** is `Triggers.<player>.drawsNth(n)``(2)`, whose default
  *    scope is the controller. The per-turn tally lives on `CardsDrawnThisTurnComponent` and resets each
  *    turn, so the ability fires at most once per turn without needing `oncePerTurn`; a single multi-card
  *    draw that crosses the threshold fires it exactly once (CR 121.2), and cards put into hand without
@@ -38,7 +38,7 @@ val BardTheBowman = card("Bard the Bowman") {
     keywords(Keyword.REACH)
 
     triggeredAbility {
-        trigger = Triggers.NthCardDrawn(2)
+        trigger = Triggers.you.drawsNth(2)
         val t = target("target creature to get a +1/+1 counter and lifelink", TargetCreature())
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
             .then(Effects.GrantKeyword(Keyword.LIFELINK, t))

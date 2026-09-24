@@ -32,7 +32,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *  - Move-counter: sorcery-speed `{T}` activated ability. [Effects.MoveCounters] moves one +1/+1
  *    counter from this artifact ([EffectTarget.Self]) onto a target creature you control, capped at
  *    the number actually present.
- *  - Modified-LTB trigger: a [Triggers.leavesBattlefield] with `TriggerBinding.ANY` over a
+ *  - Modified-LTB trigger: a `Triggers.<subject>.leaves(to, excludeTo, excludeSacrifice)` with `TriggerBinding.ANY` over a
  *    "creature you control" filter narrowed by [StatePredicate.IsModified] (has a counter, an Aura,
  *    or Equipment attached — the MTG "modified" definition). The filter is evaluated against the
  *    departing permanent's last-known information, so a creature that was modified as it left still
@@ -74,12 +74,9 @@ val CostumeCloset = card("Costume Closet") {
 
     // Whenever a modified creature you control leaves the battlefield, put a +1/+1 counter on this.
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.youControl().let {
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl().let {
                 it.copy(statePredicates = it.statePredicates + StatePredicate.IsModified)
-            },
-            binding = TriggerBinding.ANY
-        )
+            }).leaves()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever a modified creature you control leaves the battlefield, put a " +
             "+1/+1 counter on this artifact."

@@ -22,7 +22,7 @@ import com.wingedsheep.engine.core.Outcome
  * six cards of your library. You may reveal an enchantment card from among them and put it into
  * your hand. Put the rest on the bottom of your library in a random order."
  *
- * The new vocabulary is `Triggers.WheneverYouSolveACase`, so the load-bearing assertions are:
+ * The new vocabulary is `Triggers.you.solvesACase()`, so the load-bearing assertions are:
  *
  *  1. solving a Case fires it — and fires it for the *solving* player, which is what the event's
  *     carried controller is for;

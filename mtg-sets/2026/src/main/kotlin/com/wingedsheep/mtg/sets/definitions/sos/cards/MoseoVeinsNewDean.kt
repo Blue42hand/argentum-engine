@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Moseo, Vein's New Dean — Secrets of Strixhaven #91
@@ -52,7 +53,7 @@ val MoseoVeinsNewDean = card("Moseo, Vein's New Dean") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,
@@ -60,8 +61,7 @@ val MoseoVeinsNewDean = card("Moseo, Vein's New Dean") {
             creatureTypes = setOf("Pest"),
             triggeredAbilities = listOf(
                 TriggeredAbility.create(
-                    trigger = Triggers.Attacks.event,
-                    binding = Triggers.Attacks.binding,
+                    trigger = Triggers.self.attacks(),
                     effect = Effects.GainLife(1)
                 )
             ),
@@ -72,7 +72,7 @@ val MoseoVeinsNewDean = card("Moseo, Vein's New Dean") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.YouGainedLifeThisTurn
         val t = target(
             "up to one target creature card with mana value X or less from your graveyard",

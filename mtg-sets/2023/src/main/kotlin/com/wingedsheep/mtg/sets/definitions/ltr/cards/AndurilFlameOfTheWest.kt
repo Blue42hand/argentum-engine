@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 /**
  * Andúril, Flame of the West
@@ -35,7 +34,7 @@ val AndurilFlameOfTheWest = card("Andúril, Flame of the West") {
     }
 
     triggeredAbility {
-        trigger = Triggers.attacks(binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.attacks()
         effect = Effects.If(
             condition = Conditions.EnchantedCreatureIsLegendary(),
             then = Effects.CreateToken(

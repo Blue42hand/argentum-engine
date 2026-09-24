@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -12,9 +11,9 @@ import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /** VOW's own 1/1 black Slug token art. */
 private const val SLUG_TOKEN_IMAGE =
@@ -46,7 +45,7 @@ private const val SLUG_TOKEN_IMAGE =
  *    (`Multiply(counterCount, -1)`, the negation idiom — there is no `Negate`) with `Source`
  *    swapped for `AffectedEntity`, and Diligent Zookeeper's per-affected-entity read widened from
  *    one creature to a group.
- *  - **The dies trigger reads last-known counters.** `Triggers.leavesBattlefield` with a
+ *  - **The dies trigger reads last-known counters.** `Triggers.<subject>.leaves(to, excludeTo, excludeSacrifice)` with a
  *    `.withCounter` filter is matched against the `ZoneChangeEvent`'s last-known state when the
  *    creature came from the battlefield, so the counter is still visible even though the entity is
  *    already gone. A slimed creature that dies *because* Toxrill shrank it to zero toughness is the
@@ -71,7 +70,7 @@ val ToxrillTheCorrosive = card("Toxrill, the Corrosive") {
 
     // At the beginning of each end step, put a slime counter on each creature you don't control.
     triggeredAbility {
-        trigger = Triggers.EachEndStep
+        trigger = Triggers.anyPlayer.beginningOf(Step.END)
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreaturesOpponentsControl,
             Effects.AddCounters(CounterType.SLIME, 1, EffectTarget.IterationEntity)
@@ -94,11 +93,7 @@ val ToxrillTheCorrosive = card("Toxrill, the Corrosive") {
     // Whenever a creature you don't control with a slime counter on it dies, create a 1/1 black
     // Slug creature token.
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.opponentControls().withCounter(CounterType.SLIME),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.opponentControls().withCounter(CounterType.SLIME)).dies()
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

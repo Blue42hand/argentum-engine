@@ -29,7 +29,7 @@ val MischievousPup = card("Mischievous Pup") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "other permanent you control",
             TargetPermanent(optional = true, filter = TargetFilter.PermanentYouControl.other())

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.effects.WardCost
 
@@ -29,7 +28,7 @@ val StormOfSaruman = card("Storm of Saruman") {
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{3}")))
 
     triggeredAbility {
-        trigger = Triggers.NthSpellCast(2, player = Player.You)
+        trigger = Triggers.you.castsNth(2)
         effect = Effects.CopyTargetSpell(
             target = EffectTarget.TriggeringEntity,
             removeLegendary = true

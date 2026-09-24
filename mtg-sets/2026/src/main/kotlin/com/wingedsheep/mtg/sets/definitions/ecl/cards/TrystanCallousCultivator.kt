@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Trystan, Callous Cultivator // Trystan, Penitent Culler
@@ -84,12 +85,12 @@ private val TrystanPenitentCuller = card("Trystan, Penitent Culler") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.TransformsToBack
+        trigger = Triggers.self.transforms(true)
         effect = millThenExileElfThenDrain
     }
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{G}"),
             then = Effects.Transform(EffectTarget.Self)
@@ -117,17 +118,17 @@ private val TrystanCallousCultivatorFrontFace = card("Trystan, Callous Cultivato
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = millThenGainLifeIfElf
     }
 
     triggeredAbility {
-        trigger = Triggers.TransformsToFront
+        trigger = Triggers.self.transforms(false)
         effect = millThenGainLifeIfElf
     }
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{B}"),
             then = Effects.Transform(EffectTarget.Self)

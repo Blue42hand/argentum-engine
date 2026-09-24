@@ -38,7 +38,7 @@ val GlorfindelDauntlessRescuer = card("Glorfindel, Dauntless Rescuer") {
     // Folding the +1/+1 into each mode (rather than Composite(pump, modal)) keeps it on the
     // engine's modal-decision path.
     triggeredAbility {
-        trigger = Triggers.WheneverYouScry
+        trigger = Triggers.you.scries()
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
                 Effects.Composite(

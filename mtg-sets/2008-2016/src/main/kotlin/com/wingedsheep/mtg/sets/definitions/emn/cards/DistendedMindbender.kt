@@ -49,7 +49,7 @@ val DistendedMindbender = card("Distended Mindbender") {
     emerge("{5}{B}{B}")
 
     triggeredAbility {
-        trigger = Triggers.WhenYouCastThisSpell()
+        trigger = Triggers.self.isCast()
         val opponent = target("target opponent", TargetOpponent())
         effect = Effects.Pipeline {
             run(Effects.RevealHand(opponent))

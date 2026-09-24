@@ -27,7 +27,7 @@ val ThousandMoonsCrackshot = card("Thousand Moons Crackshot") {
     oracleText = "Whenever this creature attacks, you may pay {2}{W}. When you do, tap target creature."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ReflexiveTrigger(
             // "you may pay {2}{W}"
             action = Effects.PayMana("{2}{W}"),

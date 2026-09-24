@@ -27,10 +27,10 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * modifications.)
  *
  * Modelling notes:
- * - Attack trigger: [Triggers.YouAttack] ([TriggerBinding.ANY]) fires once per declare-attackers;
+ * - Attack trigger: `Triggers.you.attacks()` ([TriggerBinding.ANY]) fires once per declare-attackers;
  *   it targets an attacking creature ([TargetFilter.AttackingCreature]) and adds a +1/+1 counter.
  * - Modified-source combat-damage trigger: same shape as SP//dr, Piloted by Peni — a live
- *   [Triggers.dealsDamage] event ([DamageType.Combat] to [Recipient.AnyPlayer]) whose source
+ *   `Triggers.<subject>.dealsDamage(to, damageType, requireExcess, batch, requires)` event ([DamageType.Combat] to [Recipient.AnyPlayer]) whose source
  *   filter is "creature you control" narrowed by [StatePredicate.IsModified] (CR 700.4: a permanent
  *   with a counter, an Aura you control, or Equipment attached to it). The filter evaluates against
  *   current projected state at trigger time, so it is a normal source-filtered event trigger.
@@ -50,7 +50,7 @@ val AranaHeartOfTheSpider = card("Araña, Heart of the Spider") {
         "counters are modifications.)"
 
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         val attacker = target(
             "target attacking creature",
             TargetCreature(filter = TargetFilter.AttackingCreature),
@@ -65,12 +65,7 @@ val AranaHeartOfTheSpider = card("Araña, Heart of the Spider") {
     }
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            DamageType.Combat,
-            Recipient.AnyPlayer,
-            sourceFilter = modifiedCreatureYouControl,
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(modifiedCreatureYouControl).dealsCombatDamage(Recipient.AnyPlayer)
         effect = Patterns.Exile.impulse(count = 1, expiry = MayPlayExpiry.EndOfTurn)
     }
 

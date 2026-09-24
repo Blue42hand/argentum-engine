@@ -27,7 +27,7 @@ val AvatarOfBurgeoningEchoes = card("Avatar of Burgeoning Echoes") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = Patterns.Mechanic.empowerJace(2)
     }
 

@@ -46,7 +46,7 @@ val ClivesHideaway = card("Clive's Hideaway") {
     keywordAbility(KeywordAbility.hideaway(4))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val hideawayTop = gather(
                 CardSource.TopOfLibrary(

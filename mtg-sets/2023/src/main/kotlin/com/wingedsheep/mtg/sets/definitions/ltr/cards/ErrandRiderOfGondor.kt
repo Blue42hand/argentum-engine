@@ -30,7 +30,7 @@ val ErrandRiderOfGondor = card("Errand-Rider of Gondor") {
     oracleText = "When this creature enters, draw a card. Then if you don't control a legendary creature, put a card from your hand on the bottom of your library."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             listOf(
                 Effects.DrawCards(1),

@@ -36,7 +36,7 @@ val BenevolentRiverSpirit = card("Benevolent River Spirit") {
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.scry(2)
     }
 

@@ -23,7 +23,7 @@ val FrenziedGoblin = card("Frenzied Goblin") {
     oracleText = "Whenever this creature attacks, you may pay {R}. If you do, target creature can't block this turn."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val creature = target("creature", TargetCreature())
         effect = Effects.MayPay(
             cost = ManaCost.parse("{R}"),

@@ -28,7 +28,7 @@ val PrismaticUndercurrents = card("Prismatic Undercurrents") {
     // where X is the number of colors among permanents you control. Reveal those cards,
     // put them into your hand, then shuffle.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.searchLibrary(
             filter = Filters.BasicLand,
             count = DynamicAmounts.battlefield(

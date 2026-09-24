@@ -22,7 +22,7 @@ val SparringMummy = card("Sparring Mummy") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature", Targets.Creature)
         effect = Effects.Untap(creature)
         description = "When this creature enters, untap target creature."

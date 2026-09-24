@@ -29,11 +29,9 @@ val EastMarkCavalier = card("East-Mark Cavalier") {
     keywords(Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            recipient = Recipient.Object(
+        trigger = Triggers.self.dealsDamage(Recipient.Object(
                 GameObjectFilter.Creature.withAnySubtype("Goblin", "Orc")
-            )
-        )
+            ))
         effect = Effects.Destroy(EffectTarget.TriggeringEntity)
     }
 

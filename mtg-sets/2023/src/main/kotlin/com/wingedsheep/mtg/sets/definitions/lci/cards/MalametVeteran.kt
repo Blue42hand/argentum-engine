@@ -44,7 +44,7 @@ val MalametVeteran = card("Malamet Veteran") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         interveningIf = Conditions.CardsInGraveyardMatchingAtLeast(4, GameObjectFilter.Permanent)
         val t = target("target creature", TargetCreature())
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)

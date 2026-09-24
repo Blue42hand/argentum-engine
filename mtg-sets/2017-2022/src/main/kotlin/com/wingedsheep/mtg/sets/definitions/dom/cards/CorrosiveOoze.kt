@@ -25,7 +25,7 @@ val CorrosiveOoze = card("Corrosive Ooze") {
     oracleText = "Whenever Corrosive Ooze blocks or becomes blocked by an equipped creature, destroy all Equipment attached to that creature at end of combat."
 
     triggeredAbility {
-        trigger = Triggers.BlocksOrBecomesBlockedBy(GameObjectFilter.Creature.equipped())
+        trigger = Triggers.self.blocksOrBecomesBlocked(GameObjectFilter.Creature.equipped())
         effect = Effects.CreateDelayedTrigger(
             step = Step.END_COMBAT,
             effect = Effects.DestroyAllEquipmentOnTarget(EffectTarget.TriggeringEntity)

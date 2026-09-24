@@ -24,7 +24,7 @@ val KavaronHarrier = card("Kavaron Harrier") {
 
     // Triggered ability: Whenever this creature attacks, you may pay {2} to create a 2/2 Robot token
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}"),
             then = Effects.CreateToken(

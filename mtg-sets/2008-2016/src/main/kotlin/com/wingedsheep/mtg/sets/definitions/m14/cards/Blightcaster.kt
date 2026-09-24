@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Blightcaster
@@ -23,7 +24,7 @@ val Blightcaster = card("Blightcaster") {
     oracleText = "Whenever you cast an enchantment spell, you may have target creature get -2/-2 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.YouCastEnchantment
+        trigger = Triggers.you.casts(GameObjectFilter.Enchantment)
         val victim = target("target", TargetCreature(filter = TargetFilter.Creature))
         optional = true
         effect = Effects.ModifyStats(-2, -2, victim)

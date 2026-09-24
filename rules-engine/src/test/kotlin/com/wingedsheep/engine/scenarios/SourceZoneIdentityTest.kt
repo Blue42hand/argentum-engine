@@ -30,6 +30,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlinx.serialization.json.Json
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 class SourceZoneIdentityTest : FunSpec({
     val returning = card("Identity Returning Faerie") {
@@ -38,7 +39,7 @@ class SourceZoneIdentityTest : FunSpec({
         power = 1
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.Dies
+            trigger = Triggers.self.dies()
             effect = Patterns.Mechanic.clash(Effects.ReturnToHandFromGraveyard(EffectTarget.Self))
         }
     }
@@ -189,7 +190,7 @@ class SourceZoneIdentityTest : FunSpec({
         val d = driver()
         val entrant = card("Identity Entering Spirit") {
             manaCost = "{U}"; typeLine = "Creature — Spirit"; power = 1; toughness = 1
-            triggeredAbility { trigger = Triggers.EntersBattlefield; effect = Effects.ReturnToHand(EffectTarget.Self) }
+            triggeredAbility { trigger = Triggers.self.enters(); effect = Effects.ReturnToHand(EffectTarget.Self) }
         }
         d.registerCards(listOf(entrant))
         val source = d.putCardInHand(d.player1, entrant.name)
@@ -212,7 +213,7 @@ class SourceZoneIdentityTest : FunSpec({
         val d = driver()
         val observer = card("Identity Death Observer") {
             manaCost = "{B}"; typeLine = "Creature — Spirit"; power = 1; toughness = 1
-            triggeredAbility { trigger = Triggers.AnyCreatureDies; effect = Effects.GainLife(1) }
+            triggeredAbility { trigger = Triggers.a(GameObjectFilter.Creature).dies(); effect = Effects.GainLife(1) }
         }
         d.registerCards(listOf(observer))
         val source = d.putCreatureOnBattlefield(d.player1, observer.name)
@@ -371,8 +372,7 @@ class SourceZoneIdentityTest : FunSpec({
             val aura = card("Identity Returning Aura") {
                 manaCost = "{U}"; typeLine = "Enchantment — Aura"
                 triggeredAbility {
-                    trigger = Triggers.leavesBattlefield(to = Zone.GRAVEYARD,
-                        binding = com.wingedsheep.sdk.scripting.TriggerBinding.ATTACHED)
+                    trigger = Triggers.attached.dies()
                     effect = Effects.Composite(Effects.ReturnToHandFromGraveyard(EffectTarget.Self),
                         Effects.ReturnToHandFromGraveyard(EffectTarget.TriggeringEntity))
                 }
@@ -456,7 +456,7 @@ class SourceZoneIdentityTest : FunSpec({
             val subject = card("Identity Reflexive Spirit") {
                 manaCost = "{U}"; typeLine = "Creature — Spirit"; power = 1; toughness = 1
                 triggeredAbility {
-                    trigger = Triggers.EntersBattlefield
+                    trigger = Triggers.self.enters()
                     effect = com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect(
                         action = if (pauseAction) Effects.Composite(
                             GatedEffect(Gate.MayDecide("Draw?"), Effects.DrawCards(1)), Effects.SacrificeTarget(EffectTarget.Self)

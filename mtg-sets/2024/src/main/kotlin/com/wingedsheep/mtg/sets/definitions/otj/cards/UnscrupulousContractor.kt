@@ -40,7 +40,7 @@ val UnscrupulousContractor = card("Unscrupulous Contractor") {
         "on a later turn without paying its mana cost. Plot only as a sorcery.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Effects.Pipeline {
                 val creatureToSacrifice = selectTarget(TargetObject(filter = TargetFilter.CreatureYouControl))

@@ -29,7 +29,7 @@ val CallerOfTheClaw = card("Caller of the Claw") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             count = DynamicAmounts.nonTokenCreaturesDiedThisTurn(Player.You),
             power = 2,

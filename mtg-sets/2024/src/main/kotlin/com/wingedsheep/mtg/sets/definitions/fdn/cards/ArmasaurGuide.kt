@@ -6,9 +6,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern.YouAttackEvent
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Armasaur Guide
@@ -30,7 +28,7 @@ val ArmasaurGuide = card("Armasaur Guide") {
     keywords(Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = TriggerSpec(YouAttackEvent(minAttackers = 3), TriggerBinding.ANY)
+        trigger = Triggers.you.attacks(minAttackers = 3)
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }

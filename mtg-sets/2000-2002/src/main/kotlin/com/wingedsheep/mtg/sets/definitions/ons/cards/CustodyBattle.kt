@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
@@ -29,7 +28,7 @@ val CustodyBattle = card("Custody Battle") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.phase(Step.UPKEEP, binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.beginningOf(Step.UPKEEP)
         val t = target("target", TargetOpponent())
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Sacrifice(GameObjectFilter.Land),

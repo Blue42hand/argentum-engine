@@ -30,7 +30,7 @@ val VraskaTheCuttingGlare = card("Vraska, the Cutting Glare") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.ControlLandsAtLeast(6)
         val permanent = target("target permanent an opponent controls", Targets.PermanentOpponentControls)
         effect = Effects.Composite(

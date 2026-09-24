@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 
 /**
@@ -28,7 +29,7 @@ val LeoninVanguard = card("Leonin Vanguard") {
     power = 1
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         interveningIf = Conditions.YouControlAtLeast(3, GameObjectFilter.Creature)
         effect = Effects.Composite(
             Effects.ModifyStats(1, 1, EffectTarget.Self),

@@ -60,10 +60,7 @@ val BreechesEagerPillager = card("Breeches, Eager Pillager") {
     keywords(Keyword.FIRST_STRIKE)
 
     triggeredAbility {
-        trigger = Triggers.attacks(
-            filter = GameObjectFilter.Creature.withSubtype(Subtype.PIRATE).youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.withSubtype(Subtype.PIRATE).youControl()).attacks()
         effect = ModalEffect.chooseOneNotYetChosenThisTurn(
             // • Create a Treasure token.
             Mode.noTarget(

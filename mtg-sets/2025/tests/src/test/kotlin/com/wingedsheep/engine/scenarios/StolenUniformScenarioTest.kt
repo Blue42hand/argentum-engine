@@ -32,7 +32,7 @@ import com.wingedsheep.engine.core.Outcome
  *  - [com.wingedsheep.sdk.dsl.Effects.UnattachEquipment] / `UnattachEquipmentEffect` + its executor.
  *  - The directional [com.wingedsheep.sdk.scripting.EventPattern.ControlChangeEvent] with
  *    [com.wingedsheep.sdk.scripting.ControlChangeDirection.LOST] used as an entity-scoped delayed
- *    trigger ([com.wingedsheep.sdk.dsl.Triggers.LoseControlOfWatched]) — "when you lose control of
+ *    trigger (`Triggers.self.controlChanges(ControlChangeDirection.LOST)`) — "when you lose control of
  *    that Equipment this turn".
  *  - The general [com.wingedsheep.sdk.scripting.predicates.StatePredicate.AttachedTo] host filter
  *    ("attached to a creature you control") via `GameObjectFilter.attachedTo(...)`.

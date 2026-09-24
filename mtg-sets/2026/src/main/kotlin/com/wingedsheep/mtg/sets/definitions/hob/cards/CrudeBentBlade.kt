@@ -27,7 +27,7 @@ val CrudeBentBlade = card("Crude Bent Blade") {
     typeLine = "Artifact — Equipment"
     oracleText = "When this Equipment enters, target opponent sacrifices a creature of their choice.\nEquipped creature gets +2/+1.\nEquip {2} ({2}: Attach to target creature you control. Equip only as a sorcery.)"
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetOpponent())
         effect = Effects.Sacrifice(GameObjectFilter.Creature, 1, t)
     }

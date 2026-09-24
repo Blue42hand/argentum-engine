@@ -44,7 +44,7 @@ val CharmingPrince = card("Charming Prince") {
         "at the beginning of the next end step."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Modal(
             modes = listOf(
                 Mode.noTarget(Effects.Scry(2), "Scry 2."),

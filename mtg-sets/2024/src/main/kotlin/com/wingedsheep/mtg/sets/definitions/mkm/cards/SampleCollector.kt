@@ -42,7 +42,7 @@ val SampleCollector = card("Sample Collector") {
         "total mana value 3 or greater from your graveyard.)"
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ReflexiveTrigger(action = Effects.CollectEvidence(3), optional = true) {
             val creature = target("target creature you control", TargetCreature(filter = TargetFilter.Creature.youControl()))
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)

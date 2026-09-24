@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Sigil of the New Dawn
@@ -22,7 +23,7 @@ val SigilOfTheNewDawn = card("Sigil of the New Dawn") {
     oracleText = "Whenever a creature is put into your graveyard from the battlefield, you may pay {1}{W}. If you do, return that card to your hand."
 
     triggeredAbility {
-        trigger = Triggers.YourCreatureDies
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dies()
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}{W}"),
             then = Effects.Move(EffectTarget.TriggeringEntity, Zone.HAND)

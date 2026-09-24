@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Guiding Hydra — the combat trigger has no intervening-if, but "If you do" only follows a counter
@@ -31,7 +32,7 @@ val GuidingHydra = card("Guiding Hydra") {
     replacementEffect(EntersWithDynamicCounters(count = DynamicAmounts.xValue()))
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = Effects.If(
             condition = Conditions.SourceHasCounter(CounterType.PLUS_ONE_PLUS_ONE),
             then = Effects.May(

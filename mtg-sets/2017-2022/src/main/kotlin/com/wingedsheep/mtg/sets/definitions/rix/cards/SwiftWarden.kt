@@ -34,7 +34,7 @@ val SwiftWarden = card("Swift Warden") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val merfolk = target(
             "target Merfolk you control",
             TargetPermanent(

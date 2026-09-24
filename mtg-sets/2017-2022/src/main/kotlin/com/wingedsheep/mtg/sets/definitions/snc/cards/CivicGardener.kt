@@ -23,7 +23,7 @@ val CivicGardener = card("Civic Gardener") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val t = target("target", TargetObject(filter = TargetFilter.CreatureOrLandPermanent))
         effect = Effects.Untap(t)
     }

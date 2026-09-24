@@ -31,7 +31,7 @@ val Ossification = card("Ossification") {
     auraTarget = TargetPermanent(filter = TargetFilter(GameObjectFilter.BasicLand.youControl()))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val victim = target(
             "creature or planeswalker an opponent controls",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls())),

@@ -39,7 +39,7 @@ val RacersScoreboard = card("Racers' Scoreboard") {
     startYourEngines()
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.DrawCards(2),
             Effects.Discard(1)

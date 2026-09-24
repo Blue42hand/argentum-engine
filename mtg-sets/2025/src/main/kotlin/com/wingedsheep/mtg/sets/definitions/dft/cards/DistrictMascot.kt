@@ -43,7 +43,7 @@ val DistrictMascot = card("District Mascot") {
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         triggerRestriction = Conditions.SourceIsSaddled
         effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }

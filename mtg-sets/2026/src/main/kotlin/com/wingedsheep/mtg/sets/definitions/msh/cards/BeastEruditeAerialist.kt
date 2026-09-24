@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.GrantKeyword
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Beast, Erudite Aerialist — Marvel Super Heroes #206
@@ -50,7 +51,7 @@ val BeastEruditeAerialist = card("Beast, Erudite Aerialist") {
     }
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.DrawCards(1)
         description = "Whenever Beast deals combat damage to a player, draw a card."
     }

@@ -37,7 +37,7 @@ val BoughsideWanderers = card("Boughside Wanderers") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.lookAtTopRevealMatchingToHand(
             count = 4,
             filter = GameObjectFilter(cardPredicates = listOf(CardPredicate.IsPermanent)),
@@ -46,7 +46,7 @@ val BoughsideWanderers = card("Boughside Wanderers") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = Effects.ModifyStats(2, 2, EffectTarget.Self)
         description = "Landfall — Whenever a land you control enters, this creature gets +2/+2 until end of turn."
     }

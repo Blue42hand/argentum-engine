@@ -35,7 +35,7 @@ val FearOfTheDark = card("Fear of the Dark") {
     toughness = 5
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.battlefield(
                 Player.DefendingPlayer,

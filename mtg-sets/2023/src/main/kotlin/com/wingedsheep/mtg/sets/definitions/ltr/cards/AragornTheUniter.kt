@@ -33,7 +33,7 @@ val AragornTheUniter = card("Aragorn, the Uniter") {
         "Whenever you cast a green spell, target creature gets +4/+4 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Any.withColor(Color.WHITE))
+        trigger = Triggers.you.casts(GameObjectFilter.Any.withColor(Color.WHITE))
         effect = Effects.CreateToken(
             count = 1,
             power = 1,
@@ -45,12 +45,12 @@ val AragornTheUniter = card("Aragorn, the Uniter") {
     }
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Any.withColor(Color.BLUE))
+        trigger = Triggers.you.casts(GameObjectFilter.Any.withColor(Color.BLUE))
         effect = Patterns.Library.scry(2)
     }
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Any.withColor(Color.RED))
+        trigger = Triggers.you.casts(GameObjectFilter.Any.withColor(Color.RED))
         val opponent = target("opponent", Targets.Opponent)
         effect = Effects.DealDamage(
             amount = 3,
@@ -60,7 +60,7 @@ val AragornTheUniter = card("Aragorn, the Uniter") {
     }
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Any.withColor(Color.GREEN))
+        trigger = Triggers.you.casts(GameObjectFilter.Any.withColor(Color.GREEN))
         val creature = target("creature", Targets.Creature)
         effect = Effects.ModifyStats(4, 4, creature)
     }

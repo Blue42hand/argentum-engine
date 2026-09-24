@@ -32,7 +32,7 @@ val BladeTribeBerserkers = card("Blade-Tribe Berserkers") {
     oracleText = "Metalcraft — When this creature enters, if you control three or more artifacts, this creature gets +3/+3 and gains haste until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.YouControlAtLeast(3, GameObjectFilter.Artifact)
         effect = Effects.Composite(
             Effects.ModifyStats(3, 3, EffectTarget.Self),

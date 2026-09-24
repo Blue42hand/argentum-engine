@@ -29,7 +29,7 @@ val GhituChronicler = card("Ghitu Chronicler") {
     keywordAbility(KeywordAbility.kicker("{3}{R}"))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = WasKicked
         val t = target(
             "instant or sorcery card in your graveyard",

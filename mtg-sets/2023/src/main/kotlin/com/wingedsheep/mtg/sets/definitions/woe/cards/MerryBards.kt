@@ -34,7 +34,7 @@ val MerryBards = card("Merry Bards") {
         "its toughness is 3 or less, put a +1/+1 counter on it.\")"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val targetCreature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),

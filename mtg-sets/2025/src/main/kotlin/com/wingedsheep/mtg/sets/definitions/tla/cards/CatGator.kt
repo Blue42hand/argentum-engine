@@ -33,7 +33,7 @@ val CatGator = card("Cat-Gator") {
     toughness = 2
     keywords(Keyword.LIFELINK)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", AnyTarget())
         effect = Effects.DealDamage(
             DynamicAmounts.battlefield(Player.You, GameObjectFilter.Land.withSubtype(Subtype.SWAMP)).count(),

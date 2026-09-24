@@ -93,7 +93,7 @@ val RestlessSpire = card("Restless Spire") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Patterns.Library.scry(1)
         description = "Whenever this land attacks, scry 1."
     }

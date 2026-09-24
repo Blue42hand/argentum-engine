@@ -35,7 +35,7 @@ val RaphaelNinjaDestroyer = card("Raphael, Ninja Destroyer") {
     }
 
     triggeredAbility {
-        trigger = Triggers.TakesDamage
+        trigger = Triggers.self.isDealtDamage()
         effect = Effects.AddMana(
             Color.RED,
             DynamicAmounts.triggerDamageAmount()

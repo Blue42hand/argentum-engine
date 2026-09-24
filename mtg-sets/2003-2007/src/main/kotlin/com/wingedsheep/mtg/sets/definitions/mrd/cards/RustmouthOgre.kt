@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Rustmouth Ogre — Mirrodin #103
@@ -32,7 +33,7 @@ val RustmouthOgre = card("Rustmouth Ogre") {
         "artifact that player controls."
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         val t = target(
             "target",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.Artifact.controlledByTriggeringPlayer()))

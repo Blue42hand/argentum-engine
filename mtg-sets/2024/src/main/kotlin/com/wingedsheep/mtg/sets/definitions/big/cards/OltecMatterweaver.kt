@@ -32,7 +32,7 @@ val OltecMatterweaver = card("Oltec Matterweaver") {
         "• Create a token that's a copy of target artifact token you control."
 
     triggeredAbility {
-        trigger = Triggers.YouCastCreature
+        trigger = Triggers.you.casts(GameObjectFilter.Creature)
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
                 // 1/1 colorless (emptySet colors) Gnome artifact creature token.

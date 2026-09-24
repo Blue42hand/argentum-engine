@@ -44,7 +44,7 @@ val WhiplashVengefulEngineer = card("Whiplash, Vengeful Engineer") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         interveningIf = Conditions.SourceMatches(GameObjectFilter.Any.equipped())
         effect = Effects.Composite(
             Effects.LoseLife(

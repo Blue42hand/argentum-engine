@@ -32,7 +32,7 @@ val WedgelightRammer = card("Wedgelight Rammer") {
 
     // ETB: Create a 2/2 Robot token
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,

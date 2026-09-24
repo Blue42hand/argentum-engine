@@ -18,7 +18,7 @@ val ArcaneAmphisbaena = card("Arcane Amphisbaena") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Mechanic.empowerJace(2)
     }
 

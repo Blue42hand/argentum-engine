@@ -26,9 +26,7 @@ val AncientCornucopia = card("Ancient Cornucopia") {
 
     // Whenever you cast a colored spell, you may gain 1 life per color. Once each turn.
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter(cardPredicates = listOf(CardPredicate.IsColored))
-        )
+        trigger = Triggers.you.casts(GameObjectFilter(cardPredicates = listOf(CardPredicate.IsColored)))
         // "Do this only once each turn." — CR 603.2h, keyed to the *action*, not the trigger:
         // "Once you choose to gain life using Ancient Cornucopia's triggered ability, that
         // ability won't trigger again that turn" (Scryfall ruling). Declining leaves the turn's

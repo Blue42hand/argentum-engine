@@ -52,11 +52,11 @@ val TawnossCoffin = card("Tawnos's Coffin") {
 
     // "When this artifact leaves the battlefield or becomes untapped, return that exiled card …"
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnNotedExileTappedWithAuras()
     }
     triggeredAbility {
-        trigger = Triggers.BecomesUntapped
+        trigger = Triggers.self.becomesUntapped()
         effect = Effects.ReturnNotedExileTappedWithAuras()
     }
 

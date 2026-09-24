@@ -33,7 +33,7 @@ val UnsparingBoltcaster = card("Unsparing Boltcaster") {
         "controls that was dealt damage this turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target",
             TargetCreature(

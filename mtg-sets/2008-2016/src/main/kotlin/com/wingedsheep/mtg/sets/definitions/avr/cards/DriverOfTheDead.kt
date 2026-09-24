@@ -29,7 +29,7 @@ val DriverOfTheDead = card("Driver of the Dead") {
     power = 3
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val t = target(
             "target",
             TargetObject(

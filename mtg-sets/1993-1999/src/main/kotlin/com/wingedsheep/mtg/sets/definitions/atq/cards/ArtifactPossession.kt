@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -35,15 +34,12 @@ val ArtifactPossession = card("Artifact Possession") {
     auraTarget = Targets.Artifact
 
     triggeredAbility {
-        trigger = Triggers.becomesTapped(binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.becomesTapped()
         effect = Effects.DealDamage(2, EffectTarget.ControllerOfTriggeringEntity)
     }
 
     triggeredAbility {
-        trigger = Triggers.activatesAbilityWithoutTap(
-            player = Player.Each,
-            binding = TriggerBinding.ATTACHED
-        )
+        trigger = Triggers.attached.hasAbilityActivatedWithoutTap()
         effect = Effects.DealDamage(2, EffectTarget.ControllerOfTriggeringEntity)
     }
 

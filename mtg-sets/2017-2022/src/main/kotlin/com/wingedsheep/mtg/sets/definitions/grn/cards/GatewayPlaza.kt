@@ -25,7 +25,7 @@ val GatewayPlaza = card("Gateway Plaza") {
 
     replacementEffect(EntersTapped())
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.PayOrSuffer(cost = Costs.pay.Mana("{1}"), suffer = SacrificeSelfEffect)
     }
     activatedAbility {

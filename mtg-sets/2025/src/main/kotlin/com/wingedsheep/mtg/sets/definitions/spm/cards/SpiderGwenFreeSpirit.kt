@@ -23,7 +23,7 @@ val SpiderGwenFreeSpirit = card("Spider-Gwen, Free Spirit") {
     toughness = 3
     keywords(Keyword.REACH)
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
+        trigger = Triggers.self.becomesTapped()
         effect = Effects.May(effect = Effects.IfYouDo(action = Patterns.Hand.discardCards(1), then = Effects.DrawCards(1)))
     }
     metadata {

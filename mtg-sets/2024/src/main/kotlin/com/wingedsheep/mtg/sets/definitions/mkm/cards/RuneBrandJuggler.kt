@@ -49,7 +49,7 @@ val RuneBrandJuggler = card("Rune-Brand Juggler") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val victim = target(
             "up to one other target creature you control",
             TargetCreature(

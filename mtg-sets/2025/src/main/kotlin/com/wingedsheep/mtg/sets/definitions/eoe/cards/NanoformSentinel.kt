@@ -26,7 +26,7 @@ val NanoformSentinel = card("Nanoform Sentinel") {
 
     // Trigger: whenever this creature becomes tapped, untap another target permanent (once per turn)
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
+        trigger = Triggers.self.becomesTapped()
         oncePerTurn = true
         val targetPermanent = target("another target permanent", TargetPermanent(
             filter = TargetFilter(GameObjectFilter.Permanent, excludeSelf = true)

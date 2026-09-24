@@ -7,10 +7,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern.AttackEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
@@ -42,10 +39,7 @@ val ZoralineCosmosCaller = card("Zoraline, Cosmos Caller") {
 
     // Whenever a Bat you control attacks, you gain 1 life.
     triggeredAbility {
-        trigger = TriggerSpec(
-            AttackEvent(filter = GameObjectFilter.Creature.withSubtype("Bat").youControl()),
-            TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.withSubtype("Bat").youControl()).attacks()
         effect = Effects.GainLife(1)
     }
 
@@ -53,13 +47,13 @@ val ZoralineCosmosCaller = card("Zoraline, Cosmos Caller") {
     // When you do, return target nonland permanent card with MV ≤ 3 from your graveyard
     // to the battlefield with a finality counter on it.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = zoralineReanimateEffect()
     }
 
     // Whenever Zoraline attacks, same effect.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = zoralineReanimateEffect()
     }
 

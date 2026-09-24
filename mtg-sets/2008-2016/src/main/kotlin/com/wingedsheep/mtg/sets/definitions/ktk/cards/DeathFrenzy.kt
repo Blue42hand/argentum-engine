@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Death Frenzy
@@ -29,8 +30,7 @@ val DeathFrenzy = card("Death Frenzy") {
                 Effects.CreateGlobalTriggeredAbility(
                     duration = Duration.EndOfTurn,
                     ability = TriggeredAbility.create(
-                        trigger = Triggers.AnyCreatureDies.event,
-                        binding = Triggers.AnyCreatureDies.binding,
+                        trigger = Triggers.a(GameObjectFilter.Creature).dies(),
                         effect = Effects.GainLife(1, EffectTarget.Controller)
                     )
                 )

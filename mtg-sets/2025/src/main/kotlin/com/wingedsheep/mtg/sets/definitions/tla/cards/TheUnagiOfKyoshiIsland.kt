@@ -24,7 +24,7 @@ import com.wingedsheep.sdk.scripting.effects.WardCost
  * waterbend tap-to-help machinery — [WardCost.Mana] produces
  * `WardCost.Mana("{4}", waterbend = true)`, and the ward payment decision lets the paying player
  * tap their untapped artifacts/creatures (each paying {1}) before paying the remainder with mana.
- * The draw payoff reuses the [Triggers.NthCardDrawn] facade scoped to [Player.EachOpponent]
+ * The draw payoff reuses the `Triggers.<player>.drawsNth(n)` facade scoped to [Player.EachOpponent]
  * ("an opponent draws their second card each turn").
  */
 val TheUnagiOfKyoshiIsland = card("The Unagi of Kyoshi Island") {
@@ -43,7 +43,7 @@ val TheUnagiOfKyoshiIsland = card("The Unagi of Kyoshi Island") {
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{4}", waterbend = true)))
 
     triggeredAbility {
-        trigger = Triggers.NthCardDrawn(2, Player.EachOpponent)
+        trigger = Triggers.anOpponent.drawsNth(2)
         effect = Effects.DrawCards(2)
         description = "Whenever an opponent draws their second card each turn, you draw two cards."
     }

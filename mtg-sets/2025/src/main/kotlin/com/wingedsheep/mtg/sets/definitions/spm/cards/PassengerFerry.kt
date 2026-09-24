@@ -36,7 +36,7 @@ val PassengerFerry = card("Passenger Ferry") {
         "becomes an artifact creature until end of turn.)"
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ReflexiveTrigger(
             // "you may pay {U}"
             action = Effects.PayMana("{U}"),

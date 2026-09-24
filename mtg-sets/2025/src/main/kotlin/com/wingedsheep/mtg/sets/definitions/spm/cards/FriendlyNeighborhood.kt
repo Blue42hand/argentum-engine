@@ -43,7 +43,7 @@ val FriendlyNeighborhood = card("Friendly Neighborhood") {
     auraTarget = Targets.Land
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

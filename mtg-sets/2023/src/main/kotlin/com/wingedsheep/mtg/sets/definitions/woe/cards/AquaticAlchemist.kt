@@ -57,7 +57,7 @@ val AquaticAlchemist = card("Aquatic Alchemist") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.YouCastSpell
+        trigger = Triggers.you.casts()
         triggerRestriction = Conditions.YouCastFirstSpellOfTypeThisTurn(GameObjectFilter.InstantOrSorcery)
         effect = Effects.ModifyStats(2, 0, EffectTarget.Self)
         description = "Whenever you cast your first instant or sorcery spell each turn, this " +

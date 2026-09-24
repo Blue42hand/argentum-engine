@@ -28,7 +28,7 @@ val MirkwoodSpider = card("Mirkwood Spider") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val legendary = target(
             "target legendary creature you control",
             TargetCreature(filter = TargetFilter.CreatureYouControl.legendary())

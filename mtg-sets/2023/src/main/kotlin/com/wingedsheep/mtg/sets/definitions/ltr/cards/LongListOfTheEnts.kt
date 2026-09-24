@@ -4,13 +4,11 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Long List of the Ents
@@ -74,12 +72,7 @@ val LongListOfTheEnts = card("Long List of the Ents") {
 private fun noteAndBuff(): Effect = Effects.Composite(
     Effects.NoteCreatureType("notedType"),
     Effects.CreateDelayedTrigger(
-        trigger = TriggerSpec(
-            event = EventPattern.SpellCastEvent(
-                spellFilter = GameObjectFilter.Creature.withSubtypeFromVariable("notedType"),
-                player = Player.You
-            )
-        ),
+        trigger = Triggers.you.casts(GameObjectFilter.Creature.withSubtypeFromVariable("notedType")),
         fireOnce = true,
         expiry = DelayedTriggerExpiry.EndOfTurn,
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.TriggeringEntity)

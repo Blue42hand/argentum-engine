@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TriggeredAbility
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Curious Inquiry
@@ -40,8 +41,7 @@ val CuriousInquiry = card("Curious Inquiry") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.DealsCombatDamageToPlayer.event,
-                binding = Triggers.DealsCombatDamageToPlayer.binding,
+                trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer),
                 effect = Effects.Investigate()
             ),
             filter = Filters.EnchantedCreature

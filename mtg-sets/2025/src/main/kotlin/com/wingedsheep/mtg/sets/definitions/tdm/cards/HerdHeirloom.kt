@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Herd Heirloom — Tarkir: Dragonstorm #144
@@ -52,8 +53,7 @@ val HerdHeirloom = card("Herd Heirloom") {
             Effects.GrantKeyword(Keyword.TRAMPLE, creature, Duration.EndOfTurn),
             Effects.GrantTriggeredAbility(
                 ability = TriggeredAbility.create(
-                    trigger = Triggers.DealsCombatDamageToPlayer.event,
-                    binding = Triggers.DealsCombatDamageToPlayer.binding,
+                    trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer),
                     effect = Effects.DrawCards(1),
                     descriptionOverride = "Whenever this creature deals combat damage to a player, draw a card."
                 ),

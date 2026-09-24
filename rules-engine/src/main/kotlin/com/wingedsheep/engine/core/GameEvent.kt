@@ -546,7 +546,7 @@ data class PermanentConnivedEvent(
  * A player just performed one of the four elemental bending keyword actions (CR 701.65b Airbend /
  * 701.66b Earthbend / 701.67c Waterbend / 702.189b Firebending). Fires once per bend so
  * [com.wingedsheep.sdk.scripting.EventPattern.BendPerformedEvent] triggers
- * ([com.wingedsheep.sdk.dsl.Triggers.YouBend]) match. Emitted alongside a fold of [bendType] into
+ * (`Triggers.you.bends(types)`) match. Emitted alongside a fold of [bendType] into
  * the player's `BendsThisTurnComponent` (see `BendEvents.record`). Internal-only: dropped from the
  * client log (`ClientEventTransformer`).
  *
@@ -690,7 +690,7 @@ data class SpellCastEvent(
     /**
      * Producing-source subtypes of the mana spent on this cast (`Subtype.TREASURE` when any came
      * from a Treasure, `Subtype.CAVE` from a Cave, …). Drives SDK triggers built with
-     * `Triggers.youCastSpell(requires = setOf(SpellCastPredicate.PaidWithManaFromSubtype(subtype)))`.
+     * `Triggers.you.casts(requires = setOf(SpellCastPredicate.PaidWithManaFromSubtype(subtype)))`.
      * See [com.wingedsheep.engine.state.components.player.ManaPoolComponent.manaBySubtype].
      */
     val spentManaSubtypes: Set<com.wingedsheep.sdk.core.Subtype> = emptySet(),

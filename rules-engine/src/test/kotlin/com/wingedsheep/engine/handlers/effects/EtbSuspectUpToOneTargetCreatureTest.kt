@@ -41,7 +41,7 @@ class EtbSuspectUpToOneTargetCreatureTest : FunSpec({
             "up to one target creature becomes suspected."
 
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             // "*Up to one* target creature" is an optional **requirement**, not an optional
             // ability: the ability is mandatory and the slot may be left empty. The two used to be
             // spelled the same way — `optional = true` on the ability forced every slot's minimum

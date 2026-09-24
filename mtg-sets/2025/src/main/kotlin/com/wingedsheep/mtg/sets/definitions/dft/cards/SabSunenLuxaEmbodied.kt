@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.CantAttackUnless
 import com.wingedsheep.sdk.scripting.CantBlockUnless
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Sab-Sunen, Luxa Embodied — Aetherdrift #221
@@ -65,7 +66,7 @@ val SabSunenLuxaEmbodied = card("Sab-Sunen, Luxa Embodied") {
     }
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self).then(
             Effects.If(
                 condition = Conditions.AmountIsOdd(countersOnSabSunen),

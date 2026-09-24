@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Sidequest: Play Blitzball // World Champion, Celestial Weapon — Final Fantasy #158
@@ -72,7 +73,7 @@ private val SidequestPlayBlitzballFront = card("Sidequest: Play Blitzball") {
 
     // At the beginning of combat on your turn, target creature you control gets +2/+0 until end of turn.
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = Effects.ModifyStats(2, 0, t)
     }
@@ -80,7 +81,7 @@ private val SidequestPlayBlitzballFront = card("Sidequest: Play Blitzball") {
     // At the end of combat on your turn, if a player was dealt 6 or more combat damage this turn,
     // transform this enchantment, then attach it to a creature you control.
     triggeredAbility {
-        trigger = Triggers.YourEndOfCombat
+        trigger = Triggers.you.beginningOf(Step.END_COMBAT)
         interveningIf = Conditions.aPlayerWasDealtCombatDamageThisTurnAtLeast(6)
         effect = Effects.Pipeline {
             // Transform this enchantment (it becomes World Champion, Celestial Weapon)...

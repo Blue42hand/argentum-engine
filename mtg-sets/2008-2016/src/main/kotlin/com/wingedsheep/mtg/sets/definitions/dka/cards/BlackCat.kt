@@ -22,7 +22,7 @@ val BlackCat = card("Black Cat") {
     oracleText = "When this creature dies, target opponent discards a card at random."
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val opponent = target("target opponent", TargetOpponent())
         effect = Patterns.Hand.discardRandom(1, opponent)
     }

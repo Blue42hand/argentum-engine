@@ -56,7 +56,7 @@ val KataraWaterTribesHope = card("Katara, Water Tribe's Hope") {
 
     // When Katara enters, create a 1/1 white Ally creature token.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

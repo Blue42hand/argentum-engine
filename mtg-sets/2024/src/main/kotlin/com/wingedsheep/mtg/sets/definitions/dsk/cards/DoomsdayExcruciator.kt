@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.effects.LookAudience
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Doomsday Excruciator
@@ -26,7 +27,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  *
  * Modeled with existing primitives:
  * - Flying via the keyword.
- * - The ETB is a [Triggers.EntersBattlefield] gated by [Conditions.WasCast] (the intervening "if it
+ * - The ETB is a `Triggers.self.enters()` gated by [Conditions.WasCast] (the intervening "if it
  *   was cast" clause — it does nothing for a token copy or a creature put onto the battlefield
  *   without being cast). "Each player exiles all but the bottom six cards of their library face down"
  *   is one [Effects.ForEachPlayer] over [Player.Each]; the iteration rebinds the body's controller to
@@ -35,7 +36,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  *   clamped to zero with [DynamicAmount.IfPositive] so a player with six or fewer cards exiles
  *   nothing (matching the Scryfall ruling). Those cards move to exile face down
  *   ([FaceDownMode.HIDDEN], hidden in exile) via [MoveCollectionEffect].
- * - The upkeep payoff is a standard [Triggers.YourUpkeep] drawing a card.
+ * - The upkeep payoff is a standard `Triggers.you.beginningOf(Step.UPKEEP)` drawing a card.
  */
 val DoomsdayExcruciator = card("Doomsday Excruciator") {
     manaCost = "{B}{B}{B}{B}{B}{B}"
@@ -55,7 +56,7 @@ val DoomsdayExcruciator = card("Doomsday Excruciator") {
     )
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.WasCast
         effect = Effects.ForEachPlayer(
             players = Player.Each,
@@ -73,7 +74,7 @@ val DoomsdayExcruciator = card("Doomsday Excruciator") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.DrawCards(1)
         description = "At the beginning of your upkeep, draw a card."
     }

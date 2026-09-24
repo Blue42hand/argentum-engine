@@ -62,7 +62,7 @@ class CactarantulaCostScenarioTest : FunSpec({
  * "Whenever this creature becomes the target of a spell or ability an opponent controls,
  *  you may draw a card."
  *
- * Exercises the new self-bound [com.wingedsheep.sdk.dsl.Triggers.BecomesTargetByOpponent] facade.
+ * Exercises the new self-bound `Triggers.self.becomesTarget(byOpponent = true)` facade.
  */
 class CactarantulaTriggerScenarioTest : ScenarioTestBase() {
 

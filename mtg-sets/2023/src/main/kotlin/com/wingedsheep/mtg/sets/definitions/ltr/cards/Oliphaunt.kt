@@ -33,7 +33,7 @@ val Oliphaunt = card("Oliphaunt") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val other = target("another target creature you control", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
         effect = Effects.ModifyStats(2, 0, other)
             .then(Effects.GrantKeyword(Keyword.TRAMPLE, other))

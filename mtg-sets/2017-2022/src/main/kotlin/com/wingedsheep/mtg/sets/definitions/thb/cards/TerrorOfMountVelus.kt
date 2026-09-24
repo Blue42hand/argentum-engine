@@ -32,7 +32,7 @@ val TerrorOfMountVelus = card("Terror of Mount Velus") {
     toughness = 5
     keywords(Keyword.FLYING, Keyword.DOUBLE_STRIKE)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, EffectTarget.IterationEntity)

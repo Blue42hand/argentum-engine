@@ -32,7 +32,7 @@ val KeldonOverseer = card("Keldon Overseer") {
     keywords(Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = WasKicked
         val t = target("target creature", Targets.Creature)
         effect = Effects.Composite(

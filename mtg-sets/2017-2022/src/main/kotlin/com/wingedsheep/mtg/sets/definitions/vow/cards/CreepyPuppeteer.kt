@@ -46,7 +46,7 @@ val CreepyPuppeteer = card("Creepy Puppeteer") {
     keywords(Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.battlefield(
                 Player.You,

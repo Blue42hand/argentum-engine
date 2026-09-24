@@ -46,7 +46,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  *    return (and any reanimation/blink), so the wipe only fires on a cast.
  *  - **Craft with artifact {3}{W}{W}** — exact-count craft (`minCount = 1, maxCount = 1`) via the
  *    `craft(...)` helper; returns transformed as Sandswirl Wanderglyph.
- *  - **Back trigger** — [Triggers.OpponentCastsSpell] gated on [Conditions.IsNotYourTurn]
+ *  - **Back trigger** — `Triggers.anOpponent.casts()` gated on [Conditions.IsNotYourTurn]
  *    ("during their turn"; exact in two-player games). The one-shot effect is a floating
  *    until-end-of-turn [Effects.CantAttackGroup] over creatures the *active player* controls:
  *    for the remainder of that turn the triggering opponent is the active player, and only the
@@ -79,7 +79,7 @@ private val UnstableGlyphbridgeFront = card("Unstable Glyphbridge") {
     // When this artifact enters, if you cast it, for each player, choose a creature with power
     // 2 or less that player controls. Then destroy all creatures except creatures chosen this way.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.WasCast
         effect = Effects.ForEachPlayer(
             players = Player.ActivePlayerFirst,
@@ -138,7 +138,7 @@ private val SandswirlWanderglyph = card("Sandswirl Wanderglyph") {
     // planeswalkers you control this turn. (See KDoc: active-player-scoped floating
     // restriction, exact for two-player games.)
     triggeredAbility {
-        trigger = Triggers.OpponentCastsSpell
+        trigger = Triggers.anOpponent.casts()
         triggerRestriction = Conditions.IsNotYourTurn
         effect = Effects.CantAttackGroup(
             GroupFilter(GameObjectFilter.Creature.controlledByActivePlayer())

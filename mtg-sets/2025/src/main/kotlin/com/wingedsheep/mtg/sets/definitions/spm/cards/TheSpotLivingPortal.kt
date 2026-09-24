@@ -50,7 +50,7 @@ val TheSpotLivingPortal = card("The Spot, Living Portal") {
         "exiled cards to their owners' hands."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "up to one target nonland permanent",
             TargetObject(optional = true, filter = TargetFilter.NonlandPermanent),
@@ -71,7 +71,7 @@ val TheSpotLivingPortal = card("The Spot, Living Portal") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.IfYouDo(
             action = Effects.PutOnBottomOfLibrary(EffectTarget.Self),
             then = Effects.ReturnLinkedExileToHand(),

@@ -33,7 +33,7 @@ val OrphansOfTheWheat = card("Orphans of the Wheat") {
         "control. This creature gets +1/+1 until end of turn for each creature tapped this way."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Pipeline {
             val candidates = gather(
                 CardSource.ControlledPermanents(

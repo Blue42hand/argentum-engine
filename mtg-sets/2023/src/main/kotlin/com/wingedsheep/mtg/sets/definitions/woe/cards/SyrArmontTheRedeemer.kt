@@ -45,7 +45,7 @@ val SyrArmontTheRedeemer = card("Syr Armont, the Redeemer") {
         "Enchanted creatures you control get +1/+1."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("another target creature you control", Targets.OtherCreatureYouControl)
         effect = Effects.CreateRoleToken("Monster Role", creature)
     }

@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Lumberknot
@@ -28,7 +29,7 @@ val Lumberknot = card("Lumberknot") {
     keywords(Keyword.HEXPROOF)
 
     triggeredAbility {
-        trigger = Triggers.AnyCreatureDies
+        trigger = Triggers.a(GameObjectFilter.Creature).dies()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

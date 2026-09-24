@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Genemorph Imago
@@ -34,7 +35,7 @@ val GenemorphImago = card("Genemorph Imago") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         val t = target("target creature", Targets.Creature)
         effect = Effects.If(
             condition = Conditions.ControlLandsAtLeast(6),

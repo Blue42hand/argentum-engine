@@ -51,7 +51,7 @@ val SeverancePriest = card("Severance Priest") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Pipeline {
             run(Effects.RevealHand(opponent))
@@ -70,7 +70,7 @@ val SeverancePriest = card("Severance Priest") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.Pipeline {
             val exiledCard = gather(CardSource.FromLinkedExile())
             run(Effects.CreateToken(

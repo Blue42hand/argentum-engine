@@ -22,7 +22,7 @@ val BearsCompanion = card("Bear's Companion") {
     oracleText = "When this creature enters, create a 4/4 green Bear creature token."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             count = 1,
             power = 4,

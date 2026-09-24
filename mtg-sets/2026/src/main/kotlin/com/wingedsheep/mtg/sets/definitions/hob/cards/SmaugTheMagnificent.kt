@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Smaug the Magnificent — The Hobbit #110
@@ -41,7 +42,7 @@ val SmaugTheMagnificent = card("Smaug the Magnificent") {
 
     triggeredAbility {
         val target = target("target", AnyTarget())
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.DealDamage(
             DynamicAmounts.battlefield(
                 Player.You,
@@ -54,7 +55,7 @@ val SmaugTheMagnificent = card("Smaug the Magnificent") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.CreateTreasure()
         description = "At the beginning of your upkeep, create a Treasure token."
     }

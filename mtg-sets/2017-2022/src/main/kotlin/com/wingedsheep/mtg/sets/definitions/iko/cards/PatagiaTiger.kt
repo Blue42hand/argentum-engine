@@ -34,7 +34,7 @@ val PatagiaTiger = card("Patagia Tiger") {
         val target = target("target", TargetObject(
             filter = TargetFilter(GameObjectFilter.Permanent.youControl().withSubtype("Human"))
         ))
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ModifyStats(2, 2, target)
     }
 

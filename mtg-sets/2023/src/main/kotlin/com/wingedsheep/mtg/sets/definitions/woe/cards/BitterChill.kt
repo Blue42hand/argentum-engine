@@ -25,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * The lock half is Charmed Sleep's shape (tap on entry + [AbilityFlag.DOESNT_UNTAP] granted to the
  * enchanted creature). The refund half fires on *any* trip from battlefield to graveyard — the Aura
  * being destroyed, sacrificed, or falling off as a state-based action when its creature leaves —
- * which is exactly [Triggers.PutIntoGraveyardFromBattlefield].
+ * which is exactly `Triggers.self.dies()`.
  */
 val BitterChill = card("Bitter Chill") {
     manaCost = "{1}{U}"
@@ -40,7 +40,7 @@ val BitterChill = card("Bitter Chill") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Tap(EffectTarget.EnchantedCreature)
     }
 
@@ -49,7 +49,7 @@ val BitterChill = card("Bitter Chill") {
     }
 
     triggeredAbility {
-        trigger = Triggers.PutIntoGraveyardFromBattlefield
+        trigger = Triggers.self.dies()
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
             then = Patterns.Library.scry(1).then(Effects.DrawCards(1))

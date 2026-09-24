@@ -31,7 +31,7 @@ val NightmareSower = card("Nightmare Sower") {
     keywords(Keyword.FLYING, Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.YouCastSpell
+        trigger = Triggers.you.casts()
         triggerRestriction = Conditions.IsNotYourTurn
         val creature = target(
             "creature to put a -1/-1 counter on",

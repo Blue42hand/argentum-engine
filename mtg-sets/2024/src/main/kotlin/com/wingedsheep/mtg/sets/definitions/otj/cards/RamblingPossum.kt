@@ -44,7 +44,7 @@ val RamblingPossum = card("Rambling Possum") {
     keywordAbility(KeywordAbility.saddle(1))
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         triggerRestriction = Conditions.SourceIsSaddled
         effect = Effects.Composite(
             Effects.ModifyStats(1, 2, EffectTarget.Self),

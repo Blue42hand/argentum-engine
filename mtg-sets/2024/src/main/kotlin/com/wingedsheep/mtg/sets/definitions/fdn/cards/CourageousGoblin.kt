@@ -29,7 +29,7 @@ val CourageousGoblin = card("Courageous Goblin") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         triggerRestriction = Conditions.YouControl(GameObjectFilter.Creature.powerAtLeast(4))
         effect = Effects.Composite(
             Effects.ModifyStats(1, 0, EffectTarget.Self),

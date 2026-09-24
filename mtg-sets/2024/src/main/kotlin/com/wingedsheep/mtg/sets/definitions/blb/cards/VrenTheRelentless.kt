@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Vren, the Relentless
@@ -56,7 +57,7 @@ val VrenTheRelentless = card("Vren, the Relentless") {
 
     // At the beginning of each end step, create X Rat tokens
     triggeredAbility {
-        trigger = Triggers.EachEndStep
+        trigger = Triggers.anyPlayer.beginningOf(Step.END)
         effect = Effects.CreateToken(
             count = DynamicAmounts.opponentCreaturesExiledThisTurn(),
             power = 1,

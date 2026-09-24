@@ -24,13 +24,13 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Back  — Howlpack Avenger (4/4): "Whenever a permanent you control is dealt damage, this creature deals
  *          that much damage to any target"; "{1}{R}: +2/+0 UEOT"; Nightbound.
  *
- * The front is the Screaming Nemesis rail — a self-damage retaliation trigger ([Triggers.TakesDamage],
+ * The front is the Screaming Nemesis rail — a self-damage retaliation trigger (`Triggers.self.isDealtDamage()`,
  * a SELF-binding `DamageReceivedEvent`), reflecting the incoming amount via
  * `DynamicAmount.ContextProperty(TRIGGER_DAMAGE_AMOUNT)` back at any target. Unlike Screaming Nemesis it
  * hits *any* target (not "any **other**"), so it can even bounce at the source that struck it.
  *
  * The back widens the watch to "**a permanent you control** is dealt damage" — the Kazarov observer rail
- * ([Triggers.dealsDamage] with `recipient = Recipient.PermanentYouControl` and
+ * (`Triggers.<subject>.dealsDamage(to, damageType, requireExcess, batch, requires)` with `recipient = Recipient.PermanentYouControl` and
  * [TriggerBinding.ANY], which matches any `DealsDamageEvent` whose recipient is a permanent this creature's
  * controller controls, including the creature itself). It deals that much damage to any target, sourced
  * from itself (`damageSource = EffectTarget.Self`) so it reads as "**this creature** deals…". Each damage
@@ -52,7 +52,7 @@ private val IllTemperedLonerFront = card("Ill-Tempered Loner") {
         "Daybound (If a player casts no spells during their own turn, it becomes night next turn.)"
 
     triggeredAbility {
-        trigger = Triggers.TakesDamage
+        trigger = Triggers.self.isDealtDamage()
         val victim = target("any target", AnyTarget())
         effect = Effects.DealDamage(
             amount = DynamicAmounts.triggerDamageAmount(),
@@ -89,10 +89,7 @@ private val HowlpackAvenger = card("Howlpack Avenger") {
         "Nightbound (If a player casts at least two spells during their own turn, it becomes day next turn.)"
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            recipient = Recipient.PermanentYouControl,
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a().dealsDamage(Recipient.PermanentYouControl)
         val victim = target("any target", AnyTarget())
         effect = Effects.DealDamage(
             amount = DynamicAmounts.triggerDamageAmount(),

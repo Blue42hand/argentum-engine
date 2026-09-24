@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Jecht, Reluctant Guardian // Braska's Final Aeon
@@ -78,7 +79,7 @@ private val JechtReluctantGuardianFront = card("Jecht, Reluctant Guardian") {
 
     // Whenever Jecht deals combat damage to a player, you may exile-and-return-transformed.
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.May(Effects.ExileAndReturnTransformed())
     }
 

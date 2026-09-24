@@ -27,7 +27,7 @@ val TeyoDiamondbladeMage = card("Teyo, Diamondblade Mage") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target("permanent you control", Targets.PermanentYouControl)
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.DEATHTOUCH, permanent),

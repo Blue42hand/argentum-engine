@@ -50,11 +50,7 @@ val BusterSword = card("Buster Sword") {
     }
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.Combat,
-            recipient = Recipient.AnyPlayer,
-            binding = TriggerBinding.ATTACHED
-        )
+        trigger = Triggers.attached.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.Pipeline {
             // Capture "that damage" before drawing, so the drawn card can't alter the cap.
             val combatDamage = storeNumber(DynamicAmounts.triggerDamageAmount())

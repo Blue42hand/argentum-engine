@@ -71,7 +71,7 @@ val RestlessCottage = card("Restless Cottage") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val exiled = target(
             "target card in a graveyard",
             TargetObject(optional = true, filter = TargetFilter.CardInGraveyard),

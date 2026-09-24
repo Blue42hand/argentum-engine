@@ -28,7 +28,7 @@ val NetworkDisruptor = card("Network Disruptor") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("permanent to tap", TargetPermanent())
         effect = Effects.Tap(t)
         description = "When this creature enters, tap target permanent."

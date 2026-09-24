@@ -35,7 +35,7 @@ val ReigningVictor = card("Reigning Victor") {
     mobilize(1)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature to get +1/+0 and gain indestructible", Targets.Creature)
         effect = Effects.ModifyStats(1, 0, creature)
             .then(Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature))

@@ -37,7 +37,7 @@ val PyreswipeHawk = card("Pyreswipe Hawk") {
     keywords(Keyword.FLYING, Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ModifyStats(
             power = DynamicAmounts.battlefield(
                 Player.You,
@@ -49,7 +49,7 @@ val PyreswipeHawk = card("Pyreswipe Hawk") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Expend(6)
+        trigger = Triggers.you.expends(6)
         val artifact = target(
             "up to one target artifact",
             TargetPermanent(optional = true, filter = TargetFilter.Artifact)

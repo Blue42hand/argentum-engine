@@ -44,7 +44,7 @@ val TheRegalia = card("The Regalia") {
     keywords(Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Pipeline {
             val (_, allRevealed) = gatherUntilMatch(GameObjectFilter.Land)
             reveal(allRevealed)

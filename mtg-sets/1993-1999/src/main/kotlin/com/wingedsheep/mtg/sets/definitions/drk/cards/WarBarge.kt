@@ -42,7 +42,7 @@ val WarBarge = card("War Barge") {
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.ISLANDWALK, creature),
             Effects.CreateDelayedTrigger(
-                trigger = Triggers.LeavesBattlefield,
+                trigger = Triggers.self.leaves(),
                 watchedTarget = EffectTarget.Self,
                 effect = Effects.Destroy(creature, noRegenerate = true),
                 expiry = DelayedTriggerExpiry.EndOfTurn,

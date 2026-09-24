@@ -31,7 +31,7 @@ val StrongboxRaider = card("Strongbox Raider") {
         "of your library. Choose one of them. Until the end of your next turn, you may play that card."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.YouAttackedThisTurn
         effect = Effects.Pipeline {
             val exiled = gather(CardSource.TopOfLibrary(2))

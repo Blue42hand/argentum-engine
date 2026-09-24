@@ -2,19 +2,16 @@ package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantMayCastFromLinkedExile
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Maralen, Fae Ascendant
@@ -49,13 +46,7 @@ val MaralenFaeAscendant = card("Maralen, Fae Ascendant") {
         .withAnyOfSubtypes(listOf(Subtype("Elf"), Subtype("Faerie")))
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = ZoneChangeEvent(
-                filter = elfOrFaerieYouControl,
-                to = Zone.BATTLEFIELD
-            ),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(elfOrFaerieYouControl).enters()
         val opponent = target("opponent", TargetOpponent())
         effect = Effects.Pipeline {
             val exiled = gather(CardSource.TopOfLibrary(2, opponent.asPlayer))

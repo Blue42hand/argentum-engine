@@ -35,7 +35,7 @@ val SurgicalSuiteHospitalRoom = card("Surgical Suite // Hospital Room") {
             "less from your graveyard to the battlefield."
 
         triggeredAbility {
-            trigger = Triggers.OnDoorUnlocked
+            trigger = Triggers.self.doorUnlocked()
             val t = target(
                 "target creature card with mana value 3 or less",
                 TargetObject(filter = TargetFilter.CreatureInYourGraveyard.manaValueAtMost(3))
@@ -52,7 +52,7 @@ val SurgicalSuiteHospitalRoom = card("Surgical Suite // Hospital Room") {
         oracleText = "Whenever you attack, put a +1/+1 counter on target attacking creature."
 
         triggeredAbility {
-            trigger = Triggers.YouAttack
+            trigger = Triggers.you.attacks()
             val attacker = target("target attacking creature", Targets.AttackingCreature)
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, attacker)
             description = "Whenever you attack, put a +1/+1 counter on target attacking creature."

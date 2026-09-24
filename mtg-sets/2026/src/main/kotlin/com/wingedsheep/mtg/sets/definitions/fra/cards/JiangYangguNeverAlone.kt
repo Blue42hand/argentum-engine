@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 val JiangYangguNeverAlone = card("Jiang Yanggu, Never Alone") {
     manaCost = "{3}{G}"
@@ -19,7 +20,7 @@ val JiangYangguNeverAlone = card("Jiang Yanggu, Never Alone") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 3,
             toughness = 3,
@@ -33,7 +34,7 @@ val JiangYangguNeverAlone = card("Jiang Yanggu, Never Alone") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Token.youControl()),
             Effects.Untap(EffectTarget.IterationEntity)

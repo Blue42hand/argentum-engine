@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Diary of Dreams
@@ -25,7 +26,7 @@ val DiaryOfDreams = card("Diary of Dreams") {
         "{5}, {T}: Draw a card. This ability costs {1} less to activate for each page counter on this artifact."
 
     triggeredAbility {
-        trigger = Triggers.YouCastInstantOrSorcery
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         effect = Effects.AddCounters(CounterType.PAGE, 1, EffectTarget.Self)
     }
 

@@ -47,7 +47,7 @@ val UnidentifiedHovership = card("Unidentified Hovership") {
 
     // ETB: exile up to one target creature with toughness 5 or less, linked to this source.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "up to one target creature with toughness 5 or less",
             TargetCreature(optional = true, filter = TargetFilter.Creature.toughnessAtMost(5))
@@ -57,7 +57,7 @@ val UnidentifiedHovership = card("Unidentified Hovership") {
 
     // LTB: each owner of a card exiled with this Vehicle manifests dread.
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ForEachPlayer(
             players = Player.OwnersOfLinkedExile,
             effects = Patterns.Library.manifestDread().effects,

@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Abigale, Poet Laureate // Heroic Stanza — Secrets of Strixhaven #170
@@ -39,7 +40,7 @@ val AbigalePoetLaureate = card("Abigale, Poet Laureate") {
 
     // Whenever you cast a creature spell, Abigale becomes prepared.
     triggeredAbility {
-        trigger = Triggers.YouCastCreature
+        trigger = Triggers.you.casts(GameObjectFilter.Creature)
         effect = Effects.BecomePrepared(EffectTarget.Self)
     }
 

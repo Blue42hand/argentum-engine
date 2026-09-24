@@ -22,7 +22,7 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
  * library for a Plains card and put it onto the battlefield tapped. Then if an opponent controls
  * more lands than you, repeat this process once. If you search your library this way, shuffle.
  *
- * The enters ability is a [Triggers.EntersBattlefield] triggered ability with an intervening-if
+ * The enters ability is a `Triggers.self.enters()` triggered ability with an intervening-if
  * ([CardBuilder] `interveningIf`) of [Conditions.OpponentControlsMoreLands] — checked both as
  * the trigger goes on the stack and again as it resolves (CR 603.4). Each "process" is an optional
  * ([Effects.May]) `searchLibrary` for a Plains card straight onto the battlefield tapped, which
@@ -56,7 +56,7 @@ val ClaimJumper = card("Claim Jumper") {
     )
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.OpponentControlsMoreLands
         effect = Effects.Composite(
             listOf(

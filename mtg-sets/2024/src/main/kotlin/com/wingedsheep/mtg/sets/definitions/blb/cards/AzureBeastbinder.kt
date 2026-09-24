@@ -45,7 +45,7 @@ val AzureBeastbinder = card("Azure Beastbinder") {
 
     // Whenever this creature attacks, up to one target loses abilities + base 2/2 if creature
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val t = target(
             "artifact, creature, or planeswalker an opponent controls",
             TargetObject(

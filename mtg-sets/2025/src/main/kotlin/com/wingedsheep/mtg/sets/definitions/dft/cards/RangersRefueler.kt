@@ -29,7 +29,7 @@ val RangersRefueler = card("Rangers' Refueler") {
         "Crew 2"
 
     triggeredAbility {
-        trigger = Triggers.YouActivateExhaustAbility
+        trigger = Triggers.you.activatesAbility(exhaust = true)
         effect = Effects.DrawCards(1)
     }
 

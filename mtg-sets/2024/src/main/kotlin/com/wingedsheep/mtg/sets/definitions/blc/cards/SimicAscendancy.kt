@@ -11,6 +11,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Simic Ascendancy
@@ -40,7 +42,7 @@ val SimicAscendancy = card("Simic Ascendancy") {
     }
 
     triggeredAbility {
-        trigger = Triggers.PlusOneCountersPlacedOnYourCreature
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).getsCounters(CounterType.PLUS_ONE_PLUS_ONE)
         effect = Effects.AddDynamicCounters(
             counterType = CounterType.GROWTH,
             amount = DynamicAmounts.triggerCountersPlaced(),
@@ -49,7 +51,7 @@ val SimicAscendancy = card("Simic Ascendancy") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.countersOnSelf(CounterType.GROWTH),
             ComparisonOperator.GTE,

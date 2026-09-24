@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Ashiok, Wicked Manipulator
@@ -47,7 +48,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *  - The −2 tokens carry a triggered ability whose intervening "if" (CR 603.4) reuses
  *    [Conditions.CardsPutIntoExileThisTurn], the game-wide `CARDS_PUT_INTO_EXILE` turn tracker
  *    built for Ennis, Debate Moderator. Ashiok's own static ability and +1 both feed it, and so
- *    does an opponent's exiling. `Triggers.BeginCombat` is already "at the beginning of combat on
+ *    does an opponent's exiling. `Triggers.you.beginningOf(Step.BEGIN_COMBAT)` is already "at the beginning of combat on
  *    your turn" (a `StepEvent(BEGIN_COMBAT, Player.You)`), so the tokens only check on your turn.
  *  - The −7's X is the total mana value of cards *you own* in exile — the engine keys the exile
  *    zone by owner, so `DynamicAmounts.zone(Player.You, Zone.EXILE).sumManaValue()` is exactly
@@ -94,8 +95,7 @@ val AshiokWickedManipulator = card("Ashiok, Wicked Manipulator") {
             creatureTypes = setOf("Nightmare"),
             triggeredAbilities = listOf(
                 TriggeredAbility.create(
-                    trigger = Triggers.BeginCombat.event,
-                    binding = Triggers.BeginCombat.binding,
+                    trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT),
                     interveningIf = Conditions.CardsPutIntoExileThisTurn(),
                     effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                     descriptionOverride = "At the beginning of combat on your turn, if a card was " +

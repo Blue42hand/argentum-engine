@@ -37,7 +37,7 @@ val ChitteringHost = card("Chittering Host") {
     toughness = 6
     keywords(Keyword.HASTE, Keyword.MENACE)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
             Effects.Composite(

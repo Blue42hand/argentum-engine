@@ -31,7 +31,7 @@ val AphettoVulture = card("Aphetto Vulture") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         optional = true
         val t = target("target", TargetObject(
             filter = TargetFilter(

@@ -20,7 +20,7 @@ val CurseMarredDemon = card("Curse-Marred Demon") {
     keywords(Keyword.FLYING, Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Patterns.Library.searchLibrary(),
             Patterns.Hand.discardRandom(1)

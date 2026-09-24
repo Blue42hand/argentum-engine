@@ -31,7 +31,7 @@ val FistsOfIronwood = card("Fists of Ironwood") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             count = 2,
             power = 1,

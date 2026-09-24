@@ -28,7 +28,7 @@ val YdwenEfreet = card("Ydwen Efreet") {
     oracleText = "Whenever this creature blocks, flip a coin. If you lose the flip, remove this creature from combat and it can't block this turn. Creatures it was blocking that had become blocked by only this creature this combat become unblocked."
 
     triggeredAbility {
-        trigger = Triggers.Blocks
+        trigger = Triggers.self.blocks()
         effect = Effects.FlipCoin(
             lostEffect = Effects
                 .RemoveFromCombat(EffectTarget.Self, unblockSoleBlockedAttackers = true)

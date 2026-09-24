@@ -31,7 +31,7 @@ val IntimidationCampaign = card("Intimidation Campaign") {
         "and/or cards in their graveyards is a crime.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             listOf(
                 Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
@@ -44,7 +44,7 @@ val IntimidationCampaign = card("Intimidation Campaign") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouCommitCrime
+        trigger = Triggers.you.commitsCrime()
         effect = Effects.May(Effects.ReturnToHand(EffectTarget.Self))
         description = "Whenever you commit a crime, you may return this enchantment to its owner's hand."
     }

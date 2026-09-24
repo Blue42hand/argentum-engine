@@ -29,7 +29,7 @@ val DisruptorWanderglyph = card("Disruptor Wanderglyph") {
     power = 3
     toughness = 4
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val t = target(
             "target",
             TargetObject(filter = TargetFilter(GameObjectFilter.Any.ownedByOpponent(), zone = Zone.GRAVEYARD))

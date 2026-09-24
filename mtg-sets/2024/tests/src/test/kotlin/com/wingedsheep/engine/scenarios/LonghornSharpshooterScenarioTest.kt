@@ -15,7 +15,7 @@ import com.wingedsheep.engine.core.Outcome
  *
  *   "When this card becomes plotted, it deals 2 damage to any target."
  *
- * Exercises the SELF-bound [com.wingedsheep.sdk.dsl.Triggers.BecomesPlotted] trigger paired with
+ * Exercises the SELF-bound `Triggers.self.becomesPlotted()` trigger paired with
  * an "any target" damage effect whose source is the card sitting face up in exile (never on the
  * battlefield). Paying the plot cost (CR 718) fires the trigger.
  */

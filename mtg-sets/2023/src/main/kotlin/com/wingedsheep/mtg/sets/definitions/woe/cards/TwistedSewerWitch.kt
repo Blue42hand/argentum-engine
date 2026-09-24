@@ -43,7 +43,7 @@ val TwistedSewerWitch = card("Twisted Sewer-Witch") {
         "loses 1 life.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = woeRatToken().then(
             Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.withSubtype("Rat").youControl()),

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
@@ -35,11 +34,7 @@ val NecromanticThirst = card("Necromantic Thirst") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.Combat,
-            recipient = Recipient.AnyPlayer,
-            binding = TriggerBinding.ATTACHED,
-        )
+        trigger = Triggers.attached.dealsCombatDamage(Recipient.AnyPlayer)
         val t = target("target creature card in your graveyard", Targets.CreatureCardInYourGraveyard)
         effect = Effects.May(Effects.ReturnToHandFromGraveyard(t))
     }

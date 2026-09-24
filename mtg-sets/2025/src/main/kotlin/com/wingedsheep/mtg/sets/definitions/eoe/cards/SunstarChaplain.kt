@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Sunstar Chaplain
@@ -36,7 +37,7 @@ val SunstarChaplain = card("Sunstar Chaplain") {
         "{2}, Remove a +1/+1 counter from a creature you control: Tap target artifact or creature."
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.tapped()).count(),
             ComparisonOperator.GTE,

@@ -45,7 +45,7 @@ val ErthaJoFrontierMentor = card("Ertha Jo, Frontier Mentor") {
         "You may choose new targets for the copy."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,
@@ -64,7 +64,7 @@ val ErthaJoFrontierMentor = card("Ertha Jo, Frontier Mentor") {
     }
 
     triggeredAbility {
-        trigger = Triggers.youActivateAbilityTargeting(Recipient.CreatureOrPlayer)
+        trigger = Triggers.you.activatesAbility(targeting = Recipient.CreatureOrPlayer)
         effect = Effects.CopyTargetSpellOrAbility(EffectTarget.TriggeringEntity)
     }
 

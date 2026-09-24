@@ -51,7 +51,7 @@ val StingBilbosSword = card("Sting, Bilbo's Sword") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target("target opponent", TargetOpponent())
         val creature = target(
             "up to one target creature you control",

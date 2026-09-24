@@ -28,7 +28,7 @@ val ShopkeepersBane = card("Shopkeeper's Bane") {
     toughness = 2
     keywords(Keyword.TRAMPLE)
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.GainLife(2)
     }
     metadata {

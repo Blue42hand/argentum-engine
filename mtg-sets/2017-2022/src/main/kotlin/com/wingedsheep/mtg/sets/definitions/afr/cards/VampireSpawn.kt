@@ -27,7 +27,7 @@ val VampireSpawn = card("Vampire Spawn") {
     power = 2
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)),
             Effects.GainLife(2)

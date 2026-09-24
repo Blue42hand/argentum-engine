@@ -44,7 +44,7 @@ class NonLandOnlyMayPlayPermissionTest : ScenarioTestBase() {
             power = 1
             toughness = 1
             triggeredAbility {
-                trigger = Triggers.EntersBattlefield
+                trigger = Triggers.self.enters()
                 effect = Effects.Composite(
                     listOf(
                         GatherCardsEffect(
@@ -68,7 +68,7 @@ class NonLandOnlyMayPlayPermissionTest : ScenarioTestBase() {
             power = 1
             toughness = 1
             triggeredAbility {
-                trigger = Triggers.EntersBattlefield
+                trigger = Triggers.self.enters()
                 effect = Effects.Composite(
                     listOf(
                         GatherCardsEffect(

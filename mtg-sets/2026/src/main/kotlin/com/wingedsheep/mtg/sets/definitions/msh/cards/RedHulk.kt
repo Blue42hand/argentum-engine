@@ -22,7 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOther
  * Implementation notes:
  *  - "Enrage" is an ability word (italic flavor, no rules meaning), so it lives in the trigger's
  *    description rather than as a keyword — the Raphael, Ninja Destroyer precedent.
- *    [Triggers.TakesDamage] is the SELF-bound "is dealt damage" trigger, any source, combat or not.
+ *    `Triggers.self.isDealtDamage()` is the SELF-bound "is dealt damage" trigger, any source, combat or not.
  *  - "put a +1/+1 counter on him. When you do, …" is a [ReflexiveTriggerEffect] with
  *    `optional = false`: the counter is mandatory, and placing it creates a reflexive triggered
  *    ability (CR 603.12) that chooses its target as it goes on the stack. That ordering matters —
@@ -47,7 +47,7 @@ val RedHulk = card("Red Hulk") {
     keywords(Keyword.REACH, Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.TakesDamage
+        trigger = Triggers.self.isDealtDamage()
         effect = Effects.ReflexiveTrigger(
             // "put a +1/+1 counter on him"
             action = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),

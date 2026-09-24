@@ -37,6 +37,11 @@ class FacadeBoundaryTest : FunSpec({
         // amount also take an Int, so a constant needs no wrapper at all.
         Regex("""\bDynamicAmount\.[A-Z]""") to "DynamicAmounts.* (or an Int / an operator)",
         Regex("""(?<![\w.])Compare\s*\(""") to "Conditions.CompareAmounts(...)",
+        // A trigger is a subject and a verb; the subject (self / attached / a / another / oneOrMore /
+        // a player) fixes the binding, so a card never spells one.
+        Regex("""(?<![\w.])TriggerSpec\s*\(""") to "Triggers.<subject>.<verb>()",
+        Regex("""\bTriggerBinding\.""") to "the Triggers subject (self / attached / a(…) / another(…))",
+        Regex("""\.copy\(\s*binding\s*=""") to "the Triggers subject (self / attached / a(…) / another(…))",
     )
 
     /**

@@ -27,7 +27,7 @@ val FlightOfFancy = card("Flight of Fancy") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(2)
     }
 

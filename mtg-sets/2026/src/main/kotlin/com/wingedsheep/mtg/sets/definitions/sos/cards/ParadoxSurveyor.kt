@@ -37,7 +37,7 @@ val ParadoxSurveyor = card("Paradox Surveyor") {
     keywords(Keyword.REACH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val looked = gather(CardSource.TopOfLibrary(5))
             val (kept, rest) = chooseUpToSplit(

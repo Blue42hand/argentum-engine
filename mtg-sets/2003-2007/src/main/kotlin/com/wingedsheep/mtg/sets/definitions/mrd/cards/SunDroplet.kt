@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Sun Droplet — Mirrodin #249
@@ -17,7 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * At the beginning of each upkeep, you may remove a charge counter from this artifact.
  * If you do, you gain 1 life.
  *
- * "Whenever you're dealt damage" names no source, so it is [Triggers.YouAreDealtDamage] — every
+ * "Whenever you're dealt damage" names no source, so it is `Triggers.you.isDealtDamage()` — every
  * source counts: a creature in combat, a burn spell, another artifact. "That many" reads the
  * damage off the trigger context ([ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT]), so one 5-damage hit
  * banks five counters and each instance of damage triggers separately.
@@ -37,7 +38,7 @@ val SunDroplet = card("Sun Droplet") {
         "If you do, you gain 1 life."
 
     triggeredAbility {
-        trigger = Triggers.YouAreDealtDamage
+        trigger = Triggers.you.isDealtDamage()
         effect = Effects.AddDynamicCounters(
             counterType = CounterType.CHARGE,
             amount = DynamicAmounts.triggerDamageAmount(),
@@ -46,7 +47,7 @@ val SunDroplet = card("Sun Droplet") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         effect = Effects.If(
             condition = Conditions.SourceHasCounter(CounterType.CHARGE),
             then = Effects.May(

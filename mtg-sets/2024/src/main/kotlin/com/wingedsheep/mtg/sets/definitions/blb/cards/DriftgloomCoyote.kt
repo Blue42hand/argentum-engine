@@ -36,7 +36,7 @@ val DriftgloomCoyote = card("Driftgloom Coyote") {
 
     // ETB: exile target opponent creature until this leaves + conditional +1/+1 counter
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "creature an opponent controls",
             TargetCreature(filter = TargetFilter(com.wingedsheep.sdk.scripting.GameObjectFilter.Creature.opponentControls()))
@@ -50,7 +50,7 @@ val DriftgloomCoyote = card("Driftgloom Coyote") {
 
     // LTB: return exiled card
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

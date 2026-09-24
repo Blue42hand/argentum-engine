@@ -27,7 +27,7 @@ val BezaTheBoundingSpring = card("Beza, the Bounding Spring") {
     oracleText = "When Beza enters, create a Treasure token if an opponent controls more lands than you. You gain 4 life if an opponent has more life than you. Create two 1/1 blue Fish creature tokens if an opponent controls more creatures than you. Draw a card if an opponent has more cards in hand than you."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.If(
             condition = Conditions.OpponentControlsMoreLands,
             then = Effects.CreateTreasure()

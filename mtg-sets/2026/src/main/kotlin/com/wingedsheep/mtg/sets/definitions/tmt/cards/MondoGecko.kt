@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Mondo Gecko
@@ -44,7 +45,7 @@ val MondoGecko = card("Mondo Gecko") {
     }
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.DrawCards(DynamicAmounts.colorsAmongPermanents())
         description = "Whenever Mondo Gecko deals combat damage to a player, draw a card for each color among permanents you control."
     }

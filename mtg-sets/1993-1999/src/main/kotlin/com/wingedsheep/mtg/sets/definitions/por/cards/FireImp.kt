@@ -27,7 +27,7 @@ val FireImp = card("Fire Imp") {
     power = 2
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.DealDamage(2, t)
     }

@@ -20,7 +20,7 @@ val VinelasherAdept = card("Vinelasher Adept") {
     keywords(Keyword.REACH)
     keywordAbility(KeywordAbility.basicLandcycling("{2}"))
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature", Targets.Creature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, creature)
     }

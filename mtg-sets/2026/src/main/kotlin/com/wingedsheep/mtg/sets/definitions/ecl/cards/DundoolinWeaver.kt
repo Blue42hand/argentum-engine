@@ -28,7 +28,7 @@ val DundoolinWeaver = card("Dundoolin Weaver") {
     oracleText = "When this creature enters, if you control three or more creatures, return target permanent card from your graveyard to your hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.ControlCreaturesAtLeast(3)
         val permanentCard = target(
             "permanent card from your graveyard",

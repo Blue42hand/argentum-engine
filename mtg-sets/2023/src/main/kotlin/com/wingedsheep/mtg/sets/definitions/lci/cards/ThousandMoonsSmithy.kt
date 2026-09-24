@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Thousand Moons Smithy // Barracks of the Thousand (The Lost Caverns of Ixalan)
@@ -79,7 +80,7 @@ private val ThousandMoonsSmithyFront = card("Thousand Moons Smithy") {
         "creatures you control. If you do, transform Thousand Moons Smithy."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = gnomeSoldierToken()
         description = "When Thousand Moons Smithy enters, create a white Gnome Soldier artifact " +
             "creature token with \"This token's power and toughness are each equal to the number " +
@@ -87,7 +88,7 @@ private val ThousandMoonsSmithyFront = card("Thousand Moons Smithy") {
     }
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         val tapCost = Effects.Pipeline {
             val smithyTapPool = gather(
                 CardSource.ControlledPermanents(
@@ -136,10 +137,7 @@ private val BarracksOfTheThousand = card("Barracks of the Thousand") {
     }
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.Artifact or GameObjectFilter.Creature,
-            requires = setOf(SpellCastPredicate.PaidWithManaFromSource),
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.Artifact or GameObjectFilter.Creature, requires = setOf(SpellCastPredicate.PaidWithManaFromSource))
         effect = gnomeSoldierToken()
         description = "Whenever you cast an artifact or creature spell using mana produced by " +
             "Barracks of the Thousand, create a white Gnome Soldier artifact creature token."

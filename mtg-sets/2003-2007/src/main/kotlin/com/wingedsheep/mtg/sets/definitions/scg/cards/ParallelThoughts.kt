@@ -27,7 +27,7 @@ val ParallelThoughts = card("Parallel Thoughts") {
         "If you would draw a card, you may instead put the top card of the pile you exiled into your hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val searchable = gather(
                 CardSource.FromZone(Zone.LIBRARY, Player.You, GameObjectFilter.Any),

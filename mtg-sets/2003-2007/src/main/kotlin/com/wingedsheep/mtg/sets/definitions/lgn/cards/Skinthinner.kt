@@ -26,7 +26,7 @@ val Skinthinner = card("Skinthinner") {
     oracleText = "Morph {3}{B}{B} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen this creature is turned face up, destroy target nonblack creature. It can't be regenerated."
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val t = target("nonblack creature", TargetCreature(filter = TargetFilter.Creature.notColor(Color.BLACK)))
         effect = Effects.CantBeRegenerated(t) then
                 Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)

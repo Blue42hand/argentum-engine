@@ -28,7 +28,7 @@ val SinkholeSurveyor = card("Sinkhole Surveyor") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Composite(
             listOf(
                 Effects.LoseLife(1, EffectTarget.Controller),

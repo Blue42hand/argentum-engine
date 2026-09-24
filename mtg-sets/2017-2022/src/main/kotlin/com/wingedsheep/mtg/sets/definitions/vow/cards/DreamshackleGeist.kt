@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Dreamshackle Geist
@@ -52,7 +53,7 @@ val DreamshackleGeist = card("Dreamshackle Geist") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = Effects.Modal(
             modes = listOf(
                 mode("Tap target creature") {

@@ -64,7 +64,7 @@ val IronManMasterOfMachines = card("Iron Man, Master of Machines") {
     // Whenever Iron Man attacks, if an artifact entered the battlefield under your control this
     // turn, draw a card.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         interveningIf = Conditions.ArtifactEnteredBattlefieldThisTurn
         effect = Effects.DrawCards(1)
         description = "Whenever Iron Man attacks, if an artifact entered the battlefield under " +

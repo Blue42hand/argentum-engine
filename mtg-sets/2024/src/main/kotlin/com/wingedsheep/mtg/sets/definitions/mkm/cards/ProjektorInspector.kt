@@ -47,10 +47,7 @@ val ProjektorInspector = card("Projektor Inspector") {
 
     // Whenever this creature or another Detective you control enters …
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Creature.withSubtype(Subtype.DETECTIVE).youControl(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.withSubtype(Subtype.DETECTIVE).youControl()).enters()
         effect = Effects.May(Patterns.Hand.loot())
         description = "Whenever this creature or another Detective you control enters, you may " +
             "draw a card. If you do, discard a card."
@@ -58,9 +55,7 @@ val ProjektorInspector = card("Projektor Inspector") {
 
     // … and whenever a Detective you control is turned face up.
     triggeredAbility {
-        trigger = Triggers.CreatureTurnedFaceUp(
-            filter = GameObjectFilter.Creature.withSubtype(Subtype.DETECTIVE)
-        )
+        trigger = Triggers.you.permanentTurnedFaceUp(GameObjectFilter.Creature.withSubtype(Subtype.DETECTIVE))
         effect = Effects.May(Patterns.Hand.loot())
         description = "Whenever a Detective you control is turned face up, you may draw a card. " +
             "If you do, discard a card."

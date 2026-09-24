@@ -30,7 +30,7 @@ val MoonsnareSpecialist = card("Moonsnare Specialist") {
     ninjutsu("{2}{U}")
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("creature to bounce", TargetCreature(optional = true))
         effect = Effects.ReturnToHand(t)
         description = "When this creature enters, return up to one target creature to its owner's hand."

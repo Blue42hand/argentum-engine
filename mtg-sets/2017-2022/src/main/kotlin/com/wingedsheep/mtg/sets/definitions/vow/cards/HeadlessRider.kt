@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -32,11 +31,7 @@ val HeadlessRider = card("Headless Rider") {
         "black Zombie creature token."
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Permanent.withSubtype("Zombie").youControl().nontoken(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Permanent.withSubtype("Zombie").youControl().nontoken()).dies()
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,

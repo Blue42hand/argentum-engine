@@ -33,7 +33,7 @@ val BiblioplexTomekeeper = card("Biblioplex Tomekeeper") {
         "• Target creature becomes unprepared."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Modal(
             modes = listOf(
                 mode("Target creature becomes prepared") {

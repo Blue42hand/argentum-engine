@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Rabaroo Troop
@@ -32,7 +33,7 @@ val RabarooTroop = card("Rabaroo Troop") {
     // Landfall: whenever a land you control enters, this creature gains flying
     // until end of turn and you gain 1 life.
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self),
             Effects.GainLife(1),

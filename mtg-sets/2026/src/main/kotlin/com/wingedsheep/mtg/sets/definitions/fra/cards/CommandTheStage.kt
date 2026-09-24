@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * "Each *other* Wizard token" excludes the Cadet this spell just made, so the Wizard tokens are
@@ -47,7 +48,7 @@ val CommandTheStage = card("Command the Stage") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         triggerZone = Zone.GRAVEYARD
         interveningIf = Conditions.OpponentWasDealtNoncombatDamageLastTurn
         effect = Effects.Move(EffectTarget.Self, Zone.HAND, fromZone = Zone.GRAVEYARD)

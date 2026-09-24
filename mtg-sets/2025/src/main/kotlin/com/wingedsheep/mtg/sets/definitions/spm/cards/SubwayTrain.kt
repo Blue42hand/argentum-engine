@@ -29,7 +29,7 @@ val SubwayTrain = card("Subway Train") {
         "Crew 2 (Tap any number of creatures you control with total power 2 or more: This Vehicle becomes an artifact creature until end of turn.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.MayPay(
             cost = ManaCost.parse("{G}"),
             then = Patterns.Library.searchLibrary(

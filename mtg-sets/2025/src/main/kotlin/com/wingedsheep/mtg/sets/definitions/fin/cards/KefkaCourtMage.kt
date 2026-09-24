@@ -48,7 +48,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *  - The {8} ability is a mana-only, sorcery-speed activated ability. Each opponent sacrifices a
  *    permanent of *their* choice (edict — the sacrificing player chooses). Transform targets Self,
  *    so a dead Kefka simply doesn't transform.
- *  - Back "an opponent loses life during your turn" = [Triggers.AnOpponentLosesLife] gated by
+ *  - Back "an opponent loses life during your turn" = `Triggers.anOpponent.losesLife()` gated by
  *    `triggerRestriction = Conditions.IsYourTurn` (fire-time only), drawing life-lost-many cards.
  */
 private val KefkaRulerOfRuin = card("Kefka, Ruler of Ruin") {
@@ -64,7 +64,7 @@ private val KefkaRulerOfRuin = card("Kefka, Ruler of Ruin") {
 
     // Whenever an opponent loses life during your turn, you draw that many cards.
     triggeredAbility {
-        trigger = Triggers.AnOpponentLosesLife
+        trigger = Triggers.anOpponent.losesLife()
         triggerRestriction = Conditions.IsYourTurn
         effect = Effects.DrawCards(
             DynamicAmounts.triggerLifeLost()
@@ -118,13 +118,13 @@ private val KefkaCourtMageFrontFace = card("Kefka, Court Mage") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = discardAndDraw
         description = "Whenever Kefka enters, each player discards a card. Then you draw a card " +
             "for each card type among cards discarded this way."
     }
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = discardAndDraw
         description = "Whenever Kefka attacks, each player discards a card. Then you draw a card " +
             "for each card type among cards discarded this way."

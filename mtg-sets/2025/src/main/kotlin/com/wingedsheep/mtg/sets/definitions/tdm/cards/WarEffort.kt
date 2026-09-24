@@ -37,7 +37,7 @@ val WarEffort = card("War Effort") {
     // Whenever you attack, create a 1/1 red Warrior token that's tapped and attacking,
     // sacrificed at the next end step.
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         effect = Effects.CreateToken(
             count = 1,
             power = 1,

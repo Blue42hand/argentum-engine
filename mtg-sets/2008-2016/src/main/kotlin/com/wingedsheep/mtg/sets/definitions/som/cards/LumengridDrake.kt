@@ -35,7 +35,7 @@ val LumengridDrake = card("Lumengrid Drake") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.YouControlAtLeast(3, GameObjectFilter.Artifact)
         val victim = target("target creature", Targets.Creature)
         effect = Effects.ReturnToHand(victim)

@@ -24,7 +24,7 @@ val ChromeshellCrab = card("Chromeshell Crab") {
     oracleText = "Morph {4}{U} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen this creature is turned face up, you may exchange control of target creature you control and target creature an opponent controls."
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         optional = true
         val yours = target("creature you control", Targets.CreatureYouControl)
         val theirs = target("creature an opponent controls", Targets.CreatureOpponentControls)

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Sothera, the Supervoid
@@ -35,7 +36,7 @@ val SotheraTheSupervoid = card("Sothera, the Supervoid") {
         "At the beginning of your end step, if a player controls no creatures, sacrifice Sothera, then put a creature card exiled with it onto the battlefield under your control with two additional +1/+1 counters on it."
 
     triggeredAbility {
-        trigger = Triggers.YourCreatureDies
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dies()
         effect = Effects.ForEachPlayer(
             players = Player.EachOpponent,
             Effects.Pipeline {
@@ -53,7 +54,7 @@ val SotheraTheSupervoid = card("Sothera, the Supervoid") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = AnyCondition(
             listOf(
                 Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature, negate = true),

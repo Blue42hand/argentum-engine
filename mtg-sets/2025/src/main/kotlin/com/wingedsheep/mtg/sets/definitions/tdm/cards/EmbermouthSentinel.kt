@@ -37,7 +37,7 @@ val EmbermouthSentinel = card("Embermouth Sentinel") {
         "card onto the battlefield tapped instead."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.If(
             condition = Conditions.ControlCreatureOfType(Subtype.DRAGON),
             // Control a Dragon: put the basic land onto the battlefield tapped instead.

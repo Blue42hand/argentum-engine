@@ -22,7 +22,7 @@ val HornedCheetah = card("Horned Cheetah") {
     oracleText = "Whenever this creature deals damage, you gain that much life."
 
     triggeredAbility {
-        trigger = Triggers.DealsDamage
+        trigger = Triggers.self.dealsDamage()
         effect = Effects.GainLife(
             amount = DynamicAmounts.triggerDamageAmount()
         )

@@ -26,7 +26,7 @@ val BadgermoleCub = card("Badgermole Cub") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val land = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
         effect = Effects.Earthbend(1, land)
         description = "When this creature enters, earthbend 1."

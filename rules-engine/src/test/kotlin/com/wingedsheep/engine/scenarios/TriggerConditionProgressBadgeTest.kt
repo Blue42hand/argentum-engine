@@ -83,7 +83,7 @@ class TriggerConditionProgressBadgeTest : FunSpec({
         oracleText = "At the beginning of your end step, if you control a creature and you have 25 " +
             "or more life, you gain 1 life."
         triggeredAbility {
-            trigger = Triggers.YourEndStep
+            trigger = Triggers.you.beginningOf(Step.END)
             interveningIf = Conditions.All(
                 Conditions.YouControlAtLeast(1, GameObjectFilter.Creature),
                 Conditions.LifeAtLeast(25)

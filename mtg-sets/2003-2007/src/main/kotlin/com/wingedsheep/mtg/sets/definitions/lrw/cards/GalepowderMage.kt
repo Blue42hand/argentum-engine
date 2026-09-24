@@ -45,7 +45,7 @@ val GalepowderMage = card("Galepowder Mage") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val creature = target(
             "another target creature",
             TargetCreature(filter = TargetFilter.OtherCreature)

@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Glimmer Seeker
@@ -30,7 +31,7 @@ val GlimmerSeeker = card("Glimmer Seeker") {
 
     // Survival — intervening-if "this creature is tapped" at the postcombat main beginning.
     triggeredAbility {
-        trigger = Triggers.YourPostcombatMain
+        trigger = Triggers.you.beginningOf(Step.POSTCOMBAT_MAIN)
         interveningIf = Conditions.SourceIsTapped
         effect = Effects.If(
             condition = Conditions.YouControl(GameObjectFilter.Creature.withSubtype("Glimmer")),

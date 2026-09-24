@@ -42,7 +42,7 @@ val InfernalVessel = card("Infernal Vessel") {
         "its owner's control with two +1/+1 counters on it. It's a Demon in addition to its other types."
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         interveningIf = Conditions.Not(Conditions.TriggeringEntityHadSubtype(Subtype.DEMON.value))
         effect = Effects.Composite(
             Effects.Move(

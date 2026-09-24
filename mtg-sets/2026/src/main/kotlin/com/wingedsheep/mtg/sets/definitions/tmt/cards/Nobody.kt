@@ -26,7 +26,7 @@ val Nobody = card("Nobody") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val artifact = target(
             "other artifact you control",
             TargetPermanent(optional = true, filter = TargetFilter.Artifact.youControl().other())

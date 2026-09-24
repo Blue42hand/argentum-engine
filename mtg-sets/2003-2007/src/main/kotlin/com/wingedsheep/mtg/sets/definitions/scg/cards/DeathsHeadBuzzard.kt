@@ -27,7 +27,7 @@ val DeathsHeadBuzzard = card("Death's-Head Buzzard") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreatures,
             effect = Effects.ModifyStats(-1, -1, EffectTarget.IterationEntity)

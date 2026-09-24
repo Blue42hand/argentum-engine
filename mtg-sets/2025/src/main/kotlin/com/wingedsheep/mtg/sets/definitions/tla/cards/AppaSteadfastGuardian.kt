@@ -41,7 +41,7 @@ val AppaSteadfastGuardian = card("Appa, Steadfast Guardian") {
     keywords(Keyword.FLASH, Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target(
             "any number of other target nonland permanents you control",
             TargetOther(baseRequirement = TargetPermanent(unlimited = true, filter = TargetFilter.NonlandPermanent.youControl()))
@@ -50,7 +50,7 @@ val AppaSteadfastGuardian = card("Appa, Steadfast Guardian") {
     }
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(requires = setOf(SpellCastPredicate.CastFromZone(Zone.EXILE)))
+        trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.CastFromZone(Zone.EXILE)))
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
@@ -47,10 +46,7 @@ val BloomvineRegent = card("Bloomvine Regent") {
 
     // Whenever this creature or another Dragon you control enters, you gain 3 life.
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Creature.youControl().withSubtype(Subtype.DRAGON),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl().withSubtype(Subtype.DRAGON)).enters()
         effect = Effects.GainLife(3)
         description = "Whenever this creature or another Dragon you control enters, you gain 3 life."
     }

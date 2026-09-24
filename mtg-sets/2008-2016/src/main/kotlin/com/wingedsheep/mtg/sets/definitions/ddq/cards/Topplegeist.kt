@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Topplegeist
@@ -37,7 +38,7 @@ val Topplegeist = card("Topplegeist") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target creature an opponent controls",
             TargetCreature(filter = TargetFilter.Creature.opponentControls()),
@@ -46,7 +47,7 @@ val Topplegeist = card("Topplegeist") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EachOpponentUpkeep
+        trigger = Triggers.anOpponent.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.Delirium(4)
         val t = target(
             "target creature that player controls",

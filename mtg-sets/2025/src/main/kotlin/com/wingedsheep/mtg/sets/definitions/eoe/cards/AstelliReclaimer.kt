@@ -46,7 +46,7 @@ val AstelliReclaimer = card("Astelli Reclaimer") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val card = target(
             "noncreature, nonland permanent card with mana value X or less in your graveyard",
             TargetObject(

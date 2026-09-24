@@ -42,7 +42,7 @@ val ServantOfTheScale = card("Servant of the Scale") {
     // When this creature dies, put its +1/+1 counters on target creature you control.
     triggeredAbility {
         val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.MoveAllLastKnownCounters(creatureYouControl)
     }
 

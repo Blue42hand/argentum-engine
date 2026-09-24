@@ -33,7 +33,7 @@ val BoilerbilgesRipper = card("Boilerbilges Ripper") {
         "When you do, this creature deals 2 damage to any target."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Effects.Pipeline {
                 val permanentToSacrifice = selectTarget(

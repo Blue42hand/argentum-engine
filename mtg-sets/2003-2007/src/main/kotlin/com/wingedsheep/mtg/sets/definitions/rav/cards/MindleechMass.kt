@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 val MindleechMass = card("Mindleech Mass") {
     manaCost = "{5}{U}{B}{B}"
@@ -22,7 +23,7 @@ val MindleechMass = card("Mindleech Mass") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         optional = true
         effect = Effects.Pipeline {
             run(Effects.LookAtHand(EffectTarget.PlayerRef(Player.TriggeringPlayer)))

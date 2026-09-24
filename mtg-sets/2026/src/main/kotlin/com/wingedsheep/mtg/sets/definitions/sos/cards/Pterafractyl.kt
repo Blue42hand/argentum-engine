@@ -32,7 +32,7 @@ val Pterafractyl = card("Pterafractyl") {
     keywords(Keyword.FLYING)
     replacementEffect(EntersWithDynamicCounters(count = DynamicAmounts.xValue()))
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(2)
     }
     metadata {

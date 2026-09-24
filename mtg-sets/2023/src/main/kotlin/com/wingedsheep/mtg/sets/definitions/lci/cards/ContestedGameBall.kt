@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Contested Game Ball (The Lost Caverns of Ixalan)
@@ -21,7 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Implementation:
  *  - The combat-damage trigger uses the defensive batch trigger
- *    [Triggers.OneOrMoreCreaturesDealCombatDamageToYou] (Witch-king of Angmar's idiom): it fires
+ *    `Triggers.oneOrMore(filter).dealCombatDamageToYou()` (Witch-king of Angmar's idiom): it fires
  *    at most once per combat-damage batch no matter how many creatures connected (matching the
  *    ruling "triggers only once ... no matter how many creatures deal combat damage to you at the
  *    same time"). "You" re-binds to whoever currently controls the artifact each combat.
@@ -50,7 +51,7 @@ val ContestedGameBall = card("Contested Game Ball") {
         "more point counters on it, sacrifice it and create a Treasure token."
 
     triggeredAbility {
-        trigger = Triggers.OneOrMoreCreaturesDealCombatDamageToYou()
+        trigger = Triggers.oneOrMore(GameObjectFilter.Creature).dealCombatDamageToYou()
         effect = Effects.Composite(
             Effects.GainControlByActivePlayer(EffectTarget.Self),
             Effects.Untap(EffectTarget.Self),

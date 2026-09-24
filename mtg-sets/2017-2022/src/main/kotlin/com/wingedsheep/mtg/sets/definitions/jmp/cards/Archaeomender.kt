@@ -24,7 +24,7 @@ val Archaeomender = card("Archaeomender") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val card = target(
             "target artifact card in your graveyard",
             TargetObject(filter = TargetFilter.ArtifactInYourGraveyard),

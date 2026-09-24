@@ -15,7 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  * Flying
  * When this creature dies, exile target permanent.
  *
- * [Triggers.Dies] plus a mandatory [Effects.Exile] on a [Targets.Permanent] — any permanent,
+ * `Triggers.self.dies()` plus a mandatory [Effects.Exile] on a [Targets.Permanent] — any permanent,
  * including one you control and including lands.
  */
 val ArchonOfJustice = card("Archon of Justice") {
@@ -29,7 +29,7 @@ val ArchonOfJustice = card("Archon of Justice") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val t = target("target permanent", Targets.Permanent)
         effect = Effects.Exile(t)
     }

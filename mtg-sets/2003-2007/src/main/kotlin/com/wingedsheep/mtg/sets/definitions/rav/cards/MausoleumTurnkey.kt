@@ -41,7 +41,7 @@ val MausoleumTurnkey = card("Mausoleum Turnkey") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target creature card of an opponent's choice from your graveyard",
             TargetObject(

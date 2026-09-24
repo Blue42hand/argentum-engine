@@ -17,7 +17,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
  * turn. Untap it.
  * Crew 1
  *
- * The attack trigger is the once-per-combat group trigger ([Triggers.YouAttack]), not an "attacks"
+ * The attack trigger is the once-per-combat group trigger (`Triggers.you.attacks()`), not an "attacks"
  * trigger on this permanent — it fires whenever you declare any attacker, even when this Vehicle
  * isn't among them (or isn't a creature at all). "Untap it" refers back to the same target, so all
  * three parts share one target requirement.
@@ -34,7 +34,7 @@ val HauntedHellride = card("Haunted Hellride") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.Composite(
             Effects.ModifyStats(1, 0, creature),

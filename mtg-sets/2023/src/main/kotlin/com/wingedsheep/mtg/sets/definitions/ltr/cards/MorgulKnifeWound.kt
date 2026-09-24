@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Morgul-Knife Wound
@@ -38,8 +39,7 @@ val MorgulKnifeWound = card("Morgul-Knife Wound") {
     staticAbility {
         ability = GrantTriggeredAbility(
             TriggeredAbility.create(
-                trigger = Triggers.YourUpkeep.event,
-                binding = Triggers.YourUpkeep.binding,
+                trigger = Triggers.you.beginningOf(Step.UPKEEP),
                 effect = Effects.PayOrSuffer(
                     cost = Costs.pay.PayLife(2),
                     suffer = Effects.Exile(EffectTarget.Self)

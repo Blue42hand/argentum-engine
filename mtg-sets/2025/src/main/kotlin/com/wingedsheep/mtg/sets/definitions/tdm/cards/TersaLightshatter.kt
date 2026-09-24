@@ -37,7 +37,7 @@ val TersaLightshatter = card("Tersa Lightshatter") {
 
     // ETB loot run backwards: discard up to two, then draw that many (declining discards draws zero).
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Hand.discardUpToThenDraw(2)
         description = "When Tersa Lightshatter enters, discard up to two cards, then draw that many cards."
     }
@@ -45,7 +45,7 @@ val TersaLightshatter = card("Tersa Lightshatter") {
     // Attack trigger gated by an intervening "if" (seven or more cards in your graveyard). On
     // resolution, exile a random card from your graveyard and grant permission to play it this turn.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         interveningIf = Conditions.CardsInGraveyardAtLeast(7)
         effect = Effects.Pipeline {
             val graveyardExile = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.You))

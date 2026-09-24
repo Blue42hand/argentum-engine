@@ -38,7 +38,7 @@ val FlopsieBumisBuddy = card("Flopsie, Bumi's Buddy") {
         "Each creature you control with power 4 or greater can't be blocked by more than one creature."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),

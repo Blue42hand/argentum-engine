@@ -33,7 +33,7 @@ val LeonardoCuttingEdge = card("Leonardo, Cutting Edge") {
     keywords(Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         effect = Effects.AddCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 1,

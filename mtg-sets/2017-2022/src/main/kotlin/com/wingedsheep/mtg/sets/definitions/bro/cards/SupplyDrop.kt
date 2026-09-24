@@ -27,7 +27,7 @@ val SupplyDrop = card("Supply Drop") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.CreatureYouControl))
         effect = Effects.ModifyStats(2, 2, t)
     }

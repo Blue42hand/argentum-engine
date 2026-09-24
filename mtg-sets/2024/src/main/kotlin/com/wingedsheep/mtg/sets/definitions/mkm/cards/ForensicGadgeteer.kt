@@ -42,7 +42,7 @@ val ForensicGadgeteer = card("Forensic Gadgeteer") {
         "reduce the mana in that cost to less than one mana."
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Artifact)
+        trigger = Triggers.you.casts(GameObjectFilter.Artifact)
         effect = Effects.Investigate()
         description = "Whenever you cast an artifact spell, investigate."
     }

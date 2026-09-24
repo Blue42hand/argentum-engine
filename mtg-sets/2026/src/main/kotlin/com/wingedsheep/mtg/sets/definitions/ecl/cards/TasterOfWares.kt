@@ -45,7 +45,7 @@ val TasterOfWares = card("Taster of Wares") {
     oracleText = "When this creature enters, target opponent reveals X cards from their hand, where X is the number of Goblins you control. You choose one of those cards. That player exiles it. If an instant or sorcery card is exiled this way, you may cast it for as long as you control this creature, and mana of any type can be spent to cast that spell."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponent = target("opponent", TargetOpponent())
         description = "When this creature enters, target opponent reveals X cards from their hand, " +
             "where X is the number of Goblins you control. You choose one of those cards. " +

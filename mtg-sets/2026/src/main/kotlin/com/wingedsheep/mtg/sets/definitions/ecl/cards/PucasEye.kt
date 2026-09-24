@@ -29,7 +29,7 @@ val PucasEye = card("Puca's Eye") {
         "{3}, {T}: Draw a card. Activate only if there are five colors among permanents you control."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.DrawCards(1),
             Effects.ChooseColorForTarget(EffectTarget.Self)

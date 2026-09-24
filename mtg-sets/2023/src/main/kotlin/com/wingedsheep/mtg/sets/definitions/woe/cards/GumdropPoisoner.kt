@@ -44,7 +44,7 @@ val GumdropPoisoner = card("Gumdrop Poisoner") {
     keywords(Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(optional = true, filter = TargetFilter.Creature))
         effect = Effects.ModifyStats(
             -DynamicAmounts.lifeGainedThisTurn(),

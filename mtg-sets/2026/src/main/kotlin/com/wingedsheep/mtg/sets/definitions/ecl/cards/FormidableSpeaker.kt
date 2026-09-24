@@ -31,7 +31,7 @@ val FormidableSpeaker = card("Formidable Speaker") {
         "{1}, {T}: Untap another target permanent."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             effect = Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),

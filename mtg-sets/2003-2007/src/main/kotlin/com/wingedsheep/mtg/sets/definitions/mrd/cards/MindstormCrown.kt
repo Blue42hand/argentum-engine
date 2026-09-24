@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Mindstorm Crown — Mirrodin #207 (canonical printing)
@@ -35,7 +36,7 @@ val MindstormCrown = card("Mindstorm Crown") {
         "the beginning of this turn. If you had a card in hand, this artifact deals 1 damage to you."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.If(
             condition = Conditions.YouHadNoCardsInHandAtTurnStart,
             then = Effects.DrawCards(1),

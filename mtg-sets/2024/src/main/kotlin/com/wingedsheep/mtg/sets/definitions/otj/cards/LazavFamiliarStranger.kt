@@ -46,7 +46,7 @@ val LazavFamiliarStranger = card("Lazav, Familiar Stranger") {
         "opponents, anything they control, and/or cards in their graveyards is a crime.)"
 
     triggeredAbility {
-        trigger = Triggers.YouCommitCrime
+        trigger = Triggers.you.commitsCrime()
         oncePerTurn = true
         effect = Effects.Pipeline {
             // Put a +1/+1 counter on Lazav.

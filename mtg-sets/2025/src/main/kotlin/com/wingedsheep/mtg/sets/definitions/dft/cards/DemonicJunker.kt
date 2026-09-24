@@ -69,7 +69,7 @@ val DemonicJunker = card("Demonic Junker") {
     keywordAbility(KeywordAbility.Affinity(CardType.ARTIFACT))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
 
         // "for each player, destroy up to one target creature that player controls"
         // (two-player rendering: one optional slot per player — see KDoc).

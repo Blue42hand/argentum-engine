@@ -29,7 +29,7 @@ val BloodFountain = card("Blood Fountain") {
         "graveyard to your hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateBlood(1)
     }
 

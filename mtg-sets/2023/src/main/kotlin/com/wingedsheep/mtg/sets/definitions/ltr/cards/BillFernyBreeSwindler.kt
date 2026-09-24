@@ -34,7 +34,7 @@ val BillFernyBreeSwindler = card("Bill Ferny, Bree Swindler") {
         "• Target opponent gains control of target Horse you control. If they do, remove Bill Ferny from combat and create three Treasure tokens."
 
     triggeredAbility {
-        trigger = Triggers.BecomesBlocked
+        trigger = Triggers.self.becomesBlocked()
         effect = ModalEffect.chooseOne(
             // Mode 1: Create a Treasure token.
             Mode.noTarget(

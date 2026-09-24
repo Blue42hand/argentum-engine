@@ -27,7 +27,7 @@ val AlaniaDivergentStorm = card("Alania, Divergent Storm") {
     toughness = 5
 
     triggeredAbility {
-        trigger = Triggers.YouCastSpell
+        trigger = Triggers.you.casts()
         interveningIf = Conditions.Any(
             Conditions.YouCastFirstSpellOfTypeThisTurn(GameObjectFilter.Instant),
             Conditions.YouCastFirstSpellOfTypeThisTurn(GameObjectFilter.Sorcery),

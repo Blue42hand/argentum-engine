@@ -22,7 +22,7 @@ val Cacophodon = card("Cacophodon") {
     toughness = 5
 
     triggeredAbility {
-        trigger = Triggers.TakesDamage
+        trigger = Triggers.self.isDealtDamage()
         val permanent = target("target permanent", Targets.Permanent)
         effect = Effects.Untap(permanent)
         description = "Enrage — Whenever this creature is dealt damage, untap target permanent."

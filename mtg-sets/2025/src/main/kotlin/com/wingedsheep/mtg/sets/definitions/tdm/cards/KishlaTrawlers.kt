@@ -31,7 +31,7 @@ val KishlaTrawlers = card("Kishla Trawlers") {
         "When you do, return target instant or sorcery card from your graveyard to your hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Effects.Pipeline {
                 val exiledCreature = selectTarget(Targets.CreatureCardInYourGraveyard)

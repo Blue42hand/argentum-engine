@@ -30,7 +30,7 @@ val CatOwl = card("Cat-Owl") {
     toughness = 3
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val t = target("target", TargetPermanent(filter = TargetFilter.CreatureOrArtifact))
         effect = Effects.Untap(t)
     }

@@ -37,7 +37,7 @@ val JetFreedomFighter = card("Jet, Freedom Fighter") {
         "When Jet dies, put a +1/+1 counter on each of up to two target creatures."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target creature an opponent controls",
             TargetCreature(filter = TargetFilter.CreatureOpponentControls)
@@ -48,7 +48,7 @@ val JetFreedomFighter = card("Jet, Freedom Fighter") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         target(
             "up to two target creatures",
             TargetCreature(count = 2, optional = true)

@@ -26,7 +26,7 @@ val OrderOfTheGoldenCricket = card("Order of the Golden Cricket") {
     oracleText = "Whenever this creature attacks, you may pay {W}. If you do, it gains flying until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.MayPay(
             cost = Effects.PayMana("{W}"),
             then = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self),

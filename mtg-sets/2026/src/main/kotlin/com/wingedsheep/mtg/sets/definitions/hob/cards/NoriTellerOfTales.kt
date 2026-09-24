@@ -28,7 +28,7 @@ val NoriTellerOfTales = card("Nori, Teller of Tales") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.attacking()))
         effect = Effects.GrantKeyword(Keyword.FIRST_STRIKE, t)
     }

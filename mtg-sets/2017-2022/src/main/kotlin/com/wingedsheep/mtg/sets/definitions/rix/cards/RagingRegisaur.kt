@@ -23,7 +23,7 @@ val RagingRegisaur = card("Raging Regisaur") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val victim = target("any target", Targets.Any)
         effect = Effects.DealDamage(1, victim)
         description = "Whenever this creature attacks, it deals 1 damage to any target."

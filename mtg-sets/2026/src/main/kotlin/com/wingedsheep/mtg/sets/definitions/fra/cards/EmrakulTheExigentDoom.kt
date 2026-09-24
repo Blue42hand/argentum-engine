@@ -51,7 +51,7 @@ val EmrakulTheExigentDoom = card("Emrakul, the Exigent Doom") {
         "is cast from exile. You may cast this card for as long as it remains exiled."
 
     triggeredAbility {
-        trigger = Triggers.WhenYouCastThisSpell()
+        trigger = Triggers.self.isCast()
         effect = Patterns.Group.untapGroup(GroupFilter(GameObjectFilter.Land.youControl()))
     }
 

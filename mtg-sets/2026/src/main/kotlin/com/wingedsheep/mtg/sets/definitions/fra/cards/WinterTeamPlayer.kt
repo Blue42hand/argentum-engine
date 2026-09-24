@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 val WinterTeamPlayer = card("Winter, Team Player") {
     manaCost = "{4}{R}"
@@ -19,7 +20,7 @@ val WinterTeamPlayer = card("Winter, Team Player") {
     keywords(Keyword.CONVOKE)
 
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.ForEachInGroup(GroupFilter.AllCreaturesYouControl, Effects.ModifyStats(1, 0, EffectTarget.IterationEntity))
     }
 

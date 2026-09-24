@@ -27,7 +27,7 @@ val Embersmith = card("Embersmith") {
     oracleText = "Whenever you cast an artifact spell, you may pay {1}. If you do, this creature deals 1 damage to any target."
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(GameObjectFilter.Artifact)
+        trigger = Triggers.you.casts(GameObjectFilter.Artifact)
         val t = target("target", Targets.Any)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),

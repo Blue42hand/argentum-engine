@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.MustAttack
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 private val HanweirWatchkeepFront = card("Hanweir Watchkeep") {
     manaCost = "{2}{R}"
@@ -22,7 +23,7 @@ private val HanweirWatchkeepFront = card("Hanweir Watchkeep") {
 
     keywords(Keyword.DEFENDER)
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.spellsCastLastTurn(), ComparisonOperator.EQ, 0
         )
@@ -49,7 +50,7 @@ private val BaneOfHanweir = card("Bane of Hanweir") {
 
     staticAbility { ability = MustAttack() }
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.spellsCastLastTurn(), ComparisonOperator.GTE, 2
         )

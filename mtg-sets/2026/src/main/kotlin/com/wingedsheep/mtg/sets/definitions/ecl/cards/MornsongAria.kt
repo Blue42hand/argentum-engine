@@ -9,12 +9,11 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PreventDraw
 import com.wingedsheep.sdk.scripting.PreventLifeGain
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Mornsong Aria
@@ -36,10 +35,7 @@ val MornsongAria = card("Mornsong Aria") {
     replacementEffect(PreventLifeGain(appliesTo = EventPattern.LifeGainEvent(player = Player.Each)))
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = EventPattern.StepEvent(Step.DRAW, Player.Each),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.anyPlayer.beginningOf(Step.DRAW)
         effect = Effects.LoseLife(3, target = EffectTarget.PlayerRef(Player.TriggeringPlayer))
             .then(
                 Effects.Pipeline {

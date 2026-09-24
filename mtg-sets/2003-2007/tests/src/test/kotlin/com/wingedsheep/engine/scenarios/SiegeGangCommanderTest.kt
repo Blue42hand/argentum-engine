@@ -41,7 +41,7 @@ class SiegeGangCommanderTest : FunSpec({
         oracleText = "When Siege-Gang Commander enters the battlefield, create three 1/1 red Goblin creature tokens.\n{1}{R}, Sacrifice a Goblin: Siege-Gang Commander deals 2 damage to any target."
 
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             effect = CreateTokenEffect(
                 count = 3,
                 power = 1,

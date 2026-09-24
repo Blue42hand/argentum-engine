@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Gate to the Aether
@@ -26,7 +27,7 @@ val GateToTheAether = card("Gate to the Aether") {
         "put it onto the battlefield."
 
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         effect = Effects.Pipeline {
             val top = gather(CardSource.TopOfLibrary(1, Player.TriggeringPlayer))
             reveal(top)

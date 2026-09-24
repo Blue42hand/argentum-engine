@@ -29,7 +29,7 @@ val GempalmPolluter = card("Gempalm Polluter") {
     keywordAbility(KeywordAbility.cycling("{B}{B}"))
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         val player = target("target player", Targets.Player)
         effect = Effects.May(
             Effects.LoseLife(

@@ -31,7 +31,7 @@ val Faultgrinder = card("Faultgrinder") {
     evoke = "{4}{R}"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val land = target("target land", Targets.Land)
         effect = Effects.Destroy(land)
         description = "destroy target land."

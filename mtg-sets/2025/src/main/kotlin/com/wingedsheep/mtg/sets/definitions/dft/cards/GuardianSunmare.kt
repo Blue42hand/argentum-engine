@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.WardCost
  * with mana value 3 or less, put it onto the battlefield, then shuffle.
  * Saddle 4
  *
- * "Attacks while saddled" is [Triggers.Attacks] plus [Conditions.SourceIsSaddled] as the
+ * "Attacks while saddled" is `Triggers.self.attacks()` plus [Conditions.SourceIsSaddled] as the
  * `triggerRestriction` — the saddled state is read when the trigger would fire, i.e. as attackers are
  * declared, which is exactly the ruling ("will trigger only if that creature was saddled when it was
  * declared as an attacker"). Saddled lasts until end of turn and nothing removes it mid-turn, so the
@@ -43,7 +43,7 @@ val GuardianSunmare = card("Guardian Sunmare") {
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         triggerRestriction = Conditions.SourceIsSaddled
         effect = Patterns.Library.searchLibrary(
             filter = GameObjectFilter.NonlandPermanent.manaValueAtMost(3),

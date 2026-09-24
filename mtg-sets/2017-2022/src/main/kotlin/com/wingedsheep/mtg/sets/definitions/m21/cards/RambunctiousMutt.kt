@@ -25,7 +25,7 @@ val RambunctiousMutt = card("Rambunctious Mutt") {
     oracleText = "When this creature enters, destroy target artifact or enchantment an opponent controls."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target",
             TargetPermanent(filter = TargetFilter.ArtifactOrEnchantment.opponentControls())

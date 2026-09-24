@@ -43,14 +43,14 @@ val ElugeTheShoreslessSea = card("Eluge, the Shoreless Sea") {
 
     // Whenever Eluge enters the battlefield, put a flood counter on target land
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val land = target("target land", Targets.Land)
         effect = Effects.AddCounters(CounterType.FLOOD, 1, land)
     }
 
     // Whenever Eluge attacks, put a flood counter on target land
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val land = target("target land", Targets.Land)
         effect = Effects.AddCounters(CounterType.FLOOD, 1, land)
     }

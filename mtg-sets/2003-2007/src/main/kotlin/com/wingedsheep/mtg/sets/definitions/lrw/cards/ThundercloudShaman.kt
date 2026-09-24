@@ -37,7 +37,7 @@ val ThundercloudShaman = card("Thundercloud Shaman") {
         "control to each non-Giant creature."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.notSubtype(Subtype.GIANT)),
             Effects.DealDamage(

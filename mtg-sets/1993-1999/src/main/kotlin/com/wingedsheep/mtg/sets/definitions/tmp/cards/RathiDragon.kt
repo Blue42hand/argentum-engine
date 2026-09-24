@@ -30,7 +30,7 @@ val RathiDragon = card("Rathi Dragon") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Sacrifice(GameObjectFilter.Land.withSubtype(Subtype.MOUNTAIN), 2),
             suffer = SacrificeSelfEffect

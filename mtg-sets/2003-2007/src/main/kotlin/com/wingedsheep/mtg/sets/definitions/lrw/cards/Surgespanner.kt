@@ -36,7 +36,7 @@ val Surgespanner = card("Surgespanner") {
         "target permanent to its owner's hand."
 
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
+        trigger = Triggers.self.becomesTapped()
         val permanent = target("target permanent", Targets.Permanent)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}{U}"),

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -48,7 +47,7 @@ val FearOfBurningAlive = card("Fear of Burning Alive") {
         "of damage to target creature that player controls."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DealDamage(
             amount = 4,
             target = EffectTarget.PlayerRef(Player.EachOpponent),
@@ -57,12 +56,7 @@ val FearOfBurningAlive = card("Fear of Burning Alive") {
     }
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.NonCombat,
-            recipient = Recipient.Opponent,
-            sourceFilter = GameObjectFilter.Any.youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Any.youControl()).dealsDamage(Recipient.Opponent, damageType = DamageType.NonCombat)
         interveningIf = Conditions.Delirium()
         val t = target(
             "target",

@@ -44,7 +44,7 @@ val FloodpitsDrowner = card("Floodpits Drowner") {
 
     // When this creature enters, tap target creature an opponent controls and put a stun counter on it.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.Composite(
             Effects.Tap(t),

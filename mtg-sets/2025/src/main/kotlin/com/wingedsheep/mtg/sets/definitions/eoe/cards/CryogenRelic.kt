@@ -24,13 +24,13 @@ val CryogenRelic = card("Cryogen Relic") {
 
     // ETB trigger: draw a card
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(1)
     }
 
     // Leaves battlefield trigger: draw a card
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.DrawCards(1)
     }
 

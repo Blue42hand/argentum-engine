@@ -46,7 +46,7 @@ val Sandworm = card("Sandworm") {
     keywords(Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val land = target("target land", Targets.Land)
         effect = Effects.Destroy(land) then Effects.May(
             effect = Effects.Pipeline {

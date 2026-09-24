@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamagePredicate
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
@@ -34,12 +33,7 @@ val ImodaneThePyrohammer = card("Imodane, the Pyrohammer") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            recipient = Recipient.AnyCreature,
-            sourceFilter = GameObjectFilter.InstantOrSorcery.youControl(),
-            binding = TriggerBinding.ANY,
-            requires = setOf(DamagePredicate.SourceSoleTargetIsRecipient),
-        )
+        trigger = Triggers.a(GameObjectFilter.InstantOrSorcery.youControl()).dealsDamage(Recipient.AnyCreature, requires = setOf(DamagePredicate.SourceSoleTargetIsRecipient))
         effect = Effects.DealDamage(
             amount = DynamicAmounts.triggerDamageAmount(),
             target = EffectTarget.PlayerRef(Player.EachOpponent),

@@ -22,7 +22,7 @@ val YavimayaSapherd = card("Yavimaya Sapherd") {
     oracleText = "When this creature enters, create a 1/1 green Saproling creature token."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             count = 1,
             power = 1,

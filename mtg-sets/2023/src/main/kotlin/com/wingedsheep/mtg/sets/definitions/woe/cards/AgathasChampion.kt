@@ -51,7 +51,7 @@ val AgathasChampion = card("Agatha's Champion") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.WasBargained
         val foe = target(
             "up to one target creature you don't control",

@@ -38,8 +38,8 @@ class LifeLossTriggerTest : FunSpec({
             triggeredAbilities = listOf(
                 TriggeredAbility(
                     id = AbilityId("LifeLossTriggerTest_1"),
-                    trigger = Triggers.YouLoseLife.event,
-                    binding = Triggers.YouLoseLife.binding,
+                    trigger = Triggers.you.losesLife().event,
+                    binding = Triggers.you.losesLife().binding,
                     effect = DrawCardsEffect(1)
                 )
             )
@@ -54,8 +54,8 @@ class LifeLossTriggerTest : FunSpec({
             triggeredAbilities = listOf(
                 TriggeredAbility(
                     id = AbilityId("LifeLossTriggerTest_2"),
-                    trigger = Triggers.YouLoseLife.event,
-                    binding = Triggers.YouLoseLife.binding,
+                    trigger = Triggers.you.losesLife().event,
+                    binding = Triggers.you.losesLife().binding,
                     effect = LoseLifeEffect(
                         amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_LIFE_LOST),
                         target = EffectTarget.PlayerRef(Player.EachOpponent)
@@ -171,8 +171,8 @@ class LifeLossTriggerTest : FunSpec({
                 triggeredAbilities = listOf(
                     TriggeredAbility(
                         id = AbilityId("LifeLossTriggerTest_3"),
-                        trigger = Triggers.AnyPlayerLosesLife.event,
-                        binding = Triggers.AnyPlayerLosesLife.binding,
+                        trigger = Triggers.anyPlayer.losesLife().event,
+                        binding = Triggers.anyPlayer.losesLife().binding,
                         effect = DrawCardsEffect(1)
                     )
                 )

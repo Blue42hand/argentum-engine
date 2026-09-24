@@ -7,13 +7,12 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.PreventDamage
 import com.wingedsheep.sdk.scripting.events.Recipient
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Hostility — Lorwyn #176
@@ -52,10 +51,7 @@ val Hostility = card("Hostility") {
 
     triggeredAbility {
         triggerZone = Zone.GRAVEYARD
-        trigger = TriggerSpec(
-            event = EventPattern.ZoneChangeEvent(to = Zone.GRAVEYARD),
-            binding = TriggerBinding.SELF
-        )
+        trigger = Triggers.self.changesZone(to = Zone.GRAVEYARD)
         // Shuffle even if the card has left the graveyard before this resolves.
         effect = Effects.Move(EffectTarget.Self, Zone.LIBRARY, fromZone = Zone.GRAVEYARD) then
             Effects.ShuffleLibrary()

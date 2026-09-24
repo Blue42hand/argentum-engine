@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.ModeOption
 import com.wingedsheep.sdk.scripting.conditions.SourceChosenModeIs
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Barrensteppe Siege
@@ -64,7 +65,7 @@ val BarrensteppeSiege = card("Barrensteppe Siege") {
 
     // Abzan — At the beginning of your end step, put a +1/+1 counter on each creature you control.
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         triggerRestriction = SourceChosenModeIs("abzan")
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
@@ -79,7 +80,7 @@ val BarrensteppeSiege = card("Barrensteppe Siege") {
     // Mardu — At the beginning of your end step, if a creature died under your control this turn,
     // each opponent sacrifices a creature of their choice.
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = SourceChosenModeIs("mardu")
         effect = Effects.If(
             condition = Conditions.ControlledCreatureDiedThisTurn,

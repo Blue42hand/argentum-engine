@@ -32,7 +32,7 @@ val DarkFavor = card("Dark Favor") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.LoseLife(1, EffectTarget.Controller)
     }
 

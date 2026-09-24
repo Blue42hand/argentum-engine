@@ -29,7 +29,7 @@ val ElvishSoultiller = card("Elvish Soultiller") {
     oracleText = "When Elvish Soultiller dies, choose a creature type. Shuffle all creature cards of that type from your graveyard into your library."
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.Pipeline {
             run(ChooseCreatureTypeEffect)
             val graveyardCreatures = gather(

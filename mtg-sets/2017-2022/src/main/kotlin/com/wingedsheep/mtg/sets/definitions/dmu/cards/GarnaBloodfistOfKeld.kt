@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.dmu.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -8,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -43,11 +41,7 @@ val GarnaBloodfistOfKeld = card("Garna, Bloodfist of Keld") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.youControl(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.OTHER,
-        )
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl()).dies()
         effect = Effects.If(
             condition = Conditions.EntityMatches(
                 EffectTarget.TriggeringEntity,

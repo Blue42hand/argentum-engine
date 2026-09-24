@@ -47,7 +47,7 @@ val FaramirPrinceOfIthilien = card("Faramir, Prince of Ithilien") {
 
     triggeredAbility {
         val opponent = target("target opponent", Targets.Opponent)
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.CreateDelayedTrigger(
             step = Step.END,
             fireOnPlayer = opponent,

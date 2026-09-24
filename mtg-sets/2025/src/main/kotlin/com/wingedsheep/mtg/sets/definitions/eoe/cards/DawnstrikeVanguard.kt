@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Dawnstrike Vanguard
@@ -37,7 +38,7 @@ val DawnstrikeVanguard = card("Dawnstrike Vanguard") {
     keywords(Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.tapped()).count(),
             ComparisonOperator.GTE,

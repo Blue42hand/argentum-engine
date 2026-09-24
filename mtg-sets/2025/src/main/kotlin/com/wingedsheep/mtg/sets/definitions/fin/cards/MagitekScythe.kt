@@ -35,7 +35,7 @@ val MagitekScythe = card("Magitek Scythe") {
         "Equip {2}"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = Effects.May(
             Effects.Composite(

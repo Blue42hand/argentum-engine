@@ -22,7 +22,7 @@ val DaybreakCharger = card("Daybreak Charger") {
     oracleText = "When this creature enters, target creature gets +2/+0 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target creature", Targets.Creature)
         effect = Effects.ModifyStats(2, 0, t)
     }

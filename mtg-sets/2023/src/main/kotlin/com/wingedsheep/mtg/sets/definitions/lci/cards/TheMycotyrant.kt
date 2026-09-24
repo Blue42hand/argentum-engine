@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.CantBlock
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * The Mycotyrant
@@ -56,7 +57,7 @@ val TheMycotyrant = card("The Mycotyrant") {
     )
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.CreateToken(
             count = DynamicAmounts.descendedThisTurn(),
             power = 1,

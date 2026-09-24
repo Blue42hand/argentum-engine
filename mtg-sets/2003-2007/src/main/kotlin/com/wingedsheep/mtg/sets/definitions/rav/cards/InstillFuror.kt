@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Instill Furor — Ravnica: City of Guilds #134 (canonical printing, only printing)
@@ -25,7 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * - "Instill Furor grants a triggered ability that triggers at the end of the *creature's
  *   controller's* turn" (2005-10-01). The granted ability is controlled by whoever controls the
- *   creature, so `Triggers.YourEndStep` reads that player's end step — not the Aura controller's.
+ *   creature, so `Triggers.you.beginningOf(Step.END)` reads that player's end step — not the Aura controller's.
  *   Stealing the creature moves the clock with it.
  * - "Once the ability triggers, nothing that happens to Instill Furor can prevent the ability from
  *   resolving" (2005-10-01). The ability is an independent object on the stack once it triggers;
@@ -50,8 +51,7 @@ val InstillFuror = card("Instill Furor") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.YourEndStep.event,
-                binding = Triggers.YourEndStep.binding,
+                trigger = Triggers.you.beginningOf(Step.END),
                 effect = Effects.If(
                     condition = Conditions.Not(Conditions.SourceAttackedThisTurn),
                     then = Effects.SacrificeTarget(EffectTarget.Self),

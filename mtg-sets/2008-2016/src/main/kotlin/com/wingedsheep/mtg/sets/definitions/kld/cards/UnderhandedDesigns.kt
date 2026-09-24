@@ -36,10 +36,7 @@ val UnderhandedDesigns = card("Underhanded Designs") {
         "{1}{B}, Sacrifice this enchantment: Destroy target creature. Activate only if you control two or more artifacts."
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Artifact.youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Artifact.youControl()).enters()
         effect = Effects.MayPay(
             ManaCost.parse("{1}"),
             Effects.Composite(

@@ -37,7 +37,7 @@ val SoulShackledZombie = card("Soul-Shackled Zombie") {
         "gain 2 life."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target(
             "up to two target cards from a single graveyard",
             TargetObject(

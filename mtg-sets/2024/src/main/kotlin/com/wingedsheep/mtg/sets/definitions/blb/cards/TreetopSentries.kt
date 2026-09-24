@@ -34,7 +34,7 @@ val TreetopSentries = card("Treetop Sentries") {
     // This card creates no such object, and the reflexive spelling also rendered its own prompt as
     // "… When you do, draw a card".
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             effect = Patterns.Mechanic.forage(afterEffect = Effects.DrawCards(1)),
             descriptionOverride = "You may forage",

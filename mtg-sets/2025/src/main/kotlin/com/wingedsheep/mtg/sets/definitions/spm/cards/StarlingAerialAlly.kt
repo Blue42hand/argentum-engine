@@ -25,7 +25,7 @@ val StarlingAerialAlly = card("Starling, Aerial Ally") {
     toughness = 4
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
         effect = Effects.GrantKeyword(Keyword.FLYING, t)
     }

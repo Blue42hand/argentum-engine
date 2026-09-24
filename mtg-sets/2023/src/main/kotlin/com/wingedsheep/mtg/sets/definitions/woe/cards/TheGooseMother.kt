@@ -56,7 +56,7 @@ val TheGooseMother = card("The Goose Mother") {
     replacementEffect(EntersWithDynamicCounters(count = DynamicAmounts.castX()))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateFood(
             DynamicAmounts.castX() divRoundedUp 2
         )
@@ -64,7 +64,7 @@ val TheGooseMother = card("The Goose Mother") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.May(
             Effects.Sacrifice(
                 GameObjectFilter.Artifact.withSubtype("Food"),

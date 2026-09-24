@@ -33,7 +33,7 @@ val KavuMauler = card("Kavu Mauler") {
     toughness = 4
     keywords(Keyword.TRAMPLE)
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ModifyStats(
             DynamicAmounts.battlefield(
                 Player.You,

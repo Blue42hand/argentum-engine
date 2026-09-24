@@ -34,7 +34,7 @@ val SageOfTheFang = card("Sage of the Fang") {
         "a sorcery."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature", Targets.Creature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
         description = "When this creature enters, put a +1/+1 counter on target creature."

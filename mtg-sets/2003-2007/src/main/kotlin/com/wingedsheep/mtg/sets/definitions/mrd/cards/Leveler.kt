@@ -33,7 +33,7 @@ val Leveler = card("Leveler") {
     oracleText = "When this creature enters, exile all cards from your library."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val library = gather(CardSource.FromZone(Zone.LIBRARY, Player.You, GameObjectFilter.Any))
             exile(library)

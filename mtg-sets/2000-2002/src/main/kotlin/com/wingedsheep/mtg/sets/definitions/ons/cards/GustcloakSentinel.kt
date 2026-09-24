@@ -22,7 +22,7 @@ val GustcloakSentinel = card("Gustcloak Sentinel") {
     oracleText = "Whenever Gustcloak Sentinel becomes blocked, you may untap it and remove it from combat."
 
     triggeredAbility {
-        trigger = Triggers.BecomesBlocked
+        trigger = Triggers.self.becomesBlocked()
         effect = Effects.May(
             Effects.Untap(EffectTarget.Self) then Effects.RemoveFromCombat(EffectTarget.Self)
         )

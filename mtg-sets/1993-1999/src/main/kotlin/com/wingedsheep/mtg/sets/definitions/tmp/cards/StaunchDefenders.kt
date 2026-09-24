@@ -25,7 +25,7 @@ val StaunchDefenders = card("Staunch Defenders") {
     power = 3
     toughness = 4
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(4)
     }
     metadata {

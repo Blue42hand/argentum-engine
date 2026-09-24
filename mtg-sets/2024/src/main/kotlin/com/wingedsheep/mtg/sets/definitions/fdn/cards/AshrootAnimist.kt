@@ -31,7 +31,7 @@ val AshrootAnimist = card("Ashroot Animist") {
     toughness = 4
     keywords(Keyword.TRAMPLE)
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val t = target("target", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.TRAMPLE, t),

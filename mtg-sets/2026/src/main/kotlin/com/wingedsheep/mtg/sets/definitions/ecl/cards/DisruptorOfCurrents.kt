@@ -31,7 +31,7 @@ val DisruptorOfCurrents = card("Disruptor of Currents") {
     keywords(Keyword.FLASH, Keyword.CONVOKE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "up to one other target nonland permanent",
             TargetPermanent(

@@ -29,7 +29,7 @@ val MindstabThrull = card("Mindstab Thrull") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.AttacksAndIsntBlocked
+        trigger = Triggers.self.attacksAndIsntBlocked()
         effect = Effects.May(
             Effects.Composite(
                 SacrificeSelfEffect,

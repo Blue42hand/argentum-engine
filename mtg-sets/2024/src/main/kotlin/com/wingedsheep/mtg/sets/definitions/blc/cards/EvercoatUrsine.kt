@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Evercoat Ursine
@@ -49,17 +50,17 @@ val EvercoatUrsine = card("Evercoat Ursine") {
     keywordAbility(KeywordAbility.hideaway(3))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = hideawayThree()
     }
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = hideawayThree()
     }
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.Pipeline {
             val hideawayLinked = gather(CardSource.FromLinkedExile())
             run(Effects.GrantMayPlayFromExile(hideawayLinked))

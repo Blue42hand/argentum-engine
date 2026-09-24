@@ -6,10 +6,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern.OneOrMoreDealCombatDamageToPlayerEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 
 /**
  * Haliya, Ascendant Cadet
@@ -35,14 +32,14 @@ val HaliyaAscendantCadet = card("Haliya, Ascendant Cadet") {
     val counterDescription = "put a +1/+1 counter on target creature you control"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
         description = counterDescription
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val t = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
         description = counterDescription
@@ -52,13 +49,8 @@ val HaliyaAscendantCadet = card("Haliya, Ascendant Cadet") {
     // to a player, draw a card. Batching trigger — fires at most once per combat damage event.
     // The +1/+1 counter must be present at the time damage is dealt (see ruling).
     triggeredAbility {
-        trigger = TriggerSpec(
-            OneOrMoreDealCombatDamageToPlayerEvent(
-                sourceFilter = GameObjectFilter.Creature.youControl()
-                    .withCounter(CounterType.PLUS_ONE_PLUS_ONE)
-            ),
-            TriggerBinding.ANY
-        )
+        trigger = Triggers.oneOrMore(GameObjectFilter.Creature.youControl()
+                    .withCounter(CounterType.PLUS_ONE_PLUS_ONE)).dealCombatDamageToAPlayer()
         effect = Effects.DrawCards(1)
         description = "Whenever one or more creatures you control with +1/+1 counters on them " +
             "deal combat damage to a player, draw a card."

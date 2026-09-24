@@ -30,7 +30,7 @@ val SarumanTheWhite = card("Saruman the White") {
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     triggeredAbility {
-        trigger = Triggers.NthSpellCast(2, Player.You)
+        trigger = Triggers.you.castsNth(2)
         effect = Effects.Amass(2, "Orc")
     }
 

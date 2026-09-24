@@ -30,7 +30,7 @@ val ExplosiveProdigy = card("Explosive Prodigy") {
     keywords(Keyword.VIVID)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val victim = target("creature", Targets.CreatureOpponentControls)
         effect = Effects.DealDamage(
             amount = DynamicAmounts.colorsAmongPermanents(),

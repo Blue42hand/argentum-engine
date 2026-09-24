@@ -70,10 +70,7 @@ val BaronHelmutZemo = card("Baron Helmut Zemo") {
         "this turn and only once each turn.)"
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.Any.withColor(Color.BLACK),
-            requires = setOf(SpellCastPredicate.CastFromZone(Zone.HAND)),
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.Any.withColor(Color.BLACK), requires = setOf(SpellCastPredicate.CastFromZone(Zone.HAND)))
         effect = Effects.Connive()
         description = "Whenever you cast a black spell from your hand, Baron Helmut Zemo connives."
     }

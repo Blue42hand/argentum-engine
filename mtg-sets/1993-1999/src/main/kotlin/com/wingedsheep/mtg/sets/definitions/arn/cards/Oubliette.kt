@@ -31,13 +31,13 @@ val Oubliette = card("Oubliette") {
         "phase out with it. While permanents are phased out, they're treated as though they don't exist.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature", TargetCreature())
         effect = Effects.PhaseOutUntilLeaves(creature, tapOnPhaseIn = true)
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.PhaseInLinkedToSource()
     }
 

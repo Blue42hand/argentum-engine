@@ -37,7 +37,7 @@ val RangersOfIthilien = card("Rangers of Ithilien") {
     keywords(Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "up to one target creature with lesser power",
             TargetCreature(

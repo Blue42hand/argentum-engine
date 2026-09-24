@@ -33,7 +33,7 @@ val GingerbreadHunter = card("Gingerbread Hunter") {
     toughness = 5
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateFood()
     }
 

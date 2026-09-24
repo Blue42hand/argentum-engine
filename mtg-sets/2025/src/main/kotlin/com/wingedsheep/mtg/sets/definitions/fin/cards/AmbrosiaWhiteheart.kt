@@ -34,7 +34,7 @@ val AmbrosiaWhiteheart = card("Ambrosia Whiteheart") {
 
     // When Ambrosia enters, you may return another permanent you control to its owner's hand.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "another permanent you control",
             TargetObject(
@@ -47,7 +47,7 @@ val AmbrosiaWhiteheart = card("Ambrosia Whiteheart") {
 
     // Landfall — Whenever a land you control enters, Ambrosia gets +1/+0 until end of turn.
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = Effects.ModifyStats(1, 0, EffectTarget.Self)
         description = "Landfall — Whenever a land you control enters, Ambrosia Whiteheart gets +1/+0 until end of turn."
     }

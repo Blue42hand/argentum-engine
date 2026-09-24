@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * Whenever you tap an untapped creature an opponent controls, put a +1/+1 counter on target
  * creature you control.
  *
- * The payoff is [Triggers.YouTap] — tap *attribution*, not a plain "becomes tapped" observer: only
+ * The payoff is `Triggers.you.taps(filter, batch)` — tap *attribution*, not a plain "becomes tapped" observer: only
  * a tap this enchantment's controller caused fires it, so an opponent tapping their own creature
  * (attacking, crewing, paying a cost) does nothing. "Untapped" is intrinsic to the trigger: tapping
  * is a transition (CR 603.2f), so an already-tapped creature emits no tap event.
@@ -40,7 +40,7 @@ val SolitarySanctuary = card("Solitary Sanctuary") {
         "creature you control."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val victim = target(
             "target creature an opponent controls",
             TargetCreature(filter = TargetFilter.Creature.opponentControls())
@@ -51,7 +51,7 @@ val SolitarySanctuary = card("Solitary Sanctuary") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouTap(GameObjectFilter.Creature.opponentControls())
+        trigger = Triggers.you.taps(GameObjectFilter.Creature.opponentControls())
         val ally = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, ally)
         description = "Whenever you tap an untapped creature an opponent controls, put a +1/+1 " +

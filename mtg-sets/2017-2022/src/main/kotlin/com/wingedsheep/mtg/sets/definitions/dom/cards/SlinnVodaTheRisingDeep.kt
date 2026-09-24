@@ -31,7 +31,7 @@ val SlinnVodaTheRisingDeep = card("Slinn Voda, the Rising Deep") {
     keywordAbility(KeywordAbility.kicker("{1}{U}"))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.If(
             condition = WasKicked,
             then = Patterns.Group.returnAllToHand(

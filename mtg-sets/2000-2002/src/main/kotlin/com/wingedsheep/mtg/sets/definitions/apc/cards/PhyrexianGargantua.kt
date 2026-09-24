@@ -26,7 +26,7 @@ val PhyrexianGargantua = card("Phyrexian Gargantua") {
     power = 4
     toughness = 4
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.DrawCards(2),
             Effects.LoseLife(2, EffectTarget.Controller)

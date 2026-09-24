@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Duskwatch Recruiter // Krallenhorde Howler (Shadows over Innistrad — the card's earliest
@@ -36,7 +37,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    reveal-to-hand is `ChooseUpTo(1)` so declining is legal), rest to the bottom. Current Oracle
  *    reads "in any order" — the printed SOI wording was "in a random order" — so the remainder
  *    uses [CardOrder.ControllerChooses].
- *  - Both upkeep flips are the standard Werewolf pair: [Triggers.EachUpkeep] with an
+ *  - Both upkeep flips are the standard Werewolf pair: `Triggers.anyPlayer.beginningOf(Step.UPKEEP)` with an
  *    intervening-if on [DynamicAmounts.spellsCastLastTurn] (== 0 front, >= 2 back).
  *  - The back's cost reduction is [ModifySpellCost] over [SpellCostTarget.YouCast]; it applies to
  *    every creature spell its controller casts, not just Werewolves.
@@ -67,7 +68,7 @@ private val DuskwatchRecruiterFront = card("Duskwatch Recruiter") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.spellsCastLastTurn(), ComparisonOperator.EQ, 0
         )
@@ -101,7 +102,7 @@ private val KrallenhordeHowler = card("Krallenhorde Howler") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.spellsCastLastTurn(), ComparisonOperator.GTE, 2
         )

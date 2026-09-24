@@ -27,7 +27,7 @@ val BrokersVeteran = card("Brokers Veteran") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val t = target("target", Targets.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.SHIELD, 1, t)
     }

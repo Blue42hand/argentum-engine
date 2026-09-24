@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Palantír of Orthanc
@@ -34,7 +35,7 @@ val PalantirOfOrthanc = card("Palantír of Orthanc") {
         "mana value of those cards."
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         val opponent = target("target opponent", Targets.Opponent)
 
         val influenceCount = DynamicAmounts.countersOnSelf(CounterType.INFLUENCE)

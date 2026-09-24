@@ -7,9 +7,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.references.Player
@@ -35,7 +33,7 @@ val WarElemental = card("War Elemental") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.If(
             condition = Conditions.CompareAmounts(
                 DynamicAmounts.damageReceivedThisTurn(Player.EachOpponent),
@@ -47,11 +45,7 @@ val WarElemental = card("War Elemental") {
     }
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.Any,
-            recipient = Recipient.Opponent,
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a().dealsDamage(Recipient.Opponent)
         effect = Effects.AddDynamicCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
             amount = DynamicAmounts.triggerDamageAmount(),

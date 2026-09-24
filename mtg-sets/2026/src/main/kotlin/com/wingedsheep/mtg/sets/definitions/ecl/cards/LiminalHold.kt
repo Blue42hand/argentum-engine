@@ -21,7 +21,7 @@ val LiminalHold = card("Liminal Hold") {
     oracleText = "When this enchantment enters, exile up to one target nonland permanent an opponent controls until this enchantment leaves the battlefield. You gain 2 life."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "up to one nonland permanent an opponent controls",
             TargetPermanent(optional = true, filter = TargetFilter.NonlandPermanentOpponentControls)
@@ -31,7 +31,7 @@ val LiminalHold = card("Liminal Hold") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

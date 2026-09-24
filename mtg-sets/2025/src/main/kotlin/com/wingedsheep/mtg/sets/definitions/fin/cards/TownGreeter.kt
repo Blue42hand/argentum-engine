@@ -18,7 +18,7 @@ val TownGreeter = card("Town Greeter") {
     val townFilter = GameObjectFilter.Land.withSubtype("Town")
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val milled = gather(CardSource.TopOfLibrary(4))
             toGraveyard(milled)

@@ -37,7 +37,7 @@ val InvasionSubmersible = card("Invasion Submersible") {
         "Activate each exhaust ability only once.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "up to one other target nonland permanent",
             TargetPermanent(optional = true, filter = TargetFilter.NonlandPermanent.other())

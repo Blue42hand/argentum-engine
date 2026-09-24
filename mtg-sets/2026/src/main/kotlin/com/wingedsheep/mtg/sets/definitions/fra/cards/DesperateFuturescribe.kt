@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Desperate Futurescribe — the scry/surveil check is made as the trigger resolves, and picks
@@ -27,7 +28,7 @@ val DesperateFuturescribe = card("Desperate Futurescribe") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val creature = target("another target creature you control", Targets.OtherCreatureYouControl)
         effect = Effects.If(
             condition = Conditions.ScriedOrSurveiledThisTurn,

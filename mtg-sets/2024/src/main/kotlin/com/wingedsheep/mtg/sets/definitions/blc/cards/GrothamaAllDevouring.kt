@@ -52,7 +52,7 @@ val GrothamaAllDevouring = card("Grothama, All-Devouring") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = grantedTriggeredAbility {
-                trigger = Triggers.Attacks
+                trigger = Triggers.self.attacks()
                 val grothama = target("target grothama", grothamaTarget)
                 effect = Effects.May(Effects.Fight(EffectTarget.Self, grothama))
             },
@@ -61,7 +61,7 @@ val GrothamaAllDevouring = card("Grothama, All-Devouring") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.EachPlayerDrawsForDamageDealtToSource()
     }
 

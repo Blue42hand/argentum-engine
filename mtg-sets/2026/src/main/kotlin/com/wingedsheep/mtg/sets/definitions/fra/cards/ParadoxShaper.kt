@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Paradox Shaper // Omit Variables — does not enter prepared; the upkeep trigger is an
@@ -27,7 +28,7 @@ val ParadoxShaper = card("Paradox Shaper") {
     oracleText = "At the beginning of your upkeep, if this creature isn't prepared, it becomes prepared.\n{2}: Put target card from your graveyard on the bottom of your library."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.Not(Conditions.SourceIsPrepared)
         effect = Effects.BecomePrepared(EffectTarget.Self)
         description = "At the beginning of your upkeep, if this creature isn't prepared, it becomes prepared."

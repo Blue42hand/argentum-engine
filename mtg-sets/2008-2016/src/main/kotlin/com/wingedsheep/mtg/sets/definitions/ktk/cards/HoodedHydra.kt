@@ -38,7 +38,7 @@ val HoodedHydra = card("Hooded Hydra") {
 
     // When this creature dies, create 1/1 green Snake tokens equal to its +1/+1 counters
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.CreateToken(
             count = DynamicAmounts.lastKnownPlusOneCounters(),
             power = 1,

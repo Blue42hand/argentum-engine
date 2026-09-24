@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Odric, Lunarch Marshal — Shadows over Innistrad #31
@@ -21,9 +22,9 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Modeling notes:
  *
- *  - **"Each combat", not "your combat"** — [Triggers.EachCombat] (`Player.Each`), so Odric also
+ *  - **"Each combat", not "your combat"** — `Triggers.anyPlayer.beginningOf(Step.BEGIN_COMBAT)` (`Player.Each`), so Odric also
  *    hands out keywords on opponents' turns. That is the whole point of the card in a blocking
- *    stance; [Triggers.BeginCombat] would silently halve it.
+ *    stance; `Triggers.you.beginningOf(Step.BEGIN_COMBAT)` would silently halve it.
  *  - **The keyword list is one shared loop.** Each of the printed keywords is an independent
  *    "if you control a creature with K, creatures you control gain K" clause, so the card is a
  *    [Effects.Composite] over [SHARED_KEYWORDS] rather than thirteen hand-written blocks. Granting
@@ -78,7 +79,7 @@ val OdricLunarchMarshal = card("Odric, Lunarch Marshal") {
         "skulk, trample, and vigilance."
 
     triggeredAbility {
-        trigger = Triggers.EachCombat
+        trigger = Triggers.anyPlayer.beginningOf(Step.BEGIN_COMBAT)
         effect = Effects.Composite(
             SHARED_KEYWORDS.map { keyword ->
                 Effects.If(

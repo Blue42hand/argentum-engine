@@ -28,7 +28,7 @@ val SeedpodSquire = card("Seedpod Squire") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val creature = target(
             "creature you control without flying",
             TargetCreature(filter = TargetFilter.CreatureYouControl.withoutKeyword(Keyword.FLYING))

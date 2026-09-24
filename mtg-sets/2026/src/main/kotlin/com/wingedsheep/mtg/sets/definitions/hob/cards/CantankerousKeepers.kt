@@ -36,7 +36,7 @@ val CantankerousKeepers = card("Cantankerous Keepers") {
     keywordAbility(KeywordAbility.AffinityForSubtype(Subtype.ELF))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             // Mill four cards.
             val milled = gather(CardSource.TopOfLibrary(4, Player.You, isMill = true))

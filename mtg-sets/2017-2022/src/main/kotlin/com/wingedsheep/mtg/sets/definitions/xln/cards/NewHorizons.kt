@@ -35,7 +35,7 @@ val NewHorizons = card("New Horizons") {
     auraTarget = Targets.Land
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature", Targets.CreatureYouControl)
         effect = Effects.AddCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,

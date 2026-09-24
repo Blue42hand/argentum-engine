@@ -42,7 +42,7 @@ val ItzquinthFirstbornOfGishath = card("Itzquinth, Firstborn of Gishath") {
     keywords(Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         // t1 (index 0): the Dinosaur you control that deals the damage.
         val t1 = target(
             "target Dinosaur you control",

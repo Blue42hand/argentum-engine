@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.TapReason
 
 /**
  * Agent Maria Hill — Marvel Super Heroes #2
@@ -37,7 +38,7 @@ val AgentMariaHill = card("Agent Maria Hill") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.BecomesTappedForTeamwork
+        trigger = Triggers.self.becomesTapped(TapReason.TEAMWORK)
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             Effects.DrawCards(1),

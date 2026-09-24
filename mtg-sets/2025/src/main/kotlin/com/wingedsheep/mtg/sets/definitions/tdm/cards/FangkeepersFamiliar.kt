@@ -42,7 +42,7 @@ val FangkeepersFamiliar = card("Fangkeeper's Familiar") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
                 Effects.GainLife(3).then(Patterns.Library.surveil(3)),

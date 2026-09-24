@@ -31,7 +31,7 @@ val ShaleskinBruiser = card("Shaleskin Bruiser") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ModifyStats(
             power = (DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.withSubtype("Beast").attacking()).count() - 1) * 3,
             toughness = DynamicAmounts.fixed(0),

@@ -32,7 +32,7 @@ val SoaringSeacliff = card("Soaring Seacliff") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature", Targets.Creature)
         effect = Effects.GrantKeyword(Keyword.FLYING, creature)
     }

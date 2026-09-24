@@ -26,7 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    makes: the [firebending] DSL on the inline token def ([firebendingSoldierToken]) grants
  *    [Keyword.FIREBENDING] plus the attack-triggered "add {R} until end of combat" ability, and
  *    both the keyword and that ability are copied onto the created token.
- *  - The payoff trigger is the new [Triggers.AttackCausesYourCreaturesTriggeredAbility]: it fires
+ *  - The payoff trigger is the new `Triggers.you.attackTriggersAbility()`: it fires
  *    when a creature you control's *own* "whenever this creature attacks" ability (a SELF-bound
  *    attacks trigger — e.g. the token's firebending mana ability) is put on the stack. The engine
  *    stamps `causedByAttack` on that `AbilityTriggeredEvent`, so unrelated in-combat triggers
@@ -59,7 +59,7 @@ val FirebenderAscension = card("Firebender Ascension") {
 
     // When this enchantment enters, create a 2/2 red Soldier creature token with firebending 1.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,
@@ -76,7 +76,7 @@ val FirebenderAscension = card("Firebender Ascension") {
     // trigger, put a quest counter on this enchantment. Then if it has four or more quest counters
     // on it, you may copy that ability. You may choose new targets for the copy.
     triggeredAbility {
-        trigger = Triggers.AttackCausesYourCreaturesTriggeredAbility
+        trigger = Triggers.you.attackTriggersAbility()
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.QUEST, 1, EffectTarget.Self),
             Effects.If(

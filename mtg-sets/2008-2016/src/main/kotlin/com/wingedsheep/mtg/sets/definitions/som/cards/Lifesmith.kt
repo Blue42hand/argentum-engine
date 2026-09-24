@@ -13,7 +13,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  *
  * Whenever you cast an artifact spell, you may pay {1}. If you do, you gain 3 life.
  *
- * A cast trigger ([Triggers.youCastSpell] over [GameObjectFilter.Artifact]), so it goes on the
+ * A cast trigger (`Triggers.you.casts(spell, requires)` over [GameObjectFilter.Artifact]), so it goes on the
  * stack above the artifact and resolves first — the payment is offered whether or not the artifact
  * ever resolves, and a countered artifact spell still gained you the life. The optional payment is
  * [Effects.MayPay], the flat mana [com.wingedsheep.sdk.scripting.effects.Gate.MayPay] shape the
@@ -28,7 +28,7 @@ val Lifesmith = card("Lifesmith") {
     oracleText = "Whenever you cast an artifact spell, you may pay {1}. If you do, you gain 3 life."
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Artifact)
+        trigger = Triggers.you.casts(GameObjectFilter.Artifact)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
             then = Effects.GainLife(3)

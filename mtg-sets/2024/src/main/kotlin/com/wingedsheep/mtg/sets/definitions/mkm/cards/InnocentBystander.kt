@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
  * The "3 or more" gate is measured **per damage event**, not cumulatively over the turn — the
  * engine models damage as one `DamageDealtEvent` per source/recipient pair, so being blocked by
  * two 2/2s deals two separate 2-damage instances and this never fires, exactly as the printed
- * card behaves. [Triggers.TakesDamage] is the SELF "whenever this is dealt damage" event and the
+ * card behaves. `Triggers.self.isDealtDamage()` is the SELF "whenever this is dealt damage" event and the
  * threshold rides on it as a `triggerRestriction` comparing that event's damage
  * ([ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT]) against 3 with [ComparisonOperator.GTE] — the same
  * idiom Spinneret and Spiderling uses on the outgoing side.
@@ -40,7 +40,7 @@ val InnocentBystander = card("Innocent Bystander") {
         "token. It's an artifact with \"{2}, Sacrifice this token: Draw a card.\")"
 
     triggeredAbility {
-        trigger = Triggers.TakesDamage
+        trigger = Triggers.self.isDealtDamage()
         triggerRestriction = Conditions.CompareAmounts(
             DynamicAmounts.triggerDamageAmount(),
             ComparisonOperator.GTE,

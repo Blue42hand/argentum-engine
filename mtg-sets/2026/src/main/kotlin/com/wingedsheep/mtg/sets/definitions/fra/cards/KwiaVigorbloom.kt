@@ -27,7 +27,7 @@ val KwiaVigorbloom = card("Kwia Vigorbloom") {
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         effect = Effects.CreateLotus()
         oncePerTurn = true
     }

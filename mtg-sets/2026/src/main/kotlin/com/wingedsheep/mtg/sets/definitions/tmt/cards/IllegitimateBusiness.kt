@@ -25,7 +25,7 @@ val IllegitimateBusiness = card("Illegitimate Business") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(1)
     }
 

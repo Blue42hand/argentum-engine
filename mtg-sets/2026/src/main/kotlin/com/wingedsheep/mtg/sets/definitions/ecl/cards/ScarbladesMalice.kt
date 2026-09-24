@@ -31,7 +31,7 @@ val ScarbladesMalice = card("Scarblade's Malice") {
                 Effects.GrantKeyword(Keyword.DEATHTOUCH, creature),
                 Effects.GrantKeyword(Keyword.LIFELINK, creature),
                 Effects.CreateDelayedTrigger(
-                    trigger = Triggers.Dies,
+                    trigger = Triggers.self.dies(),
                     watchedTarget = creature,
                     expiry = DelayedTriggerExpiry.EndOfTurn,
                     effect = Effects.CreateToken(

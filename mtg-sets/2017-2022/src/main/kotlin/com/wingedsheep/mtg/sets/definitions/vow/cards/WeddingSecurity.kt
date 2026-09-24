@@ -31,7 +31,7 @@ val WeddingSecurity = card("Wedding Security") {
         "a +1/+1 counter on this creature and draw a card."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.MayPay(
             cost = Effects.SacrificeOwn(filter = GameObjectFilter.Artifact.withSubtype("Blood")),
             then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)

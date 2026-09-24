@@ -133,7 +133,7 @@ private val DionBahamutsDominantFront = card("Dion, Bahamut's Dominant") {
 
     // When Dion enters, create a 2/2 white Knight creature token.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,

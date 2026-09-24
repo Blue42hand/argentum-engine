@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 val CallToTheGrave = card("Call to the Grave") {
     manaCost = "{4}{B}"
@@ -20,7 +21,7 @@ val CallToTheGrave = card("Call to the Grave") {
     oracleText = "At the beginning of each player's upkeep, that player sacrifices a non-Zombie creature.\nAt the beginning of the end step, if no creatures are on the battlefield, sacrifice Call to the Grave."
 
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         effect = Effects.Sacrifice(
             GameObjectFilter.Creature.notSubtype(Subtype("Zombie")),
             1,
@@ -29,7 +30,7 @@ val CallToTheGrave = card("Call to the Grave") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EachEndStep
+        trigger = Triggers.anyPlayer.beginningOf(Step.END)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.allCreatures(),
             ComparisonOperator.EQ,

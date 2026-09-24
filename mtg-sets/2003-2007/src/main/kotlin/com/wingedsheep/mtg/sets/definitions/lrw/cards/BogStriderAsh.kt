@@ -18,7 +18,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  * Whenever a player casts a Goblin spell, you may pay {G}. If you do, you gain 2 life.
  *
  * "A player" is every player, Bog-Strider Ash's controller included, so the trigger uses
- * [Triggers.anyPlayerCasts]. The optional payment is [Effects.MayPay] — the yes/no and the mana
+ * `Triggers.anyPlayer.casts(spell, requires)`. The optional payment is [Effects.MayPay] — the yes/no and the mana
  * both happen on resolution, and declining does nothing.
  */
 val BogStriderAsh = card("Bog-Strider Ash") {
@@ -33,7 +33,7 @@ val BogStriderAsh = card("Bog-Strider Ash") {
     keywords(Keyword.SWAMPWALK)
 
     triggeredAbility {
-        trigger = Triggers.anyPlayerCasts(GameObjectFilter.Any.withSubtype(Subtype.GOBLIN))
+        trigger = Triggers.anyPlayer.casts(GameObjectFilter.Any.withSubtype(Subtype.GOBLIN))
         effect = Effects.MayPay(
             cost = ManaCost.parse("{G}"),
             then = Effects.GainLife(2)

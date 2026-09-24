@@ -28,7 +28,7 @@ val GraspingLongneck = card("Grasping Longneck") {
     toughness = 2
     keywords(Keyword.REACH)
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.GainLife(2)
     }
     metadata {

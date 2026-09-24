@@ -12,12 +12,12 @@ import com.wingedsheep.sdk.scripting.EventPattern.DealsDamageEvent
 import com.wingedsheep.sdk.scripting.PlayersCantCastSpells
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.IsYourTurn
 import com.wingedsheep.sdk.scripting.effects.DynamicHint
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Jennifer Walters // The Sensational She-Hulk — Marvel Super Heroes #18 (mythic)
@@ -122,10 +122,7 @@ private val TheSensationalSheHulkBack = card("The Sensational She-Hulk") {
     }
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            DealsDamageEvent(recipient = Recipient.CreatureYouControl),
-            TriggerBinding.ANY,
-        )
+        trigger = Triggers.a().dealsDamage(Recipient.CreatureYouControl)
         val victim = target("any target", Targets.Any)
         effect = Effects.May(
             Effects.DealDamage(

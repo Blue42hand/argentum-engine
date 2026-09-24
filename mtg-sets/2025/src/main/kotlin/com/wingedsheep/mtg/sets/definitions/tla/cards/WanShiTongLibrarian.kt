@@ -27,7 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * (integer division = round down).
  *
  * The opponent-search clause is the engine's new
- * [Triggers.WheneverAnOpponentSearchesTheirLibrary] (CR 701.23) — every tutor / fetch / basic-land
+ * `Triggers.anOpponent.searchesLibrary()` (CR 701.23) — every tutor / fetch / basic-land
  * search an opponent resolves fires the auto-emitted `LibrarySearchedEvent`; since searching is the
  * act of looking (CR 701.23a) and finding a card is not required (CR 701.23b), it fires even when
  * the opponent finds nothing. The controller's own searches are not opponents', so they never
@@ -47,7 +47,7 @@ val WanShiTongLibrarian = card("Wan Shi Tong, Librarian") {
     keywords(Keyword.FLASH, Keyword.FLYING, Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE, DynamicAmounts.xValue(), EffectTarget.Self),
             Effects.DrawCards(
@@ -58,7 +58,7 @@ val WanShiTongLibrarian = card("Wan Shi Tong, Librarian") {
     }
 
     triggeredAbility {
-        trigger = Triggers.WheneverAnOpponentSearchesTheirLibrary
+        trigger = Triggers.anOpponent.searchesLibrary()
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             Effects.DrawCards(1),

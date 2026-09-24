@@ -47,7 +47,7 @@ val AangsIceberg = card("Aang's Iceberg") {
 
     // ETB: exile up to one other target nonland permanent until this leaves.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "up to one other nonland permanent",
             TargetPermanent(optional = true, filter = TargetFilter.NonlandPermanent.other())
@@ -57,7 +57,7 @@ val AangsIceberg = card("Aang's Iceberg") {
 
     // LTB: return the exiled card under its owner's control.
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

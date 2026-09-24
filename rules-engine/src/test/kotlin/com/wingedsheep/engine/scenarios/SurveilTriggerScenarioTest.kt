@@ -28,8 +28,8 @@ import io.kotest.matchers.shouldBe
 /**
  * Substrate tests for the "Whenever you surveil" (CR 701.25) and combined "Whenever you scry or
  * surveil" (CR 701.22 / 701.25) triggers: `Patterns.Library.surveil(N)` ends by emitting
- * [SurveiledEvent], which drives `Triggers.WheneverYouSurveil` /
- * `Triggers.WheneverYouScryOrSurveil` and surfaces "the number of cards looked at" via
+ * [SurveiledEvent], which drives `Triggers.you.surveils()` /
+ * `Triggers.you.scriesOrSurveils()` and surfaces "the number of cards looked at" via
  * [ContextPropertyKey.TRIGGER_SCRY_COUNT]. The event is distinct from the scry event, so a scry
  * never fires a surveil trigger (and vice versa) — proven by the isolation test.
  */
@@ -58,7 +58,7 @@ class SurveilTriggerScenarioTest : FunSpec({
         typeLine = "Creature — Bird"
         power = 1; toughness = 1
         triggeredAbility {
-            trigger = Triggers.WheneverYouSurveil
+            trigger = Triggers.you.surveils()
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         }
     }
@@ -69,7 +69,7 @@ class SurveilTriggerScenarioTest : FunSpec({
         typeLine = "Creature — Bird"
         power = 1; toughness = 1
         triggeredAbility {
-            trigger = Triggers.WheneverYouScry
+            trigger = Triggers.you.scries()
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         }
     }
@@ -80,7 +80,7 @@ class SurveilTriggerScenarioTest : FunSpec({
         typeLine = "Creature — Bird"
         power = 1; toughness = 1
         triggeredAbility {
-            trigger = Triggers.WheneverYouScryOrSurveil
+            trigger = Triggers.you.scriesOrSurveils()
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         }
     }
@@ -91,7 +91,7 @@ class SurveilTriggerScenarioTest : FunSpec({
         typeLine = "Creature — Bird"
         power = 1; toughness = 1
         triggeredAbility {
-            trigger = Triggers.WheneverYouSurveil
+            trigger = Triggers.you.surveils()
             effect = Effects.AddDynamicCounters(
                 CounterType.PLUS_ONE_PLUS_ONE,
                 DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_SCRY_COUNT),

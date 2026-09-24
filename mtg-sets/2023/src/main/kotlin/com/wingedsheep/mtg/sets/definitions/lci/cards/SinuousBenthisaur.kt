@@ -53,7 +53,7 @@ val SinuousBenthisaur = card("Sinuous Benthisaur") {
         "of those cards into your hand and the rest on the bottom of your library in a random order."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
 
         val cavesControlled = DynamicAmounts.count(
             Player.You,

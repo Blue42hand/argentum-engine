@@ -1,13 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -42,11 +40,7 @@ val BeifongsBountyHunters = card("Beifong's Bounty Hunters") {
         "on it. When it dies or is exiled, return it to the battlefield tapped.)"
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = (GameObjectFilter.Creature and GameObjectFilter.Nonland).youControl(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a((GameObjectFilter.Creature and GameObjectFilter.Nonland).youControl()).dies()
         val land = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
         effect = Effects.Earthbend(
             DynamicAmounts.triggeringPower(),

@@ -24,7 +24,7 @@ val SearingMeditation = card("Searing Meditation") {
     oracleText = "Whenever you gain life, you may pay {2}. If you do, this enchantment deals 2 damage to any target."
 
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         val t = target("any target", Targets.Any)
         effect = Effects.MayPay(ManaCost.parse("{2}"), Effects.DealDamage(2, t))
     }

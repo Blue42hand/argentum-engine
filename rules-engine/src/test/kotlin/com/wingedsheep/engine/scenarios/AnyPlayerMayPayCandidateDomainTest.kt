@@ -48,7 +48,7 @@ class AnyPlayerMayPayCandidateDomainTest : FunSpec({
         power = 1
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             effect = AnyPlayerMayPayEffect(
                 cost = Costs.pay.Sacrifice(GameObjectFilter.Creature, count = 1),
                 consequence = Effects.GainLife(3)
@@ -63,7 +63,7 @@ class AnyPlayerMayPayCandidateDomainTest : FunSpec({
         power = 1
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             effect = AnyPlayerMayPayEffect(
                 cost = Costs.pay.SacrificeAnother(GameObjectFilter.Creature, count = 1),
                 consequence = Effects.GainLife(3)
@@ -83,7 +83,7 @@ class AnyPlayerMayPayCandidateDomainTest : FunSpec({
         toughness = 1
         keywords(Keyword.FLASH)
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             effect = AnyPlayerMayPayEffect(
                 cost = Costs.pay.SacrificeAnother(GameObjectFilter.Creature, count = 1),
                 consequence = Effects.GainLife(3)

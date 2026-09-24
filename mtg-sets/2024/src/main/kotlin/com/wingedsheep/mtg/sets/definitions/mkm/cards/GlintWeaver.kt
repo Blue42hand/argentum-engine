@@ -45,7 +45,7 @@ val GlintWeaver = card("Glint Weaver") {
     keywords(Keyword.REACH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target = TargetCreature(count = 3, minCount = 1)
         effect = Effects.Composite(
             Effects.DistributeCountersAmongTargets(totalCounters = 3),

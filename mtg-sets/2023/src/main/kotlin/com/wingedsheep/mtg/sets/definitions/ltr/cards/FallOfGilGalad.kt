@@ -44,8 +44,7 @@ val FallOfGilGalad = card("Fall of Gil-galad") {
         val other = target("up to one other target creature", TargetCreature(optional = true))
         effect = Effects.GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.Dies.event,
-                binding = Triggers.Dies.binding,
+                trigger = Triggers.self.dies(),
                 effect = Effects.DrawCards(2)
             ),
             target = mine

@@ -29,7 +29,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  *
  * The first-strike grant is a [GrantKeyword] static over `outlaws you control`
  * ([Subtype.OUTLAW_TYPES]) gated by [Conditions.IsYourTurn] (the projection layer drops the grant
- * outside the controller's turn). The crime payoff is the standard [Triggers.YouCommitCrime]
+ * outside the controller's turn). The crime payoff is the standard `Triggers.you.commitsCrime()`
  * triggered ability with `oncePerTurn = true`; its Mercenary token mirrors the canonical OTJ
  * Mercenary (cf. Hellspur Posse Boss): a sorcery-speed `{T}` pump of a creature you control.
  */
@@ -54,7 +54,7 @@ val AtKnifepoint = card("At Knifepoint") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouCommitCrime
+        trigger = Triggers.you.commitsCrime()
         oncePerTurn = true
         effect = Effects.CreateToken(
             count = 1,

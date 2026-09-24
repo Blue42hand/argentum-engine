@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Wedding Announcement // Wedding Festivity (Innistrad: Crimson Vow)
@@ -45,7 +46,7 @@ private val WeddingAnnouncementFront = card("Wedding Announcement") {
         "on it, transform it."
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.INVITATION, 1, EffectTarget.Self),
             Effects.If(

@@ -34,7 +34,7 @@ val DawnhandEulogist = card("Dawnhand Eulogist") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.mill(3) then Effects.If(
             condition = Conditions.GraveyardContainsSubtype(Subtype.ELF),
             then = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent))

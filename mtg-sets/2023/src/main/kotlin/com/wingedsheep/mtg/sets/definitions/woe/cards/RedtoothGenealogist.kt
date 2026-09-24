@@ -32,7 +32,7 @@ val RedtoothGenealogist = card("Redtooth Genealogist") {
         "Enchanted creature gets +1/+1 and has ward {1}.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("another target creature you control", Targets.OtherCreatureYouControl)
         effect = Effects.CreateRoleToken("Royal Role", t)
     }

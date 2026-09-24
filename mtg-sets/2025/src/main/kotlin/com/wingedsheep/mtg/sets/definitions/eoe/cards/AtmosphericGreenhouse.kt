@@ -32,7 +32,7 @@ val AtmosphericGreenhouse = card("Atmospheric Greenhouse") {
 
     // ETB: Put a +1/+1 counter on each creature you control
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)

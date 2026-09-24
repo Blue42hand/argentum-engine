@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * The graveyard is counted after the surveil, so a card surveilled away can be the seventh. The
@@ -22,7 +23,7 @@ val EyeOfJace = card("Eye of Jace") {
         "(To surveil 1, look at the top card of your library. You may put it into your graveyard.)"
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.Composite(
             Patterns.Library.surveil(1),
             Effects.If(

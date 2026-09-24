@@ -37,7 +37,7 @@ val MatterbendingMage = card("Matterbending Mage") {
         "blocked this turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "other creature",
             TargetCreature(
@@ -49,9 +49,7 @@ val MatterbendingMage = card("Matterbending Mage") {
     }
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            requires = setOf(SpellCastPredicate.HasXInCost),
-        )
+        trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.HasXInCost))
         effect = Effects.GrantKeyword(
             AbilityFlag.CANT_BE_BLOCKED,
             EffectTarget.Self,

@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Triskaidekaphobia
@@ -35,7 +36,7 @@ val Triskaidekaphobia = card("Triskaidekaphobia") {
         "• Each player with exactly 13 life loses the game, then each player loses 1 life."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
 
         val eachPlayerWith13LosesTheGame = Effects.ForEachPlayer(
             Player.ActivePlayerFirst,

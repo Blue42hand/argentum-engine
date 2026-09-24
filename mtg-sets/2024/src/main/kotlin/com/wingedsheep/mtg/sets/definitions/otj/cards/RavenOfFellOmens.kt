@@ -32,7 +32,7 @@ val RavenOfFellOmens = card("Raven of Fell Omens") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YouCommitCrime
+        trigger = Triggers.you.commitsCrime()
         oncePerTurn = true
         effect = Effects.Composite(
             listOf(

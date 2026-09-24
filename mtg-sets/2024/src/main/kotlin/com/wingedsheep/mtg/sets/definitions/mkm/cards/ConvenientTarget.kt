@@ -50,7 +50,7 @@ val ConvenientTarget = card("Convenient Target") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Suspect(EffectTarget.EnchantedCreature)
         description = "When this Aura enters, suspect enchanted creature."
     }

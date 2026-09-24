@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -26,7 +25,7 @@ val LingeringDeath = card("Lingering Death") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.phase(Step.END, binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.beginningOf(Step.END)
         effect = Effects.Move(
             target = EffectTarget.EnchantedCreature,
             destination = Zone.GRAVEYARD

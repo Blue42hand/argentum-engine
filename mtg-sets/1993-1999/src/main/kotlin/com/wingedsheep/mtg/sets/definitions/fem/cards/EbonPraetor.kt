@@ -46,7 +46,7 @@ val EbonPraetor = card("Ebon Praetor") {
     keywords(Keyword.FIRST_STRIKE, Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.AddCounters(CounterType.MINUS_TWO_MINUS_TWO, 1, EffectTarget.Self)
         description = "At the beginning of your upkeep, put a -2/-2 counter on this creature."
     }

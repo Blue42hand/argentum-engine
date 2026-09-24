@@ -33,7 +33,7 @@ val CradleOfSafety = card("Cradle of Safety") {
     auraTarget = Targets.CreatureYouControl
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.EnchantedCreature)
     }
 

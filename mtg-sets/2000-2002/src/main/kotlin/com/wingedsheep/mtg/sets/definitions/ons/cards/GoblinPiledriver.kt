@@ -33,7 +33,7 @@ val GoblinPiledriver = card("Goblin Piledriver") {
     keywordAbility(KeywordAbility.Protection(ProtectionScope.Color(Color.BLUE)))
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ModifyStats(
             power = (DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.withSubtype("Goblin").attacking()).count() - 1) * 2,
             toughness = DynamicAmounts.fixed(0),

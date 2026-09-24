@@ -22,7 +22,7 @@ val WayOfTheDeathbringer = card("Way of the Deathbringer") {
         "Planeswalkers you control have \"[−2]: You may sacrifice a creature. If you do, create a 4/4 green Beast creature token with trample.\""
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Mechanic.empowerJace(5)
     }
 

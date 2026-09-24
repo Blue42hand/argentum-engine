@@ -34,7 +34,7 @@ val ExtinguisherBattleship = card("Extinguisher Battleship") {
 
     // ETB: destroy target noncreature permanent, then deal 4 damage to each creature
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val target = target("target noncreature permanent", TargetPermanent(filter = TargetFilter.NoncreaturePermanent))
         effect = Effects.Composite(
             listOf(

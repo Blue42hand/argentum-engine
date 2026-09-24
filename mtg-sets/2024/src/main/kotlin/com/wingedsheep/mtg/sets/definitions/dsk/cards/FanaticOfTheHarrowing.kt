@@ -31,7 +31,7 @@ val FanaticOfTheHarrowing = card("Fanatic of the Harrowing") {
         "this way, draw a card."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Patterns.Hand.eachOpponentDiscards(1),
             Effects.IfYouDo(

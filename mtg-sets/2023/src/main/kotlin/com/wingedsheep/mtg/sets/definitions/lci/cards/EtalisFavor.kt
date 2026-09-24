@@ -26,7 +26,7 @@ val EtalisFavor = card("Etali's Favor") {
     auraTarget = Targets.CreatureYouControl
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Discover(3)
     }
 

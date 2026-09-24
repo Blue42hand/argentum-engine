@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.ModeOption
 import com.wingedsheep.sdk.scripting.conditions.SourceChosenModeIs
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Windcrag Siege
@@ -76,7 +77,7 @@ val WindcragSiege = card("Windcrag Siege") {
     // Jeskai — At the beginning of your upkeep, create a 1/1 red Goblin creature token.
     // It gains lifelink and haste until end of turn.
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         triggerRestriction = SourceChosenModeIs("jeskai")
         effect = Effects.Composite(
             listOf(

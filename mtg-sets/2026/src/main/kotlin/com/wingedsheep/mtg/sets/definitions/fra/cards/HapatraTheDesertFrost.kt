@@ -30,7 +30,7 @@ val HapatraTheDesertFrost = card("Hapatra, the Desert Frost") {
         "{2}{U}: Untap target creature."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target(
             "up to one target creature each opponent controls",
             TargetCreature(

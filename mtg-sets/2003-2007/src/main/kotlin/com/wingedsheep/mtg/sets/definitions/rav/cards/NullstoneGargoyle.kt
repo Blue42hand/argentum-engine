@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  * Whenever the first noncreature spell of a turn is cast, counter that spell.
  *
  * "The first noncreature spell **of a turn**" is a per-turn count across every player, which is
- * why this is not `Triggers.NthSpellCast(1, …)`: that event counts the *caster's* own history, so
+ * why this is not `Triggers.player(…).castsNth(1)`: that event counts the *caster's* own history, so
  * the second player's first noncreature spell of the turn would also trigger it. Instead the
  * trigger is the plain "a player casts a noncreature spell" event with a `triggerRestriction`
  * that reads the whole table's cast history — `SpellsCastThisTurn(Player.Each, Noncreature)`
@@ -43,7 +43,7 @@ val NullstoneGargoyle = card("Nullstone Gargoyle") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.anyPlayerCasts(GameObjectFilter.Noncreature)
+        trigger = Triggers.anyPlayer.casts(GameObjectFilter.Noncreature)
         triggerRestriction = Conditions.CompareAmounts(
             DynamicAmounts.spellsCastThisTurn(player = Player.Each, filter = GameObjectFilter.Noncreature),
             ComparisonOperator.EQ,

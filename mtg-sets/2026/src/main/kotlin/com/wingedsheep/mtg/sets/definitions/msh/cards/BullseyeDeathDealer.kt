@@ -53,7 +53,7 @@ val BullseyeDeathDealer = card("Bullseye, Death Dealer") {
     // When Bullseye enters, you may sacrifice an artifact or discard a nonland card.
     // When you do, Bullseye deals 2 damage to any target.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Effects.ChooseAction(
                 choices = listOf(

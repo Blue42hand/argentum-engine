@@ -32,7 +32,7 @@ val ForsakenMiner = card("Forsaken Miner") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouCommitCrime
+        trigger = Triggers.you.commitsCrime()
         triggerZone = Zone.GRAVEYARD
         effect = Effects.MayPay(
             cost = ManaCost.parse("{B}"),

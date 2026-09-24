@@ -25,7 +25,7 @@ import io.kotest.matchers.shouldBe
 class TriggerAbilityResolverTest : FunSpec({
     test("both lookup paths retain grant order, duplicate abilities, and the ungranted base list") {
         fun ability(name: String) = TriggeredAbility(
-            AbilityId(name), Triggers.Dies.event,
+            AbilityId(name), Triggers.self.dies().event,
             effect = LoseLifeEffect(1, EffectTarget.PlayerRef(Player.You)),
         )
         val owner = EntityId.of("owner")

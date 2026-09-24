@@ -43,7 +43,7 @@ val SunpearlKirin = card("Sunpearl Kirin") {
     keywords(Keyword.FLASH, Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "other nonland permanent you control",
             TargetPermanent(

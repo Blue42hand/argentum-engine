@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -45,7 +44,7 @@ val TolsimirMidnightsLight = card("Tolsimir, Midnight's Light") {
     keywords(Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 5,
             toughness = 5,
@@ -59,10 +58,7 @@ val TolsimirMidnightsLight = card("Tolsimir, Midnight's Light") {
     }
 
     triggeredAbility {
-        trigger = Triggers.attacks(
-            filter = GameObjectFilter.Creature.withSubtype(Subtype.WOLF).youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.withSubtype(Subtype.WOLF).youControl()).attacks()
         interveningIf = Conditions.SourceAttackedThisCombat
         val blocker = target("creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.ForceBlock(blocker, attacker = EffectTarget.TriggeringEntity)

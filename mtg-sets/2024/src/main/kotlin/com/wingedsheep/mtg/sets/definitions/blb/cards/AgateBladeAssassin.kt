@@ -24,7 +24,7 @@ val AgateBladeAssassin = card("Agate-Blade Assassin") {
     oracleText = "Whenever this creature attacks, defending player loses 1 life and you gain 1 life."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Composite(
             listOf(
                 Effects.LoseLife(1, EffectTarget.PlayerRef(Player.DefendingPlayer)),

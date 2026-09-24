@@ -40,7 +40,7 @@ val GuidelightMatrix = card("Guidelight Matrix") {
         "{2}, {T}: Target Vehicle you control becomes an artifact creature until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(1)
     }
 

@@ -19,7 +19,7 @@ val WayOfThePyromancer = card("Way of the Pyromancer") {
         "Planeswalkers you control have \"[+1]: Add {R}.\""
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Mechanic.empowerJace(2)
     }
 

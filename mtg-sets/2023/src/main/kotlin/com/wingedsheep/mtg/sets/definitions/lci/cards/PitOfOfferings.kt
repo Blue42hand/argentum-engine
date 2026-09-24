@@ -39,7 +39,7 @@ val PitOfOfferings = card("Pit of Offerings") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target(
             "cards from graveyards",
             TargetObject(count = 3, optional = true, filter = TargetFilter.CardInGraveyard)

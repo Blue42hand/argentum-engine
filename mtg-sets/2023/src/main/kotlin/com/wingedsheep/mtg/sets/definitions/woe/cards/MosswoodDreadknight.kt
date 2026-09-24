@@ -50,7 +50,7 @@ val MosswoodDreadknight = card("Mosswood Dreadknight") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.Pipeline {
             val dreadknight = gather(
                 CardSource.FromZone(

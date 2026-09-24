@@ -28,7 +28,7 @@ val PhyrexianDelver = card("Phyrexian Delver") {
         "to the battlefield. You lose life equal to that card's mana value."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val returned = target(
             "target creature card from your graveyard",
             TargetObject(filter = TargetFilter.CreatureInYourGraveyard),

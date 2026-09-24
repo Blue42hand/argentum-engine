@@ -30,7 +30,7 @@ val MeltstridersResolve = card("Meltstrider's Resolve") {
 
     // ETB: enchanted creature fights up to one target creature an opponent controls
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponentCreature = target(
             "creature an opponent controls",
             TargetCreature(optional = true, filter = TargetFilter.CreatureOpponentControls)

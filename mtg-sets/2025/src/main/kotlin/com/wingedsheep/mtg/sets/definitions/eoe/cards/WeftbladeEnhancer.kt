@@ -26,7 +26,7 @@ val WeftbladeEnhancer = card("Weftblade Enhancer") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target("up to two target creatures", TargetCreature(count = 2, optional = true))
         effect = Effects.ForEachTarget(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))

@@ -24,7 +24,7 @@ val DrainpipeVermin = card("Drainpipe Vermin") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val player = target("target player", Targets.Player)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{B}"),

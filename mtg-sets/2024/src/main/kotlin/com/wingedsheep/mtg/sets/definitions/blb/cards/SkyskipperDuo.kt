@@ -35,7 +35,7 @@ val SkyskipperDuo = card("Skyskipper Duo") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "other creature you control",
             TargetCreature(

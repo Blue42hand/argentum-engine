@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Betor, Kin to All — Tarkir: Dragonstorm #172
@@ -39,7 +40,7 @@ val BetorKinToAll = card("Betor, Kin to All") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         // Intervening "if" (CR 603.4): the 10-toughness gate is checked both as the trigger
         // would go on the stack and again on resolution.
         interveningIf = totalToughnessAtLeast(10)

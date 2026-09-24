@@ -33,7 +33,7 @@ val StrandsOfUndeath = card("Strands of Undeath") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target player", Targets.Player)
         effect = Effects.Discard(count = 2, target = t)
     }

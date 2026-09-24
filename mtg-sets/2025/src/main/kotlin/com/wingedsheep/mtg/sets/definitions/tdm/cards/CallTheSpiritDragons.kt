@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Call the Spirit Dragons
@@ -54,7 +55,7 @@ val CallTheSpiritDragons = card("Call the Spirit Dragons") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
 
         effect = Effects.Pipeline {
             // One choice per color (WUBRG), each picked Dragon kept in its own collection.

@@ -33,7 +33,7 @@ val RubblebeltMaverick = card("Rubblebelt Maverick") {
     power = 1
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.surveil(2)
     }
     activatedAbility {

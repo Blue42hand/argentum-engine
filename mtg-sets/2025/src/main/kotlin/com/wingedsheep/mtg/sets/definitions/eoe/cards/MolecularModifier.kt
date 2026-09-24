@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.core.Step
 /**
  * Molecular Modifier
  * {2}{R}
@@ -23,7 +24,7 @@ val MolecularModifier = card("Molecular Modifier") {
 
     // At the beginning of combat on your turn, target creature you control gets +1/+0 and gains first strike until end of turn
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.Composite(
             listOf(

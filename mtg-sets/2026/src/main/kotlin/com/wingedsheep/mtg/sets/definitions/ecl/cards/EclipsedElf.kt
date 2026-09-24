@@ -32,7 +32,7 @@ val EclipsedElf = card("Eclipsed Elf") {
     oracleText = "When this creature enters, look at the top four cards of your library. You may reveal an Elf, Swamp, or Forest card from among them and put it into your hand. Put the rest on the bottom of your library in a random order."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val looked = gather(CardSource.TopOfLibrary(4))
             val (kept, rest) = chooseUpToSplit(

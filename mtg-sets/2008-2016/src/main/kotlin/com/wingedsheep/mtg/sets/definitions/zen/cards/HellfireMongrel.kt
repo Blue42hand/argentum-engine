@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Hellfire Mongrel
@@ -30,7 +31,7 @@ val HellfireMongrel = card("Hellfire Mongrel") {
     oracleText = "At the beginning of each opponent's upkeep, if that player has two or fewer cards in hand, this creature deals 2 damage to that player."
 
     triggeredAbility {
-        trigger = Triggers.EachOpponentUpkeep
+        trigger = Triggers.anOpponent.beginningOf(Step.UPKEEP)
         // "That player" is the player whose upkeep it is — bound by the step trigger.
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.count(Player.TriggeringPlayer, Zone.HAND),

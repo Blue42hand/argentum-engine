@@ -26,7 +26,7 @@ val ProteusMachine = card("Proteus Machine") {
     morph = "{0}"
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         effect = Effects.BecomeCreatureType(
             target = EffectTarget.Self,
             duration = Duration.Permanent

@@ -23,7 +23,7 @@ val ReturnedCentaur = card("Returned Centaur") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val p = target("target player", Targets.Player)
         effect = Patterns.Library.mill(4, p)
     }

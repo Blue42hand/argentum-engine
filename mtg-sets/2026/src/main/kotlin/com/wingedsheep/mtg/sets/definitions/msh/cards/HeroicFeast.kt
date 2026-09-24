@@ -39,13 +39,13 @@ val HeroicFeast = card("Heroic Feast") {
         "+1/+1 counter on each of them."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateFood()
         description = "When this enchantment enters, create a Food token."
     }
 
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         target(
             "up to that many target creatures you control",
             TargetCreature(

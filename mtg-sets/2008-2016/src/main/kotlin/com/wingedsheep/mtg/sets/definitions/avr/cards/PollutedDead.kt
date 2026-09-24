@@ -12,7 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  *
  * When this creature dies, destroy target land.
  *
- * [Triggers.Dies] is the battlefield → graveyard zone change with the default `SELF` binding; the
+ * `Triggers.self.dies()` is the battlefield → graveyard zone change with the default `SELF` binding; the
  * trigger stays indexed on the battlefield (its `triggerZone` is untouched) and reads its
  * last-known information off the zone-change event.
  */
@@ -25,7 +25,7 @@ val PollutedDead = card("Polluted Dead") {
     oracleText = "When this creature dies, destroy target land."
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val t = target("target", Targets.Land)
         effect = Effects.Destroy(t)
     }

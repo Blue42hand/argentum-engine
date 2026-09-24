@@ -49,9 +49,7 @@ val KellanTheKid = card("Kellan, the Kid") {
     keywords(Keyword.FLYING, Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            requires = setOf(SpellCastPredicate.CastFromZoneOtherThan(Zone.HAND)),
-        )
+        trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.CastFromZoneOtherThan(Zone.HAND)))
         effect = Effects.IfYouDo(
             action = Effects.Pipeline {
                 val kellanCandidates = gather(CardSource.FromZone(Zone.HAND, filter = GameObjectFilter.Permanent))

@@ -34,7 +34,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  *   [ModifyStats] (layer 7c) and a [GrantKeyword] of menace (layer 6). Gisa is a Human Warlock, so
  *   she doesn't buff herself; the filter carries no excludeSelf because the printed text says
  *   "Skeletons and Zombies you control", not "other".
- * - The crime payoff is the standard [Triggers.YouCommitCrime] trigger with `oncePerTurn = true`,
+ * - The crime payoff is the standard `Triggers.you.commitsCrime()` trigger with `oncePerTurn = true`,
  *   creating two tapped 2/2 blue-black Zombie Rogue tokens (the canonical OTJ Zombie Rogue, cf.
  *   Outlaw Stitcher).
  */
@@ -78,7 +78,7 @@ val GisaTheHellraiser = card("Gisa, the Hellraiser") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouCommitCrime
+        trigger = Triggers.you.commitsCrime()
         oncePerTurn = true
         effect = Effects.CreateToken(
             count = 2,

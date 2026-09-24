@@ -32,7 +32,7 @@ val ImperialHellkite = card("Imperial Hellkite") {
     morph = "{6}{R}{R}"
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.Any.withSubtype("Dragon"),

@@ -43,7 +43,7 @@ val ValorsFlagship = card("Valor's Flagship") {
     keywordAbility(KeywordAbility.cycling("{X}{2}{W}"))
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         effect = Effects.CreateToken(
             count = DynamicAmounts.xValue(),
             power = 1,

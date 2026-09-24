@@ -31,7 +31,7 @@ val JeeringInstigator = card("Jeering Instigator") {
     morph = "{2}{R}"
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         interveningIf = Conditions.IsYourTurn
         val t = target("another creature", TargetCreature(filter = TargetFilter.OtherCreature))
         effect = Effects.Composite(

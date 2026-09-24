@@ -25,7 +25,7 @@ val BellowingSaddlebrute = card("Bellowing Saddlebrute") {
     oracleText = "Raid — When Bellowing Saddlebrute enters, you lose 4 life unless you attacked this turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.If(
             condition = NotCondition(Conditions.YouAttackedThisTurn),
             then = Effects.LoseLife(4, EffectTarget.Controller)

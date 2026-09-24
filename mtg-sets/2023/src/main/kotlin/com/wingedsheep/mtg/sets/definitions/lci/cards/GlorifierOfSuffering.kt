@@ -41,7 +41,7 @@ val GlorifierOfSuffering = card("Glorifier of Suffering") {
     oracleText = "When this creature enters, you may sacrifice another creature or artifact. When you do, put a +1/+1 counter on each of up to two target creatures."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Effects.Pipeline {
                 val toSacrifice = selectTarget(

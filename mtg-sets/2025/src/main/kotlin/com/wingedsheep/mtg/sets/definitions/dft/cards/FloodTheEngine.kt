@@ -40,7 +40,7 @@ val FloodTheEngine = card("Flood the Engine") {
     auraTarget = TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrVehicle))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Tap(EffectTarget.EnchantedPermanent)
         description = "When this Aura enters, tap enchanted permanent."
     }

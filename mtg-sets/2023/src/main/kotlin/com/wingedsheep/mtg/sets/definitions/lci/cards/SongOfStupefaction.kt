@@ -44,7 +44,7 @@ val SongOfStupefaction = card("Song of Stupefaction") {
     auraTarget = TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrVehicle))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         effect = Patterns.Library.mill(2)
     }

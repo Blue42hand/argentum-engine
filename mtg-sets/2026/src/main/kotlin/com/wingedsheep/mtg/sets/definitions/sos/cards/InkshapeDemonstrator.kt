@@ -32,9 +32,7 @@ val InkshapeDemonstrator = card("Inkshape Demonstrator") {
     toughness = 4
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature)
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature))
         effect = Effects.Composite(
             Effects.ModifyStats(1, 0, EffectTarget.Self),
             Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self)

@@ -34,7 +34,7 @@ val SilkWebWeaver = card("Silk, Web Weaver") {
     webSlinging("{1}{G}{W}")
 
     triggeredAbility {
-        trigger = Triggers.YouCastCreature
+        trigger = Triggers.you.casts(GameObjectFilter.Creature)
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

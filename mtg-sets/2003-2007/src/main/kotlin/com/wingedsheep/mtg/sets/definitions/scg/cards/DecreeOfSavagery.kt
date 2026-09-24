@@ -38,7 +38,7 @@ val DecreeOfSavagery = card("Decree of Savagery") {
     keywordAbility(KeywordAbility.cycling("{4}{G}{G}"))
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         val t = target("target creature", Targets.Creature)
         effect = Effects.May(
             Effects.AddCounters(

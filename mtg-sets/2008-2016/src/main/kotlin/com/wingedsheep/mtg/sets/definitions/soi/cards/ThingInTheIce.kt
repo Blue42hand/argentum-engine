@@ -34,12 +34,12 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Implementation:
  *  - "Enters with four ice counters" is a replacement effect (CR 614.1c), not an ETB trigger:
  *    [EntersWithCounters] over the new [CounterType.ICE] counter, `selfOnly`.
- *  - The cast trigger is [Triggers.YouCastInstantOrSorcery] → [Effects.RemoveCounters] of one ice
+ *  - The cast trigger is `Triggers.you.casts(GameObjectFilter.InstantOrSorcery)` → [Effects.RemoveCounters] of one ice
  *    counter, then a [Effects.If] on [Conditions.SourceCounterCountAtMost]`(ice, 0)` that
  *    flips it. Gating the transform on the *live* count after the removal is what makes the printed
  *    ruling hold: taking the last counter off any other way never transforms it, because only this
  *    ability's resolution runs the check.
- *  - The back's trigger is [Triggers.TransformsToBack] (the ability lives on the face that ends up
+ *  - The back's trigger is `Triggers.self.transforms(true)` (the ability lives on the face that ends up
  *    up), returning every creature that isn't a Horror — both players' — via
  *    [Patterns.Group.returnAllToHand]. Awoken Horror is itself a Horror, so it never bounces
  *    itself; a *front-face* Thing in the Ice on the battlefield is a Horror too and also stays.
@@ -70,7 +70,7 @@ private val ThingInTheIceFront = card("Thing in the Ice") {
     )
 
     triggeredAbility {
-        trigger = Triggers.YouCastInstantOrSorcery
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         effect = Effects.Composite(
             Effects.RemoveCounters(CounterType.ICE, 1, EffectTarget.Self),
             Effects.If(
@@ -119,7 +119,7 @@ private val AwokenHorror = card("Awoken Horror") {
         "creatures to their owners' hands."
 
     triggeredAbility {
-        trigger = Triggers.TransformsToBack
+        trigger = Triggers.self.transforms(true)
         effect = Patterns.Group.returnAllToHand(NonHorrorCreatures)
         description = "Return all non-Horror creatures to their owners' hands."
     }

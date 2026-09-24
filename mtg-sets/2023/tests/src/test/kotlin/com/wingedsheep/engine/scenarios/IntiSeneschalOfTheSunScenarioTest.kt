@@ -32,7 +32,7 @@ import com.wingedsheep.engine.core.Outcome
  * Ability 1 is a reflexive [com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect]: the optional
  * discard is the action; only if a card is actually discarded does "put a +1/+1 counter on target
  * attacking creature; it gains trample" go on the stack. Ability 2
- * ([com.wingedsheep.sdk.dsl.Triggers.YouDiscardOneOrMore]) fires off that same discard,
+ * (`Triggers.you.discards(batch = true)`) fires off that same discard,
  * impulse-exiling the top of library with a play window that lasts until the controller's next end
  * step. Its "one or more cards" wording is a batch trigger (CR 603.2c): a multi-card discard event
  * fires it once, exiling one card — not one per discarded card. This test exercises the discard

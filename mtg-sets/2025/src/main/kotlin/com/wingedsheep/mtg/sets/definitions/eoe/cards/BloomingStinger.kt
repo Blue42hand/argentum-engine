@@ -28,7 +28,7 @@ val BloomingStinger = card("Blooming Stinger") {
 
     // Triggered ability: When this creature enters...
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("another target creature you control", TargetCreature(filter = TargetFilter.Creature.youControl().other()))
         effect = Effects.GrantKeyword(
             keyword = Keyword.DEATHTOUCH,

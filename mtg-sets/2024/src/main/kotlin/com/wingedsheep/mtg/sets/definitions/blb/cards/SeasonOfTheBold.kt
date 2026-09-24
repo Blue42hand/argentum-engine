@@ -6,14 +6,11 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.BudgetMode
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.EventPattern.SpellCastEvent
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Season of the Bold {3}{R}{R}
@@ -61,7 +58,7 @@ val SeasonOfTheBold = card("Season of the Bold") {
                     cost = 3,
                     effect = Effects.CreateGlobalTriggeredAbility(
                         ability = grantedTriggeredAbility {
-                            trigger = TriggerSpec(SpellCastEvent(player = Player.You), TriggerBinding.ANY)
+                            trigger = Triggers.you.casts()
                             val creature = target("target creature", TargetCreature(optional = true))
                             effect = Effects.DealDamage(
                                 amount = 2,

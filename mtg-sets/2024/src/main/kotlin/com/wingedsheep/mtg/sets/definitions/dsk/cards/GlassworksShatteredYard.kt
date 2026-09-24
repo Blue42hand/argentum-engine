@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.CardLayout
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Glassworks // Shattered Yard (DSK 137) — split-layout Room (CR 709.5).
@@ -34,7 +35,7 @@ val GlassworksShatteredYard = card("Glassworks // Shattered Yard") {
 
         triggeredAbility {
             val creatureOpponentControls = target("target creature opponent controls", Targets.CreatureOpponentControls)
-            trigger = Triggers.OnDoorUnlocked
+            trigger = Triggers.self.doorUnlocked()
             effect = Effects.DealDamage(4, creatureOpponentControls)
             description = "When you unlock this door, this Room deals 4 damage to target creature an opponent controls."
         }
@@ -46,7 +47,7 @@ val GlassworksShatteredYard = card("Glassworks // Shattered Yard") {
         oracleText = "At the beginning of your end step, this Room deals 1 damage to each opponent."
 
         triggeredAbility {
-            trigger = Triggers.YourEndStep
+            trigger = Triggers.you.beginningOf(Step.END)
             effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent))
             description = "At the beginning of your end step, this Room deals 1 damage to each opponent."
         }

@@ -78,12 +78,12 @@ val BruseTarlRovingRancher = card("Bruse Tarl, Roving Rancher") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = bruseTarlBody
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = bruseTarlBody
     }
 

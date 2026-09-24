@@ -49,7 +49,7 @@ val VituGhaziInspector = card("Vitu-Ghazi Inspector") {
     keywords(Keyword.REACH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.WasEvidenceCollected
         val creature = target("target creature", TargetCreature())
         effect = Effects.Composite(

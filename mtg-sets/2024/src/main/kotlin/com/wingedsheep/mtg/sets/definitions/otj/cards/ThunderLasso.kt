@@ -34,7 +34,7 @@ val ThunderLasso = card("Thunder Lasso") {
 
     // ETB: attach to target creature you control
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature you control", Targets.CreatureYouControl)
         effect = Effects.AttachEquipment(creature)
     }
@@ -46,7 +46,7 @@ val ThunderLasso = card("Thunder Lasso") {
 
     // Whenever equipped creature attacks, tap target creature defending player controls
     triggeredAbility {
-        trigger = Triggers.attacks(binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.attacks()
         val creature = target("creature defending player controls", Targets.CreatureOpponentControls)
         effect = Effects.Tap(creature)
     }

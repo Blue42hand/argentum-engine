@@ -26,7 +26,7 @@ val DaggerfangDuo = card("Daggerfang Duo") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             effect = Patterns.Library.mill(2),
             descriptionOverride = "You may mill two cards."

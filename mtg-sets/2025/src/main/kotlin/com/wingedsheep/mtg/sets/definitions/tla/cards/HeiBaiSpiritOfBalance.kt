@@ -40,7 +40,7 @@ val HeiBaiSpiritOfBalance = card("Hei Bai, Spirit of Balance") {
 
     // Whenever Hei Bai enters, you may sacrifice another creature or artifact for two +1/+1 counters.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val sacrificeTarget = target(
             "another creature or artifact",
             TargetPermanent(
@@ -59,7 +59,7 @@ val HeiBaiSpiritOfBalance = card("Hei Bai, Spirit of Balance") {
 
     // Whenever Hei Bai attacks, you may sacrifice another creature or artifact for two +1/+1 counters.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val sacrificeTarget = target(
             "another creature or artifact",
             TargetPermanent(
@@ -79,7 +79,7 @@ val HeiBaiSpiritOfBalance = card("Hei Bai, Spirit of Balance") {
     // When Hei Bai leaves the battlefield, put its counters on target creature you control.
     triggeredAbility {
         val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.MoveAllLastKnownCounters(creatureYouControl)
         description = "When Hei Bai leaves the battlefield, put its counters on target creature you control."
     }

@@ -22,13 +22,13 @@ val SpineOfIshSah = card("Spine of Ish Sah") {
         "When this artifact is put into a graveyard from the battlefield, return it to its owner's hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target("permanent", Targets.Permanent)
         effect = Effects.Destroy(permanent)
     }
 
     triggeredAbility {
-        trigger = Triggers.PutIntoGraveyardFromBattlefield
+        trigger = Triggers.self.dies()
         effect = Effects.ReturnToHand(EffectTarget.Self)
     }
 

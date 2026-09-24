@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Loot, the Key to Everything
@@ -42,7 +43,7 @@ val LootTheKeyToEverything = card("Loot, the Key to Everything") {
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{1}")))
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.Pipeline {
             val exiledCards = gather(
                 CardSource.TopOfLibrary(

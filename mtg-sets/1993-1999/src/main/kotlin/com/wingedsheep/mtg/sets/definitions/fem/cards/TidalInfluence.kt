@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Tidal Influence
@@ -65,7 +66,7 @@ val TidalInfluence = card("Tidal Influence") {
     )
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.AddCounters(CounterType.TIDE, 1, EffectTarget.Self)
         description = "At the beginning of your upkeep, put a tide counter on this enchantment."
     }

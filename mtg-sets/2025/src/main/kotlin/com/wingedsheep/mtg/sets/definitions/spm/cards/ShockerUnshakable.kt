@@ -45,7 +45,7 @@ val ShockerUnshakable = card("Shocker, Unshakable") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.DealDamage(2, creature)
             .then(Effects.DealDamage(2, EffectTarget.TargetController))

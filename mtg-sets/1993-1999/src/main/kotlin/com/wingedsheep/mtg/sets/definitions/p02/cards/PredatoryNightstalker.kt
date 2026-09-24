@@ -30,7 +30,7 @@ val PredatoryNightstalker = card("Predatory Nightstalker") {
     oracleText = "When this creature enters, you may have target opponent sacrifice a creature of their choice."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponent = target("target", TargetOpponent())
         effect = Effects.May(Effects.Sacrifice(GameObjectFilter.Creature, 1, opponent))
     }

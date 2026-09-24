@@ -41,7 +41,7 @@ val ElderDeepFiend = card("Elder Deep-Fiend") {
     emerge("{5}{U}{U}")
 
     triggeredAbility {
-        trigger = Triggers.WhenYouCastThisSpell()
+        trigger = Triggers.self.isCast()
         target(
             "up to four target permanents",
             TargetPermanent(count = 4, optional = true, filter = TargetFilter.Permanent),

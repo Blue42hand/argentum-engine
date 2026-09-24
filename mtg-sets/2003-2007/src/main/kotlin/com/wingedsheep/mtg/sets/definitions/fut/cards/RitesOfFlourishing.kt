@@ -29,7 +29,7 @@ val RitesOfFlourishing = card("Rites of Flourishing") {
         "Each player may play an additional land on each of their turns."
 
     triggeredAbility {
-        trigger = Triggers.phase(Step.DRAW, Player.Each)
+        trigger = Triggers.anyPlayer.beginningOf(Step.DRAW)
         effect = Effects.DrawCards(1, EffectTarget.PlayerRef(Player.TriggeringPlayer))
     }
 

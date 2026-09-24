@@ -38,7 +38,7 @@ val WizardsRockets = card("Wizard's Rockets") {
 
     // When this artifact is put into a graveyard from the battlefield, draw a card.
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.DrawCards(1)
     }
 

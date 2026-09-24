@@ -28,7 +28,7 @@ val HapatraTheDesertFang = card("Hapatra, the Desert Fang") {
         "creature that player controls, where X is the greatest mana value among cards in your graveyard."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target(
             "up to one target creature each opponent controls",
             TargetCreature(

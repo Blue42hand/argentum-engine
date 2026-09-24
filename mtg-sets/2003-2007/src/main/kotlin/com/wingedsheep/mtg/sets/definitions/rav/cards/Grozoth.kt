@@ -49,7 +49,7 @@ val Grozoth = card("Grozoth") {
     keywords(Keyword.DEFENDER)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Effects.Pipeline {
                 val searchable = gather(

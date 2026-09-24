@@ -43,7 +43,7 @@ val BuildersTalent = card("Builder's Talent") {
 
     // Level 1: ETB — create a 0/4 white Wall token with defender
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 0,
             toughness = 4,
@@ -58,9 +58,7 @@ val BuildersTalent = card("Builder's Talent") {
     // put a +1/+1 counter on target creature you control.
     classLevel(2, "{W}") {
         triggeredAbility {
-            trigger = Triggers.OneOrMorePermanentsEnter(
-                GameObjectFilter.Noncreature and GameObjectFilter.Nonland
-            )
+            trigger = Triggers.oneOrMore(GameObjectFilter.Noncreature and GameObjectFilter.Nonland).enter()
             val creature = target("creature you control", Targets.CreatureYouControl)
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
         }
@@ -70,7 +68,7 @@ val BuildersTalent = card("Builder's Talent") {
     // card from your graveyard to the battlefield.
     classLevel(3, "{4}{W}") {
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             val card = target(
                 "noncreature, nonland permanent card in your graveyard",
                 TargetObject(

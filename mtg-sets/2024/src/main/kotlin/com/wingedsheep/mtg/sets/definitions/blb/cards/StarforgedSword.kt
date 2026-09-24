@@ -41,7 +41,7 @@ val StarforgedSword = card("Starforged Sword") {
 
     triggeredAbility {
         val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.GiftWasPromised
         effect = Effects.AttachEquipment(creatureYouControl)
     }

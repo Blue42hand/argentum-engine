@@ -49,7 +49,7 @@ val AnnieFlashTheVeteran = card("Annie Flash, the Veteran") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.WasCast
         val card = target(
             "permanent card with mana value 3 or less from your graveyard",
@@ -66,7 +66,7 @@ val AnnieFlashTheVeteran = card("Annie Flash, the Veteran") {
     }
 
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
+        trigger = Triggers.self.becomesTapped()
         effect = Patterns.Exile.impulse(2)
         description = "Whenever Annie Flash becomes tapped, exile the top two cards of your " +
             "library. You may play those cards this turn."

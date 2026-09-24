@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Avatar Aang // Aang, Master of Elements — {R}{G}{W}{U} Legendary Creature — Human Avatar Ally 4/4
@@ -34,7 +35,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   At the beginning of each upkeep, you may transform Aang, Master of Elements. If you do, you gain
  *   4 life, draw four cards, put four +1/+1 counters on him, and he deals 4 damage to each opponent.
  *
- * The four-bend trigger is the general [Triggers.YouBend] (fires once per waterbend/earthbend/
+ * The four-bend trigger is the general `Triggers.you.bends(types)` (fires once per waterbend/earthbend/
  * firebend/airbend); "if you've done all four this turn" reads
  * [TurnTracker.DISTINCT_BENDS] (== 4). Aang's own `firebending 2` counts as the firebend. The
  * `{W}{U}{B}{R}{G}` reduction is [CostModification.ReduceColoredPerUnit] with a fixed unit — its
@@ -67,7 +68,7 @@ private val AangMasterOfElements = card("Aang, Master of Elements") {
 
     // At the beginning of each upkeep, you may transform Aang, Master of Elements. If you do, ...
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         effect = Effects.May(
             Effects.Composite(
                 listOf(
@@ -108,7 +109,7 @@ private val AvatarAangFront = card("Avatar Aang") {
     // four this turn, transform. The bend that fired this trigger already folded into
     // DISTINCT_BENDS, so the fourth distinct bend of the turn sees the count at 4 here.
     triggeredAbility {
-        trigger = Triggers.YouBend()
+        trigger = Triggers.you.bends()
         effect = Effects.Composite(
             listOf(
                 Effects.DrawCards(1),

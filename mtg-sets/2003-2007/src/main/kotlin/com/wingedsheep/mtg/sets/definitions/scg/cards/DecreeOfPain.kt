@@ -35,7 +35,7 @@ val DecreeOfPain = card("Decree of Pain") {
     keywordAbility(KeywordAbility.cycling("{3}{B}{B}"))
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         effect = Patterns.Group.modifyStatsForAll(-2, -2, GroupFilter.AllCreatures)
     }
 

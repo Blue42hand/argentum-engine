@@ -34,7 +34,7 @@ val RootingKavu = card("Rooting Kavu") {
         "creature cards from your graveyard into your library."
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         triggerZone = Zone.GRAVEYARD
         effect = Effects.May(
             effect = Effects.Pipeline {

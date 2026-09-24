@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Ark of Hunger
@@ -34,7 +35,7 @@ val ArkOfHunger = card("Ark of Hunger") {
         "{T}: Mill a card. You may play that card this turn."
 
     triggeredAbility {
-        trigger = Triggers.CardsLeaveYourGraveyard()
+        trigger = Triggers.oneOrMore(GameObjectFilter.Any).leaveYourGraveyard()
         effect = Effects.Composite(
             Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent), damageSource = EffectTarget.Self),
             Effects.GainLife(1)

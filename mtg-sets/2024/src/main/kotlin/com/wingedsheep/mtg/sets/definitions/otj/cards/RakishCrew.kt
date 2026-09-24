@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Targets
@@ -11,7 +10,6 @@ import com.wingedsheep.sdk.dsl.grantedActivatedAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -39,7 +37,7 @@ val RakishCrew = card("Rakish Crew") {
         "(Assassins, Mercenaries, Pirates, Rogues, and Warlocks are outlaws.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,
@@ -60,11 +58,7 @@ val RakishCrew = card("Rakish Crew") {
     }
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = Filters.OutlawCreature.youControl(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(Filters.OutlawCreature.youControl()).dies()
         effect = Effects.Composite(
             listOf(
                 Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),

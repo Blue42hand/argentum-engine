@@ -31,7 +31,7 @@ val BrambleWurm = card("Bramble Wurm") {
     toughness = 6
     keywords(Keyword.REACH, Keyword.TRAMPLE)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(5)
     }
     activatedAbility {

@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Spore Flower
@@ -29,7 +30,7 @@ val SporeFlower = card("Spore Flower") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.AddCounters(CounterType.SPORE, 1, EffectTarget.Self)
         description = "At the beginning of your upkeep, put a spore counter on this creature."
     }

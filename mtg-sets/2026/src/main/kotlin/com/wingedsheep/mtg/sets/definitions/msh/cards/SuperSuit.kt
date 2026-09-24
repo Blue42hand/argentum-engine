@@ -36,7 +36,7 @@ val SuperSuit = card("Super Suit") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "target creature you control",
             TargetCreature(filter = TargetFilter.Creature.youControl())

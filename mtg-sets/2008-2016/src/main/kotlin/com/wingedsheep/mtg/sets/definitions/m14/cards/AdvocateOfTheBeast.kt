@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Advocate of the Beast
@@ -26,7 +27,7 @@ val AdvocateOfTheBeast = card("Advocate of the Beast") {
     oracleText = "At the beginning of your end step, put a +1/+1 counter on target Beast creature you control."
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         val beast = target(
             "target Beast creature you control",
             TargetCreature(

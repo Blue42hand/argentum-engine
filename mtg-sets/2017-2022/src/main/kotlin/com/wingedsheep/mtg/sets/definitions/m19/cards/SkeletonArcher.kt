@@ -26,7 +26,7 @@ val SkeletonArcher = card("Skeleton Archer") {
     power = 3
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", AnyTarget())
         effect = Effects.DealDamage(1, t)
     }

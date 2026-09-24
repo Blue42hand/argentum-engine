@@ -32,7 +32,7 @@ val CouncilsDeliberation = card("Council's Deliberation") {
     }
 
     triggeredAbility {
-        trigger = Triggers.WheneverYouScry
+        trigger = Triggers.you.scries()
         triggerZone = Zone.GRAVEYARD
         interveningIf = Conditions.YouControl(GameObjectFilter.Land.withSubtype(Subtype.ISLAND))
         effect = Effects.May(

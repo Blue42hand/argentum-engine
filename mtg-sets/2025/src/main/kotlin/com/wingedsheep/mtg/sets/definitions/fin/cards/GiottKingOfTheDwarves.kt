@@ -33,10 +33,7 @@ val GiottKingOfTheDwarves = card("Giott, King of the Dwarves") {
     keywords(Keyword.DOUBLE_STRIKE)
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Creature.withSubtype("Dwarf").youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.withSubtype("Dwarf").youControl()).enters()
         effect = Effects.May(
             effect = Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),
@@ -47,10 +44,7 @@ val GiottKingOfTheDwarves = card("Giott, King of the Dwarves") {
     }
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Artifact.withSubtype("Equipment").youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Artifact.withSubtype("Equipment").youControl()).enters()
         effect = Effects.May(
             effect = Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),

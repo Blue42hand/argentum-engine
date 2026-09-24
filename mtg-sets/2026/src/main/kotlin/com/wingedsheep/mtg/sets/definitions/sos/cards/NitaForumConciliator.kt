@@ -48,7 +48,7 @@ val NitaForumConciliator = card("Nita, Forum Conciliator") {
         "be put into a graveyard, exile it instead. Activate only as a sorcery."
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(requires = setOf(SpellCastPredicate.NotOwnedByController))
+        trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.NotOwnedByController))
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),

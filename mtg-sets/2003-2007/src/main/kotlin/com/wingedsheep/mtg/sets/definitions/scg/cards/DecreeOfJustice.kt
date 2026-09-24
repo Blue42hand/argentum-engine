@@ -39,7 +39,7 @@ val DecreeOfJustice = card("Decree of Justice") {
     keywordAbility(KeywordAbility.cycling("{2}{W}"))
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         effect = Effects.MayPayX(
             then = Effects.CreateToken(
                 count = DynamicAmounts.xValue(),

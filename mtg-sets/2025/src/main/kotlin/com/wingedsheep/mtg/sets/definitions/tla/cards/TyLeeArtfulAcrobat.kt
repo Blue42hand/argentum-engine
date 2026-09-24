@@ -31,7 +31,7 @@ val TyLeeArtfulAcrobat = card("Ty Lee, Artful Acrobat") {
     prowess()
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ReflexiveTrigger(
             // "you may pay {1}"
             action = Effects.PayMana("{1}"),

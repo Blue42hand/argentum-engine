@@ -38,9 +38,7 @@ val GeometersArthropod = card("Geometer's Arthropod") {
         "in a random order."
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            requires = setOf(SpellCastPredicate.HasXInCost),
-        )
+        trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.HasXInCost))
         effect = Patterns.Library.lookAtTopAndKeep(
             count = DynamicAmounts.xValueOfTriggeringSpell(),
             keepCount = DynamicAmounts.fixed(1),

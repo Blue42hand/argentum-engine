@@ -25,7 +25,7 @@ import io.kotest.matchers.shouldBe
  * Two things the wiring has to get right, and both are asserted here:
  *
  * - The clause has **no "another"**, so flipping the Performer itself must fire it. That is the
- *   `Player.You`-scoped `Triggers.CreatureTurnedFaceUp` (ANY binding), and the first test would fail
+ *   `Player.You`-scoped `Triggers.<player>.permanentTurnedFaceUp(filter)` (ANY binding), and the first test would fail
  *   with a SELF-excluding OTHER binding.
  * - **The amount comes from the flipped creature, not the Performer.** The second test flips a
  *   different, larger creature while the Performer sits face up on the battlefield, so a

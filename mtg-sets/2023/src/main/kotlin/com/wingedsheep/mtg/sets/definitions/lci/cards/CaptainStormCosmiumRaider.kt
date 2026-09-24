@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -32,10 +31,7 @@ val CaptainStormCosmiumRaider = card("Captain Storm, Cosmium Raider") {
     oracleText = "Whenever an artifact you control enters, put a +1/+1 counter on target Pirate you control."
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Artifact.youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Artifact.youControl()).enters()
         val t = target(
             "target Pirate you control",
             TargetCreature(filter = TargetFilter.PermanentYouControl.withSubtype(Subtype.PIRATE)),

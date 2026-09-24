@@ -35,7 +35,7 @@ val AzulaOnTheHunt = card("Azula, On the Hunt") {
     firebending(2)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Composite(
             Effects.LoseLife(1, EffectTarget.PlayerRef(Player.You)),
             Effects.Investigate(),

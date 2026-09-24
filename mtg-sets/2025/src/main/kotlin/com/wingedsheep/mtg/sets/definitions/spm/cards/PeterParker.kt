@@ -47,7 +47,7 @@ private val PeterParkerFront = card("Peter Parker") {
 
     // When Peter Parker enters, create a 2/1 green Spider creature token with reach.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 2,
             toughness = 1,

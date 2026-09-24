@@ -17,7 +17,7 @@ import com.wingedsheep.engine.core.Outcome
  * a Treasure token. This ability triggers only once each turn."
  *
  * Exercises the batched, opponent-scoped creature-death trigger
- * (`Triggers.OneOrMoreCreaturesAnOpponentControlsDie`): it fires at most once per death batch
+ * (`Triggers.oneOrMore(filter.opponentControls()).die()`): it fires at most once per death batch
  * (CR 603.3b) — so a single event that kills several of an opponent's creatures makes one
  * Treasure, not one per creature — and only creatures an opponent controls count. Both cases drive
  * the deaths through the real resolution pipeline via the card's own "deals X damage to each

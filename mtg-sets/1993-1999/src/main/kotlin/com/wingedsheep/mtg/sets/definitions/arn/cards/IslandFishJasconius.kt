@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantAttackUnless
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Island Fish Jasconius
@@ -35,7 +36,7 @@ val IslandFishJasconius = card("Island Fish Jasconius") {
     flags(AbilityFlag.DOESNT_UNTAP)
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.MayPay(ManaCost.parse("{U}{U}{U}"), Effects.Untap(EffectTarget.Self))
     }
 

@@ -44,7 +44,7 @@ val LizardConnorssCurse = card("Lizard, Connors's Curse") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "up to one other target creature",
             TargetCreature(optional = true, filter = TargetFilter.OtherCreature)

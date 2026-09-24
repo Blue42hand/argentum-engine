@@ -54,7 +54,7 @@ val NightOfTheSweetsRevenge = card("Night of the Sweets' Revenge") {
         "where X is the number of Foods you control. Activate only as a sorcery."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateFood()
     }
 

@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.training
 import com.wingedsheep.sdk.dsl.trainingTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Torens, Fist of the Angels
@@ -40,7 +41,7 @@ val Torens = card("Torens, Fist of the Angels") {
     training()
 
     triggeredAbility {
-        trigger = Triggers.YouCastCreature
+        trigger = Triggers.you.casts(GameObjectFilter.Creature)
         effect = Effects.CreateToken(
             // count defaults to Fixed(1); the primary (DynamicAmount) constructor is required here
             // because only it carries `triggeredAbilities` (the token's own Training behavior).

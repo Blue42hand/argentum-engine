@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Warren Torchmaster
@@ -29,7 +30,7 @@ val WarrenTorchmaster = card("Warren Torchmaster") {
         "(To blight 1, put a -1/-1 counter on a creature you control.)"
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         // The haste target is chosen at resolution of the reflexive trigger, not when this
         // ability triggers (per Scryfall ruling).
         effect = Effects.ReflexiveTrigger(

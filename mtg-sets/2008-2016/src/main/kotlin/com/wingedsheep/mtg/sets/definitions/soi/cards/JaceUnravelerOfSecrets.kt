@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  *     that spell."
  *
  * The emblem is a permanent [Effects.CreateGlobalTriggeredAbility] whose trigger is
- * [Triggers.NthSpellCast] with n = 1 scoped to [Player.EachOpponent] — the engine already tracks
+ * `Triggers.<player>.castsNth(n, spell)` with n = 1 scoped to [Player.EachOpponent] — the engine already tracks
  * a per-turn, per-player spell count, so "their first spell each turn" is the n = 1 rung of the
  * same mechanism Shackle Slinger uses for "your second spell each turn". Scoping to
  * `EachOpponent` (rather than a single opponent) is what makes the emblem fire once per turn for
@@ -49,8 +49,7 @@ val JaceUnravelerOfSecrets = card("Jace, Unraveler of Secrets") {
     loyaltyAbility(-8) {
         effect = Effects.CreateGlobalTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.NthSpellCast(1, Player.EachOpponent).event,
-                binding = Triggers.NthSpellCast(1, Player.EachOpponent).binding,
+                trigger = Triggers.anOpponent.castsNth(1),
                 effect = Effects.CounterTriggeringSpell()
             ),
             descriptionOverride = "Whenever an opponent casts their first spell each turn, counter that spell."

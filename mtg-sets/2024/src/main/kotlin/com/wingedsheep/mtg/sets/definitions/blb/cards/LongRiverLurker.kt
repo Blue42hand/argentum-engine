@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantWard
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.WardCost
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
@@ -52,7 +51,7 @@ val LongRiverLurker = card("Long River Lurker") {
     // ETB: target creature you control can't be blocked this turn, and whenever that
     // creature deals combat damage this turn, you may exile it and return it.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature you control", Targets.CreatureYouControl)
         effect = Effects.Composite(listOf(
             Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature),
@@ -64,7 +63,7 @@ val LongRiverLurker = card("Long River Lurker") {
                     )),
                     descriptionOverride = "You may exile that creature. If you do, return it to the battlefield under its owner's control."
                 ),
-                trigger = Triggers.dealsDamage(damageType = DamageType.Combat),
+                trigger = Triggers.self.dealsCombatDamage(),
                 watchedTarget = creature,
                 expiry = DelayedTriggerExpiry.EndOfTurn
             )

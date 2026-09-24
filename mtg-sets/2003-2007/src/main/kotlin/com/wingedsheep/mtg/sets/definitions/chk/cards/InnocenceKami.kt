@@ -21,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * The Kamigawa "Whenever you cast a Spirit or Arcane spell" trigger is a `SpellCastEvent` watching
  * *your* casts with an OR over the two subtypes — `withAnySubtype` builds the single
  * `CardPredicate.Or` the grammar expects, rather than the `anyOf` branch list that the `or` infix
- * on `GameObjectFilter` would produce. `Triggers.youCastSpell` supplies `Player.You` and
+ * on `GameObjectFilter` would produce. `Triggers.you.casts(spell, requires)` supplies `Player.You` and
  * `TriggerBinding.ANY`, so Innocence Kami also triggers off its own cast.
  *
  * Both halves lower to the same `TapUntapEffect` atom: the activated ability taps the chosen
@@ -42,9 +42,7 @@ val InnocenceKami = card("Innocence Kami") {
         effect = Effects.Tap(t)
     }
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.Any.withAnySubtype("Spirit", "Arcane")
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.Any.withAnySubtype("Spirit", "Arcane"))
         effect = Effects.Untap(EffectTarget.Self)
     }
     metadata {

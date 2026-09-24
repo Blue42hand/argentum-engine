@@ -30,7 +30,7 @@ val VolleyVeteran = card("Volley Veteran") {
     power = 4
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.DealDamage(
             DynamicAmounts.battlefield(Player.You, GameObjectFilter.Permanent.withSubtype("Goblin")).count(),

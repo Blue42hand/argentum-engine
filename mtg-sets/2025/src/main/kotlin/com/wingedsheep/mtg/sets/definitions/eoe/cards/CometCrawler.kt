@@ -30,7 +30,7 @@ val CometCrawler = card("Comet Crawler") {
 
     // Triggered ability: When attacks, may sacrifice another creature or artifact for +2/+0
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val sacrificeTarget = target(
             "another creature or artifact",
             com.wingedsheep.sdk.scripting.targets.TargetPermanent(

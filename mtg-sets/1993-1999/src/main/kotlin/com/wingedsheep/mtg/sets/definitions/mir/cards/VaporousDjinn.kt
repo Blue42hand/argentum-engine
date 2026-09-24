@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Vaporous Djinn
@@ -31,7 +32,7 @@ val VaporousDjinn = card("Vaporous Djinn") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Mana(ManaCost.parse("{U}{U}")),
             suffer = Effects.PhaseOut()

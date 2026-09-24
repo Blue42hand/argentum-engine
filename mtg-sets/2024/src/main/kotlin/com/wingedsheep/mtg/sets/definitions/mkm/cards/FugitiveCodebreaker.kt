@@ -58,7 +58,7 @@ val FugitiveCodebreaker = card("Fugitive Codebreaker") {
     )
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         effect = Effects.Composite(
             Patterns.Hand.discardHand(),
             Effects.DrawCards(3)

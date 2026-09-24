@@ -46,7 +46,7 @@ val RagnarokDivineDeliverance = card("Ragnarok, Divine Deliverance") {
     keywords(Keyword.VIGILANCE, Keyword.MENACE, Keyword.TRAMPLE, Keyword.REACH, Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val permanent = target("permanent", Targets.Permanent)
         val reanimate = target(
             "nonlegendary permanent card from your graveyard",

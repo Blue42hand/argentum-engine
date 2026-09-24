@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Smelt-Ward Minotaur
@@ -22,7 +23,7 @@ val SmeltWardMinotaur = card("Smelt-Ward Minotaur") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.YouCastInstantOrSorcery
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         val creature = target("target", Targets.CreatureOpponentControls)
         effect = Effects.CantBlock(creature)
     }

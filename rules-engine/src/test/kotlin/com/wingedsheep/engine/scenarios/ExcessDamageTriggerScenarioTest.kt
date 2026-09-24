@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
@@ -48,12 +47,7 @@ class ExcessDamageTriggerScenarioTest : FunSpec({
         typeLine = "Creature — Spirit"
         power = 0; toughness = 1
         triggeredAbility {
-            trigger = Triggers.dealsDamage(
-                damageType = DamageType.NonCombat,
-                recipient = Recipient.CreatureOpponentControls,
-                binding = TriggerBinding.ANY,
-                requireExcess = true,
-            )
+            trigger = Triggers.a().dealsDamage(Recipient.CreatureOpponentControls, damageType = DamageType.NonCombat, requireExcess = true)
             effect = Effects.Amass(
                 DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_EXCESS_DAMAGE_AMOUNT),
                 "Orc"
@@ -99,12 +93,7 @@ class ExcessDamageTriggerScenarioTest : FunSpec({
         typeLine = "Creature — Spirit"
         power = 0; toughness = 3
         triggeredAbility {
-            trigger = Triggers.dealsDamage(
-                damageType = DamageType.Combat,
-                recipient = Recipient.CreatureOpponentControls,
-                binding = TriggerBinding.ANY,
-                requireExcess = true,
-            )
+            trigger = Triggers.a().dealsCombatDamage(Recipient.CreatureOpponentControls, requireExcess = true)
             effect = Effects.Amass(
                 DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_EXCESS_DAMAGE_AMOUNT),
                 "Orc"

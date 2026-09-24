@@ -22,7 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Implementation notes:
  * - This is a **source-side** damage trigger: the observed object is the damage *source* (a Hero
- *   you control), not the recipient. That is [Triggers.dealsDamage] with a `sourceFilter` of
+ *   you control), not the recipient. That is `Triggers.<subject>.dealsDamage(to, damageType, requireExcess, batch, requires)` with a `sourceFilter` of
  *   `Any.withSubtype(HERO).youControl()` and `recipient = Recipient.AnyPlayer`, on
  *   [TriggerBinding.ANY] so every Hero you control is watched — The Thing is itself a Hero, so its
  *   own damage counts. The filter is deliberately *not* narrowed to creatures: a bare tribal noun
@@ -59,12 +59,7 @@ val TheThingBenGrimm = card("The Thing, Ben Grimm") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            recipient = Recipient.AnyPlayer,
-            sourceFilter = GameObjectFilter.Any.withSubtype(Subtype.HERO).youControl(),
-            binding = TriggerBinding.ANY,
-            batch = true,
-        )
+        trigger = Triggers.a(GameObjectFilter.Any.withSubtype(Subtype.HERO).youControl()).dealsDamage(Recipient.AnyPlayer, batch = true)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         description = "Whenever one or more Heroes you control deal damage to a player, put two " +
             "+1/+1 counters on The Thing."

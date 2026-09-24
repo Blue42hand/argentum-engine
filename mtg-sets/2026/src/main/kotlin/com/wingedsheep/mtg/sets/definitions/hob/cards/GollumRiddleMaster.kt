@@ -89,7 +89,7 @@ val GollumRiddleMaster = card("Gollum, Riddle Master") {
     )
 
     triggeredAbility {
-        trigger = Triggers.opponentCasts(GameObjectFilter.Any.manaValueIsOdd())
+        trigger = Triggers.anOpponent.casts(GameObjectFilter.Any.manaValueIsOdd())
         triggerRestriction = SourceChosenModeIs("odd")
         effect = riddle
         description = "Whenever an opponent casts a spell with an odd mana value, choose one that " +
@@ -97,7 +97,7 @@ val GollumRiddleMaster = card("Gollum, Riddle Master") {
     }
 
     triggeredAbility {
-        trigger = Triggers.opponentCasts(GameObjectFilter.Any.manaValueIsEven())
+        trigger = Triggers.anOpponent.casts(GameObjectFilter.Any.manaValueIsEven())
         triggerRestriction = SourceChosenModeIs("even")
         effect = riddle
         description = "Whenever an opponent casts a spell with an even mana value, choose one " +

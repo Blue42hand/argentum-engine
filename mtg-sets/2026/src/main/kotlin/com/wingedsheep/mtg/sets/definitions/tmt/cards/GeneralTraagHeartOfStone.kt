@@ -32,7 +32,7 @@ val GeneralTraagHeartOfStone = card("General Traag, Heart of Stone") {
     // "you may sacrifice another artifact. When you do, [deal 4 to target creature]" —
     // the reflexive trigger picks its target only after the optional sacrifice is paid.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeOwn(GameObjectFilter.Artifact, excludeSource = true),
             optional = true) {

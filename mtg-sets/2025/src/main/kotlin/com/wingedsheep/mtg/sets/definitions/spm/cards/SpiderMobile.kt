@@ -28,7 +28,7 @@ val SpiderMobile = card("Spider-Mobile") {
     toughness = 3
     keywords(Keyword.TRAMPLE)
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ModifyStats(
             DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.withSubtype("Spider")).count(),
             DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.withSubtype("Spider")).count(),
@@ -36,7 +36,7 @@ val SpiderMobile = card("Spider-Mobile") {
         )
     }
     triggeredAbility {
-        trigger = Triggers.Blocks
+        trigger = Triggers.self.blocks()
         effect = Effects.ModifyStats(
             DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.withSubtype("Spider")).count(),
             DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.withSubtype("Spider")).count(),

@@ -24,7 +24,7 @@ val AfterthoughtSentry = card("Afterthought Sentry") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val card = target("card", TargetObject(filter = TargetFilter.CardInGraveyard, optional = true))
         effect = Effects.Exile(card)
     }

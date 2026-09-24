@@ -28,7 +28,7 @@ val ViridianShaman = card("Viridian Shaman") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetPermanent(filter = TargetFilter.Artifact))
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }

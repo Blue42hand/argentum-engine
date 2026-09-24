@@ -57,7 +57,7 @@ val OrysaTideChoreographer = card("Orysa, Tide Choreographer") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(2)
         description = "When Orysa enters, draw two cards."
     }

@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Mister Hyde, Monster Within (MSH #176) — {2}{G} Legendary Creature — Human Villain · 2/2
@@ -18,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * • Put a +1/+1 counter on Mister Hyde.
  * • Remove a counter from a creature you control. If you do, draw a card.
  *
- * A modal *triggered* ability (CR 603.3c) on [Triggers.YourUpkeep], built as a
+ * A modal *triggered* ability (CR 603.3c) on `Triggers.you.beginningOf(Step.UPKEEP)`, built as a
  * [ModalEffect.chooseOne] the way White Widow, Free Agent builds its enters trigger. Neither mode
  * targets, so both the mode and the creature are chosen without targeting — the mode as the
  * ability goes on the stack (CR 601.2b), the creature on resolution.
@@ -45,7 +46,7 @@ val MisterHydeMonsterWithin = card("Mister Hyde, Monster Within") {
         "• Remove a counter from a creature you control. If you do, draw a card."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
                 Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),

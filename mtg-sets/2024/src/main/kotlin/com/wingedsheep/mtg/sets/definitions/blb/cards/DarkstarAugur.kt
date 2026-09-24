@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Darkstar Augur
@@ -40,7 +41,7 @@ val DarkstarAugur = card("Darkstar Augur") {
 
     // Offspring ETB: create token copy when kicked
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = WasKicked
         effect = Effects.CreateTokenCopyOfSelf(overridePower = 1, overrideToughness = 1)
     }
@@ -49,7 +50,7 @@ val DarkstarAugur = card("Darkstar Augur") {
 
     // At the beginning of your upkeep, reveal top card → hand, lose life = its mana value
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.Pipeline {
             val revealed = gather(CardSource.TopOfLibrary(1, Player.You))
             toHand(revealed, revealed = true)

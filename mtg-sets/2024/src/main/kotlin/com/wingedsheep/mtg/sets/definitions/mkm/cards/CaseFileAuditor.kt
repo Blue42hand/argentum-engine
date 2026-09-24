@@ -25,7 +25,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
  * differ in binding: the enters trigger watches this creature, while the solve trigger watches
  * every Case its controller has, so it can't be folded into a single `Triggers.or`.
  *
- * `Triggers.WheneverYouSolveACase` fires when a Case's "To solve" trigger resolves and stamps the
+ * `Triggers.you.solvesACase()` fires when a Case's "To solve" trigger resolves and stamps the
  * designation, which is exactly what the printed ruling says. The solved-ness is sticky and one-way
  * (CR 719.3b), so each Case feeds this at most once — and a Case whose Solved ability sacrifices it
  * still counts, because the solving player rides the event rather than being read back off a
@@ -58,7 +58,7 @@ val CaseFileAuditor = card("Case File Auditor") {
         "You may spend mana as though it were mana of any color to cast Case spells."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = lookAtSixForAnEnchantment()
         description = "When this creature enters, look at the top six cards of your library. You " +
             "may reveal an enchantment card from among them and put it into your hand. Put the " +
@@ -66,7 +66,7 @@ val CaseFileAuditor = card("Case File Auditor") {
     }
 
     triggeredAbility {
-        trigger = Triggers.WheneverYouSolveACase
+        trigger = Triggers.you.solvesACase()
         effect = lookAtSixForAnEnchantment()
         description = "Whenever you solve a Case, look at the top six cards of your library. You " +
             "may reveal an enchantment card from among them and put it into your hand. Put the " +

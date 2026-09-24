@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Brood Sliver
@@ -30,8 +31,7 @@ val BroodSliver = card("Brood Sliver") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.DealsCombatDamageToPlayer.event,
-                binding = Triggers.DealsCombatDamageToPlayer.binding,
+                trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer),
                 effect = Effects.May(
                     Effects.CreateToken(
                         power = 1,

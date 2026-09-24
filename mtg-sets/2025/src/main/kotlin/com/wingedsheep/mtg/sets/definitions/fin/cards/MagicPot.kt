@@ -26,7 +26,7 @@ val MagicPot = card("Magic Pot") {
     power = 1
     toughness = 4
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.CreateTreasure(1)
     }
     activatedAbility {

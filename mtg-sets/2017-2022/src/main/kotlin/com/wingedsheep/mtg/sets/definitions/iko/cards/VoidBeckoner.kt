@@ -39,7 +39,7 @@ val VoidBeckoner = card("Void Beckoner") {
     keywordAbility(KeywordAbility.cycling("{2}{B}"))
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         val t = target("target", Targets.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.DEATHTOUCH, 1, t)
     }

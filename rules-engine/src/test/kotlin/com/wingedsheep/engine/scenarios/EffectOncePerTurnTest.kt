@@ -6,12 +6,10 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern.DealsDamageEvent
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.events.Recipient
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Engine-level tests for **"Do this only once each turn"** — `TriggeredAbility.effectOncePerTurn`,
@@ -44,10 +42,7 @@ private val EffectCapWarden = card("Effect Cap Warden") {
         "Do this only once each turn."
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            DealsDamageEvent(recipient = Recipient.CreatureYouControl),
-            TriggerBinding.ANY,
-        )
+        trigger = Triggers.a().dealsDamage(Recipient.CreatureYouControl)
         effect = Effects.May(Effects.GainLife(2))
         effectOncePerTurn = true
     }
@@ -66,10 +61,7 @@ private val TriggerCapWarden = card("Trigger Cap Warden") {
         "This ability triggers only once each turn."
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            DealsDamageEvent(recipient = Recipient.CreatureYouControl),
-            TriggerBinding.ANY,
-        )
+        trigger = Triggers.a().dealsDamage(Recipient.CreatureYouControl)
         effect = Effects.May(Effects.GainLife(2))
         oncePerTurn = true
     }

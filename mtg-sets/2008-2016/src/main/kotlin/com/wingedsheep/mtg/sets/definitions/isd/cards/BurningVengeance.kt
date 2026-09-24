@@ -24,9 +24,7 @@ val BurningVengeance = card("Burning Vengeance") {
     oracleText = "Whenever you cast a spell from your graveyard, this enchantment deals 2 damage to any target."
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            requires = setOf(SpellCastPredicate.CastFromZone(Zone.GRAVEYARD))
-        )
+        trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.CastFromZone(Zone.GRAVEYARD)))
         val t = target("target", AnyTarget())
         effect = Effects.DealDamage(2, t)
     }

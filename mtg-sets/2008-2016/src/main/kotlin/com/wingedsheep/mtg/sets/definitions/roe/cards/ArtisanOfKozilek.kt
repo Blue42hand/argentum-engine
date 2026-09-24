@@ -23,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  * Annihilator 2
  *
  * Modeling notes:
- *  - The reanimation is a **cast trigger** ([Triggers.WhenYouCastThisSpell]), not an enters
+ *  - The reanimation is a **cast trigger** (`Triggers.self.isCast()`), not an enters
  *    trigger — it resolves before Artisan itself, and it still resolves if Artisan is countered.
  *  - Annihilator is a display-only [KeywordAbility.Numeric] in the SDK, so the behaviour is
  *    lowered here as the triggered ability the keyword abbreviates: on attack, the defending
@@ -45,7 +45,7 @@ val ArtisanOfKozilek = card("Artisan of Kozilek") {
     keywordAbility(KeywordAbility.annihilator(2))
 
     triggeredAbility {
-        trigger = Triggers.WhenYouCastThisSpell()
+        trigger = Triggers.self.isCast()
         val creatureCard = target(
             "target creature card from your graveyard",
             TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
@@ -57,7 +57,7 @@ val ArtisanOfKozilek = card("Artisan of Kozilek") {
 
     // Annihilator 2 — the lowering of the display-only keyword ability above.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Sacrifice(
             GameObjectFilter.Permanent,
             2,

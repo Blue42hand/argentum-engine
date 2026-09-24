@@ -30,7 +30,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  *   Equipped creature gets +2/+0.
  *   Equip {2} ({2}: Attach to target creature you control. Equip only as a sorcery.)
  *
- * Implementation: the front face's ETB strike is [Triggers.EntersBattlefield] +
+ * Implementation: the front face's ETB strike is `Triggers.self.enters()` +
  * [Effects.DealDamage] at [Targets.Any] (damage source defaults to the trigger's source,
  * matching the "it deals" wording). The craft line uses the `craft(...)` helper with
  * [GameObjectFilter.Artifact] and `minCount = maxCount = 1` — "Craft with artifact" exiles
@@ -54,7 +54,7 @@ private val IdolOfTheDeepKingFront = card("Idol of the Deep King") {
 
     // ETB: it deals 2 damage to any target.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val anyTarget = target("any target", Targets.Any)
         effect = Effects.DealDamage(2, anyTarget)
     }
@@ -86,7 +86,7 @@ private val SovereignsMacuahuitl = card("Sovereign's Macuahuitl") {
 
     // ETB: attach it to target creature you control.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature you control", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = Effects.AttachEquipment(creature)
     }

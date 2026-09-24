@@ -40,7 +40,7 @@ val Anthropede = card("Anthropede") {
     keywords(Keyword.REACH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             // "you may discard a card or pay {2}"
             action = Effects.ChooseAction(

@@ -41,7 +41,7 @@ val UreniTheSongUnending = card("Ureni, the Song Unending") {
     keywordAbility(KeywordAbility.Protection(ProtectionScope.Colors(setOf(Color.WHITE, Color.BLACK))))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         // "any number of target" — but divided damage requires at least 1 per chosen target, so
         // the number of targets can never exceed X (lands you control). dynamicMaxCount enforces
         // that cap at the moment the trigger goes on the stack; optional allows choosing zero.

@@ -27,7 +27,7 @@ val LanternOfTheLost = card("Lantern of the Lost") {
         "{1}, {T}, Exile this artifact: Exile all cards from all graveyards, then draw a card."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val exiled = target("target card in a graveyard", Targets.CardInGraveyard)
         effect = Effects.Move(exiled, Zone.EXILE)
     }

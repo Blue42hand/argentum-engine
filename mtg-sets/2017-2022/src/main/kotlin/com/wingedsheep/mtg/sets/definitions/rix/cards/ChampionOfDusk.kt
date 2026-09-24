@@ -32,7 +32,7 @@ val ChampionOfDusk = card("Champion of Dusk") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(
             count = DynamicAmounts.battlefield(
                 Player.You,

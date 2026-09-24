@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Hunter's Talent {G}
@@ -37,7 +38,7 @@ val HuntersTalent = card("Hunter's Talent") {
 
     // Level 1: ETB — bite effect
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val myCreature = target("creature you control", Targets.CreatureYouControl)
         val theirCreature = target("creature you don't control", Targets.CreatureOpponentControls)
         effect = Effects.DealDamage(
@@ -50,7 +51,7 @@ val HuntersTalent = card("Hunter's Talent") {
     // Level 2: Whenever you attack, target attacking creature gets +1/+0 and trample
     classLevel(2, "{1}{G}") {
         triggeredAbility {
-            trigger = Triggers.YouAttack
+            trigger = Triggers.you.attacks()
             val attacker = target("attacking creature", Targets.AttackingCreature)
             effect = Effects.ModifyStats(1, 0, attacker)
                 .then(Effects.GrantKeyword(Keyword.TRAMPLE, attacker))
@@ -60,7 +61,7 @@ val HuntersTalent = card("Hunter's Talent") {
     // Level 3: At the beginning of your end step, if you control a creature with power 4+, draw a card
     classLevel(3, "{3}{G}") {
         triggeredAbility {
-            trigger = Triggers.YourEndStep
+            trigger = Triggers.you.beginningOf(Step.END)
             interveningIf = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.powerAtLeast(4))
             effect = Effects.DrawCards(1)
         }

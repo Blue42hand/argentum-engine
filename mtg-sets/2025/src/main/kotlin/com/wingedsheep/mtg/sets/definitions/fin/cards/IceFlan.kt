@@ -33,7 +33,7 @@ val IceFlan = card("Ice Flan") {
         "reveal it, put it into your hand, then shuffle.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrArtifact.opponentControls()))

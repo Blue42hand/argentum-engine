@@ -40,7 +40,7 @@ val ConciliatorsDuelist = card("Conciliator's Duelist") {
         "at the beginning of the next end step."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             listOf(
                 Effects.DrawCards(1, EffectTarget.Controller),
@@ -50,9 +50,7 @@ val ConciliatorsDuelist = card("Conciliator's Duelist") {
     }
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature)
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature))
 
         val creature = target(
             "target creature",

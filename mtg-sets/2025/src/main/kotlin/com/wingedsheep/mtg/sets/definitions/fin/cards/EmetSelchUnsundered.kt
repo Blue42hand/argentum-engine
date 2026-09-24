@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.MayPlayLandsFromGraveyard
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Emet-Selch, Unsundered // Hades, Sorcerer of Eld — Final Fantasy #218
@@ -119,11 +120,11 @@ private val EmetSelchUnsunderedFront = card("Emet-Selch, Unsundered") {
 
     // Whenever Emet-Selch enters or attacks, draw a card, then discard a card.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Hand.loot()
     }
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Patterns.Hand.loot()
     }
 
@@ -131,7 +132,7 @@ private val EmetSelchUnsunderedFront = card("Emet-Selch, Unsundered") {
     // you may transform Emet-Selch. Intervening "if" — checked at trigger time and again on
     // resolution.
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.CardsInGraveyardAtLeast(14)
         effect = Effects.May(Effects.Transform(EffectTarget.Self))
     }

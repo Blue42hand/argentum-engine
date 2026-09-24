@@ -78,7 +78,7 @@ class EchoPerceptiveProdigyScenarioTest : FunSpec({
         toughness = 1
         oracleText = "When this creature dies, draw a card."
         triggeredAbility {
-            trigger = Triggers.Dies
+            trigger = Triggers.self.dies()
             effect = Effects.DrawCards(1)
             description = "When this creature dies, draw a card."
         }

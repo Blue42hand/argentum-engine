@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Zoyowa Lava-Tongue {B}{R}
@@ -53,7 +54,7 @@ val ZoyowaLavaTongue = card("Zoyowa Lava-Tongue") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.YouDescendedThisTurn()
         effect = Effects.ForEachPlayer(
             players = Player.EachOpponent,

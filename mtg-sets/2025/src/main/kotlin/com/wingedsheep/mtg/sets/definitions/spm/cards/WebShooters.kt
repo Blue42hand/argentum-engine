@@ -37,7 +37,7 @@ val WebShooters = card("Web-Shooters") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = grantedTriggeredAbility {
-                trigger = Triggers.Attacks
+                trigger = Triggers.self.attacks()
                 val creatureOpponentControls = target(
                     "target creature opponent controls",
                     Targets.CreatureOpponentControls

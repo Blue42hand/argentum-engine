@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Fight Rigging
@@ -45,7 +46,7 @@ val FightRigging = card("Fight Rigging") {
     keywordAbility(KeywordAbility.hideaway(5))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val fightRiggingTop = gather(
                 CardSource.TopOfLibrary(
@@ -66,7 +67,7 @@ val FightRigging = card("Fight Rigging") {
     }
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val t = target("target", Targets.CreatureYouControl)
         effect = Effects.Composite(
             listOf(

@@ -33,7 +33,7 @@ val ShamblingCieth = card("Shambling Cie'th") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Noncreature)
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         triggerZone = Zone.GRAVEYARD
         effect = Effects.MayPay(
             cost = ManaCost.parse("{B}"),

@@ -22,7 +22,7 @@ val TraxosScourgeEternal = card("Traxos, Scourge Eternal") {
     flags(AbilityFlag.DOESNT_UNTAP)
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Artifact or GameObjectFilter.Creature)
+        trigger = Triggers.you.casts(GameObjectFilter.Artifact or GameObjectFilter.Creature)
         effect = Effects.Untap(EffectTarget.Self)
     }
 

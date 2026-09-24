@@ -63,13 +63,13 @@ val DragonhawkFatesTempest = card("Dragonhawk, Fate's Tempest") {
 
     // When Dragonhawk enters the battlefield
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = impulseDrawEffect
     }
 
     // Whenever Dragonhawk attacks
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = impulseDrawEffect
     }
 

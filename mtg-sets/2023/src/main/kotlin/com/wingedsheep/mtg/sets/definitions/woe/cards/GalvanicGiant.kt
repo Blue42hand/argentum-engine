@@ -39,7 +39,7 @@ val GalvanicGiant = card("Galvanic Giant") {
         "become untapped, remove one from it instead.)"
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Any.manaValueAtLeast(5))
+        trigger = Triggers.you.casts(GameObjectFilter.Any.manaValueAtLeast(5))
         val t = target(
             "target creature an opponent controls",
             TargetCreature(filter = TargetFilter.Creature.opponentControls())

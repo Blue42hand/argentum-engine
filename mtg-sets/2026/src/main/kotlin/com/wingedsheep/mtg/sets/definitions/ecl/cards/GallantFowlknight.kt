@@ -19,7 +19,7 @@ val GallantFowlknight = card("Gallant Fowlknight") {
         "Kithkin creatures you control also gain first strike until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreaturesYouControl,
             Effects.ModifyStats(1, 0, EffectTarget.IterationEntity)

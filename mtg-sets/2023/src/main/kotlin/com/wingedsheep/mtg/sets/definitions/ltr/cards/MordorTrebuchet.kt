@@ -31,9 +31,7 @@ val MordorTrebuchet = card("Mordor Trebuchet") {
     keywords(Keyword.DEFENDER)
 
     triggeredAbility {
-        trigger = Triggers.YouAttackWithFilter(
-            GameObjectFilter.Creature.youControl().withAnySubtype("Goblin", "Orc")
-        )
+        trigger = Triggers.you.attacks(GameObjectFilter.Creature.youControl().withAnySubtype("Goblin", "Orc"))
         effect = Effects.CreateToken(
             power = 2,
             toughness = 1,

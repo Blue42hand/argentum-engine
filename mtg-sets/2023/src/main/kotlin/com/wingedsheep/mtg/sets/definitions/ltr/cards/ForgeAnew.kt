@@ -36,7 +36,7 @@ val ForgeAnew = card("Forge Anew") {
         "You may pay {0} rather than pay the equip cost of the first equip ability you activate during each of your turns."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val equipment = target(
             "Equipment card in your graveyard",
             TargetObject(

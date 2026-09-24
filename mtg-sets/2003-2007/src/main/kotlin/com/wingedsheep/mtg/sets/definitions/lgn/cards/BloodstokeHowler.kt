@@ -24,7 +24,7 @@ val BloodstokeHowler = card("Bloodstoke Howler") {
     oracleText = "Morph {6}{R} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen this creature is turned face up, Beast creatures you control get +3/+0 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.allCreaturesWithSubtype("Beast").youControl(),
             effect = Effects.ModifyStats(3, 0, EffectTarget.IterationEntity)

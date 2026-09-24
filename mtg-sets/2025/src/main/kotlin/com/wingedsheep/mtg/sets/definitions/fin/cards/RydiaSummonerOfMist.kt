@@ -47,7 +47,7 @@ val RydiaSummonerOfMist = card("Rydia, Summoner of Mist") {
         "with a finality counter on it. It gains haste until end of turn. Activate only as a sorcery."
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = Effects.May(
             effect = Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),

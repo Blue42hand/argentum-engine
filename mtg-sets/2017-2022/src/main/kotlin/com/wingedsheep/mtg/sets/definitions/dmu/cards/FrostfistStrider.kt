@@ -32,7 +32,7 @@ val FrostfistStrider = card("Frostfist Strider") {
 
     // A stun counter replaces the permanent's next untap, so the tap sticks for a turn cycle.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.Composite(
             Effects.Tap(t),

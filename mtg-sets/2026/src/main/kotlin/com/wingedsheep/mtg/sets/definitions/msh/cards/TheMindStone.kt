@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.core.Step
 
 /**
  * The Mind Stone — Marvel Super Heroes #21 (mythic)
@@ -67,7 +68,7 @@ val TheMindStone = card("The Mind Stone") {
     // ∞ — At the beginning of your end step (once harnessed), exile up to one other target
     // nonland permanent you control, then return that card to the battlefield.
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         triggerRestriction = Conditions.SourceHasCounter(CounterType.HARNESS)
         val permanent = target(
             "up to one other target nonland permanent you control",

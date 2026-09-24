@@ -8,13 +8,15 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Gardenize — Reality Fracture #103
  * {1}{G}{G} · Enchantment
  *
  * The Altar of Shadows shape: a death trigger feeds charge counters onto the enchantment, and a
- * [Triggers.FirstMainPhase] trigger adds {G} per counter, re-reading the count on resolution.
+ * `Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)` trigger adds {G} per counter, re-reading the count on resolution.
  */
 val Gardenize = card("Gardenize") {
     manaCost = "{1}{G}{G}"
@@ -24,13 +26,13 @@ val Gardenize = card("Gardenize") {
         "At the beginning of your first main phase, add {G} for each charge counter on this enchantment."
 
     triggeredAbility {
-        trigger = Triggers.YourCreatureDies
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dies()
         effect = Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)
         description = "Whenever a creature you control dies, put a charge counter on this enchantment."
     }
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.AddMana(
             Color.GREEN,
             DynamicAmounts.countersOnSelf(CounterType.CHARGE)

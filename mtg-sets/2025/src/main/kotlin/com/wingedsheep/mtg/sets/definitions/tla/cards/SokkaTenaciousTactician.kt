@@ -58,8 +58,7 @@ val SokkaTenaciousTactician = card("Sokka, Tenacious Tactician") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.YouCastNoncreature.event,
-                binding = Triggers.YouCastNoncreature.binding,
+                trigger = Triggers.you.casts(GameObjectFilter.Noncreature),
                 effect = Effects.ModifyStats(
                     power = 1,
                     toughness = 1,
@@ -72,7 +71,7 @@ val SokkaTenaciousTactician = card("Sokka, Tenacious Tactician") {
 
     // "Whenever you cast a noncreature spell, create a 1/1 white Ally creature token."
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

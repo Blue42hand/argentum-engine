@@ -28,7 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  * and Raises Dead. It is the set's crime-scene enchantment in mechanical form — the evidence piles
  * up until it points at a body.
  *
- * **The death trigger is batched.** [Triggers.OneOrMoreCreaturesDie] fires at most once per death
+ * **The death trigger is batched.** `Triggers.oneOrMore(filter.anyController()).die()` fires at most once per death
  * batch regardless of how many creatures died simultaneously or who controlled them (CR 603.3b), so
  * a board wipe advances the fuse by exactly one, not by six. Same shape as DSK's Chainsaw.
  *
@@ -61,7 +61,7 @@ val BloodSpatterAnalysis = card("Blood Spatter Analysis") {
         "do, return target creature card from your graveyard to your hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val victim = target(
             "target creature an opponent controls",
             TargetCreature(filter = TargetFilter.Creature.opponentControls())
@@ -72,7 +72,7 @@ val BloodSpatterAnalysis = card("Blood Spatter Analysis") {
     }
 
     triggeredAbility {
-        trigger = Triggers.OneOrMoreCreaturesDie()
+        trigger = Triggers.oneOrMore(GameObjectFilter.Creature.anyController()).die()
         effect = Patterns.Library.mill(1)
             .then(Effects.AddCounters(CounterType.BLOODSTAIN, 1, EffectTarget.Self))
             .then(

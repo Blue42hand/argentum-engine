@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Both halves are unconditional and neither is a target, so nothing fizzles if the flipped
  * permanent leaves in response — the trigger just does as much as it can.
  *
- * Oracle says "face-down *permanent*", modelled as [Triggers.CreatureTurnedFaceUp]. That is not a
+ * Oracle says "face-down *permanent*", modelled as `Triggers.<player>.permanentTurnedFaceUp(filter)`. That is not a
  * narrowing: a face-down permanent on the battlefield is always a 2/2 colorless creature with no
  * name, types, or abilities (CR 708.2), so every face-down permanent you control *is* a face-down
  * creature you control at the moment the flip happens. The binding is ANY, so Sumala Sentry
@@ -45,7 +45,7 @@ val SumalaSentry = card("Sumala Sentry") {
     keywords(Keyword.REACH)
 
     triggeredAbility {
-        trigger = Triggers.CreatureTurnedFaceUp()
+        trigger = Triggers.you.permanentTurnedFaceUp()
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.TriggeringEntity),
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)

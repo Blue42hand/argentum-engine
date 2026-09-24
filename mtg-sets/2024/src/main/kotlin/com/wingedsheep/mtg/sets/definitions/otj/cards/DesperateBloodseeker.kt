@@ -26,7 +26,7 @@ val DesperateBloodseeker = card("Desperate Bloodseeker") {
     keywords(Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val player = target("target player", Targets.Player)
         effect = Patterns.Library.mill(2, player)
     }

@@ -26,7 +26,7 @@ val SunCrownedHunters = card("Sun-Crowned Hunters") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.TakesDamage
+        trigger = Triggers.self.isDealtDamage()
         val victim = target("target", Targets.OpponentOrPlaneswalker)
         effect = Effects.DealDamage(3, victim)
         description = "Enrage — Whenever this creature is dealt damage, it deals 3 damage to " +

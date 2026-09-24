@@ -33,7 +33,7 @@ class ChantOfVituGhaziScenarioTest : FunSpec({
         toughness = 1
         oracleText = "When this creature enters, it deals 3 damage to target player."
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             val victim = target("target player", Targets.Player)
             effect = Effects.DealDamage(3, victim)
         }

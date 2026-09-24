@@ -35,7 +35,7 @@ val AinokWayfarer = card("Ainok Wayfarer") {
     oracleText = "When this creature enters, mill three cards. You may put a land card from among them into your hand. If you don't, put a +1/+1 counter on this creature."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             // Mill three: gather the top three, then move them to the graveyard.
             val milled = gather(CardSource.TopOfLibrary(3))

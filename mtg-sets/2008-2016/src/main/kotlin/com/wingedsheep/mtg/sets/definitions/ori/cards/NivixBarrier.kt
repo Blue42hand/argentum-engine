@@ -31,7 +31,7 @@ val NivixBarrier = card("Nivix Barrier") {
     keywords(Keyword.FLASH, Keyword.DEFENDER)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target attacking creature", TargetCreature(filter = TargetFilter.Creature.attacking()))
         effect = Effects.ModifyStats(-4, 0, t)
     }

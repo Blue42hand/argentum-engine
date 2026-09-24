@@ -33,7 +33,7 @@ val ArmamentDragon = card("Armament Dragon") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target = TargetCreature(count = 3, minCount = 1, filter = TargetFilter.CreatureYouControl)
         effect = Effects.DistributeCountersAmongTargets(totalCounters = 3)
     }

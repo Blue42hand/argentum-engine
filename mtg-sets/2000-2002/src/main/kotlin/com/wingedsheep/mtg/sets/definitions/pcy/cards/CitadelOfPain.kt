@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 
 /**
@@ -26,7 +27,7 @@ val CitadelOfPain = card("Citadel of Pain") {
     typeLine = "Enchantment"
     oracleText = "At the beginning of each player's end step, this enchantment deals X damage to that player, where X is the number of untapped lands they control."
     triggeredAbility {
-        trigger = Triggers.EachEndStep
+        trigger = Triggers.anyPlayer.beginningOf(Step.END)
         effect = Effects.DealDamage(
             DynamicAmounts.landsYouControl(),
             EffectTarget.PlayerRef(Player.TriggeringPlayer)

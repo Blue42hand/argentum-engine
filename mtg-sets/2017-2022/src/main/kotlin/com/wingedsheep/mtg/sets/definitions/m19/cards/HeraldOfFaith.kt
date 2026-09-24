@@ -28,7 +28,7 @@ val HeraldOfFaith = card("Herald of Faith") {
     toughness = 3
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.GainLife(2)
     }
     metadata {

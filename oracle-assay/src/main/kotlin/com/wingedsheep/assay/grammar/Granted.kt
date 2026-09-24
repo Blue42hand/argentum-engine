@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Triggers as SdkTriggers
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * "Whenever a Sliver deals combat damage to a player, its controller may draw a card." — a
@@ -176,16 +177,16 @@ object Granted {
     }
 
     val statics: List<Phrase<StaticAbility>> = listOf(
-        grantedTrigger("deals damage", "a group's damage trigger", SdkTriggers.DealsDamage),
+        grantedTrigger("deals damage", "a group's damage trigger", SdkTriggers.self.dealsDamage()),
         grantedTrigger(
             "deals combat damage to a player",
             "a group's combat-damage-to-a-player trigger",
-            SdkTriggers.DealsCombatDamageToPlayer,
+            SdkTriggers.self.dealsCombatDamage(Recipient.AnyPlayer),
         ),
         grantedTrigger(
             "deals combat damage to a creature",
             "a group's combat-damage-to-a-creature trigger",
-            SdkTriggers.DealsCombatDamageToCreature,
+            SdkTriggers.self.dealsCombatDamage(Recipient.AnyCreature),
         ),
     )
 }

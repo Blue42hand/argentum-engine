@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Icatian Store
@@ -40,7 +41,7 @@ val IcatianStore = card("Icatian Store") {
     flags(AbilityFlag.MAY_NOT_UNTAP)
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.SourceIsTapped
         effect = Effects.AddCounters(CounterType.STORAGE, 1, EffectTarget.Self)
         description = "At the beginning of your upkeep, if this land is tapped, put a storage counter on it."

@@ -26,8 +26,8 @@ private val controllerLosesThree = Effects.LoseLife(3, EffectTarget.Controller)
  * hit the creature's controller, never the Aura's.
  *
  * One printed ability with two trigger conditions, so it is the Super-Soldier Serum idiom: two
- * [GrantTriggeredAbility] statics over [Filters.EnchantedCreature], one for [Triggers.Attacks]
- * and one for [Triggers.Blocks]. Installing the triggers *on the creature* rather than keeping
+ * [GrantTriggeredAbility] statics over [Filters.EnchantedCreature], one for `Triggers.self.attacks()`
+ * and one for `Triggers.self.blocks()`. Installing the triggers *on the creature* rather than keeping
  * them on the Aura is required, not stylistic — the engine's `AttachmentTriggerDetector` has no
  * block branch, so an `ATTACHED`-bound blocks trigger would never fire. It also lands the
  * controller question on the right answer for free: the granted ability's controller is the
@@ -50,8 +50,7 @@ val ContaminatedBond = card("Contaminated Bond") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.Attacks.event,
-                binding = Triggers.Attacks.binding,
+                trigger = Triggers.self.attacks(),
                 effect = controllerLosesThree,
                 descriptionOverride = "Whenever this creature attacks, its controller loses 3 life.",
             ),
@@ -63,8 +62,7 @@ val ContaminatedBond = card("Contaminated Bond") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.Blocks.event,
-                binding = Triggers.Blocks.binding,
+                trigger = Triggers.self.blocks(),
                 effect = controllerLosesThree,
                 descriptionOverride = "Whenever this creature blocks, its controller loses 3 life.",
             ),

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBlock
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
@@ -29,7 +28,7 @@ val DrinkerOfSorrow = card("Drinker of Sorrow") {
     }
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(damageType = DamageType.Combat)
+        trigger = Triggers.self.dealsCombatDamage()
         effect = Effects.SacrificeOwn(GameObjectFilter.Permanent)
     }
 

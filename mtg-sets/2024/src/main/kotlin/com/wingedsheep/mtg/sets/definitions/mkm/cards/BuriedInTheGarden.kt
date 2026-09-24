@@ -45,7 +45,7 @@ val BuriedInTheGarden = card("Buried in the Garden") {
     auraTarget = Targets.Land
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val exiled = target("exiled", TargetPermanent(filter = TargetFilter.NonlandPermanentOpponentControls))
         effect = Effects.ExileUntilLeaves(exiled)
         description = "When this Aura enters, exile target nonland permanent you don't control " +
@@ -53,7 +53,7 @@ val BuriedInTheGarden = card("Buried in the Garden") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

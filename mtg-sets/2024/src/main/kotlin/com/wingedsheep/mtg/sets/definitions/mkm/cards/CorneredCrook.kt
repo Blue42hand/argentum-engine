@@ -41,7 +41,7 @@ val CorneredCrook = card("Cornered Crook") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Effects.Pipeline {
                 val toSacrifice = selectTarget(TargetObject(filter = TargetFilter.Artifact.youControl()))

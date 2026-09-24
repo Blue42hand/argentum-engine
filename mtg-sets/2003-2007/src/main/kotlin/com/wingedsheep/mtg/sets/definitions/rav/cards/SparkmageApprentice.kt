@@ -26,7 +26,7 @@ val SparkmageApprentice = card("Sparkmage Apprentice") {
     power = 1
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", AnyTarget())
         effect = Effects.DealDamage(1, t)
     }

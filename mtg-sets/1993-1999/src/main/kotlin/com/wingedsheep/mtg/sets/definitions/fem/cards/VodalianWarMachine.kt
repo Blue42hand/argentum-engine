@@ -82,7 +82,7 @@ val VodalianWarMachine = card("Vodalian War Machine") {
  * destroying its Merfolk twice; the end-of-turn expiry is the "this turn" in the printed text.
  */
 private fun deathRevengeOn() = Effects.CreateDelayedTrigger(
-    trigger = Triggers.Dies,
+    trigger = Triggers.self.dies(),
     watchedTarget = EffectTarget.Self,
     effect = Effects.Destroy(EffectTarget.TappedAsCost(0)),
     expiry = DelayedTriggerExpiry.EndOfTurn,

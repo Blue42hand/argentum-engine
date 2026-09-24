@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Ninja's Blades
@@ -57,8 +58,7 @@ val NinjasBlades = card("Ninja's Blades") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.DealsCombatDamageToPlayer.event,
-                binding = Triggers.DealsCombatDamageToPlayer.binding,
+                trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer),
                 effect = Effects.Composite(
                     Effects.DrawCards(1),
                     Patterns.Hand.discardCards(1),

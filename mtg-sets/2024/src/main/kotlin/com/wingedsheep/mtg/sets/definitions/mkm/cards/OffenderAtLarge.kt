@@ -42,7 +42,7 @@ val OffenderAtLarge = card("Offender at Large") {
     disguise = "{4}{R}"
 
     triggeredAbility {
-        trigger = Triggers.or(Triggers.EntersBattlefield, Triggers.TurnedFaceUp)
+        trigger = Triggers.or(Triggers.self.enters(), Triggers.self.turnedFaceUp())
         val creature = target("up to one target creature", TargetCreature(optional = true))
         effect = Effects.ModifyStats(2, 0, creature)
         description = "When this creature enters or is turned face up, up to one target creature " +

@@ -30,7 +30,7 @@ val MidnightScavengers = card("Midnight Scavengers") {
     power = 3
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target(
             "target",

@@ -14,7 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  * When this artifact enters, create two 1/1 colorless Gnome artifact creature tokens.
  * {W}, Sacrifice this artifact: You gain 3 life.
  *
- * Ability 1 — [Triggers.EntersBattlefield] fires the ETB. [CreateTokenEffect] with
+ * Ability 1 — `Triggers.self.enters()` fires the ETB. [CreateTokenEffect] with
  *   `count = DynamicAmount.Fixed(2)` makes two 1/1 colorless Gnome artifact creature tokens: no
  *   color set (`colors = emptySet()`),
  *   `artifactToken = true`, `creatureTypes = setOf("Gnome")` — the same token minted by Anim Pakal,
@@ -33,7 +33,7 @@ val TinkersTote = card("Tinker's Tote") {
 
     // When this artifact enters, create two 1/1 colorless Gnome artifact creature tokens.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             count = 2,
             power = 1,

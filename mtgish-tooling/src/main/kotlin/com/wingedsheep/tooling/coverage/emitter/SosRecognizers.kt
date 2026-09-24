@@ -858,7 +858,7 @@ private fun EmitCtx.enchantmentSubtypeTargetExpr(tnode: JsonObject): Dsl? {
  * →
  * ```
  * triggeredAbility {
- *     trigger = Triggers.WhenYouCastThisSpell()
+ *     trigger = Triggers.self.isCast()
  *     triggerCondition = Conditions.YouGainedLifeThisTurn
  *     effect = Effects.CopyTargetSpell(target = EffectTarget.TriggeringEntity)
  * }
@@ -906,7 +906,7 @@ internal fun EmitCtx.lumaretsFavorInfusionCopyBlock(rule: JsonObject): List<Stmt
 
     return listOf(
         Sub(Block("triggeredAbility", listOf(
-            Assign("trigger", call("Triggers.WhenYouCastThisSpell")),
+            Assign("trigger", call("Triggers.self.isCast")),
             Assign("triggerCondition", Lit("Conditions.YouGainedLifeThisTurn")),
             Assign("effect", call("Effects.CopyTargetSpell", arg("target", "EffectTarget.TriggeringEntity"))),
         ))),

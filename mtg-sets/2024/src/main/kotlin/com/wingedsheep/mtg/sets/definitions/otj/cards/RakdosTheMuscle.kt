@@ -32,7 +32,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * Implementation:
  * - Flying/trample keywords.
- * - The sacrifice trigger ([Triggers.YouSacrificeOneOrMore] over creatures) targets a player and
+ * - The sacrifice trigger (`Triggers.you.sacrifices(filter, batch = true)` over creatures) targets a player and
  *   impulse-exiles the top X of that player's library, where X is the sacrificed creature's mana
  *   value — read via [EffectTarget.TriggeringEntity] (the sacrificed creature is the triggering
  *   entity; its `CardComponent.manaValue` survives in the graveyard). It then grants a may-play
@@ -62,7 +62,7 @@ val RakdosTheMuscle = card("Rakdos, the Muscle") {
     keywords(Keyword.FLYING, Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.YouSacrificeOneOrMore(GameObjectFilter.Creature)
+        trigger = Triggers.you.sacrifices(GameObjectFilter.Creature, batch = true)
         val targetPlayer = target("target player", Targets.Player)
         effect = Effects.Pipeline {
             val rakdosExiled = gather(

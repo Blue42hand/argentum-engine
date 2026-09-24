@@ -26,7 +26,7 @@ val InfectiousHost = card("Infectious Host") {
     power = 1
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val t = target("target", TargetPlayer())
         effect = Effects.LoseLife(2, t)
     }

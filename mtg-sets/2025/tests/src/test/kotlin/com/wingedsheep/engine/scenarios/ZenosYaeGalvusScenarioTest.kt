@@ -37,7 +37,7 @@ import com.wingedsheep.engine.core.Outcome
  *  - "When the chosen creature leaves the battlefield, transform" is a persistent
  *    ([DelayedTriggerExpiry.Never]) reflexive delayed trigger — it survives an end-of-turn cleanup
  *    and fires only for the watched creature, then flips Zenos to its Shinryu back face.
- *  - Shinryu's `Triggers.AnyPlayerLosesGame` + `Conditions.TriggeringPlayerIs(Player.ChosenOpponent)`
+ *  - Shinryu's `Triggers.anyPlayer.losesGame()` + `Conditions.TriggeringPlayerIs(Player.ChosenOpponent)`
  *    + `Effects.WinGame()` make you win when your chosen opponent loses — proven discriminatingly in
  *    a 3-player pod (an unchosen opponent's loss does not win it for you).
  */
@@ -201,7 +201,7 @@ class ZenosYaeGalvusScenarioTest : FunSpec({
             power = 1
             toughness = 1
             triggeredAbility {
-                trigger = Triggers.AnyPlayerLosesGame
+                trigger = Triggers.anyPlayer.losesGame()
                 triggerRestriction = Conditions.TriggeringPlayerIs(Player.ChosenOpponent)
                 effect = Effects.WinGame()
             }

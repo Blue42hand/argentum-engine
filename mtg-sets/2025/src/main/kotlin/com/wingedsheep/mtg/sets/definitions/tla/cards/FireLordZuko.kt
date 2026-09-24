@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.ManaExpiry
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -52,7 +50,7 @@ val FireLordZuko = card("Fire Lord Zuko") {
         "put a +1/+1 counter on each creature you control."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.AddMana(
             Color.RED,
             DynamicAmounts.sourcePower(),
@@ -63,9 +61,7 @@ val FireLordZuko = card("Fire Lord Zuko") {
     }
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            requires = setOf(SpellCastPredicate.CastFromZone(Zone.EXILE)),
-        )
+        trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.CastFromZone(Zone.EXILE)))
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
@@ -74,10 +70,7 @@ val FireLordZuko = card("Fire Lord Zuko") {
     }
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = ZoneChangeEvent(from = Zone.EXILE, to = Zone.BATTLEFIELD),
-            binding = TriggerBinding.ANY,
-        ).youControl()
+        trigger = Triggers.a(GameObjectFilter.Any.youControl()).enters(from = Zone.EXILE)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),

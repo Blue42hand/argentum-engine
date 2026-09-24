@@ -22,7 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * {1}{W}, Sacrifice this creature: You gain 2 life.
  *
  * O-Ring-style linked exile: the ETB exiles the target ("up to one" → optional) via
- * [Effects.ExileUntilLeaves], and a companion [Triggers.LeavesBattlefield] trigger returns the
+ * [Effects.ExileUntilLeaves], and a companion `Triggers.self.leaves()` trigger returns the
  * exiled card with [Effects.ReturnLinkedExileUnderOwnersControl]. The target filter is
  * `Creature.notSubtype(Fox)` with `excludeSelf` (Werefox is itself a Fox, and the oracle says
  * "other"). The sacrifice ability lets its owner cash it in for 2 life before an opponent can
@@ -42,7 +42,7 @@ val WerefoxBodyguard = card("Werefox Bodyguard") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "other target non-Fox creature",
             TargetCreature(
@@ -59,7 +59,7 @@ val WerefoxBodyguard = card("Werefox Bodyguard") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

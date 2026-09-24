@@ -21,12 +21,12 @@ val WayOfTheMindSculptor = card("Way of the Mind Sculptor") {
         "Whenever you activate a loyalty ability, if you removed two or more loyalty counters to activate it, draw a card."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Mechanic.empowerJace(5)
     }
 
     triggeredAbility {
-        trigger = Triggers.YouActivateLoyaltyAbilityRemovingAtLeast(2)
+        trigger = Triggers.you.activatesAbility(minLoyaltyRemoved = 2)
         effect = Effects.DrawCards(1)
         description = "Whenever you activate a loyalty ability, if you removed two or more loyalty " +
             "counters to activate it, draw a card."

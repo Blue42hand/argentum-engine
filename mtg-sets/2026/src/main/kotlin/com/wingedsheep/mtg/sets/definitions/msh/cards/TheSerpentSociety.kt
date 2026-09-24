@@ -2,14 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.effects.WardCost
@@ -54,11 +52,7 @@ val TheSerpentSociety = card("The Serpent Society") {
     keywordAbility(KeywordAbility.Ward(WardCost.PlayerCounters(CounterType.POISON, 5)))
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.youControl().withKeyword(Keyword.DEATHTOUCH),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.OTHER,
-        )
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl().withKeyword(Keyword.DEATHTOUCH)).dies()
         effect = Effects.Sacrifice(
             GameObjectFilter.Creature.nontoken(),
             target = EffectTarget.PlayerRef(Player.EachOpponent),

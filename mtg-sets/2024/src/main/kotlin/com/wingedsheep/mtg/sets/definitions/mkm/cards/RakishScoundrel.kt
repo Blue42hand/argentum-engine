@@ -36,7 +36,7 @@ val RakishScoundrel = card("Rakish Scoundrel") {
     disguise = "{4}{B/G}{B/G}"
 
     triggeredAbility {
-        trigger = Triggers.or(Triggers.EntersBattlefield, Triggers.TurnedFaceUp)
+        trigger = Triggers.or(Triggers.self.enters(), Triggers.self.turnedFaceUp())
         val creature = target("target creature", Targets.Creature)
         effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature)
     }

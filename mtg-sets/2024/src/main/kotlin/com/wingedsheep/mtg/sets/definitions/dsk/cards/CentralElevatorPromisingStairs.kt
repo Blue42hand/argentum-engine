@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Central Elevator // Promising Stairs (DSK 44) — split-layout Room (CR 709.5).
@@ -48,7 +49,7 @@ val CentralElevatorPromisingStairs = card("Central Elevator // Promising Stairs"
             "have the same name as a Room you control, reveal it, put it into your hand, then shuffle."
 
         triggeredAbility {
-            trigger = Triggers.OnDoorUnlocked
+            trigger = Triggers.self.doorUnlocked()
             effect = Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.Any
                     .withSubtype(Subtype.ROOM)
@@ -71,7 +72,7 @@ val CentralElevatorPromisingStairs = card("Central Elevator // Promising Stairs"
             "eight or more different names among unlocked doors of Rooms you control."
 
         triggeredAbility {
-            trigger = Triggers.YourUpkeep
+            trigger = Triggers.you.beginningOf(Step.UPKEEP)
             effect = Effects.Surveil(1)
             description = "At the beginning of your upkeep, surveil 1."
         }

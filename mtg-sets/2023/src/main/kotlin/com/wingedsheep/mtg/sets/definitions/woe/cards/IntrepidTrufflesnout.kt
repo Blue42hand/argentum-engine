@@ -34,7 +34,7 @@ val IntrepidTrufflesnout = card("Intrepid Trufflesnout") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.attacks(requires = setOf(AttackPredicate.Alone))
+        trigger = Triggers.self.attacks(setOf(AttackPredicate.Alone))
         effect = Effects.CreateFood()
     }
 

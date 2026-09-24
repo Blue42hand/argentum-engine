@@ -31,7 +31,7 @@ val MerfolkWayfinder = card("Merfolk Wayfinder") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.revealTopPutAllMatchingToHand(
             count = 3,
             filter = GameObjectFilter.Land.withSubtype("Island"),

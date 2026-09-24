@@ -36,7 +36,7 @@ val HarvesterOfMisery = card("Harvester of Misery") {
 
     // When this enters, all OTHER creatures get -2/-2 until end of turn.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature, excludeSelf = true),
             Effects.ModifyStats(-2, -2, EffectTarget.IterationEntity)

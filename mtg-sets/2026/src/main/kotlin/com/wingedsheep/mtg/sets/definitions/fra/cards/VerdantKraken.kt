@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Verdant Kraken — Reality Fracture #118
@@ -27,7 +28,7 @@ val VerdantKraken = card("Verdant Kraken") {
         "your next turn.)"
 
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         effect = Effects.CreateForestTentacle()
         description = "At the beginning of each player's upkeep, you create a 3/3 green Forest " +
             "Tentacle land creature token."

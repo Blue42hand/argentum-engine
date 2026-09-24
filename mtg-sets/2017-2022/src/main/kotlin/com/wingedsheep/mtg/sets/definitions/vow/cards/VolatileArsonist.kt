@@ -49,7 +49,7 @@ private val VolatileArsonistFront = card("Volatile Arsonist") {
     keywords(Keyword.MENACE, Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val creature = target("up to one target creature", TargetCreature(optional = true))
         val player = target("up to one target player", TargetPlayer(optional = true))
         val planeswalker = target(
@@ -89,7 +89,7 @@ private val DireStrainAnarchist = card("Dire-Strain Anarchist") {
     keywords(Keyword.MENACE, Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val creature = target("up to one target creature", TargetCreature(optional = true))
         val player = target("up to one target player", TargetPlayer(optional = true))
         val planeswalker = target(

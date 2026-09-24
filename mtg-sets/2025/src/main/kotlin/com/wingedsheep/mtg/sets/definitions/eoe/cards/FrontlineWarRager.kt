@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Frontline War-Rager
@@ -31,7 +32,7 @@ val FrontlineWarRager = card("Frontline War-Rager") {
         "put a +1/+1 counter on this creature."
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.tapped()).count(),
             ComparisonOperator.GTE,

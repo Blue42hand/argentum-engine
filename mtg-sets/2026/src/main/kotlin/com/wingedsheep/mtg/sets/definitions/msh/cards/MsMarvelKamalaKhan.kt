@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.NoMaximumHandSize
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 
 /**
  * Ms. Marvel, Kamala Khan — Marvel Super Heroes #67 (rare)
@@ -23,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Three of the four lines are existing vocabulary: the two keywords, [NoMaximumHandSize] (a
  * turn-based read in the cleanup step, not a Rule 613 continuous effect), and
- * [Triggers.youCastSpellTargeting] over `Creature.youControl()` — the same facade Iron Fist,
+ * `Triggers.you.casts(requires = setOf(SpellCastPredicate.TargetsMatching(filter)))` over `Creature.youControl()` — the same facade Iron Fist,
  * Mockingbird and Colleen Wing use in this set. Ms. Marvel is herself "a creature you control", so
  * a spell aimed at her arms the trigger too.
  *
@@ -66,7 +67,7 @@ val MsMarvelKamalaKhan = card("Ms. Marvel, Kamala Khan") {
     }
 
     triggeredAbility {
-        trigger = Triggers.youCastSpellTargeting(GameObjectFilter.Creature.youControl())
+        trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.TargetsMatching(GameObjectFilter.Creature.youControl())))
         effect = Effects.Composite(
             Effects.DrawCards(1),
             Effects.SetBasePower(

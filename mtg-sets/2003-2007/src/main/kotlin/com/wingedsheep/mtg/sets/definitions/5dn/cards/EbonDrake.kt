@@ -29,7 +29,7 @@ val EbonDrake = card("Ebon Drake") {
     toughness = 3
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.AnyPlayerCastsSpell
+        trigger = Triggers.anyPlayer.casts()
         effect = Effects.LoseLife(1, EffectTarget.Controller)
     }
     metadata {

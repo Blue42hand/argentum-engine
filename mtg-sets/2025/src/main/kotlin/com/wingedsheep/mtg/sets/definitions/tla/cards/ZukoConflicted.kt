@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Zuko, Conflicted
@@ -44,7 +45,7 @@ val ZukoConflicted = card("Zuko, Conflicted") {
         "• Exile Zuko, then return him to the battlefield under an opponent's control."
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = ModalEffect.chooseOneNotYetChosen(
             // • Draw a card.
             Mode.noTarget(

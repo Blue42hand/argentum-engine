@@ -36,7 +36,7 @@ val KioraOfSaltAndSand = card("Kiora of Salt and Sand") {
         "Planeswalkers you control have \"[−8]: Create an 8/8 blue Leviathan creature token with hexproof.\""
 
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         interveningIf = Conditions.YouActivatedLoyaltyAbilityThisTurn()
         val attacker = target("target attacking creature", Targets.AttackingCreature)
         effect = Effects.Composite(

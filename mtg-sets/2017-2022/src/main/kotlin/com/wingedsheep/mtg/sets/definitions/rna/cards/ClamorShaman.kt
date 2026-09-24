@@ -26,7 +26,7 @@ val ClamorShaman = card("Clamor Shaman") {
 
     riot()
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val victim = target("target", Targets.CreatureOpponentControls)
         effect = Effects.CantBlock(victim)
     }

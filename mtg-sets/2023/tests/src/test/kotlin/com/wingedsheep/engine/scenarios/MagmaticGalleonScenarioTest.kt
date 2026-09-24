@@ -31,8 +31,7 @@ import com.wingedsheep.engine.core.Outcome
  *    create a Treasure token."
  *
  * VERIFY focus: the second ability is the Gap 12 excess-damage trigger primitive
- * (`Triggers.dealsDamage(damageType = NonCombat, recipient = CreatureOpponentControls,
- * requireExcess = true)`, ANY binding — same primitive Fall of Cair Andros composes) with
+ * (`Triggers.<subject>.dealsDamage(to, damageType, requireExcess, batch, requires)`, ANY binding — same primitive Fall of Cair Andros composes) with
  * `batch = true` for the "one or more creatures" wording, paired with
  * `Effects.CreateTreasure()`. Tests prove: (a) the Galleon's own ETB 5-damage strike that
  * exceeds lethal makes a Treasure, (b) the `requireExcess` gate suppresses the Treasure when the

@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  * Flying, deathtouch
  * Whenever an opponent loses life, you gain that much life. (Damage causes loss of life.)
  *
- * The trigger fires once per opponent life-loss event ([Triggers.AnOpponentLosesLife]); the
+ * The trigger fires once per opponent life-loss event (`Triggers.anOpponent.losesLife()`); the
  * amount lost is read from that event via [ContextPropertyKey.TRIGGER_LIFE_LOST] so you gain
  * exactly that much.
  */
@@ -32,7 +32,7 @@ val BloodthirstyConqueror = card("Bloodthirsty Conqueror") {
     keywords(Keyword.FLYING, Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.AnOpponentLosesLife
+        trigger = Triggers.anOpponent.losesLife()
         effect = Effects.GainLife(DynamicAmounts.triggerLifeLost())
         description = "Whenever an opponent loses life, you gain that much life."
     }

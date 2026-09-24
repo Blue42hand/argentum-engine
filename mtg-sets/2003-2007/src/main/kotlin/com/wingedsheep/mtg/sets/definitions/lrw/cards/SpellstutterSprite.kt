@@ -51,7 +51,7 @@ val SpellstutterSprite = card("Spellstutter Sprite") {
                 ).count()
             )
         ))
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CounterSpell()
     }
 

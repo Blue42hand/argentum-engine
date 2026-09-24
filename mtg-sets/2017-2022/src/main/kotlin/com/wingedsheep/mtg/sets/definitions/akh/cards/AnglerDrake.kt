@@ -32,7 +32,7 @@ val AnglerDrake = card("Angler Drake") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val victim = target("target", TargetObject(filter = TargetFilter.Creature))
         effect = Effects.ReturnToHand(victim)

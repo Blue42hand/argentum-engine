@@ -35,8 +35,7 @@ fun CardBuilder.jobSelect() {
     keywordSet.add(Keyword.JOB_SELECT)
     triggeredAbilities.add(
         TriggeredAbility.create(
-            trigger = Triggers.EntersBattlefield.event,
-            binding = Triggers.EntersBattlefield.binding,
+            trigger = Triggers.self.enters(),
             effect = Effects.Composite(
                 Effects.CreateToken(
                     power = 1,

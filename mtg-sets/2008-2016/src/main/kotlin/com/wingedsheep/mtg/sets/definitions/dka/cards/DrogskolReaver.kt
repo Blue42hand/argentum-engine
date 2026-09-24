@@ -30,7 +30,7 @@ val DrogskolReaver = card("Drogskol Reaver") {
     toughness = 5
     keywords(Keyword.FLYING, Keyword.DOUBLE_STRIKE, Keyword.LIFELINK)
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         effect = Effects.DrawCards(1)
     }
     metadata {

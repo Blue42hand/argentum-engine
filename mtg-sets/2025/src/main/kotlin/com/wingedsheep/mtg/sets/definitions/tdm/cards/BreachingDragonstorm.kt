@@ -31,7 +31,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   5. of the nonland, keep only the copy still in exile ([CollectionFilter.InZone] — the cast
  *      one has moved to the stack) → `uncast`, and put it into hand.
  * The lands exiled along the way stay in exile (only the nonland is ever moved to hand), matching
- * the printed card. The Dragon-bounce is the shared cycle trigger: [Triggers.entersBattlefield]
+ * the printed card. The Dragon-bounce is the shared cycle trigger: `Triggers.a(filter).enters()`
  * scoped to Dragons you control ([TriggerBinding.OTHER]) returning this enchantment to hand.
  */
 val BreachingDragonstorm = card("Breaching Dragonstorm") {
@@ -44,7 +44,7 @@ val BreachingDragonstorm = card("Breaching Dragonstorm") {
         "When a Dragon you control enters, return this enchantment to its owner's hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             // Exile from the top of the library until a nonland card is exiled.
             val (nonland, allRevealed) = gatherUntilMatch(GameObjectFilter.Nonland)
@@ -67,10 +67,7 @@ val BreachingDragonstorm = card("Breaching Dragonstorm") {
     }
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Creature.youControl().withSubtype(Subtype.DRAGON),
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl().withSubtype(Subtype.DRAGON)).enters()
         effect = Effects.ReturnToHand(EffectTarget.Self)
         description = "When a Dragon you control enters, return this enchantment to its owner's hand."
     }

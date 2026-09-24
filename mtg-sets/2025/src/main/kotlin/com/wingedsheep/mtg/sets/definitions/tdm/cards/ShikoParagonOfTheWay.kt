@@ -46,7 +46,7 @@ val ShikoParagonOfTheWay = card("Shiko, Paragon of the Way") {
     keywords(Keyword.FLYING, Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         description = "When Shiko enters, exile target nonland card with mana value 3 or less " +
             "from your graveyard. Copy it, then you may cast the copy without paying its mana cost."
         val exiledCard = target(

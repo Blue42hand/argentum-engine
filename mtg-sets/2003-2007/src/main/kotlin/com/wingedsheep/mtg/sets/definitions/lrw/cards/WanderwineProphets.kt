@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.champion
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Wanderwine Prophets
@@ -38,7 +39,7 @@ val WanderwineProphets = card("Wanderwine Prophets") {
     champion(Subtype.MERFOLK)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.May(
             Effects.IfYouDo(
                 action = Effects.SacrificeOwn(

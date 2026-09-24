@@ -40,12 +40,7 @@ val Terrasymbiosis = card("Terrasymbiosis") {
         // `placedBy`; the shared `PlusOneCountersPlacedOnYourCreature` leaves it null, which is the
         // passive "are put on a creature you control" wording and fires on an opponent's placement
         // too. Same fix as Stocking the Pantry, which the differential caught.
-        trigger = Triggers.countersPlacedOn(
-            filter = GameObjectFilter.Creature.youControl(),
-            counterType = CounterType.PLUS_ONE_PLUS_ONE,
-            firstTimeEachTurn = false,
-            placedBy = Player.You,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).getsCounters(CounterType.PLUS_ONE_PLUS_ONE, by = Player.You)
         effectOncePerTurn = true
         effect = Effects.May(
             Effects.DrawCards(

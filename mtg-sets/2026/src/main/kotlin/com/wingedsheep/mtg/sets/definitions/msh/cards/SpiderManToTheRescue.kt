@@ -54,7 +54,7 @@ val SpiderManToTheRescue = card("Spider-Man, To the Rescue") {
     // No One Dies! — When Spider-Man enters, you may tap him. When you do, another target
     // nonattacking creature you control gains indestructible until end of turn.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Effects.Tap(EffectTarget.Self),
             optional = true,

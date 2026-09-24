@@ -36,7 +36,7 @@ val GalionElvenkingsButler = card("Galion, Elvenking's Butler") {
         "Its base power and toughness become equal to Galion's power and toughness until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val other = target(
             "up to one other target creature you control",
             TargetCreature(optional = true, filter = TargetFilter.OtherCreatureYouControl)

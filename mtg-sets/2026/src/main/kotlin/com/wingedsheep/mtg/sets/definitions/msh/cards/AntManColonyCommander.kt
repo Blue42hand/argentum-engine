@@ -54,7 +54,7 @@ val AntManColonyCommander = card("Ant-Man, Colony Commander") {
         "token. This ability triggers only once each turn."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ReflexiveTrigger(
             // "you may pay {1}"
             action = Effects.PayMana("{1}"),
@@ -73,13 +73,7 @@ val AntManColonyCommander = card("Ant-Man, Colony Commander") {
     }
 
     triggeredAbility {
-        trigger = Triggers.countersPlacedOn(
-            filter = GameObjectFilter.Creature,
-            counterType = CounterType.PLUS_ONE_PLUS_ONE,
-            firstTimeEachTurn = false,
-            binding = TriggerBinding.ANY,
-            placedBy = Player.You,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature).getsCounters(CounterType.PLUS_ONE_PLUS_ONE, by = Player.You)
         oncePerTurn = true
         effect = Effects.CreateToken(
             power = 1,

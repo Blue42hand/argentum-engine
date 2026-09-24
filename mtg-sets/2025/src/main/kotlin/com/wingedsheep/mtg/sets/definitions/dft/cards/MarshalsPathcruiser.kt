@@ -43,7 +43,7 @@ val MarshalsPathcruiser = card("Marshals' Pathcruiser") {
     toughness = 5
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.searchLibrary(
             filter = GameObjectFilter.BasicLand,
             destination = SearchDestination.HAND,

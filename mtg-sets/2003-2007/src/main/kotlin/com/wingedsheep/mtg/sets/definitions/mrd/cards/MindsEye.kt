@@ -12,7 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  *
  * Whenever an opponent draws a card, you may pay {1}. If you do, draw a card.
  *
- * [Triggers.OpponentDraws] fires once per individual card drawn (CR 121.2), so an opponent's
+ * `Triggers.anOpponent.draws()` fires once per individual card drawn (CR 121.2), so an opponent's
  * "draw three cards" puts three separate instances on the stack and each is paid for — or
  * declined — on its own. The payment is a resolution-time optional cost
  * ([Effects.MayPay] → `Gate.MayPay`), so the {1} is only asked for as each instance
@@ -28,7 +28,7 @@ val MindsEye = card("Mind's Eye") {
     oracleText = "Whenever an opponent draws a card, you may pay {1}. If you do, draw a card."
 
     triggeredAbility {
-        trigger = Triggers.OpponentDraws
+        trigger = Triggers.anOpponent.draws()
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
             then = Effects.DrawCards(1)

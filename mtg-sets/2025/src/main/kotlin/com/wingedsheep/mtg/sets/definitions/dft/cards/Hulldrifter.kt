@@ -30,7 +30,7 @@ val Hulldrifter = card("Hulldrifter") {
     toughness = 2
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(2)
     }
     keywordAbility(KeywordAbility.crew(3))

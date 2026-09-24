@@ -32,7 +32,7 @@ val EagleOfDeliverance = card("Eagle of Deliverance") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "another target creature you control",
             TargetCreature(filter = TargetFilter.OtherCreatureYouControl)

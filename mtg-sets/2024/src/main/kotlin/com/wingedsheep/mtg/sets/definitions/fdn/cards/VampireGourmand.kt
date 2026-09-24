@@ -34,7 +34,7 @@ val VampireGourmand = card("Vampire Gourmand") {
         "draw a card and this creature can't be blocked this turn."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val sacrificeTarget = target(
             "another creature",
             TargetPermanent(

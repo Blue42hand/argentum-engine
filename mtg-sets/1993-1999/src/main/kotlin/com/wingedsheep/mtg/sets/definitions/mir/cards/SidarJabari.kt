@@ -30,7 +30,7 @@ val SidarJabari = card("Sidar Jabari") {
     toughness = 2
     keywords(Keyword.FLANKING)
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Tap(t)
     }

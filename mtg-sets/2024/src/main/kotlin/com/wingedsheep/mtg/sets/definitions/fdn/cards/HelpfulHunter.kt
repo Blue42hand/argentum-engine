@@ -25,7 +25,7 @@ val HelpfulHunter = card("Helpful Hunter") {
     power = 1
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(1)
     }
     metadata {

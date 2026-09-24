@@ -38,7 +38,7 @@ val SkywarpSkaab = card("Skywarp Skaab") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Effects.IfYouDo(
                 action = Effects.Pipeline {

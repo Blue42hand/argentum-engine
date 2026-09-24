@@ -28,7 +28,7 @@ val ArmaggonFutureShark = card("Armaggon, Future Shark") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target("up to three target creatures", TargetCreature(count = 3, optional = true))
         effect = Effects.ForEachTarget(
             Effects.Destroy(EffectTarget.ContextTarget(0))

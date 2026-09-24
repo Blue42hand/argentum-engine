@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.references.Player
@@ -36,7 +35,7 @@ val CrackedSkull = card("Cracked Skull") {
     // When this Aura enters, look at target player's hand. You may choose a nonland card from it.
     // That player discards that card.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val player = target("target player", Targets.Player)
         effect = Effects.Pipeline {
             run(Effects.LookAtHand(player))
@@ -56,7 +55,7 @@ val CrackedSkull = card("Cracked Skull") {
 
     // When enchanted creature is dealt damage, destroy it.
     triggeredAbility {
-        trigger = Triggers.takesDamage(binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.isDealtDamage()
         effect = Effects.Destroy(EffectTarget.EnchantedCreature)
     }
 

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Henrika Domnathi // Henrika, Infernal Seer (Innistrad: Crimson Vow)
@@ -57,7 +58,7 @@ private val HenrikaDomnathiFront = card("Henrika Domnathi") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = ModalEffect.chooseOneNotYetChosen(
             // • Each player sacrifices a creature of their choice.
             Mode.noTarget(

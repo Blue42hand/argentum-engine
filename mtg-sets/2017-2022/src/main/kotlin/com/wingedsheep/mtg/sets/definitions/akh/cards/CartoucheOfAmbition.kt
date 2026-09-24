@@ -32,7 +32,7 @@ val CartoucheOfAmbition = card("Cartouche of Ambition") {
     auraTarget = Targets.CreatureYouControl
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", Targets.Creature)
         optional = true
         effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, t)

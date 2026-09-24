@@ -23,7 +23,7 @@ val ShaleskinPlower = card("Shaleskin Plower") {
     oracleText = "Morph {4}{R} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen this creature is turned face up, destroy target land."
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val t = target("land", Targets.Land)
         effect = Effects.Destroy(t)
     }

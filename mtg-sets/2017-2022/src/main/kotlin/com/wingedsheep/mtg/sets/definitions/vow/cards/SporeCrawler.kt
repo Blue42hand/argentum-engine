@@ -25,7 +25,7 @@ val SporeCrawler = card("Spore Crawler") {
     power = 3
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.DrawCards(1)
     }
     metadata {

@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -34,7 +32,7 @@ val UnstableMutation = card("Unstable Mutation") {
     }
 
     triggeredAbility {
-        trigger = Triggers.phase(Step.UPKEEP, Player.You, binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.beginningOf(Step.UPKEEP)
         effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, EffectTarget.EnchantedCreature)
     }
 

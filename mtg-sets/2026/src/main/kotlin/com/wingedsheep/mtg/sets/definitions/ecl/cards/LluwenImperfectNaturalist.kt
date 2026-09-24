@@ -33,7 +33,7 @@ val LluwenImperfectNaturalist = card("Lluwen, Imperfect Naturalist") {
     oracleText = "When Lluwen enters, mill four cards, then you may put a creature or land card from among the milled cards on top of your library.\n{2}{B/G}{B/G}{B/G}, {T}, Discard a land card: Create a 1/1 black and green Worm creature token for each land card in your graveyard."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val milled = gather(CardSource.TopOfLibrary(4))
             toGraveyard(milled)

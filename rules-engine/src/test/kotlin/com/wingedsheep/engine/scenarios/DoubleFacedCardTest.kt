@@ -170,8 +170,8 @@ class DoubleFacedCardTest : FunSpec({
                 triggeredAbilities = listOf(
                     TriggeredAbility(
                         id = AbilityId("transform-trigger"),
-                        trigger = Triggers.Transforms.event,
-                        binding = Triggers.Transforms.binding,
+                        trigger = Triggers.self.transforms().event,
+                        binding = Triggers.self.transforms().binding,
                         effect = GainLifeEffect(2)
                     )
                 )

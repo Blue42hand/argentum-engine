@@ -34,7 +34,7 @@ val NeurokFamiliar = card("Neurok Familiar") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val revealed = gather(CardSource.TopOfLibrary(1), revealed = true)
             val (artifact, nonArtifact) = selectAllSplit(from = revealed, filter = GameObjectFilter.Artifact)

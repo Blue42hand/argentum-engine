@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -40,7 +39,7 @@ val EmeritusOfConflict = card("Emeritus of Conflict") {
 
     // Whenever you cast your third spell each turn, this creature becomes prepared.
     triggeredAbility {
-        trigger = Triggers.NthSpellCast(3, Player.You)
+        trigger = Triggers.you.castsNth(3)
         effect = Effects.BecomePrepared(EffectTarget.Self)
     }
 

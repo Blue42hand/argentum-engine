@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOther
+import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 
 /**
  * Iron Fist, Living Weapon — Marvel Super Heroes #138 (uncommon)
@@ -20,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOther
  * "{T}: Iron Fist deals damage equal to his power to any other target" until end of turn.
  *
  * Two existing pieces, composed:
- *  - the trigger is [Triggers.youCastSpellTargeting] over `Creature.youControl()` — the same
+ *  - the trigger is `Triggers.you.casts(requires = setOf(SpellCastPredicate.TargetsMatching(filter)))` over `Creature.youControl()` — the same
  *    facade Mockingbird, Ace Agent and Colleen Wing use. It fires once per qualifying spell, and
  *    Iron Fist himself is "a creature you control", so a pump aimed at him arms the ability too.
  *  - the payoff is [GrantActivatedAbilityEffect] on [EffectTarget.Self] with the default
@@ -43,7 +44,7 @@ val IronFistLivingWeapon = card("Iron Fist, Living Weapon") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.youCastSpellTargeting(GameObjectFilter.Creature.youControl())
+        trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.TargetsMatching(GameObjectFilter.Creature.youControl())))
         effect = Effects.GrantActivatedAbility(
             ability = grantedActivatedAbility {
                 cost = Costs.Tap

@@ -52,8 +52,7 @@ val BriaRiptideRogue = card("Bria, Riptide Rogue") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.YouCastNoncreature.event,
-                binding = Triggers.YouCastNoncreature.binding,
+                trigger = Triggers.you.casts(GameObjectFilter.Noncreature),
                 effect = Effects.ModifyStats(
                     power = 1,
                     toughness = 1,
@@ -66,7 +65,7 @@ val BriaRiptideRogue = card("Bria, Riptide Rogue") {
 
     // "Whenever you cast a noncreature spell, target creature you control can't be blocked this turn."
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         val t = target("target", Targets.CreatureYouControl)
         effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t)
     }

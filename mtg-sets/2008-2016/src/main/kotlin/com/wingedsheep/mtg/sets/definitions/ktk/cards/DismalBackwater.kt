@@ -24,7 +24,7 @@ val DismalBackwater = card("Dismal Backwater") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(1)
     }
 

@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Ovika, Enigma Goliath
@@ -52,7 +53,7 @@ val OvikaEnigmaGoliath = card("Ovika, Enigma Goliath") {
     // Whenever you cast a noncreature spell, create X 1/1 red Phyrexian Goblin tokens,
     // where X is the mana value of that spell. They gain haste until end of turn.
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.Composite(listOf(
             Effects.CreateToken(
                 count = DynamicAmounts.triggeringManaValue(),

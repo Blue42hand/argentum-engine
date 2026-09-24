@@ -31,7 +31,7 @@ val YurikoHopeFromTheShadows = card("Yuriko, Hope from the Shadows") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Target creature gets -X/-0 until end of turn, where X is the number of cards in your graveyard.") {
                 val creature = target("target creature", Targets.Creature)

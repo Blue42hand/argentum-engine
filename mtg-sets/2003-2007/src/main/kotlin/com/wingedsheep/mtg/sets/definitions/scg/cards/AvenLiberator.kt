@@ -29,7 +29,7 @@ val AvenLiberator = card("Aven Liberator") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val t = target("target", Targets.CreatureYouControl)
         effect = Effects.ChooseColorThen(Effects.GrantProtectionFromChosenColor(t))
     }

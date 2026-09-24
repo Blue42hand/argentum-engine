@@ -31,7 +31,7 @@ val GloinDwarfEmissary = card("Glóin, Dwarf Emissary") {
         "each combat if able and attacks a player other than you if able.)"
 
     triggeredAbility {
-        trigger = Triggers.YouCastHistoric
+        trigger = Triggers.you.casts(GameObjectFilter.Historic)
         oncePerTurn = true
         effect = Effects.CreateTreasure(1)
     }

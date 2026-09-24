@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -42,14 +41,7 @@ val CaptainOfTheMists = card("Captain of the Mists") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            // "another **Human** you control", not "another Human creature": a bare creature-type
-            // noun is a permanent noun (CR 205.3), so a Kindred permanent carrying the subtype
-            // counts. The same migration that moved 104 filters off `Creature.withSubtype` missed
-            // this one; the differential found it once Assay could read the card's other line.
-            filter = GameObjectFilter.Permanent.withSubtype(Subtype.HUMAN).youControl(),
-            binding = TriggerBinding.OTHER,
-        )
+        trigger = Triggers.another(GameObjectFilter.Permanent.withSubtype(Subtype.HUMAN).youControl()).enters()
         effect = Effects.Untap(EffectTarget.Self)
     }
 

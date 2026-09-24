@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -34,11 +33,7 @@ val DrossScorpion = card("Dross Scorpion") {
     oracleText = "Whenever this creature or another artifact creature dies, you may untap target artifact."
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.ArtifactCreature,
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.ArtifactCreature).dies()
         val artifact = target("target artifact", TargetPermanent(filter = TargetFilter.Artifact))
         effect = Effects.May(Effects.Untap(artifact))
         description = "Whenever this creature or another artifact creature dies, you may untap target artifact."

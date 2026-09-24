@@ -44,7 +44,7 @@ val SpiderWomanSecretAgent = card("Spider-Woman, Secret Agent") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.Tap(creature) then
             Effects.GrantKeyword(

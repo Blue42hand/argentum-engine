@@ -22,7 +22,7 @@ val JadecraftArtisan = card("Jadecraft Artisan") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val boosted = target("target creature", Targets.Creature)
         effect = Effects.ModifyStats(2, 2, boosted)
     }

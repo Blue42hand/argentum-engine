@@ -52,7 +52,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOther
  * **Chapter III** — the standard transforming-Saga final chapter ([Effects.ExileAndReturnTransformed],
  * as on The Legend of Roku / Kuruk / The Rise of Sozin).
  *
- * The **back face** reuses the second-spell trigger ([Triggers.NthSpellCast]`(2, You)`, as on Breeches,
+ * The **back face** reuses the second-spell trigger (`Triggers.<player>.castsNth(n, spell)``(2, You)`, as on Breeches,
  * the Blastmaker) and the airbend primitive ([Effects.Airbend], the exile + fixed-{2}-recast-to-owner
  * tail) over an "up to one *other* target nonland permanent" requirement ([TargetOther] wrapping an
  * optional [TargetObject] — same shape as Aang, Swift Savior's ETB).
@@ -72,7 +72,7 @@ private val AvatarYangchen = card("Avatar Yangchen") {
 
     // Whenever you cast your second spell each turn, airbend up to one other target nonland permanent.
     triggeredAbility {
-        trigger = Triggers.NthSpellCast(2, Player.You)
+        trigger = Triggers.you.castsNth(2)
         target(
             "up to one other target nonland permanent",
             TargetOther(

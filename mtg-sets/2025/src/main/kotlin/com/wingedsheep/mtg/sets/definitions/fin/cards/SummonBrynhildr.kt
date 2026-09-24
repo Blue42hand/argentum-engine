@@ -7,15 +7,14 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Summon: Brynhildr
@@ -100,12 +99,7 @@ val SummonBrynhildr = card("Summon: Brynhildr") {
  * cast this turn. Shared by chapters II and III.
  */
 private fun gestaltMode() = Effects.CreateDelayedTrigger(
-    trigger = TriggerSpec(
-        event = EventPattern.SpellCastEvent(
-            spellFilter = GameObjectFilter.Creature,
-            player = Player.You,
-        ),
-    ),
+    trigger = Triggers.you.casts(GameObjectFilter.Creature),
     fireOnce = true,
     expiry = DelayedTriggerExpiry.EndOfTurn,
     effect = Effects.GrantKeyword(Keyword.HASTE, EffectTarget.TriggeringEntity, Duration.EndOfTurn),

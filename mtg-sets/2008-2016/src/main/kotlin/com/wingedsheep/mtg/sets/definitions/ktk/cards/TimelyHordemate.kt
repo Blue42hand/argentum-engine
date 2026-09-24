@@ -29,7 +29,7 @@ val TimelyHordemate = card("Timely Hordemate") {
     oracleText = "Raid — When Timely Hordemate enters, if you attacked this turn, return target creature card with mana value 2 or less from your graveyard to the battlefield."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.YouAttackedThisTurn
         val t = target(
             "target", TargetObject(

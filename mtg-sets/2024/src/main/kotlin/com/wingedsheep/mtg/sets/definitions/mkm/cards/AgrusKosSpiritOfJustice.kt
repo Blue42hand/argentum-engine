@@ -61,12 +61,12 @@ val AgrusKosSpiritOfJustice = card("Agrus Kos, Spirit of Justice") {
     keywords(Keyword.DOUBLE_STRIKE, Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         exileIfSuspectedOtherwiseSuspect()
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         exileIfSuspectedOtherwiseSuspect()
     }
 

@@ -22,7 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  * {5}{U}{U}: Exile up to two other target nonland permanents you control. Return those cards to
  * the battlefield under their owner's control at the beginning of the next end step.
  *
- * The trigger is [Triggers.activatesAbilityOf] with `includeManaAbilities = true`: the Oracle text
+ * The trigger is `Triggers.<player>.activatesAbility(of = filter, includeManaAbilities)` with `includeManaAbilities = true`: the Oracle text
  * puts no "that isn't a mana ability" clause on it, and a mana ability is still an activated
  * ability (CR 605.3), so a creature's "{T}: Add {G}" fires it — the card's own ruling says so
  * explicitly. Elrond's trigger is not itself a mana ability (CR 605.1b needs one that could add
@@ -50,7 +50,7 @@ val ElrondMoonReader = card("Elrond, Moon-Reader") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.activatesAbilityOf(GameObjectFilter.Creature, includeManaAbilities = true)
+        trigger = Triggers.you.activatesAbility(of = GameObjectFilter.Creature, includeManaAbilities = true)
         oncePerTurn = true
         effect = Effects.DrawCards(1)
     }

@@ -48,9 +48,7 @@ val GiantShark = card("Giant Shark") {
     }
 
     triggeredAbility {
-        trigger = Triggers.BlocksOrBecomesBlockedBy(
-            GameObjectFilter.Creature.wasDealtDamageThisTurn()
-        )
+        trigger = Triggers.self.blocksOrBecomesBlocked(GameObjectFilter.Creature.wasDealtDamageThisTurn())
         effect = Effects.Composite(
             Effects.ModifyStats(2, 0, EffectTarget.Self),
             Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self),

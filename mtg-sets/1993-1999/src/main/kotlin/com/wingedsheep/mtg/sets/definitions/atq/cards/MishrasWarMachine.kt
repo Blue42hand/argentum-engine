@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DamageRecipient
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Mishra's War Machine
@@ -41,7 +42,7 @@ val MishrasWarMachine = card("Mishra's War Machine") {
     keywords(Keyword.BANDING)
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.IfYouDo(
             action = Effects.PayOrSuffer(
                 cost = Costs.pay.Discard(),

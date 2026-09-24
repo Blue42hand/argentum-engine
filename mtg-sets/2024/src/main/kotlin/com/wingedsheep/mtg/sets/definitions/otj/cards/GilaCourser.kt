@@ -30,7 +30,7 @@ val GilaCourser = card("Gila Courser") {
         "This Mount becomes saddled until end of turn. Saddle only as a sorcery.)"
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         triggerRestriction = Conditions.SourceIsSaddled
         effect = Effects.Pipeline {
             val exiledCard = gather(CardSource.TopOfLibrary(1))

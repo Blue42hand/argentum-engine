@@ -41,7 +41,7 @@ val GoblinMatron = card("Goblin Matron") {
         "reveal that card, put it into your hand, then shuffle."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.Any.withSubtype(Subtype.GOBLIN),

@@ -22,7 +22,7 @@ val EliteJavelineer = card("Elite Javelineer") {
     oracleText = "Whenever this creature blocks, it deals 1 damage to target attacking creature."
 
     triggeredAbility {
-        trigger = Triggers.Blocks
+        trigger = Triggers.self.blocks()
         val attacker = target("target", Targets.AttackingCreature)
         effect = Effects.DealDamage(1, attacker)
     }

@@ -43,7 +43,7 @@ val SongcrafterMage = card("Songcrafter Mage") {
         val target = target("target", TargetObject(
             filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByYou()
         ))
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GrantHarmonize(target)
         description = "When this creature enters, target instant or sorcery card in your " +
             "graveyard gains harmonize until end of turn. Its harmonize cost is equal to its mana cost."

@@ -27,7 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Two pieces of vocabulary this needed:
  *  - The printed trigger has **no partner clause** ("blocks or becomes blocked"), so it is a single
- *    trigger however many creatures the Slug ends up paired with — `Triggers.BlocksOrBecomesBlocked`,
+ *    trigger however many creatures the Slug ends up paired with — `Triggers.self.blocksOrBecomesBlocked()`,
  *    which sets the once-per-combat firing mode — CR 509.3a/509.3c, "blocks" and "becomes blocked"
  *    each trigger only once per combat. `BlocksOrBecomesBlockedBy(filter)` (Corrosive Ooze, the
  *    509.3b/509.3d wordings) keeps firing per partner; here that would ask for {1}{G} once per
@@ -47,7 +47,7 @@ val SpittingSlug = card("Spitting Slug") {
         "blocking or blocked by this creature gains first strike until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.BlocksOrBecomesBlocked()
+        trigger = Triggers.self.blocksOrBecomesBlocked()
         effect = Effects.Composite(
             // Runs whether or not the cost is paid; the unpaid branch below hands first strike to
             // the partners instead, so the Slug never keeps it for free.

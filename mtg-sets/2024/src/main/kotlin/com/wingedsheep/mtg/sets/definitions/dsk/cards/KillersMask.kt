@@ -36,7 +36,7 @@ val KillersMask = card("Killer's Mask") {
         "Equip {2}"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Patterns.Library.manifestDread(),
             Effects.AttachEquipment(EffectTarget.PipelineTarget("manifestDreadManifested"))

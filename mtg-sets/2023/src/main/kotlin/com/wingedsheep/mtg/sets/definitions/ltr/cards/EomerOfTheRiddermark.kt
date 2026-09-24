@@ -33,7 +33,7 @@ val EomerOfTheRiddermark = card("Éomer of the Riddermark") {
     keywords(Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         // "if you control a creature with the greatest power among creatures on the battlefield"
         // ≡ you control a creature AND your max creature-power >= the global max creature-power.
         interveningIf = Conditions.All(

@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * April, Reporter of the Weird
@@ -24,7 +25,7 @@ val AprilReporterOfTheWeird = card("April, Reporter of the Weird") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.Composite(
             listOf(
                 Effects.DrawCards(DynamicAmounts.triggerDamageAmount()),

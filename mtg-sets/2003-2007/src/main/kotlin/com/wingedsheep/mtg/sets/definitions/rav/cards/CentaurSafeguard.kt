@@ -26,7 +26,7 @@ val CentaurSafeguard = card("Centaur Safeguard") {
     power = 3
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         optional = true
         effect = Effects.GainLife(3)
     }

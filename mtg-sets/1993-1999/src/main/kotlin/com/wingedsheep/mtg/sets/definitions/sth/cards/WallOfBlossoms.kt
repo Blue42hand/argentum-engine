@@ -26,7 +26,7 @@ val WallOfBlossoms = card("Wall of Blossoms") {
     keywords(Keyword.DEFENDER)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(1)
         description = "When this creature enters, draw a card."
     }

@@ -28,7 +28,7 @@ val VoraciousTomeSkimmer = card("Voracious Tome-Skimmer") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YouCastSpell
+        trigger = Triggers.you.casts()
         triggerRestriction = Conditions.IsNotYourTurn
         effect = Effects.MayPay(Effects.PayLife(1), Effects.DrawCards(1))
     }

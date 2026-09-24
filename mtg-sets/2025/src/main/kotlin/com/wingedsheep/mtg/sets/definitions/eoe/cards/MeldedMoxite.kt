@@ -22,7 +22,7 @@ val MeldedMoxite = card("Melded Moxite") {
 
     // ETB ability: May discard a card to draw two cards
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),

@@ -52,7 +52,7 @@ val CaradoraHeartOfAlacria = card("Caradora, Heart of Alacria") {
         "many plus one +1/+1 counters are put on it instead."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.searchLibrary(
             filter = MountOrVehicleCard,
             destination = SearchDestination.HAND,

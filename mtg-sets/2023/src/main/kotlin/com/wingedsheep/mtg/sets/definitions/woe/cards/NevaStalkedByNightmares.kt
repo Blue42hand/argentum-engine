@@ -57,7 +57,7 @@ val NevaStalkedByNightmares = card("Neva, Stalked by Nightmares") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val card = target(
             "target creature or enchantment card in your graveyard",
             TargetObject(
@@ -73,11 +73,7 @@ val NevaStalkedByNightmares = card("Neva, Stalked by Nightmares") {
     }
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Enchantment.youControl(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Enchantment.youControl()).dies()
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             Patterns.Library.scry(1),

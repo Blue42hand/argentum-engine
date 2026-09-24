@@ -36,7 +36,7 @@ val TrappedInTheScreen = card("Trapped in the Screen") {
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "artifact, creature, or enchantment an opponent controls",
             TargetPermanent(filter = TargetFilter.ArtifactCreatureOrEnchantmentOpponentControls)
@@ -45,7 +45,7 @@ val TrappedInTheScreen = card("Trapped in the Screen") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

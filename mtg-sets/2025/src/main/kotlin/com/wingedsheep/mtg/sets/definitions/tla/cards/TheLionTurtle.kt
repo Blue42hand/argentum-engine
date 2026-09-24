@@ -45,7 +45,7 @@ val TheLionTurtle = card("The Lion-Turtle") {
     keywords(Keyword.VIGILANCE, Keyword.REACH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(3)
     }
 

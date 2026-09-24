@@ -49,7 +49,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Wiring:
  *  - Front tap ability: [Costs.Tap] + [Patterns.Library.mill] (2).
  *  - Back-face keywords: menace, trample, lifelink, hexproof as plain [Keyword]s.
- *  - Back-face attack trigger ([Triggers.Attacks]) is one [Effects.Composite]:
+ *  - Back-face attack trigger (`Triggers.self.attacks()`) is one [Effects.Composite]:
  *      1. `Effects.Sacrifice(NonlandPermanent, EachOpponent)` — the edict; each opponent chooses
  *         their own nonland permanent (Tithing Blade's shape, widened to nonland permanent).
  *      2. gather [CardSource.CraftedMaterials] → [SelectionMode.ChooseUpTo] `1` filtered to
@@ -118,7 +118,7 @@ private val TheGrimCaptain = card("The Grim Captain") {
     // choice. Then you may put an exiled creature card used to craft The Grim Captain onto the
     // battlefield under your control tapped and attacking.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Pipeline {
             // "each opponent sacrifices a nonland permanent of their choice"
             run(Effects.Sacrifice(

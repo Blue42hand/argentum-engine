@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.core.CardType
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -38,7 +37,7 @@ val KrangMasterMind = card("Krang, Master Mind") {
     keywordAbility(KeywordAbility.Affinity(CardType.ARTIFACT))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.cardsInYourHand(),
             ComparisonOperator.LT,

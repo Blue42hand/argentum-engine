@@ -26,7 +26,7 @@ val SkirkVolcanist = card("Skirk Volcanist") {
     oracleText = "Morph—Sacrifice two Mountains. (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen Skirk Volcanist is turned face up, it deals 3 damage divided as you choose among one, two, or three target creatures."
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         target = TargetCreature(count = 3, minCount = 1)
         effect = Effects.DividedDamage(
             total = 3,

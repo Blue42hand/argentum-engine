@@ -27,7 +27,7 @@ val HyraxTowerScout = card("Hyrax Tower Scout") {
     oracleText = "When this creature enters, untap target creature."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target", Targets.Creature)
         effect = Effects.Untap(creature)
     }

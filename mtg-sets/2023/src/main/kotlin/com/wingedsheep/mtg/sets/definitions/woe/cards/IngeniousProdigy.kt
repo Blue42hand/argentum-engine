@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Ingenious Prodigy
@@ -55,7 +56,7 @@ val IngeniousProdigy = card("Ingenious Prodigy") {
     )
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.SourceHasCounter(CounterType.PLUS_ONE_PLUS_ONE)
         effect = Effects.May(
             Effects.Composite(

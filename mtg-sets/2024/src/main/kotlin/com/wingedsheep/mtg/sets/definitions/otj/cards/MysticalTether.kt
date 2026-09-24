@@ -35,7 +35,7 @@ val MysticalTether = card("Mystical Tether") {
     keywordAbility(KeywordAbility.flashKicker("{2}"))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "artifact or creature an opponent controls",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrArtifact.opponentControls()))
@@ -44,7 +44,7 @@ val MysticalTether = card("Mystical Tether") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

@@ -28,7 +28,7 @@ val HardenedEscort = card("Hardened Escort") {
     power = 2
     toughness = 4
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val t = target("target", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
         effect = Effects.Composite(
             Effects.ModifyStats(1, 0, t),

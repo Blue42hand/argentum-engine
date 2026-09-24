@@ -14,12 +14,12 @@ val WayOfTheParadox = card("Way of the Paradox") {
         "Whenever you activate a loyalty ability, you gain 1 life. You may play an additional land this turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Mechanic.empowerJace(5)
     }
 
     triggeredAbility {
-        trigger = Triggers.YouActivateLoyaltyAbility
+        trigger = Triggers.you.activatesAbility(loyalty = true)
         effect = Effects.Composite(
             Effects.GainLife(1),
             Effects.PlayAdditionalLands(count = 1),

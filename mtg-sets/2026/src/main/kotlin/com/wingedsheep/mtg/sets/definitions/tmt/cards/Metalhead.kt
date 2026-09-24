@@ -33,7 +33,7 @@ val Metalhead = card("Metalhead") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val perm = target(
             "other artifact or creature",
             TargetPermanent(optional = true, filter = TargetFilter.CreatureOrArtifact.other())

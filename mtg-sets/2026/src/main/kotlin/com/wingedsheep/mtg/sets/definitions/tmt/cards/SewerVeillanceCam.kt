@@ -41,14 +41,14 @@ val SewerVeillanceCam = card("Sewer-veillance Cam") {
     )
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature", Targets.Creature)
         effect = tapOrUntapTarget(creature)
         description = "When this artifact enters, you may tap or untap target creature."
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         val creature = target("target creature", Targets.Creature)
         effect = tapOrUntapTarget(creature)
         description = "When this artifact leaves the battlefield, you may tap or untap target creature."

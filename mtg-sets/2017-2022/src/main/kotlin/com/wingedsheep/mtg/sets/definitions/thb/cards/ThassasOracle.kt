@@ -47,7 +47,7 @@ val ThassasOracle = card("Thassa's Oracle") {
         "cards in your library, you win the game."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.Pipeline {
                 val looked = gather(

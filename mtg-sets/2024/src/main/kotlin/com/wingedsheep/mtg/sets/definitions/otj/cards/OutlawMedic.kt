@@ -28,7 +28,7 @@ val OutlawMedic = card("Outlaw Medic") {
     toughness = 3
     keywords(Keyword.LIFELINK)
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.DrawCards(1)
     }
     metadata {

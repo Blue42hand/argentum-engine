@@ -688,7 +688,7 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
      * (CR 701.65b Airbend / 701.66b Earthbend / 701.67c Waterbend / 702.189b Firebending). Fires
      * once per bend. The default [types] set is all four, backing "Whenever you waterbend,
      * earthbend, firebend, or airbend, …" (Avatar Aang); pass a narrower set for a single-element
-     * variant ("whenever you earthbend, …"). See [com.wingedsheep.sdk.dsl.Triggers.YouBend].
+     * variant ("whenever you earthbend, …"). See `Triggers.you.bends(types)`.
      */
     @SerialName("BendPerformedEvent")
     @Serializable
@@ -1011,7 +1011,7 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
      * the blocking-side mirror of [CreaturesAttackYourOpponentEvent.minAttackers]. It fires **once**
      * for the whole combat rather than once per blocked attacker, because "blocks two or more
      * creatures" is one event no matter how many are blocked. SELF binding only — the detector's
-     * ANY branch fans out per blocker and has no count to read — and [Triggers.blocks] rejects the
+     * ANY branch fans out per blocker and has no count to read — and `Triggers.<subject>.blocks(attackerFilter, minBlockedAttackers)` rejects the
      * other combinations rather than silently misfiring.
      */
     @SerialName("BlockEvent")
@@ -2215,7 +2215,7 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
          * exposed as the trigger's captured collection, as [UntapEvent.batch] does.
          *
          * Note that [firstTimeEachTurn] defaults to `false` here but to `!batch` in the
-         * `Triggers.countersPlacedOn(...)` facade: a batch template essentially never carries a
+         * `Triggers.a(...).getsCounters(firstTimeEachTurn = true)` facade: a batch template essentially never carries a
          * printed "for the first time this turn" rider, so the facade stops handing one to it. The
          * combination remains expressible on both — it just has to be asked for.
          *

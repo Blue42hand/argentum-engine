@@ -23,7 +23,7 @@ val MijaeDjinn = card("Mijae Djinn") {
     oracleText = "Whenever this creature attacks, flip a coin. If you lose the flip, remove this creature from combat and tap it."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.FlipCoin(
             lostEffect = Effects.RemoveFromCombat(EffectTarget.Self).then(Effects.Tap(EffectTarget.Self)),
         )

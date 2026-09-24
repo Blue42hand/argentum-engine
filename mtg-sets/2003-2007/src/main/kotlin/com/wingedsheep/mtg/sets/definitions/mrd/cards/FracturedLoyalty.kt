@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The Aura punishes *attention*, not damage: any targeting at all — a removal spell, a pump spell,
  * an equip-style ability — hands the creature to whoever pointed at it. That is why the trigger is
- * the plain [Triggers.BecomesTarget] with no spell/ability narrowing and no "an opponent controls"
+ * the plain `Triggers.self.becomesTarget()` with no spell/ability narrowing and no "an opponent controls"
  * clause: targeting your own enchanted creature gives it to *you*, which is the card's whole
  * bargaining position.
  *
@@ -50,7 +50,7 @@ val FracturedLoyalty = card("Fractured Loyalty") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.BecomesTarget(GameObjectFilter.Creature.attachedToBySource())
+        trigger = Triggers.a(GameObjectFilter.Creature.attachedToBySource()).becomesTarget()
         effect = Effects.GiveControl(
             permanent = EffectTarget.TriggeringEntity,
             newController = EffectTarget.PlayerRef(Player.ControllerOfTargetingSource)

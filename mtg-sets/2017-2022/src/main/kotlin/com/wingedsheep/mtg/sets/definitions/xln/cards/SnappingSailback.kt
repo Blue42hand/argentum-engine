@@ -30,7 +30,7 @@ val SnappingSailback = card("Snapping Sailback") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.TakesDamage
+        trigger = Triggers.self.isDealtDamage()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Enrage — Whenever this creature is dealt damage, put a +1/+1 counter on it."
     }

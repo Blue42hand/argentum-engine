@@ -33,7 +33,7 @@ val FangGuardian = card("Fang Guardian") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "another target creature or Vehicle you control",
             TargetPermanent(

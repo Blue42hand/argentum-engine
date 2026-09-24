@@ -31,7 +31,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   Whenever you cast an instant or sorcery spell, create a 1/1 blue Human Wizard creature token.
  *
  * Implementation:
- *  - Both faces share the same [Triggers.YouCastInstantOrSorcery] → [Effects.CreateToken] trigger;
+ *  - Both faces share the same `Triggers.you.casts(GameObjectFilter.InstantOrSorcery)` → [Effects.CreateToken] trigger;
  *    the front adds a [Effects.If] on [Conditions.YouControlAtLeast]`(3, Wizard)` that flips
  *    it. The token is made *before* the count, so the Wizard it just created counts toward the
  *    three, and the flip only happens while this ability resolves (printed ruling: already
@@ -67,7 +67,7 @@ private val DocentOfPerfectionFront = card("Docent of Perfection") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YouCastInstantOrSorcery
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         effect = Effects.Composite(
             HumanWizardToken,
             Effects.If(
@@ -135,7 +135,7 @@ private val FinalIteration = card("Final Iteration") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouCastInstantOrSorcery
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         effect = HumanWizardToken
         description = "Create a 1/1 blue Human Wizard creature token."
     }

@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Palladia-Mors
@@ -31,7 +32,7 @@ val PalladiaMors = card("Palladia-Mors") {
 
     keywords(Keyword.FLYING, Keyword.TRAMPLE)
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.PayOrSuffer(cost = Costs.pay.Mana("{R}{G}{W}"), suffer = SacrificeSelfEffect)
     }
 

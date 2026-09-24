@@ -34,7 +34,7 @@ val HuntedDragon = card("Hunted Dragon") {
     keywords(Keyword.FLYING, Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.CreateToken(
             power = 2,

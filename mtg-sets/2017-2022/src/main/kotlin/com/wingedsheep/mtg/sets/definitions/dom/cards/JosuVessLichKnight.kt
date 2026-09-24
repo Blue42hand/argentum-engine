@@ -32,7 +32,7 @@ val JosuVessLichKnight = card("Josu Vess, Lich Knight") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.If(
             condition = WasKicked,
             then = Effects.CreateToken(

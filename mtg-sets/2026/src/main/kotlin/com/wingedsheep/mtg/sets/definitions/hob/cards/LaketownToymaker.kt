@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Lake-town Toymaker
@@ -32,7 +33,7 @@ val LaketownToymaker = card("Lake-town Toymaker") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         interveningIf = Conditions.YouDrewCardsThisTurn(2)
         val t = target("another target creature you control", Targets.OtherCreatureYouControl)
         effect = Effects.Composite(

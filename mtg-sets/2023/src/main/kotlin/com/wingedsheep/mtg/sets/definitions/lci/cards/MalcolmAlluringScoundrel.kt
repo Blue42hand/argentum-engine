@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Malcolm, Alluring Scoundrel {1}{U}
@@ -45,7 +46,7 @@ val MalcolmAlluringScoundrel = card("Malcolm, Alluring Scoundrel") {
     keywords(Keyword.FLASH, Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.Pipeline {
             // Put a chorus counter on Malcolm.
             run(Effects.AddCounters(CounterType.CHORUS, 1, EffectTarget.Self))

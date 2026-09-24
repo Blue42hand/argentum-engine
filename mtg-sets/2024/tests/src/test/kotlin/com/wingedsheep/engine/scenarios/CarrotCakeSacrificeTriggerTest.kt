@@ -23,8 +23,8 @@ import io.kotest.matchers.types.shouldBeInstanceOf
  * Carrot Cake (BLB): "When this artifact enters AND WHEN YOU SACRIFICE IT, create a
  * 1/1 white Rabbit creature token and scry 1."
  *
- * Regression guard: the second trigger is sacrifice-only (Triggers.Sacrificed). It used
- * to be modeled as Triggers.Dies, which wrongly fired on any battlefield→graveyard
+ * Regression guard: the second trigger is sacrifice-only (Triggers.self.isSacrificed()). It used
+ * to be modeled as Triggers.self.dies(), which wrongly fired on any battlefield→graveyard
  * transition — an opponent destroying the Food handed its controller a free Rabbit + scry.
  */
 class CarrotCakeSacrificeTriggerTest : FunSpec({

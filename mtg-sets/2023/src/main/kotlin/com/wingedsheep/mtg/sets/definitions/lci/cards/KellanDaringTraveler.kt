@@ -50,7 +50,7 @@ val KellanDaringTraveler = card("Kellan, Daring Traveler") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Pipeline {
             val revealed = gather(CardSource.TopOfLibrary(1, Player.You), revealed = true)
             run(Effects.If(

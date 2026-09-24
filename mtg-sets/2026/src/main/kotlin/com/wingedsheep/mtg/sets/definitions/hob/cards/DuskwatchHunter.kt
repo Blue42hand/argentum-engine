@@ -39,7 +39,7 @@ val DuskwatchHunter = card("Duskwatch Hunter") {
 
     triggeredAbility {
         val creature = target("target creature", TargetCreature())
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }
 

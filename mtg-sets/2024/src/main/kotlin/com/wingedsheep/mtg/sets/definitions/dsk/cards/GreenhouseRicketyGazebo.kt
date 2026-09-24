@@ -31,7 +31,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  * door is unlocked (CR 709.5). It grants every land its controller controls a granted mana ability
  * via [GrantActivatedAbility]; the engine surfaces and pays with that grant through the Room-face-
  * aware static-ability projection (see RoomFaceStatics) — both as a clickable mana ability and to
- * the auto-payer. Rickety Gazebo's [Triggers.OnDoorUnlocked] trigger mills four and returns up to
+ * the auto-payer. Rickety Gazebo's `Triggers.self.doorUnlocked()` trigger mills four and returns up to
  * two permanent cards from among them (the Cache Grab gather→mill→select→return pipeline, here with
  * up to two picks).
  */
@@ -65,7 +65,7 @@ val GreenhouseRicketyGazebo = card("Greenhouse // Rickety Gazebo") {
             "cards from among them to your hand."
 
         triggeredAbility {
-            trigger = Triggers.OnDoorUnlocked
+            trigger = Triggers.self.doorUnlocked()
             effect = Effects.Pipeline {
                 // Mill four: gather the top four, move them to the graveyard.
                 val milled = gather(CardSource.TopOfLibrary(4))

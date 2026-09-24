@@ -26,7 +26,7 @@ val StoicBuilder = card("Stoic Builder") {
     oracleText = "When this creature enters, you may return target land card from your graveyard to your hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target(
             "target",

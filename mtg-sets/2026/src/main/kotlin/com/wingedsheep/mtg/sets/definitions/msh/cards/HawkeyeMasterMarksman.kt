@@ -26,7 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  * Modeling notes:
  *  - "Trick Arrows" is a flavor ability word (CR 207.2c) with no rules meaning; it lives in the
  *    oracle text and the ability's description only.
- *  - The whole ability is one [Triggers.BecomesTapped] trigger — cause-agnostic, so tapping him to
+ *  - The whole ability is one `Triggers.self.becomesTapped()` trigger — cause-agnostic, so tapping him to
  *    attack, to crew, to pay a teamwork cost, or an opponent's Twiddle all trigger it. First strike
  *    plus a tap payoff is deliberate: attacking is the usual way to turn it on, and vigilance would
  *    turn it *off*.
@@ -67,7 +67,7 @@ val HawkeyeMasterMarksman = card("Hawkeye, Master Marksman") {
     // Trick Arrows — Whenever Hawkeye becomes tapped, you may pay {1} up to three times.
     // When you do, choose up to that many —
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
+        trigger = Triggers.self.becomesTapped()
         effect = Effects.ReflexiveTrigger(
             action = Effects.PayRepeatedly("{1}", upTo = 3),
             optional = true,

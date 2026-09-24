@@ -27,7 +27,7 @@ val SaheeliJewelOfAvishkar = card("Saheeli, Jewel of Avishkar") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

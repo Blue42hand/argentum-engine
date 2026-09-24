@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.model.CardDefinition.Companion.doubleFacedPermanent
 import com.wingedsheep.sdk.scripting.CanOnlyBlockCreaturesWith
 import com.wingedsheep.sdk.scripting.effects.BecomeCreatureEffect
@@ -95,7 +94,7 @@ object PredefinedTokens {
         typeLine = "Artifact"
 
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             val anyTarget = target("any target", Targets.Any)
             effect = Effects.DealDamage(2, anyTarget, damageSource = EffectTarget.Self)
             description = "When this token enters, it deals 2 damage to any target."
@@ -350,7 +349,7 @@ object PredefinedTokens {
         }
 
         triggeredAbility {
-            trigger = Triggers.attacks(binding = TriggerBinding.ATTACHED)
+            trigger = Triggers.attached.attacks()
             effect = Patterns.Library.scry(1)
         }
 
@@ -453,7 +452,7 @@ object PredefinedTokens {
         // The Role leaving the battlefield for the graveyard — destroyed, sacrificed, replaced by
         // another Role, or falling off as its creature leaves — drains each opponent for 1.
         triggeredAbility {
-            trigger = Triggers.PutIntoGraveyardFromBattlefield
+            trigger = Triggers.self.dies()
             effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent))
         }
 
@@ -479,7 +478,7 @@ object PredefinedTokens {
         // The granted ability is modeled as an ATTACHED-bound trigger on the Role watching its
         // enchanted creature attack; the intervening-if re-checks the toughness at resolution (CR 603.4).
         triggeredAbility {
-            trigger = Triggers.attacks(binding = TriggerBinding.ATTACHED)
+            trigger = Triggers.attached.attacks()
             interveningIf = Conditions.EntityMatches(
                 EffectTarget.EnchantedCreature,
                 GameObjectFilter.Creature.toughnessAtMost(3)
@@ -624,7 +623,7 @@ object PredefinedTokens {
 
         triggeredAbility {
             val anyTarget = target("any target", Targets.Any)
-            trigger = Triggers.LeavesBattlefield
+            trigger = Triggers.self.leaves()
             effect = Effects.DealDamage(2, anyTarget)
             description = "When this token leaves the battlefield, it deals 2 damage to any target."
         }
@@ -748,7 +747,7 @@ object PredefinedTokens {
         keywords(Keyword.FLYING)
 
         triggeredAbility {
-            trigger = Triggers.Attacks
+            trigger = Triggers.self.attacks()
             effect = Patterns.Library.surveil(1)
             description = "Whenever Redwing attacks, surveil 1."
         }
@@ -792,7 +791,7 @@ object PredefinedTokens {
         oracleText = "Landfall — Whenever a land you control enters, put a +1/+1 counter on Zabu."
 
         triggeredAbility {
-            trigger = Triggers.LandYouControlEnters
+            trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             description = "Landfall — Whenever a land you control enters, put a +1/+1 counter on Zabu."
         }
@@ -818,7 +817,7 @@ object PredefinedTokens {
         oracleText = "Whenever this token attacks, you may mill a card."
 
         triggeredAbility {
-            trigger = Triggers.attacks()
+            trigger = Triggers.self.attacks()
             effect = Effects.May(Patterns.Library.mill(1))
             description = "Whenever this token attacks, you may mill a card."
         }
@@ -846,7 +845,7 @@ object PredefinedTokens {
         keywords(Keyword.FLYING, Keyword.TRAMPLE)
 
         triggeredAbility {
-            trigger = Triggers.attacks()
+            trigger = Triggers.self.attacks()
             val land = target("target land", Targets.Land)
             effect = Effects.Destroy(land)
             description = "Whenever Galactus attacks, destroy target land."
@@ -922,7 +921,7 @@ object PredefinedTokens {
         toughness = 1
 
         triggeredAbility {
-            trigger = Triggers.Dies
+            trigger = Triggers.self.dies()
             effect = Effects.GainLife(1)
             description = "When this creature dies, you gain 1 life."
         }

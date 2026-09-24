@@ -28,7 +28,7 @@ val RoaringSlagwurm = card("Roaring Slagwurm") {
     power = 6
     toughness = 4
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Artifact), Effects.Tap(EffectTarget.IterationEntity))
     }
     metadata {

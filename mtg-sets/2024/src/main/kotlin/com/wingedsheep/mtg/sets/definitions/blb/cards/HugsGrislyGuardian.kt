@@ -41,7 +41,7 @@ val HugsGrislyGuardian = card("Hugs, Grisly Guardian") {
     // When Hugs enters, exile the top X cards of your library.
     // Until the end of your next turn, you may play those cards.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val exiledCards = gather(CardSource.TopOfLibrary(DynamicAmounts.xValue()))
             exile(exiledCards)

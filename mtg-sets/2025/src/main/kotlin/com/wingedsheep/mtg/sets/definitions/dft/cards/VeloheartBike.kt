@@ -30,7 +30,7 @@ val VeloheartBike = card("Veloheart Bike") {
     power = 4
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(2)
     }
     activatedAbility {

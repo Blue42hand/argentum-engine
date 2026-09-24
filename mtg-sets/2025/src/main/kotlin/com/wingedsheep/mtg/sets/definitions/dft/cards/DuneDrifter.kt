@@ -41,7 +41,7 @@ val DuneDrifter = card("Dune Drifter") {
         "becomes an artifact creature until end of turn.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val card = target(
             "target artifact or creature card with mana value X or less in your graveyard",
             TargetObject(

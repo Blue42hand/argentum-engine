@@ -17,7 +17,7 @@ import com.wingedsheep.sdk.scripting.Duration
  * untap during its controller's next untap step. (This ability triggers after the clash ends.)
  *
  * The clash *payoff* that acts either way — the sibling of Sylvan Echoes, which only acts on a win.
- * The tap is unconditional, so the trigger is [Triggers.WheneverYouClash] and the win rides inside
+ * The tap is unconditional, so the trigger is `Triggers.you.clashes()` and the win rides inside
  * the effect as [Conditions.YouWonTheClash] rather than on the trigger: losing still puts the
  * ability on the stack and still taps a creature. Per its ruling that also holds when an opponent's
  * spell started the clash — you clashed, so it triggers, and you can still have won.
@@ -37,7 +37,7 @@ val EntanglingTrap = card("Entangling Trap") {
         "(This ability triggers after the clash ends.)"
 
     triggeredAbility {
-        trigger = Triggers.WheneverYouClash
+        trigger = Triggers.you.clashes()
         val creature = target("target creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.Composite(
             Effects.Tap(creature),

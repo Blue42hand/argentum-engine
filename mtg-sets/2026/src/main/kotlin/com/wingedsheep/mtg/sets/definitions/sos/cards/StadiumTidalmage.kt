@@ -30,12 +30,12 @@ val StadiumTidalmage = card("Stadium Tidalmage") {
     val lootEffect: Effect = Effects.May(Patterns.Hand.loot())
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = lootEffect
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = lootEffect
     }
 

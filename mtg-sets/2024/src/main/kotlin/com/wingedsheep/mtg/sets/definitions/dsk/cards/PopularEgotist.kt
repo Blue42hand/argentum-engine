@@ -25,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * ([Costs.SacrificeAnother] over [GameObjectFilter.CreatureOrEnchantment]). It grants this creature
  * indestructible until end of turn ([Duration.EndOfTurn]) and taps it.
  *
- * The sacrifice trigger ([Triggers.YouSacrificeOneOrMore] over any permanent) is a batching trigger
+ * The sacrifice trigger (`Triggers.you.sacrifices(filter, batch = true)` over any permanent) is a batching trigger
  * that fires once per sacrifice event — including the activated ability's own sacrifice cost — and
  * drains a chosen opponent ([Targets.Opponent] loses 1 life, controller gains 1 life).
  */
@@ -52,7 +52,7 @@ val PopularEgotist = card("Popular Egotist") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouSacrificeOneOrMore(GameObjectFilter.Permanent)
+        trigger = Triggers.you.sacrifices(GameObjectFilter.Permanent, batch = true)
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Composite(
             Effects.LoseLife(1, opponent),

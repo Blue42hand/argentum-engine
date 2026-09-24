@@ -35,7 +35,7 @@ val SavageVentmaw = card("Savage Ventmaw") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Composite(
             Effects.AddMana(Color.RED, 3),
             Effects.AddMana(Color.GREEN, 3),

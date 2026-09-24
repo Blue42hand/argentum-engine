@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Does Machines
@@ -39,7 +40,7 @@ val DoesMachines = card("Does Machines") {
 
     // Level 1: ETB mill 2, draw 2, then discard 2.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.mill(2)
             .then(Effects.DrawCards(2))
             .then(Patterns.Hand.discardCards(2))
@@ -49,7 +50,7 @@ val DoesMachines = card("Does Machines") {
     // inside the level block (Caretaker's Talent idiom).
     classLevel(2, "{1}{U}") {
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             target = TargetObject(
                 count = 2,
                 optional = true,
@@ -69,7 +70,7 @@ val DoesMachines = card("Does Machines") {
                 count = 1,
                 filter = TargetFilter(GameObjectFilter.Artifact.youControl())
             ))
-            trigger = Triggers.BeginCombat
+            trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, target)
                 .then(
                     Effects.If(

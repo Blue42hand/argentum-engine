@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Bloodline Recollector // Ancestral Craving — Reality Fracture #49
@@ -39,7 +40,7 @@ val BloodlineRecollector = card("Bloodline Recollector") {
 
     // At the beginning of each end step, if three or more creatures died this turn, it becomes prepared.
     triggeredAbility {
-        trigger = Triggers.EachEndStep
+        trigger = Triggers.anyPlayer.beginningOf(Step.END)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.creaturesDiedThisTurn(Player.Each),
             ComparisonOperator.GTE,

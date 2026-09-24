@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantCardType
 import com.wingedsheep.sdk.scripting.LoseAllAbilities
 import com.wingedsheep.sdk.scripting.SetBasePowerToughnessDynamicStatic
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -61,7 +60,7 @@ val TitaniasSong = card("Titania's Song") {
 
     // "If this enchantment leaves the battlefield, this effect continues until end of turn."
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(binding = TriggerBinding.SELF)
+        trigger = Triggers.self.leaves()
         effect = Effects.MassAnimate(
             filter = GameObjectFilter.Artifact.notCreature(),
             power = manaValue,

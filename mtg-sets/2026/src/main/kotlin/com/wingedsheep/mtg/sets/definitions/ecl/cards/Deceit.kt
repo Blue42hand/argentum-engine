@@ -39,7 +39,7 @@ val Deceit = card("Deceit") {
 
     // Blue gate first (goes on stack first, resolves second)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.ManaSpentToCastIncludes(requiredBlue = 2)
         val bounceTarget = target(
             "other nonland permanent",
@@ -54,7 +54,7 @@ val Deceit = card("Deceit") {
 
     // Black gate second (goes on stack second, resolves first)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.ManaSpentToCastIncludes(requiredBlack = 2)
         val opponent = target("target opponent", TargetOpponent())
         effect = Effects.Pipeline {

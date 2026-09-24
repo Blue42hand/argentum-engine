@@ -109,7 +109,7 @@ internal val playerContinuousHandlers: Map<String, ActionHandler> = actionHandle
         }
         // "When it dies this turn, <actions>." — a self-scoped delayed dies trigger watching the
         // spell's bound target until end of turn (Turn Inside Out: +3/+0 then manifest dread on death;
-        // the Desperate Measures `CreateDelayedTriggerEffect(trigger = Triggers.Dies, watchedTarget =
+        // the Desperate Measures `CreateDelayedTriggerEffect(trigger = Triggers.self.dies(), watchedTarget =
         // t)` shape). Renders only when the trigger is `WhenAPermanentDies` scoped to the
         // bound `Ref_TargetPermanent`, the expiry is UntilEndOfTurn, and the body renders whole.
         whenThatPermanentDiesDelayedTrigger(node, tvar)
@@ -120,7 +120,7 @@ internal val playerContinuousHandlers: Map<String, ActionHandler> = actionHandle
 /**
  * `CreateTriggerUntil(WhenAPermanentDies(SinglePermanent(Ref_TargetPermanent)),
  * [actions], UntilEndOfTurn)` → a watched-entity delayed dies trigger on the spell's bound target:
- * `CreateDelayedTriggerEffect(effect = <body>, trigger = Triggers.Dies, watchedTarget = <tvar>,
+ * `CreateDelayedTriggerEffect(effect = <body>, trigger = Triggers.self.dies(), watchedTarget = <tvar>,
  * expiry = DelayedTriggerExpiry.EndOfTurn)`.
  *
  * This is the "Target creature gets +X/+Y until end of turn. When it dies this turn, <do something>"
@@ -155,7 +155,7 @@ internal fun EmitCtx.whenThatPermanentDiesDelayedTrigger(node: JsonObject, tvar:
     return call(
         "CreateDelayedTriggerEffect",
         arg("effect", body),
-        arg("trigger", "Triggers.Dies"),
+        arg("trigger", "Triggers.self.dies()"),
         arg("watchedTarget", Lit(tvar)),
         arg("expiry", "DelayedTriggerExpiry.EndOfTurn"),
     )

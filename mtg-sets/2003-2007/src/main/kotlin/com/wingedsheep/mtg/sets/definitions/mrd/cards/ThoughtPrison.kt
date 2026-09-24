@@ -48,7 +48,7 @@ val ThoughtPrison = card("Thought Prison") {
     // "Imprint — When this artifact enters, you may have target player reveal their hand. If you
     // do, choose a nonland card from it and exile that card."
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val player = target("target player", Targets.Player)
         effect = Patterns.Hand.revealHandAndExileChosen(
@@ -65,10 +65,8 @@ val ThoughtPrison = card("Thought Prison") {
     // "Whenever a player casts a spell that shares a color or mana value with the exiled card,
     // this artifact deals 2 damage to that player."
     triggeredAbility {
-        trigger = Triggers.anyPlayerCasts(
-            spellFilter = GameObjectFilter.Any.sharingColorWith(EffectTarget.LinkedExiledCard()) or
-                GameObjectFilter.Any.sharingManaValueWith(EffectTarget.LinkedExiledCard())
-        )
+        trigger = Triggers.anyPlayer.casts(GameObjectFilter.Any.sharingColorWith(EffectTarget.LinkedExiledCard()) or
+                GameObjectFilter.Any.sharingManaValueWith(EffectTarget.LinkedExiledCard()))
         effect = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.TriggeringPlayer))
         description = "Whenever a player casts a spell that shares a color or mana value with the " +
             "exiled card, this artifact deals 2 damage to that player."

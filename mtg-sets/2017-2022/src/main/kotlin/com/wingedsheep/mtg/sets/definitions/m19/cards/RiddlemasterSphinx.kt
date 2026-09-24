@@ -33,7 +33,7 @@ val RiddlemasterSphinx = card("Riddlemaster Sphinx") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target("target", TargetCreature(filter = TargetFilter.CreatureOpponentControls))
         effect = Effects.Move(t, Zone.HAND)

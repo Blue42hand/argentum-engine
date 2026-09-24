@@ -31,7 +31,7 @@ val AloeAlchemist = card("Aloe Alchemist") {
     keywordAbility(KeywordAbility.plot("{1}{G}"))
 
     triggeredAbility {
-        trigger = Triggers.BecomesPlotted
+        trigger = Triggers.self.becomesPlotted()
         val t = target("target", Targets.Creature)
         effect = Effects.Composite(
             Effects.ModifyStats(power = 3, toughness = 2, target = t),

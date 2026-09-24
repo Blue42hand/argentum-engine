@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  * Whenever you cast a Spirit or Arcane spell, you may destroy target nonbasic land.
  *
  * The red half of the CHK "Whenever you cast a Spirit or Arcane spell" cycle: the shared
- * [Triggers.youCastSpell] over a homogeneous OR of the two subtype filters, binding `ANY`.
+ * `Triggers.you.casts(spell, requires)` over a homogeneous OR of the two subtype filters, binding `ANY`.
  *
  * The printed "you may" is the builder's `optional = true`, which lowers to a `Gate.MayDecide`
  * around the destroy — the model has no separate optional flag. The target is still chosen when
@@ -36,9 +36,7 @@ val OreGorger = card("Ore Gorger") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.Any.withAnySubtype("Spirit", "Arcane")
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.Any.withAnySubtype("Spirit", "Arcane"))
         val land = target("target", TargetPermanent(filter = TargetFilter.NonbasicLand))
         effect = Effects.Destroy(land)
         optional = true

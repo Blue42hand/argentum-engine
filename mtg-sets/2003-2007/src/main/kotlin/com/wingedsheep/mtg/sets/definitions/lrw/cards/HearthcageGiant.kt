@@ -31,7 +31,7 @@ val HearthcageGiant = card("Hearthcage Giant") {
         "Sacrifice an Elemental: Target Giant creature gets +3/+1 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 3,
             toughness = 1,

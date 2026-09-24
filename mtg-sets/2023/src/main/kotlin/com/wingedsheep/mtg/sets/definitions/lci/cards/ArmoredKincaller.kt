@@ -53,7 +53,7 @@ val ArmoredKincaller = card("Armored Kincaller") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             // Step 1: Collect all Dinosaur cards from the controller's hand.
             val kincallerDinos = gather(

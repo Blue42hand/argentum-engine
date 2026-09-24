@@ -33,12 +33,12 @@ val PredatorOoze = card("Predator Ooze") {
     keywords(Keyword.INDESTRUCTIBLE)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
     triggeredAbility {
-        trigger = Triggers.CreatureDealtDamageByThisDies
+        trigger = Triggers.self.damagedCreatureDies()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

@@ -37,7 +37,7 @@ val FireLordAzula = card("Fire Lord Azula") {
     firebending(2)
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell()
+        trigger = Triggers.you.casts()
         triggerRestriction = Conditions.SourceIsAttacking
         effect = Effects.CopyTargetSpell(target = EffectTarget.TriggeringEntity)
         description = "Whenever you cast a spell while Fire Lord Azula is attacking, copy that spell. " +

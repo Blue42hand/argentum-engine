@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Rediscover the Way — Tarkir: Dragonstorm #215
@@ -29,7 +30,7 @@ import com.wingedsheep.sdk.model.Rarity
  * library, ordered by the controller ([CardOrder.ControllerChooses]).
  *
  * Chapter III installs a turn-bounded, event-based delayed triggered ability:
- * [CreateDelayedTriggerEffect] on [Triggers.YouCastNoncreature] with `fireOnce = false` (it fires
+ * [CreateDelayedTriggerEffect] on `Triggers.you.casts(GameObjectFilter.Noncreature)` with `fireOnce = false` (it fires
  * for *every* noncreature spell cast this turn, not just the first) and `expiry = EndOfTurn`. Its
  * [CreateDelayedTriggerEffect.targetRequirement] is "target creature you control", chosen each
  * time the trigger fires; the chosen creature is granted double strike until end of turn via
@@ -53,7 +54,7 @@ val RediscoverTheWay = card("Rediscover the Way") {
     }
     sagaChapter(3) {
         effect = Effects.CreateDelayedTrigger(
-            trigger = Triggers.YouCastNoncreature,
+            trigger = Triggers.you.casts(GameObjectFilter.Noncreature),
             fireOnce = false,
             expiry = DelayedTriggerExpiry.EndOfTurn) {
             val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)

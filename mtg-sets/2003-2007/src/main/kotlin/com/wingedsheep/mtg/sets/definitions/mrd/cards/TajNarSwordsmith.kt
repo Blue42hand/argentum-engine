@@ -38,7 +38,7 @@ val TajNarSwordsmith = card("Taj-Nar Swordsmith") {
         "Equipment card with mana value X or less, put that card onto the battlefield, then shuffle."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.MayPayX(
             then = Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.Artifact.withSubtype("Equipment").manaValueAtMostX(),

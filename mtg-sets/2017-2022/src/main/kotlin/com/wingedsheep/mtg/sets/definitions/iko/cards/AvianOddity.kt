@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
  *
  * The cycling payoff is a *keyword counter* (CR 122.1e / 702.9), not an until-end-of-turn grant:
  * a `flying` counter stays on the creature for good, so the Oddity trades itself for a permanent
- * evasion upgrade plus the card cycling draws. [Triggers.YouCycleThis] fires from the discard and
+ * evasion upgrade plus the card cycling draws. `Triggers.self.isCycled()` fires from the discard and
  * resolves with the card already in the graveyard, so the target is chosen at that point.
  */
 val AvianOddity = card("Avian Oddity") {
@@ -37,7 +37,7 @@ val AvianOddity = card("Avian Oddity") {
     keywordAbility(KeywordAbility.cycling("{2}{U}"))
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         val creature = target("target", Targets.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.FLYING, 1, creature)
     }

@@ -33,7 +33,7 @@ val FightOrFlight = card("Fight or Flight") {
     oracleText = "At the beginning of combat on each opponent's turn, separate all creatures that player controls into two piles. Only creatures in the pile of their choice can attack this turn."
 
     triggeredAbility {
-        trigger = Triggers.phase(Step.BEGIN_COMBAT, Player.EachOpponent)
+        trigger = Triggers.anOpponent.beginningOf(Step.BEGIN_COMBAT)
         effect = Effects.Pipeline {
             // 1. Gather the creatures the active opponent controls.
             val creatures = gather(

@@ -30,7 +30,7 @@ val AnafenzaTheForemost = card("Anafenza, the Foremost") {
     oracleText = "Whenever Anafenza, the Foremost attacks, put a +1/+1 counter on another target tapped creature you control.\nIf a nontoken creature an opponent owns would die or a creature card not on the battlefield would be put into an opponent's graveyard, exile that card instead."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val tappedCreature = target(
             "another target tapped creature you control",
             TargetCreature(filter = TargetFilter.TappedCreature.youControl().other())

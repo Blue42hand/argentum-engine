@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Quiet Contemplation
@@ -25,7 +26,7 @@ val QuietContemplation = card("Quiet Contemplation") {
 
     triggeredAbility {
         val creatureOpponentControls = target("target creature opponent controls", Targets.CreatureOpponentControls)
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
             then = Effects.Tap(creatureOpponentControls) then

@@ -34,7 +34,7 @@ val GandalfSparkStarter = card("Gandalf, Spark Starter") {
     keywords(Keyword.REACH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target = AnyTarget(count = 3, minCount = 1)
         effect = Effects.DividedDamage(
             total = 3,

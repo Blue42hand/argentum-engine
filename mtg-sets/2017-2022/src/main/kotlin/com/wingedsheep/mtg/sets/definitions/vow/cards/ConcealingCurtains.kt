@@ -29,7 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   When this creature transforms into Revealing Eye, target opponent reveals their hand. You may
  *   choose a nonland card from it. If you do, that player discards that card, then draws a card.
  *
- * The back's transforms-into trigger ([Triggers.TransformsToBack]) runs the Duress reveal pipeline:
+ * The back's transforms-into trigger (`Triggers.self.transforms(true)`) runs the Duress reveal pipeline:
  * [RevealHandEffect] on a target opponent, [GatherCardsEffect] over that opponent's hand,
  * [SelectFromCollectionEffect] as ChooseUpTo 1 nonland ("you may choose"), and a
  * [ConditionalOnCollectionEffect] so the discard-then-draw only happens "if you do" (Oildeep
@@ -78,7 +78,7 @@ private val RevealingEye = card("Revealing Eye") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.TransformsToBack
+        trigger = Triggers.self.transforms(true)
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Pipeline {
             run(Effects.RevealHand(opponent))

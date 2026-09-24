@@ -29,7 +29,7 @@ val SpireMangler = card("Spire Mangler") {
 
     keywords(Keyword.FLASH, Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val flier = target(
             "target",
             TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING).youControl()))

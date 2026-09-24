@@ -41,7 +41,7 @@ val AcademyJourneymage = card("Academy Journeymage") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature", Targets.CreatureOpponentControls)
         effect = Effects.ReturnToHand(creature)
     }

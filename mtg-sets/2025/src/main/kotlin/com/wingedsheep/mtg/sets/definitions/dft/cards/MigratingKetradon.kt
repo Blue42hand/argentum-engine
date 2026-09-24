@@ -30,7 +30,7 @@ val MigratingKetradon = card("Migrating Ketradon") {
     toughness = 6
     keywords(Keyword.REACH)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(4)
     }
     keywordAbility(KeywordAbility.cycling("{2}"))

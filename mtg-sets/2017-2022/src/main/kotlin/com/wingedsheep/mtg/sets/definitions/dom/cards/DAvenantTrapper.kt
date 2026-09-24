@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * D'Avenant Trapper
@@ -24,7 +25,7 @@ val DAvenantTrapper = card("D'Avenant Trapper") {
 
     triggeredAbility {
         val creatureOpponentControls = target("target creature opponent controls", Targets.CreatureOpponentControls)
-        trigger = Triggers.YouCastHistoric
+        trigger = Triggers.you.casts(GameObjectFilter.Historic)
         effect = Effects.Tap(creatureOpponentControls)
     }
 

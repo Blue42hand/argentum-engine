@@ -75,8 +75,7 @@ val VincentsLimitBreak = card("Vincent's Limit Break") {
  */
 private fun transform(creature: EffectTarget, power: Int, toughness: Int): Effect {
     val diesReturnTapped = TriggeredAbility.create(
-        trigger = Triggers.Dies.event,
-        binding = Triggers.Dies.binding,
+        trigger = Triggers.self.dies(),
         effect = Effects.Move(
             target = EffectTarget.Self,
             destination = Zone.BATTLEFIELD,

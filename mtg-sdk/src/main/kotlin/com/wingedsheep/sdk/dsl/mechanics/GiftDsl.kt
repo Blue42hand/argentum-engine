@@ -56,8 +56,7 @@ fun giftEffect(kind: GiftKind): Effect {
  */
 fun giftEnterTrigger(kind: GiftKind, subject: String = "this permanent"): TriggeredAbility =
     TriggeredAbility.create(
-        trigger = Triggers.EntersBattlefield.event,
-        binding = Triggers.EntersBattlefield.binding,
+        trigger = Triggers.self.enters(),
         interveningIf = Conditions.GiftWasPromised,
         effect = giftEffect(kind).then(Effects.GiftGiven()),
         descriptionOverride =

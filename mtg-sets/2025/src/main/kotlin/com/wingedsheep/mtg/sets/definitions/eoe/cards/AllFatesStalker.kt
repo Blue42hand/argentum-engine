@@ -26,7 +26,7 @@ val AllFatesStalker = card("All-Fates Stalker") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "up to one target non-Assassin creature",
             TargetPermanent(
@@ -39,7 +39,7 @@ val AllFatesStalker = card("All-Fates Stalker") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
         description = "Return the exiled card to the battlefield under its owner's control." 
     }

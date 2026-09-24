@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.SelectionRestriction
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Magnetic Mountain
@@ -49,7 +50,7 @@ val MagneticMountain = card("Magnetic Mountain") {
     // creatures they control and pay {4} for each creature chosen this way. If the player does,
     // untap those creatures." — resolution-time choose-any-number + per-creature scaled payment.
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         effect = Effects.Pipeline {
             // The upkeep player's tapped blue creatures are the eligible pool.
             val eligible = gather(

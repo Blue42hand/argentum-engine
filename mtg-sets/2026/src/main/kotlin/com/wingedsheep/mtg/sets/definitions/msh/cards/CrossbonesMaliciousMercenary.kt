@@ -42,10 +42,7 @@ val CrossbonesMaliciousMercenary = card("Crossbones, Malicious Mercenary") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Permanent.withSubtype(Subtype.VILLAIN).youControl(),
-            binding = TriggerBinding.OTHER,
-        )
+        trigger = Triggers.another(GameObjectFilter.Permanent.withSubtype(Subtype.VILLAIN).youControl()).enters()
         oncePerTurn = true
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),

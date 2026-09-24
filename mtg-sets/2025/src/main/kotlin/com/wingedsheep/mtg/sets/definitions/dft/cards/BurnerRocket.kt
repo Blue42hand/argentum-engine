@@ -32,7 +32,7 @@ val BurnerRocket = card("Burner Rocket") {
     toughness = 1
     keywords(Keyword.FLASH)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = Effects.Composite(
             Effects.ModifyStats(2, 0, t),

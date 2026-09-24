@@ -54,7 +54,7 @@ val ThreefoldThunderhulk = card("Threefold Thunderhulk") {
 
     // Whenever this creature enters, create tokens equal to its power.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             count = DynamicAmounts.sourcePower(),
             power = 1,
@@ -68,7 +68,7 @@ val ThreefoldThunderhulk = card("Threefold Thunderhulk") {
 
     // Whenever this creature attacks, create tokens equal to its power.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.CreateToken(
             count = DynamicAmounts.sourcePower(),
             power = 1,

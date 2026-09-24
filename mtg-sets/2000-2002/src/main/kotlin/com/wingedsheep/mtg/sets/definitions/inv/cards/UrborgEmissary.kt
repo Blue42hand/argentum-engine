@@ -28,7 +28,7 @@ val UrborgEmissary = card("Urborg Emissary") {
     keywordAbility(KeywordAbility.kicker("{1}{U}"))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = WasKicked
         val t = target("permanent", Targets.Permanent)
         effect = Effects.ReturnToHand(t)

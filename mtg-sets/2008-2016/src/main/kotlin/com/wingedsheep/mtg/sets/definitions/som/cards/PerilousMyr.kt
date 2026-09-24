@@ -23,7 +23,7 @@ val PerilousMyr = card("Perilous Myr") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val victim = target("any target", Targets.Any)
         effect = Effects.DealDamage(2, victim)
         description = "When this creature dies, it deals 2 damage to any target."

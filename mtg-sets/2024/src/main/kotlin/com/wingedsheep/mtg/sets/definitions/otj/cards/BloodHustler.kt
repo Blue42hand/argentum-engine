@@ -31,7 +31,7 @@ val BloodHustler = card("Blood Hustler") {
         "{3}{B}: Target opponent loses 1 life and you gain 1 life."
 
     triggeredAbility {
-        trigger = Triggers.YouCommitCrime
+        trigger = Triggers.you.commitsCrime()
         oncePerTurn = true
         effect = Effects.AddCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,

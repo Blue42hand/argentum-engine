@@ -40,7 +40,7 @@ val GrunnTheLonelyKing = card("Grunn, the Lonely King") {
     ))
 
     triggeredAbility {
-        trigger = Triggers.attacks(requires = setOf(AttackPredicate.Alone))
+        trigger = Triggers.self.attacks(setOf(AttackPredicate.Alone))
         effect = Effects.ModifyStats(DynamicAmounts.sourcePower(), DynamicAmounts.sourceToughness(), EffectTarget.Self)
     }
 

@@ -47,7 +47,7 @@ class TheRingScenarioTest : FunSpec({
         typeLine = "Enchantment"
         oracleText = "Whenever the Ring tempts you, you gain 2 life."
         triggeredAbility {
-            trigger = Triggers.RingTemptsYou
+            trigger = Triggers.you.isTemptedByTheRing()
             effect = Effects.GainLife(2)
         }
     }

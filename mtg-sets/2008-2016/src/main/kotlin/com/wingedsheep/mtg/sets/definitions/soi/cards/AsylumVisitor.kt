@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.madness
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /** Asylum Visitor — Shadows over Innistrad #99. */
 val AsylumVisitor = card("Asylum Visitor") {
@@ -24,7 +25,7 @@ val AsylumVisitor = card("Asylum Visitor") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         interveningIf = activePlayerHasEmptyHand()
         effect = Effects.DrawCards(1).then(Effects.LoseLife(1))
     }

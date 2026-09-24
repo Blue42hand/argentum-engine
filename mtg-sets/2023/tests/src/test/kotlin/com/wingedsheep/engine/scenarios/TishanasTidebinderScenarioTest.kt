@@ -44,7 +44,7 @@ class TishanasTidebinderScenarioTest : FunSpec({
         toughness = 2
 
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             effect = Effects.GainLife(3)
         }
     }

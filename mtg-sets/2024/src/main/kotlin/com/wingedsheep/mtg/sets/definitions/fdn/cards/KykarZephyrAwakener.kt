@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 
 /**
@@ -38,7 +39,7 @@ val KykarZephyrAwakener = card("Kykar, Zephyr Awakener") {
     toughness = 4
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = ModalEffect.chooseOne(
             mode("Exile another target creature you control. Return that card to the battlefield under its owner's control at the beginning of the next end step") {
                 val otherCreatureYouControl = target(

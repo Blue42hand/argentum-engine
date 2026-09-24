@@ -26,7 +26,7 @@ val ElectricEel = card("Electric Eel") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.You))
     }
 

@@ -27,7 +27,7 @@ val CadaverImp = card("Cadaver Imp") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val card = target("target creature card in your graveyard", Targets.CreatureCardInYourGraveyard)
         effect = Effects.ReturnToHand(card)

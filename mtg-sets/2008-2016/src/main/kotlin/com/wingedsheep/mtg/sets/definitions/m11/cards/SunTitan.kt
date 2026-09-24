@@ -39,7 +39,7 @@ val SunTitan = card("Sun Titan") {
         "permanent card with mana value 3 or less from your graveyard to the battlefield."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanentCard = target(
             "permanent card with mana value 3 or less from your graveyard",
             TargetObject(
@@ -55,7 +55,7 @@ val SunTitan = card("Sun Titan") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val permanentCard = target(
             "permanent card with mana value 3 or less from your graveyard",
             TargetObject(

@@ -27,7 +27,7 @@ val IridescentTiger = card("Iridescent Tiger") {
     oracleText = "When this creature enters, if you cast it, add {W}{U}{B}{R}{G}."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.WasCast
         effect = Effects.Composite(
             Effects.AddMana(Color.WHITE),

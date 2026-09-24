@@ -7,13 +7,9 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 
@@ -35,10 +31,7 @@ val DecreeOfSilence = card("Decree of Silence") {
 
     // Ability 1: Whenever an opponent casts a spell, counter that spell + depletion counter + sacrifice check
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = EventPattern.SpellCastEvent(player = Player.EachOpponent),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.anOpponent.casts()
         effect = Effects.CounterTriggeringSpell()
             .then(Effects.AddCounters(CounterType.DEPLETION, 1, EffectTarget.Self))
             .then(
@@ -58,7 +51,7 @@ val DecreeOfSilence = card("Decree of Silence") {
 
     // When you cycle this card, you may counter target spell.
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         val t = target("target spell", Targets.Spell)
         effect = Effects.May(Effects.CounterSpell())
     }

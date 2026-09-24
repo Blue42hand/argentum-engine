@@ -34,7 +34,7 @@ val MarshalOfTheLost = card("Marshal of the Lost") {
     val attackerCount = DynamicAmounts.attackingCreaturesYouControl()
 
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         val t = target("target creature", Targets.Creature)
         effect = Effects.ModifyStats(
             power = attackerCount,

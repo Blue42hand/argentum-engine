@@ -33,7 +33,7 @@ val EndBlazeEpiphany = card("End-Blaze Epiphany") {
             listOf(
                 Effects.DealDamage(DynamicAmounts.xValue(), creature),
                 Effects.CreateDelayedTrigger(
-                    trigger = Triggers.Dies,
+                    trigger = Triggers.self.dies(),
                     watchedTarget = creature,
                     expiry = DelayedTriggerExpiry.EndOfTurn,
                     effect = Effects.Pipeline {

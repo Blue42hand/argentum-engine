@@ -32,7 +32,7 @@ val MithrilCoat = card("Mithril Coat") {
 
     // When Mithril Coat enters, attach it to target legendary creature you control.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val legendary = target(
             "target legendary creature you control",
             TargetCreature(

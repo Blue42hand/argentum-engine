@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -35,10 +34,7 @@ val DashingBloodsucker = card("Dashing Bloodsucker") {
 
     // Eerie trigger — part 1: whenever an enchantment you control enters
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Enchantment.youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Enchantment.youControl()).enters()
         effect = Effects.Composite(
             Effects.ModifyStats(2, 0, EffectTarget.Self),
             Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self),
@@ -49,7 +45,7 @@ val DashingBloodsucker = card("Dashing Bloodsucker") {
 
     // Eerie trigger — part 2: whenever you fully unlock a Room
     triggeredAbility {
-        trigger = Triggers.RoomFullyUnlocked
+        trigger = Triggers.you.fullyUnlocksARoom()
         effect = Effects.Composite(
             Effects.ModifyStats(2, 0, EffectTarget.Self),
             Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self),

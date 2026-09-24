@@ -47,7 +47,7 @@ val SauronTheNecromancer = card("Sauron, the Necromancer") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val card = target(
             "target creature card from your graveyard",
             Targets.CreatureCardInYourGraveyard

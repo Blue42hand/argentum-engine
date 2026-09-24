@@ -36,7 +36,7 @@ val AangTheLastAirbender = card("Aang, the Last Airbender") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target(
             "up to one other target nonland permanent",
             TargetOther(baseRequirement = TargetPermanent(count = 1, optional = true, filter = TargetFilter.NonlandPermanent))
@@ -45,7 +45,7 @@ val AangTheLastAirbender = card("Aang, the Last Airbender") {
     }
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Any.withSubtype("Lesson"))
+        trigger = Triggers.you.casts(GameObjectFilter.Any.withSubtype("Lesson"))
         effect = Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self)
     }
 

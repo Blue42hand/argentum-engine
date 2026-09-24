@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Flayed Nim — Mirrodin #65
@@ -45,7 +46,7 @@ val FlayedNim = card("Flayed Nim") {
         "{2}{B}: Regenerate this creature."
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToCreature
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyCreature)
         effect = Effects.LoseLife(
             amount = DynamicAmounts.triggerDamageAmount(),
             target = EffectTarget.ControllerOfTriggeringEntity

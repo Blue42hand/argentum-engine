@@ -44,7 +44,7 @@ val SteamcoreScholar = card("Steamcore Scholar") {
     keywords(Keyword.FLYING, Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.DrawCards(2),
             Patterns.Hand.discardCardsUnlessMatching(

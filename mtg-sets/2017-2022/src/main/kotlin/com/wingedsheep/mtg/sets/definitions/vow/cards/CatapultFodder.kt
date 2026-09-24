@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Catapult Fodder // Catapult Captain (Innistrad: Crimson Vow)
@@ -48,7 +49,7 @@ private val CatapultFodderFront = card("Catapult Fodder") {
         "that each have toughness greater than their power, transform this creature."
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         interveningIf = Conditions.YouControlAtLeast(
             3,
             GameObjectFilter.Creature.toughnessGreaterThanPower()

@@ -40,7 +40,7 @@ val TriclopeanSight = card("Triclopean Sight") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Untap(EffectTarget.EnchantedCreature)
         description = "When this Aura enters, untap enchanted creature."
     }

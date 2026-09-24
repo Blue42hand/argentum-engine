@@ -24,7 +24,7 @@ val ThrashingMudspawn = card("Thrashing Mudspawn") {
     oracleText = "Whenever Thrashing Mudspawn is dealt damage, you lose that much life.\nMorph {1}{B}{B}"
 
     triggeredAbility {
-        trigger = Triggers.TakesDamage
+        trigger = Triggers.self.isDealtDamage()
         effect = Effects.LoseLife(
             amount = DynamicAmounts.triggerDamageAmount(),
             target = EffectTarget.Controller

@@ -41,7 +41,7 @@ val GastalThrillseeker = card("Gastal Thrillseeker") {
     startYourEngines()
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponent = target("target opponent", TargetOpponent())
         effect = Effects.Composite(
             Effects.DealDamage(1, opponent, damageSource = EffectTarget.Self),

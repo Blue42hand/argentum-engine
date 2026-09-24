@@ -52,7 +52,7 @@ val Deathrender = card("Deathrender") {
     }
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(to = Zone.GRAVEYARD, binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.dies()
         effect = Effects.Pipeline {
             val candidates = gather(CardSource.FromZone(Zone.HAND, Player.You, GameObjectFilter.Creature))
             val putting = chooseUpTo(

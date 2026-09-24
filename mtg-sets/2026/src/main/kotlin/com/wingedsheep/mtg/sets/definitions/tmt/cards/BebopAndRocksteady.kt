@@ -32,13 +32,13 @@ val BebopAndRocksteady = card("Bebop & Rocksteady") {
     )
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = sacrificeUnlessDiscard
         description = "Whenever Bebop & Rocksteady attack, sacrifice a permanent unless you discard a card."
     }
 
     triggeredAbility {
-        trigger = Triggers.Blocks
+        trigger = Triggers.self.blocks()
         effect = sacrificeUnlessDiscard
         description = "Whenever Bebop & Rocksteady block, sacrifice a permanent unless you discard a card."
     }

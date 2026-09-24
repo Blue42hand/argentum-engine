@@ -41,7 +41,7 @@ val SilkenStrength = card("Silken Strength") {
     auraTarget = TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrVehicle))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Untap(EffectTarget.EnchantedPermanent)
         description = "When this Aura enters, untap enchanted permanent."
     }

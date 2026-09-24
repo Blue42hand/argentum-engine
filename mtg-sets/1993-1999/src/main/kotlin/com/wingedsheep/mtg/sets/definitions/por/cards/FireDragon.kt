@@ -34,7 +34,7 @@ val FireDragon = card("Fire Dragon") {
     toughness = 6
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.DealDamage(
             DynamicAmounts.battlefield(Player.You, GameObjectFilter.Land.withSubtype(Subtype.MOUNTAIN)).count(),

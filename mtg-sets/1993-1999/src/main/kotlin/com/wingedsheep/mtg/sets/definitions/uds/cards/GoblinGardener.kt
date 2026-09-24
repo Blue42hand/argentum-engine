@@ -28,7 +28,7 @@ val GoblinGardener = card("Goblin Gardener") {
     power = 2
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val t = target("target", TargetPermanent(filter = TargetFilter.Land))
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }

@@ -29,7 +29,7 @@ val DaringWaverider = card("Daring Waverider") {
         val target = target("target", TargetObject(
             filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByYou().manaValueAtMost(4)
         ))
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             listOf(
                 // Move the targeted card from graveyard to exile

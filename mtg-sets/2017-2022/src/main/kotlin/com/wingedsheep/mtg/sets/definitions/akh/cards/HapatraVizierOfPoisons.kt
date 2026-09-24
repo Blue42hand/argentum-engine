@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Hapatra, Vizier of Poisons
@@ -19,7 +20,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  * Whenever Hapatra deals combat damage to a player, you may put a -1/-1 counter on target creature.
  * Whenever you put one or more -1/-1 counters on a creature, create a 1/1 green Snake creature token with deathtouch.
  *
- * The second trigger is the per-recipient shape of [Triggers.countersPlacedOn] — the current Oracle
+ * The second trigger is the per-recipient shape of `Triggers.<subject>.getsCounters(type, by, firstTimeEachTurn, batch)` — the current Oracle
  * text says "on **a** creature", so an effect that hits three creatures fires it three times, and
  * `batch` stays at its default `false`. `firstTimeEachTurn` is passed explicitly because the facade
  * defaults it to `!batch`, which is the Stalwart Successor rider this card does not print. The
@@ -36,19 +37,14 @@ val HapatraVizierOfPoisons = card("Hapatra, Vizier of Poisons") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         optional = true
         val t = target("target", Targets.Creature)
         effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, t)
     }
 
     triggeredAbility {
-        trigger = Triggers.countersPlacedOn(
-            filter = GameObjectFilter.Creature,
-            counterType = CounterType.MINUS_ONE_MINUS_ONE,
-            firstTimeEachTurn = false,
-            placedBy = Player.You,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature).getsCounters(CounterType.MINUS_ONE_MINUS_ONE, by = Player.You)
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

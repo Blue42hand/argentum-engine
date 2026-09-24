@@ -52,10 +52,7 @@ val TwilightDrover = card("Twilight Drover") {
         "tokens with flying."
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.withCardPredicate(CardPredicate.IsToken),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.withCardPredicate(CardPredicate.IsToken)).leaves()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever a creature token leaves the battlefield, put a +1/+1 counter on " +
             "this creature."

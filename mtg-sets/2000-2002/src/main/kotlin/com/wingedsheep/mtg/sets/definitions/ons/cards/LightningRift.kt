@@ -21,7 +21,7 @@ val LightningRift = card("Lightning Rift") {
     oracleText = "Whenever a player cycles a card, you may pay {1}. If you do, Lightning Rift deals 2 damage to any target."
 
     triggeredAbility {
-        trigger = Triggers.AnyPlayerCycles
+        trigger = Triggers.anyPlayer.cycles()
         val t = target("target", Targets.Any)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),

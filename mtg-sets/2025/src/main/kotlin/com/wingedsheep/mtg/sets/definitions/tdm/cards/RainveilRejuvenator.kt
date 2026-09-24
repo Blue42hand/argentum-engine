@@ -30,7 +30,7 @@ val RainveilRejuvenator = card("Rainveil Rejuvenator") {
         "{T}: Add an amount of {G} equal to this creature's power."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Patterns.Library.mill(3),
             descriptionOverride = "You may mill three cards."

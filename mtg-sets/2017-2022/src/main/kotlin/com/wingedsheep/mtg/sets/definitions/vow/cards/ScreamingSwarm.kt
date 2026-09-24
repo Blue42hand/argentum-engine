@@ -23,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Whenever you attack with one or more creatures, target player mills that many cards.
  * {2}{U}: Put this card from your graveyard into your library second from the top.
  *
- * The attack trigger is [Triggers.YouAttack] — the batch "whenever you attack" shape that fires
+ * The attack trigger is `Triggers.you.attacks()` — the batch "whenever you attack" shape that fires
  * once per combat, not once per attacker. "That many" is the size of the batch, read as the
  * attacking creatures you control ([DynamicAmount.AggregateBattlefield] over
  * `Creature.attacking()`, which is evaluated under projected state). The target is a player, and
@@ -48,7 +48,7 @@ val ScreamingSwarm = card("Screaming Swarm") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         val victim = target("target", Targets.Player)
         effect = Patterns.Library.mill(
             DynamicAmounts.attackingCreaturesYouControl(),

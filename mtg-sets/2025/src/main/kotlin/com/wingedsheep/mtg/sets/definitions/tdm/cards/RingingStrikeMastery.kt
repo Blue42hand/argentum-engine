@@ -36,7 +36,7 @@ val RingingStrikeMastery = card("Ringing Strike Mastery") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Tap(EffectTarget.EnchantedCreature)
     }
 

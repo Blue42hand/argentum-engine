@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Prosperous Bandit
@@ -39,7 +40,7 @@ val ProsperousBandit = card("Prosperous Bandit") {
 
     // Offspring ETB: when this enters, if offspring was paid, create a 1/1 token copy
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.WasKicked
         effect = Effects.CreateTokenCopyOfSelf(overridePower = 1, overrideToughness = 1)
     }
@@ -47,7 +48,7 @@ val ProsperousBandit = card("Prosperous Bandit") {
     // Whenever this creature deals combat damage to a player, create that many
     // tapped Treasure tokens.
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.Repeat(
             amount = DynamicAmounts.triggerDamageAmount(),
             body = Effects.CreateTreasure(tapped = true)

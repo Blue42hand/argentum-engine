@@ -35,7 +35,7 @@ val MechanicalMobster = card("Mechanical Mobster") {
         "a nonland card, put a +1/+1 counter on that creature.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val exiled = target("target card in a graveyard", TargetObject(optional = true, filter = TargetFilter.CardInGraveyard))
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.Composite(

@@ -32,7 +32,7 @@ val ScytheTiger = card("Scythe Tiger") {
     keywords(Keyword.SHROUD)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Sacrifice(GameObjectFilter.Land),
             suffer = SacrificeSelfEffect,

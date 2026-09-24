@@ -29,14 +29,14 @@ val HamletCaptain = card("Hamlet Captain") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.HUMAN).youControl(), excludeSelf = true),
             Effects.ModifyStats(1, 1, EffectTarget.IterationEntity)
         )
     }
     triggeredAbility {
-        trigger = Triggers.Blocks
+        trigger = Triggers.self.blocks()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.HUMAN).youControl(), excludeSelf = true),
             Effects.ModifyStats(1, 1, EffectTarget.IterationEntity)

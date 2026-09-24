@@ -24,7 +24,7 @@ val VoidmageApprentice = card("Voidmage Apprentice") {
 
     triggeredAbility {
         val spell = target("target spell", Targets.Spell)
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         effect = Effects.CounterSpell()
     }
 

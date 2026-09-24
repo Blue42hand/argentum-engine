@@ -38,7 +38,7 @@ val FreestriderLookout = card("Freestrider Lookout") {
     keywords(Keyword.REACH)
 
     triggeredAbility {
-        trigger = Triggers.YouCommitCrime
+        trigger = Triggers.you.commitsCrime()
         oncePerTurn = true
         description = "Whenever you commit a crime, look at the top five cards of your library. You may " +
             "put a land card from among them onto the battlefield tapped. Put the rest on the bottom of " +

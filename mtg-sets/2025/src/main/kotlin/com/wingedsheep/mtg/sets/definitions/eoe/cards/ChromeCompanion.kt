@@ -26,7 +26,7 @@ val ChromeCompanion = card("Chrome Companion") {
     oracleText = "Whenever this creature becomes tapped, you gain 1 life.\n{2}, {T}: Put target card from a graveyard on the bottom of its owner's library."
 
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
+        trigger = Triggers.self.becomesTapped()
         effect = Effects.GainLife(1)
         description = "Whenever this creature becomes tapped, you gain 1 life."
     }

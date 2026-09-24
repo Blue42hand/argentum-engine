@@ -42,7 +42,7 @@ class AuraEntersGrantsHexproofTest : FunSpec({
         auraTarget = Targets.Creature
 
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             effect = Effects.GrantHexproof(EffectTarget.EnchantedCreature)
         }
     }

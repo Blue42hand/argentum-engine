@@ -27,7 +27,7 @@ val ExaltedAngel = card("Exalted Angel") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.DealsDamage
+        trigger = Triggers.self.dealsDamage()
         effect = Effects.GainLife(DynamicAmounts.triggerDamageAmount())
     }
 

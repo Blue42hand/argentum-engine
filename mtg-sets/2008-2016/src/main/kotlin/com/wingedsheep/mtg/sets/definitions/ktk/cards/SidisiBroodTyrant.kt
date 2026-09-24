@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Sidisi, Brood Tyrant
@@ -29,20 +30,20 @@ val SidisiBroodTyrant = card("Sidisi, Brood Tyrant") {
 
     // Whenever Sidisi enters the battlefield, mill three cards.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.mill(3)
     }
 
     // Whenever Sidisi attacks, mill three cards.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Patterns.Library.mill(3)
     }
 
     // Whenever one or more creature cards are put into your graveyard from your library,
     // create a 2/2 black Zombie creature token.
     triggeredAbility {
-        trigger = Triggers.CreaturesPutIntoGraveyardFromLibrary
+        trigger = Triggers.oneOrMore(GameObjectFilter.Creature).putIntoYourGraveyard(fromLibrary = true)
         effect = Effects.CreateToken(
             count = 1,
             power = 2,

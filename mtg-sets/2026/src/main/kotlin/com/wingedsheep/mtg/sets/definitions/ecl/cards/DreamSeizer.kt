@@ -29,7 +29,7 @@ val DreamSeizer = card("Dream Seizer") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             effect = Patterns.Mechanic.blight(1)
                 .then(Effects.EachOpponentDiscards(1)),

@@ -31,7 +31,7 @@ val Wispmare = card("Wispmare") {
     evoke = "{W}"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val enchantment = target("target enchantment", Targets.Enchantment)
         effect = Effects.Destroy(enchantment)
         description = "destroy target enchantment."

@@ -28,7 +28,7 @@ val BespokeBo = card("Bespoke Bō") {
     oracleText = "When this Equipment enters, return up to one other target nonland permanent to its owner's hand.\nEquipped creature gets +2/+1 and has vigilance.\nEquip {3} ({3}: Attach to target creature you control. Equip only as a sorcery.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "other nonland permanent",
             TargetPermanent(optional = true, filter = TargetFilter.NonlandPermanent.other())

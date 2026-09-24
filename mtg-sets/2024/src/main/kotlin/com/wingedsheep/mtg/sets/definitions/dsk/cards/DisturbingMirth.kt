@@ -24,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  * cards" payoff run. Modelled with [ReflexiveTriggerEffect] (optional sacrifice action, untargeted
  * draw payoff) — the same shape as Treetop Sentries / Unscrupulous Contractor.
  *
- * Second ability: the standard [Triggers.Sacrificed] SELF trigger ("when you sacrifice this"),
+ * Second ability: the standard `Triggers.self.isSacrificed()` SELF trigger ("when you sacrifice this"),
  * reusing the shared [Patterns.Library.manifestDread] recipe (CR 701.62b).
  */
 val DisturbingMirth = card("Disturbing Mirth") {
@@ -38,7 +38,7 @@ val DisturbingMirth = card("Disturbing Mirth") {
         "its mana cost if it's a creature card.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Effects.Pipeline {
                 val permanentToSacrifice = selectTarget(
@@ -57,7 +57,7 @@ val DisturbingMirth = card("Disturbing Mirth") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Sacrificed
+        trigger = Triggers.self.isSacrificed()
         effect = Patterns.Library.manifestDread()
     }
 

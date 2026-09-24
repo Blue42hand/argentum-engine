@@ -54,7 +54,7 @@ class CaseSolveScenarioTest : FunSpec({
             "Solved — At the beginning of your upkeep, draw a card."
         toSolve(Conditions.LifeAtLeast(25))
         solvedTriggeredAbility {
-            trigger = Triggers.YourUpkeep
+            trigger = Triggers.you.beginningOf(Step.UPKEEP)
             effect = Effects.DrawCards(1)
         }
     }

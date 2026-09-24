@@ -28,7 +28,7 @@ val PlumecreedEscort = card("Plumecreed Escort") {
     keywords(Keyword.FLASH, Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature you control", Targets.CreatureYouControl)
         effect = Effects.GrantKeyword(Keyword.HEXPROOF, creature)
     }

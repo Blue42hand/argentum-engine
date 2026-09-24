@@ -50,7 +50,7 @@ val ExtraplanarLens = card("Extraplanar Lens") {
 
     // "Imprint — When this artifact enters, you may exile target land you control."
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val land = target(
             "target land you control",

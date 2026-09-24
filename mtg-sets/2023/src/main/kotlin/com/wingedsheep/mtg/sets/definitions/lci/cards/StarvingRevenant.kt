@@ -35,7 +35,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * The ETB draws feed the card's own descend trigger below: each drawn card that resolves while
  * eight-or-more permanent cards sit in the graveyard puts a drain on the stack.
  *
- * Descend 8 (draw drain) — a "whenever you draw a card" ([Triggers.YouDraw], fires once per card
+ * Descend 8 (draw drain) — a "whenever you draw a card" (`Triggers.you.draws()`, fires once per card
  * drawn) triggered ability gated by an intervening-if ([TriggeredAbilityBuilder.interveningIf]
  * = [Conditions.CardsInGraveyardMatchingAtLeast] (8, [GameObjectFilter.Permanent])). Per CR 603.4
  * the condition is checked both when the ability would trigger and again on resolution, so it does
@@ -56,7 +56,7 @@ val StarvingRevenant = card("Starving Revenant") {
 
     // ETB: surveil 2, then for each card kept on top, draw one and lose 3 life.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             listOf(
                 Effects.Surveil(2),
@@ -72,7 +72,7 @@ val StarvingRevenant = card("Starving Revenant") {
     // Descend 8: whenever you draw a card, if eight or more permanent cards are in your graveyard,
     // target opponent loses 1 life and you gain 1 life.
     triggeredAbility {
-        trigger = Triggers.YouDraw
+        trigger = Triggers.you.draws()
         interveningIf = Conditions.CardsInGraveyardMatchingAtLeast(8, GameObjectFilter.Permanent)
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Composite(

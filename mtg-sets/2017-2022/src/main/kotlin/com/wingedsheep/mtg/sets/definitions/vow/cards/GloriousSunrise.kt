@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Glorious Sunrise — Innistrad: Crimson Vow #200
@@ -29,7 +30,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  * • Draw a card if you control a creature with power 3 or greater.
  * • You gain 3 life.
  *
- * A [ModalEffect.chooseOne] inside a [Triggers.BeginCombat] triggered ability (same shape as
+ * A [ModalEffect.chooseOne] inside a `Triggers.you.beginningOf(Step.BEGIN_COMBAT)` triggered ability (same shape as
  * Manifold Mouse's combat modal). Mode breakdown:
  *  1. `noTarget` — two `ForEachInGroup` passes over `Creature.youControl()`, one [ModifyStatsEffect]
  *     (+1/+1) and one [GrantKeywordEffect] (trample), both until end of turn (Kamahl, Fist of Krosa
@@ -54,7 +55,7 @@ val GloriousSunrise = card("Glorious Sunrise") {
         "• You gain 3 life."
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
                 Patterns.Group.pumpAndGrantToAll(

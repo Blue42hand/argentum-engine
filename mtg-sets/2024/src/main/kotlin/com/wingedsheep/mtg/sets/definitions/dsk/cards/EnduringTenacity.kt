@@ -36,7 +36,7 @@ val EnduringTenacity = card("Enduring Tenacity") {
 
     triggeredAbility {
         val opponent = target("target opponent", Targets.Opponent)
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         effect = Effects.LoseLife(
             DynamicAmounts.triggerLifeGained(),
             opponent

@@ -43,7 +43,7 @@ val KutzilsFlanker = card("Kutzil's Flanker") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
                 Effects.AddDynamicCounters(

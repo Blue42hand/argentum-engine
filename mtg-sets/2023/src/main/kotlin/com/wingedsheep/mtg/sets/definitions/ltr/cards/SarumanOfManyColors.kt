@@ -29,7 +29,7 @@ import com.wingedsheep.sdk.scripting.effects.WardCost
  *  - **Ward—Discard a filtered card** via [WardCost.Discard] now carrying a
  *    [GameObjectFilter] (enchantment OR instant OR sorcery card). The ward executor only counts
  *    matching hand cards toward the can-pay check and offers only matching cards for discard.
- *  - **Second-spell trigger** via [Triggers.NthSpellCast] (n = 2, you).
+ *  - **Second-spell trigger** via `Triggers.<player>.castsNth(n, spell)` (n = 2, you).
  *  - **Reflexive after mill** via [ReflexiveTriggerEffect]: the action mills two from each
  *    opponent (storing the milled cards under `"milled"`); the reflexive part is gated on that
  *    collection being non-empty ("when one or more cards are milled this way") and chooses its
@@ -66,7 +66,7 @@ val SarumanOfManyColors = card("Saruman of Many Colors") {
     // When one or more cards are milled this way, exile target enchantment/instant/sorcery card
     // with mana value ≤ that spell from an opponent's graveyard, copy it, then you may cast it free.
     triggeredAbility {
-        trigger = Triggers.NthSpellCast(2, Player.You)
+        trigger = Triggers.you.castsNth(2)
         description = "Whenever you cast your second spell each turn, each opponent mills two " +
             "cards. When one or more cards are milled this way, exile target enchantment, " +
             "instant, or sorcery card with equal or lesser mana value than that spell from an " +

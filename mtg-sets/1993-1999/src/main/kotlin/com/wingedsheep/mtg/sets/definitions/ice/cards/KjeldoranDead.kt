@@ -33,7 +33,7 @@ val KjeldoranDead = card("Kjeldoran Dead") {
         "{B}: Regenerate this creature."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.SacrificeOwn(GameObjectFilter.Creature)
     }
 

@@ -37,7 +37,7 @@ val RubblebeltBraggart = card("Rubblebelt Braggart") {
     toughness = 5
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         interveningIf = Conditions.Not(Conditions.SourceIsSuspected)
         // `Effects.Suspect`'s own description is the sentence "this creature becomes suspected",
         // which reads as gibberish under the gate's "You may …" prefix. Spell the question out so

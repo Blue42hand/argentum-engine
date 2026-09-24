@@ -8,11 +8,11 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Golbez, Crystal Collector — Final Fantasy #225
@@ -44,16 +44,13 @@ val GolbezCrystalCollector = card("Golbez, Crystal Collector") {
         "loses life equal to that card's power."
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Artifact.youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Artifact.youControl()).enters()
         effect = Effects.Surveil(1)
         description = "Whenever an artifact you control enters, surveil 1."
     }
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.YouControlAtLeast(4, GameObjectFilter.Artifact.youControl())
         val creatureCard = target(
             "target creature card from your graveyard",

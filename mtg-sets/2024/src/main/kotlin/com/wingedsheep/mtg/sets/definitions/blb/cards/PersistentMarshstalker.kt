@@ -46,7 +46,7 @@ val PersistentMarshstalker = card("Persistent Marshstalker") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouAttackWithFilter(GameObjectFilter.Creature.withSubtype("Rat"))
+        trigger = Triggers.you.attacks(GameObjectFilter.Creature.withSubtype("Rat"))
         triggerZone = Zone.GRAVEYARD
         interveningIf = Conditions.CardsInGraveyardAtLeast(7)
         effect = Effects.MayPay(

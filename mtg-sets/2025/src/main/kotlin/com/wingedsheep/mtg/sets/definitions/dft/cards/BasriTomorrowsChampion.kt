@@ -40,7 +40,7 @@ val BasriTomorrowsChampion = card("Basri, Tomorrow's Champion") {
     keywordAbility(KeywordAbility.cycling("{2}{W}"))
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         val cats = GroupFilter(GameObjectFilter.Creature.withSubtype("Cat").youControl())
         effect = Effects.Composite(
             Patterns.Group.grantKeywordToAll(Keyword.HEXPROOF, cats),

@@ -35,7 +35,7 @@ val AfterburnerExpert = card("Afterburner Expert") {
 
     triggeredAbility {
         triggerZone = Zone.GRAVEYARD
-        trigger = Triggers.YouActivateExhaustAbility
+        trigger = Triggers.you.activatesAbility(exhaust = true)
         effect = Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD)
         description = "Whenever you activate an exhaust ability, return this card from your " +
             "graveyard to the battlefield."

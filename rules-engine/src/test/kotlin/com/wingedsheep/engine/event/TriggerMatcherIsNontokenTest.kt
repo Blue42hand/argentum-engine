@@ -21,13 +21,12 @@ import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Regression for the latent bug where [TriggerMatcher.matchesCardPredicate] had no branch
@@ -57,20 +56,13 @@ class TriggerMatcherIsNontokenTest : FunSpec({
         spell {}
 
         triggeredAbility {
-            trigger = TriggerSpec(
-                event = EventPattern.ZoneChangeEvent(
-                    filter = GameObjectFilter(
+            trigger = Triggers.another(GameObjectFilter(
                         cardPredicates = listOf(
                             CardPredicate.IsCreature,
                             CardPredicate.IsNontoken,
                         ),
                         controllerPredicate = ControllerPredicate.ControlledByYou,
-                    ),
-                    from = Zone.BATTLEFIELD,
-                    to = Zone.HAND,
-                ),
-                binding = TriggerBinding.OTHER,
-            )
+                    )).leaves(to = Zone.HAND)
             effect = Effects.DrawCards(1)
         }
     }
@@ -173,9 +165,7 @@ class TriggerMatcherIsNontokenTest : FunSpec({
             spell {}
 
             triggeredAbility {
-                trigger = TriggerSpec(
-                    event = EventPattern.ZoneChangeEvent(
-                        filter = GameObjectFilter(
+                trigger = Triggers.another(GameObjectFilter(
                             cardPredicates = listOf(
                                 CardPredicate.IsCreature,
                                 CardPredicate.Or(
@@ -186,12 +176,7 @@ class TriggerMatcherIsNontokenTest : FunSpec({
                                 ),
                             ),
                             controllerPredicate = ControllerPredicate.ControlledByYou,
-                        ),
-                        from = Zone.BATTLEFIELD,
-                        to = Zone.HAND,
-                    ),
-                    binding = TriggerBinding.OTHER,
-                )
+                        )).leaves(to = Zone.HAND)
                 effect = Effects.DrawCards(1)
             }
         }

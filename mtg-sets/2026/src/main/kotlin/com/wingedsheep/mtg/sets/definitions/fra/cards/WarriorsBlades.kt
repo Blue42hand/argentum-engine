@@ -32,7 +32,7 @@ val WarriorsBlades = card("Warrior's Blades") {
         "Equip {3}. This ability costs {1} less to activate for each +1/+1 counter on the creature it targets."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val anyTarget = target("any target", Targets.Any)
         effect = Effects.DealDamage(3, anyTarget)
             .then(Effects.GainLife(3))

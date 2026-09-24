@@ -14,7 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  * Creature — Jellyfish Beast
  * 1 / 3
  *
- * The optional-ETB bounce frame: [Triggers.EntersBattlefield] with `optional = true` (the printed
+ * The optional-ETB bounce frame: `Triggers.self.enters()` with `optional = true` (the printed
  * "you may") over a plain move-to-hand of the targeted land. "Its owner's hand" is the default
  * destination owner, so no controller override is needed.
  */
@@ -27,7 +27,7 @@ val GlowingAnemone = card("Glowing Anemone") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target("target", TargetPermanent(filter = TargetFilter.Land))
         effect = Effects.Move(t, Zone.HAND)

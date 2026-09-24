@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.CantBlockUnless
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Ketramose, the New Dawn — Aetherdrift #209.
@@ -25,7 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The draw trigger is a CR 603.2c batch — one exile event fires it once no matter how many cards
  * moved, and "graveyards and/or the battlefield" is unscoped (any graveyard, anyone's permanents),
- * so it uses [Triggers.CardsPutIntoExile] rather than the controller-scoped graveyard batches.
+ * so it uses `Triggers.oneOrMore(filter).putIntoExile(from, includeTokens)` rather than the controller-scoped graveyard batches.
  * "During your turn" is the trigger condition.
  */
 val KetramoseTheNewDawn = card("Ketramose, the New Dawn") {
@@ -55,7 +56,7 @@ val KetramoseTheNewDawn = card("Ketramose, the New Dawn") {
     }
 
     triggeredAbility {
-        trigger = Triggers.CardsPutIntoExile()
+        trigger = Triggers.oneOrMore(GameObjectFilter.Any).putIntoExile()
         triggerRestriction = Conditions.IsYourTurn
         effect = Effects.Composite(
             Effects.DrawCards(1),

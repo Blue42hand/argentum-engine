@@ -29,7 +29,7 @@ val KarfellKennelMaster = card("Karfell Kennel-Master") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target = TargetPermanent(count = 2, optional = true, filter = TargetFilter.Creature)
         effect = Effects.ForEachTarget(
             Effects.ModifyStats(1, 0, EffectTarget.ContextTarget(0)),

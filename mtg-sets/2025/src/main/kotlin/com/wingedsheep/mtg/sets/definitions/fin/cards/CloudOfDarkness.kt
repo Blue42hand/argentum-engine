@@ -31,7 +31,7 @@ val CloudOfDarkness = card("Cloud of Darkness") {
     toughness = 3
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         // X = the number of permanent cards in your graveyard.
         effect = Effects.ModifyStats(

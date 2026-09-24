@@ -36,7 +36,7 @@ val DawnsireSunstarDreadnought = card("Dawnsire, Sunstar Dreadnought") {
 
     // 10+ charge counters: Whenever you attack, deal 100 damage to target
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         val target = target("up to one target creature or planeswalker", TargetCreatureOrPlaneswalker(optional = true))
         effect = Effects.If(
             condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 10),

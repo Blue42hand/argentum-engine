@@ -15,7 +15,7 @@ import com.wingedsheep.sdk.model.Rarity
  * When this enchantment enters, learn.
  * Whenever you attack, put a +1/+1 counter on target attacking creature and untap it.
  *
- * "Whenever you attack" is [Triggers.YouAttack] — a player-level trigger that fires once per
+ * "Whenever you attack" is `Triggers.you.attacks()` — a player-level trigger that fires once per
  * combat when attackers are declared (CR 508.1), *not* once per attacker. The target is chosen
  * when the ability goes on the stack, by which time attackers are declared, so
  * [Targets.AttackingCreature] always has a legal choice when the trigger fires at all.
@@ -34,12 +34,12 @@ val SparringRegimen = card("Sparring Regimen") {
         "Whenever you attack, put a +1/+1 counter on target attacking creature and untap it."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Mechanic.learn()
     }
 
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         val attacker = target("target attacking creature", Targets.AttackingCreature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, attacker) then
             Effects.Untap(attacker)

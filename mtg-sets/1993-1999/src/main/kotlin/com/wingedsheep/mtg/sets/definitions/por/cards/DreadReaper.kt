@@ -29,7 +29,7 @@ val DreadReaper = card("Dread Reaper") {
     toughness = 5
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.LoseLife(5, EffectTarget.Controller)
     }
     metadata {

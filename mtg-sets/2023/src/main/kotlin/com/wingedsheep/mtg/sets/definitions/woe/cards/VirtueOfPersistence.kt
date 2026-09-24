@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Virtue of Persistence // Locthwain Scorn
@@ -41,7 +42,7 @@ val VirtueOfPersistence = card("Virtue of Persistence") {
         "the battlefield under your control."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         val creatureCard = target(
             "target creature card in a graveyard",
             TargetObject(filter = TargetFilter.CreatureInGraveyard),

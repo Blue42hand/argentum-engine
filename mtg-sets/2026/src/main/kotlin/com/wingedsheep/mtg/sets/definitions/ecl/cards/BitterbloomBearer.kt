@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 val BitterbloomBearer = card("Bitterbloom Bearer") {
     manaCost = "{B}{B}"
@@ -20,7 +21,7 @@ val BitterbloomBearer = card("Bitterbloom Bearer") {
     keywords(Keyword.FLASH, Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.Composite(listOf(
             Effects.LoseLife(1, EffectTarget.Controller),
             Effects.CreateToken(

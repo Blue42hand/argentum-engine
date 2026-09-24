@@ -32,7 +32,7 @@ val IrreverentRevelers = card("Irreverent Revelers") {
     oracleText = "When this creature enters, choose one —\n• Destroy target artifact.\n• This creature gains haste until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Destroy target artifact.") {
                 val artifact = target("target artifact", Targets.Artifact)

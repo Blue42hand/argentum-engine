@@ -68,13 +68,13 @@ val OverlordOfTheBalemurk = card("Overlord of the Balemurk") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = millAndReturn
         description = "Whenever this permanent enters, mill four cards, then you may return a non-Avatar creature card or a planeswalker card from your graveyard to your hand."
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = millAndReturn
         description = "Whenever this permanent attacks, mill four cards, then you may return a non-Avatar creature card or a planeswalker card from your graveyard to your hand."
     }

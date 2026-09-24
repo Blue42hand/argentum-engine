@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Kindle the Inner Flame
@@ -32,8 +33,7 @@ val KindleTheInnerFlame = card("Kindle the Inner Flame") {
         "an Elemental card from your hand.)"
 
     val sacrificeAtEndStep = TriggeredAbility.create(
-        trigger = Triggers.EachEndStep.event,
-        binding = Triggers.EachEndStep.binding,
+        trigger = Triggers.anyPlayer.beginningOf(Step.END),
         effect = Effects.SacrificeTarget(EffectTarget.Self)
     )
 

@@ -25,7 +25,7 @@ val WardenOfTheEye = card("Warden of the Eye") {
     oracleText = "When this creature enters, return target noncreature, nonland card from your graveyard to your hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target", TargetObject(
                 filter = TargetFilter(

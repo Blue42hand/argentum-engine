@@ -32,10 +32,7 @@ val SetessanChampion = card("Setessan Champion") {
     oracleText = "Constellation — Whenever an enchantment you control enters, put a +1/+1 counter on this creature and draw a card."
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Enchantment.youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Enchantment.youControl()).enters()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             .then(Effects.DrawCards(1))
         description = "Constellation — Whenever an enchantment you control enters, put a +1/+1 counter on this creature and draw a card."

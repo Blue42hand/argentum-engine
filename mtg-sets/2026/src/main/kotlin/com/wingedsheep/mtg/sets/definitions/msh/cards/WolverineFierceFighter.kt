@@ -50,7 +50,7 @@ val WolverineFierceFighter = card("Wolverine, Fierce Fighter") {
 
     // When Wolverine enters, he fights up to one other target creature.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val foe = target(
             "up to one other target creature",
             TargetObject(optional = true, filter = TargetFilter.OtherCreature)

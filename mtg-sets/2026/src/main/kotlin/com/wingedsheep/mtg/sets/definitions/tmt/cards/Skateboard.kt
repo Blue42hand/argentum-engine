@@ -25,7 +25,7 @@ val Skateboard = card("Skateboard") {
     oracleText = "When this Equipment enters, tap target permanent.\nEquipped creature gets +1/+0 and has haste.\nEquip {1} ({1}: Attach to target creature you control. Equip only as a sorcery.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val perm = target("target permanent", Targets.Permanent)
         effect = Effects.Tap(perm)
     }

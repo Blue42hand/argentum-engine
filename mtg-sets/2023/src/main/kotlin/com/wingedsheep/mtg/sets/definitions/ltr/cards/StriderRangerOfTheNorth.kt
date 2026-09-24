@@ -28,7 +28,7 @@ val StriderRangerOfTheNorth = card("Strider, Ranger of the North") {
         "Then if that creature has power 4 or greater, it gains first strike until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         val creature = target("creature", Targets.Creature)
         effect = Effects.ModifyStats(1, 1, creature)
             .then(

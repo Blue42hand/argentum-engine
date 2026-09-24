@@ -18,6 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Howlsquad Heavy — Aetherdrift #134
@@ -55,7 +56,7 @@ val HowlsquadHeavy = card("Howlsquad Heavy") {
     }
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = Effects.Composite(
             Effects.CreateToken(
                 power = 1,

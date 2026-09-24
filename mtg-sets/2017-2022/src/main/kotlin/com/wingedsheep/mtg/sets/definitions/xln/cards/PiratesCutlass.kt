@@ -26,7 +26,7 @@ val PiratesCutlass = card("Pirate's Cutlass") {
         "Equip {2} ({2}: Attach to target creature you control. Equip only as a sorcery.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val pirate = target(
             "target Pirate you control",
             TargetCreature(filter = TargetFilter.CreatureYouControl.withSubtype(Subtype.PIRATE))

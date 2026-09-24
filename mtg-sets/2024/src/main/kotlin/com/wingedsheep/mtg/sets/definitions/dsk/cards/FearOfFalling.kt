@@ -34,7 +34,7 @@ val FearOfFalling = card("Fear of Falling") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val targeted = target("target creature defending player controls", Targets.CreatureOpponentControls)
         effect = Effects.Composite(
             Effects.ModifyStats(-2, 0, targeted, Duration.UntilYourNextTurn),

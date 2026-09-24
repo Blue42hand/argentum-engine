@@ -30,7 +30,7 @@ val BurrogBefuddler = card("Burrog Befuddler") {
     toughness = 1
     keywords(Keyword.FLASH)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.ModifyStats(-1, 0, t)
     }

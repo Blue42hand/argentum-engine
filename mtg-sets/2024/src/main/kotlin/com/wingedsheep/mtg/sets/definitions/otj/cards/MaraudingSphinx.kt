@@ -31,7 +31,7 @@ val MaraudingSphinx = card("Marauding Sphinx") {
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     triggeredAbility {
-        trigger = Triggers.YouCommitCrime
+        trigger = Triggers.you.commitsCrime()
         oncePerTurn = true
         effect = Patterns.Library.surveil(2)
         description = "Whenever you commit a crime, surveil 2. This ability triggers only once each turn."

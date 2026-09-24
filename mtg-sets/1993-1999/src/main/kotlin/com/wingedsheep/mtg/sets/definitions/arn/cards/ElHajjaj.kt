@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 /**
  * El-Hajjâj
@@ -23,7 +22,7 @@ val ElHajjaj = card("El-Hajjâj") {
     oracleText = "Whenever this creature deals damage, you gain that much life."
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(binding = TriggerBinding.SELF)
+        trigger = Triggers.self.dealsDamage()
         effect = Effects.GainLife(DynamicAmounts.triggerDamageAmount())
     }
 

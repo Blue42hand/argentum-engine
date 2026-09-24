@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  * Legendary Planeswalker — Ajani
  * Starting Loyalty: 5
  *
- * - The first line is a triggered ability on Ajani over [Triggers.YouActivateLoyaltyAbility], so
+ * - The first line is a triggered ability on Ajani over `Triggers.you.activatesAbility(loyalty = true)`, so
  *   it fires for Ajani's own loyalty abilities too (Ajani is on the battlefield as the cost is
  *   paid), and for any other planeswalker you activate. The Cadet resolves before the loyalty
  *   ability that caused it, so a +1 pumps and hastes that Cadet and the −2 counts it.
@@ -38,7 +38,7 @@ val AjaniUnrelenting = card("Ajani Unrelenting") {
         "−3: Ajani deals 4 damage to each creature except for tokens you control."
 
     triggeredAbility {
-        trigger = Triggers.YouActivateLoyaltyAbility
+        trigger = Triggers.you.activatesAbility(loyalty = true)
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,

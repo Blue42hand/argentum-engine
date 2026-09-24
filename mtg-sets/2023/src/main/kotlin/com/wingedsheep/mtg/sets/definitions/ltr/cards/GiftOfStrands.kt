@@ -29,7 +29,7 @@ val GiftOfStrands = card("Gift of Strands") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.scry(2)
     }
 

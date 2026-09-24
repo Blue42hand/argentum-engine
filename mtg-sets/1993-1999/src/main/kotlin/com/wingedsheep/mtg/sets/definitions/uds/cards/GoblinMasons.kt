@@ -29,7 +29,7 @@ val GoblinMasons = card("Goblin Masons") {
     power = 2
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val t = target("target", TargetCreature(filter = TargetFilter(GameObjectFilter.Permanent.withSubtype("Wall"))))
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }

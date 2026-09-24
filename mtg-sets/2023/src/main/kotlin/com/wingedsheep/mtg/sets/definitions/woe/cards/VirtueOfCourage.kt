@@ -45,12 +45,7 @@ val VirtueOfCourage = card("Virtue of Courage") {
         "exile that many cards from the top of your library. You may play those cards this turn."
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.NonCombat,
-            recipient = Recipient.Opponent,
-            sourceFilter = GameObjectFilter.Any.youControl(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Any.youControl()).dealsDamage(Recipient.Opponent, damageType = DamageType.NonCombat)
         effect = Effects.May(
             effect = Patterns.Exile.impulse(
                 DynamicAmounts.triggerDamageAmount()

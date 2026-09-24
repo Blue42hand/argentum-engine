@@ -32,12 +32,12 @@ val PonybackBrigade = card("Ponyback Brigade") {
     )
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = tokenEffect
     }
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         effect = tokenEffect
     }
 

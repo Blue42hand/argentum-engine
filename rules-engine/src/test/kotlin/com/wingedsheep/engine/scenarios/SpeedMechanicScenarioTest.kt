@@ -96,7 +96,7 @@ class SpeedMechanicScenarioTest : ScenarioTestBase() {
         startYourEngines()
         maxSpeed {
             triggeredAbility {
-                trigger = Triggers.Attacks
+                trigger = Triggers.self.attacks()
                 effect = Effects.GainLife(3)
             }
         }

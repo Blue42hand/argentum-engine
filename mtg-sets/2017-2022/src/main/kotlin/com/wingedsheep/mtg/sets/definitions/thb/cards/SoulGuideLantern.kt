@@ -29,7 +29,7 @@ val SoulGuideLantern = card("Soul-Guide Lantern") {
 
     // When this artifact enters, exile target card from a graveyard.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", Targets.CardInGraveyard)
         effect = Effects.Move(t, Zone.EXILE)
     }

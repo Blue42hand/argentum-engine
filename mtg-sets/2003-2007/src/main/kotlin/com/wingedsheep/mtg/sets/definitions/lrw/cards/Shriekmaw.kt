@@ -40,7 +40,7 @@ val Shriekmaw = card("Shriekmaw") {
     evoke = "{1}{B}"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target nonartifact, nonblack creature",
             TargetCreature(filter = TargetFilter.Creature.nonartifact().notColor(Color.BLACK)),

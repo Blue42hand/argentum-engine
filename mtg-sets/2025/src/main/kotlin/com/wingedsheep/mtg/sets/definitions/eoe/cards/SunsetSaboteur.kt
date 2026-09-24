@@ -31,7 +31,7 @@ val SunsetSaboteur = card("Sunset Saboteur") {
     keywordAbility(KeywordAbility.Ward(WardCost.Discard()))
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val target = target("target creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target)
         description = "Whenever this creature attacks, put a +1/+1 counter on target creature an opponent controls."

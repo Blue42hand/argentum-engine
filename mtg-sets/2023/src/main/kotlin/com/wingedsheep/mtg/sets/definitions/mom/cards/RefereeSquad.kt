@@ -37,7 +37,7 @@ val RefereeSquad = card("Referee Squad") {
     keywords(Keyword.CONVOKE, Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val victim = target(
             "target creature an opponent controls",
             TargetCreature(filter = TargetFilter.Creature.opponentControls())

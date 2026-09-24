@@ -57,7 +57,7 @@ val CruelAdministrator = card("Cruel Administrator") {
     )
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,

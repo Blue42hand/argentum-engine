@@ -34,7 +34,7 @@ val FrontierSeeker = card("Frontier Seeker") {
         "Put the rest on the bottom of your library in a random order."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val looked = gather(CardSource.TopOfLibrary(5))
             val (kept, rest) = chooseUpToSplit(

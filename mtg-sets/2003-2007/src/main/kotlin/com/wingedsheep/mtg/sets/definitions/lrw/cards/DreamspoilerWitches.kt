@@ -39,7 +39,7 @@ val DreamspoilerWitches = card("Dreamspoiler Witches") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YouCastSpell
+        trigger = Triggers.you.casts()
         triggerRestriction = Conditions.IsNotYourTurn
         val creature = target("target creature", Targets.Creature)
         effect = Effects.May(Effects.ModifyStats(-1, -1, creature))

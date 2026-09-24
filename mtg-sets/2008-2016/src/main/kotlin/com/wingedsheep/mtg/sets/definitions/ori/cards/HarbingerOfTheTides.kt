@@ -31,7 +31,7 @@ val HarbingerOfTheTides = card("Harbinger of the Tides") {
     toughness = 2
     keywordAbility(KeywordAbility.flashKicker("{2}"))
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.tapped().opponentControls()))
         effect = Effects.Move(t, Zone.HAND)

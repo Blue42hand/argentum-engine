@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -22,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * When you lose the flip, Breeches deals damage equal to that spell's mana value to any target.
  *
  * Modeling notes:
- * - "your second spell each turn" → [Triggers.NthSpellCast] with n = 2, player = You.
+ * - "your second spell each turn" → `Triggers.<player>.castsNth(n, spell)` with n = 2, player = You.
  * - "you may sacrifice an artifact. If you do, …" → [Effects.MayPay]: the optional
  *   [SacrificeEffect] cost gates the coin flip (declining or having no artifact skips the flip,
  *   matching the ruling that neither delayed trigger fires unless an artifact is sacrificed).
@@ -50,7 +49,7 @@ val BreechesTheBlastmaker = card("Breeches, the Blastmaker") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.NthSpellCast(2, Player.You)
+        trigger = Triggers.you.castsNth(2)
         val damageTarget = target("any target", Targets.Any)
         effect = Effects.MayPay(
             cost = Effects.SacrificeOwn(filter = GameObjectFilter.Artifact),

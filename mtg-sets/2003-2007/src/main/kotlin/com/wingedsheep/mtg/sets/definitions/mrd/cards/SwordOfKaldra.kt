@@ -42,11 +42,7 @@ val SwordOfKaldra = card("Sword of Kaldra") {
     }
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.Any,
-            recipient = Recipient.AnyCreature,
-            binding = TriggerBinding.ATTACHED,
-        )
+        trigger = Triggers.attached.dealsDamage(Recipient.AnyCreature)
         effect = Effects.Exile(EffectTarget.TriggeringEntity)
     }
 

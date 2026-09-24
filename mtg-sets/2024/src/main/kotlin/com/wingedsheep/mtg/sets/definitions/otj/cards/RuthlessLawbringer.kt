@@ -31,7 +31,7 @@ val RuthlessLawbringer = card("Ruthless Lawbringer") {
     oracleText = "When this creature enters, you may sacrifice another creature. When you do, destroy target nonland permanent."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Effects.Pipeline {
                 val creatureToSacrifice = selectTarget(

@@ -31,14 +31,14 @@ val ReputableMerchant = card("Reputable Merchant") {
     oracleText = "When this creature enters or dies, put a +1/+1 counter on target creature you control."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creatureYouControl)
         description = "When this creature enters, put a +1/+1 counter on target creature you control."
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creatureYouControl)
         description = "When this creature dies, put a +1/+1 counter on target creature you control."

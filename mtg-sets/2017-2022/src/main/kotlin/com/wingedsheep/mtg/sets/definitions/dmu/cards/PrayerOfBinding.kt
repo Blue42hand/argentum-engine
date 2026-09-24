@@ -27,7 +27,7 @@ val PrayerOfBinding = card("Prayer of Binding") {
     oracleText = "Flash\nWhen this enchantment enters, exile up to one target nonland permanent an opponent controls until this enchantment leaves the battlefield. You gain 2 life."
     keywords(Keyword.FLASH)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target",
             TargetPermanent(optional = true, filter = TargetFilter.NonlandPermanentOpponentControls)
@@ -38,7 +38,7 @@ val PrayerOfBinding = card("Prayer of Binding") {
         )
     }
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
     metadata {

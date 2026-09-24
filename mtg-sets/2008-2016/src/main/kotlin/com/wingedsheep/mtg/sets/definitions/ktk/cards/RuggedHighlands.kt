@@ -24,7 +24,7 @@ val RuggedHighlands = card("Rugged Highlands") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(1)
     }
 

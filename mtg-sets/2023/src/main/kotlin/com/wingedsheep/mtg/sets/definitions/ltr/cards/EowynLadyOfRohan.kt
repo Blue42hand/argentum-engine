@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ReduceEquipCost
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Éowyn, Lady of Rohan
@@ -40,7 +41,7 @@ val EowynLadyOfRohan = card("Éowyn, Lady of Rohan") {
         "Equip abilities you activate cost {1} less to activate."
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val creature = target("target creature", Targets.Creature)
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.equipped(), creature),

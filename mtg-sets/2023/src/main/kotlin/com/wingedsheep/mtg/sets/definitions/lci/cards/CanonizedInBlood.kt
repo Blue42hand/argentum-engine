@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Canonized in Blood — {1}{B}
@@ -36,7 +37,7 @@ val CanonizedInBlood = card("Canonized in Blood") {
         "{5}{B}{B}, Sacrifice this enchantment: Create a 4/3 white and black Vampire Demon creature token with flying."
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.YouDescendedThisTurn()
         val t = target("target creature you control", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)

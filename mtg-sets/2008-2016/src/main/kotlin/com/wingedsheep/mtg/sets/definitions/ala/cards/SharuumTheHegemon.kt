@@ -35,7 +35,7 @@ val SharuumTheHegemon = card("Sharuum the Hegemon") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target",
             TargetObject(

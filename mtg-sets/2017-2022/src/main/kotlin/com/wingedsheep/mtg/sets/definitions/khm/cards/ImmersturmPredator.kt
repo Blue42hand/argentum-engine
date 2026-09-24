@@ -45,7 +45,7 @@ val ImmersturmPredator = card("Immersturm Predator") {
     // Whenever this creature becomes tapped, exile up to one target card from a graveyard and
     // put a +1/+1 counter on this creature.
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
+        trigger = Triggers.self.becomesTapped()
         val exiled = target("target card in a graveyard", TargetObject(optional = true, filter = TargetFilter.CardInGraveyard))
         effect = Effects.Composite(
             Effects.Move(exiled, Zone.EXILE),

@@ -30,7 +30,7 @@ val PitilessFists = card("Pitiless Fists") {
     auraTarget = Targets.CreatureYouControl
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponentCreature = target(
             "creature an opponent controls",
             TargetCreature(optional = true, filter = TargetFilter.CreatureOpponentControls)

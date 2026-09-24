@@ -23,7 +23,7 @@ val EnlightenedAscetic = card("Enlightened Ascetic") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target("target enchantment", Targets.Enchantment)
         effect = Effects.Destroy(t)

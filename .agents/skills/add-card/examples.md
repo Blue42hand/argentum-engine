@@ -108,7 +108,7 @@ val Gravedigger = card("Gravedigger") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         target = TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
         effect = MoveToZoneEffect(EffectTarget.ContextTarget(0), Zone.HAND)
@@ -134,7 +134,7 @@ val ManOWar = card("Man-o'-War") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target = Targets.Creature
         effect = MoveToZoneEffect(EffectTarget.ContextTarget(0), Zone.HAND)
     }

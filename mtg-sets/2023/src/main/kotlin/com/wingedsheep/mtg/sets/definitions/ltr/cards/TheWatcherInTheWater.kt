@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -11,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -53,7 +51,7 @@ val TheWatcherInTheWater = card("The Watcher in the Water") {
 
     // Whenever you draw a card during an opponent's turn, create a 1/1 blue Tentacle creature token.
     triggeredAbility {
-        trigger = Triggers.YouDraw
+        trigger = Triggers.you.draws()
         triggerRestriction = Conditions.IsNotYourTurn
         effect = Effects.CreateToken(
             power = 1,
@@ -67,11 +65,7 @@ val TheWatcherInTheWater = card("The Watcher in the Water") {
     // Whenever a Tentacle you control dies, untap up to one target Kraken and put
     // a stun counter on up to one target nonland permanent.
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.withSubtype("Tentacle").youControl(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.withSubtype("Tentacle").youControl()).dies()
         val kraken = target(
             "up to one target Kraken",
             TargetCreature(

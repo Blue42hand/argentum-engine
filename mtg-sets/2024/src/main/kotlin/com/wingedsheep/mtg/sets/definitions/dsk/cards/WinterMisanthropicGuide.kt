@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.SetMaximumHandSize
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Winter, Misanthropic Guide
@@ -42,7 +43,7 @@ val WinterMisanthropicGuide = card("Winter, Misanthropic Guide") {
 
     // At the beginning of your upkeep, each player draws two cards.
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.DrawCards(2, EffectTarget.PlayerRef(Player.Each))
     }
 

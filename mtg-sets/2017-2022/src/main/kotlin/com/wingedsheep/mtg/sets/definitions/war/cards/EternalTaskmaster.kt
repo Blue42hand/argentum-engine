@@ -28,7 +28,7 @@ val EternalTaskmaster = card("Eternal Taskmaster") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val card = target("target creature card in your graveyard", Targets.CreatureCardInYourGraveyard)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}{B}"),

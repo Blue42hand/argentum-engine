@@ -23,14 +23,14 @@ val MephiticDraught = card("Mephitic Draught") {
     typeLine = "Artifact"
     oracleText = "When this artifact enters or is put into a graveyard from the battlefield, you draw a card and you lose 1 life."
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.DrawCards(1),
             Effects.LoseLife(1, EffectTarget.Controller)
         )
     }
     triggeredAbility {
-        trigger = Triggers.PutIntoGraveyardFromBattlefield
+        trigger = Triggers.self.dies()
         effect = Effects.Composite(
             Effects.DrawCards(1),
             Effects.LoseLife(1, EffectTarget.Controller)

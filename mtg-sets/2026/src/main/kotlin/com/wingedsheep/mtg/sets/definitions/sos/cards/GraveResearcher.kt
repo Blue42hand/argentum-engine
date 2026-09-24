@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Grave Researcher // Reanimate — Secrets of Strixhaven #85
@@ -43,7 +44,7 @@ val GraveResearcher = card("Grave Researcher") {
         "you may cast a copy of its spell. Doing so unprepares it.)"
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Patterns.Library.surveil(1).then(
             Effects.If(
                 condition = Conditions.CreatureCardsInGraveyardAtLeast(3),

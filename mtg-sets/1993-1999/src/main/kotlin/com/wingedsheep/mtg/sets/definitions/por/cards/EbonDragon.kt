@@ -29,7 +29,7 @@ val EbonDragon = card("Ebon Dragon") {
     toughness = 4
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target("target", TargetOpponent())
         effect = Patterns.Hand.discardCards(1, t)

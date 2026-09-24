@@ -31,7 +31,7 @@ val HallarTheFirefletcher = card("Hallar, the Firefletcher") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(requires = setOf(SpellCastPredicate.WasKicked))
+        trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.WasKicked))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             .then(Effects.DealDamage(
                 DynamicAmounts.countersOnSelf(CounterType.PLUS_ONE_PLUS_ONE),

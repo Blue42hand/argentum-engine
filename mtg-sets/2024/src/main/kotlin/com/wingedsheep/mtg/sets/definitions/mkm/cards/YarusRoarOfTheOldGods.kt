@@ -7,11 +7,8 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern.OneOrMoreDealCombatDamageToPlayerEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -87,23 +84,14 @@ val YarusRoarOfTheOldGods = card("Yarus, Roar of the Old Gods") {
     }
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            OneOrMoreDealCombatDamageToPlayerEvent(
-                sourceFilter = GameObjectFilter.Creature.faceDown()
-            ),
-            TriggerBinding.ANY
-        )
+        trigger = Triggers.oneOrMore(GameObjectFilter.Creature.faceDown()).dealCombatDamageToAPlayer()
         effect = Effects.DrawCards(1)
         description = "Whenever one or more face-down creatures you control deal combat damage " +
             "to a player, draw a card."
     }
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Any.youControl().faceDown(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Any.youControl().faceDown()).dies()
         effect = Effects.If(
             condition = Conditions.EntityMatches(
                 EffectTarget.TriggeringEntity,

@@ -43,7 +43,7 @@ val SamwiseTheStouthearted = card("Samwise the Stouthearted") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val returnTarget = target(
             "permanent card in your graveyard that was put there from the battlefield this turn",
             TargetObject(

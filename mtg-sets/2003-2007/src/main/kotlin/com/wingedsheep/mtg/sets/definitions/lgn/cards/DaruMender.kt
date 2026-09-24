@@ -23,7 +23,7 @@ val DaruMender = card("Daru Mender") {
     oracleText = "Morph {W} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen this creature is turned face up, regenerate target creature."
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val t = target("creature", Targets.Creature)
         effect = Effects.Regenerate(t)
     }

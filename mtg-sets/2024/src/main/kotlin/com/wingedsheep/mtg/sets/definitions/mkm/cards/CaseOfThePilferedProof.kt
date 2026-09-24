@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CreateAdditionalToken
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -26,8 +25,8 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The first line is two triggers, not one, and they differ in more than wording — the same split
  * Perimeter Enforcer needs. The "enters" half is an ordinary
- * [Triggers.entersBattlefield] with a Detective-you-control filter; the "turned face up" half is
- * [Triggers.CreatureTurnedFaceUp], whose filter reads the permanent's *post-flip* characteristics,
+ * `Triggers.a(filter).enters()` with a Detective-you-control filter; the "turned face up" half is
+ * `Triggers.<player>.permanentTurnedFaceUp(filter)`, whose filter reads the permanent's *post-flip* characteristics,
  * because a face-down creature is a nameless 2/2 and would never be a Detective at the moment it
  * flips. Both put the counter on `TriggeringEntity` — "on **it**", the creature that arrived or
  * flipped, not on the Case.
@@ -52,18 +51,13 @@ val CaseOfThePilferedProof = card("Case of the Pilfered Proof") {
         "a card.\")"
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Creature.withSubtype(Subtype.DETECTIVE).youControl(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.withSubtype(Subtype.DETECTIVE).youControl()).enters()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.TriggeringEntity)
         description = "Whenever a Detective you control enters, put a +1/+1 counter on it."
     }
 
     triggeredAbility {
-        trigger = Triggers.CreatureTurnedFaceUp(
-            filter = GameObjectFilter.Creature.withSubtype(Subtype.DETECTIVE)
-        )
+        trigger = Triggers.you.permanentTurnedFaceUp(GameObjectFilter.Creature.withSubtype(Subtype.DETECTIVE))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.TriggeringEntity)
         description = "Whenever a Detective you control is turned face up, put a +1/+1 counter on it."
     }

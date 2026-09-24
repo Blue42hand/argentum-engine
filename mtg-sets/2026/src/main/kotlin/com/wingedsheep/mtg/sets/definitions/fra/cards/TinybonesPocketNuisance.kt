@@ -18,13 +18,13 @@ val TinybonesPocketNuisance = card("Tinybones, Pocket Nuisance") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Hand.eachOpponentDiscards(1)
         description = "When Tinybones enters, each opponent discards a card."
     }
 
     triggeredAbility {
-        trigger = Triggers.discards(player = Player.Each, batch = true)
+        trigger = Triggers.anyPlayer.discards(batch = true)
         effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent))
         description = "Whenever a player discards one or more cards, Tinybones deals 1 damage to each opponent."
     }

@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Altar of Shadows — Mirrodin #143 (canonical printing, only printing)
@@ -18,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * At the beginning of your first main phase, add {B} for each charge counter on this artifact.
  * {7}, {T}: Destroy target creature. Then put a charge counter on this artifact.
  *
- * The mana trigger is [Triggers.FirstMainPhase] — the precombat main phase, which the 2004-10-04
+ * The mana trigger is `Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)` — the precombat main phase, which the 2004-10-04
  * ruling is explicit about being the *first* main phase of the turn regardless of what else moved
  * around it. The amount is `countersOnSelf(charge)`, re-read each turn, so the altar ramps itself as
  * its activated ability feeds it counters.
@@ -35,7 +36,7 @@ val AltarOfShadows = card("Altar of Shadows") {
         "{7}, {T}: Destroy target creature. Then put a charge counter on this artifact."
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.AddMana(
             Color.BLACK,
             DynamicAmounts.countersOnSelf(CounterType.CHARGE)

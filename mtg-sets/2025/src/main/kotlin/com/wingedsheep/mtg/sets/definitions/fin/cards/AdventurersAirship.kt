@@ -27,7 +27,7 @@ val AdventurersAirship = card("Adventurer's Airship") {
     toughness = 2
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Composite(
             Effects.DrawCards(1),
             Patterns.Hand.discardCards(1)

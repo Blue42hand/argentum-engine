@@ -7,11 +7,10 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Pain 101
@@ -32,8 +31,7 @@ val Pain101 = card("Pain 101") {
         val creature = target("target creature", Targets.Creature)
 
         val diesReturnTapped = TriggeredAbility.create(
-            trigger = ZoneChangeEvent(from = Zone.BATTLEFIELD, to = Zone.GRAVEYARD),
-            binding = TriggerBinding.SELF,
+            trigger = Triggers.self.dies(),
             effect = Effects.Move(
                 target = EffectTarget.Self,
                 destination = Zone.BATTLEFIELD,

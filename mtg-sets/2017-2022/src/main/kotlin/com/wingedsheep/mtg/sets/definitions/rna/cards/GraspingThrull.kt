@@ -27,7 +27,7 @@ val GraspingThrull = card("Grasping Thrull") {
 
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(listOf(
             Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent)),
             Effects.GainLife(2)

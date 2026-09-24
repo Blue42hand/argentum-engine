@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Stillness in Motion — Tarkir: Dragonstorm #59
@@ -35,7 +36,7 @@ val StillnessInMotion = card("Stillness in Motion") {
         "library in any order."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Patterns.Library.mill(3).then(
             Effects.If(
                 condition = Conditions.CompareAmounts(

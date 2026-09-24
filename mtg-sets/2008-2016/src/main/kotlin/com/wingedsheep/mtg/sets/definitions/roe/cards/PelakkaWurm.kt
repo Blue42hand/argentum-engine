@@ -29,11 +29,11 @@ val PelakkaWurm = card("Pelakka Wurm") {
     toughness = 7
     keywords(Keyword.TRAMPLE)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(7)
     }
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.DrawCards(1)
     }
     metadata {

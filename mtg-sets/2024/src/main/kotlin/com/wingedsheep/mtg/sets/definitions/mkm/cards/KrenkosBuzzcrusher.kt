@@ -41,7 +41,7 @@ val KrenkosBuzzcrusher = card("Krenko's Buzzcrusher") {
     keywords(Keyword.FLYING, Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachPlayer(
             Player.Each,
             listOf(

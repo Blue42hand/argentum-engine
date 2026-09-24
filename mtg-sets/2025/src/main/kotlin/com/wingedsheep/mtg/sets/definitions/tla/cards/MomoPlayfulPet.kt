@@ -40,7 +40,7 @@ val MomoPlayfulPet = card("Momo, Playful Pet") {
     keywords(Keyword.FLYING, Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
                 Effects.CreateFood(),

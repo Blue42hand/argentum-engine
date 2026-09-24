@@ -44,7 +44,7 @@ val DailyBugleReporters = card("Daily Bugle Reporters") {
         "from your graveyard to your hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             Mode.withTarget(
                 effect = Effects.ForEachTarget(

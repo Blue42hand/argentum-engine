@@ -23,7 +23,7 @@ val TenuredTethermage = card("Tenured Tethermage") {
     oracleText = "When this creature enters, you may sacrifice a land. If you do, create two tapped Heartwood tokens. (They're red and green artifacts with \"{T}: Add {R} or {G}.\")\nTap two untapped artifacts you control: Put two +1/+1 counters on this creature."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Effects.IfYouDo(
                 action = Effects.Sacrifice(GameObjectFilter.Land, count = 1, target = EffectTarget.Controller),

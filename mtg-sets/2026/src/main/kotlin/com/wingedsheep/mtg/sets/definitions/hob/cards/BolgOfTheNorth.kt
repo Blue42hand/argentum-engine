@@ -54,7 +54,7 @@ val BolgOfTheNorth = card("Bolg of the North") {
         "black Goblin Army creature token first.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Effects.Pipeline {
                 val toSacrifice = selectTarget(TargetObject(filter = TargetFilter.CreatureYouControl.other()))

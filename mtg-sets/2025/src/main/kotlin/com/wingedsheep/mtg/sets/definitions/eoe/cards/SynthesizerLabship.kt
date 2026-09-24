@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Synthesizer Labship
@@ -47,7 +48,7 @@ val SynthesizerLabship = card("Synthesizer Labship") {
     // 2+ | At the beginning of combat on your turn, up to one other target artifact you control
     // becomes an artifact creature with base P/T 2/2 and gains flying until end of turn.
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         triggerRestriction = charge2
         val targetArtifact = target(
             "up to one other target artifact you control",

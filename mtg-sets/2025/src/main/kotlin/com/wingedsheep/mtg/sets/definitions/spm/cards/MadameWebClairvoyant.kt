@@ -22,7 +22,7 @@ import com.wingedsheep.sdk.scripting.LookAtTopOfLibrary
  * Modeled after Precognition Field: [LookAtTopOfLibrary] grants the private top-card peek, and
  * [CastSpellTypesFromTopOfLibrary] grants casting (but not land play — a land is not a spell) of the
  * top card when it is a Spider spell OR any noncreature spell. The attack trigger is player-level
- * ("Whenever you attack" = [Triggers.YouAttack]) with an optional mill of one.
+ * ("Whenever you attack" = `Triggers.you.attacks()`) with an optional mill of one.
  */
 val MadameWebClairvoyant = card("Madame Web, Clairvoyant") {
     manaCost = "{4}{U}{U}"
@@ -45,7 +45,7 @@ val MadameWebClairvoyant = card("Madame Web, Clairvoyant") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         effect = Effects.May(Patterns.Library.mill(1))
     }
 

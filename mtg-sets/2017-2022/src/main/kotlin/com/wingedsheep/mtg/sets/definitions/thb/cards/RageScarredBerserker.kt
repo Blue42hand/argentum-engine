@@ -28,7 +28,7 @@ val RageScarredBerserker = card("Rage-Scarred Berserker") {
     oracleText = "When this creature enters, target creature you control gets +1/+0 and gains indestructible until end of turn. (Damage and effects that say \"destroy\" don't destroy it.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target", Targets.CreatureYouControl)
         effect = Effects.Composite(
             Effects.ModifyStats(1, 0, creature),

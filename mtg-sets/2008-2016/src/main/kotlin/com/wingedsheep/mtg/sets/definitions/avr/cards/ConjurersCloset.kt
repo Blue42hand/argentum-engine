@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Conjurer's Closet
@@ -21,7 +22,7 @@ val ConjurersCloset = card("Conjurer's Closet") {
     oracleText = "At the beginning of your end step, you may exile target creature you control, then return that card to the battlefield under your control."
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         val creature = target("creature you control", Targets.CreatureYouControl)
         effect = Effects.May(
             Effects.Move(creature, Zone.EXILE)

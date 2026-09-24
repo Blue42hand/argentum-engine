@@ -17,6 +17,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Structural lint for card definitions (sdk-analysis §1.1): catches the "silent no-op" bug class
@@ -435,7 +436,7 @@ object CardLinter {
     ) {
         fun missing(keywords: Set<Keyword>, script: CardScript) =
             Keyword.PROWESS in keywords &&
-                script.triggeredAbilities.none { it.trigger == Triggers.YouCastNoncreature.event }
+                script.triggeredAbilities.none { it.trigger == Triggers.you.casts(GameObjectFilter.Noncreature).event }
 
         val offends = missing(card.keywords, card.script) ||
             card.cardFaces.any { missing(it.keywords, it.script) }

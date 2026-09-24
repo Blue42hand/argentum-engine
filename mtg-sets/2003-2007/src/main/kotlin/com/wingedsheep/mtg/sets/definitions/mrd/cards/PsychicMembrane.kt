@@ -28,7 +28,7 @@ val PsychicMembrane = card("Psychic Membrane") {
     toughness = 3
     keywords(Keyword.DEFENDER)
     triggeredAbility {
-        trigger = Triggers.Blocks
+        trigger = Triggers.self.blocks()
         optional = true
         effect = Effects.DrawCards(1)
     }

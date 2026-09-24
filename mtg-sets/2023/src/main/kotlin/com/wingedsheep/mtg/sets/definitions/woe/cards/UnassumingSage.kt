@@ -33,7 +33,7 @@ val UnassumingSage = card("Unassuming Sage") {
         "attacks, scry 1.\")"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}"),
             then = Effects.CreateRoleToken("Sorcerer Role", EffectTarget.Self)

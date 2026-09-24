@@ -15,7 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * {3}: This creature gets +1/+0 until end of turn.
  *
  * Modelling notes:
- * - The *unfiltered* [Triggers.BecomesBlocked] is the right shape here: the printed text has no
+ * - The *unfiltered* `Triggers.self.becomesBlocked()` is the right shape here: the printed text has no
  *   blocker restriction, so a gang block still yields exactly one trigger and one regeneration
  *   shield (contrast Ogre Leadfoot in this set, which needs the per-blocker filtered form).
  * - The shield is applied at resolution and lasts until end of turn, so it survives the whole
@@ -31,7 +31,7 @@ val Duskworker = card("Duskworker") {
         "{3}: This creature gets +1/+0 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.BecomesBlocked
+        trigger = Triggers.self.becomesBlocked()
         effect = Effects.Regenerate(EffectTarget.Self)
         description = "Whenever this creature becomes blocked, regenerate it."
     }

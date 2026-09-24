@@ -34,7 +34,7 @@ val SylvanMessenger = card("Sylvan Messenger") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.revealTopPutAllMatchingToHand(
             count = 4,
             filter = GameObjectFilter.Any.withSubtype(Subtype.ELF),

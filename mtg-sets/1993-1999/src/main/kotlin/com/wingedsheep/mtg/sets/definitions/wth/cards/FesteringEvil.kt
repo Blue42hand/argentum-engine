@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Festering Evil
@@ -26,7 +27,7 @@ val FesteringEvil = card("Festering Evil") {
     oracleText = "At the beginning of your upkeep, this enchantment deals 1 damage to each creature and each player.\n{B}{B}, Sacrifice this enchantment: It deals 3 damage to each creature and each player."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.ForEachInGroup(GroupFilter.AllCreatures, Effects.DealDamage(1, EffectTarget.IterationEntity)) then
             Effects.ForEachPlayer(Player.Each, listOf(Effects.DealDamage(1, EffectTarget.Controller)))
     }

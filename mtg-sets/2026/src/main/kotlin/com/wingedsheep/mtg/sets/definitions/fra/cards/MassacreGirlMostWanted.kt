@@ -1,14 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -29,11 +27,7 @@ val MassacreGirlMostWanted = card("Massacre Girl, Most Wanted") {
         "Whenever an opponent is dealt noncombat damage, put a +1/+1 counter on Massacre Girl."
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.CreatureOrPlaneswalker.youControl(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.CreatureOrPlaneswalker.youControl()).dies()
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Composite(
             Effects.DealDamage(1, opponent),
@@ -42,11 +36,7 @@ val MassacreGirlMostWanted = card("Massacre Girl, Most Wanted") {
     }
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.NonCombat,
-            recipient = Recipient.Opponent,
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a().dealsDamage(Recipient.Opponent, damageType = DamageType.NonCombat)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever an opponent is dealt noncombat damage, put a +1/+1 counter on Massacre Girl."
     }

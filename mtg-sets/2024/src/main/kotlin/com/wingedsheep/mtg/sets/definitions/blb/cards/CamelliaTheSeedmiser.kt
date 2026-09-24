@@ -48,7 +48,7 @@ val CamelliaTheSeedmiser = card("Camellia, the Seedmiser") {
 
     // Whenever you sacrifice one or more Foods, create a 1/1 green Squirrel creature token
     triggeredAbility {
-        trigger = Triggers.YouSacrificeOneOrMore(GameObjectFilter.Artifact.withSubtype("Food"))
+        trigger = Triggers.you.sacrifices(GameObjectFilter.Artifact.withSubtype("Food"), batch = true)
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

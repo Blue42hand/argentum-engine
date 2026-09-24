@@ -22,7 +22,7 @@ val KeldonRaider = card("Keldon Raider") {
     oracleText = "When Keldon Raider enters the battlefield, you may discard a card. If you do, draw a card."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Effects.Composite(listOf(
                 Patterns.Hand.discardCards(1),

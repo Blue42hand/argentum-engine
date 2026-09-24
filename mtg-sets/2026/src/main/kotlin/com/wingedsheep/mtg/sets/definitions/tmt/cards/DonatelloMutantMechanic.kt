@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -59,7 +58,7 @@ val DonatelloMutantMechanic = card("Donatello, Mutant Mechanic") {
     }
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(filter = GameObjectFilter.Artifact.youControl(), to = Zone.GRAVEYARD)
+        trigger = Triggers.self.matching(GameObjectFilter.Artifact.youControl()).dies()
         interveningIf = Conditions.TriggeringEntityHadCounters
         val dest = target(
             "up to one target artifact or creature you control",

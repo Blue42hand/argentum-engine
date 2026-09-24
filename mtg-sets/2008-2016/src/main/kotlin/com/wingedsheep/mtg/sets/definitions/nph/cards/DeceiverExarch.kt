@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
  * • Tap target permanent an opponent controls.
  *
  * Flash is a printed [Keyword]. The enters trigger is a [ModalEffect.chooseOne] on
- * [Triggers.EntersBattlefield], each mode carrying its own target — the mode is what decides
+ * `Triggers.self.enters()`, each mode carrying its own target — the mode is what decides
  * *whose* permanent is legal, so both are [Mode.withTarget] over [Targets.PermanentYouControl] and
  * [Targets.PermanentOpponentControls] rather than one shared requirement. The effects are the two
  * halves of the same tap/untap atom, [Effects.Untap] and [Effects.Tap], each reading its own
@@ -40,7 +40,7 @@ val DeceiverExarch = card("Deceiver Exarch") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Untap target permanent you control.") {
                 val permanentYouControl = target("target permanent you control", Targets.PermanentYouControl)

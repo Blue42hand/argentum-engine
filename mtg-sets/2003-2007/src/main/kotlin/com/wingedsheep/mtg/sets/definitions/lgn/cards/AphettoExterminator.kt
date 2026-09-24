@@ -23,7 +23,7 @@ val AphettoExterminator = card("Aphetto Exterminator") {
     oracleText = "Morph {3}{B} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen this creature is turned face up, target creature gets -3/-3 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val t = target("target creature", TargetCreature())
         effect = Effects.ModifyStats(-3, -3, t)
     }

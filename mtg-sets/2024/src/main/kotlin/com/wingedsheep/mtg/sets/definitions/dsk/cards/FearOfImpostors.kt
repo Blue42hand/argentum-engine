@@ -45,7 +45,7 @@ val FearOfImpostors = card("Fear of Impostors") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target("target spell", TargetSpell())
         effect = Effects.Composite(
             Effects.CounterSpell(),

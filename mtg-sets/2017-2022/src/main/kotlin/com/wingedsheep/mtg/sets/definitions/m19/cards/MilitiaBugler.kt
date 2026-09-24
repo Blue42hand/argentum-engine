@@ -32,7 +32,7 @@ val MilitiaBugler = card("Militia Bugler") {
     keywords(Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.lookAtTopRevealMatchingToHand(
             count = 4,
             filter = GameObjectFilter.Creature.powerAtMost(2),

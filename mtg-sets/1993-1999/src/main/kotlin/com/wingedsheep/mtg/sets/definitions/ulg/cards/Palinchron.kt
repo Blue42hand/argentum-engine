@@ -34,7 +34,7 @@ val Palinchron = card("Palinchron") {
     toughness = 5
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetPermanent(optional = true, count = 7, filter = TargetFilter.Land))
         effect = Effects.UntapEachTarget()
     }

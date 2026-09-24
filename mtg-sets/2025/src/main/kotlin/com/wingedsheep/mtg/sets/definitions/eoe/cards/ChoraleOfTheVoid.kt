@@ -6,13 +6,13 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Chorale of the Void
@@ -35,7 +35,7 @@ val ChoraleOfTheVoid = card("Chorale of the Void") {
     auraTarget = Targets.CreatureYouControl
 
     triggeredAbility {
-        trigger = Triggers.attacks(binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.attacks()
         val creature = target(
             "creature card from defending player's graveyard",
             TargetObject(filter = TargetFilter.CreatureInGraveyard.ownedByOpponent())
@@ -50,7 +50,7 @@ val ChoraleOfTheVoid = card("Chorale of the Void") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         triggerRestriction = Conditions.Not(Conditions.Void)
         effect = SacrificeSelfEffect
         description = "Sacrifice this Aura unless a nonland permanent left the battlefield this turn or a spell was warped this turn."

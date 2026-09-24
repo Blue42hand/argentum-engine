@@ -25,7 +25,7 @@ val AnodetLurker = card("Anodet Lurker") {
     power = 3
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.GainLife(3)
     }
     metadata {

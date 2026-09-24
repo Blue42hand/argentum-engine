@@ -22,7 +22,7 @@ val KinsbaileSkirmisher = card("Kinsbaile Skirmisher") {
     oracleText = "When this creature enters, target creature gets +1/+1 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature", Targets.Creature)
         effect = Effects.ModifyStats(1, 1, creature)
         description = "target creature gets +1/+1 until end of turn."

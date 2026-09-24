@@ -40,7 +40,7 @@ val KavLandseeker = card("Kav Landseeker") {
     // current step; fireOnPlayer = PlayerRef(You) lands the trigger on the controller's
     // upcoming turn rather than an intervening opponent turn.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             listOf(
                 Effects.CreateLander(),

@@ -39,7 +39,7 @@ val Molderhulk = card("Molderhulk") {
         )
     }
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val land = target(
             "target",
             TargetObject(

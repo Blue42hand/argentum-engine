@@ -20,7 +20,7 @@ class SourceInstanceSacrificeTest : FunSpec({
         power = 1
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             optional = true
             effect = Effects.SacrificeTarget(com.wingedsheep.sdk.scripting.targets.EffectTarget.Self)
         }
@@ -69,7 +69,7 @@ class SourceInstanceSacrificeTest : FunSpec({
             power = 1
             toughness = 1
             triggeredAbility {
-                trigger = Triggers.Dies
+                trigger = Triggers.self.dies()
                 effect = Effects.PutOntoBattlefield(com.wingedsheep.sdk.scripting.targets.EffectTarget.Self)
                     .then(Effects.ModifyStats(2, 0, com.wingedsheep.sdk.scripting.targets.EffectTarget.Self))
             }

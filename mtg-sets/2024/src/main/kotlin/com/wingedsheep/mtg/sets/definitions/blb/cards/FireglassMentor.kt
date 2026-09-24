@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Fireglass Mentor
@@ -27,7 +28,7 @@ val FireglassMentor = card("Fireglass Mentor") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.YourPostcombatMain
+        trigger = Triggers.you.beginningOf(Step.POSTCOMBAT_MAIN)
         interveningIf = Conditions.OpponentLostLifeThisTurn
         effect = Effects.Pipeline {
             val exiled = gather(CardSource.TopOfLibrary(2))

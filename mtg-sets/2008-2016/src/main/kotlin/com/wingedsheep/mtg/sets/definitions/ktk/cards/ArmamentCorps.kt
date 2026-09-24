@@ -24,7 +24,7 @@ val ArmamentCorps = card("Armament Corps") {
     oracleText = "When this creature enters, distribute two +1/+1 counters among one or two target creatures you control."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target = TargetCreature(count = 2, minCount = 1, filter = TargetFilter.CreatureYouControl)
         effect = Effects.DistributeCountersAmongTargets(totalCounters = 2)
     }

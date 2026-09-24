@@ -29,7 +29,7 @@ val AbyssalHorror = card("Abyssal Horror") {
     toughness = 2
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetPlayer())
         effect = Patterns.Hand.discardCards(2, t)
     }

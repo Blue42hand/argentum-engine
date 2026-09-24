@@ -2,21 +2,17 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.EventPattern.StepEvent
-import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Terminal Velocity {4}{R}{R}
@@ -45,8 +41,7 @@ val TerminalVelocity = card("Terminal Velocity") {
 
     spell {
         val ltbDamage = TriggeredAbility.create(
-            trigger = ZoneChangeEvent(from = Zone.BATTLEFIELD),
-            binding = TriggerBinding.SELF,
+            trigger = Triggers.self.leaves(),
             effect = Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreatures,
                 effect = Effects.DealDamage(
@@ -58,8 +53,7 @@ val TerminalVelocity = card("Terminal Velocity") {
         )
 
         val endStepSacrifice = TriggeredAbility.create(
-            trigger = StepEvent(Step.END, Player.You),
-            binding = TriggerBinding.ANY,
+            trigger = Triggers.you.beginningOf(Step.END),
             effect = Effects.SacrificeTarget(target = EffectTarget.Self),
             descriptionOverride = "At the beginning of your end step, sacrifice this permanent.",
         )

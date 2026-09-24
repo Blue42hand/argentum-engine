@@ -30,7 +30,7 @@ val EstwaldShieldbasher = card("Estwald Shieldbasher") {
         "indestructible until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
             then = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self)

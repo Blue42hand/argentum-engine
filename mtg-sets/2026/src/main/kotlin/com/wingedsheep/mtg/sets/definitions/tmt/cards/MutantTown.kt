@@ -25,7 +25,7 @@ val MutantTown = card("Mutant Town") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(1)
         description = "When this land enters, you gain 1 life."
     }

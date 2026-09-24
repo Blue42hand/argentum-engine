@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Creakwood Safewright
@@ -37,7 +38,7 @@ val CreakwoodSafewright = card("Creakwood Safewright") {
     ))
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.All(
             Conditions.GraveyardContainsSubtype(Subtype.ELF),
             Conditions.SourceHasCounter(CounterType.MINUS_ONE_MINUS_ONE)

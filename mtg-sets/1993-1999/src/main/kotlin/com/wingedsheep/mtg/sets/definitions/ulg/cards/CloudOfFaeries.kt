@@ -32,7 +32,7 @@ val CloudOfFaeries = card("Cloud of Faeries") {
     toughness = 1
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetPermanent(optional = true, count = 2, filter = TargetFilter.Land))
         effect = Effects.UntapEachTarget()
     }

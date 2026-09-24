@@ -34,7 +34,7 @@ val TyLeeChiBlocker = card("Ty Lee, Chi Blocker") {
     prowess()
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature", Targets.UpToCreatures(1))
         effect = Effects.Tap(creature) then
             Effects.GrantKeyword(

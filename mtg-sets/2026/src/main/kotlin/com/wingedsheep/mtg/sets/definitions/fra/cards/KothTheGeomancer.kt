@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 val KothTheGeomancer = card("Koth, the Geomancer") {
     manaCost = "{2}{R}"
@@ -23,7 +24,7 @@ val KothTheGeomancer = card("Koth, the Geomancer") {
     keywords(Keyword.REACH)
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = Effects.Composite(
             Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)),
             Effects.If(

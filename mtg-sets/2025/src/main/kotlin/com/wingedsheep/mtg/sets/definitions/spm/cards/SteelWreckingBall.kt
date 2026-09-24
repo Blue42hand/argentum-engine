@@ -30,7 +30,7 @@ val SteelWreckingBall = card("Steel Wrecking Ball") {
 
     // When this artifact enters, it deals 5 damage to target creature.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature", Targets.Creature)
         effect = Effects.DealDamage(5, creature)
     }

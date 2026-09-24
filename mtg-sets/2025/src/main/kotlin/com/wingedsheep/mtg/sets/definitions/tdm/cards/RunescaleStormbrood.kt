@@ -37,9 +37,7 @@ val RunescaleStormbrood = card("Runescale Stormbrood") {
 
     // Whenever you cast a noncreature spell OR a Dragon spell, +2/+0 until end of turn.
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.Noncreature or GameObjectFilter.Any.withSubtype(Subtype.DRAGON)
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature or GameObjectFilter.Any.withSubtype(Subtype.DRAGON))
         effect = Effects.ModifyStats(2, 0, EffectTarget.Self)
     }
 

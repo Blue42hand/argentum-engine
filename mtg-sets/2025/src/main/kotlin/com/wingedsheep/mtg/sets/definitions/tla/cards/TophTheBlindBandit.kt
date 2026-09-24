@@ -41,7 +41,7 @@ val TophTheBlindBandit = card("Toph, the Blind Bandit") {
         "Toph's power is equal to the number of +1/+1 counters on lands you control."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val land = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
         effect = Effects.Earthbend(2, land)
         description = "When Toph enters, earthbend 2."

@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Virtue of Loyalty // Ardenvale Fealty
@@ -26,7 +27,7 @@ val VirtueOfLoyalty = card("Virtue of Loyalty") {
         "control. Untap those creatures."
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter.AllCreaturesYouControl,

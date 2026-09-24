@@ -60,7 +60,7 @@ val CuratorOfDestinies = card("Curator of Destinies") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             // "look at the top five cards of your library"
             val looked = gather(CardSource.TopOfLibrary(5))

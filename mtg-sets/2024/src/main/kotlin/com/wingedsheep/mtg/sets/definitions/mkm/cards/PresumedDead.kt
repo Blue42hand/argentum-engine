@@ -54,8 +54,7 @@ val PresumedDead = card("Presumed Dead") {
             Effects.ModifyStats(2, 0, creature, Duration.EndOfTurn),
             Effects.GrantTriggeredAbility(
                 ability = TriggeredAbility.create(
-                    trigger = Triggers.Dies.event,
-                    binding = Triggers.Dies.binding,
+                    trigger = Triggers.self.dies(),
                     effect = Effects.Composite(
                         Effects.Move(
                             target = EffectTarget.Self,

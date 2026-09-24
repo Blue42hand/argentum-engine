@@ -31,7 +31,7 @@ val WarSqueak = card("War Squeak") {
     // When this Aura enters, target creature an opponent controls can't block this turn.
     triggeredAbility {
         val creatureOpponentControls = target("target creature opponent controls", Targets.CreatureOpponentControls)
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CantBlock(creatureOpponentControls)
     }
 

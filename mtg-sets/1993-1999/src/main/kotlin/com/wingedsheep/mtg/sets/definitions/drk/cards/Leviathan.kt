@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.CantAttackUnlessSacrifice
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Leviathan
@@ -63,7 +64,7 @@ val Leviathan = card("Leviathan") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         optional = true
         // Gated on actually controlling two Islands, so accepting with none does not untap for
         // free: a triggered ability has no cost slot, and the sacrifice is the price of the untap.

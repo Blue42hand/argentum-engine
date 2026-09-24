@@ -38,7 +38,7 @@ val SkulkingKiller = card("Skulking Killer") {
         "end of turn if that opponent controls no other creatures."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.If(
             condition = Conditions.CompareAmounts(

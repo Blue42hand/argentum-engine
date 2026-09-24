@@ -33,14 +33,14 @@ val WorldShaper = card("World Shaper") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         optional = true
         effect = Patterns.Library.mill(3)
         description = "Whenever this creature attacks, you may mill three cards."
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.Pipeline {
             val graveyardLands = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.You, GameObjectFilter.Land))
             move(graveyardLands, CardDestination.ToZone(Zone.BATTLEFIELD, placement = ZonePlacement.Tapped))

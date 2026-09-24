@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.SelectionRestriction
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Omenpath Journey — {3}{G} Enchantment (The Big Score, mythic).
@@ -41,7 +42,7 @@ val OmenpathJourney = card("Omenpath Journey") {
         "and put it onto the battlefield tapped."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val searchable = gather(
                 CardSource.FromZone(Zone.LIBRARY, Player.You, GameObjectFilter.Land),
@@ -59,7 +60,7 @@ val OmenpathJourney = card("Omenpath Journey") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.Pipeline {
             val exiled = gather(CardSource.FromLinkedExile())
             val chosen = chooseRandom(1, from = exiled)

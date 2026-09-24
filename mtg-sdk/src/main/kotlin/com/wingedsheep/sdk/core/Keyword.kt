@@ -635,7 +635,7 @@ enum class Keyword(val displayName: String) {
      *
      * The keyword itself is display-only; the behavior is composed by the `training()` DSL helper
      * on [com.wingedsheep.sdk.dsl.CardBuilder] — an attack-triggered ability
-     * ([com.wingedsheep.sdk.dsl.Triggers.attacks] gated by
+     * (`Triggers.<subject>.attacks(requires)` gated by
      * [com.wingedsheep.sdk.scripting.events.AttackPredicate.AttackedAlongsideGreaterPower], which
      * compares *projected* power across the attacking band) whose effect puts one +1/+1 counter on
      * the source ([com.wingedsheep.sdk.dsl.Effects.AddCounters]).

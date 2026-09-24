@@ -40,13 +40,13 @@ val GaladrielOfLothlorien = card("Galadriel of Lothlórien") {
         "revealed this way, put it onto the battlefield tapped."
 
     triggeredAbility {
-        trigger = Triggers.RingTemptsYou
+        trigger = Triggers.you.isTemptedByTheRing()
         interveningIf = Conditions.YouChoseOtherCreatureAsRingBearer
         effect = Patterns.Library.scry(3)
     }
 
     triggeredAbility {
-        trigger = Triggers.WheneverYouScry
+        trigger = Triggers.you.scries()
         effect = Effects.May(
             Effects.Pipeline {
                 val revealedTop = gather(CardSource.TopOfLibrary(1, Player.You))

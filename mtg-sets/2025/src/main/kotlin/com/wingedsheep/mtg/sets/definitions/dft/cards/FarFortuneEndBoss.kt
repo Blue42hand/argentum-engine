@@ -51,7 +51,7 @@ val FarFortuneEndBoss = card("Far Fortune, End Boss") {
     startYourEngines()
 
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         effect = Effects.DealDamage(
             amount = 1,
             target = EffectTarget.PlayerRef(Player.EachOpponent),

@@ -36,7 +36,7 @@ val WurmskinForger = card("Wurmskin Forger") {
         "or three target creatures."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target = TargetCreature(count = 3, minCount = 1)
         effect = Effects.DistributeCountersAmongTargets(totalCounters = 3)
         description = "When this creature enters, distribute three +1/+1 counters among one, " +

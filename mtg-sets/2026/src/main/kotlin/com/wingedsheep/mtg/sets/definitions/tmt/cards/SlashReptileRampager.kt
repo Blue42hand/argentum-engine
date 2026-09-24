@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Slash, Reptile Rampager
@@ -27,13 +28,13 @@ val SlashReptileRampager = card("Slash, Reptile Rampager") {
     toughness = 5
 
     triggeredAbility {
-        trigger = Triggers.OtherCreatureEnters
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
         effect = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent))
         description = "Alliance — Whenever another creature you control enters, Slash deals 2 damage to each opponent."
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,

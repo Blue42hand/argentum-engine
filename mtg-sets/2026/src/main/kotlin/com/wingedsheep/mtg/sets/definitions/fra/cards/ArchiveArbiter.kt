@@ -26,7 +26,7 @@ val ArchiveArbiter = card("Archive Arbiter") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Destroy target noncreature, nonland permanent.") {
                 val nonlandPermanent = target("target nonland permanent", TargetPermanent(

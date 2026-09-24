@@ -23,7 +23,7 @@ val YevasForcemage = card("Yeva's Forcemage") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target creature", Targets.Creature)
         effect = Effects.ModifyStats(2, 2, t)
     }

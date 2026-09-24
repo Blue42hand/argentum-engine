@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.GrantAdditionalLandDrop
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Ghirapur Orrery
@@ -36,7 +37,7 @@ val GhirapurOrrery = card("Ghirapur Orrery") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         // "That player" is the player whose upkeep it is — bound by the step trigger.
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.count(Player.TriggeringPlayer, Zone.HAND),

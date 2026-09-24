@@ -42,7 +42,7 @@ val UldarosTheorix = card("Uldaros Theorix") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.WasCast
         target(
             "up to one target nonland card of each card type from your graveyard",

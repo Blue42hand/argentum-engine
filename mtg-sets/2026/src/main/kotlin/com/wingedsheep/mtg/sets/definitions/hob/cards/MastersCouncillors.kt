@@ -30,7 +30,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  *    bonus via [DynamicAmount.Multiply]; toughness is untouched.
  *  - The pump is a static ability rather than a printed `*` power, so it stacks with counters and
  *    other effects in the normal layer order and recomputes as graveyards grow and shrink.
- *  - [Triggers.NthCardDrawn] fires exactly once per turn, on the draw that crosses the second
+ *  - `Triggers.<player>.drawsNth(n)` fires exactly once per turn, on the draw that crosses the second
  *    card — including a single draw-two that crosses it in one event.
  */
 val MastersCouncillors = card("Master's Councillors") {
@@ -58,7 +58,7 @@ val MastersCouncillors = card("Master's Councillors") {
     }
 
     triggeredAbility {
-        trigger = Triggers.NthCardDrawn(2)
+        trigger = Triggers.you.drawsNth(2)
         val milled = target("player", TargetPlayer())
         effect = Patterns.Library.mill(count = 3, target = milled)
         description = "Whenever you draw your second card each turn, target player mills three cards."

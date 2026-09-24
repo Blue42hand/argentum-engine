@@ -28,7 +28,7 @@ val VerduranEmissary = card("Verduran Emissary") {
     keywordAbility(KeywordAbility.kicker("{1}{R}"))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = WasKicked
         val t = target("artifact", Targets.Artifact)
         effect = Effects.CantBeRegenerated(t) then Effects.Destroy(t)

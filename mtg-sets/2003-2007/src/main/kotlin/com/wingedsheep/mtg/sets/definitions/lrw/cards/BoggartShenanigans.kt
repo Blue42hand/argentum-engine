@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -31,11 +30,7 @@ val BoggartShenanigans = card("Boggart Shenanigans") {
     oracleText = "Whenever another Goblin you control is put into a graveyard from the battlefield, you may have this enchantment deal 1 damage to target player or planeswalker."
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Permanent.withSubtype("Goblin").youControl(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.OTHER,
-        )
+        trigger = Triggers.another(GameObjectFilter.Permanent.withSubtype("Goblin").youControl()).dies()
         optional = true
         val t = target("target player or planeswalker", Targets.PlayerOrPlaneswalker)
         effect = Effects.DealDamage(1, t)

@@ -69,7 +69,7 @@ val TheRuinousWreckingCrew = card("The Ruinous Wrecking Crew") {
 
     // When The Ruinous Wrecking Crew enters, choose up to X — …
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseUpToDynamic(
             dynamicMax = DynamicAmounts.castX(),
             // Mode 1 — rummage, unconditionally ("then", not "if you do").

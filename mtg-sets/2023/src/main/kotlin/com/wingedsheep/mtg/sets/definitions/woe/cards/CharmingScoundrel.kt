@@ -43,7 +43,7 @@ val CharmingScoundrel = card("Charming Scoundrel") {
     keywords(Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
                 Effects.Discard(1).then(Effects.DrawCards(1)),

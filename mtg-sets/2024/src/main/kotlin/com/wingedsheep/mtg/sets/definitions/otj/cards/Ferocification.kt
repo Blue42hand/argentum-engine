@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Ferocification
@@ -18,7 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
  * • Target creature you control gets +2/+0 until end of turn.
  * • Target creature you control gains menace and haste until end of turn.
  *
- * A modal beginning-of-combat trigger ([Triggers.BeginCombat] fires on the controller's
+ * A modal beginning-of-combat trigger (`Triggers.you.beginningOf(Step.BEGIN_COMBAT)` fires on the controller's
  * turn only). Each mode declares its own "target creature you control"
  * ([Mode.withTarget]) and applies an existing effect: mode 1 is [Effects.ModifyStats]
  * +2/+0; mode 2 grants menace and haste ([Effects.GrantKeyword]) until end of turn.
@@ -32,7 +33,7 @@ val Ferocification = card("Ferocification") {
         "• Target creature you control gains menace and haste until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = ModalEffect.chooseOne(
             mode("Target creature you control gets +2/+0 until end of turn") {
                 val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)

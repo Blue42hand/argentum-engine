@@ -37,7 +37,7 @@ val EncouragingAviator = card("Encouraging Aviator") {
 
     // Whenever this creature attacks, it becomes prepared.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.BecomePrepared(EffectTarget.Self)
     }
 

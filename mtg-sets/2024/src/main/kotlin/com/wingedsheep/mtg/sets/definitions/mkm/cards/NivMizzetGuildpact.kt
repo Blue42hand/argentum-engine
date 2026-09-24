@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantHexproofFromMulticoloredToGroup
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Niv-Mizzet, Guildpact — Murders at Karlov Manor #220
@@ -42,7 +43,7 @@ val NivMizzetGuildpact = card("Niv-Mizzet, Guildpact") {
     }
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         val damaged = target("any target", Targets.Any)
         val drawer = target("target player", Targets.Player)
         val colorPairs = DynamicAmounts.colorPairsAmongPermanents()

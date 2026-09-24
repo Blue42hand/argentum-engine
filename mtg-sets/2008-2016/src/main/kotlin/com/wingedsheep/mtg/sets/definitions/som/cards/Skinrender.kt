@@ -25,7 +25,7 @@ val Skinrender = card("Skinrender") {
     oracleText = "When this creature enters, put three -1/-1 counters on target creature."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", Targets.Creature)
         effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 3, t)
     }

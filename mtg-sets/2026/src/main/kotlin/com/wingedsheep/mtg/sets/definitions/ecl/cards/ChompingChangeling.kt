@@ -29,7 +29,7 @@ val ChompingChangeling = card("Chomping Changeling") {
     keywords(Keyword.CHANGELING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "up to one target artifact or enchantment",
             TargetPermanent(optional = true, filter = TargetFilter.ArtifactOrEnchantment)

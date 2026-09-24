@@ -32,7 +32,7 @@ val HunterOfEyeblights = card("Hunter of Eyeblights") {
         "{2}{B}, {T}: Destroy target creature with a counter on it."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val marked = target(
             "creature you don't control",
             TargetCreature(filter = TargetFilter.CreatureOpponentControls),

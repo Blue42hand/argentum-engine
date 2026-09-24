@@ -26,7 +26,7 @@ val NimrodelWatcher = card("Nimrodel Watcher") {
         "and can't be blocked this turn. This ability triggers only once each turn."
 
     triggeredAbility {
-        trigger = Triggers.WheneverYouScry
+        trigger = Triggers.you.scries()
         oncePerTurn = true
         effect = Effects.Composite(listOf(
             Effects.ModifyStats(power = 1, toughness = 0, target = EffectTarget.Self),

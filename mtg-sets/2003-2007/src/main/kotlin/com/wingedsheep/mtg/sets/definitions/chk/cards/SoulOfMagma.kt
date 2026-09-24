@@ -14,7 +14,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  * 2/2
  * Whenever you cast a Spirit or Arcane spell, this creature deals 1 damage to target creature.
  *
- * The shared CHK "Whenever you cast a Spirit or Arcane spell" trigger — [Triggers.youCastSpell]
+ * The shared CHK "Whenever you cast a Spirit or Arcane spell" trigger — `Triggers.you.casts(spell, requires)`
  * over a homogeneous OR of the two subtype filters, binding `ANY` — with a mandatory ping as its
  * payoff.
  *
@@ -33,9 +33,7 @@ val SoulOfMagma = card("Soul of Magma") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.Any.withAnySubtype("Spirit", "Arcane")
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.Any.withAnySubtype("Spirit", "Arcane"))
         val creature = target("target", Targets.Creature)
         effect = Effects.DealDamage(1, creature)
         description = "Whenever you cast a Spirit or Arcane spell, this creature deals 1 damage " +

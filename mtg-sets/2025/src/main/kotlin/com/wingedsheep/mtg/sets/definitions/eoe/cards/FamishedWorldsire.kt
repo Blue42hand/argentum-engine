@@ -54,7 +54,7 @@ val FamishedWorldsire = card("Famished Worldsire") {
     )
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = run {
             val countSource = DynamicAmounts.sourcePower()
             Effects.Pipeline {

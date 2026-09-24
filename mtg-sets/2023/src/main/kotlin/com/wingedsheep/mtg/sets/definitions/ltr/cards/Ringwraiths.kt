@@ -37,7 +37,7 @@ val Ringwraiths = card("Ringwraiths") {
         "When the Ring tempts you, return this card from your graveyard to your hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.ModifyStats(-3, -3, creature).then(
             Effects.If(
@@ -48,7 +48,7 @@ val Ringwraiths = card("Ringwraiths") {
     }
 
     triggeredAbility {
-        trigger = Triggers.RingTemptsYou
+        trigger = Triggers.you.isTemptedByTheRing()
         triggerZone = Zone.GRAVEYARD
         effect = Effects.Move(EffectTarget.Self, Zone.HAND)
     }

@@ -1,16 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Arnyn, Deathbloom Botanist — Secrets of Strixhaven #74
@@ -38,14 +35,7 @@ val ArnynDeathbloomBotanist = card("Arnyn, Deathbloom Botanist") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = ZoneChangeEvent(
-                filter = GameObjectFilter.Creature.youControl().powerOrToughnessAtMost(1),
-                from = Zone.BATTLEFIELD,
-                to = Zone.GRAVEYARD,
-            ),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl().powerOrToughnessAtMost(1)).dies()
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Composite(
             Effects.LoseLife(2, opponent),

@@ -52,7 +52,7 @@ val BoilingRockRioter = card("Boiling Rock Rioter") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Pipeline {
             val exiledWithThis = gather(CardSource.FromLinkedExile())
             val chosenAlly = chooseUpTo(

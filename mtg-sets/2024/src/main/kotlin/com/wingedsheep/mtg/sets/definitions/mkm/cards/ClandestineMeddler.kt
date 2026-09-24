@@ -24,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * body. `optional = true` carries the "up to one": declining is legal even with legal targets
  * available, which is the right play when nothing on your board wants to stop blocking.
  *
- * The attack trigger is [Triggers.YouAttackWithFilter] over `Creature.suspected()`, which fires once
+ * The attack trigger is `Triggers.you.attacks(with)` over `Creature.suspected()`, which fires once
  * per combat no matter how many suspected creatures attack — "one or more" is a batch trigger, not a
  * per-attacker one. The filter carries no `youControl()`: attackers in a `YouAttackEvent` are by
  * definition controlled by the attacking player, matching how AnimPakal and PersistentMarshstalker
@@ -45,7 +45,7 @@ val ClandestineMeddler = card("Clandestine Meddler") {
         "card of your library. You may put it into your graveyard.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val accomplice = target(
             "up to one other target creature you control",
             TargetCreature(optional = true, filter = TargetFilter.OtherCreatureYouControl)
@@ -55,7 +55,7 @@ val ClandestineMeddler = card("Clandestine Meddler") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouAttackWithFilter(GameObjectFilter.Creature.suspected())
+        trigger = Triggers.you.attacks(GameObjectFilter.Creature.suspected())
         effect = Effects.Surveil(1)
         description = "Whenever one or more suspected creatures you control attack, surveil 1."
     }

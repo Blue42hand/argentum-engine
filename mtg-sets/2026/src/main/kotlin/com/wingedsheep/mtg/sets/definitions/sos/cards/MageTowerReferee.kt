@@ -22,7 +22,7 @@ val MageTowerReferee = card("Mage Tower Referee") {
     oracleText = "Whenever you cast a multicolored spell, put a +1/+1 counter on this creature."
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(GameObjectFilter.Multicolored)
+        trigger = Triggers.you.casts(GameObjectFilter.Multicolored)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

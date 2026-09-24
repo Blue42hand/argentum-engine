@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 /**
  * Pious Wayfarer
@@ -28,10 +27,7 @@ val PiousWayfarer = card("Pious Wayfarer") {
     oracleText = "Constellation — Whenever an enchantment you control enters, target creature gets +1/+1 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Enchantment.youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Enchantment.youControl()).enters()
         val t = target("target", Targets.Creature)
         effect = Effects.ModifyStats(1, 1, t)
         description = "Constellation — Whenever an enchantment you control enters, target creature gets +1/+1 until end of turn."

@@ -22,7 +22,7 @@ val MarduRoughrider = card("Mardu Roughrider") {
     oracleText = "Whenever Mardu Roughrider attacks, target creature can't block this turn."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val creature = target("creature", Targets.Creature)
         effect = Effects.CantBlock(target = creature)
     }

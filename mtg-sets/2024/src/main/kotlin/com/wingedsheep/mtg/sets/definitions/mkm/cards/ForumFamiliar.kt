@@ -41,7 +41,7 @@ val ForumFamiliar = card("Forum Familiar") {
     disguise = "{1}{W}"
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val permanent = target(
             "another target permanent you control",
             TargetPermanent(filter = TargetFilter.Permanent.youControl().copy(excludeSelf = true)),

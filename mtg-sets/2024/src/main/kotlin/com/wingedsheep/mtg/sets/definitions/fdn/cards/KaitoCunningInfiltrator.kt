@@ -9,9 +9,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -70,12 +68,7 @@ val KaitoCunningInfiltrator = card("Kaito, Cunning Infiltrator") {
 
     // Whenever a creature you control deals combat damage to a player, put a loyalty counter on Kaito.
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.Combat,
-            recipient = Recipient.AnyPlayer,
-            sourceFilter = GameObjectFilter.Creature.youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.AddCounters(CounterType.LOYALTY, 1, EffectTarget.Self)
         description = "Whenever a creature you control deals combat damage to a player, put a " +
             "loyalty counter on Kaito."
@@ -102,8 +95,7 @@ val KaitoCunningInfiltrator = card("Kaito, Cunning Infiltrator") {
     loyaltyAbility(-9) {
         effect = Effects.CreateGlobalTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.AnyPlayerCastsSpell.event,
-                binding = Triggers.AnyPlayerCastsSpell.binding,
+                trigger = Triggers.anyPlayer.casts(),
                 effect = ninjaToken,
                 descriptionOverride = "Whenever a player casts a spell, you create a 2/1 blue " +
                     "Ninja creature token.",

@@ -54,13 +54,13 @@ val CircuDimirLobotomist = card("Circu, Dimir Lobotomist") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Any.withColor(Color.BLUE))
+        trigger = Triggers.you.casts(GameObjectFilter.Any.withColor(Color.BLUE))
         target("target player", TargetPlayer())
         effect = exileTopOfTargetPlayersLibrary()
     }
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Any.withColor(Color.BLACK))
+        trigger = Triggers.you.casts(GameObjectFilter.Any.withColor(Color.BLACK))
         target("target player", TargetPlayer())
         effect = exileTopOfTargetPlayersLibrary()
     }

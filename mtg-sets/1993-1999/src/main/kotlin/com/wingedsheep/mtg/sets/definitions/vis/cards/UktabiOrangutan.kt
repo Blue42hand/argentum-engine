@@ -24,7 +24,7 @@ val UktabiOrangutan = card("Uktabi Orangutan") {
     oracleText = "When this creature enters, destroy target artifact."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target artifact", TargetPermanent(filter = TargetFilter.Artifact))
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }

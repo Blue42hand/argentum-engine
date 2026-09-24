@@ -43,7 +43,7 @@ val MiasmaDemon = card("Miasma Demon") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Patterns.Hand.discardAnyNumber(),
             optional = false,

@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Aether Rift
@@ -36,7 +37,7 @@ val AetherRift = card("Aether Rift") {
         "player pays 5 life."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.Pipeline {
             // Discard a card at random, remembering it as "discarded".
             val hand = gather(CardSource.FromZone(Zone.HAND, Player.You))

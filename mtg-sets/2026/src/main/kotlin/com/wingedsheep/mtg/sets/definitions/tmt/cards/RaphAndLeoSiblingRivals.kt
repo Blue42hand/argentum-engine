@@ -43,7 +43,7 @@ val RaphAndLeoSiblingRivals = card("Raph & Leo, Sibling Rivals") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         oncePerTurn = true
         target(
             "one or two attacking creatures",

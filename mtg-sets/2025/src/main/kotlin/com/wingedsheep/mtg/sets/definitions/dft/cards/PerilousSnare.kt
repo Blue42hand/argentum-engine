@@ -46,7 +46,7 @@ val PerilousSnare = card("Perilous Snare") {
     startYourEngines()
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val exiled = target(
             "exiled",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.NonlandPermanent.opponentControls()))
@@ -57,7 +57,7 @@ val PerilousSnare = card("Perilous Snare") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

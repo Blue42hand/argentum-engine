@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Vorosh, the Hunter
@@ -28,7 +29,7 @@ val VoroshTheHunter = card("Vorosh, the Hunter") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.MayPay(
             cost = Effects.PayMana("{2}{G}"),
             then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 6, EffectTarget.Self)

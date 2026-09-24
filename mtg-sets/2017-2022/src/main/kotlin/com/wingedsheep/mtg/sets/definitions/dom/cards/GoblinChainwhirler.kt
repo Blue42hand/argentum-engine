@@ -31,7 +31,7 @@ val GoblinChainwhirler = card("Goblin Chainwhirler") {
     keywords(Keyword.FIRST_STRIKE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent))
             .then(Patterns.Group.dealDamageToAll(1, GroupFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls())))
     }

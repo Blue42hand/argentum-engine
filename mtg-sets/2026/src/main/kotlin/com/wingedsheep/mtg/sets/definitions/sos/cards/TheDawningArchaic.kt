@@ -56,7 +56,7 @@ val TheDawningArchaic = card("The Dawning Archaic") {
     // On attack: cast a target instant/sorcery from your graveyard for free, exiling it after.
     triggeredAbility {
         val target = target("target", TargetObject(filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByYou()))
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Composite(
             Effects.Move(target, Zone.EXILE),
             Effects.GrantFreeCastTargetFromExile(

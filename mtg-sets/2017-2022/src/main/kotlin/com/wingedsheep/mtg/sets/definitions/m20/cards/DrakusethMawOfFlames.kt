@@ -37,7 +37,7 @@ val DrakusethMawOfFlames = card("Drakuseth, Maw of Flames") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val anyTarget = target("any target", AnyTarget())
         val (firstOtherTarget, secondOtherTarget) = targets(
             "up to two other targets",

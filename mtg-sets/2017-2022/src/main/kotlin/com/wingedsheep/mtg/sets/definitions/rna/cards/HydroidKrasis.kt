@@ -41,7 +41,7 @@ val HydroidKrasis = card("Hydroid Krasis") {
 
     // "When you cast this spell, you gain half X life and draw half X cards. Round down each time."
     triggeredAbility {
-        trigger = Triggers.WhenYouCastThisSpell()
+        trigger = Triggers.self.isCast()
         effect = Effects.Composite(
             Effects.GainLife(DynamicAmounts.castX() / 2),
             Effects.DrawCards(DynamicAmounts.castX() / 2),

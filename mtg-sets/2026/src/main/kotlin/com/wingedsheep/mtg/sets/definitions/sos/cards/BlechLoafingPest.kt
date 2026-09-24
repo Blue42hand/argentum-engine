@@ -17,7 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Whenever you gain life, put a +1/+1 counter on each Pest, Bat, Insect, Snake,
  * and Spider you control.
  *
- * The [Triggers.YouGainLife] trigger fires on any life-gaining event you have. Its
+ * The `Triggers.you.gainsLife()` trigger fires on any life-gaining event you have. Its
  * effect fans out via [Effects.ForEachInGroup] over every creature you control whose
  * subtype is one of the five tribes ([GameObjectFilter.withAnySubtype]) — including
  * Blech itself, who is a Pest. Inside the per-creature iteration the counter targets
@@ -33,7 +33,7 @@ val BlechLoafingPest = card("Blech, Loafing Pest") {
         "Insect, Snake, and Spider you control."
 
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(
                 GameObjectFilter.Creature

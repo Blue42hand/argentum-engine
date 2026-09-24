@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 /**
  * Stormbeacon Blade — Tarkir: Dragonstorm #27
@@ -20,7 +19,7 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
  *
  * Standard Equipment shell: the +3/+0 is a [ModifyStats] static over
  * [Filters.EquippedCreature]; equip via [card.equipAbility]. The attack trigger uses
- * `Triggers.attacks(binding = ATTACHED)` ("equipped creature attacks") and gates the draw
+ * `Triggers.<subject>.attacks(requires)` ("equipped creature attacks") and gates the draw
  * with an intervening-if condition — [Conditions.YouControlAtLeast] over attacking creatures
  * — so the draw only happens when three or more of your creatures are attacking (evaluated as
  * the triggered ability resolves, no `elseEffect`).
@@ -38,7 +37,7 @@ val StormbeaconBlade = card("Stormbeacon Blade") {
     }
 
     triggeredAbility {
-        trigger = Triggers.attacks(binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.attacks()
         effect = Effects.If(
             condition = Conditions.YouControlAtLeast(3, GameObjectFilter.Creature.attacking()),
             then = Effects.DrawCards(1)

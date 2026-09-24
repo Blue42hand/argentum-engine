@@ -1005,7 +1005,7 @@ object Effects {
 
     /**
      * Emit a "you bent" notification of [bendType] for the resolving effect's controller — fires
-     * [com.wingedsheep.sdk.dsl.Triggers.YouBend] triggers and records the type in the player's
+     * `Triggers.you.bends(types)` triggers and records the type in the player's
      * per-turn distinct-bend set. Wired into [Earthbend] / [Airbend] and the firebending attack
      * trigger; card authors normally reach a bend through those, not this facade (CR 701.65b /
      * 701.66b / 702.189b). Waterbend is emitted engine-side at cost payment (CR 701.67c).
@@ -1122,7 +1122,7 @@ object Effects {
      * Return the source card from your graveyard to the battlefield with its back face up —
      * "Return this card from your graveyard to the battlefield transformed" (Garland, Knight
      * of Cornelia). Pair with `activateFromZone = Zone.GRAVEYARD` on the owning ability, or wire
-     * it to `Triggers.Dies` for the LCI "god cycle" dies-and-return templating. No-ops if the
+     * it to `Triggers.self.dies()` for the LCI "god cycle" dies-and-return templating. No-ops if the
      * source left the graveyard before resolution or is not a double-faced card.
      *
      * @param tapped return the back-face permanent tapped ("...return it to the battlefield

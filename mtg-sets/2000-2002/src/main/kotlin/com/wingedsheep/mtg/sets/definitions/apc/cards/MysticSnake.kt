@@ -29,7 +29,7 @@ val MysticSnake = card("Mystic Snake") {
     toughness = 2
     keywords(Keyword.FLASH)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetSpell())
         effect = Effects.CounterSpell()
     }

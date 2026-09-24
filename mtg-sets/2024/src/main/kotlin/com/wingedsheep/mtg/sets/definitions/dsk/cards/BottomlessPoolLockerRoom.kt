@@ -6,10 +6,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardLayout
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern.OneOrMoreDealCombatDamageToPlayerEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 
 /**
  * Bottomless Pool // Locker Room (DSK 43) — split-layout Room (CR 709.5).
@@ -33,7 +30,7 @@ val BottomlessPoolLockerRoom = card("Bottomless Pool // Locker Room") {
         oracleText = "When you unlock this door, return up to one target creature to its owner's hand."
 
         triggeredAbility {
-            trigger = Triggers.OnDoorUnlocked
+            trigger = Triggers.self.doorUnlocked()
             val creature = target("up to one target creature", Targets.UpToCreatures(1))
             effect = Effects.ReturnToHand(creature)
         }
@@ -45,12 +42,7 @@ val BottomlessPoolLockerRoom = card("Bottomless Pool // Locker Room") {
         oracleText = "Whenever one or more creatures you control deal combat damage to a player, draw a card."
 
         triggeredAbility {
-            trigger = TriggerSpec(
-                OneOrMoreDealCombatDamageToPlayerEvent(
-                    sourceFilter = GameObjectFilter.Creature.youControl()
-                ),
-                TriggerBinding.ANY
-            )
+            trigger = Triggers.oneOrMore(GameObjectFilter.Creature.youControl()).dealCombatDamageToAPlayer()
             effect = Effects.DrawCards(1)
             description = "Whenever one or more creatures you control deal combat damage to a player, draw a card."
         }

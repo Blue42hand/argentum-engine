@@ -86,7 +86,7 @@ class ClashScenarioTest : FunSpec({
         typeLine = "Creature — Bird"
         power = 1; toughness = 1
         triggeredAbility {
-            trigger = Triggers.WheneverYouClash
+            trigger = Triggers.you.clashes()
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         }
     }
@@ -97,7 +97,7 @@ class ClashScenarioTest : FunSpec({
         typeLine = "Creature — Bird"
         power = 1; toughness = 1
         triggeredAbility {
-            trigger = Triggers.WheneverYouClashAndWin
+            trigger = Triggers.you.clashes(true)
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         }
     }
@@ -119,7 +119,7 @@ class ClashScenarioTest : FunSpec({
         typeLine = "Creature — Bird"
         power = 1; toughness = 1
         triggeredAbility {
-            trigger = Triggers.WheneverYouClash
+            trigger = Triggers.you.clashes()
             effect = Effects.Composite(
                 Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                 Effects.If(
@@ -137,7 +137,7 @@ class ClashScenarioTest : FunSpec({
         typeLine = "Creature — Bird"
         power = 1; toughness = 1
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             effect = Effects.If(
                 Conditions.YouWonTheClash,
                 Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)

@@ -26,6 +26,7 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Multiversal Passage (SPM #180): "As this land enters, choose a basic land type. Then you may
@@ -50,7 +51,7 @@ private val LandfallWatcher = card("Landfall Watcher") {
     oracleText = "Whenever a land you control enters, you gain 1 life."
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = Effects.GainLife(1)
     }
 }

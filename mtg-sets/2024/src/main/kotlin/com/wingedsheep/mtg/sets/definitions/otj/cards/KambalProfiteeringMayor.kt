@@ -21,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Implementation notes:
  * - Ability 1 is the opponent-scoped batched ETB trigger
- *   ([Triggers.OneOrMoreOpponentPermanentsEnter] on [GameObjectFilter.Token]). The batch exposes its
+ *   (`Triggers.oneOrMore(filter.opponentControls()).enter()` on [GameObjectFilter.Token]). The batch exposes its
  *   matching tokens to the payoff as the pipeline collection `IterationSpace.TRIGGER_CAPTURED_COLLECTION`,
  *   so [ForEachInCollectionEffect] iterates them and [CreateTokenCopyOfTargetEffect] (target
  *   [EffectTarget.IterationEntity], `tapped = true`) makes one tapped copy of each. `oncePerTurn = true` gives
@@ -29,7 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   official rulings, the copies use each original token's copiable characteristics and enter tapped;
  *   the copy executor reads each token at resolution, so any that left the battlefield meanwhile
  *   simply no-op.
- * - Ability 2 is the you-scoped batched ETB trigger ([Triggers.OneOrMorePermanentsEnter] on
+ * - Ability 2 is the you-scoped batched ETB trigger (`Triggers.oneOrMore(filter).enter()` on
  *   [GameObjectFilter.Token], which defaults to "you control"); it drains each opponent for 1 and
  *   gains you 1, firing once per batch with no per-turn limit.
  */
@@ -46,7 +46,7 @@ val KambalProfiteeringMayor = card("Kambal, Profiteering Mayor") {
     // Whenever one or more tokens your opponents control enter, for each of them, create a tapped
     // copy. Triggers only once each turn.
     triggeredAbility {
-        trigger = Triggers.OneOrMoreOpponentPermanentsEnter(GameObjectFilter.Token)
+        trigger = Triggers.oneOrMore(GameObjectFilter.Token.opponentControls()).enter()
         oncePerTurn = true
         effect = Effects.ForEachInCollection(
             collection = CollectionSlot.TriggerCaptured,
@@ -56,7 +56,7 @@ val KambalProfiteeringMayor = card("Kambal, Profiteering Mayor") {
 
     // Whenever one or more tokens you control enter, each opponent loses 1 life and you gain 1 life.
     triggeredAbility {
-        trigger = Triggers.OneOrMorePermanentsEnter(GameObjectFilter.Token)
+        trigger = Triggers.oneOrMore(GameObjectFilter.Token).enter()
         effect = Effects.Composite(
             Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
             Effects.GainLife(1)

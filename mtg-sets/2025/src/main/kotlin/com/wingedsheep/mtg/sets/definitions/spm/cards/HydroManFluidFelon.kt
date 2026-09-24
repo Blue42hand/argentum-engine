@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Hydro-Man, Fluid Felon — Marvel's Spider-Man #33
@@ -37,14 +38,14 @@ val HydroManFluidFelon = card("Hydro-Man, Fluid Felon") {
 
     // Whenever you cast a blue spell, if Hydro-Man is a creature, he gets +1/+1 until end of turn.
     triggeredAbility {
-        trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Any.withColor(Color.BLUE))
+        trigger = Triggers.you.casts(GameObjectFilter.Any.withColor(Color.BLUE))
         interveningIf = Conditions.SourceMatches(GameObjectFilter.Creature)
         effect = Effects.ModifyStats(1, 1, EffectTarget.Self)
     }
 
     // End step: untap, then become a non-creature land with "{T}: Add {U}" until your next turn.
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.Composite(
             Effects.Untap(EffectTarget.Self),
             Effects.BecomeArtifact(

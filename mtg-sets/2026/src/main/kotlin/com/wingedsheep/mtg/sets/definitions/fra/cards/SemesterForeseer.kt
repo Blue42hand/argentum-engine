@@ -18,7 +18,7 @@ val SemesterForeseer = card("Semester Foreseer") {
     keywords(Keyword.PREPARED)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.surveil(1)
         description = "When this creature enters, surveil 1."
     }

@@ -29,9 +29,7 @@ val InklingMascot = card("Inkling Mascot") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature)
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature))
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self),
             Patterns.Library.surveil(1)

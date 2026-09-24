@@ -55,7 +55,7 @@ val RollingHamsphere = card("Rolling Hamsphere") {
     // damage to any target, where X is the number of Hamsters you control (counted after
     // the new tokens enter, per the Scryfall ruling — X is determined as the ability resolves).
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val anyTarget = target("any target", Targets.Any)
         effect = Effects.Composite(
             Effects.CreateToken(

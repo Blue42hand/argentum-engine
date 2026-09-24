@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Kitsune, Dragon's Daughter
@@ -33,7 +34,7 @@ val KitsuneDragonsDaughter = card("Kitsune, Dragon's Daughter") {
     keywords(Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val yours = target(
             "target creature you control",
             TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true))
@@ -47,7 +48,7 @@ val KitsuneDragonsDaughter = card("Kitsune, Dragon's Daughter") {
     }
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         val yours = target(
             "target creature you control",
             TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true))

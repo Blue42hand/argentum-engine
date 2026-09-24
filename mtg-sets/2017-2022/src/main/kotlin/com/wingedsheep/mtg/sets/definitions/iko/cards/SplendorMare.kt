@@ -39,7 +39,7 @@ val SplendorMare = card("Splendor Mare") {
     keywordAbility(KeywordAbility.cycling("{1}{W}"))
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         val t = target("target", Targets.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.LIFELINK, 1, t)
     }

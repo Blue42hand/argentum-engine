@@ -26,7 +26,7 @@ val RavenousRats = card("Ravenous Rats") {
     oracleText = "When this creature enters, target opponent discards a card."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target opponent", TargetOpponent())
         effect = Patterns.Hand.discardCards(1, t)
     }

@@ -136,7 +136,7 @@ class TeamworkMechanicScenarioTest : ScenarioTestBase() {
             "When this creature enters, if it was cast using teamwork, put two +1/+1 counters on it."
         teamwork(2)
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             interveningIf = Conditions.TeamworkWasPaid
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         }
@@ -223,7 +223,7 @@ class TeamworkMechanicScenarioTest : ScenarioTestBase() {
             "counters on it."
         keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{1}")))
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             interveningIf = WasKicked
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         }
@@ -237,7 +237,7 @@ class TeamworkMechanicScenarioTest : ScenarioTestBase() {
         toughness = 1
         oracleText = "Whenever you cast a kicked spell, you gain 3 life."
         triggeredAbility {
-            trigger = Triggers.youCastSpell(requires = setOf(SpellCastPredicate.WasKicked))
+            trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.WasKicked))
             effect = Effects.GainLife(3)
         }
     }

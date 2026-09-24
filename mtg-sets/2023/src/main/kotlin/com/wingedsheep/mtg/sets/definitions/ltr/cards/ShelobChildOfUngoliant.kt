@@ -34,7 +34,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * - The Spider anthem is two `other Spiders you control` static grants: [GrantKeyword] (deathtouch)
  *   and [GrantWard] (`{2}`), filtered by [GroupFilter.AllCreaturesYouControl] `.withSubtype("Spider").other()`.
  * - The death-tracking ability uses the observer form of the dealt-damage-by-source-dies trigger
- *   ([Triggers.creatureDealtDamageBySourceDies] with a "Spider you control" source filter). The
+ *   (`Triggers.a(sourceFilter).damagedCreatureDies()` with a "Spider you control" source filter). The
  *   damaging source is matched against the filter using last-known info from when it dealt the
  *   damage, so a Spider that died in the same combat still qualifies (CR 608.2h). The token copy of
  *   the dying creature is built with [Effects.CreateTokenCopyOfTarget]: `overrideCardTypes = {ARTIFACT}`
@@ -63,9 +63,7 @@ val ShelobChildOfUngoliant = card("Shelob, Child of Ungoliant") {
 
     // "Whenever another creature dealt damage this turn by a Spider you controlled dies, ..."
     triggeredAbility {
-        trigger = Triggers.creatureDealtDamageBySourceDies(
-            GameObjectFilter.Creature.youControl().withSubtype("Spider")
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl().withSubtype("Spider")).damagedCreatureDies()
         effect = Effects.CreateTokenCopyOfTarget(
             target = EffectTarget.TriggeringEntity,
             overrideCardTypes = setOf(CardType.ARTIFACT),

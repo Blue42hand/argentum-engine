@@ -23,12 +23,12 @@ val SphinxOfFalseConclusions = card("Sphinx of False Conclusions") {
     keywords(Keyword.FLASH, Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Patterns.Hand.loot()
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         interveningIf = Conditions.SourceMatches(GameObjectFilter.Any.nontoken())
         effect = Effects.CreateTokenCopyOfSelf()
         description = "When this creature dies, if it isn't a token, create a token that's a copy of it."

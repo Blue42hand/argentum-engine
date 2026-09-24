@@ -37,7 +37,7 @@ val VengefulCreeper = card("Vengeful Creeper") {
 
     triggeredAbility {
         val target = target("target", TargetObject(filter = TargetFilter.ArtifactOrEnchantment.opponentControls()))
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         effect = Effects.Destroy(target)
         description = "When this creature is turned face up, destroy target artifact or enchantment an opponent controls."
     }

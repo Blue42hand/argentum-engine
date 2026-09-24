@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Frodo, Sauron's Bane
@@ -40,8 +41,7 @@ val FrodoSauronsBane = card("Frodo, Sauron's Bane") {
      * Otherwise, the Ring tempts you."
      */
     val rogueCombatDamageAbility = TriggeredAbility.create(
-        trigger = Triggers.DealsCombatDamageToPlayer.event,
-        binding = Triggers.DealsCombatDamageToPlayer.binding,
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer),
         effect = Effects.If(
             condition = Conditions.RingHasTemptedYouAtLeast(4),
             then = Effects.LoseGame(

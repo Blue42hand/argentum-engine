@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -17,7 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * turn, draw two cards.
  *
  * Modeled as the +1/-1 stat change plus a watched-entity delayed triggered ability
- * (`Triggers.Dies` scoped to the target via `watchedTarget`, expiring at end of turn).
+ * (`Triggers.self.dies()` scoped to the target via `watchedTarget`, expiring at end of turn).
  * This mirrors the Long River Lurker / Commando Raid "whenever that creature ... this
  * turn" pattern. The "under your control" clause is honored for the normal path (the
  * creature dies while you control it); the rare control-change-then-dies case is the
@@ -36,7 +35,7 @@ val DesperateMeasures = card("Desperate Measures") {
             Effects.ModifyStats(1, -1, t),
             Effects.CreateDelayedTrigger(
                 effect = Effects.DrawCards(2),
-                trigger = Triggers.Dies,
+                trigger = Triggers.self.dies(),
                 watchedTarget = t,
                 expiry = DelayedTriggerExpiry.EndOfTurn
             )

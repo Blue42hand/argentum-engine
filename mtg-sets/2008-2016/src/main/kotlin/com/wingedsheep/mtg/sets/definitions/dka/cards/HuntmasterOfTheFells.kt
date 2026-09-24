@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 private val createHuntmasterWolf = Effects.CreateToken(
     power = 2,
@@ -39,15 +40,15 @@ private val HuntmasterOfTheFellsFront = card("Huntmaster of the Fells") {
         "At the beginning of each upkeep, if no spells were cast last turn, transform this creature."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = huntmasterFrontTrigger
     }
     triggeredAbility {
-        trigger = Triggers.TransformsToFront
+        trigger = Triggers.self.transforms(false)
         effect = huntmasterFrontTrigger
     }
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.spellsCastLastTurn(),
             ComparisonOperator.EQ,
@@ -77,7 +78,7 @@ private val RavagerOfTheFells = card("Ravager of the Fells") {
 
     keywords(Keyword.TRAMPLE)
     triggeredAbility {
-        trigger = Triggers.TransformsToBack
+        trigger = Triggers.self.transforms(true)
         val playerOrPlaneswalker = target("target opponent or planeswalker", Targets.OpponentOrPlaneswalker)
         // "That player or that planeswalker's controller": the first branch reads a player
         // target, the second the controller of a planeswalker target (as on Chandra Nalaar).
@@ -97,7 +98,7 @@ private val RavagerOfTheFells = card("Ravager of the Fells") {
         )
     }
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.spellsCastLastTurn(),
             ComparisonOperator.GTE,

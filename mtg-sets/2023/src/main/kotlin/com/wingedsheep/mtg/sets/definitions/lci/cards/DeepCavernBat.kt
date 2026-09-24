@@ -46,7 +46,7 @@ val DeepCavernBat = card("Deep-Cavern Bat") {
     keywords(Keyword.FLYING, Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Composite(
             listOf(
@@ -72,7 +72,7 @@ val DeepCavernBat = card("Deep-Cavern Bat") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileToHand()
     }
 

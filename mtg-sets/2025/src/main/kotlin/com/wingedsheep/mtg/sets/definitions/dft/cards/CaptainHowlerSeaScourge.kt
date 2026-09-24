@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.WardCost
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -26,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * - Ward—{2}, Pay 2 life is one composite ward cost ([WardCost.Composite]); declining either
  *   half counters the targeting spell or ability (CR 702.21a). Same shape as Gisa, the
  *   Hellraiser.
- * - The payoff is batch-worded (CR 603.2c), so it uses [Triggers.YouDiscardOneOrMore]: one
+ * - The payoff is batch-worded (CR 603.2c), so it uses `Triggers.you.discards(batch = true)`: one
  *   trigger per discard *event*, however many cards it contained. The pump reads the batch
  *   size back through [ContextPropertyKey.TRIGGER_DISCARD_COUNT] and doubles it
  *   ([DynamicAmount.Multiply]) for the printed "+2/+0 ... for each card". Discarding three
@@ -57,7 +56,7 @@ val CaptainHowlerSeaScourge = card("Captain Howler, Sea Scourge") {
     )
 
     triggeredAbility {
-        trigger = Triggers.YouDiscardOneOrMore
+        trigger = Triggers.you.discards(batch = true)
         val creature = target("creature", Targets.Creature)
         effect = Effects.Composite(listOf(
             Effects.ModifyStats(
@@ -67,10 +66,7 @@ val CaptainHowlerSeaScourge = card("Captain Howler, Sea Scourge") {
             ),
             Effects.CreateDelayedTrigger(
                 effect = Effects.DrawCards(1),
-                trigger = Triggers.dealsDamage(
-                    damageType = DamageType.Combat,
-                    recipient = Recipient.AnyPlayer
-                ),
+                trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer),
                 watchedTarget = creature,
                 expiry = DelayedTriggerExpiry.EndOfTurn
             )

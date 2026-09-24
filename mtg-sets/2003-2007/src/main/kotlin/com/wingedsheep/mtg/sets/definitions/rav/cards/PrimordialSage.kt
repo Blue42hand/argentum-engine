@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Primordial Sage
@@ -22,7 +23,7 @@ val PrimordialSage = card("Primordial Sage") {
     toughness = 5
 
     triggeredAbility {
-        trigger = Triggers.YouCastCreature
+        trigger = Triggers.you.casts(GameObjectFilter.Creature)
         optional = true
         effect = Effects.DrawCards(1)
         description = "Whenever you cast a creature spell, you may draw a card."

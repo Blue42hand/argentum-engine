@@ -13,7 +13,7 @@ val KeeperOfTheQuietHour = card("Keeper of the Quiet Hour") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Mechanic.empowerJace(2)
     }
 

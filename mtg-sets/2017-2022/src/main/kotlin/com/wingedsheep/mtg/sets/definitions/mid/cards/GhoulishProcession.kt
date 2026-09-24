@@ -15,7 +15,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  * Whenever one or more nontoken creatures die, create a 2/2 black Zombie creature token with
  * decayed. This ability triggers only once each turn.
  *
- * The batched death trigger ([Triggers.OneOrMoreCreaturesDie] over nontoken creatures) fires at
+ * The batched death trigger (`Triggers.oneOrMore(filter.anyController()).die()` over nontoken creatures) fires at
  * most once per death batch (CR 603.3b) and is further capped to once per turn (`oncePerTurn`).
  * The token gets Decayed via a decayed counter ([CounterType.DECAYED]) — the engine realizes "can't
  * block" + "when it attacks, sacrifice it at end of combat" off the counter (CR 702.147a).
@@ -35,7 +35,7 @@ val GhoulishProcession = card("Ghoulish Procession") {
         "can't block. When it attacks, sacrifice it at end of combat.)"
 
     triggeredAbility {
-        trigger = Triggers.OneOrMoreCreaturesDie(GameObjectFilter.Creature.nontoken())
+        trigger = Triggers.oneOrMore(GameObjectFilter.Creature.nontoken().anyController()).die()
         oncePerTurn = true
         effect = Effects.CreateToken(
             power = 2,

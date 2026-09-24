@@ -45,7 +45,7 @@ val GenjiGlove = card("Genji Glove") {
     }
 
     triggeredAbility {
-        trigger = Triggers.attacks(binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.attacks()
         oncePerTurn = true
         effect = Effects.Composite(
             listOf(

@@ -31,7 +31,7 @@ val AmbushWolf = card("Ambush Wolf") {
     toughness = 2
     keywords(Keyword.FLASH)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetObject(optional = true, filter = TargetFilter.CardInGraveyard))
         effect = Effects.Move(t, Zone.EXILE)
     }

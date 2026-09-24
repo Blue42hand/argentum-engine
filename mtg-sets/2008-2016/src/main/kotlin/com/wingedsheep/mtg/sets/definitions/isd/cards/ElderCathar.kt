@@ -29,7 +29,7 @@ val ElderCathar = card("Elder Cathar") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.HUMAN), creature),

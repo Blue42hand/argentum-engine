@@ -30,7 +30,7 @@ val BrinebarrowIntruder = card("Brinebarrow Intruder") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val victim = target("target creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.ModifyStats(-2, 0, victim)
     }

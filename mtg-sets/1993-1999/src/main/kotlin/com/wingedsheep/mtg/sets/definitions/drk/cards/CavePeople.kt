@@ -31,7 +31,7 @@ val CavePeople = card("Cave People") {
         "blocked as long as defending player controls a Mountain.)"
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ModifyStats(1, -2, EffectTarget.Self)
     }
 

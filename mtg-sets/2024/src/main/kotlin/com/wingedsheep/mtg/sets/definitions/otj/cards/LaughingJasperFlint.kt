@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Laughing Jasper Flint
@@ -61,7 +62,7 @@ val LaughingJasperFlint = card("Laughing Jasper Flint") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Pipeline {
             val stolenCards = gather(

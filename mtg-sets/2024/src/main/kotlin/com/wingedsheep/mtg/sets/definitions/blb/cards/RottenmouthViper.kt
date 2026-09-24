@@ -47,13 +47,13 @@ val RottenmouthViper = card("Rottenmouth Viper") {
 
     // Whenever this creature enters the battlefield
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = rottenmouthViperEffect()
     }
 
     // Whenever this creature attacks
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = rottenmouthViperEffect()
     }
 

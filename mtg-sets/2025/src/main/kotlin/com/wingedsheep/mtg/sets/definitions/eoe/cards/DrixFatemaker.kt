@@ -33,7 +33,7 @@ val DrixFatemaker = card("Drix Fatemaker") {
         "the beginning of the next end step, then you may cast it from exile on a later turn.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target creature", Targets.Creature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
         description = "When this creature enters, put a +1/+1 counter on target creature."

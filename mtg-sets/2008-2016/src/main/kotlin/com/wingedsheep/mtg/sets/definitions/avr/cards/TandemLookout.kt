@@ -50,8 +50,7 @@ val TandemLookout = card("Tandem Lookout") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.dealsDamage(recipient = Recipient.Opponent).event,
-                binding = Triggers.dealsDamage(recipient = Recipient.Opponent).binding,
+                trigger = Triggers.self.dealsDamage(Recipient.Opponent),
                 effect = Effects.DrawCards(1),
                 descriptionOverride = "Whenever this creature deals damage to an opponent, draw a card"
             ),

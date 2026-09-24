@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Judith, Carnage Connoisseur — Murders at Karlov Manor #210
@@ -25,7 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * into removal-plus-drain, mode two banks value off a spell that was never going to deal damage
  * (a counterspell, a tutor) — so the choice is made per cast, not per Judith.
  *
- * Modelled as a [ModalEffect] hanging off [Triggers.YouCastInstantOrSorcery]. The engine picks the
+ * Modelled as a [ModalEffect] hanging off `Triggers.you.casts(GameObjectFilter.InstantOrSorcery)`. The engine picks the
  * mode when the *ability resolves* rather than when it's put on the stack (CR 601.2b via 603.3d);
  * that is the existing convention for every modal triggered ability in the corpus (Faces of the
  * Past), and it is unobservable here because the ability resolves before the spell that triggered
@@ -54,7 +55,7 @@ val JudithCarnageConnoisseur = card("Judith, Carnage Connoisseur") {
         "each opponent.\""
 
     triggeredAbility {
-        trigger = Triggers.YouCastInstantOrSorcery
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
                 Effects.Composite(
@@ -72,8 +73,7 @@ val JudithCarnageConnoisseur = card("Judith, Carnage Connoisseur") {
                     imageUri = "https://cards.scryfall.io/normal/front/4/7/47a1385b-2be2-49a8-8400-186cd5525dad.jpg?1783912609",
                     triggeredAbilities = listOf(
                         TriggeredAbility.create(
-                            trigger = Triggers.Dies.event,
-                            binding = Triggers.Dies.binding,
+                            trigger = Triggers.self.dies(),
                             effect = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent))
                         )
                     )

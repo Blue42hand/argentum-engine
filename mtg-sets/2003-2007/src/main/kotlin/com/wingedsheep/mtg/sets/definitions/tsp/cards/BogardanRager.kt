@@ -31,7 +31,7 @@ val BogardanRager = card("Bogardan Rager") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target", Targets.Creature)
         effect = Effects.ModifyStats(4, 0, creature)
     }

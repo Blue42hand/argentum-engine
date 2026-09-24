@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Seer's Sundial
@@ -11,7 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  * Artifact
  * Landfall — Whenever a land you control enters, you may pay {2}. If you do, draw a card.
  *
- * Landfall is [Triggers.LandYouControlEnters]. The "you may pay {2}. If you do, …" is an
+ * Landfall is `Triggers.a(GameObjectFilter.Land.youControl()).enters()`. The "you may pay {2}. If you do, …" is an
  * [Effects.MayPay] — a [com.wingedsheep.sdk.scripting.effects.Gate.MayPay] gate whose cost is
  * [PayManaCostEffect] and whose `ifPaid` branch is [Effects.DrawCards]. That is a different gate
  * from the bare "you may" of a card like Grazing Gladehart: the consent here is the payment, so the
@@ -24,7 +25,7 @@ val SeerSSundial = card("Seer's Sundial") {
     oracleText = "Landfall — Whenever a land you control enters, you may pay {2}. If you do, draw a card."
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = Effects.MayPay(
             cost = Effects.PayMana("{2}"),
             then = Effects.DrawCards(1)

@@ -1,13 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
@@ -41,11 +39,7 @@ val GnawingCrescendo = card("Gnawing Crescendo") {
             GroupFilter(GameObjectFilter.Creature.youControl())
         ).then(
             Effects.CreateDelayedTrigger(
-                trigger = Triggers.leavesBattlefield(
-                    filter = GameObjectFilter.Creature.youControl().nontoken(),
-                    to = Zone.GRAVEYARD,
-                    binding = TriggerBinding.ANY
-                ),
+                trigger = Triggers.a(GameObjectFilter.Creature.youControl().nontoken()).dies(),
                 expiry = DelayedTriggerExpiry.EndOfTurn,
                 fireOnce = false,
                 effect = woeRatToken()

@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The trigger is deliberately unscoped: the oracle text says "another artifact", not "another
  * artifact you control", so *every* artifact entering the battlefield charges the Tank — including
- * an opponent's. Modelled as [Triggers.entersBattlefield] over the plain (uncontrolled)
+ * an opponent's. Modelled as `Triggers.a(filter).enters()` over the plain (uncontrolled)
  * [GameObjectFilter.Artifact] with [TriggerBinding.ANY], the same read [LeoninElder] and
  * [Vermiculos] use. ANY rather than OTHER is what covers the "this artifact or" half: the Tank is
  * already on the battlefield when its own `ZoneChangeEvent` is emitted, so it sees itself enter and
@@ -39,10 +39,7 @@ val SerumTank = card("Serum Tank") {
 
     // Whenever this artifact or another artifact enters, put a charge counter on this artifact.
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Artifact,
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Artifact).enters()
         effect = Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)
     }
 

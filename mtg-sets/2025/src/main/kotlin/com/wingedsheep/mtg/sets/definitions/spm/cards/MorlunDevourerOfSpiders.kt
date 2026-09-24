@@ -28,7 +28,7 @@ val MorlunDevourerOfSpiders = card("Morlun, Devourer of Spiders") {
     keywords(Keyword.LIFELINK)
     replacementEffect(EntersWithDynamicCounters(count = DynamicAmounts.xValue()))
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetOpponent())
         effect = Effects.DealDamage(DynamicAmounts.xValue(), t)
     }

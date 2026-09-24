@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Redcap Gutter-Dweller
@@ -48,14 +49,14 @@ val RedcapGutterDweller = card("Redcap Gutter-Dweller") {
 
     // When this creature enters, create two 1/1 black Rat tokens with "This token can't block."
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = woeRatToken(count = DynamicAmounts.fixed(2))
     }
 
     // At the beginning of your upkeep, you may sacrifice another creature. If you do,
     // put a +1/+1 counter on this creature and impulse the top card of your library.
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.MayPay(
             cost = Effects.SacrificeOwn(
                 filter = GameObjectFilter.Creature,

@@ -32,7 +32,7 @@ val ChupacabraEcho = card("Chupacabra Echo") {
     power = 3
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.ModifyStats(
             -DynamicAmounts.count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Permanent),

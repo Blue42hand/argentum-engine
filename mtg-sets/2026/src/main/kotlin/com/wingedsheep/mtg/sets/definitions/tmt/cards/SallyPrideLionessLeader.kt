@@ -34,7 +34,7 @@ val SallyPrideLionessLeader = card("Sally Pride, Lioness Leader") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Repeat(
             amount = DynamicAmounts.count(
                 Player.You,
@@ -55,7 +55,7 @@ val SallyPrideLionessLeader = card("Sally Pride, Lioness Leader") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Creature.youControl()),
             effect = Effects.AddCounters(

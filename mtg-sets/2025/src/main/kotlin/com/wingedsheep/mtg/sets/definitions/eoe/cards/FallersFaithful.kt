@@ -36,7 +36,7 @@ val FallersFaithful = card("Faller's Faithful") {
         "If that creature wasn't dealt damage this turn, its controller draws two cards."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "up to one other target creature",
             TargetCreature(optional = true, filter = TargetFilter.OtherCreature)

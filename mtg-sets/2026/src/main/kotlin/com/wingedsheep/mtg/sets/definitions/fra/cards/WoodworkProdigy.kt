@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Woodwork Prodigy // Soul Tether — does not enter prepared. Its upkeep trigger is an
@@ -21,7 +22,7 @@ val WoodworkProdigy = card("Woodwork Prodigy") {
     oracleText = "At the beginning of your upkeep, if this creature isn't prepared, it becomes prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)"
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.Not(Conditions.SourceIsPrepared)
         effect = Effects.BecomePrepared(EffectTarget.Self)
         description = "At the beginning of your upkeep, if this creature isn't prepared, it becomes prepared."

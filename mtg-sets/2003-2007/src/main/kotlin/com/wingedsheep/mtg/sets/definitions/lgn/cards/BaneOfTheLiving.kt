@@ -25,7 +25,7 @@ val BaneOfTheLiving = card("Bane of the Living") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         effect = Patterns.Group.modifyStatsForAll(
             power = -DynamicAmounts.xValue(),
             toughness = -DynamicAmounts.xValue(),

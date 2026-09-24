@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Elfhame Sanctuary
@@ -28,7 +29,7 @@ val ElfhameSanctuary = card("Elfhame Sanctuary") {
         "reveal that card, put it into your hand, then shuffle. If you do, you skip your draw step this turn."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         // The search is itself optional ("you may search ... for a basic land card") — the
         // controller declines by choosing zero cards. Effects.IfYouDo gates the draw-step skip on
         // the search actually putting a card into hand (SuccessCriterion.Auto detects the terminal

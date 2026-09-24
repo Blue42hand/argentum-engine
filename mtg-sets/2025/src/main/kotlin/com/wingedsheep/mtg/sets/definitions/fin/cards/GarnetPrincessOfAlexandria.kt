@@ -44,7 +44,7 @@ val GarnetPrincessOfAlexandria = card("Garnet, Princess of Alexandria") {
     keywords(Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Pipeline {
             // Gather the Sagas you control that still have a lore counter to remove.
             val garnetSagas = gather(

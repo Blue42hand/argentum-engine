@@ -25,7 +25,7 @@ val DoubtlessOne = card("Doubtless One") {
     dynamicStats(DynamicAmounts.battlefield(Player.Each, GameObjectFilter.Creature.withSubtype("Cleric")).count())
 
     triggeredAbility {
-        trigger = Triggers.DealsDamage
+        trigger = Triggers.self.dealsDamage()
         effect = Effects.GainLife(DynamicAmounts.triggerDamageAmount())
     }
 

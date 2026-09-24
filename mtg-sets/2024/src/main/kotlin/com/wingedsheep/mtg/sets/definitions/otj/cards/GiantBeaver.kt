@@ -44,7 +44,7 @@ val GiantBeaver = card("Giant Beaver") {
     keywordAbility(KeywordAbility.saddle(3))
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         triggerRestriction = Conditions.SourceIsSaddled
         val saddler = target(
             "target creature that saddled it this turn",

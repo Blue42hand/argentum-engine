@@ -26,7 +26,7 @@ val ManticoreOfTheGauntlet = card("Manticore of the Gauntlet") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target", Targets.CreatureYouControl)
         val damaged = target("target 1", Targets.OpponentOrPlaneswalker)
         effect = Effects.Composite(

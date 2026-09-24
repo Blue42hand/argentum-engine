@@ -27,7 +27,7 @@ class SettleBoundaryTest : FunSpec({
         manaCost = "{1}"
         typeLine = "Enchantment"
         triggeredAbility {
-            trigger = Triggers.YourDrawStep
+            trigger = Triggers.you.beginningOf(Step.DRAW)
             effect = Effects.GainLife(1)
         }
     }

@@ -49,7 +49,7 @@ val SelvalaEagerTrailblazer = card("Selvala, Eager Trailblazer") {
     keywords(Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.YouCastCreature
+        trigger = Triggers.you.casts(GameObjectFilter.Creature)
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

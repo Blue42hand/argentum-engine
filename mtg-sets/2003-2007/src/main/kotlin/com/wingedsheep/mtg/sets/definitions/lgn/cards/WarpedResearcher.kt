@@ -24,7 +24,7 @@ val WarpedResearcher = card("Warped Researcher") {
     oracleText = "Whenever a player cycles a card, Warped Researcher gains flying and shroud until end of turn. (It can't be the target of spells or abilities.)"
 
     triggeredAbility {
-        trigger = Triggers.AnyPlayerCycles
+        trigger = Triggers.anyPlayer.cycles()
         effect = Effects.Composite(listOf(
             Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self),
             Effects.GrantKeyword(Keyword.SHROUD, EffectTarget.Self)

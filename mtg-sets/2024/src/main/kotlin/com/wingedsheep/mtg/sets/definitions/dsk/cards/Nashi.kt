@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Nashi, Searcher in the Dark
@@ -45,7 +46,7 @@ val Nashi = card("Nashi, Searcher in the Dark") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         val damageDealt = DynamicAmounts.triggerDamageAmount()
         effect = Effects.Pipeline {
             // You mill that many cards.

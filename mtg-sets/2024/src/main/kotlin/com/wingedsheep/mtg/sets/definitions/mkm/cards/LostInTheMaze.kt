@@ -66,7 +66,7 @@ val LostInTheMaze = card("Lost in the Maze") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target = TargetCreature(optional = true, dynamicMaxCount = DynamicAmounts.castX())
         effect = Effects.TapEachTarget()
             .then(

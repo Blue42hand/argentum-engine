@@ -37,7 +37,7 @@ val DownwindAmbusher = card("Downwind Ambusher") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             // Mode 1: Target creature an opponent controls gets -1/-1 until end of turn
             mode("Target creature an opponent controls gets -1/-1 until end of turn") {

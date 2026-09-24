@@ -23,7 +23,7 @@ val WhiskerquillScribe = card("Whiskerquill Scribe") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.Valiant
+        trigger = Triggers.self.becomesTarget(byYou = true, firstTimeEachTurn = true)
         effect = Effects.May(
             effect = Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),

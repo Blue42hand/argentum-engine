@@ -26,7 +26,7 @@ val MoldDemon = card("Mold Demon") {
     oracleText = "When this creature enters, sacrifice it unless you sacrifice two Swamps."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Sacrifice(GameObjectFilter.Land.withSubtype(Subtype.SWAMP), count = 2),
             suffer = SacrificeSelfEffect,
