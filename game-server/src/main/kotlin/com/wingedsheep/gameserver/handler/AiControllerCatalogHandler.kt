@@ -123,7 +123,7 @@ class AiControllerCatalogHandler(
         }
 
         val lobby = lobbyRepository.findLobbyById(lobbyId) ?: return null
-        if (requesterId !in lobby.players) return null
+        if (!lobby.players.containsKey(requesterId)) return null
         return lobby.players
             .asSequence()
             .filter { (playerId, _) -> aiGameManager.isAiPlayer(playerId) }
