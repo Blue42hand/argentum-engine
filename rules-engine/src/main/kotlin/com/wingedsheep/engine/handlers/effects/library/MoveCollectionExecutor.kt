@@ -745,7 +745,11 @@ class MoveCollectionExecutor(
         }
 
         for (cardId in cards) {
-            val ownerId = newState.getEntity(cardId)?.get<OwnerComponent>()?.playerId ?: destPlayerId
+            // Ownership lives on OwnerComponent once a card has been minted into a zone, but a
+            // card that has only ever been library content carries it on CardComponent.
+            val ownerId = newState.getEntity(cardId)?.get<OwnerComponent>()?.playerId
+                ?: newState.getEntity(cardId)?.get<CardComponent>()?.ownerId
+                ?: destPlayerId
 
             // For MoveType.Destroy, check indestructible and regeneration before moving
             if (moveType == MoveType.Destroy) {
@@ -786,7 +790,10 @@ class MoveCollectionExecutor(
                 (moveType == MoveType.Sacrifice || moveType == MoveType.Destroy) && destZone == Zone.GRAVEYARD -> ownerId
                 destZone == Zone.HAND && fromZone == Zone.BATTLEFIELD -> ownerId
                 destZone == Zone.EXILE && fromZone == Zone.BATTLEFIELD -> ownerId
-                destZone == Zone.LIBRARY && fromZone == Zone.BATTLEFIELD -> ownerId
+                // CR 400.3: a card bound for a library always goes to its *owner's* library,
+                // whatever zone it leaves — so a mixed-owner collection moved from libraries or
+                // hands (Warp World's stranded Auras) lands in each owner's own library.
+                destZone == Zone.LIBRARY -> ownerId
                 underOwnersControl && destZone == Zone.BATTLEFIELD -> ownerId
                 else -> destPlayerId
             }

@@ -617,6 +617,7 @@ val engineSerializersModule = SerializersModule {
         subclass(AdditionalEndStepsComponent::class)
         subclass(InAdditionalEndStepComponent::class)
         subclass(CantCastSpellsComponent::class)
+        subclass(CantSearchLibrariesComponent::class)
         subclass(CantCastFromNonHandZonesComponent::class)
         subclass(CantGainLifeComponent::class)
         subclass(CantActivateLoyaltyAbilitiesComponent::class)

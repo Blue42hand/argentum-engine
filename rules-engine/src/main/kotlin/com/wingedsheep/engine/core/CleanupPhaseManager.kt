@@ -47,6 +47,7 @@ import com.wingedsheep.engine.state.components.player.AdditionalEndStepsComponen
 import com.wingedsheep.engine.state.components.player.InAdditionalEndStepComponent
 import com.wingedsheep.engine.state.components.player.CantActivateLoyaltyAbilitiesComponent
 import com.wingedsheep.engine.state.components.player.CantCastSpellsComponent
+import com.wingedsheep.engine.state.components.player.CantSearchLibrariesComponent
 import com.wingedsheep.engine.state.components.player.CantCastFromNonHandZonesComponent
 import com.wingedsheep.engine.state.components.player.CantGainLifeComponent
 import com.wingedsheep.engine.state.components.player.DamageBonusComponent
@@ -682,6 +683,10 @@ class CleanupPhaseManager(
                 val cantCast = result.get<CantCastSpellsComponent>()
                 if (cantCast?.removeOn == PlayerEffectRemoval.EndOfTurn) {
                     result = result.without<CantCastSpellsComponent>()
+                }
+                val cantSearch = result.get<CantSearchLibrariesComponent>()
+                if (cantSearch?.removeOn == PlayerEffectRemoval.EndOfTurn) {
+                    result = result.without<CantSearchLibrariesComponent>()
                 }
                 val cantCastNonHand = result.get<CantCastFromNonHandZonesComponent>()
                 if (cantCastNonHand?.removeOn == PlayerEffectRemoval.EndOfTurn) {
