@@ -989,6 +989,33 @@ data class ExhaustAbilitiesActivatedThisTurnComponent(
 ) : Component
 
 /**
+ * Number of loyalty abilities (CR 606) this player has activated during the current turn. Reset to
+ * 0 for every player at turn start by TurnManager. Backs
+ * [com.wingedsheep.sdk.scripting.values.TurnTracker.LOYALTY_ABILITIES_ACTIVATED] — "if you've
+ * activated a loyalty ability this turn" (Kiora of Salt and Sand). Unlike the per-planeswalker
+ * CR 606.3 tally on `AbilityActivatedThisTurnComponent`, this lives on the player, so it survives
+ * the planeswalker leaving the battlefield.
+ */
+@Serializable
+data class LoyaltyAbilitiesActivatedThisTurnComponent(
+    val count: Int = 0
+) : Component
+
+/**
+ * Turn-scoped permission to activate loyalty abilities of planeswalkers matching any of [filters]
+ * on any player's turn, any time this player could cast an instant (Jace's Machinations). Lifts
+ * only the sorcery-timing half of CR 606.3; the once-per-turn limit still applies. Written by
+ * [com.wingedsheep.sdk.scripting.effects.GrantInstantSpeedLoyaltyAbilitiesEffect]; grants stack
+ * by appending filters, and the component is removed whole at cleanup when [removeOn] is
+ * [PlayerEffectRemoval.EndOfTurn].
+ */
+@Serializable
+data class InstantSpeedLoyaltyGrantsComponent(
+    val filters: List<GameObjectFilter> = emptyList(),
+    val removeOn: PlayerEffectRemoval = PlayerEffectRemoval.EndOfTurn
+) : Component
+
+/**
  * Tracks the total damage dealt to a player during the current turn.
  * Includes both combat and non-combat damage. Prevented damage is not counted.
  * Cleared at end of turn by TurnManager.

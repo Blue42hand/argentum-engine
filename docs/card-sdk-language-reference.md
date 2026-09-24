@@ -2352,6 +2352,15 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `CantActivateLoyaltyAbilitiesEffect(target, duration)` — target can't activate planeswalkers' loyalty abilities.
   Facade: `Effects.CantActivateLoyaltyAbilities(target, duration)`. Sibling of `CantCastSpells`; compose the two for
   cards that forbid both (e.g. Revel in Silence).
+- `GrantInstantSpeedLoyaltyAbilitiesEffect(target, planeswalkerFilter, duration)` — the permissive mirror: target
+  may activate loyalty abilities of planeswalkers matching `planeswalkerFilter` on any player's turn, any time they
+  could cast an instant, for `duration` (default `EndOfTurn`). Facade:
+  `Effects.InstantSpeedLoyaltyAbilities(planeswalkerFilter, duration, target)`. Lifts only the timing half of
+  CR 606.3 — each permanent's one-loyalty-activation-per-turn limit still applies. A resolution-time one-shot that
+  records the grant on the player (`InstantSpeedLoyaltyGrantsComponent`, removed at cleanup), so it outlives the
+  instant that made it; the filter is matched on projected state against the ability's source when the ability is
+  offered and when it is activated, so a Jace that enters later that turn is covered. **Jace's Machinations**:
+  `planeswalkerFilter = GameObjectFilter.Planeswalker.withSubtype("Jace").youControl()`.
 
 ### Forced sacrifice / discard
 
@@ -5867,6 +5876,11 @@ Named sugar for the common type-primitive cases; reach for `youCastSpell(...)` p
   **loyalty ability** (CR 606): `AbilityActivatedEvent(requireLoyalty = true)`, matched against the
   activation event's `isLoyalty` flag (set from `ActivatedAbility.isPlaneswalkerAbility`). Way of the
   Paradox, Gideon the Oathless — "that player" is `EffectTarget.PlayerRef(Player.TriggeringPlayer)`.
+- `YouActivateLoyaltyAbilityRemovingAtLeast(n)` — "whenever you activate a loyalty ability, if you removed
+  *n* or more loyalty counters to activate it" (Way of the Mind Sculptor):
+  `AbilityActivatedEvent(requireLoyalty = true, minLoyaltyRemoved = n)`, matched against the activation
+  event's `loyaltyCountersRemoved` — N for a [−N] cost (CR 606.4), the chosen X for [−X], 0 for [+N] / [0].
+  The count is fixed once the cost is paid, so matching it on the event is the same as the CR 603.4 recheck.
 - `YouActivateNonManaExhaustAbility` — the same, but with the "that isn't a mana ability" clause
   (`EventPattern.AbilityActivatedEvent(requireExhaust = true, excludeManaAbilities = true)`). Pit Automaton's
   Oracle text was updated on release to add that clause so its copy payoff can't latch onto a mana ability;
@@ -8723,6 +8737,10 @@ copy of it (CR 707.10e). The activated-ability analogue of the spell-level `cant
   Uses the ordinary server X picker and the same sorcery-speed / per-turn loyalty restrictions
   as fixed costs. Spending all loyalty is legal; the ability still resolves after its source leaves.
   The client ability menu receives `loyaltyX = true` and renders −X. Chandra Nalaar uses this shape.
+- Inside either builder, `restrictions = listOf(ActivationRestriction.OnlyIfCondition(...))` adds an
+  "Activate only if …" gate on top of the loyalty rules — Jace, Reality Sculptor's 0 ("only if there are
+  twenty-five or more loyalty counters among Jaces you control") is
+  `Conditions.CounterKindAmongYouControlAtLeast(25, CounterTypeFilter.Loyalty, Planeswalker.withSubtype("Jace"))`.
 - `grantedLoyaltyAbility(±N) { ... }` — top-level builder that *returns* a loyalty ability instead of
   adding it to the card, for "Planeswalkers you control have '[−4]: …'" — pass it to
   `GrantActivatedAbility(ability, GroupFilter(GameObjectFilter.Planeswalker.youControl()))` (Way of the
@@ -10617,6 +10635,10 @@ default to "you" so card authors don't need to pass it explicitly.
   `ExhaustAbilitiesActivatedThisTurnComponent` (bumped at activation time, so a countered exhaust ability
   still counts; reset for all players at turn start). Gates Elvish Refueler's
   `ExtraOnceOnlyActivations`.
+- `YouActivatedLoyaltyAbilityThisTurn(atLeast = 1, player = Player.You)` — "if you've activated a loyalty
+  ability this turn" (Kiora of Salt and Sand). A `Compare` over
+  `TurnTracking(player, TurnTracker.LOYALTY_ABILITIES_ACTIVATED)`: turn history on the player, so it stays
+  true after that planeswalker dies or the ability is countered.
 - `TriggeringSpellMatches(filter)` — intervening-if guard: the spell that triggered this ability
   matches `filter`. Reads the triggering entity's static card characteristics (so it stays correct
   after the spell leaves the stack). General "whenever you cast a spell, if it's a/an X ..." gate.
@@ -11933,6 +11955,10 @@ this turn").
   `Conditions.YouHadNoCardsInHandAtTurnStart`, which backs **Mindstorm Crown**. Do not reach for
   `Conditions.EmptyHand` for these wordings: that reads the hand *now*, and resolves differently on
   any turn where something touched the hand before the upkeep.
+- `LOYALTY_ABILITIES_ACTIVATED` — how many loyalty abilities (CR 606) the player activated this turn,
+  counted at activation (CR 602.2) on the per-player `LoyaltyAbilitiesActivatedThisTurnComponent` and reset
+  for every player at turn start. Wrapped by `Conditions.YouActivatedLoyaltyAbilityThisTurn` (Kiora of Salt
+  and Sand).
 - `RED_NONCOMBAT_DAMAGE_DEALT` — total noncombat damage red sources a player controlled dealt this turn
   (controller-scoped). Backed by the per-player `RedNoncombatDamageDealtThisTurnComponent`, incremented in
   `DamageUtils.dealDamageToTarget` on the source's controller whenever a red source deals positive noncombat

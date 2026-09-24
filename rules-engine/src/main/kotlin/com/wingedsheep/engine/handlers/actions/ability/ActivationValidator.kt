@@ -350,7 +350,11 @@ internal class ActivationValidator(
         if (state.getEntity(action.playerId)?.has<CantActivateLoyaltyAbilitiesComponent>() == true) {
             return "You can't activate loyalty abilities this turn"
         }
-        if (!turnManager.canPlaySorcerySpeed(state, action.playerId)) {
+        // CR 606.3 — sorcery timing, unless an instant-speed grant (Jace's Machinations) covers
+        // this planeswalker. Priority itself is already required to activate at all.
+        if (!turnManager.canPlaySorcerySpeed(state, action.playerId) &&
+            !castPermissionUtils.canActivateLoyaltyAtInstantSpeed(state, action.playerId, action.sourceId)
+        ) {
             return "Loyalty abilities can only be activated at sorcery speed"
         }
         // Rule 606.3: Only one loyalty ability per planeswalker per turn
