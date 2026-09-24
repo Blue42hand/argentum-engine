@@ -111,6 +111,29 @@ class ChantOfVituGhaziScenarioTest : FunSpec({
         d.assertLifeTotal(p1, 23)
     }
 
+    test("with a damage doubler, the life gained is the doubled damage actually prevented") {
+        val d = driver()
+        val p1 = d.activePlayer!!
+        val p2 = d.getOpponent(p1)
+        d.passPriorityUntil(Step.PRECOMBAT_MAIN)
+
+        d.putPermanentOnBattlefield(p1, "Gratuitous Violence")
+        val giant = d.putCreatureOnBattlefield(p1, "Hill Giant")
+        d.removeSummoningSickness(giant)
+
+        d.castChant(p1)
+
+        d.passPriorityUntil(Step.DECLARE_ATTACKERS)
+        d.declareAttackers(p1, listOf(giant), p2)
+        d.bothPass()
+        d.declareNoBlockers(p2)
+        d.passPriorityUntil(Step.POSTCOMBAT_MAIN)
+
+        // Hill Giant would deal 3 doubled to 6; all 6 is prevented and gained.
+        d.assertLifeTotal(p2, 20)
+        d.assertLifeTotal(p1, 26)
+    }
+
     test("without the Chant, creature damage is dealt normally") {
         val d = driver()
         val p1 = d.activePlayer!!

@@ -929,8 +929,13 @@ internal class CombatDamageManager(
             val (controllerId, gainsLife) = DamageUtils.groupPreventionShieldController(
                 state, assignment.sourceId, isCombatDamage = true
             ) ?: return@filter true
-            if (gainsLife && assignment.amount > 0) {
-                gainsByController[controllerId] = (gainsByController[controllerId] ?: 0) + assignment.amount
+            // Credit what would actually have been dealt — after the same static amplification
+            // (Furnace of Rath and friends) the apply phase would have run — not the raw power.
+            val prevented = DamageUtils.applyStaticDamageAmplification(
+                state, assignment.targetId, assignment.amount, assignment.sourceId, isCombatDamage = true
+            )
+            if (gainsLife && prevented > 0) {
+                gainsByController[controllerId] = (gainsByController[controllerId] ?: 0) + prevented
             }
             false
         }
