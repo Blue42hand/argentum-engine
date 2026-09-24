@@ -19,7 +19,7 @@ import io.kotest.matchers.shouldBe
  *
  * Covers the source-filtered damage-to-you trigger
  * ([com.wingedsheep.sdk.dsl.Triggers.damageDealtToYou]) — a shape that previously routed into the
- * general observer index, where `RecipientFilter.You` never matches, so the ability never fired.
+ * general observer index, where `Recipient.You` never matches, so the ability never fired.
  */
 class FarsightMaskScenarioTest : FunSpec({
 

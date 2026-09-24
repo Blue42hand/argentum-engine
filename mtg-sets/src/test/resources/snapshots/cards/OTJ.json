@@ -651,7 +651,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",
@@ -5542,13 +5545,16 @@
                 "trigger": {
                     "type": "AbilityActivatedEvent",
                     "targetMatch": {
-                        "type": "AbilityTargetAnyOf",
+                        "type": "RecipientAnyOf",
                         "options": [
                             {
-                                "type": "AbilityTargetObjectMatching",
+                                "type": "RecipientObject",
                                 "filter": "creature"
                             },
-                            "AbilityTargetAnyPlayer"
+                            {
+                                "type": "RecipientPlayer",
+                                "player": "Any"
+                            }
                         ]
                     }
                 },
@@ -7701,7 +7707,10 @@
                             "event": {
                                 "type": "DealsDamageEvent",
                                 "damageType": "DamageCombat",
-                                "recipient": "AnyPlayer",
+                                "recipient": {
+                                    "type": "RecipientPlayer",
+                                    "player": "Any"
+                                },
                                 "sourceFilter": "creature ctrl:you"
                             }
                         },
@@ -12193,7 +12202,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "DrawCards",
@@ -12389,7 +12401,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "AddAdditionalUpkeepSteps",
@@ -16581,7 +16596,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",
@@ -18450,7 +18468,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageNonCombat",
-                    "recipient": "AnyCreature",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": "creature"
+                    },
                     "sourceFilter": "ctrl:you"
                 },
                 "binding": "ANY",
@@ -18765,7 +18786,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -18884,7 +18908,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "binding": "ATTACHED",
                 "effect": {
@@ -19590,7 +19617,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -19809,7 +19839,10 @@
                             "trigger": {
                                 "type": "DealsDamageEvent",
                                 "damageType": "DamageCombat",
-                                "recipient": "AnyPlayer"
+                                "recipient": {
+                                    "type": "RecipientPlayer",
+                                    "player": "Any"
+                                }
                             },
                             "effect": {
                                 "type": "DrawCards",
@@ -20674,7 +20707,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": {
                         "cardPredicates": [
                             "IsCreature",

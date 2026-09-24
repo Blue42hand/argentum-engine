@@ -7477,7 +7477,10 @@
                         "trigger": {
                             "type": "DealsDamageEvent",
                             "damageType": "DamageCombat",
-                            "recipient": "AnyPlayer",
+                            "recipient": {
+                                "type": "RecipientPlayer",
+                                "player": "Any"
+                            },
                             "sourceFilter": "creature ctrl:you"
                         },
                         "binding": "ANY",
@@ -16765,7 +16768,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -19133,7 +19139,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -19223,7 +19232,10 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "DealsDamageEvent",
-                    "recipient": "RecipientOpponent"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "EachOpponent"
+                    }
                 },
                 "effect": {
                     "type": "DrawCards",

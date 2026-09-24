@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -28,7 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * A pared-down Umezawa's Jitte. The combat-damage trigger binds to the equipped creature
  * ([TriggerBinding.ATTACHED]) and fires on any combat damage (player or creature,
- * [RecipientFilter.Any]); it places a charge counter on the Equipment itself
+ * [Recipient.Any]); it places a charge counter on the Equipment itself
  * ([EffectTarget.Self]). The activated ability has no mana cost — only the
  * remove-a-charge-counter cost — and resolves a [ModalEffect.chooseOne] over the three
  * printed modes, two of which carry their own per-mode target.
@@ -48,7 +48,7 @@ val LostJitte = card("Lost Jitte") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             damageType = DamageType.Combat,
-            recipient = RecipientFilter.Any,
+            recipient = Recipient.Any,
             binding = TriggerBinding.ATTACHED
         )
         effect = Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)

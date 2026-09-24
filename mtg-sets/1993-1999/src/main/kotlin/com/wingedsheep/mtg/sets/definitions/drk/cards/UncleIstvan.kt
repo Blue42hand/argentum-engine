@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PreventDamage
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.SourceFilter
 
 /**
@@ -32,7 +32,7 @@ val UncleIstvan = card("Uncle Istvan") {
         PreventDamage(
             amount = null,
             appliesTo = EventPattern.DamageEvent(
-                recipient = RecipientFilter.Self,
+                recipient = Recipient.Self,
                 source = SourceFilter.Matching(GameObjectFilter.Creature)
             )
         )

@@ -110,7 +110,7 @@ fun CardBuilder.startYourEngines() {
  *             modifier = 1,
  *             appliesTo = EventPattern.DamageEvent(
  *                 source = SourceFilter.YouControl,
- *                 recipient = RecipientFilter.OpponentOrPermanentTheyControl,
+ *                 recipient = Recipient.OpponentOrPermanentTheyControl,
  *             ),
  *         )
  *     )

@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
 import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -48,7 +48,7 @@ val NafsAsp = card("Nafs Asp") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             damageType = DamageType.Any,
-            recipient = RecipientFilter.AnyPlayer
+            recipient = Recipient.AnyPlayer
         )
         effect = CreateDelayedTriggerEffect(
             step = Step.DRAW,

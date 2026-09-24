@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.ReplaceDamageWithCounters
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.SourceFilter
 
 /**
@@ -43,7 +43,7 @@ val SzadekLordOfSecrets = card("Szadek, Lord of Secrets") {
         ReplaceDamageWithCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
             appliesTo = EventPattern.DamageEvent(
-                recipient = RecipientFilter.AnyPlayer,
+                recipient = Recipient.AnyPlayer,
                 source = SourceFilter.Self,
                 damageType = DamageType.Combat,
             ),

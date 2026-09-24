@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -44,7 +44,7 @@ val MassacreGirlMostWanted = card("Massacre Girl, Most Wanted") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             damageType = DamageType.NonCombat,
-            recipient = RecipientFilter.Opponent,
+            recipient = Recipient.Opponent,
             binding = TriggerBinding.ANY,
         )
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)

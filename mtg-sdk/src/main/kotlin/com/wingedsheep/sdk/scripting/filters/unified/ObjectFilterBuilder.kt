@@ -693,7 +693,7 @@ interface ObjectFilterBuilder<out Self> {
      * Must NOT be the effect's source permanent — the negation of [sourceItself], and the
      * [GameObjectFilter] counterpart of `GroupFilter`/`TargetFilter`'s `excludeSelf`. Needed
      * wherever "other [permanents]" has to be expressed as a bare `GameObjectFilter` rather
-     * than a group/target filter — e.g. a `RecipientFilter.Matching` on a damage replacement
+     * than a group/target filter — e.g. a `Recipient.Object` on a damage replacement
      * ("prevent all noncombat damage that would be dealt to *other* creatures you control",
      * Crystal Barricade).
      */

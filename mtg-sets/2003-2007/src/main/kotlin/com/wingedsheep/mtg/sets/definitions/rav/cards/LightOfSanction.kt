@@ -4,7 +4,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.PreventDamage
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.SourceFilter
 
 /**
@@ -15,7 +15,7 @@ import com.wingedsheep.sdk.scripting.events.SourceFilter
  * Prevent all damage that would be dealt to creatures you control by sources you control.
  *
  * One [PreventDamage] replacement with both halves of the sentence filled in: recipients are
- * [RecipientFilter.CreatureYouControl] and sources are [SourceFilter.YouControl]. Both "you"s are
+ * [Recipient.CreatureYouControl] and sources are [SourceFilter.YouControl]. Both "you"s are
  * the enchantment's *current* controller, re-read per damage instance, so creatures that come under
  * your control later are covered and creatures that leave it stop being.
  *
@@ -34,7 +34,7 @@ val LightOfSanction = card("Light of Sanction") {
         PreventDamage(
             amount = null,
             appliesTo = EventPattern.DamageEvent(
-                recipient = RecipientFilter.CreatureYouControl,
+                recipient = Recipient.CreatureYouControl,
                 source = SourceFilter.YouControl
             )
         )

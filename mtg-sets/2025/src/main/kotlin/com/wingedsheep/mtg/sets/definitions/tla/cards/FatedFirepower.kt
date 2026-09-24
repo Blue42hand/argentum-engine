@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.ModifyDamageAmount
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -30,7 +30,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * `dynamicModifier` reads this enchantment's own fire-counter count
  * ([DynamicAmounts.countersOnSelf]); the [EventPattern.DamageEvent] scopes it to a source
  * the controller owns ([SourceFilter.YouControl]) dealing damage to an opponent or a
- * permanent an opponent controls ([RecipientFilter.OpponentOrPermanentTheyControl]).
+ * permanent an opponent controls ([Recipient.OpponentOrPermanentTheyControl]).
  */
 val FatedFirepower = card("Fated Firepower") {
     manaCost = "{X}{R}{R}{R}"
@@ -59,7 +59,7 @@ val FatedFirepower = card("Fated Firepower") {
             dynamicModifier = DynamicAmounts.countersOnSelf(CounterType.FIRE),
             appliesTo = EventPattern.DamageEvent(
                 source = SourceFilter.YouControl,
-                recipient = RecipientFilter.OpponentOrPermanentTheyControl
+                recipient = Recipient.OpponentOrPermanentTheyControl
             )
         )
     )

@@ -8975,7 +8975,10 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "DealsDamageEvent",
-                    "recipient": "AnyCreature",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": "creature"
+                    },
                     "sourceFilter": "instant|sorcery ctrl:you",
                     "requires": [
                         "DamageSourceSoleTargetIsRecipient"
@@ -14087,7 +14090,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -14723,7 +14729,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "CreatePredefinedToken",
@@ -20100,7 +20109,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageNonCombat",
-                    "recipient": "RecipientOpponent",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "EachOpponent"
+                    },
                     "sourceFilter": "ctrl:you"
                 },
                 "binding": "ANY",

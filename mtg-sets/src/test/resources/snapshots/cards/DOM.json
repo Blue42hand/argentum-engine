@@ -6790,7 +6790,10 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "DealsDamageEvent",
-                    "recipient": "CreatureOpponentControls"
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": "creature ctrl:opponent"
+                    }
                 },
                 "binding": "ANY",
                 "effect": {
@@ -10482,7 +10485,14 @@
                 "amount": 2,
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientEquippedCreature"
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": {
+                            "statePredicates": [
+                                "IsAttachedToBySource"
+                            ]
+                        }
+                    }
                 }
             }
         ]
@@ -13528,7 +13538,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -14212,7 +14225,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",

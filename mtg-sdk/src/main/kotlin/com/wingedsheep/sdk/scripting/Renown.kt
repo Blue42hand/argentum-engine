@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.BecomeRenownedEffect
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -74,7 +74,7 @@ object Renown {
             id = AbilityId(if (instance == 0) ABILITY_ID_PREFIX else "${ABILITY_ID_PREFIX}_$instance"),
             trigger = EventPattern.DealsDamageEvent(
                 damageType = DamageType.Combat,
-                recipient = RecipientFilter.AnyPlayer,
+                recipient = Recipient.AnyPlayer,
             ),
             binding = TriggerBinding.SELF,
             activeZones = setOf(Zone.BATTLEFIELD),

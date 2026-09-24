@@ -1568,7 +1568,7 @@ data class ActiveCounterPlacementModifier(
     val modifier: Int,
     val controllerId: EntityId,
     val counterType: com.wingedsheep.sdk.core.CounterType,
-    val recipient: com.wingedsheep.sdk.scripting.events.RecipientFilter,
+    val recipient: com.wingedsheep.sdk.scripting.events.Recipient,
     val duration: com.wingedsheep.sdk.scripting.Duration,
 )
 

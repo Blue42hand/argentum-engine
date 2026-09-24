@@ -867,7 +867,7 @@ data class ModifyCounterPlacement(
     val modifier: Int,
     override val appliesTo: EventPattern = EventPattern.CounterPlacementEvent(
         counterType = CounterType.PLUS_ONE_PLUS_ONE,
-        recipient = RecipientFilter.CreatureYouControl
+        recipient = Recipient.CreatureYouControl
     )
 ) : ReplacementEffect
 
@@ -891,7 +891,7 @@ serialize the state even when a replacement choice is pending.
   points mirrors the rules naturally.
 - **Composability.** The `appliesTo` field uses the same `EventPattern` pattern system as trigger
   conditions. A replacement effect that applies to "damage dealt to creatures you control" reuses
-  the same predicate composition as a trigger that fires on the same event — `RecipientFilter`,
+  the same predicate composition as a trigger that fires on the same event — `Recipient`,
   `SourceFilter`, and `DamageType` are shared between both systems.
 
 **Ordering multiple replacement effects (Rule 616.1).** When multiple replacement effects would apply

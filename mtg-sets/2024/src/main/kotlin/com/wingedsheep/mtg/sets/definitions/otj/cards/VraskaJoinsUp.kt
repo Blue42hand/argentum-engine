@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -47,7 +47,7 @@ val VraskaJoinsUp = card("Vraska Joins Up") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             damageType = DamageType.Combat,
-            recipient = RecipientFilter.AnyPlayer,
+            recipient = Recipient.AnyPlayer,
             sourceFilter = GameObjectFilter.Creature.legendary().youControl(),
             binding = TriggerBinding.ANY
         )

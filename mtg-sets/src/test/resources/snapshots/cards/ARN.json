@@ -624,7 +624,7 @@
                 "appliesTo": {
                     "type": "DamageEvent",
                     "recipient": {
-                        "type": "RecipientMatching",
+                        "type": "RecipientObject",
                         "filter": {
                             "statePredicates": [
                                 "InSameBandAsSource"
@@ -1141,7 +1141,14 @@
                 "type": "PreventDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientSelf",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": {
+                            "statePredicates": [
+                                "IsSource"
+                            ]
+                        }
+                    },
                     "source": {
                         "type": "SourceMatching",
                         "filter": "land Desert"
@@ -3083,7 +3090,10 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "DealsDamageEvent",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "CreateDelayedTrigger",

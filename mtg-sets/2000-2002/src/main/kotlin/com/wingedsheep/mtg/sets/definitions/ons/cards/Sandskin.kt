@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.PreventDamage
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.SourceFilter
 
 /**
@@ -29,7 +29,7 @@ val Sandskin = card("Sandskin") {
         PreventDamage(
             amount = null,
             appliesTo = EventPattern.DamageEvent(
-                recipient = RecipientFilter.EnchantedCreature,
+                recipient = Recipient.EnchantedCreature,
                 damageType = DamageType.Combat
             )
         )

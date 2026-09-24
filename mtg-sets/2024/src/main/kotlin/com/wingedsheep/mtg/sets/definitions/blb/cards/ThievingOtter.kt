@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.scripting.EventPattern.DealsDamageEvent
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Thieving Otter
@@ -29,7 +29,7 @@ val ThievingOtter = card("Thieving Otter") {
         trigger = TriggerSpec(
             event = DealsDamageEvent(
                 damageType = DamageType.Any,
-                recipient = RecipientFilter.Opponent
+                recipient = Recipient.Opponent
             ),
             binding = TriggerBinding.SELF
         )

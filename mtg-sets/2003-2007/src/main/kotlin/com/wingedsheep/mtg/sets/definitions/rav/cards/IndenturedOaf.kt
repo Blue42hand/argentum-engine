@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PreventDamage
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.SourceFilter
 
 /**
@@ -36,7 +36,7 @@ val IndenturedOaf = card("Indentured Oaf") {
         PreventDamage(
             amount = null,
             appliesTo = EventPattern.DamageEvent(
-                recipient = RecipientFilter.Matching(GameObjectFilter.Creature.withColor(Color.RED)),
+                recipient = Recipient.Object(GameObjectFilter.Creature.withColor(Color.RED)),
                 source = SourceFilter.Self
             )
         )

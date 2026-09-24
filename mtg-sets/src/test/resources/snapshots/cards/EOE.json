@@ -7392,7 +7392,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "DrawCards",
@@ -8786,7 +8789,7 @@
                 "appliesTo": {
                     "type": "CounterPlacementEvent",
                     "recipient": {
-                        "type": "RecipientMatching",
+                        "type": "RecipientObject",
                         "filter": {
                             "cardPredicates": [
                                 {
@@ -14868,7 +14871,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": "creature ctrl:you"
                 },
                 "binding": "ANY",
@@ -18522,7 +18528,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": "creature artifact nontoken ctrl:you"
                 },
                 "binding": "ANY",

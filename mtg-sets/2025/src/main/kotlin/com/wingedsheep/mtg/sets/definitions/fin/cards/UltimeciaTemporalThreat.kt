@@ -12,7 +12,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -42,7 +42,7 @@ val UltimeciaTemporalThreat = card("Ultimecia, Temporal Threat") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             DamageType.Combat,
-            RecipientFilter.AnyPlayer,
+            Recipient.AnyPlayer,
             sourceFilter = GameObjectFilter.Creature.youControl(),
             binding = TriggerBinding.ANY
         )

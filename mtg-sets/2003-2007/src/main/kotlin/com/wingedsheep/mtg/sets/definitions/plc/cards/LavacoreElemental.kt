@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -41,7 +41,7 @@ val LavacoreElemental = card("Lavacore Elemental") {
         trigger = TriggerSpec(
             event = EventPattern.DealsDamageEvent(
                 damageType = DamageType.Combat,
-                recipient = RecipientFilter.AnyPlayer,
+                recipient = Recipient.AnyPlayer,
                 sourceFilter = GameObjectFilter.Creature.youControl()
             ),
             binding = TriggerBinding.ANY

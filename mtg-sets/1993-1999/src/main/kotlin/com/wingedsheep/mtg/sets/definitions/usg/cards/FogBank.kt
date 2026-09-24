@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.PreventDamage
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.SourceFilter
 
 /**
@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.events.SourceFilter
  * Prevent all combat damage that would be dealt to and dealt by this creature.
  *
  * Modeled as two static prevention replacement effects — the combat-damage twin of
- * Sandskin, but source-relative ([RecipientFilter.Self] / [SourceFilter.Self]) rather
+ * Sandskin, but source-relative ([Recipient.Self] / [SourceFilter.Self]) rather
  * than aura-relative.
  */
 val FogBank = card("Fog Bank") {
@@ -39,7 +39,7 @@ val FogBank = card("Fog Bank") {
         PreventDamage(
             amount = null,
             appliesTo = EventPattern.DamageEvent(
-                recipient = RecipientFilter.Self,
+                recipient = Recipient.Self,
                 damageType = DamageType.Combat
             )
         )

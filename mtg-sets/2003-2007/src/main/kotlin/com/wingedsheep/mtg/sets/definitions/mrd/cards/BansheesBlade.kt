@@ -27,7 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * accrue and follows the Blade when it moves.
  *
  * The counter trigger is [TriggerBinding.ATTACHED] over a combat [DamageType] with the default
- * `RecipientFilter.Any` — the printed text says "deals combat damage", full stop, so damage to a
+ * `Recipient.Any` — the printed text says "deals combat damage", full stop, so damage to a
  * blocking creature counts exactly as much as damage to a player. Counters live on the Equipment
  * and are untouched by unattaching or re-equipping (2004 ruling); nothing here reads the creature,
  * so that falls out for free.

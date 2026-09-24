@@ -26,7 +26,7 @@ import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -803,7 +803,7 @@ class CardDslTest : DescribeSpec({
                 modifier = 1,
                 appliesTo = EventPattern.CounterPlacementEvent(
                     counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                    recipient = RecipientFilter.CreatureYouControl
+                    recipient = Recipient.CreatureYouControl
                 )
             )
             counterAdder.modifier shouldBe 1
@@ -827,11 +827,11 @@ class CardDslTest : DescribeSpec({
 
             // Combat damage from red sources to creatures you control
             val damageFilter = EventPattern.DamageEvent(
-                recipient = RecipientFilter.CreatureYouControl,
+                recipient = Recipient.CreatureYouControl,
                 source = SourceFilter.HasColor(com.wingedsheep.sdk.core.Color.RED),
                 damageType = DamageType.Combat
             )
-            damageFilter.recipient shouldBe RecipientFilter.CreatureYouControl
+            damageFilter.recipient shouldBe Recipient.CreatureYouControl
             damageFilter.damageType shouldBe DamageType.Combat
         }
 

@@ -11,6 +11,7 @@ import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.components.stack.captureLastKnown
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.DamageComponent
 import com.wingedsheep.engine.state.components.battlefield.DealtCombatDamageToPlayersThisTurnComponent
@@ -1248,7 +1249,8 @@ internal class CombatDamageManager(
         val defaultName = if (counterType == com.wingedsheep.sdk.core.CounterType.LOYALTY) "Planeswalker" else "Battle"
         val targetName = newState.getEntity(targetId)?.get<CardComponent>()?.name ?: defaultName
         events.add(DamageDealtEvent(sourceId, targetId, amount, true,
-            sourceName = sourceName, targetName = targetName, targetIsPlayer = false))
+            sourceName = sourceName, targetName = targetName, targetIsPlayer = false,
+            targetLastKnown = captureLastKnown(state, targetId)))
         val removed = amount.coerceAtMost(currentCount)
         if (counterType == com.wingedsheep.sdk.core.CounterType.LOYALTY) {
             events.add(LoyaltyChangedEvent(targetId, targetName, -removed))
@@ -1473,15 +1475,13 @@ internal class CombatDamageManager(
             val sourceName = newState.getEntity(sourceId)?.get<CardComponent>()?.name ?: "Creature"
             val targetName = newState.getEntity(targetId)?.get<CardComponent>()?.name ?: "Creature"
             val targetIsFaceDown = newState.getEntity(targetId)?.has<FaceDownComponent>() == true
-            // Capture the recipient's controller + creature-ness now, while it's still on the
-            // battlefield. Combat-damage SBAs strip the dead creature's ControllerComponent
-            // before trigger detection, so recipient-based triggers ("a creature you control /
-            // an opponent controls is dealt damage") rely on this LKI to still match (CR 603.10).
-            val targetControllerId = projected.getController(targetId)
-            val targetWasCreature = projected.isCreature(targetId)
+            // Capture the recipient as it is now, while it's still on the battlefield. Combat-damage
+            // SBAs move a dead creature (and sweep a dead token) before trigger detection, so
+            // recipient-based triggers ("a creature you control / an opponent controls is dealt
+            // damage") rely on this last-known information to still match (CR 603.10).
             events.add(DamageDealtEvent(sourceId, targetId, amount, true,
                 sourceName = sourceName, targetName = targetName, targetIsPlayer = false, targetWasFaceDown = targetIsFaceDown,
-                targetControllerId = targetControllerId, targetWasCreature = targetWasCreature, excessAmount = excess))
+                targetLastKnown = captureLastKnown(newState, targetId), excessAmount = excess))
         }
 
         return newState

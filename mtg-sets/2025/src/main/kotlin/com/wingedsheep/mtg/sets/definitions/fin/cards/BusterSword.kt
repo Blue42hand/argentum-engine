@@ -17,7 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -34,7 +34,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * Composed from existing primitives (the Glamdring / Press the Enemy free-cast shape):
  *   1. [ModifyStats] +3/+2 on [Filters.EquippedCreature].
- *   2. A [DamageType.Combat] / [RecipientFilter.AnyPlayer] trigger bound to the equipped
+ *   2. A [DamageType.Combat] / [Recipient.AnyPlayer] trigger bound to the equipped
  *      creature ([TriggerBinding.ATTACHED]). "That damage" is captured from the triggering
  *      event via [ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT] *before* the draw (so the drawn
  *      card can't change the cap), then: draw a card → gather nonland cards from your hand
@@ -58,7 +58,7 @@ val BusterSword = card("Buster Sword") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             damageType = DamageType.Combat,
-            recipient = RecipientFilter.AnyPlayer,
+            recipient = Recipient.AnyPlayer,
             binding = TriggerBinding.ATTACHED
         )
         effect = Effects.Composite(

@@ -2334,7 +2334,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "DrawCards",
@@ -2605,7 +2608,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -5085,7 +5091,10 @@
                 "type": "ModifyCounterPlacement",
                 "appliesTo": {
                     "type": "CounterPlacementEvent",
-                    "recipient": "PermanentYouControl"
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": "permanent ctrl:you"
+                    }
                 },
                 "placedByYou": true
             }
@@ -7438,7 +7447,19 @@
                 },
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "OpponentOrPermanentTheyControl",
+                    "recipient": {
+                        "type": "RecipientAnyOf",
+                        "options": [
+                            {
+                                "type": "RecipientPlayer",
+                                "player": "EachOpponent"
+                            },
+                            {
+                                "type": "RecipientObject",
+                                "filter": "permanent ctrl:opponent"
+                            }
+                        ]
+                    },
                     "source": "SourceYouControl",
                     "damageType": "DamageNonCombat"
                 }
@@ -8921,7 +8942,10 @@
                     "id": "ability_2",
                     "trigger": {
                         "type": "DealsDamageEvent",
-                        "recipient": "CreatureYouControl"
+                        "recipient": {
+                            "type": "RecipientObject",
+                            "filter": "creature ctrl:you"
+                        }
                     },
                     "binding": "ANY",
                     "effect": {
@@ -9703,7 +9727,10 @@
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
-                        "recipient": "AnyPlayer"
+                        "recipient": {
+                            "type": "RecipientPlayer",
+                            "player": "Any"
+                        }
                     },
                     "effect": {
                         "type": "DrawCards",
@@ -9720,7 +9747,14 @@
                     "type": "PreventDamage",
                     "appliesTo": {
                         "type": "DamageEvent",
-                        "recipient": "RecipientSelf"
+                        "recipient": {
+                            "type": "RecipientObject",
+                            "filter": {
+                                "statePredicates": [
+                                    "IsSource"
+                                ]
+                            }
+                        }
                     }
                 }
             ]
@@ -18455,7 +18489,10 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "DealsDamageEvent",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": "Hero ctrl:you",
                     "batch": true
                 },

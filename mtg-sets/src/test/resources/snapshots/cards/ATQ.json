@@ -192,7 +192,14 @@
                 "type": "PreventDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientSelf",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": {
+                            "statePredicates": [
+                                "IsSource"
+                            ]
+                        }
+                    },
                     "source": {
                         "type": "SourceMatching",
                         "filter": "artifact creature"
@@ -229,7 +236,14 @@
                 "type": "PreventDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientSelf",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": {
+                            "statePredicates": [
+                                "IsSource"
+                            ]
+                        }
+                    },
                     "source": {
                         "type": "SourceMatching",
                         "filter": "artifact"
@@ -455,7 +469,14 @@
                 "type": "PreventDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientEnchantedCreature",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": {
+                            "statePredicates": [
+                                "IsAttachedToBySource"
+                            ]
+                        }
+                    },
                     "source": {
                         "type": "SourceMatching",
                         "filter": "artifact"
@@ -2211,7 +2232,10 @@
                 "redirectTo": "Self",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "You",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "You"
+                    },
                     "source": {
                         "type": "SourceMatching",
                         "filter": "artifact"

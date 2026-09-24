@@ -13,7 +13,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.SourceFilter
 
 /**
@@ -130,8 +130,8 @@ class DamageTriggerDetector(
         for (ability in abilities) {
             val trigger = ability.trigger
             if (trigger is EventPattern.DealsDamageEvent && ability.binding == TriggerBinding.SELF) {
-                // Pass the ability's controller so RecipientFilter.Matching can evaluate
-                // controller-relative recipient filters (e.g. "a creature an opponent controls").
+                // Pass the ability's controller and source so the recipient's relative readings
+                // ("a creature an opponent controls", "enchanted player") resolve against them.
                 if (matcher.matchesDealsDamageTrigger(trigger, event, state, controllerId, sourceId)) {
                     triggers.add(
                         PendingTrigger(
@@ -247,7 +247,7 @@ class DamageTriggerDetector(
             for (ability in entry.abilities) {
                 val trigger = ability.trigger
                 if (trigger is EventPattern.DealsDamageEvent &&
-                    trigger.recipient == RecipientFilter.You &&
+                    trigger.recipient == Recipient.You &&
                     ability.binding == TriggerBinding.ANY &&
                     matchesDamageType(trigger.damageType, event) &&
                     matcher.matchesDamageSourceFilter(
@@ -447,7 +447,7 @@ class DamageTriggerDetector(
                 val trigger = ability.trigger
                 if (trigger is EventPattern.DealsDamageEvent &&
                     trigger.damageType == DamageType.Combat &&
-                    trigger.recipient == RecipientFilter.AnyPlayer &&
+                    trigger.recipient == Recipient.AnyPlayer &&
                     trigger.sourceFilter != null) {
                     // Check if the sourceFilter has a subtype requirement
                     val filter = trigger.sourceFilter

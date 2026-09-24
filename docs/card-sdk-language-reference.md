@@ -1576,7 +1576,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   duration-scoped, controller-scoped** counter-placement modifier: the activated/spell-granted analogue of the
   static `ModifyCounterPlacement` replacement (Hardened Scales). While active, if the *controller* of the effect
   would put `counterType` counters (default `+1/+1`) on a recipient matching `recipient` (default
-  `RecipientFilter.CreatureYouControl`, resolved relative to that controller), `modifier` additional counters
+  `Recipient.CreatureYouControl`, resolved relative to that controller), `modifier` additional counters
   (default `+1`) are placed instead. Recorded in a turn-scoped store on the game state and consulted from the
   single counter-placement chokepoint (so every AddCounters-style effect honors it); expires per `duration`
   (default `Duration.EndOfTurn`) via end-of-turn cleanup. Negative `modifier` reduces (floored at 0). Prairie Dog
@@ -4811,6 +4811,36 @@ This is the player-arm prerequisite for the planned composable mixed `TargetUnio
 **Explicit constructor**:
 `GameObjectFilter(cardPredicates, controllerPredicate, colorPredicate, keywordPredicate, powerToughnessPredicate, subtypePredicate)`.
 
+### `Recipient` — a player or an object an event happens to
+
+The recipient of damage (`DealsDamageEvent.recipient`, `DamageEvent.recipient`), the permanent a
+counter is put on (`CounterPlacementEvent.recipient`, `GrantCounterPlacementModifierEffect.recipient`)
+and the target an activated ability was given (`AbilityActivatedEvent.targetMatch`). It can be a
+player *or* an object, so it can't be a `GameObjectFilter`; instead it reuses the two vocabularies that
+already exist:
+
+- `Recipient.Player(player: Player)` — a player named by a `Player` reference (`You`, `EachOpponent`,
+  `Any`, `EnchantedPlayer`, …).
+- `Recipient.Object(filter: GameObjectFilter)` — an object matching the filter.
+- `Recipient.AnyOf(options)` — a heterogeneous union ("a player or planeswalker").
+
+Named constants keep card code readable: `Any` (default — any player or object), `AnyPlayer`, `You`,
+`Opponent`, `EnchantedPlayer`, `AnyObject`, `AnyCreature`, `AnyPermanent`, `CreatureYouControl`,
+`CreatureOpponentControls`, `PermanentYouControl`, `Self` (`Object(Any.sourceItself())`),
+`EnchantedCreature` / `EquippedCreature` (`Object(Any.attachedToBySource())`),
+`AnyPlayerOrPlaneswalker`, `CreatureOrPlayer`, `OpponentOrPermanentTheyControl`. Anything else is
+spelled with the constructors: `Recipient.Object(GameObjectFilter.Creature.withSubtype("Vampire"))`.
+
+Every reading is relative to the observing permanent: "you" is its controller, `sourceItself()` /
+`attachedToBySource()` / `EnchantedPlayer` read *it*. One engine matcher answers it everywhere —
+`PredicateEvaluator.matchesRecipient` — for damage triggers, every damage-replacement scan
+(prevention, redirection, doubling, capping, flooring, damage-to-counters/mill), counter-placement
+replacements and ability-target triggers. An object recipient that has left the battlefield by the
+time a damage trigger is matched is read from the damage event's last-known snapshot (CR 603.10); a
+creature still entering with counters reads its own characteristics (CR 614.12). "An opponent" is a
+real opponent test (a Two-Headed Giant teammate is not one, CR 102.3), and "a creature" means a
+creature — damage to a planeswalker or battle doesn't satisfy `AnyCreature`.
+
 ### `GroupFilter` — static-ability scope
 
 - `GroupFilter.CreaturesYouControl` — your creatures.
@@ -5051,10 +5081,10 @@ work for abilities-on-stack (which carry no `CardComponent`).
 - `Not(IsSource)` (filter builder `notSourceItself()`) — the negation of `sourceItself()`, and the
   `GameObjectFilter` counterpart of `GroupFilter`/`TargetFilter`'s `excludeSelf`. Use it wherever
   "other [permanents]" must be expressed as a bare `GameObjectFilter` rather than a group/target
-  filter — notably a `RecipientFilter.Matching` on a damage replacement: Crystal Barricade's
+  filter — notably a `Recipient.Object` on a damage replacement: Crystal Barricade's
   "prevent all noncombat damage that would be dealt to *other* creatures you control" is
   `PreventDamage(amount = null, appliesTo = DamageEvent(recipient =
-  RecipientFilter.Matching(GameObjectFilter.Creature.youControl().notSourceItself()), damageType =
+  Recipient.Object(GameObjectFilter.Creature.youControl().notSourceItself()), damageType =
   DamageType.NonCombat))`.
 - `IsAttachedToSource` (filter builder `attachedToSource()`) — the *mirror* of `IsAttachedToBySource`:
   matches an Aura/Equipment currently attached **to** the effect's source, read from the candidate's
@@ -5673,17 +5703,17 @@ Named sugar for the common cases; reach for the factories for any other combinat
 - `OneOrMoreCreaturesDealCombatDamageToYou(filter = Creature)` — **defensive combat-damage batch trigger** (ANY binding): "whenever one or more creatures deal combat damage to *you*" (Witch-king of Angmar). Fires at most once per combat-damage batch regardless of how many creatures connected with the trigger's controller (the damaged player), unlike per-source `dealsDamage(recipient = You, …)` which fires once per connecting creature. The triggering entity is an arbitrary matching damager. Pair with the `dealtCombatDamageToSourceControllerThisTurn()` filter for "...each opponent sacrifices a creature that dealt combat damage to you this turn".
 - `TakesDamage` — source is dealt damage by any source (SELF binding).
 - `YouAreDealtDamage` — "whenever **you're** dealt damage" (ANY binding, `DealsDamageEvent(recipient = You)` with no source filter): the *player*-recipient sibling of `TakesDamage`, firing for **every** source — a creature in combat, a burn spell, an artifact. Fires once per damage instance; read the amount with `DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)` for "put that many counters" payoffs (Sun Droplet), and the triggering entity is the damage source.
-- `RecipientFilter.EnchantedPlayer` — the *player* the observing ability's source Aura is attached to (CR
-  303 enchant player), the enchant-player sibling of `RecipientFilter.EnchantedCreature`. Scoped by the
+- `Recipient.EnchantedPlayer` — the *player* the observing ability's source Aura is attached to (CR
+  303 enchant player), the enchant-player sibling of `Recipient.EnchantedCreature`. Scoped by the
   source's **attachment**, not its controller, so a Curse on one opponent can't fire off damage dealt to
-  another — which is exactly why `RecipientFilter.Opponent` is wrong for a Curse. Matches only when the
+  another — which is exactly why `Recipient.Opponent` is wrong for a Curse. Matches only when the
   attachment target is a player. Pair it with `binding = TriggerBinding.ANY` + a `sourceFilter`, **not**
   with `ATTACHED`: the source filter is what binds the *damaging creature* as the triggering entity, which
   is what "that creature's controller" needs. Curse of Hospitality: `Triggers.dealsDamage(damageType =
-  DamageType.Combat, recipient = RecipientFilter.EnchantedPlayer, sourceFilter = GameObjectFilter.Creature,
+  DamageType.Combat, recipient = Recipient.EnchantedPlayer, sourceFilter = GameObjectFilter.Creature,
   binding = TriggerBinding.ANY)`, paying off into `GrantMayPlayFromExileEffect(recipient =
   EffectTarget.ControllerOfTriggeringEntity)`.
-- `damageDealtToYou(sourceFilter?, damageType?)` — the source-restricted factory behind `YouAreDealtDamage`: "whenever [a source matching the filter] deals damage to you". `GameObjectFilter.Creature` for Aurification's "whenever a creature deals damage to you"; `GameObjectFilter.Any.opponentControls()` for Farsight Mask's "a source an opponent controls". "You" is the controller of the permanent bearing the trigger, and the filter's controller-relative predicates resolve against that same player. **Always use one of these two for a player-recipient damage trigger** — `RecipientFilter.You` is unmatchable on the general observer path (`TriggerMatcher.matchesDealsDamageTrigger` returns false for it) and reaches its ability only through the dedicated damage-to-you index.
+- `damageDealtToYou(sourceFilter?, damageType?)` — the source-restricted factory behind `YouAreDealtDamage`: "whenever [a source matching the filter] deals damage to you". `GameObjectFilter.Creature` for Aurification's "whenever a creature deals damage to you"; `GameObjectFilter.Any.opponentControls()` for Farsight Mask's "a source an opponent controls". "You" is the controller of the permanent bearing the trigger, and the filter's controller-relative predicates resolve against that same player. **Always use one of these two for a player-recipient damage trigger** — an ANY-bound `Recipient.You` trigger is routed only to the dedicated damage-to-you index, which binds the damage *source* as the triggering entity.
 - `CreatureDealtDamageByThisDies` — Etali / Sengir / Soul Collector shape (SELF binding): "whenever a creature dealt damage by *this* permanent this turn dies". Uses `CreatureDealtDamageBySourceDiesEvent(sourceFilter = null)`.
 - `CreatureDealtDamageByAttachedDies` — the same event and the same tracker read one object further out (ATTACHED binding): "whenever a creature dealt damage by **equipped** creature this turn dies" (Scythe of the Wretched). The only difference from `CreatureDealtDamageByThisDies` is where the damage tracker is read from — the attachment target rather than the permanent bearing the trigger. The attachment is resolved when the creature *dies*, not when the damage was dealt, so an Equipment that moved between the two moments still fires (its own ruling) and an unattached Equipment never fires. Use this for any Equipment or Aura whose text says "equipped creature" / "enchanted creature" in a dealt-damage-dies trigger; `creatureDealtDamageBySourceDies(filter)` is for the board-wide observer wording instead.
 - `creatureDealtDamageByThisDies(dyingFilter)` — `CreatureDealtDamageByThisDies` narrowed to a dying creature matching `dyingFilter` (Trophy Hunter: "whenever a creature **with flying** dealt damage by this creature this turn dies"). `dyingFilter` is orthogonal to `sourceFilter` — the latter narrows the damaging source, this one the creature that died — and is matched against the dying creature's last-known information as it left the battlefield (CR 608.2h), through the same LKI-aware predicate path as an ordinary dies trigger. Trophy Hunter's ruling turns on exactly that: the check is whether the creature *currently* has flying, so one that lost it before dying doesn't count and one that gained it does.
@@ -5691,7 +5721,7 @@ Named sugar for the common cases; reach for the factories for any other combinat
 
 **Factories** (axes: `damageType` × `recipient` × `sourceFilter` × `binding` for outgoing; `source` × `binding` for incoming):
 
-- `dealsDamage(damageType?, recipient?, sourceFilter?, binding?, requireExcess?, batch?, requires?)` — outgoing-damage trigger. Pick `DamageType.{Any,Combat,NonCombat}`, `RecipientFilter.{Any,AnyPlayer,AnyPlayerOrPlaneswalker,AnyCreature,…}`, an optional source `GameObjectFilter`, and `TriggerBinding.{SELF,ANY,ATTACHED}`. Covers "deals combat damage to a player or planeswalker", "creature you control deals combat damage to a player" (`binding = ANY` + `sourceFilter = Creature.youControl()`), "nontoken creature you control deals…" (`.nontoken()`), and "enchanted creature deals damage" (`binding = ATTACHED`). The conjunctive `requires` set adds damage-event facts: `DamagePredicate.SourceSoleTargetIsRecipient` requires the source to have exactly one chosen target and that target to be this damage recipient, so "a spell that targets only a single creature deals damage to that creature" does not fire for the same spell's collateral damage (Imodane, the Pyrohammer). Pass `requireExcess = true` to fire only when the recipient was dealt damage past lethal (CR 120.4a) — Fall of Cair Andros' "is dealt excess noncombat damage". Pass `batch = true` for recipient-side **"one or more" batch wording** (CR 603.2c) — "whenever one or more creatures your opponents control are dealt excess noncombat damage" (Magmatic Galleon): simultaneous damage to several matching recipients (a sweeper, combat damage to multiple blockers) fires the trigger once per event batch instead of once per damaged recipient. Batch is only honored on the `binding = ANY` observer path; SELF/ATTACHED damage triggers are inherently per-source-event. Read the excess via `DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_EXCESS_DAMAGE_AMOUNT)`. For a creature recipient, read its toughness *as it last existed at damage time* (CR 603.10 LKI — survives a lethal hit) via `DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_RECIPIENT_TOUGHNESS)`; pair it with a `triggerRestriction` such as `Conditions.CompareAmounts(ContextProperty(TRIGGER_DAMAGE_AMOUNT), ComparisonOperator.EQ, ContextProperty(TRIGGER_RECIPIENT_TOUGHNESS))` for "deals noncombat damage to a creature equal to that creature's toughness" (Taii Wakeen, Perfect Shot). On the observer path (`binding = ANY` + `sourceFilter`), `EffectTarget.TriggeringEntity` is the damage SOURCE, but the recipient toughness is still carried in this context key. **Combat caveat:** combat-damage state-based actions run *before* trigger detection, so a non-indestructible recipient that dies to the same combat-damage event has already left the battlefield when a `RecipientFilter.CreatureOpponentControls`-style filter reads its `ControllerComponent` — the filter silently fails (no last-known-info path yet). A `requireExcess = true` + `DamageType.Combat` trigger therefore only fires reliably on recipients that survive (indestructible / high toughness). Fall of Cair Andros is unaffected because it gates on `DamageType.NonCombat`, where the trigger is detected from the damage event before the kill SBA.
+- `dealsDamage(damageType?, recipient?, sourceFilter?, binding?, requireExcess?, batch?, requires?)` — outgoing-damage trigger. Pick `DamageType.{Any,Combat,NonCombat}`, `Recipient.{Any,AnyPlayer,AnyPlayerOrPlaneswalker,AnyCreature,…}`, an optional source `GameObjectFilter`, and `TriggerBinding.{SELF,ANY,ATTACHED}`. Covers "deals combat damage to a player or planeswalker", "creature you control deals combat damage to a player" (`binding = ANY` + `sourceFilter = Creature.youControl()`), "nontoken creature you control deals…" (`.nontoken()`), and "enchanted creature deals damage" (`binding = ATTACHED`). The conjunctive `requires` set adds damage-event facts: `DamagePredicate.SourceSoleTargetIsRecipient` requires the source to have exactly one chosen target and that target to be this damage recipient, so "a spell that targets only a single creature deals damage to that creature" does not fire for the same spell's collateral damage (Imodane, the Pyrohammer). Pass `requireExcess = true` to fire only when the recipient was dealt damage past lethal (CR 120.4a) — Fall of Cair Andros' "is dealt excess noncombat damage". Pass `batch = true` for recipient-side **"one or more" batch wording** (CR 603.2c) — "whenever one or more creatures your opponents control are dealt excess noncombat damage" (Magmatic Galleon): simultaneous damage to several matching recipients (a sweeper, combat damage to multiple blockers) fires the trigger once per event batch instead of once per damaged recipient. Batch is only honored on the `binding = ANY` observer path; SELF/ATTACHED damage triggers are inherently per-source-event. Read the excess via `DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_EXCESS_DAMAGE_AMOUNT)`. For a creature recipient, read its toughness *as it last existed at damage time* (CR 603.10 LKI — survives a lethal hit) via `DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_RECIPIENT_TOUGHNESS)`; pair it with a `triggerRestriction` such as `Conditions.CompareAmounts(ContextProperty(TRIGGER_DAMAGE_AMOUNT), ComparisonOperator.EQ, ContextProperty(TRIGGER_RECIPIENT_TOUGHNESS))` for "deals noncombat damage to a creature equal to that creature's toughness" (Taii Wakeen, Perfect Shot). On the observer path (`binding = ANY` + `sourceFilter`), `EffectTarget.TriggeringEntity` is the damage SOURCE, but the recipient toughness is still carried in this context key. **Dead recipients:** combat-damage state-based actions run *before* trigger detection, so a recipient killed by the same damage has already left the battlefield (a token has ceased to exist). The recipient is then read from `DamageDealtEvent.targetLastKnown`, the snapshot taken as the damage was dealt (CR 603.10), so "a creature an opponent controls is dealt damage" still fires for the killing blow. That snapshot answers types, subtypes, keywords, token-ness and controller; a filter asking anything else of a departed recipient (colour, P/T) fails closed.
 - `takesDamage(source?, binding?)` — incoming-damage trigger. Pick `SourceFilter.{Any,Creature,Spell,Combat,NonCombat,HasColor(c),…}` and `TriggerBinding.{SELF,ATTACHED}`. Covers "damaged by a creature/spell" and "enchanted creature is dealt damage" (`binding = ATTACHED`, Frozen Solid shape). For "*you* are dealt damage" use `YouAreDealtDamage` / `damageDealtToYou` above — the recipient is a player, not this permanent.
 - `becomesTapped(binding?, filter?, reason?, firstTimeEachTurn?)` — "becomes tapped" trigger. `BecomesTapped` is the SELF constant; pass `binding = TriggerBinding.ANY` with an optional `filter: GameObjectFilter` for "whenever a [filter] becomes tapped" (e.g. `GameObjectFilter.CreatureOrLand` — Temporal Distortion). The filter is matched against the tapped permanent via projected state. Fires once **per** tapped permanent. `reason: TapReason?` restricts *why* it became tapped — see `BecomesTappedForTeamwork` below; the default `null` is cause-agnostic and matches every tap. Use `null` for "any cause", **never `TapReason.UNSPECIFIED`** — that would match only the taps the engine has not classified, a predicate whose meaning shrinks the day a new cause is named, and it renders as no clause at all.
 - `firstTimeEachTurn = true` on `becomesTapped` / `OneOrMoreBecomeTapped` — the **per-permanent** "if it's the first time that creature has become tapped this turn" rider (Captain America, Living Legend: `becomesTapped(binding = ANY, filter = Creature.youControl(), firstTimeEachTurn = true)` + `triggerRestriction = Conditions.IsYourTurn` + `Effects.Untap(EffectTarget.TriggeringEntity)`; "during your turn" narrows the trigger event, so it is a `triggerRestriction` rather than an `interveningIf`, while the "first time" clause — the actual CR 603.4 intervening-`if` — rides on the event pattern and is therefore checked only when the tap happens). **Not the same as `oncePerTurn`**, which caps the *ability* at one firing per turn: with several creatures tapping in one turn, `firstTimeEachTurn` fires once for *each* of them while `oncePerTurn` answers only the first. Reach for this one whenever the printed "first time" clause names the object rather than the ability; the two are composable and can be used together. The window is a *becomes tapped* window, not a *was tapped* one — a permanent that **entered the battlefield tapped** never became tapped (CR 701.26a), so it is never stamped and tapping it later that turn is still its first time. Backed by `TappedEvent.firstThisTurn`, computed in the `tap()` atom — the chokepoint every tap transition goes through, regeneration's tap included (CR 701.19a: "its controller taps it"), with `TapEventEnforcementTest` banning new bypasses — against the permanent's `HasBecomeTappedComponent(lastBecameTappedTurn)` turn stamp, read *before* the stamp is updated. The stamp is a turn number rather than a cleanup-cleared marker — the window closes on its own when `turnNumber` moves — and is stripped on a zone change (CR 400.7: what comes back is a new object). **It is only half of the clause.** "if it's the first time…" is a printed intervening-`if` (CR 603.4), which is checked when the trigger event occurs *and again as the ability resolves*; this rider carries the first check only. Pair it with `interveningIf = Conditions.TriggeringPermanentBecameTappedOnlyOnceThisTurn` (backed by `StatePredicate.BecameTappedOnlyOnceThisTurn`, which reads the same tap counter *live*) for the second — untap the creature and tap it again in response and it has become tapped twice by resolution, so the ability is removed from the stack, which a frozen copy of the event flag could never produce. **Cannot be combined with the batch wording:** `TapEvent` rejects `batch = true` alongside it, because no printed card pairs them and the two readings of that pairing are not distinguishable without one — the first real card decides, rather than inheriting a guess.
@@ -5905,10 +5935,10 @@ Named sugar for the common type-primitive cases; reach for `youCastSpell(...)` p
 - `youActivateAbilityTargeting(targetMatch)` — you activate an ability whose **chosen targets** satisfy
   `targetMatch`. Backed by `EventPattern.AbilityActivatedEvent(player, targetMatch)`: when `targetMatch != null`, the
   activated ability on the stack must have at least one chosen target matching it, so a non-targeting ability (e.g.
-  tap-for-mana) never fires. `targetMatch` is an `AbilityTargetMatch` (in `scripting.events`): `ObjectMatching(filter)`
-  matches an object target against a `GameObjectFilter`, `AnyPlayer` matches a player target, and `AnyOf(list)` is a
-  heterogeneous OR (the match space is wider than `GameObjectFilter` because an ability can target a player too).
-  `AbilityTargetMatch.CreatureOrPlayer` is the prebuilt "targets a creature or player" used by Ertha Jo, Frontier
+  tap-for-mana) never fires. `targetMatch` is a `Recipient` (§7 — the same player-or-object type damage and counter
+  events use): `Recipient.Object(filter)` matches an object target, `Recipient.Player(…)` / `Recipient.AnyPlayer` a
+  player target, and `Recipient.AnyOf(list)` a heterogeneous OR.
+  `Recipient.CreatureOrPlayer` is the prebuilt "targets a creature or player" used by Ertha Jo, Frontier
   Mentor, whose payoff is `Effects.CopyTargetSpellOrAbility(EffectTarget.TriggeringEntity)` (for an
   `AbilityActivatedEvent` the triggering entity is the activated ability on the stack; the copy executor reprompts for
   new targets, CR 707.10/707.10c).
@@ -6718,7 +6748,7 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
     **that player** this turn, …" (Great Train Heist's Treasure-on-hit mode). The target is resolved at
     creation time (e.g. `EffectTarget.ContextTarget(0)` for a just-chosen target opponent), so the
     trigger fires only for hits to that specific player. The `TriggerSpec`'s `recipient` / `sourceFilter`
-    still apply on top (use `RecipientFilter.AnyPlayer` + `sourceFilter = Creature.youControl()`).
+    still apply on top (use `Recipient.AnyPlayer` + `sourceFilter = Creature.youControl()`).
     Orthogonal to `watchedTarget` (source scope) — set at most one.
   - **Step-based `watchedTarget`** — on a delayed trigger with a `step` (no `trigger`) there is no
     event to scope, so a `watchedTarget` is baked in at creation and becomes the fired trigger's
@@ -12344,12 +12374,12 @@ The priority groups are (CR 616.1a–f):
   delirium-gated "double all noncombat damage from sources you control". The doubled damage stays
   attributed to the original source (the engine scales the amount in place). Source and recipient
   filters are matched by the shared `DamageUtils` matchers, so every `SourceFilter` /
-  `RecipientFilter` the prevention and `ModifyDamageAmount` paths understand works here too —
-  including `RecipientFilter.OpponentOrPermanentTheyControl` (Twinflame Tyrant). Each hosting
+  `Recipient` the prevention and `ModifyDamageAmount` paths understand works here too —
+  including `Recipient.OpponentOrPermanentTheyControl` (Twinflame Tyrant). Each hosting
   permanent is its own replacement and applies once (CR 616.1): two Twinflame Tyrants quadruple.
 - `HalveDamage(restrictions?, appliesTo)` — the dividing mirror of `DoubleDamage`: matching damage is
   halved, **rounded down**. Ghosts of the Innocent: `HalveDamage(appliesTo = DamageEvent(recipient =
-  RecipientFilter.Any))` — "a permanent or player" is the unscoped recipient, so combat and burn,
+  Recipient.Any))` — "a permanent or player" is the unscoped recipient, so combat and burn,
   creatures and players, the host's own controller included, are all halved. Its own type rather than
   a negative `ModifyDamageAmount` because the reduction is *multiplicative* and no `DynamicAmount` can
   read the incoming amount. Half of 1 rounded down is 0, so a 1-damage source deals nothing; each
@@ -12368,7 +12398,7 @@ The priority groups are (CR 616.1a–f):
   permanent (so `DynamicAmount.EntityProperty(Self, …)` / `DynamicAmounts.countersOnSelf(…)` reads
   the source's own characteristics/counters). Fated Firepower: `dynamicModifier =
   DynamicAmounts.countersOnSelf(CounterType.FIRE)` with `appliesTo = DamageEvent(source =
-  SourceFilter.YouControl, recipient = RecipientFilter.OpponentOrPermanentTheyControl)` — "a source you
+  SourceFilter.YouControl, recipient = Recipient.OpponentOrPermanentTheyControl)` — "a source you
   control deals that much damage plus the number of fire counters on this enchantment to an opponent or
   a permanent an opponent controls". Applied in `DamageUtils.applyStaticDamageAmplification` (both the
   general and combat damage paths), once per damage event, after `DoubleDamage`. `restrictions` (a
@@ -12397,11 +12427,11 @@ The priority groups are (CR 616.1a–f):
     would be dealt to you, put that many depletion counters on this enchantment instead"
     (`DamageEvent(recipient = You)`, `sacrificeThreshold = 4` for the paired "sacrifice it when it has
     four or more"). **Anti-Venom, Horrifying Healer** is the self-damage case where host and damaged
-    permanent coincide (`recipient = RecipientFilter.Self`).
+    permanent coincide (`recipient = Recipient.Self`).
   - `DamagedPermanent` — on the permanent that would have been dealt the damage. **Soul-Scar Mage**:
     "If a source you control would deal noncombat damage to a creature an opponent controls, put that
     many -1/-1 counters on that creature instead" — `DamageEvent(recipient =
-    RecipientFilter.CreatureOpponentControls, source = SourceFilter.YouControl, damageType =
+    Recipient.CreatureOpponentControls, source = SourceFilter.YouControl, damageType =
     DamageType.NonCombat)`. A player recipient has nowhere to put counters, so the replacement
     declines rather than eating the damage.
 
@@ -12411,7 +12441,7 @@ The priority groups are (CR 616.1a–f):
   SourceFilter.Self, damageType = Combat)` + `damagedPlayerMills = true` — one replacement, so the
   counters and the mill can't be split across two replacements competing for one damage event.
   The recipient is matched by the shared damage-replacement recipient matcher, so every
-  `RecipientFilter` works here.
+  `Recipient` works here.
 
   Wired in both damage paths (`DamageUtils.applyReplaceDamageWithCounters` for the general path,
   `CombatDamageManager` for combat); combat callers pass `isCombatDamage = true` so a noncombat-only
@@ -12419,7 +12449,7 @@ The priority groups are (CR 616.1a–f):
   — any other `SourceFilter` declines rather than guessing.
 - `ReplaceDamageWithMill(appliesTo = DamageEvent(recipient = Opponent))` — replace matching damage
   (CR 615, neither dealt nor prevented): each opponent of the replacement's controller mills that many
-  cards instead. The Mindskinner: `DamageEvent(recipient = RecipientFilter.Opponent, source =
+  cards instead. The Mindskinner: `DamageEvent(recipient = Recipient.Opponent, source =
   SourceFilter.Matching(GameObjectFilter.Any.youControl()))` covers both the unblockable creature's
   combat damage and noncombat damage from any source you control. Mirrors `ReplaceDamageWithCounters`;
   wired in both damage paths (`DamageUtils.applyReplaceDamageWithMill` for the general path,
@@ -12454,16 +12484,16 @@ The priority groups are (CR 616.1a–f):
   replacement's controller — "a source you control" (Fated Firepower) — without enumerating a
   `GameObjectFilter`. `source = SourceFilter.SpellYouControl` narrows that to a *spell* (a source still
   on the stack as a spell, copies included) — "a spell you control" (Hostility); `SourceFilter.Spell`
-  is the same test without the controller check. `recipient = RecipientFilter.OpponentOrPermanentTheyControl` matches an opponent
+  is the same test without the controller check. `recipient = Recipient.OpponentOrPermanentTheyControl` matches an opponent
   player **or** any permanent an opponent controls — "an opponent or a permanent an opponent controls".
-  `recipient = RecipientFilter.Self` / `source = SourceFilter.Self` match the permanent that owns the
+  `recipient = Recipient.Self` / `source = SourceFilter.Self` match the permanent that owns the
   replacement — "damage dealt *to* / *by* this permanent" — for source-relative static foggers like
-  Fog Bank (`DamageEvent(recipient = RecipientFilter.Self, damageType = Combat)` +
+  Fog Bank (`DamageEvent(recipient = Recipient.Self, damageType = Combat)` +
   `DamageEvent(source = SourceFilter.Self, damageType = Combat)` = "prevent all combat damage that would
   be dealt to and dealt by this creature").
   `source = SourceFilter.EnchantedCreature` / `SourceFilter.EquippedCreature` match damage dealt **by**
   the permanent the replacement's host Aura/Equipment is attached to — the source-side mirror of the
-  `RecipientFilter` pair, resolved from the host's `AttachedToComponent`. Mjölnir, Hammer of Thor
+  `Recipient` pair, resolved from the host's `AttachedToComponent`. Mjölnir, Hammer of Thor
   ("Double all damage equipped creature would deal") is `DoubleDamage(appliesTo = DamageEvent(source =
   SourceFilter.EquippedCreature))`; with the default `recipient = Any` and `damageType = Any` that
   covers combat and noncombat damage to players and permanents alike. The two constants behave

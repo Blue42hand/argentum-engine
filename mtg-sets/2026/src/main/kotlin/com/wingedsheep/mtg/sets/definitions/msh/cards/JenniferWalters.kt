@@ -15,7 +15,7 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.IsYourTurn
 import com.wingedsheep.sdk.scripting.effects.DynamicHint
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
@@ -52,7 +52,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *    casting zone with no per-zone wiring.
  *
  *  - **The damage mirror** is a `DealsDamageEvent` observer ([TriggerBinding.ANY]) filtered to
- *    [RecipientFilter.CreatureYouControl] — the Kazarov, Sengir Pureblood shape read from the
+ *    [Recipient.CreatureYouControl] — the Kazarov, Sengir Pureblood shape read from the
  *    recipient's side. It is deliberately *not* a batch trigger: CR 603.2 makes it fire once per
  *    damaged creature, so a multi-block puts one instance on the stack per creature that was dealt
  *    damage. "That much damage" reads the triggering event's amount via
@@ -125,7 +125,7 @@ private val TheSensationalSheHulkBack = card("The Sensational She-Hulk") {
 
     triggeredAbility {
         trigger = TriggerSpec(
-            DealsDamageEvent(recipient = RecipientFilter.CreatureYouControl),
+            DealsDamageEvent(recipient = Recipient.CreatureYouControl),
             TriggerBinding.ANY,
         )
         val victim = target("any target", Targets.Any)

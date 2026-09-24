@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PreventDamage
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.SourceFilter
 
 /**
@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.events.SourceFilter
  * Prevent all damage that would be dealt to this creature by artifact sources.
  *
  * A single continuous [PreventDamage] replacement (CR 615) with recipient =
- * [RecipientFilter.Self] (only Argothian Treefolk) and source = any artifact.
+ * [Recipient.Self] (only Argothian Treefolk) and source = any artifact.
  * Like Argothian Pixies' damage-prevention static, but with no block restriction
  * and matching all artifact sources rather than just artifact creatures.
  */
@@ -31,7 +31,7 @@ val ArgothianTreefolk = card("Argothian Treefolk") {
     replacementEffect(
         PreventDamage(
             appliesTo = EventPattern.DamageEvent(
-                recipient = RecipientFilter.Self,
+                recipient = Recipient.Self,
                 source = SourceFilter.Matching(GameObjectFilter.Artifact)
             )
         )

@@ -7375,7 +7375,10 @@
                         "event": {
                             "type": "DealsDamageEvent",
                             "damageType": "DamageCombat",
-                            "recipient": "AnyPlayer",
+                            "recipient": {
+                                "type": "RecipientPlayer",
+                                "player": "Any"
+                            },
                             "sourceFilter": "creature ctrl:you"
                         },
                         "binding": "ANY"
@@ -17394,7 +17397,19 @@
                         "trigger": {
                             "type": "DealsDamageEvent",
                             "damageType": "DamageCombat",
-                            "recipient": "AnyPlayerOrPlaneswalker"
+                            "recipient": {
+                                "type": "RecipientAnyOf",
+                                "options": [
+                                    {
+                                        "type": "RecipientPlayer",
+                                        "player": "Any"
+                                    },
+                                    {
+                                        "type": "RecipientObject",
+                                        "filter": "planeswalker"
+                                    }
+                                ]
+                            }
                         },
                         "effect": {
                             "type": "DrawCards",
@@ -17430,7 +17445,19 @@
                         "trigger": {
                             "type": "DealsDamageEvent",
                             "damageType": "DamageCombat",
-                            "recipient": "AnyPlayerOrPlaneswalker"
+                            "recipient": {
+                                "type": "RecipientAnyOf",
+                                "options": [
+                                    {
+                                        "type": "RecipientPlayer",
+                                        "player": "Any"
+                                    },
+                                    {
+                                        "type": "RecipientObject",
+                                        "filter": "planeswalker"
+                                    }
+                                ]
+                            }
                         },
                         "effect": {
                             "type": "DrawCards",

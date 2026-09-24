@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.ModifyDamageAmount
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.SourceFilter
 
 /**
@@ -22,7 +22,7 @@ import com.wingedsheep.sdk.scripting.events.SourceFilter
  * ([DynamicAmounts.sourcePower]), and `dynamicModifier` is evaluated against the *replacement's own
  * source* — so it reads Hawkeye's current (projected) power, not the damage source's. The
  * [EventPattern.DamageEvent] scopes it exactly as the oracle text does:
- * [SourceFilter.YouControl] for "a source you control", [RecipientFilter.OpponentOrPermanentTheyControl]
+ * [SourceFilter.YouControl] for "a source you control", [Recipient.OpponentOrPermanentTheyControl]
  * for "an opponent or a permanent an opponent controls", and [DamageType.NonCombat] for "noncombat
  * damage" — so combat damage from your creatures is untouched. Hawkeye's own noncombat damage is
  * amplified too; if he's no longer on the battlefield the replacement is gone with him.
@@ -43,7 +43,7 @@ val HawkeyeYoungAvenger = card("Hawkeye, Young Avenger") {
         ModifyDamageAmount(
             dynamicModifier = DynamicAmounts.sourcePower(),
             appliesTo = EventPattern.DamageEvent(
-                recipient = RecipientFilter.OpponentOrPermanentTheyControl,
+                recipient = Recipient.OpponentOrPermanentTheyControl,
                 source = SourceFilter.YouControl,
                 damageType = DamageType.NonCombat,
             )

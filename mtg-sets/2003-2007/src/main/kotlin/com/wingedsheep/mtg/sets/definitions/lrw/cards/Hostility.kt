@@ -13,7 +13,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.PreventDamage
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.SourceFilter
 
 /**
@@ -37,7 +37,7 @@ val Hostility = card("Hostility") {
     replacementEffect(
         PreventDamage(
             appliesTo = EventPattern.DamageEvent(
-                recipient = RecipientFilter.Opponent,
+                recipient = Recipient.Opponent,
                 source = SourceFilter.SpellYouControl
             ),
             onPrevented = Effects.CreateToken(

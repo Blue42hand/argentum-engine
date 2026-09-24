@@ -819,7 +819,10 @@
                 "redirectTo": "Self",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "You"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "You"
+                    }
                 }
             },
             {
@@ -828,7 +831,7 @@
                 "appliesTo": {
                     "type": "DamageEvent",
                     "recipient": {
-                        "type": "RecipientMatching",
+                        "type": "RecipientObject",
                         "filter": "permanent ctrl:you"
                     }
                 }
@@ -2357,7 +2360,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "binding": "ATTACHED",
                 "effect": {
@@ -5168,7 +5174,14 @@
                 "type": "PreventDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientSelf",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": {
+                            "statePredicates": [
+                                "IsSource"
+                            ]
+                        }
+                    },
                     "damageType": "DamageCombat"
                 }
             }
@@ -9493,7 +9506,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",
@@ -10357,7 +10373,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",
@@ -11002,7 +11021,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "DoubleDamageToPlayer",
@@ -11047,7 +11069,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -11282,7 +11307,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -13008,7 +13036,10 @@
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
-                        "recipient": "AnyPlayer"
+                        "recipient": {
+                            "type": "RecipientPlayer",
+                            "player": "Any"
+                        }
                     },
                     "effect": {
                         "type": "Composite",
@@ -15010,7 +15041,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -16690,7 +16724,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -18828,7 +18865,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "MoveToZone",
@@ -20589,7 +20629,10 @@
                         "trigger": {
                             "type": "DealsDamageEvent",
                             "damageType": "DamageCombat",
-                            "recipient": "AnyPlayer"
+                            "recipient": {
+                                "type": "RecipientPlayer",
+                                "player": "Any"
+                            }
                         },
                         "effect": {
                             "type": "LoseGame",
@@ -21872,17 +21915,7 @@
             }
         ],
         "replacementEffects": [
-            {
-                "type": "DoubleCounterPlacement",
-                "appliesTo": {
-                    "type": "CounterPlacementEvent",
-                    "counterType": "PLUS_ONE_PLUS_ONE",
-                    "recipient": {
-                        "type": "RecipientMatching",
-                        "filter": "creature ctrl:you"
-                    }
-                }
-            }
+            "DoubleCounterPlacement"
         ]
     },
     "metadata": {
@@ -22941,7 +22974,10 @@
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
-                        "recipient": "AnyPlayer"
+                        "recipient": {
+                            "type": "RecipientPlayer",
+                            "player": "Any"
+                        }
                     },
                     "effect": {
                         "type": "DrawCards",
@@ -24053,7 +24089,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": "creature ctrl:you"
                 },
                 "binding": "ANY",

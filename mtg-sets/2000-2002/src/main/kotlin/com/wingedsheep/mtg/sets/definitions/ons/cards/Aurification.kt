@@ -14,7 +14,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.RemoveCountersEffect
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -38,7 +38,7 @@ val Aurification = card("Aurification") {
         // "a creature deals damage to you" — the creature restriction is the trigger's own
         // sourceFilter, not an assumption the detector makes on its behalf.
         trigger = TriggerSpec(
-            DealsDamageEvent(recipient = RecipientFilter.You, sourceFilter = GameObjectFilter.Creature),
+            DealsDamageEvent(recipient = Recipient.You, sourceFilter = GameObjectFilter.Creature),
             TriggerBinding.ANY
         )
         effect = AddCountersEffect(CounterType.GOLD, 1, EffectTarget.TriggeringEntity)

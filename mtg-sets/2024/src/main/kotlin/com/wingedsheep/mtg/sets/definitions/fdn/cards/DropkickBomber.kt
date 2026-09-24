@@ -15,7 +15,7 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -76,7 +76,7 @@ val DropkickBomber = card("Dropkick Bomber") {
                 ability = TriggeredAbility.create(
                     trigger = Triggers.dealsDamage(
                         damageType = DamageType.Combat,
-                        recipient = RecipientFilter.Any,
+                        recipient = Recipient.Any,
                         binding = TriggerBinding.SELF
                     ).event,
                     binding = TriggerBinding.SELF,

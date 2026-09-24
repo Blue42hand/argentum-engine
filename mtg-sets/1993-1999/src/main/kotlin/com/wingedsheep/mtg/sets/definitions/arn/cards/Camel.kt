@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.PreventDamage
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 
@@ -44,7 +44,7 @@ val Camel = card("Camel") {
     replacementEffect(
         PreventDamage(
             appliesTo = EventPattern.DamageEvent(
-                recipient = RecipientFilter.Matching(GameObjectFilter.Any.inSameBandAsSource()),
+                recipient = Recipient.Object(GameObjectFilter.Any.inSameBandAsSource()),
                 source = SourceFilter.Matching(GameObjectFilter.Land.withSubtype("Desert"))
             )
         )

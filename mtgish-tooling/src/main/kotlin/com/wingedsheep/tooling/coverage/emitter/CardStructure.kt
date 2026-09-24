@@ -3046,7 +3046,7 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
     if (jsonContains(trig, "_Trigger", "WhenACreatureDealsCombatDamageToAPlayer") && isHost(trig) &&
         jsonContains(trig, "_Players", "AnyPlayer")
     ) {
-        return "Triggers.dealsDamage(DamageType.Combat, RecipientFilter.AnyPlayer, " +
+        return "Triggers.dealsDamage(DamageType.Combat, Recipient.AnyPlayer, " +
             "binding = TriggerBinding.ATTACHED)"
     }
 
@@ -3062,7 +3062,7 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
         val bareSubtype = subtype != null && "ControlledByAPlayer" !in blob &&
             "_Color" !in blob && "_Comparison" !in blob && "\"Other\"" !in blob
         if (bareSubtype) return "TriggerSpec(EventPattern.DealsDamageEvent(damageType = DamageType.Combat, " +
-            "recipient = RecipientFilter.AnyPlayer, sourceFilter = GameObjectFilter.Creature.withSubtype(${subtypeArg(subtype)})), " +
+            "recipient = Recipient.AnyPlayer, sourceFilter = GameObjectFilter.Creature.withSubtype(${subtypeArg(subtype)})), " +
             "TriggerBinding.ANY)"
         // "Whenever a [filtered] creature you control deals combat damage to a player, …" — a
         // controller/supertype-scoped source filter beyond a bare subtype (Vraska Joins Up's
@@ -3071,7 +3071,7 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
         // source. Only a creature filter renders — the trigger's source is always a creature here.
         val srcFilter = (trig["args"].asArr?.getOrNull(0) as? JsonObject)?.let { gameObjectFilterDsl(it) }
         if (srcFilter != null && srcFilter.startsWith("GameObjectFilter.Creature"))
-            return "Triggers.dealsDamage(DamageType.Combat, RecipientFilter.AnyPlayer, " +
+            return "Triggers.dealsDamage(DamageType.Combat, Recipient.AnyPlayer, " +
                 "sourceFilter = $srcFilter, binding = TriggerBinding.ANY)"
     }
 

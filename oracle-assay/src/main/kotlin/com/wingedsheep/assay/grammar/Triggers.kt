@@ -9,7 +9,7 @@ import com.wingedsheep.assay.syntax.phrase
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.scripting.AbilityId
@@ -798,7 +798,7 @@ object Triggers {
         ),
         // "Whenever this creature deals damage to a Vampire, …" — the *recipient* as a noun phrase
         // rather than one of the two nouns the three constants above freeze ("a player", "a
-        // creature"). `RecipientFilter.Matching` is the SDK's own slot for it, so this is one
+        // creature"). `Recipient.Object` is the SDK's own slot for it, so this is one
         // [slottedTriggerRule] over the whole filter vocabulary and not a row per tribe: Vampire
         // Slayer, Dinosaur Hunter, Spider-Slayer and East-Mark Cavalier's "a Goblin or Orc" are four
         // values of one slot.
@@ -817,10 +817,10 @@ object Triggers {
             noun = Filters.indefinite,
             effect = Steps.triggeredStep,
             valueOf = { spec ->
-                ((spec.event as? EventPattern.DealsDamageEvent)?.recipient as? RecipientFilter.Matching)
+                ((spec.event as? EventPattern.DealsDamageEvent)?.recipient as? Recipient.Object)
                     ?.filter
             },
-            spec = { SdkTriggers.dealsDamage(recipient = RecipientFilter.Matching(it)) },
+            spec = { SdkTriggers.dealsDamage(recipient = Recipient.Object(it)) },
         ),
         triggerRule("whenever ${Normalizer.SELF} is dealt damage", SdkTriggers.TakesDamage),
         // Valiant, and one row rather than a shape over `BecomesTargetEvent`'s six flags: the SDK

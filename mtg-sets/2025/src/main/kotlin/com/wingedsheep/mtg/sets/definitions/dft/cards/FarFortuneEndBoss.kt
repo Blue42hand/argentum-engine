@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.startYourEngines
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.ModifyDamageAmount
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -65,7 +65,7 @@ val FarFortuneEndBoss = card("Far Fortune, End Boss") {
                 modifier = 1,
                 appliesTo = EventPattern.DamageEvent(
                     source = SourceFilter.YouControl,
-                    recipient = RecipientFilter.OpponentOrPermanentTheyControl,
+                    recipient = Recipient.OpponentOrPermanentTheyControl,
                 ),
             )
         )

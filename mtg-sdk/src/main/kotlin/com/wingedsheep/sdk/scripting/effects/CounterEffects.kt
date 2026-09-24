@@ -3,7 +3,7 @@ package com.wingedsheep.sdk.scripting.effects
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.text.TextReplacer
@@ -610,7 +610,7 @@ data class GrantCounterPlacementModifierEffect(
     val modifier: Int = 1,
     val duration: Duration = Duration.EndOfTurn,
     val counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE,
-    val recipient: RecipientFilter = RecipientFilter.CreatureYouControl
+    val recipient: Recipient = Recipient.CreatureYouControl
 ) : Effect {
     override val description: String = buildString {
         val durationText = if (duration == Duration.Permanent) "" else "${duration.description.replaceFirstChar { it.uppercase() }}, "

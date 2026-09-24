@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.PreventDamage
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -48,7 +48,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *  - **"Prevent all damage that would be dealt to Black Panther"** is a *static* prevention
  *    replacement effect, not a triggered or one-shot shield: [PreventDamage] with `amount = null`
  *    ("prevent all") over an unrestricted [EventPattern.DamageEvent] keyed to
- *    [RecipientFilter.Self]. Leaving `damageType` at its default `Any` is what separates it from
+ *    [Recipient.Self]. Leaving `damageType` at its default `Any` is what separates it from
  *    Fog Bank's combat-only twin — noncombat damage (burn, pingers, sagas) is prevented too.
  *    Being a prevention *shield* rather than damage immunity, it does not stop "damage can't be
  *    prevented" sources, and it never turns off state-based lethality for other creatures.
@@ -109,7 +109,7 @@ private val BlackPantherHopeEnduringBack = card("Black Panther, Hope Enduring") 
     replacementEffect(
         PreventDamage(
             amount = null,
-            appliesTo = EventPattern.DamageEvent(recipient = RecipientFilter.Self),
+            appliesTo = EventPattern.DamageEvent(recipient = Recipient.Self),
         )
     )
 

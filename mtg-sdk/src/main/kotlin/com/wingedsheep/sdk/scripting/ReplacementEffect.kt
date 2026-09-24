@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -37,7 +37,7 @@ import kotlinx.serialization.Serializable
  *     modifier = 1,
  *     appliesTo = EventPattern.CounterPlacementEvent(
  *         counterType = CounterType.PLUS_ONE_PLUS_ONE,
- *         recipient = RecipientFilter.CreatureYouControl
+ *         recipient = Recipient.CreatureYouControl
  *     )
  * )
  *
@@ -50,7 +50,7 @@ import kotlinx.serialization.Serializable
  * // Prevention shield (combat damage from red sources)
  * PreventDamage(
  *     appliesTo = EventPattern.DamageEvent(
- *         recipient = RecipientFilter.You,
+ *         recipient = Recipient.You,
  *         source = SourceFilter.HasColor(Color.RED),
  *         damageType = DamageType.Combat
  *     )
@@ -269,7 +269,7 @@ data class DoubleCounterPlacement(
     val placedByYou: Boolean = false,
     override val appliesTo: EventPattern = EventPattern.CounterPlacementEvent(
         counterType = CounterType.PLUS_ONE_PLUS_ONE,
-        recipient = RecipientFilter.CreatureYouControl
+        recipient = Recipient.CreatureYouControl
     )
 ) : ReplacementEffect {
     override val description: String =
@@ -299,7 +299,7 @@ data class ModifyCounterPlacement(
     val modifier: Int = 1,
     override val appliesTo: EventPattern = EventPattern.CounterPlacementEvent(
         counterType = CounterType.PLUS_ONE_PLUS_ONE,
-        recipient = RecipientFilter.CreatureYouControl
+        recipient = Recipient.CreatureYouControl
     ),
     val placedByYou: Boolean = false
 ) : ReplacementEffect {
@@ -776,7 +776,7 @@ data class PreventDamageByRemovingCounter(
      */
     val requiresCounter: Boolean = false,
     override val appliesTo: EventPattern = EventPattern.DamageEvent(
-        recipient = RecipientFilter.Self
+        recipient = Recipient.Self
     )
 ) : ReplacementEffect {
     override val description: String = buildString {
@@ -871,7 +871,7 @@ data class DoubleDamage(
  *
  * Ghosts of the Innocent: *"If a source would deal damage to a permanent or player, it deals half
  * that damage, rounded down, to that permanent or player instead."* →
- * `HalveDamage(appliesTo = EventPattern.DamageEvent(recipient = RecipientFilter.AnyPermanentOrPlayer))`.
+ * `HalveDamage(appliesTo = EventPattern.DamageEvent(recipient = Recipient.Any))`.
  *
  * Modelled as its own type rather than a [ModifyDamageAmount] with a negative modifier because the
  * reduction is *multiplicative*: it scales with the incoming amount, which no `DynamicAmount` can
@@ -928,7 +928,7 @@ data class HalveDamage(
  *   equal to the number of fire counters on this enchantment instead.") →
  *   `ModifyDamageAmount(dynamicModifier = DynamicAmounts.countersOnSelf(CounterType.FIRE),
  *                       appliesTo = DamageEvent(source = SourceFilter.YouControl,
- *                                               recipient = RecipientFilter.OpponentOrPermanentTheyControl))`.
+ *                                               recipient = Recipient.OpponentOrPermanentTheyControl))`.
  *
  * When [dynamicModifier] is non-null it is evaluated with the replacement's source
  * permanent as the resolution source (so `DynamicAmount.EntityProperty(Self, …)` reads
@@ -1044,7 +1044,7 @@ data class SetMinimumDamage(
  *
  * Wolverine, Fierce Fighter: "If damage would be dealt to Wolverine, instead that damage is dealt,
  * but all other damage already dealt to him is healed." →
- * `HealOtherDamage(appliesTo = DamageEvent(recipient = RecipientFilter.Self))`.
+ * `HealOtherDamage(appliesTo = DamageEvent(recipient = Recipient.Self))`.
  *
  * Unlike every other member of this family the *amount* is untouched — this is the one damage
  * replacement whose whole job is a side effect on the recipient's already-marked damage, which is
@@ -1067,7 +1067,7 @@ data class SetMinimumDamage(
 @SerialName("HealOtherDamage")
 @Serializable
 data class HealOtherDamage(
-    override val appliesTo: EventPattern = EventPattern.DamageEvent(recipient = RecipientFilter.Self)
+    override val appliesTo: EventPattern = EventPattern.DamageEvent(recipient = Recipient.Self)
 ) : ReplacementEffect {
     override val description: String =
         "If ${appliesTo.description}, instead that damage is dealt, but all other damage already " +
@@ -2151,7 +2151,7 @@ data class ReplaceDamageWithCounters(
     val counterType: CounterType,
     val sacrificeThreshold: Int? = null,
     override val appliesTo: EventPattern = EventPattern.DamageEvent(
-        recipient = RecipientFilter.You
+        recipient = Recipient.You
     ),
     val counterRecipient: DamageCounterRecipient = DamageCounterRecipient.ReplacementHost,
     val damagedPlayerMills: Boolean = false
@@ -2192,7 +2192,7 @@ data class ReplaceDamageWithCounters(
 @Serializable
 data class ReplaceDamageWithMill(
     override val appliesTo: EventPattern = EventPattern.DamageEvent(
-        recipient = RecipientFilter.Opponent
+        recipient = Recipient.Opponent
     )
 ) : ReplacementEffect {
     override val description: String =

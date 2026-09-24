@@ -655,7 +655,10 @@
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
-                        "recipient": "AnyPlayer"
+                        "recipient": {
+                            "type": "RecipientPlayer",
+                            "player": "Any"
+                        }
                     },
                     "effect": {
                         "type": "Gated",
@@ -2226,7 +2229,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyCreature"
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": "creature"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -3776,7 +3782,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",
@@ -5178,7 +5187,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyCreature"
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": "creature"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -5201,7 +5213,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "LoseGame",
@@ -5722,7 +5737,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",
@@ -6726,7 +6744,10 @@
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
-                        "recipient": "AnyPlayer"
+                        "recipient": {
+                            "type": "RecipientPlayer",
+                            "player": "Any"
+                        }
                     },
                     "effect": {
                         "type": "Gated",
@@ -6878,7 +6899,10 @@
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
-                        "recipient": "AnyCreature"
+                        "recipient": {
+                            "type": "RecipientObject",
+                            "filter": "creature"
+                        }
                     },
                     "effect": {
                         "type": "Composite",

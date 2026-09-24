@@ -13,7 +13,7 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 val FlitterwingNuisance = card("Flitterwing Nuisance") {
     manaCost = "{U}"
@@ -42,7 +42,7 @@ val FlitterwingNuisance = card("Flitterwing Nuisance") {
         effect = CreateDelayedTriggerEffect(
             trigger = Triggers.dealsDamage(
                 damageType = DamageType.Combat,
-                recipient = RecipientFilter.AnyPlayer,
+                recipient = Recipient.AnyPlayer,
                 sourceFilter = GameObjectFilter.Creature.youControl(),
                 binding = TriggerBinding.ANY,
             ),

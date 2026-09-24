@@ -1432,7 +1432,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "binding": "ATTACHED",
                 "effect": {
@@ -3973,7 +3976,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -4869,7 +4875,10 @@
                 "type": "DoubleCounterPlacement",
                 "appliesTo": {
                     "type": "CounterPlacementEvent",
-                    "recipient": "PermanentYouControl"
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": "permanent ctrl:you"
+                    }
                 }
             }
         ]
@@ -8976,7 +8985,7 @@
                 "appliesTo": {
                     "type": "DamageEvent",
                     "recipient": {
-                        "type": "RecipientMatching",
+                        "type": "RecipientObject",
                         "filter": "creature red"
                     },
                     "source": "SourceSelf"
@@ -9572,7 +9581,10 @@
                 "type": "PreventDamage",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "CreatureYouControl",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": "creature ctrl:you"
+                    },
                     "source": "SourceYouControl"
                 }
             }
@@ -10146,7 +10158,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Gated",
@@ -10712,7 +10727,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "binding": "ATTACHED",
                 "effect": {
@@ -11419,7 +11437,10 @@
                 "redirectTo": "EquippedCreature",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "You"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "You"
+                    }
                 }
             }
         ]
@@ -11757,7 +11778,14 @@
                 "counterType": "PLUS_ONE_PLUS_ONE",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientSelf"
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": {
+                            "statePredicates": [
+                                "IsSource"
+                            ]
+                        }
+                    }
                 }
             }
         ]
@@ -11941,7 +11969,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "binding": "ATTACHED",
                 "effect": {
@@ -14723,7 +14754,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyCreature"
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": "creature"
+                    }
                 },
                 "effect": {
                     "type": "MoveToZone",
@@ -15522,7 +15556,10 @@
                 "counterType": "PLUS_ONE_PLUS_ONE",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "source": "SourceSelf",
                     "damageType": "DamageCombat"
                 },

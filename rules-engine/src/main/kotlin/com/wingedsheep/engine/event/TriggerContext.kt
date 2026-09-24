@@ -261,7 +261,7 @@ data class TriggerContext(
                 )
                 is DamageDealtEvent -> TriggerContext(
                     triggeringEntityId = event.targetId,
-                    triggeringPlayerId = event.targetControllerId,
+                    triggeringPlayerId = event.targetLastKnown?.controllerId,
                     damageAmount = event.amount,
                     excessDamageAmount = event.excessAmount.takeIf { it > 0 },
                     recipientToughnessAtDamage = event.targetToughnessAtDamage

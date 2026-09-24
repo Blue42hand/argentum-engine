@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -73,7 +73,7 @@ val CaptainHowlerSeaScourge = card("Captain Howler, Sea Scourge") {
                 effect = Effects.DrawCards(1),
                 trigger = Triggers.dealsDamage(
                     damageType = DamageType.Combat,
-                    recipient = RecipientFilter.AnyPlayer
+                    recipient = Recipient.AnyPlayer
                 ),
                 watchedTarget = creature,
                 expiry = DelayedTriggerExpiry.EndOfTurn

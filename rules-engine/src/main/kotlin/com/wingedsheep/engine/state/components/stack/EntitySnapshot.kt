@@ -270,6 +270,20 @@ fun captureEntitySnapshots(
 }
 
 /**
+ * One permanent's last-known information, complete enough for
+ * [com.wingedsheep.engine.handlers.PredicateEvaluator.matchesSnapshot]: the state-aware
+ * [captureEntitySnapshots] (token-ness, name) plus the projected type line, keywords and
+ * card-definition id that call's invariant asks for. Take it *before* the event that may remove the
+ * permanent — a self-sacrifice cost, the damage that kills it — while the projection still has it.
+ */
+fun captureLastKnown(state: GameState, entityId: EntityId): EntitySnapshot =
+    captureEntitySnapshots(listOf(entityId), state).single().copy(
+        typeLine = projectedTypeLine(state, entityId),
+        keywords = state.projectedState.getKeywords(entityId),
+        cardDefinitionId = state.getEntity(entityId)?.get<CardComponent>()?.cardDefinitionId,
+    )
+
+/**
  * The permanent's **projected** type line: its printed types overlaid with whatever continuous
  * effects have granted or replaced (an animated artifact reads "Artifact Creature", a Vehicle
  * crewed this turn reads "Artifact Creature — Vehicle"). Falls back to the printed type line when

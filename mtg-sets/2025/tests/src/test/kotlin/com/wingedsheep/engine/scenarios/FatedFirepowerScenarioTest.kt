@@ -27,7 +27,7 @@ import io.kotest.matchers.shouldBe
  * Exercises (a) the enters-with-X-fire-counters reuse of [CounterType.FIRE]
  * (EntersWithDynamicCounters + XValue), and (b) the new dynamic outgoing-damage
  * amplification (ModifyDamageAmount.dynamicModifier scoped to
- * SourceFilter.YouControl → RecipientFilter.OpponentOrPermanentTheyControl).
+ * SourceFilter.YouControl → Recipient.OpponentOrPermanentTheyControl).
  */
 class FatedFirepowerScenarioTest : FunSpec({
 

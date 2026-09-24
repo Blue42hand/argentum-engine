@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.scripting.DamageCounterRecipient
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.ReplaceDamageWithCounters
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.SourceFilter
 
 /**
@@ -60,7 +60,7 @@ val SoulScarMage = card("Soul-Scar Mage") {
         ReplaceDamageWithCounters(
             counterType = CounterType.MINUS_ONE_MINUS_ONE,
             appliesTo = EventPattern.DamageEvent(
-                recipient = RecipientFilter.CreatureOpponentControls,
+                recipient = Recipient.CreatureOpponentControls,
                 source = SourceFilter.YouControl,
                 damageType = DamageType.NonCombat
             ),

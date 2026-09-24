@@ -1568,7 +1568,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "MoveToZone",
@@ -3941,7 +3944,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "DrawCards",
@@ -6892,7 +6898,10 @@
                         "trigger": {
                             "type": "DealsDamageEvent",
                             "damageType": "DamageCombat",
-                            "recipient": "AnyPlayer"
+                            "recipient": {
+                                "type": "RecipientPlayer",
+                                "player": "Any"
+                            }
                         },
                         "effect": {
                             "type": "DrawCards",
@@ -7214,7 +7223,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageNonCombat",
-                    "recipient": "RecipientOpponent"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "EachOpponent"
+                    }
                 },
                 "binding": "ANY",
                 "effect": {
@@ -7260,7 +7272,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageNonCombat",
-                    "recipient": "RecipientOpponent",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "EachOpponent"
+                    },
                     "batch": true
                 },
                 "binding": "ANY",

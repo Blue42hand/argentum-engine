@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Necromantic Thirst
@@ -37,7 +37,7 @@ val NecromanticThirst = card("Necromantic Thirst") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             damageType = DamageType.Combat,
-            recipient = RecipientFilter.AnyPlayer,
+            recipient = Recipient.AnyPlayer,
             binding = TriggerBinding.ATTACHED,
         )
         val t = target("target creature card in your graveyard", Targets.CreatureCardInYourGraveyard)

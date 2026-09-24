@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -50,7 +50,7 @@ val TaiiWakeenPerfectShot = card("Taii Wakeen, Perfect Shot") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             damageType = DamageType.NonCombat,
-            recipient = RecipientFilter.AnyCreature,
+            recipient = Recipient.AnyCreature,
             sourceFilter = GameObjectFilter.Any.youControl(),
             binding = TriggerBinding.ANY,
         )

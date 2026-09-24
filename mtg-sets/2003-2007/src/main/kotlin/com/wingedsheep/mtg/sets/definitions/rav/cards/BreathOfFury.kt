@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -45,7 +45,7 @@ val BreathOfFury = card("Breath of Fury") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             damageType = DamageType.Combat,
-            recipient = RecipientFilter.AnyPlayer,
+            recipient = Recipient.AnyPlayer,
             binding = TriggerBinding.ATTACHED,
         )
         effect = Effects.Pipeline {

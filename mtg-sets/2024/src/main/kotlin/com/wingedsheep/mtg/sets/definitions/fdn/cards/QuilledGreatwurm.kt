@@ -13,7 +13,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.MayCastSelfFromZones
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -32,7 +32,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Modelling notes:
  * - The counters trigger is battlefield-wide (`TriggerBinding.ANY` over
  *   `GameObjectFilter.Creature.youControl()`), not self-bound, and covers combat damage dealt to
- *   *anything* — player, planeswalker, battle or blocking creature (`RecipientFilter.Any`).
+ *   *anything* — player, planeswalker, battle or blocking creature (`Recipient.Any`).
  * - "during your turn" is a fire-time gate, so it is a `triggerRestriction` rather than a condition on
  *   the effect: a creature that deals combat damage on an opponent's turn never triggers at all.
  * - "put that many" reads the damage off the trigger payload
@@ -60,7 +60,7 @@ val QuilledGreatwurm = card("Quilled Greatwurm") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             damageType = DamageType.Combat,
-            recipient = RecipientFilter.Any,
+            recipient = Recipient.Any,
             sourceFilter = GameObjectFilter.Creature.youControl(),
             binding = TriggerBinding.ANY,
         )

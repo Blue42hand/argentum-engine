@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PreventDamage
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.SourceFilter
 
 /**
@@ -29,7 +29,7 @@ val WellLaidPlans = card("Well-Laid Plans") {
     replacementEffect(
         PreventDamage(
             appliesTo = EventPattern.DamageEvent(
-                recipient = RecipientFilter.AnyCreature,
+                recipient = Recipient.AnyCreature,
                 source = SourceFilter.Matching(
                     GameObjectFilter.Creature.sharingColorWithRecipient()
                 )

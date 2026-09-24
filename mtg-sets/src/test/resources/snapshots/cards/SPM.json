@@ -297,7 +297,14 @@
                 "counterType": "PLUS_ONE_PLUS_ONE",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "RecipientSelf"
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": {
+                            "statePredicates": [
+                                "IsSource"
+                            ]
+                        }
+                    }
                 }
             }
         ]
@@ -425,7 +432,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": {
                         "cardPredicates": [
                             "IsCreature"
@@ -844,7 +854,10 @@
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
-                        "recipient": "AnyPlayer"
+                        "recipient": {
+                            "type": "RecipientPlayer",
+                            "player": "Any"
+                        }
                     },
                     "effect": {
                         "type": "DrawCards",
@@ -1041,7 +1054,10 @@
                                 "trigger": {
                                     "type": "DealsDamageEvent",
                                     "damageType": "DamageCombat",
-                                    "recipient": "AnyPlayer"
+                                    "recipient": {
+                                        "type": "RecipientPlayer",
+                                        "player": "Any"
+                                    }
                                 },
                                 "effect": "SacrificeSelf"
                             },
@@ -3578,7 +3594,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": "creature nontoken ctrl:you"
                 },
                 "binding": "ANY",
@@ -5906,7 +5925,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Connive",
@@ -7785,7 +7807,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
                     "sourceFilter": {
                         "cardPredicates": [
                             "IsCreature"
@@ -10582,7 +10607,7 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "recipient": {
-                        "type": "RecipientMatching",
+                        "type": "RecipientObject",
                         "filter": "creature Spider"
                     }
                 },
@@ -11829,7 +11854,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -11916,7 +11944,10 @@
                                 "trigger": {
                                     "type": "DealsDamageEvent",
                                     "damageType": "DamageCombat",
-                                    "recipient": "AnyPlayer"
+                                    "recipient": {
+                                        "type": "RecipientPlayer",
+                                        "player": "Any"
+                                    }
                                 },
                                 "effect": {
                                     "type": "Composite",
@@ -12236,7 +12267,10 @@
                                 "event": {
                                     "type": "DealsDamageEvent",
                                     "damageType": "DamageCombat",
-                                    "recipient": "AnyPlayer",
+                                    "recipient": {
+                                        "type": "RecipientPlayer",
+                                        "player": "Any"
+                                    },
                                     "sourceFilter": {
                                         "cardPredicates": [
                                             "IsCreature",
@@ -14166,7 +14200,10 @@
                 "redirectTo": "EnchantedCreature",
                 "appliesTo": {
                     "type": "DamageEvent",
-                    "recipient": "You"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "You"
+                    }
                 }
             }
         ],

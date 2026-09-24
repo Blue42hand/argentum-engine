@@ -47,14 +47,14 @@ enum class ExploreReveal { ANY, LAND, NONLAND }
  * ```kotlin
  * // "Combat damage from red sources to creatures you control"
  * EventPattern.DamageEvent(
- *     recipient = RecipientFilter.CreatureYouControl,
+ *     recipient = Recipient.CreatureYouControl,
  *     source = SourceFilter.HasColor(Color.RED),
  *     damageType = DamageType.Combat
  * )
  * ```
  *
  * Supporting filter types are organized in the events/ subdirectory:
- * - EventFilters.kt - RecipientFilter, SourceFilter, DamageType,
+ * - EventFilters.kt - Recipient, SourceFilter, DamageType,
  *                     ControllerFilter, Player
  * - Zone.kt - Zone enumeration
  */
@@ -86,14 +86,14 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
      * When damage would be dealt (used by replacement effects).
      *
      * Examples:
-     * - "damage would be dealt to you" → DamageEvent(recipient = RecipientFilter.You)
+     * - "damage would be dealt to you" → DamageEvent(recipient = Recipient.You)
      * - "combat damage would be dealt" → DamageEvent(damageType = DamageType.Combat)
      * - "damage from red sources" → DamageEvent(source = SourceFilter.HasColor(RED))
      */
     @SerialName("DamageEvent")
     @Serializable
     data class DamageEvent(
-        val recipient: RecipientFilter = RecipientFilter.Any,
+        val recipient: Recipient = Recipient.Any,
         val source: SourceFilter = SourceFilter.Any,
         val damageType: DamageType = DamageType.Any,
         val amount: AmountFilter = AmountFilter.Any
@@ -201,13 +201,13 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
      *
      * Examples:
      * - "counters would be placed" → CounterPlacementEvent()
-     * - "+1/+1 counters on creatures you control" → CounterPlacementEvent(counterType = CounterType.PLUS_ONE_PLUS_ONE, recipient = RecipientFilter.CreatureYouControl)
+     * - "+1/+1 counters on creatures you control" → CounterPlacementEvent(counterType = CounterType.PLUS_ONE_PLUS_ONE, recipient = Recipient.CreatureYouControl)
      */
     @SerialName("CounterPlacementEvent")
     @Serializable
     data class CounterPlacementEvent(
         val counterType: CounterType? = null,
-        val recipient: RecipientFilter = RecipientFilter.Any
+        val recipient: Recipient = Recipient.Any
     ) : EventPattern {
         override val description: String = buildString {
             if (counterType != null) {
@@ -1144,7 +1144,7 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
     @Serializable
     data class DealsDamageEvent(
         val damageType: DamageType = DamageType.Any,
-        val recipient: RecipientFilter = RecipientFilter.Any,
+        val recipient: Recipient = Recipient.Any,
         val sourceFilter: GameObjectFilter? = null,
         /** Extensible, conjunctive facts about the damage event and its source. */
         val requires: Set<com.wingedsheep.sdk.scripting.events.DamagePredicate> = emptySet(),
@@ -1173,7 +1173,7 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
             if (batch) {
                 // Recipient-side batch wording: "one or more [recipients] are dealt … damage".
                 append("one or more ")
-                append(if (recipient != RecipientFilter.Any) recipient.description else "permanents or players")
+                append(if (recipient != Recipient.Any) recipient.description else "permanents or players")
                 append(" are dealt ")
                 if (requireExcess) append("excess ")
                 if (damageType != DamageType.Any) {
@@ -1197,7 +1197,7 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
                     append(" ")
                 }
                 append("damage")
-                if (recipient != RecipientFilter.Any) {
+                if (recipient != Recipient.Any) {
                     append(" to ")
                     append(recipient.description)
                 }
@@ -2318,7 +2318,7 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
      * [targetMatch] optionally narrows the trigger to abilities that target a particular kind of
      * object or player. When non-null, the activated ability must have at least one chosen target
      * satisfying it — a non-targeting ability never fires. Ertha Jo, Frontier Mentor uses
-     * [com.wingedsheep.sdk.scripting.events.AbilityTargetMatch.CreatureOrPlayer] for
+     * [com.wingedsheep.sdk.scripting.events.Recipient.CreatureOrPlayer] for
      * "Whenever you activate an ability that targets a creature or player".
      *
      * [sourceFilter] optionally restricts which permanent the activated ability must belong to
@@ -2353,7 +2353,7 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
     @Serializable
     data class AbilityActivatedEvent(
         val player: Player = Player.You,
-        val targetMatch: com.wingedsheep.sdk.scripting.events.AbilityTargetMatch? = null,
+        val targetMatch: com.wingedsheep.sdk.scripting.events.Recipient? = null,
         val sourceFilter: GameObjectFilter? = null,
         val requireNoTapInCost: Boolean = false,
         val requireExhaust: Boolean = false,

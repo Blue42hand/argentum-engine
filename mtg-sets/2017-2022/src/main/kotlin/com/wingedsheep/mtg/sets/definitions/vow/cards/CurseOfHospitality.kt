@@ -18,7 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.LookAudience
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -49,7 +49,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *    too, and a creature attacking a planeswalker the cursed player controls does not.
  *
  *  - **The damage trigger** is an ANY-bound observer with
- *    [RecipientFilter.EnchantedPlayer] and `sourceFilter = Creature`, the shape Gonti, Night
+ *    [Recipient.EnchantedPlayer] and `sourceFilter = Creature`, the shape Gonti, Night
  *    Minister uses for the same "creature deals combat damage to a player, *its controller* may play
  *    the exiled card" text. The source filter is what makes the engine bind the *damaging creature*
  *    as the triggering entity and the *damaged player* as the triggering player — the exact pair the
@@ -86,7 +86,7 @@ val CurseOfHospitality = card("Curse of Hospitality") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             damageType = DamageType.Combat,
-            recipient = RecipientFilter.EnchantedPlayer,
+            recipient = Recipient.EnchantedPlayer,
             sourceFilter = GameObjectFilter.Creature,
             binding = TriggerBinding.ANY,
         )

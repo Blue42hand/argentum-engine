@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
@@ -51,7 +51,7 @@ val WarElemental = card("War Elemental") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             damageType = DamageType.Any,
-            recipient = RecipientFilter.Opponent,
+            recipient = Recipient.Opponent,
             binding = TriggerBinding.ANY,
         )
         effect = Effects.AddDynamicCounters(

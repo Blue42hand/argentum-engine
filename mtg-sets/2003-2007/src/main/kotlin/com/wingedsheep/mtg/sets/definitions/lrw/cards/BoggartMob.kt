@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Boggart Mob
@@ -43,7 +43,7 @@ val BoggartMob = card("Boggart Mob") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(
             damageType = DamageType.Combat,
-            recipient = RecipientFilter.AnyPlayer,
+            recipient = Recipient.AnyPlayer,
             sourceFilter = GameObjectFilter.Permanent.withSubtype(Subtype.GOBLIN).youControl(),
             binding = TriggerBinding.ANY
         )

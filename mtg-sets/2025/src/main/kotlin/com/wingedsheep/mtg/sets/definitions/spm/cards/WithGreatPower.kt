@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
 import com.wingedsheep.sdk.scripting.RedirectDamage
-import com.wingedsheep.sdk.scripting.events.RecipientFilter
+import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -46,7 +46,7 @@ val WithGreatPower = card("With Great Power . . .") {
     replacementEffect(
         RedirectDamage(
             redirectTo = EffectTarget.EnchantedCreature,
-            appliesTo = EventPattern.DamageEvent(recipient = RecipientFilter.You)
+            appliesTo = EventPattern.DamageEvent(recipient = Recipient.You)
         )
     )
 
