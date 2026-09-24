@@ -12,10 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -104,28 +100,21 @@ private val RunoStromkirkFront = card("Runo Stromkirk") {
     // card. If a creature card with mana value 6 or greater is revealed this way, transform Runo.
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1)),
-                storeAs = "runoLooked",
-            ),
-            SelectFromCollectionEffect(
-                from = "runoLooked",
-                selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                storeSelected = "runoRevealed",
+        effect = Effects.Pipeline {
+            val runoLooked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val runoRevealed = chooseUpTo(
+                1,
+                from = runoLooked,
                 showAllCards = true,
                 prompt = "You may reveal the top card of your library",
-                selectedLabel = "Reveal",
-            ),
-            RevealCollectionEffect(from = "runoRevealed", revealToSelf = false),
-            Effects.If(
-                condition = Conditions.CollectionContainsMatch(
-                    "runoRevealed",
-                    GameObjectFilter.Creature.manaValueAtLeast(6),
-                ),
+                selectedLabel = "Reveal"
+            )
+            reveal(runoRevealed, revealToSelf = false)
+            run(Effects.If(
+                condition = whenMatches(runoRevealed, GameObjectFilter.Creature.manaValueAtLeast(6)),
                 then = TransformEffect(EffectTarget.Self),
-            ),
-        )
+            ))
+        }
         description = "At the beginning of your upkeep, look at the top card of your library. You " +
             "may reveal that card. If a creature card with mana value 6 or greater is revealed " +
             "this way, transform Runo."

@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -10,11 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayerOrPlaneswalker
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -72,68 +67,48 @@ val ChandraDressedToKill = card("Chandra, Dressed to Kill") {
 
     // +1: Exile the top card of your library. If it's red, you may cast it this turn.
     loyaltyAbility(+1) {
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1)),
-                    storeAs = "chandraExiled"
-                ),
-                MoveCollectionEffect(
-                    from = "chandraExiled",
-                    destination = CardDestination.ToZone(Zone.EXILE)
-                ),
-                // "If it's red" is a property of the exiled *card*, so it gates the grant itself.
-                FilterCollectionEffect(
-                    from = "chandraExiled",
-                    filter = GameObjectFilter.Any.withColor(Color.RED),
-                    storeMatching = "chandraExiledRed"
-                ),
-                Effects.GrantMayPlayFromExile("chandraExiledRed", nonLandOnly = true),
-            )
-        )
+        effect = Effects.Pipeline {
+            val chandraExiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            exile(chandraExiled)
+            // "If it's red" is a property of the exiled *card*, so it gates the grant itself.
+            val chandraExiledRed = filter(chandraExiled, GameObjectFilter.Any.withColor(Color.RED))
+            run(Effects.GrantMayPlayFromExile(chandraExiledRed, nonLandOnly = true))
+        }
         description = "Exile the top card of your library. If it's red, you may cast it this turn."
     }
 
     // −7: Exile the top five, cast red spells among them this turn, and get the damage emblem.
     loyaltyAbility(-7) {
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(5)),
-                    storeAs = "chandraExiledFive"
-                ),
-                MoveCollectionEffect(
-                    from = "chandraExiledFive",
-                    destination = CardDestination.ToZone(Zone.EXILE)
-                ),
-                // "red spells" — checked against the spell as it is cast, not the exiled card.
-                Effects.GrantMayPlayFromExile(
-                    from = "chandraExiledFive",
-                    nonLandOnly = true,
-                    castColorRestriction = Color.RED,
-                ),
-                Effects.CreateGlobalTriggeredAbility(
-                    ability = TriggeredAbility.create(
-                        trigger = Triggers.youCastSpell(
-                            spellFilter = GameObjectFilter.Any.withColor(Color.RED)
-                        ).event,
-                        binding = TriggerBinding.ANY,
-                        effect = Effects.DealDamage(
-                            DynamicAmount.EntityProperty(
-                                EffectTarget.TriggeringEntity,
-                                EntityNumericProperty.ManaSpent
-                            ),
-                            EffectTarget.ContextTarget(0)
+        effect = Effects.Pipeline {
+            val chandraExiledFive = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(5)))
+            exile(chandraExiledFive)
+            // "red spells" — checked against the spell as it is cast, not the exiled card.
+            run(Effects.GrantMayPlayFromExile(
+                from = chandraExiledFive,
+                nonLandOnly = true,
+                castColorRestriction = Color.RED,
+            ))
+            run(Effects.CreateGlobalTriggeredAbility(
+                ability = TriggeredAbility.create(
+                    trigger = Triggers.youCastSpell(
+                        spellFilter = GameObjectFilter.Any.withColor(Color.RED)
+                    ).event,
+                    binding = TriggerBinding.ANY,
+                    effect = Effects.DealDamage(
+                        DynamicAmount.EntityProperty(
+                            EffectTarget.TriggeringEntity,
+                            EntityNumericProperty.ManaSpent
                         ),
-                        targetRequirement = Targets.Any,
-                        descriptionOverride = "Whenever you cast a red spell, this emblem deals X " +
-                            "damage to any target, where X is the amount of mana spent to cast that spell."
+                        EffectTarget.ContextTarget(0)
                     ),
-                    descriptionOverride = "Whenever you cast a red spell, this emblem deals X damage " +
-                        "to any target, where X is the amount of mana spent to cast that spell."
+                    targetRequirement = Targets.Any,
+                    descriptionOverride = "Whenever you cast a red spell, this emblem deals X " +
+                        "damage to any target, where X is the amount of mana spent to cast that spell."
                 ),
-            )
-        )
+                descriptionOverride = "Whenever you cast a red spell, this emblem deals X damage " +
+                    "to any target, where X is the amount of mana spent to cast that spell."
+            ))
+        }
         description = "Exile the top five cards of your library. You may cast red spells from among " +
             "them this turn. You get an emblem with \"Whenever you cast a red spell, this emblem " +
             "deals X damage to any target, where X is the amount of mana spent to cast that spell.\""

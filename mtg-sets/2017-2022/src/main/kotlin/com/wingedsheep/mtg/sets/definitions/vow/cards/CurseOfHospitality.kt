@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -10,13 +9,9 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.LookAudience
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -90,26 +85,22 @@ val CurseOfHospitality = card("Curse of Hospitality") {
             sourceFilter = GameObjectFilter.Creature,
             binding = TriggerBinding.ANY,
         )
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(
+        effect = Effects.Pipeline {
+            val cursedCard = gather(
+                CardSource.TopOfLibrary(
                     count = DynamicAmount.Fixed(1),
                     player = Player.TriggeringPlayer,
                 ),
-                storeAs = "cursedCard",
-                lookAudience = LookAudience.None,
-            ),
-            MoveCollectionEffect(
-                from = "cursedCard",
-                destination = CardDestination.ToZone(Zone.EXILE, Player.TriggeringPlayer),
-            ),
-            GrantMayPlayFromExileEffect(
-                from = "cursedCard",
+                lookAudience = LookAudience.None
+            )
+            exile(cursedCard, Player.TriggeringPlayer)
+            run(Effects.GrantMayPlayFromExile(
+                from = cursedCard,
                 expiry = MayPlayExpiry.EndOfTurn,
                 withAnyManaType = true,
                 recipient = EffectTarget.ControllerOfTriggeringEntity,
-            ),
-        )
+            ))
+        }
         description = "Whenever a creature deals combat damage to enchanted player, that player " +
             "exiles the top card of their library. Until end of turn, that creature's controller " +
             "may play that card and they may spend mana as though it were mana of any color to " +

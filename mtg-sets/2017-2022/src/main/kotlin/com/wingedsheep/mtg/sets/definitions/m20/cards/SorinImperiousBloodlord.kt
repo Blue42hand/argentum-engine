@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -60,17 +59,14 @@ val SorinImperiousBloodlord = card("Sorin, Imperious Bloodlord") {
 
     loyaltyAbility(+1) {
         effect = ReflexiveTriggerEffect(
-            action = Effects.Composite(
-                listOf(
-                    SelectTargetEffect(
-                        requirement = TargetObject(
-                            filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Vampire").youControl())
-                        ),
-                        storeAs = "vampireToSacrifice",
-                    ),
-                    Effects.SacrificeTarget(EffectTarget.PipelineTarget("vampireToSacrifice")),
+            action = Effects.Pipeline {
+                val vampireToSacrifice = selectTarget(
+                    TargetObject(
+                        filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Vampire").youControl())
+                    )
                 )
-            ),
+                run(Effects.SacrificeTarget(vampireToSacrifice.asTarget))
+            },
             optional = true,
             reflexiveEffect = Effects.Composite(
                 listOf(

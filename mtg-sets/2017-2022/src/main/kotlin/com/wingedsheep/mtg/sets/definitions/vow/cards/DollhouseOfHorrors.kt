@@ -13,10 +13,8 @@ import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * "for each Construct you control" — the bare tribal noun, so every Construct *permanent* you
@@ -72,10 +70,10 @@ val DollhouseOfHorrors = card("Dollhouse of Horrors") {
             Costs.ExileFromGraveyard(1, GameObjectFilter.Creature),
         )
         timing = TimingRule.SorcerySpeed
-        effect = Effects.Composite(
-            GatherCardsEffect(source = CardSource.ExiledAsCost, storeAs = "dollhouseExiled"),
-            CreateTokenCopyOfTargetEffect(
-                target = EffectTarget.PipelineTarget("dollhouseExiled"),
+        effect = Effects.Pipeline {
+            val dollhouseExiled = gather(CardSource.ExiledAsCost)
+            run(CreateTokenCopyOfTargetEffect(
+                target = dollhouseExiled.asTarget,
                 overridePower = 0,
                 overrideToughness = 0,
                 addCardTypes = setOf(CardType.ARTIFACT.name),
@@ -88,8 +86,8 @@ val DollhouseOfHorrors = card("Dollhouse of Horrors") {
                         toughnessBonus = ConstructsYouControl,
                     )
                 ),
-            ),
-        )
+            ))
+        }
         description = "Create a token that's a copy of the exiled card, except it's a 0/0 " +
             "Construct artifact in addition to its other types and it has \"This token gets +1/+1 " +
             "for each Construct you control.\" It gains haste until end of turn."

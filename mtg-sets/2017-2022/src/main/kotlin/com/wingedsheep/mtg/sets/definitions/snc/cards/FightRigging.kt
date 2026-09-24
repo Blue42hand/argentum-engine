@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.snc.cards
 
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -11,15 +10,9 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -55,37 +48,23 @@ val FightRigging = card("Fight Rigging") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(
-                        count = DynamicAmount.Fixed(5),
-                        player = Player.You
-                    ),
-                    storeAs = "fightRiggingTop"
-                ),
-                SelectFromCollectionEffect(
-                    from = "fightRiggingTop",
-                    selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                    storeSelected = "fightRiggingPicked",
-                    storeRemainder = "fightRiggingRest",
-                    prompt = "Choose a card to exile face down",
-                    selectedLabel = "Exile face down",
-                    remainderLabel = "Put on bottom of library"
-                ),
-                MoveCollectionEffect(
-                    from = "fightRiggingPicked",
-                    destination = CardDestination.ToZone(Zone.EXILE),
-                    faceDown = FaceDownMode.HIDDEN,
-                    linkToSource = true
-                ),
-                MoveCollectionEffect(
-                    from = "fightRiggingRest",
-                    destination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom),
-                    order = CardOrder.Random
+        effect = Effects.Pipeline {
+            val fightRiggingTop = gather(
+                CardSource.TopOfLibrary(
+                    count = DynamicAmount.Fixed(5),
+                    player = Player.You
                 )
             )
-        )
+            val (fightRiggingPicked, fightRiggingRest) = chooseExactlySplit(
+                1,
+                from = fightRiggingTop,
+                prompt = "Choose a card to exile face down",
+                selectedLabel = "Exile face down",
+                remainderLabel = "Put on bottom of library"
+            )
+            exile(fightRiggingPicked, faceDown = FaceDownMode.HIDDEN, linkToSource = true)
+            toLibraryBottom(fightRiggingRest, order = CardOrder.Random)
+        }
     }
 
     triggeredAbility {
@@ -97,15 +76,10 @@ val FightRigging = card("Fight Rigging") {
                 Effects.If(
                     condition = Conditions.YouControlAtLeast(1, GameObjectFilter.Creature.powerAtLeast(7)),
                     then = Effects.May(
-                        Effects.Composite(
-                            listOf(
-                                GatherCardsEffect(
-                                    source = CardSource.FromLinkedExile(),
-                                    storeAs = "fightRiggingLinked"
-                                ),
-                                Effects.PlayFromCollectionWithoutPayingCost("fightRiggingLinked")
-                            )
-                        ),
+                        Effects.Pipeline {
+                            val fightRiggingLinked = gather(CardSource.FromLinkedExile())
+                            run(Effects.PlayFromCollectionWithoutPayingCost(fightRiggingLinked))
+                        },
                         descriptionOverride = "Play the exiled card without paying its mana cost"
                     )
                 )

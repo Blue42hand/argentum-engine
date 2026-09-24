@@ -8,10 +8,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -37,21 +34,17 @@ val LanternOfTheLost = card("Lantern of the Lost") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap, Costs.ExileSelf)
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.FromZone(
+        effect = Effects.Pipeline {
+            val allGraveyards = gather(
+                CardSource.FromZone(
                     zone = Zone.GRAVEYARD,
                     player = Player.Each,
                     filter = GameObjectFilter.Any,
-                ),
-                storeAs = "allGraveyards",
-            ),
-            MoveCollectionEffect(
-                from = "allGraveyards",
-                destination = CardDestination.ToZone(Zone.EXILE),
-            ),
-            Effects.DrawCards(1),
-        )
+                )
+            )
+            exile(allGraveyards)
+            run(Effects.DrawCards(1))
+        }
         description = "{1}, {T}, Exile this artifact: Exile all cards from all graveyards, then draw a card."
     }
 

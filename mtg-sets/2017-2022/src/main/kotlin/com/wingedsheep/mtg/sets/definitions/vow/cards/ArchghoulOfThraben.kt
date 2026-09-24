@@ -8,13 +8,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.CardDestination
+import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -62,44 +57,27 @@ val ArchghoulOfThraben = card("Archghoul of Thraben") {
             to = Zone.GRAVEYARD,
             binding = TriggerBinding.ANY
         )
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1)),
-                storeAs = "looked"
-            ),
-            SelectFromCollectionEffect(
-                from = "looked",
-                selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
+        effect = Effects.Pipeline {
+            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            val (toHandCards, notTaken) = chooseUpToSplit(
+                1,
+                from = looked,
                 filter = GameObjectFilter.Any.withSubtype(Subtype.ZOMBIE),
-                storeSelected = "toHand",
-                storeRemainder = "notTaken",
                 prompt = "Reveal the Zombie card and put it into your hand?",
                 selectedLabel = "Reveal and put into your hand",
                 remainderLabel = "Leave it"
-            ),
-            MoveCollectionEffect(
-                from = "toHand",
-                destination = CardDestination.ToZone(Zone.HAND),
-                revealed = true
-            ),
-            SelectFromCollectionEffect(
-                from = "notTaken",
-                selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                storeSelected = "toGraveyard",
-                storeRemainder = "staysOnTop",
+            )
+            toHand(toHandCards, revealed = true)
+            val (toGraveyardCards, staysOnTop) = chooseUpToSplit(
+                1,
+                from = notTaken,
                 prompt = "Put the card into your graveyard?",
                 selectedLabel = "Put into your graveyard",
                 remainderLabel = "Leave on top of your library"
-            ),
-            MoveCollectionEffect(
-                from = "toGraveyard",
-                destination = CardDestination.ToZone(Zone.GRAVEYARD)
-            ),
-            MoveCollectionEffect(
-                from = "staysOnTop",
-                destination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Top)
             )
-        )
+            toGraveyard(toGraveyardCards)
+            toLibraryTop(staysOnTop, order = CardOrder.Preserve)
+        }
         description = "Whenever this creature or another Zombie you control dies, look at the top " +
             "card of your library. If it's a Zombie card, you may reveal it and put it into your " +
             "hand. If you don't put the card into your hand, you may put it into your graveyard."

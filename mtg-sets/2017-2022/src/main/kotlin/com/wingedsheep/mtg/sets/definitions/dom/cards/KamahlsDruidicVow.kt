@@ -7,11 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
@@ -49,47 +44,28 @@ val KamahlsDruidicVow = card("Kamahl's Druidic Vow") {
 
     spell {
         castOnlyIf(Conditions.ControlLegendaryCreatureOrPlaneswalker)
-        effect = Effects.Composite(
-            listOf(
-                // Look at the top X cards
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(DynamicAmount.XValue),
-                    storeAs = "looked"
-                ),
-                // Filter to cards with mana value X or less
-                FilterCollectionEffect(
-                    from = "looked",
-                    filter = GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmount.XValue),
-                    storeMatching = "mvOk",
-                    storeNonMatching = "mvTooHigh"
-                ),
-                // Player selects any number of land and/or legendary permanent cards
-                SelectFromCollectionEffect(
-                    from = "mvOk",
-                    selection = SelectionMode.ChooseAnyNumber,
-                    filter = LandOrLegendaryPermanent,
-                    storeSelected = "chosen",
-                    storeRemainder = "unchosen",
-                    prompt = "Put any number of land and/or legendary permanent cards onto the battlefield",
-                    showAllCards = true
-                ),
-                // Put chosen cards onto the battlefield
-                MoveCollectionEffect(
-                    from = "chosen",
-                    destination = CardDestination.ToZone(Zone.BATTLEFIELD)
-                ),
-                // Put unchosen cards into graveyard
-                MoveCollectionEffect(
-                    from = "unchosen",
-                    destination = CardDestination.ToZone(Zone.GRAVEYARD)
-                ),
-                // Put cards with MV too high into graveyard
-                MoveCollectionEffect(
-                    from = "mvTooHigh",
-                    destination = CardDestination.ToZone(Zone.GRAVEYARD)
-                )
+        effect = Effects.Pipeline {
+            // Look at the top X cards
+            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.XValue))
+            // Filter to cards with mana value X or less
+            val (mvOk, mvTooHigh) = filterSplit(
+                looked,
+                GameObjectFilter.Any.manaValueAtMostDynamic(DynamicAmount.XValue)
             )
-        )
+            // Player selects any number of land and/or legendary permanent cards
+            val (chosen, unchosen) = chooseAnyNumberSplit(
+                from = mvOk,
+                filter = LandOrLegendaryPermanent,
+                prompt = "Put any number of land and/or legendary permanent cards onto the battlefield",
+                showAllCards = true
+            )
+            // Put chosen cards onto the battlefield
+            move(chosen, CardDestination.ToZone(Zone.BATTLEFIELD))
+            // Put unchosen cards into graveyard
+            toGraveyard(unchosen)
+            // Put cards with MV too high into graveyard
+            toGraveyard(mvTooHigh)
+        }
     }
 
     metadata {

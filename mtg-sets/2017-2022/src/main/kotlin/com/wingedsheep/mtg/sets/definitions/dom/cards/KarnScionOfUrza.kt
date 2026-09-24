@@ -11,10 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
@@ -41,57 +37,27 @@ val KarnScionOfUrza = card("Karn, Scion of Urza") {
 
     // +1: Reveal top 2, opponent chooses 1 for hand, other exiled with silver counter
     loyaltyAbility(+1) {
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(2)),
-                    storeAs = "revealed",
-                    revealed = true
-                ),
-                SelectFromCollectionEffect(
-                    from = "revealed",
-                    selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                    chooser = Chooser.Opponent,
-                    storeSelected = "chosen",
-                    storeRemainder = "rest"
-                ),
-                MoveCollectionEffect(
-                    from = "chosen",
-                    destination = CardDestination.ToZone(Zone.HAND)
-                ),
-                MoveCollectionEffect(
-                    from = "rest",
-                    destination = CardDestination.ToZone(Zone.EXILE),
-                    addCounterType = CounterType.SILVER
-                )
-            )
-        )
+        effect = Effects.Pipeline {
+            val revealed = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(2)), revealed = true)
+            val (chosen, rest) = chooseExactlySplit(1, from = revealed, chooser = Chooser.Opponent)
+            toHand(chosen)
+            move(rest, CardDestination.ToZone(Zone.EXILE), addCounterType = CounterType.SILVER)
+        }
     }
 
     // -1: Put a card with silver counter from exile into hand
     loyaltyAbility(-1) {
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.FromZone(
-                        zone = Zone.EXILE,
-                        player = Player.You,
-                        filter = GameObjectFilter.Any.withCounter(CounterType.SILVER)
-                    ),
-                    storeAs = "silverExiled"
-                ),
-                SelectFromCollectionEffect(
-                    from = "silverExiled",
-                    selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                    storeSelected = "chosen",
-                    storeRemainder = "rest"
-                ),
-                MoveCollectionEffect(
-                    from = "chosen",
-                    destination = CardDestination.ToZone(Zone.HAND)
+        effect = Effects.Pipeline {
+            val silverExiled = gather(
+                CardSource.FromZone(
+                    zone = Zone.EXILE,
+                    player = Player.You,
+                    filter = GameObjectFilter.Any.withCounter(CounterType.SILVER)
                 )
             )
-        )
+            val chosen = chooseExactly(1, from = silverExiled)
+            toHand(chosen)
+        }
     }
 
     // -2: Create 0/0 Construct artifact creature token with dynamic P/T
