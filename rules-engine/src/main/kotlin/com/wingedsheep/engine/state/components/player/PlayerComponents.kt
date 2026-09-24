@@ -1393,6 +1393,21 @@ data class PlayerDescendedThisTurnComponent(val count: Int = 0) : Component
 data class CreatureCardsPutIntoGraveyardThisTurnComponent(val count: Int = 0) : Component
 
 /**
+ * Tracks the number of cards put into this player's graveyard **from their library** during the
+ * current turn — milled, surveilled, or any other library → graveyard move. Cleared at end of turn
+ * by CleanupPhaseManager.
+ *
+ * Recorded by the same `moveToZone` hook as [CreatureCardsPutIntoGraveyardThisTurnComponent] and
+ * keyed on the card's owner (a library card only ever goes to its owner's graveyard). Turn history,
+ * not a graveyard scan: a card that later leaves the graveyard still counts.
+ *
+ * Backs Cruel Calculations' "the number of cards that were put into target player's graveyard
+ * from their library this turn".
+ */
+@Serializable
+data class CardsPutIntoGraveyardFromLibraryThisTurnComponent(val count: Int = 0) : Component
+
+/**
  * Marks that this player has flipped one or more coins already this turn. Presence alone is the
  * signal — it is set the first time the player flips (regardless of who controls any coin-flip
  * replacement) so that a "the first time you flip one or more coins each turn" effect

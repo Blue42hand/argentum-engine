@@ -1058,9 +1058,13 @@ class TriggerDetector(
             // Attack-declaration triggers are player-/filter-scoped, not entity-scoped, so they
             // reuse the canonical matcher rather than the watched-entity narrowing above.
             // Powers "when you next attack this turn, …" (YouAttackEvent) and the general
-            // "when a [filtered] creature next attacks" (AttackEvent).
+            // "when a [filtered] creature next attacks" (AttackEvent), and the defender-side
+            // "until your next turn, whenever one or more creatures attack one of your opponents"
+            // (Garruk, Curse Breaker) / "…attack you" batch forms.
             is com.wingedsheep.sdk.scripting.EventPattern.YouAttackEvent,
-            is com.wingedsheep.sdk.scripting.EventPattern.AttackEvent ->
+            is com.wingedsheep.sdk.scripting.EventPattern.AttackEvent,
+            is com.wingedsheep.sdk.scripting.EventPattern.CreaturesAttackYouEvent,
+            is com.wingedsheep.sdk.scripting.EventPattern.CreaturesAttackYourOpponentEvent ->
                 matcher.matchesTrigger(specEvent, spec.binding, event, sourceId, controllerId, state)
             // Spell-cast delayed triggers ("whenever you cast a [filtered] spell this turn, …",
             // Rediscover the Way chapter III) are filter-scoped: delegate to the canonical
@@ -1716,10 +1720,9 @@ class TriggerDetector(
             detectOpponentGainsControlTriggers(state, index.statics, event, triggers)
         }
 
-        // Handle self-cast triggers on the spell currently being cast — both NthSpellCast
-        // (e.g. Hearthborn Battler cast as the second spell of the turn) and "when you cast
-        // this spell" cast triggers (e.g. Sage of the Skies). The spell is on the stack, not
-        // the battlefield, so the main index scan above skips it.
+        // Handle "when you cast this spell" cast triggers on the spell currently being cast
+        // (e.g. Sage of the Skies). The spell is on the stack, not the battlefield, so the main
+        // index scan above skips it.
         if (event is SpellCastEvent) {
             detectSelfCastTriggers(state, index.statics, event, triggers)
         }
@@ -1841,18 +1844,14 @@ class TriggerDetector(
     }
 
     /**
-     * Detect self-cast triggers on the spell currently being cast — triggers whose event keys off
-     * the spell's own casting and travels with it onto the stack.
+     * Detect self-cast triggers on the spell currently being cast — a "when you cast this spell"
+     * cast trigger ([EventPattern.CastThisSpellEvent], Sage of the Skies). These are never indexed
+     * against battlefield permanents, so this is the only path that fires them.
      *
-     * Two kinds qualify:
-     *  - [EventPattern.NthSpellCastEvent] — when a card like Hearthborn Battler is itself the Nth
-     *    spell cast this turn ("whenever a player casts their second spell each turn").
-     *  - [EventPattern.CastThisSpellEvent] — a "when you cast this spell" cast trigger (Sage of the
-     *    Skies). These are never indexed against battlefield permanents, so this is the only path
-     *    that fires them.
-     *
-     * The spell is on the stack rather than the battlefield, so the main index scan skips it; this
-     * pass reads the cast spell's own triggered abilities and matches them against the cast event.
+     * A permanent card's *other* triggered abilities — including [EventPattern.NthSpellCastEvent]
+     * ("whenever a player casts their second spell each turn") — function only on the battlefield
+     * (CR 113.6), so a Hearthborn Battler or Plan for All Outcomes that is itself the Nth spell
+     * cast does **not** trigger off its own cast.
      */
     private fun detectSelfCastTriggers(
         state: GameState,
@@ -1869,9 +1868,7 @@ class TriggerDetector(
         val controllerId = event.casterId
 
         for (ability in abilities) {
-            if (ability.trigger !is EventPattern.NthSpellCastEvent &&
-                ability.trigger !is EventPattern.CastThisSpellEvent
-            ) continue
+            if (ability.trigger !is EventPattern.CastThisSpellEvent) continue
             if (matcher.matchesTrigger(ability.trigger, ability.binding, event, entityId, controllerId, state)) {
                 triggers.add(
                     PendingTrigger(

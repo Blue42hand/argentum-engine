@@ -1014,6 +1014,25 @@ object PredefinedTokens {
     }
 
     /**
+     * Forest Tentacle — the 3/3 green land creature token of Reality Fracture (Verdant Kraken).
+     * Its "{T}: Add {G}." is the intrinsic mana ability of the Forest land type (CR 305.6), which
+     * the engine derives from the subtype, so the definition declares no ability of its own. Being
+     * a creature, it can't tap for mana until it has been under its controller's control since
+     * their most recent turn began (CR 302.6).
+     */
+    val ForestTentacle = card("Forest Tentacle") {
+        typeLine = "Land Creature — Forest Tentacle"
+        colorIdentity = "G"
+        power = 3
+        toughness = 3
+        oracleText = "{T}: Add {G}."
+
+        metadata {
+            imageUri = "https://cards.scryfall.io/normal/front/f/c/fc924972-5014-45d1-9676-6a76d862b205.jpg"
+        }
+    }
+
+    /**
      * All predefined token definitions.
      * Register these in the CardRegistry so token abilities are resolved.
      */
@@ -1055,6 +1074,7 @@ object PredefinedTokens {
         Axe,
         Jace,
         Heartwood,
-        Lotus
+        Lotus,
+        ForestTentacle
     )
 }

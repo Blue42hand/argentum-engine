@@ -1012,7 +1012,13 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 
 ### Damage
 
-- `DealDamage(amount, target)` — deal fixed/dynamic damage.
+- `DealDamage(amount, target, damageSource?, excessDamageVariable?)` — deal fixed/dynamic damage.
+  When `excessDamageVariable` is set, the excess damage (CR 120.4a) dealt to the single permanent
+  target — above lethal for a creature (marked damage and deathtouch aware), above loyalty for a
+  planeswalker, above defense for a battle — is stored into that pipeline number variable, read off
+  the actual `DamageDealtEvent` (so prevention is accounted for; 0 when no excess). Gate the payoff
+  with `Conditions.CompareAmounts(VariableReference(name), GT, Fixed(0))` — Violent Echoes: "If
+  excess damage was dealt to that permanent this way, empower Jace X, where X is that excess damage."
 - `DealDamageExcessToController(amount, target)` — deal damage to a creature; any amount beyond
   lethal (CR 120.4a) is dealt to that creature's controller instead (the creature is marked only with
   the lethal portion). Backed by `DealDamageEffect.excessToController`. Used by Gandalf's Sanction.
@@ -1381,11 +1387,14 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   express "if you don't, X" riders — e.g. SOI shadow lands wrap this in
   `OnEnterRunEffect(...)` with `otherwise = Effects.Tap(EffectTarget.Self)` for the
   "this land enters tapped" branch.
-- `Effects.Behold(filter, ifBeheld?)` — resolution-time **behold** (`BeholdEffect`): "you may
-  behold a `filter`. If you do, `ifBeheld`." The behold itself is optional — the controller may
+- `Effects.Behold(filter, ifBeheld?, otherwise?)` — resolution-time **behold** (`BeholdEffect`): "you may
+  behold a `filter`. If you do, `ifBeheld`. If you don't, `otherwise`." The behold itself is optional — the controller may
   choose a matching permanent they control **or** reveal a matching card from hand (revealing emits
   `CardsRevealedEvent`; battlefield permanents are merely chosen). If they decline, or control no
-  matching permanent and hold no matching card, `ifBeheld` does not run. Distinct from the cast-time
+  matching permanent and hold no matching card, `ifBeheld` does not run and `otherwise` does.
+  Theorist's Sanctum's "As this land enters, you may behold a Jace. If you don't, this land enters
+  tapped" is `OnEnterRunEffect(Effects.Behold(Any.withSubtype("Jace"), otherwise = Effects.Tap(Self)))`
+  — the reveal-land shape with behold's wider pool (CR 701.4a). Distinct from the cast-time
   `AdditionalCost.Behold` (on its own or as an `AdditionalCost.OrPay` leg — beholding as a casting
   cost). Sarkhan,
   Dragon Ascendant ETB: `Effects.Behold(GameObjectFilter.Any.withSubtype(Subtype.DRAGON),
@@ -2008,6 +2017,10 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   green "Artifact — Heartwood" with "{T}: Add {R} or {G}."
 - `CreateLotus(count?, controller?)` — Lotus tokens (Reality Fracture, Kwia Vigorbloom): a colorless
   "Artifact" named Lotus with "{T}, Sacrifice this token: Add three mana of any one color."
+- `CreateForestTentacle(count?, tapped?, controller?)` — Forest Tentacle tokens (Reality Fracture,
+  Verdant Kraken): a 3/3 green "Land Creature — Forest Tentacle". Its "{T}: Add {G}." is the Forest
+  type's intrinsic mana ability (CR 305.6), derived from the subtype, and as a creature it is subject
+  to summoning sickness (CR 302.6).
 - `CreateEverywhere(count?, tapped?, controller?)` — Everywhere land tokens (Overlord of the Hauntwoods):
   a colorless land token with all five basic land subtypes (Plains/Island/Swamp/Mountain/Forest) that
   taps for any color — i.e. the mana ability of each basic land type, without the basic supertype. The
@@ -3171,6 +3184,11 @@ one-off pipeline belongs inline in the card file via `Effects.Pipeline { }` (§5
     a dynamic surveil (the marker only carries a literal), so this expands straight to
     `surveilPipeline(count)` and always emits `SurveiledEvent` (the real gathered size drives the event,
     handling library-smaller-than-X and X = 0). Twin of the dynamic `lookAtTopAndReorder(count)`.
+  - **Remembering the graveyard pile.** `surveil(count, storeGraveyardAs)` expands to the same
+    `surveilPipeline(count, storeGraveyardAs)` (`SurveiledEvent` included) and stores the cards the
+    graveyard move moved under `storeGraveyardAs`, for "if you put a card … into your
+    graveyard this way, …" (Enlightened Confidant: `MoveCollection(from = storeGraveyardAs, ToZone(HAND),
+    filter = Any.manaValueAtMostDynamic(lifeGainedThisTurn()))`).
 - `mill(count)` — top N cards into graveyard.
 - `exileTop(count, target = Controller)` — top N cards of a player's library into exile (Malboro's
   "exiles the top three cards of their library"). Same Gather → Move pipeline as `mill`, destination
@@ -6520,7 +6538,13 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   permanent entering with counters, CR 122.6a), the mover's controller (CR 122.5 — *moving* a counter
   "puts" it on the destination), or the damage source's controller (wither, CR 702.80). A few
   low-value paths carry no placer (saga lore counters, poison counters on players) and never match a
-  non-null `placedBy`. Default `null` matches any placer. Triggering permanent is
+  non-null `placedBy`. Default `null` matches any placer. A planeswalker's **[+N] loyalty cost** is
+  a placement too (CR 606.4): paying it emits `CountersAddedEvent(loyalty, N, placedBy = activator)`
+  (a cost, so counter-placement replacements such as Doubling Season don't apply), while [−N]/[0]
+  costs still emit `LoyaltyChangedEvent`. Inspired Tethermage's "Whenever you put one or more
+  loyalty counters on a planeswalker" is `countersPlacedOn(filter = Planeswalker, counterType =
+  Counters.LOYALTY, firstTimeEachTurn = false, placedBy = Player.You)` — it sees [+N] costs,
+  planeswalkers entering with loyalty, and empower Jace. Triggering permanent is
   `EffectTarget.TriggeringEntity`. Stalwart Successor shape.
   `batch = true` switches the multiplicity from the per-permanent template ("… on **a** creature you
   control") to the **batch** template ("… on **one or more** other Heroes you control" — Invisible
@@ -6598,6 +6622,8 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   `CostGating.NthOfTypePerTurn` and the `nthOfTypePerTurn` flash gate read) instead of the flat
   `playerSpellsCastThisTurn` total, so it counts **casts, not resolutions**: a matching spell that was countered
   still closes the window for that turn. Without a filter it is the flat total, the Hearthborn Battler shape.
+  Like any triggered ability of a permanent card it functions only on the battlefield (CR 113.6): a card that
+  is *itself* the Nth spell cast doesn't trigger off its own cast (Hearthborn Battler, Plan for All Outcomes).
 - `WhenYouCastThisSpell()` — a "cast trigger" that fires on the spell's **own** cast while it is on
   the stack (`EventPattern.CastThisSpellEvent`, `binding = SELF`). Distinct from a battlefield
   `SpellCast`/`NthSpellCast` trigger that observes *other* spells: this one travels with the spell
@@ -6662,7 +6688,11 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   delayed ability fires whenever a matching *event* occurs, staying resident until `expiry`
   (`DelayedTriggerExpiry.EndOfTurn`) removes it. Supported events include `DealsDamageEvent`,
   `ZoneChangeEvent`, the internal `DamagePreventedEvent`, and the attack-declaration events
-  `YouAttackEvent` / `AttackEvent`. There are two ways to scope which events match:
+  `YouAttackEvent` / `AttackEvent` and the defender-side batch events `CreaturesAttackYouEvent` /
+  `CreaturesAttackYourOpponentEvent` (Garruk, Curse Breaker's −4: `trigger =
+  Triggers.CreaturesAttackYourOpponent, expiry = UntilControllersNextTurn`, paying off "those
+  creatures" with a `GroupFilter(Creature.attackingAnOpponent())` sweep). There are two ways to scope
+  which events match:
   - **Entity-scoped** — set `watchedTarget` to bind the trigger to one concrete entity (resolved at
     creation time): "when **that** creature deals combat damage / dies this turn" (Long River Lurker,
     Deflecting Palm). Only `DealsDamageEvent` (scoped on the damage source) and `ZoneChangeEvent`
@@ -6686,7 +6716,8 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
     `trigger = Triggers.entersBattlefield(GameObjectFilter.Creature.youControl(), binding = ANY)`.
     Matching delegates to the same `TriggerMatcher` the battlefield triggers use, so the filter's
     type **and** controller predicates are honored — it fires only for *your* creatures, not every
-    permanent that enters. (`YouAttackEvent` / `AttackEvent` are always filter-scoped this way.)
+    permanent that enters. (`YouAttackEvent` / `AttackEvent` / `CreaturesAttackYouEvent` /
+    `CreaturesAttackYourOpponentEvent` are always filter-scoped this way.)
   - `fireOnce = true` makes it a **one-shot**: it's consumed the first time it fires, then gone —
     "when you **next** [event] this turn". Combine with `trigger = Triggers.YouAttack` for the
     common "when you next attack this turn, …" template (All-Out Assault: untap each creature you
@@ -7870,7 +7901,13 @@ staticAbility {
   permanentFilter = GameObjectFilter.Artifact or GameObjectFilter.Creature or GameObjectFilter.Enchantment,
   condition = IsYourTurn)` ("During your turn, your opponents can't activate abilities of artifacts,
   creatures, or enchantments."); loyalty abilities and land mana abilities are unaffected because the
-  filter only matches those three permanent types.
+  filter only matches those three permanent types. Two more axes, both off by default:
+  `nonManaAbilitiesOnly = true` exempts mana abilities, and `anyZone = true` extends the prohibition past
+  permanents to abilities of cards in any zone — graveyard/hand/exile/command-zone activated abilities,
+  cycling and typecycling — for the unqualified "players can't activate abilities" wording. Crew is
+  checked like any battlefield ability. Yuriko, Blade of the Mighty = `PlayersCantActivateAbilities(Player.Each,
+  condition = IsInPhase(listOf(COMBAT), yoursOnly = false), nonManaAbilitiesOnly = true, anyZone = true)`
+  plus `PlayersCantCastSpells(Player.Each, condition = IsInPhase(listOf(COMBAT), yoursOnly = false))`.
 - `ExtraOnceOnlyActivations(kind, extraActivations = null, condition = null)`
   — the *permission* counterpart of the above, over the keyword-prefixed "Activate this ability only once"
   limits: exhaust (CR 702.177) and power-up (CR 702.193), selected by `kind` (**required, no default** —
@@ -10677,6 +10714,12 @@ default to "you" so card authors don't need to pass it explicitly.
   `ZoneTransitionService.trackDiscard` and reset to empty for every player at the start of each turn by
   `TurnManager`. Powers "draw a card for each card you've discarded this turn" (Green Goblin, Revenant).
   The same component's membership check backs the Mayhem gate (`Conditions.YouDiscardedThisCardThisTurn`).
+- `DynamicAmounts.cardsPutIntoGraveyardFromLibraryThisTurn(player)` /
+  `TurnTracker.CARDS_PUT_INTO_GRAVEYARD_FROM_LIBRARY` — the number of cards put into `player`'s graveyard
+  from their library this turn: mill, surveil, and every other library → graveyard move. Backed by the
+  per-player `CardsPutIntoGraveyardFromLibraryThisTurnComponent`, incremented in `ZoneTransitionService`
+  (keyed on the owner) and cleared at end of turn. Turn history — a card that later leaves the graveyard
+  still counts. Cruel Calculations: `DrawCards(cardsPutIntoGraveyardFromLibraryThisTurn(Player.ContextPlayer(0)))`.
 - `CreatureCardsPutIntoGraveyardsThisTurn(atLeast = 1)` — the **game-wide** sibling of
   `CreatureCardPutIntoYourGraveyardThisTurn`: at least `atLeast` creature cards reached *any* player's
   graveyard this turn (summed via `Player.Each`). Case of the Gorgon's Kiss's "three or more creature
@@ -10952,7 +10995,12 @@ Numbers computed at resolution time.
   `property` (`POWER`/`TOUGHNESS`/`MANA_VALUE`), and the distinct-set counters
   `DISTINCT_TYPES`, `DISTINCT_PERMANENT_TYPES`, `DISTINCT_COLORS`, `DISTINCT_COLOR_PAIRS`,
   `DISTINCT_NAMES`, `DISTINCT_BASIC_LAND_SUBTYPES`
-  (Domain), `DISTINCT_COUNTER_TYPES` (the number of different kinds of counters present
+  (Domain), `DISTINCT_PLANESWALKER_SUBTYPES` (planeswalker types, CR 205.3j, among the matched
+  permanents that are planeswalkers — two Jaces count once; creature types a creature-planeswalker
+  also carries are excluded rather than a fixed planeswalker-type list included, so a newly printed
+  walker is never silently missed; facade `DynamicAmounts.planeswalkerTypes(player)` — Tam, the
+  Possibility's "proliferate X times, where X is the number of planeswalker types among
+  planeswalkers you control"), `DISTINCT_COUNTER_TYPES` (the number of different kinds of counters present
   across the group — same kind on several permanents counts once), and `DISTINCT_VALUES`
   (the number of *distinct values* of the configured `property` — Selvala, Eager Trailblazer's
   "the number of different powers among creatures you control" via
@@ -11816,6 +11864,9 @@ this turn").
   any zone this turn; the creature-typed sibling of `DESCENDED`, recorded by the same
   `ZoneTransitionService` hook, keyed on the card's owner, tokens excluded. Backs
   `Conditions.CreatureCardPutIntoYourGraveyardThisTurn(atLeast)` (Macabre Reconstruction).
+- `CARDS_PUT_INTO_GRAVEYARD_FROM_LIBRARY` — number of cards put into a player's graveyard from their
+  library this turn (mill, surveil, …); recorded by the same `ZoneTransitionService` hook, keyed on the
+  owner. Facade `DynamicAmounts.cardsPutIntoGraveyardFromLibraryThisTurn(player)` (Cruel Calculations).
 - `CARDS_DRAWN` — number of cards a player has drawn this turn (backed by
   `CardsDrawnThisTurnComponent`, reset to 0 for every player at turn start). Powers
   characteristic-defining stats like Duelist of the Mind's "power is equal to the number of
