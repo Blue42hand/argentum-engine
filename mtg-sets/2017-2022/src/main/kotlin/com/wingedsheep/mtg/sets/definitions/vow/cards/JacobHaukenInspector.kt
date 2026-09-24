@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Jacob Hauken, Inspector // Hauken's Insight — Innistrad: Crimson Vow #65
@@ -107,7 +108,7 @@ private val HaukensInsight = card("Hauken's Insight") {
         "exiled with this permanent without paying its mana cost."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.Pipeline {
             val haukensInsightExiled = gather(CardSource.TopOfLibrary(1))
             move(

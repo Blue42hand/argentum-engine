@@ -30,7 +30,7 @@ val MerrowSkyswimmer = card("Merrow Skyswimmer") {
     keywords(Keyword.CONVOKE, Keyword.FLYING, Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             count = 1,
             power = 1,

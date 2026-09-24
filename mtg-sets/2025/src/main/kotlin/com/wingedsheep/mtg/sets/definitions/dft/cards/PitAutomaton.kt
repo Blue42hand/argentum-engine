@@ -30,8 +30,8 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    first matching activation consumes it, and an unfired one is swept at end of turn. Activating
  *    this ability twice stacks two independent delayed triggers, so the next exhaust ability is
  *    copied twice — matching the rules, since each resolution creates its own delayed ability.
- *  - The trigger is [Triggers.YouActivateNonManaExhaustAbility], not the plain
- *    [Triggers.YouActivateExhaustAbility] the other Aetherdrift exhaust payoffs use. Pit Automaton's
+ *  - The trigger is `Triggers.you.activatesAbility(exhaust = true, excludeManaAbilities = true)`, not the plain
+ *    `Triggers.you.activatesAbility(exhaust = true)` the other Aetherdrift exhaust payoffs use. Pit Automaton's
  *    Oracle text was updated on release to add "that isn't a mana ability", so an exhaust *mana*
  *    ability must not arm the copy.
  *  - The copy itself reuses the shared [Effects.CopyTargetSpellOrAbility] against
@@ -64,7 +64,7 @@ val PitAutomaton = card("Pit Automaton") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
         effect = Effects.CreateDelayedTrigger(
-            trigger = Triggers.YouActivateNonManaExhaustAbility,
+            trigger = Triggers.you.activatesAbility(exhaust = true, excludeManaAbilities = true),
             effect = Effects.CopyTargetSpellOrAbility(EffectTarget.TriggeringEntity),
             fireOnce = true,
             expiry = DelayedTriggerExpiry.EndOfTurn

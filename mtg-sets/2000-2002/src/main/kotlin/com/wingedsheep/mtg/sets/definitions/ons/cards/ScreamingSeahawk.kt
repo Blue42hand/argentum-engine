@@ -29,7 +29,7 @@ val ScreamingSeahawk = card("Screaming Seahawk") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.Any.named("Screaming Seahawk"),

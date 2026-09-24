@@ -5,12 +5,10 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.CantBeBlockedByFewerThan
 import com.wingedsheep.sdk.scripting.ExileCounteredSpellInstead
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Guile — Lorwyn #69
@@ -43,10 +41,7 @@ val Guile = card("Guile") {
 
     triggeredAbility {
         triggerZone = Zone.GRAVEYARD
-        trigger = TriggerSpec(
-            event = EventPattern.ZoneChangeEvent(to = Zone.GRAVEYARD),
-            binding = TriggerBinding.SELF
-        )
+        trigger = Triggers.self.changesZone(to = Zone.GRAVEYARD)
         // Shuffle even if the card has left the graveyard before this resolves.
         effect = Effects.Move(EffectTarget.Self, Zone.LIBRARY, fromZone = Zone.GRAVEYARD) then
             Effects.ShuffleLibrary()

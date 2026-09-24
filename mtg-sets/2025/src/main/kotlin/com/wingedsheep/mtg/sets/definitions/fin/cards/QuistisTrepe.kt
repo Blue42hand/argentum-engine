@@ -41,7 +41,7 @@ val QuistisTrepe = card("Quistis Trepe") {
         val target = target("target", TargetObject(
             filter = TargetFilter.InstantOrSorceryInGraveyard,
         ))
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             // Exile the targeted card from its graveyard.
             run(Effects.Move(target, Zone.EXILE))

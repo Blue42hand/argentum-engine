@@ -34,7 +34,7 @@ val AzogMoriasRuin = card("Azog, Moria's Ruin") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "up to one other target creature",
             TargetCreature(optional = true, filter = TargetFilter.OtherCreature),

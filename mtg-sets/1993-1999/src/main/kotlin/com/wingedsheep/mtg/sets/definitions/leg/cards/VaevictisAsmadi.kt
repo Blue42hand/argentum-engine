@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Vaevictis Asmadi
@@ -38,7 +39,7 @@ val VaevictisAsmadi = card("Vaevictis Asmadi") {
 
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.PayOrSuffer(cost = Costs.pay.Mana("{B}{R}{G}"), suffer = SacrificeSelfEffect)
     }
 

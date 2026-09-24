@@ -31,7 +31,7 @@ val YathanRoadwatcher = card("Yathan Roadwatcher") {
         "When you do, return target creature card with mana value 3 or less from your graveyard to the battlefield."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.WasCast
         effect = Effects.ReflexiveTrigger(
             action = Patterns.Library.mill(4),

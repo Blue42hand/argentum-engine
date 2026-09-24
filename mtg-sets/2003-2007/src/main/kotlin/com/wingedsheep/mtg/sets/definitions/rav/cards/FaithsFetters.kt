@@ -43,7 +43,7 @@ val FaithsFetters = card("Faith's Fetters") {
     auraTarget = Targets.Permanent
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(4)
     }
 

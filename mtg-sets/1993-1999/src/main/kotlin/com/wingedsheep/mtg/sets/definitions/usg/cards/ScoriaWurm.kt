@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 
 /**
@@ -27,7 +28,7 @@ val ScoriaWurm = card("Scoria Wurm") {
     power = 7
     toughness = 7
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.FlipCoin(lostEffect = Effects.Move(EffectTarget.Self, Zone.HAND))
     }
     metadata {

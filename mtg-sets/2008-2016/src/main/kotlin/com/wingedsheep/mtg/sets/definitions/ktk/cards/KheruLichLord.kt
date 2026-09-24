@@ -36,7 +36,7 @@ val KheruLichLord = card("Kheru Lich Lord") {
             "exile it instead of putting it anywhere else."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}{B}"),
             then = Effects.Pipeline {

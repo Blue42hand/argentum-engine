@@ -26,7 +26,7 @@ val BywayBarterer = card("Byway Barterer") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.Expend(4)
+        trigger = Triggers.you.expends(4)
         effect = Effects.May(
             Patterns.Hand.discardHand().then(Effects.DrawCards(2))
         )

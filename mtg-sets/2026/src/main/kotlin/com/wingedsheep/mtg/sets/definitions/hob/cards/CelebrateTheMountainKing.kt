@@ -27,7 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  * to one", so declining is legal and the trigger still resolves.
  *
  * The exile half is the Banishing Light pair: [Effects.ExileUntilLeaves] links the exiled card to
- * this enchantment, and a [Triggers.LeavesBattlefield] trigger returns the linked pile under its
+ * this enchantment, and a `Triggers.self.leaves()` trigger returns the linked pile under its
  * owner's control. Bouncing or destroying the enchantment in response to its own enters trigger
  * gives the usual O-Ring result — the leaves trigger resolves with an empty linked pile and the
  * exile then never happens.
@@ -42,7 +42,7 @@ val CelebrateTheMountainKing = card("Celebrate the Mountain-king") {
         "discarded a nonland card, create a 1/1 white Human Soldier creature token.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val exiled = target(
             "up to one target nonland permanent that player controls",
             TargetPermanent(count = 1, optional = true, filter = TargetFilter.NonlandPermanentOpponentControls)
@@ -53,12 +53,12 @@ val CelebrateTheMountainKing = card("Celebrate the Mountain-king") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Mechanic.recruit()
     }
 

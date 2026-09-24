@@ -35,7 +35,7 @@ val TriceratonCommander = card("Triceraton Commander") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             count = DynamicAmounts.xValue(),
             power = 2,
@@ -47,7 +47,7 @@ val TriceratonCommander = card("Triceraton Commander") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(
                 GameObjectFilter.Creature.withSubtype("Dinosaur").youControl(),

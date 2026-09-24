@@ -29,7 +29,7 @@ val LoomingSpires = card("Looming Spires") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature", Targets.Creature)
         effect = Effects.Composite(
             Effects.ModifyStats(1, 1, creature),

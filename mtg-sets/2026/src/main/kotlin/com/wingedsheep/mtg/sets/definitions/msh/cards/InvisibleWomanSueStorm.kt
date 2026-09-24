@@ -21,7 +21,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  *
  * Implementation notes:
  * - The headline is the **batch** shape of the counter-placement trigger:
- *   `Triggers.countersPlacedOn(..., batch = true)` (CR 603.2c). One effect that puts a counter on
+ *   `Triggers.a(...).getsCounters(batch = true)` (CR 603.2c). One effect that puts a counter on
  *   three of your Heroes is a single occurrence of the trigger event, so it makes one Wall, not
  *   three — the over-count the per-permanent template would produce. Two *separate* effects placing
  *   counters in the same turn are two events and make two Walls.
@@ -49,14 +49,7 @@ val InvisibleWomanSueStorm = card("Invisible Woman, Sue Storm") {
     keywords(Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.countersPlacedOn(
-            filter = GameObjectFilter.Creature.youControl().withSubtype(Subtype.HERO),
-            counterType = CounterType.PLUS_ONE_PLUS_ONE,
-            firstTimeEachTurn = false,
-            binding = TriggerBinding.OTHER,
-            placedBy = Player.You,
-            batch = true,
-        )
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl().withSubtype(Subtype.HERO)).getsCounters(CounterType.PLUS_ONE_PLUS_ONE, by = Player.You, batch = true)
         optional = true
         effect = Effects.CreateToken(
             power = 0,

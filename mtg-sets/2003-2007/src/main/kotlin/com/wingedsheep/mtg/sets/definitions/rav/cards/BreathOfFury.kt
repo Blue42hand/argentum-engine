@@ -7,9 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -43,11 +41,7 @@ val BreathOfFury = card("Breath of Fury") {
     auraTarget = Targets.CreatureYouControl
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.Combat,
-            recipient = Recipient.AnyPlayer,
-            binding = TriggerBinding.ATTACHED,
-        )
+        trigger = Triggers.attached.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.Pipeline {
             run(Effects.SacrificeTarget(EffectTarget.EnchantedCreature))
             val hosts = gather(CardSource.ControlledPermanents(filter = GameObjectFilter.Creature))

@@ -32,7 +32,7 @@ val GuardianGladewalker = card("Guardian Gladewalker") {
     keywords(Keyword.CHANGELING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val recipient = target("target creature", Targets.Creature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, recipient)
     }

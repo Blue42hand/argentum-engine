@@ -31,7 +31,7 @@ val WayspeakerBodyguard = card("Wayspeaker Bodyguard") {
     oracleText = "When this creature enters, return target nonland permanent card with mana value 2 or less from your graveyard to your hand.\nFlurry — Whenever you cast your second spell each turn, tap target creature an opponent controls."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val card = target(
             "card",
             TargetObject(

@@ -88,7 +88,7 @@ private val PhotonLivingLightBack = card("Photon, Living Light") {
 
     // Whenever you cast a noncreature spell, put a +1/+1 counter on each other creature you control.
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),

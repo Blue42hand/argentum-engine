@@ -58,7 +58,7 @@ val TeferiHeroOfDominaria = card("Teferi, Hero of Dominaria") {
     loyaltyAbility(-8) {
         effect = Effects.CreateGlobalTriggeredAbility(
             ability = grantedTriggeredAbility {
-                trigger = Triggers.YouDraw
+                trigger = Triggers.you.draws()
                 val permanentOpponentControls = target(
                     "target permanent opponent controls",
                     Targets.PermanentOpponentControls

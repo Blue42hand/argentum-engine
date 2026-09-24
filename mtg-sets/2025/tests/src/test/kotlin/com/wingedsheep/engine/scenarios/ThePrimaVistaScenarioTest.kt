@@ -21,7 +21,7 @@ import com.wingedsheep.engine.core.Outcome
  * Crew 2.
  *
  * Exercises the [com.wingedsheep.sdk.dsl.Conditions.TriggeringSpellManaSpentAtLeast] intervening-if
- * on the [com.wingedsheep.sdk.dsl.Triggers.YouCastNoncreature] cast trigger: a 4-mana noncreature
+ * on the `Triggers.you.casts(GameObjectFilter.Noncreature)` cast trigger: a 4-mana noncreature
  * spell animates the Vehicle into an artifact creature until end of turn; a 1-mana one does not.
  */
 class ThePrimaVistaScenarioTest : FunSpec({

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
 /**
@@ -29,7 +28,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  * artifact but still gets the buff, exactly like Miriam, Herd Whisperer's hexproof grant): a
  * [ModifyStats] +1/+1 plus two [GrantKeyword]s for vigilance and reach.
  *
- * The attack trigger reuses the Miriam per-attacker idiom: `Triggers.attacks(filter, binding = ANY)`
+ * The attack trigger reuses the Miriam per-attacker idiom: `Triggers.<subject>.attacks(requires)`
  * fires once per attacking Vehicle, evaluating the filter against each attacker with this card as
  * the predicate source. The filter's new [GameObjectFilter.crewedOrSaddledBySourceThisTurn] gate is
  * the source-relative mirror of `crewedOrSaddledSourceThisTurn` — it matches only Vehicles whose
@@ -78,11 +77,8 @@ val BalthierAndFran = card("Balthier and Fran") {
     // phase of the turn, you may pay {1}{R}{G}. If you do, after this phase, there is an additional
     // combat phase.
     triggeredAbility {
-        trigger = Triggers.attacks(
-            filter = GameObjectFilter.Any.withAnySubtype("Vehicle").youControl()
-                .crewedOrSaddledBySourceThisTurn(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Any.withAnySubtype("Vehicle").youControl()
+                .crewedOrSaddledBySourceThisTurn()).attacks()
         interveningIf = Conditions.IsFirstCombatPhaseOfTurn
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}{R}{G}"),

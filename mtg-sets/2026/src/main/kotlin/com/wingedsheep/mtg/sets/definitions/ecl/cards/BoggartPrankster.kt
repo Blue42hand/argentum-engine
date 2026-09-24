@@ -25,7 +25,7 @@ val BoggartPrankster = card("Boggart Prankster") {
     oracleText = "Whenever you attack, target attacking Goblin you control gets +1/+0 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         val goblin = target(
             "attacking Goblin you control",
             TargetCreature(filter = TargetFilter.AttackingCreature.withSubtype(Subtype.GOBLIN).youControl())

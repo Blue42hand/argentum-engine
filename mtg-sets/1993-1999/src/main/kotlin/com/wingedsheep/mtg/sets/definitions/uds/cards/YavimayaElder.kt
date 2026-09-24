@@ -30,7 +30,7 @@ val YavimayaElder = card("Yavimaya Elder") {
     power = 2
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         optional = true
         effect = Patterns.Library.searchLibrary(
             filter = GameObjectFilter.BasicLand,

@@ -28,7 +28,7 @@ val TemurCharger = card("Temur Charger") {
     morphCost = Costs.pay.RevealCard(filter = GameObjectFilter.Any.withColor(Color.GREEN))
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val creature = target("creature", Targets.Creature)
         effect = Effects.GrantKeyword(Keyword.TRAMPLE, creature)
     }

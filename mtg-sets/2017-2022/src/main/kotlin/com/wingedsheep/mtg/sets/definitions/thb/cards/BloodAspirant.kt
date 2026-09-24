@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * {1}{R}, {T}, Sacrifice a creature or enchantment: This creature deals 1 damage to target creature.
  * That creature can't block this turn.
  *
- * The trigger is [Triggers.YouSacrificeA] — the *per-permanent* template (CR 603.2c), which fires
+ * The trigger is `Triggers.you.sacrifices(filter)` — the *per-permanent* template (CR 603.2c), which fires
  * once for each matching permanent rather than once per batch, and whose `ANY` binding lets the
  * Satyr count itself. The two abilities interact by design: the activated ability's sacrifice is
  * paid as a **cost**, and the cost-payment paths emit `PermanentsSacrificedEvent` just like an
@@ -41,7 +41,7 @@ val BloodAspirant = card("Blood Aspirant") {
         "That creature can't block this turn."
 
     triggeredAbility {
-        trigger = Triggers.YouSacrificeA(GameObjectFilter.Permanent)
+        trigger = Triggers.you.sacrifices(GameObjectFilter.Permanent)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

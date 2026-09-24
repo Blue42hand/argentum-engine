@@ -26,7 +26,7 @@ val StoneHavenPilgrim = card("Stone Haven Pilgrim") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         interveningIf = Conditions.YouControl(GameObjectFilter.ArtifactOrEnchantment)
         effect = Effects.ModifyStats(1, 1, EffectTarget.Self)
             .then(Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self))

@@ -31,7 +31,7 @@ val GlassCasket = card("Glass Casket") {
         "mana value 3 or less until this artifact leaves the battlefield."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target",
             TargetCreature(filter = TargetFilter.Creature.manaValueAtMost(3).opponentControls())
@@ -40,7 +40,7 @@ val GlassCasket = card("Glass Casket") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

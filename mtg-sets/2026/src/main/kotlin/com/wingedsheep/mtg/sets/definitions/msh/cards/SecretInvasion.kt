@@ -24,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  *
  * The Assimilation Aegis machinery, re-pointed from an Equipment to an Aura:
  * - [Effects.ExileUntilLeaves] exiles the chosen creature into the Aura's linked-exile pile, and
- *   the [Triggers.LeavesBattlefield] ability's [Effects.ReturnLinkedExileUnderOwnersControl]
+ *   the `Triggers.self.leaves()` ability's [Effects.ReturnLinkedExileUnderOwnersControl]
  *   returns it — the printed "until this Aura leaves the battlefield" duration (CR 400.7 / the
  *   Oblivion Ring template).
  * - [Effects.BecomeCopyOfLinkedExile] on [EffectTarget.EnchantedCreature] bakes the exiled
@@ -54,7 +54,7 @@ val SecretInvasion = card("Secret Invasion") {
     // ETB: exile up to one target creature other than enchanted creature, and turn the enchanted
     // creature into a copy of it — both for as long as this Aura is on the battlefield.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "up to one target creature other than enchanted creature",
             TargetCreature(
@@ -71,7 +71,7 @@ val SecretInvasion = card("Secret Invasion") {
 
     // LTB: return the exiled card to its owner's control.
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

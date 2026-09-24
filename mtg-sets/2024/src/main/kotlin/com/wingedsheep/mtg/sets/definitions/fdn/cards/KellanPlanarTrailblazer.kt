@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Kellan, Planar Trailblazer
@@ -45,7 +46,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   effect overwrites it. The 3/2 is [Effects.SetBasePowerAndToughness] (Layer 7b, *setting*),
  *   which by ordinary layer/timestamp rules overwrites earlier set-P/T effects but leaves
  *   +N/+N modifiers and counters (Layer 7c) intact — exactly the fourth ruling.
- * - The granted trigger is the ordinary impulse-draw shape: [Triggers.DealsCombatDamageToPlayer]
+ * - The granted trigger is the ordinary impulse-draw shape: `Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)`
  *   (SELF binding, so it fires on Kellan's own combat damage) over
  *   [Patterns.Exile.impulse], conferred onto Kellan itself by a one-shot
  *   [GrantTriggeredAbilityEffect]. Both step-1 halves are permanent and independent: a later
@@ -77,8 +78,7 @@ val KellanPlanarTrailblazer = card("Kellan, Planar Trailblazer") {
                 ),
                 Effects.GrantTriggeredAbility(
                     ability = TriggeredAbility.create(
-                        trigger = Triggers.DealsCombatDamageToPlayer.event,
-                        binding = Triggers.DealsCombatDamageToPlayer.binding,
+                        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer),
                         effect = Patterns.Exile.impulse(count = 1),
                         descriptionOverride = "Whenever Kellan deals combat damage to a player, " +
                             "exile the top card of your library. You may play that card this turn."

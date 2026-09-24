@@ -37,8 +37,8 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  * or is undone by the CR 704.5n state-based action, leaving it on the battlefield unattached. That
  * is what the ruling prescribes, and it falls out of the composite without a special case.
  *
- * **The counter half** is [Triggers.YouSacrificeA] — the per-permanent shape, not the batched
- * [Triggers.YouSacrificeOneOrMore] — because "whenever you sacrifice an artifact" fires once per
+ * **The counter half** is `Triggers.you.sacrifices(filter)` — the per-permanent shape, not the batched
+ * `Triggers.you.sacrifices(filter, batch = true)` — because "whenever you sacrifice an artifact" fires once per
  * artifact, so sacrificing three Clues to one effect puts three counters on. `YouSacrificeA` counts
  * the source sacrificing itself, which is correct here: the Snuffler is itself an artifact, and
  * sacrificing it does trigger the ability (the counter is simply moot, since the permanent that
@@ -54,7 +54,7 @@ val MagneticSnuffler = card("Magnetic Snuffler") {
         "Whenever you sacrifice an artifact, put a +1/+1 counter on this creature."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val equipment = target(
             "target Equipment card from your graveyard",
             TargetObject(
@@ -78,7 +78,7 @@ val MagneticSnuffler = card("Magnetic Snuffler") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouSacrificeA(GameObjectFilter.Artifact)
+        trigger = Triggers.you.sacrifices(GameObjectFilter.Artifact)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever you sacrifice an artifact, put a +1/+1 counter on this creature."
     }

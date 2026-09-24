@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Zimone, Paradox Sculptor
@@ -42,7 +43,7 @@ val ZimoneParadoxSculptor = card("Zimone, Paradox Sculptor") {
         "and/or artifacts you control."
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         target(
             "up to two target creatures you control",
             TargetCreature(count = 2, optional = true, filter = TargetFilter.Creature.youControl())

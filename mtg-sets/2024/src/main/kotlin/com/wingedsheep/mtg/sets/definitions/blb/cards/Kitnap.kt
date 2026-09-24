@@ -41,7 +41,7 @@ val Kitnap = card("Kitnap") {
     gift(GiftKind.CARD)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Tap(EffectTarget.EnchantedCreature)
             .then(
                 Effects.If(

@@ -38,7 +38,7 @@ val BroodguardElite = card("Broodguard Elite") {
     // When this creature leaves the battlefield, put its counters on target creature you control.
     triggeredAbility {
         val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.MoveAllLastKnownCounters(creatureYouControl)
     }
 

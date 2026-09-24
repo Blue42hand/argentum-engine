@@ -42,7 +42,7 @@ val LarvalScoutlander = card("Larval Scoutlander") {
     // When this Spacecraft enters, you may sacrifice a land or Lander. If you do, search your
     // library for up to two basic land cards, put them onto the battlefield tapped, then shuffle.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Effects.Sacrifice(
                 GameObjectFilter.Land.or(GameObjectFilter.Permanent.withSubtype("Lander")),

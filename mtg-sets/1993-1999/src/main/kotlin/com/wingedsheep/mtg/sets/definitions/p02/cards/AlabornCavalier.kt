@@ -24,7 +24,7 @@ val AlabornCavalier = card("Alaborn Cavalier") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val creature = target("target", Targets.Creature)
         effect = Effects.May(Effects.Tap(creature))
     }

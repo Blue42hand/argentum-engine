@@ -2,13 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern.YouAttackEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Horn of the Mark
@@ -25,7 +23,7 @@ val HornOfTheMark = card("Horn of the Mark") {
     oracleText = "Whenever two or more creatures you control attack a player, look at the top five cards of your library. You may reveal a creature card from among them and put it into your hand. Put the rest on the bottom of your library in a random order."
 
     triggeredAbility {
-        trigger = TriggerSpec(YouAttackEvent(minAttackers = 2), TriggerBinding.ANY)
+        trigger = Triggers.you.attacks(minAttackers = 2)
         effect = Effects.Pipeline {
             val looked = gather(CardSource.TopOfLibrary(5))
             val (kept, rest) = chooseUpToSplit(

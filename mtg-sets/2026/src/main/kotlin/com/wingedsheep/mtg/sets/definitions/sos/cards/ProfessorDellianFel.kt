@@ -56,7 +56,7 @@ val ProfessorDellianFel = card("Professor Dellian Fel") {
     loyaltyAbility(-6) {
         effect = Effects.CreateGlobalTriggeredAbility(
             ability = grantedTriggeredAbility {
-                trigger = Triggers.YouGainLife
+                trigger = Triggers.you.gainsLife()
                 val opponent = target("target opponent", Targets.Opponent)
                 effect = Effects.LoseLife(
                     amount = DynamicAmounts.triggerLifeGained(),

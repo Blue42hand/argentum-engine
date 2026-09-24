@@ -31,7 +31,7 @@ val ChannelerInitiate = card("Channeler Initiate") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 3, creature)
         description = "When this creature enters, put three -1/-1 counters on target creature you control."

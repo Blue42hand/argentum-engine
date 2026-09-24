@@ -28,7 +28,7 @@ val WarPriestOfThune = card("War Priest of Thune") {
 
     triggeredAbility {
         val enchantment = target("target enchantment", Targets.Enchantment)
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         effect = Effects.Destroy(enchantment)
     }

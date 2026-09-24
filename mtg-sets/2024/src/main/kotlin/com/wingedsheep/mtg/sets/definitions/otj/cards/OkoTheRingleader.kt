@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Oko, the Ringleader
@@ -28,7 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * -5: For each other nonland permanent you control, create a token that's a copy of that permanent.
  *
  * Implementation:
- * - Combat-begin trigger ([Triggers.BeginCombat], already scoped to your turn): Oko becomes a copy
+ * - Combat-begin trigger (`Triggers.you.beginningOf(Step.BEGIN_COMBAT)`, already scoped to your turn): Oko becomes a copy
  *   of up to one target creature you control via [Effects.EachPermanentBecomesCopyOfTarget]
  *   (`affected = Self`), plus [Effects.GrantHexproof] on Self for the "except he has hexproof"
  *   clause — the same compose Fleeting Reflection uses. The target is optional ("up to one"), so
@@ -56,7 +57,7 @@ val OkoTheRingleader = card("Oko, the Ringleader") {
         "that permanent."
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val creatureYouControl = target(
             "creature you control",
             TargetCreature(filter = TargetFilter.CreatureYouControl, optional = true),

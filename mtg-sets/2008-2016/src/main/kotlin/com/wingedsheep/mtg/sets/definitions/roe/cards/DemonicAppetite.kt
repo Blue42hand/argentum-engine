@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Demonic Appetite
@@ -24,7 +25,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
  *    flavour: it is why this can't be handed to an opponent's creature as a drawback.
  *  - The pump is one `staticAbility { ModifyStats(3, 3, Filters.EnchantedCreature) }` — the
  *    attached-creature group filter, the Aura counterpart of the Equipment scope.
- *  - The upkeep trigger is `Triggers.YourUpkeep` (`StepEvent(UPKEEP, Player.You)`), the printed
+ *  - The upkeep trigger is `Triggers.you.beginningOf(Step.UPKEEP)` (`StepEvent(UPKEEP, Player.You)`), the printed
  *    "your upkeep" and not "each upkeep".
  *  - Its effect is `Effects.SacrificeOwn(GameObjectFilter.Creature)`, deliberately three things at
  *    once. It is **not targeted**: "sacrifice a creature" names no target, so nothing is chosen on
@@ -50,7 +51,7 @@ val DemonicAppetite = card("Demonic Appetite") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.SacrificeOwn(GameObjectFilter.Creature)
     }
 

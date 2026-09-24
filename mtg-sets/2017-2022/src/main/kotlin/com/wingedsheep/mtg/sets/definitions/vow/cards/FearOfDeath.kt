@@ -36,7 +36,7 @@ val FearOfDeath = card("Fear of Death") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.mill(2)
     }
 

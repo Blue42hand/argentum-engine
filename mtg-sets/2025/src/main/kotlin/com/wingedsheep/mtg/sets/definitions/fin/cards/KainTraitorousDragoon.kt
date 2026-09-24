@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Kain, Traitorous Dragoon
@@ -52,7 +53,7 @@ val KainTraitorousDragoon = card("Kain, Traitorous Dragoon") {
     }
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         val damageDealt = DynamicAmounts.triggerDamageAmount()
         effect = Effects.IfYouDo(
             action = Effects.GiveControl(

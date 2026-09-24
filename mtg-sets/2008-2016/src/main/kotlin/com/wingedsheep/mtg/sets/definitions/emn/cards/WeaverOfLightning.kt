@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Weaver of Lightning
@@ -27,7 +28,7 @@ val WeaverOfLightning = card("Weaver of Lightning") {
     keywords(Keyword.REACH)
 
     triggeredAbility {
-        trigger = Triggers.YouCastInstantOrSorcery
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         val creature = target("target creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.DealDamage(1, creature)
         description = "Whenever you cast an instant or sorcery spell, this creature deals 1 damage to " +

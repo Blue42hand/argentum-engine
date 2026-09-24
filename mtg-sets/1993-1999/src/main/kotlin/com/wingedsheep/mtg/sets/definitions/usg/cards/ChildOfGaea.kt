@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 
 /**
@@ -32,7 +33,7 @@ val ChildOfGaea = card("Child of Gaea") {
     toughness = 7
     keywords(Keyword.TRAMPLE)
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.PayOrSuffer(cost = Costs.pay.Mana("{G}{G}"), suffer = SacrificeSelfEffect)
     }
     activatedAbility {

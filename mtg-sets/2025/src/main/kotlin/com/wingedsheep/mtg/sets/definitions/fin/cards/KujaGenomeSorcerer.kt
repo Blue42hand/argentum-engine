@@ -10,10 +10,10 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.DoubleDamage
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Kuja, Genome Sorcerer // Trance Kuja, Fate Defied — Final Fantasy #232
@@ -79,7 +79,7 @@ private val KujaGenomeSorcererFront = card("Kuja, Genome Sorcerer") {
     // "Whenever you cast a noncreature spell, this token deals 1 damage to each opponent."
     // Then if you control four or more Wizards, transform Kuja.
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.Composite(
             Effects.CreateToken(
                 power = 0,
@@ -90,8 +90,7 @@ private val KujaGenomeSorcererFront = card("Kuja, Genome Sorcerer") {
                 imageUri = "https://cards.scryfall.io/normal/front/1/8/187fe54c-7d0c-4225-9d46-3affbead897d.jpg?1782725378",
                 triggeredAbilities = listOf(
                     TriggeredAbility.create(
-                        trigger = Triggers.YouCastNoncreature.event,
-                        binding = TriggerBinding.ANY,
+                        trigger = Triggers.you.casts(GameObjectFilter.Noncreature),
                         effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)),
                     ),
                 ),

@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Electrostatic Infantry
@@ -27,7 +28,7 @@ val ElectrostaticInfantry = card("Electrostatic Infantry") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.YouCastInstantOrSorcery
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

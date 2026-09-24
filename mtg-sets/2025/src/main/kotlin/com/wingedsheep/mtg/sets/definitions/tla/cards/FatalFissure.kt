@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  * battlefield tapped.)
  *
  * The spell only chooses the watched creature and installs a death-watch delayed
- * trigger (`Triggers.Dies` scoped to that creature via `watchedTarget`, expiring at
+ * trigger (`Triggers.self.dies()` scoped to that creature via `watchedTarget`, expiring at
  * end of turn). The earthbend payoff lands on a land *you* control chosen when the
  * delayed trigger fires — modeled with `targetRequirement` (exposed to the effect as
  * `ContextTarget(0)`) feeding `Effects.Earthbend`. Earthbend is a keyword action
@@ -38,7 +38,7 @@ val FatalFissure = card("Fatal Fissure") {
     spell {
         val creature = target("target creature", Targets.Creature)
         effect = Effects.CreateDelayedTrigger(
-            trigger = Triggers.Dies,
+            trigger = Triggers.self.dies(),
             watchedTarget = creature,
             expiry = DelayedTriggerExpiry.EndOfTurn) {
             val land = target("target land", TargetObject(filter = TargetFilter.Land.youControl()))

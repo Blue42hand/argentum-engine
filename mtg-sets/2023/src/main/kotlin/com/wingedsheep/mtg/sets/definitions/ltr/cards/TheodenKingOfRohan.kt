@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -32,10 +31,7 @@ val TheodenKingOfRohan = card("Théoden, King of Rohan") {
         val creature = target("target creature", TargetCreature(
             filter = TargetFilter(GameObjectFilter.Creature)
         ))
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Permanent.youControl().withSubtype("Human"),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Permanent.youControl().withSubtype("Human")).enters()
         effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, creature, Duration.EndOfTurn)
     }
 

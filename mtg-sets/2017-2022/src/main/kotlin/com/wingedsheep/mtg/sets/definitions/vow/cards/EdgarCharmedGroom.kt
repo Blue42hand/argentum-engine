@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Edgar, Charmed Groom // Edgar Markov's Coffin (Innistrad: Crimson Vow)
@@ -55,7 +56,7 @@ private val EdgarCharmedGroomFront = card("Edgar, Charmed Groom") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.ReturnSelfFromGraveyardTransformed(tapped = false)
         description = "When Edgar dies, return it to the battlefield transformed under its owner's control."
     }
@@ -78,7 +79,7 @@ private val EdgarMarkovsCoffin = card("Edgar Markov's Coffin") {
         "three or more bloodline counters on it, remove those counters and transform it."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.Composite(
             Effects.CreateToken(
                 power = 1,

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -39,7 +38,7 @@ val Erosion = card("Erosion") {
     auraTarget = Targets.Land
 
     triggeredAbility {
-        trigger = Triggers.phase(Step.UPKEEP, binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.beginningOf(Step.UPKEEP)
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Choice(listOf(Costs.pay.Mana("{1}"), Costs.pay.PayLife(1))),
             suffer = Effects.Destroy(EffectTarget.EnchantedPermanent),

@@ -24,7 +24,7 @@ val GoblinCommando = card("Goblin Commando") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature", Targets.Creature)
         effect = Effects.DealDamage(2, creature)
         description = "When this creature enters, it deals 2 damage to target creature."

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.dsl.div
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 
 /**
@@ -27,7 +28,7 @@ val EndlessRanksOfTheDead = card("Endless Ranks of the Dead") {
     typeLine = "Enchantment"
     oracleText = "At the beginning of your upkeep, create X 2/2 black Zombie creature tokens, where X is half the number of Zombies you control, rounded down."
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.CreateToken(
             count = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.withSubtype("Zombie")).count() / 2,
             power = 2,

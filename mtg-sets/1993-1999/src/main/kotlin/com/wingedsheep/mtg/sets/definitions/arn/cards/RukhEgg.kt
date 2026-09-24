@@ -25,7 +25,7 @@ val RukhEgg = card("Rukh Egg") {
     oracleText = "When this creature dies, create a 4/4 red Bird creature token with flying at the beginning of the next end step."
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.CreateDelayedTrigger(
             step = Step.END,
             effect = Effects.CreateToken(

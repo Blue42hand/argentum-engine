@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Surrak, the Hunt Caller
@@ -38,7 +39,7 @@ val SurrakTheHuntCaller = card("Surrak, the Hunt Caller") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature).sumPower(),
             ComparisonOperator.GTE,

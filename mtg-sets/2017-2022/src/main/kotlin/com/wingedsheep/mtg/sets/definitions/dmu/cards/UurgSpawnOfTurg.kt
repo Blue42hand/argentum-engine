@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Uurg, Spawn of Turg
@@ -36,7 +37,7 @@ val UurgSpawnOfTurg = card("Uurg, Spawn of Turg") {
     toughness = 5
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.Surveil(1)
     }
 

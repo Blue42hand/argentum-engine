@@ -36,7 +36,7 @@ val CraterhoofBehemoth = card("Craterhoof Behemoth") {
     keywords(Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Group.grantKeywordToAll(Keyword.TRAMPLE, Filters.Group.creaturesYouControl)
             .then(
                 Patterns.Group.modifyStatsForAll(

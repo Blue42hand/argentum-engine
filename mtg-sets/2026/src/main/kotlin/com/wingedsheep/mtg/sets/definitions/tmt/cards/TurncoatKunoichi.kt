@@ -34,7 +34,7 @@ val TurncoatKunoichi = card("Turncoat Kunoichi") {
     // ETB: exile the chosen creature. With the sneak cost paid the exile is permanent;
     // otherwise it returns when Turncoat Kunoichi leaves (the LTB trigger below).
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.If(
             condition = SneakCostWasPaid,
@@ -44,7 +44,7 @@ val TurncoatKunoichi = card("Turncoat Kunoichi") {
     }
     // LTB: return any creature exiled "until this leaves" (no-op when it was exiled permanently).
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

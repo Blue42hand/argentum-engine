@@ -24,7 +24,7 @@ val HiddenGrotto = card("Hidden Grotto") {
 
     // ETB: surveil 1
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.surveil(1)
     }
 

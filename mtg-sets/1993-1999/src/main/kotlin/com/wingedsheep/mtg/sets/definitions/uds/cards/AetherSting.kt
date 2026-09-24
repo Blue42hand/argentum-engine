@@ -25,7 +25,7 @@ val AetherSting = card("Aether Sting") {
     typeLine = "Enchantment"
     oracleText = "Whenever an opponent casts a creature spell, this enchantment deals 1 damage to that player."
     triggeredAbility {
-        trigger = Triggers.opponentCasts(GameObjectFilter.Creature)
+        trigger = Triggers.anOpponent.casts(GameObjectFilter.Creature)
         effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.TriggeringPlayer))
     }
     metadata {

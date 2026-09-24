@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Stand or Fall
@@ -34,7 +35,7 @@ val StandOrFall = card("Stand or Fall") {
     oracleText = "At the beginning of combat on your turn, for each defending player, separate all creatures that player controls into two piles and that player chooses one. Only creatures in the chosen piles can block this turn."
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = Effects.ForEachPlayer(
             players = Player.EachOpponent,
             Effects.Pipeline {

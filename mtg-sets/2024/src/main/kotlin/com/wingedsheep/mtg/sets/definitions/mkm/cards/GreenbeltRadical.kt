@@ -46,7 +46,7 @@ val GreenbeltRadical = card("Greenbelt Radical") {
     disguise = "{5}{G}{G}"
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.Composite(

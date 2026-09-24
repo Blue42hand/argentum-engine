@@ -28,7 +28,7 @@ val AvenFisher = card("Aven Fisher") {
     toughness = 2
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         optional = true
         effect = Effects.DrawCards(1)
     }

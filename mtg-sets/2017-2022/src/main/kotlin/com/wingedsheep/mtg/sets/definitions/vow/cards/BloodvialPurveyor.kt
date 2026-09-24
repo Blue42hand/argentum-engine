@@ -45,7 +45,7 @@ val BloodvialPurveyor = card("Bloodvial Purveyor") {
 
     // Whenever an opponent casts a spell, that player creates a Blood token.
     triggeredAbility {
-        trigger = Triggers.OpponentCastsSpell
+        trigger = Triggers.anOpponent.casts()
         effect = Effects.CreateBlood(controller = EffectTarget.PlayerRef(Player.TriggeringPlayer))
         description = "Whenever an opponent casts a spell, that player creates a Blood token."
     }
@@ -53,7 +53,7 @@ val BloodvialPurveyor = card("Bloodvial Purveyor") {
     // Whenever this creature attacks, it gets +1/+0 until end of turn for each Blood token
     // defending player controls.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val bloodDefender = DynamicAmounts.battlefield(
             Player.DefendingPlayer,
             GameObjectFilter.Artifact.withSubtype("Blood")

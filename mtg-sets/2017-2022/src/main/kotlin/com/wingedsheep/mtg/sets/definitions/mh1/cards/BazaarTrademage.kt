@@ -31,7 +31,7 @@ val BazaarTrademage = card("Bazaar Trademage") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(2).then(Effects.Discard(3))
         description = "When this creature enters, draw two cards, then discard three cards."
     }

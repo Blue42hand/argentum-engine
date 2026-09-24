@@ -41,7 +41,7 @@ val WallCrawl = card("Wall Crawl") {
         "Spiders you control get +1/+1 and can't be blocked by creatures with defender."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.CreateToken(
                 power = 2,

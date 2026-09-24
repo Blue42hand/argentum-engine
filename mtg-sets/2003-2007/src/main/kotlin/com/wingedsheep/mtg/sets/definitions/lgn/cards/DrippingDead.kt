@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBlock
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Dripping Dead
@@ -29,7 +30,7 @@ val DrippingDead = card("Dripping Dead") {
     }
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToCreature
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyCreature)
         effect = Effects.CantBeRegenerated(EffectTarget.TriggeringEntity) then
                 Effects.Move(EffectTarget.TriggeringEntity, Zone.GRAVEYARD, byDestruction = true)
     }

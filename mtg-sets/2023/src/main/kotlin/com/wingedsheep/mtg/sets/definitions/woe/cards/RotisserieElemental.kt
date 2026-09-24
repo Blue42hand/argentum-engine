@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Rotisserie Elemental
@@ -61,7 +62,7 @@ val RotisserieElemental = card("Rotisserie Elemental") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.AddCounters(CounterType.SKEWER, 1, EffectTarget.Self)
             .then(
                 Effects.May(

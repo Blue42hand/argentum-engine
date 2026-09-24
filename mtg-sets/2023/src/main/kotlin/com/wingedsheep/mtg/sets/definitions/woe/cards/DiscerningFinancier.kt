@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Discerning Financier
@@ -54,7 +55,7 @@ val DiscerningFinancier = card("Discerning Financier") {
         "You draw a card."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.OpponentControlsMoreLands
         effect = Effects.CreateTreasure(1)
         description = "At the beginning of your upkeep, if an opponent controls more lands than " +

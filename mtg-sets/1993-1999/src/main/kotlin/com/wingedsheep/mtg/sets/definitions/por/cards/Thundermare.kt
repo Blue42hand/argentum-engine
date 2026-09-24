@@ -31,7 +31,7 @@ val Thundermare = card("Thundermare") {
     toughness = 5
     keywords(Keyword.HASTE)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature, excludeSelf = true),
             Effects.Tap(EffectTarget.IterationEntity)

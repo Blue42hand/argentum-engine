@@ -39,7 +39,7 @@ val BartzAndBoko = card("Bartz and Boko") {
     keywordAbility(KeywordAbility.AffinityForSubtype(Subtype.BIRD))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val victim = target("target creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl.withSubtype(Subtype.BIRD).other(),

@@ -33,7 +33,7 @@ val FaerieDreamthief = card("Faerie Dreamthief") {
     toughness = 1
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.surveil(1)
     }
     activatedAbility {

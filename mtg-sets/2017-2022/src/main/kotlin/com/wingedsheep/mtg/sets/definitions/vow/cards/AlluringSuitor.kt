@@ -11,8 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern.YouAttackEvent
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -46,7 +44,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  *  - **The mana is added by a normal triggered ability, not a mana ability** — it uses the stack
  *    (CR 605.1b: an ability that triggers is never a mana ability), which is exactly what the
  *    printed "When this creature transforms into Deadly Dancer, add {R}{R}" means. The trigger is
- *    [Triggers.TransformsToBack], so it fires on the flip the front face just caused and *not* on
+ *    `Triggers.self.transforms(true)`, so it fires on the flip the front face just caused and *not* on
  *    a disturb-style cast onto the back face.
  *  - **"You don't lose this mana as steps and phases end" is its own effect**, not a mana expiry:
  *    [Effects.RetainUnspentMana] tags the controller's red mana as surviving every step/phase
@@ -65,10 +63,7 @@ private val AlluringSuitorFront = card("Alluring Suitor") {
     oracleText = "When you attack with exactly two creatures, transform this creature."
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = YouAttackEvent(minAttackers = 2),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.you.attacks(minAttackers = 2)
         triggerRestriction = Conditions.CompareAmounts(
             DynamicAmounts.attackingCreaturesYouControl(),
             ComparisonOperator.EQ,
@@ -108,7 +103,7 @@ private val DeadlyDancer = card("Deadly Dancer") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.TransformsToBack
+        trigger = Triggers.self.transforms(true)
         effect = Effects.Composite(
             Effects.AddMana(Color.RED, 2),
             Effects.RetainUnspentMana(Color.RED),

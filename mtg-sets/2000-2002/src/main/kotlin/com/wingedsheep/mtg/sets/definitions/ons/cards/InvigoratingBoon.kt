@@ -20,7 +20,7 @@ val InvigoratingBoon = card("Invigorating Boon") {
     oracleText = "Whenever a player cycles a card, you may put a +1/+1 counter on target creature."
 
     triggeredAbility {
-        trigger = Triggers.AnyPlayerCycles
+        trigger = Triggers.anyPlayer.cycles()
         val t = target("target", Targets.Creature)
         effect = Effects.May(
             Effects.AddCounters(

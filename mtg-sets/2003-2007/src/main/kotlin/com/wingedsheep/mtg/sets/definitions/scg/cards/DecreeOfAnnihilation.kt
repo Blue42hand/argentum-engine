@@ -55,7 +55,7 @@ val DecreeOfAnnihilation = card("Decree of Annihilation") {
     keywordAbility(KeywordAbility.cycling("{5}{R}{R}"))
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         effect = Patterns.Group.destroyAll(GroupFilter.AllLands)
     }
 

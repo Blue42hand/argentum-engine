@@ -74,7 +74,7 @@ val RestlessVinestalk = card("Restless Vinestalk") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val creature = target(
             "up to one other target creature",
             TargetCreature(optional = true, filter = TargetFilter.OtherCreature),

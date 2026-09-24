@@ -32,7 +32,7 @@ val Avarax = card("Avarax") {
     keywords(Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.Any.named("Avarax"),

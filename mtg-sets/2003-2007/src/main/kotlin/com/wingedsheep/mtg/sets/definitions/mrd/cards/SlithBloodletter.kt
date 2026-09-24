@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Slith Bloodletter — Mirrodin #77
@@ -16,7 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * {1}{B}: Regenerate this creature.
  *
  * The black member of the Slith cycle (see [SlithFirewalker], [SlithPredator]). Same growth
- * trigger as the rest — [Triggers.DealsCombatDamageToPlayer], so *combat* damage only, and the
+ * trigger as the rest — `Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)`, so *combat* damage only, and the
  * counter lands on the Slith itself ([EffectTarget.Self]) rather than a chosen creature.
  *
  * Black's rider is regeneration, which is what makes the compounding stick: the Bloodletter can
@@ -34,7 +35,7 @@ val SlithBloodletter = card("Slith Bloodletter") {
         "{1}{B}: Regenerate this creature."
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever this creature deals combat damage to a player, put a +1/+1 counter on it."
     }

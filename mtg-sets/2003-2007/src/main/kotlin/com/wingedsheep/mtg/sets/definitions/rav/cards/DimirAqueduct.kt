@@ -33,7 +33,7 @@ val DimirAqueduct = card("Dimir Aqueduct") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val land = target("a land you control", TargetPermanent(filter = TargetFilter.Land.youControl()))
         effect = Effects.ReturnToHand(land)
     }

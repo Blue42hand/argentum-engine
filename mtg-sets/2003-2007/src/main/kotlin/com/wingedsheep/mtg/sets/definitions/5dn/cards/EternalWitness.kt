@@ -29,7 +29,7 @@ val EternalWitness = card("Eternal Witness") {
     power = 2
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target(
             "target",

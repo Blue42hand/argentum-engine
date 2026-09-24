@@ -102,7 +102,7 @@ class FaceDownGameLogMaskingTest : FunSpec({
         power = 1
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             target("target creature", TargetCreature())
             effect = Effects.Tap(EffectTarget.ContextTarget(0))
             description = "When this creature enters, tap target creature."

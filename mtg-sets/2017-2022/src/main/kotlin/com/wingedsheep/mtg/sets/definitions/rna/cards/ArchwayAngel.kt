@@ -32,7 +32,7 @@ val ArchwayAngel = card("Archway Angel") {
     toughness = 4
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(
             DynamicAmounts.battlefield(Player.You, GameObjectFilter.Land.withSubtype("Gate")).count() * 2
         )

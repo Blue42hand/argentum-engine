@@ -33,7 +33,7 @@ val CloudgoatRanger = card("Cloudgoat Ranger") {
         "Tap three untapped Kithkin you control: This creature gets +2/+0 and gains flying until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

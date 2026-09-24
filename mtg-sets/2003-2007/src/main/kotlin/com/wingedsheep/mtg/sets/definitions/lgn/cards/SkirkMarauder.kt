@@ -23,7 +23,7 @@ val SkirkMarauder = card("Skirk Marauder") {
     oracleText = "Morph {2}{R} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen Skirk Marauder is turned face up, it deals 2 damage to any target."
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val t = target("target", Targets.Any)
         effect = Effects.DealDamage(2, t)
     }

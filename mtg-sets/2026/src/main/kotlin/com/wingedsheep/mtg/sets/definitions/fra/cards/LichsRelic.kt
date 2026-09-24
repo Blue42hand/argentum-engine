@@ -38,7 +38,7 @@ val LichsRelic = card("Lich's Relic") {
         "Equip {2}"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Effects.PayMana("{2}"),
             optional = true,

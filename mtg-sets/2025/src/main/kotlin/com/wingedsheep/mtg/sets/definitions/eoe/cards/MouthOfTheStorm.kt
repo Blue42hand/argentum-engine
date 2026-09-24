@@ -31,7 +31,7 @@ val MouthOfTheStorm = card("Mouth of the Storm") {
     keywordAbility(KeywordAbility.ward("{2}"))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Group.modifyStatsForAll(
             power = -3,
             toughness = 0,

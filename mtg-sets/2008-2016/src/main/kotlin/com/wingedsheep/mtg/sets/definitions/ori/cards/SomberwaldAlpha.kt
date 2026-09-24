@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -36,10 +35,7 @@ val SomberwaldAlpha = card("Somberwald Alpha") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.becomesBlocked(
-            filter = GameObjectFilter.Creature.youControl(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).becomesBlocked()
         effect = Effects.ModifyStats(1, 1, EffectTarget.TriggeringEntity)
     }
 

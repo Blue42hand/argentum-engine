@@ -42,7 +42,7 @@ val DreyKeeper = card("Drey Keeper") {
 
     // When this creature enters, create two 1/1 green Squirrel creature tokens.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

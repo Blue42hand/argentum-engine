@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Cabal Executioner
@@ -25,7 +26,7 @@ val CabalExecutioner = card("Cabal Executioner") {
     oracleText = "Whenever Cabal Executioner deals combat damage to a player, that player sacrifices a creature.\nMorph {3}{B}{B}"
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.Sacrifice(GameObjectFilter.Creature, 1, EffectTarget.PlayerRef(Player.DefendingPlayer))
     }
 

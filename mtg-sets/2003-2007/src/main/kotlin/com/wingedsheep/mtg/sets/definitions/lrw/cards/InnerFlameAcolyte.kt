@@ -28,7 +28,7 @@ val InnerFlameAcolyte = card("Inner-Flame Acolyte") {
     evoke = "{R}"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature", Targets.Creature)
         effect = Effects.Composite(
             Effects.ModifyStats(2, 0, creature),

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -38,10 +37,7 @@ val RedtoothVanguard = card("Redtooth Vanguard") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Enchantment.youControl(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Enchantment.youControl()).enters()
         triggerZone = Zone.GRAVEYARD
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}"),

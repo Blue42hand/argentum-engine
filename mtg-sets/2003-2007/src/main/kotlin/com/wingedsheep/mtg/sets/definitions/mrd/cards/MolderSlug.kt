@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 
 /**
@@ -28,7 +29,7 @@ val MolderSlug = card("Molder Slug") {
     power = 4
     toughness = 6
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         effect = Effects.Sacrifice(GameObjectFilter.Artifact, 1, EffectTarget.PlayerRef(Player.TriggeringPlayer))
     }
     metadata {

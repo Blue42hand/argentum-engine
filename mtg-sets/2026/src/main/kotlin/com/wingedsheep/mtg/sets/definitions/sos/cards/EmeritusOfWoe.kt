@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Emeritus of Woe // Demonic Tutor — Secrets of Strixhaven #80
@@ -49,7 +50,7 @@ val EmeritusOfWoe = card("Emeritus of Woe") {
 
     // At the beginning of your end step, if two or more creatures died this turn, it becomes prepared.
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.creaturesDiedThisTurn(Player.Each),
             ComparisonOperator.GTE,

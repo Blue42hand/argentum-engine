@@ -38,8 +38,7 @@ val UndyingMalice = card("Undying Malice") {
         val t = target("target", Targets.Creature)
         effect = Effects.GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.Dies.event,
-                binding = Triggers.Dies.binding,
+                trigger = Triggers.self.dies(),
                 effect = Effects.Composite(
                     Effects.Move(
                         target = EffectTarget.Self,

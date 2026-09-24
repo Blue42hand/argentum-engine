@@ -37,7 +37,7 @@ val CaretakersTalent = card("Caretaker's Talent") {
 
     // Level 1: Whenever one or more tokens you control enter, draw a card. Once per turn.
     triggeredAbility {
-        trigger = Triggers.OneOrMorePermanentsEnter(GameObjectFilter.Token)
+        trigger = Triggers.oneOrMore(GameObjectFilter.Token).enter()
         oncePerTurn = true
         effect = Effects.DrawCards(1)
     }
@@ -45,7 +45,7 @@ val CaretakersTalent = card("Caretaker's Talent") {
     // Level 2: When this Class becomes level 2, create a token that's a copy of target token you control.
     classLevel(2, "{W}") {
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             val token = target(
                 "token you control",
                 TargetObject(filter = TargetFilter(GameObjectFilter.Token.youControl()))

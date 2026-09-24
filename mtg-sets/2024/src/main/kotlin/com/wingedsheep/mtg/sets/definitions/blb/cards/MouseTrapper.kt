@@ -29,7 +29,7 @@ val MouseTrapper = card("Mouse Trapper") {
 
     // Valiant: first time targeted by your spell/ability each turn → tap opponent's creature
     triggeredAbility {
-        trigger = Triggers.Valiant
+        trigger = Triggers.self.becomesTarget(byYou = true, firstTimeEachTurn = true)
         val t = target("creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.Tap(t)
     }

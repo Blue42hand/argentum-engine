@@ -31,7 +31,7 @@ val LumraBellowOfTheWoods = card("Lumra, Bellow of the Woods") {
     keywords(Keyword.REACH, Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.mill(4)
             .then(
                 Effects.Pipeline {

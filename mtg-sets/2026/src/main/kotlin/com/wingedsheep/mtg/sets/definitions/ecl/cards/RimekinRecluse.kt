@@ -23,7 +23,7 @@ val RimekinRecluse = card("Rimekin Recluse") {
     oracleText = "When this creature enters, return up to one other target creature to its owner's hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "other creature",
             TargetCreature(

@@ -28,13 +28,13 @@ val EfreetWeaponmaster = card("Efreet Weaponmaster") {
     keywords(Keyword.FIRST_STRIKE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("another creature you control", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
         effect = Effects.ModifyStats(3, 0, t)
     }
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val t = target("another creature you control", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
         effect = Effects.ModifyStats(3, 0, t)
     }

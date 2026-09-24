@@ -27,7 +27,7 @@ val SergeantAtArms = card("Sergeant-at-Arms") {
     keywordAbility(KeywordAbility.kicker("{2}{W}"))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.If(
             condition = WasKicked,
             then = Effects.CreateToken(

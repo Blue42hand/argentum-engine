@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 
 /**
@@ -28,7 +29,7 @@ val DimirCutpurse = card("Dimir Cutpurse") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.Composite(
             Patterns.Hand.discardCards(1, EffectTarget.PlayerRef(Player.TriggeringPlayer)),
             Effects.DrawCards(1)

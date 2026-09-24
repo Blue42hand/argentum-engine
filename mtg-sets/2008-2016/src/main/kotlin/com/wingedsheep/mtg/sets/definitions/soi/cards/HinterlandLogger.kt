@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 private val HinterlandLoggerFront = card("Hinterland Logger") {
     manaCost = "{1}{G}"
@@ -20,7 +21,7 @@ private val HinterlandLoggerFront = card("Hinterland Logger") {
     oracleText = "At the beginning of each upkeep, if no spells were cast last turn, transform this creature."
 
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.spellsCastLastTurn(), ComparisonOperator.EQ, 0
         )
@@ -47,7 +48,7 @@ private val TimberShredder = card("Timber Shredder") {
 
     keywords(Keyword.TRAMPLE)
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.spellsCastLastTurn(), ComparisonOperator.GTE, 2
         )

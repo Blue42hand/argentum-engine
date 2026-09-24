@@ -35,7 +35,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * putting a non-Wolf leaves the Piper tapped.
  *
  * The back's payoff triggers on **enters or transforms into Wildsong Howler** — two triggers, an
- * [Triggers.EntersBattlefield] and a [Triggers.TransformsToBack] — each running the Radagast
+ * `Triggers.self.enters()` and a `Triggers.self.transforms(true)` — each running the Radagast
  * [Patterns.Library.lookAtTopRevealMatchingToHand] over the top six cards, keeping up to one creature
  * card and bottoming the rest in a random order.
  *
@@ -99,14 +99,14 @@ private val WildsongHowler = card("Wildsong Howler") {
         "Nightbound (If a player casts at least two spells during their own turn, it becomes day next turn.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = WILDSONG_HOWLER_DIG
         description = "Look at the top six cards of your library. You may reveal a creature card from " +
             "among them and put it into your hand. Put the rest on the bottom of your library in a " +
             "random order."
     }
     triggeredAbility {
-        trigger = Triggers.TransformsToBack
+        trigger = Triggers.self.transforms(true)
         effect = WILDSONG_HOWLER_DIG
         description = "Look at the top six cards of your library. You may reveal a creature card from " +
             "among them and put it into your hand. Put the rest on the bottom of your library in a " +

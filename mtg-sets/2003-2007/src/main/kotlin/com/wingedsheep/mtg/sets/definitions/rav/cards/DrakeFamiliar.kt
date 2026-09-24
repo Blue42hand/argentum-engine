@@ -30,7 +30,7 @@ val DrakeFamiliar = card("Drake Familiar") {
     toughness = 1
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.ReturnToHand(filter = GameObjectFilter.Enchantment, youControl = false),
             suffer = SacrificeSelfEffect

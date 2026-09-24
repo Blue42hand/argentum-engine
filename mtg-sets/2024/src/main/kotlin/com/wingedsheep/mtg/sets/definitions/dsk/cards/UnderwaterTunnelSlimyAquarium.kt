@@ -36,7 +36,7 @@ val UnderwaterTunnelSlimyAquarium = card("Underwater Tunnel // Slimy Aquarium") 
         oracleText = "When you unlock this door, surveil 2."
 
         triggeredAbility {
-            trigger = Triggers.OnDoorUnlocked
+            trigger = Triggers.self.doorUnlocked()
             effect = Effects.Surveil(2)
             description = "When you unlock this door, surveil 2."
         }
@@ -48,7 +48,7 @@ val UnderwaterTunnelSlimyAquarium = card("Underwater Tunnel // Slimy Aquarium") 
         oracleText = "When you unlock this door, manifest dread, then put a +1/+1 counter on that creature."
 
         triggeredAbility {
-            trigger = Triggers.OnDoorUnlocked
+            trigger = Triggers.self.doorUnlocked()
             effect = Effects.Composite(
                 Patterns.Library.manifestDread(),
                 Effects.AddCounters(

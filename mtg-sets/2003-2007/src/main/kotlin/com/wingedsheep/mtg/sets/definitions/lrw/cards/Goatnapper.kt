@@ -38,7 +38,7 @@ val Goatnapper = card("Goatnapper") {
         "It gains haste until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val goat = target(
             "target Goat",
             TargetCreature(filter = TargetFilter.Creature.withSubtype(Subtype.GOAT))

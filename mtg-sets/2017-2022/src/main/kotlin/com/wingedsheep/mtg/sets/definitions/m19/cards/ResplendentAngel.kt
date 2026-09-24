@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Resplendent Angel
@@ -39,7 +40,7 @@ val ResplendentAngel = card("Resplendent Angel") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EachEndStep
+        trigger = Triggers.anyPlayer.beginningOf(Step.END)
         interveningIf = Conditions.YouGainedLifeThisTurnAtLeast(5)
         effect = Effects.CreateToken(
             power = 4,

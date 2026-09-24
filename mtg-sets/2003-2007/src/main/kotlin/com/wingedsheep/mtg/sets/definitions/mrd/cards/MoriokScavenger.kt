@@ -35,7 +35,7 @@ val MoriokScavenger = card("Moriok Scavenger") {
         "from your graveyard to your hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val card = target(
             "card",

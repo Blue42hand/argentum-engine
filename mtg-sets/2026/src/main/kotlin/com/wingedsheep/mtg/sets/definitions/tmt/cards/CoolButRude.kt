@@ -39,7 +39,7 @@ val CoolButRude = card("Cool but Rude") {
     // to graveyard (CR 701.9a), so an empty hand discards nothing and nothing is drawn.
     // `feasibility` keeps the trigger from asking an unanswerable question on every single attack.
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         effect = Effects.May(
             effect = Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),
@@ -52,7 +52,7 @@ val CoolButRude = card("Cool but Rude") {
     // Level 2: Whenever you discard a card, this Class deals 2 damage to each opponent.
     classLevel(2, "{1}{R}") {
         triggeredAbility {
-            trigger = Triggers.YouDiscard
+            trigger = Triggers.you.discards()
             effect = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent))
         }
     }
@@ -61,7 +61,7 @@ val CoolButRude = card("Cool but Rude") {
     // to hand, shuffle, then discard a card at random.
     classLevel(3, "{1}{R}") {
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             effect = Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.Any,
                 count = 1,

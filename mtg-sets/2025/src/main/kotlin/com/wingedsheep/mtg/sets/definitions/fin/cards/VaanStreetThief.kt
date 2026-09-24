@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern.OneOrMoreDealCombatDamageToPlayerEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
@@ -51,12 +49,7 @@ val VaanStreetThief = card("Vaan, Street Thief") {
     // Whenever one or more Scouts, Pirates, and/or Rogues you control deal combat damage to a player,
     // exile the top card of that player's library. You may cast it. If you don't, create a Treasure token.
     triggeredAbility {
-        trigger = TriggerSpec(
-            OneOrMoreDealCombatDamageToPlayerEvent(
-                sourceFilter = GameObjectFilter.Creature.withAnySubtype("Scout", "Pirate", "Rogue")
-            ),
-            TriggerBinding.ANY
-        )
+        trigger = Triggers.oneOrMore(GameObjectFilter.Creature.withAnySubtype("Scout", "Pirate", "Rogue")).dealCombatDamageToAPlayer()
         effect = Effects.Pipeline {
             val vaanLooked = gather(CardSource.TopOfLibrary(1, player = Player.TriggeringPlayer))
             val vaanExiled = moveTracked(vaanLooked, CardDestination.ToZone(Zone.EXILE, Player.TriggeringPlayer))
@@ -70,7 +63,7 @@ val VaanStreetThief = card("Vaan, Street Thief") {
 
     // Whenever you cast a spell you don't own, put a +1/+1 counter on each Scout, Pirate, and Rogue you control.
     triggeredAbility {
-        trigger = Triggers.youCastSpell(requires = setOf(SpellCastPredicate.NotOwnedByController))
+        trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.NotOwnedByController))
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(
                 GameObjectFilter.Creature.withAnySubtype("Scout", "Pirate", "Rogue").youControl()

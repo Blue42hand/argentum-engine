@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -38,7 +37,7 @@ val RakdosJoinsUp = card("Rakdos Joins Up") {
         "Whenever a legendary creature you control dies, Rakdos Joins Up deals damage equal to that creature's power to target opponent."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target creature card from your graveyard",
             TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
@@ -48,11 +47,7 @@ val RakdosJoinsUp = card("Rakdos Joins Up") {
     }
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.legendary().youControl(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.legendary().youControl()).dies()
         val opponent = target("target opponent", TargetOpponent())
         effect = Effects.DealDamage(DynamicAmounts.triggeringPower(), opponent)
     }

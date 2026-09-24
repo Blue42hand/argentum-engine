@@ -38,7 +38,7 @@ val ProsperityTycoon = card("Prosperity Tycoon") {
         "{2}, Sacrifice a token: This creature gains indestructible until end of turn. Tap it."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

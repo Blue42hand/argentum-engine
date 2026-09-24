@@ -23,7 +23,7 @@ val AlchemistsVial = card("Alchemist's Vial") {
         "{1}, {T}, Sacrifice this artifact: Target creature can't attack or block this turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(1)
     }
 

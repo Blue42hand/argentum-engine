@@ -36,7 +36,7 @@ val VexingDevil = card("Vexing Devil") {
         "If a player does, sacrifice this creature."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachPlayer(
             Player.EachOpponent,
             listOf(

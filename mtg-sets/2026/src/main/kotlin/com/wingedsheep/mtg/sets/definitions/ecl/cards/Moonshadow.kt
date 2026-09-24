@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Moonshadow
@@ -41,7 +42,7 @@ val Moonshadow = card("Moonshadow") {
     ))
 
     triggeredAbility {
-        trigger = Triggers.PermanentCardsPutIntoYourGraveyard
+        trigger = Triggers.oneOrMore(GameObjectFilter.Permanent).putIntoYourGraveyard()
         triggerRestriction = Conditions.SourceHasCounter(CounterType.MINUS_ONE_MINUS_ONE)
         effect = Effects.RemoveCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, EffectTarget.Self)
     }

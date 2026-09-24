@@ -24,7 +24,7 @@ val SpiderwigBoggart = card("Spiderwig Boggart") {
         "can't be blocked except by artifact creatures and/or black creatures.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature", Targets.Creature)
         effect = Effects.GrantKeyword(Keyword.FEAR, creature)
         description = "target creature gains fear until end of turn."

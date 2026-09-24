@@ -29,7 +29,7 @@ val MonkIdealist = card("Monk Idealist") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target",
             TargetObject(filter = TargetFilter(GameObjectFilter.Enchantment.ownedByYou(), zone = Zone.GRAVEYARD))

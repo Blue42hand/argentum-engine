@@ -48,7 +48,7 @@ val VulshokBattlemaster = card("Vulshok Battlemaster") {
     keywords(Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Artifact.withSubtype("Equipment")),
             effect = Effects.AttachTargetEquipmentToCreature(

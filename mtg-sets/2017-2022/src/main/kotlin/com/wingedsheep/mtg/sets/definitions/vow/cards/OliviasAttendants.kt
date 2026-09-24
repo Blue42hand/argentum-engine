@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.model.Rarity
  * Whenever this creature deals damage, create that many Blood tokens.
  * {2}{R}: This creature deals 1 damage to any target.
  *
- * The trigger is the *bare* [Triggers.DealsDamage] — any damage, of any type, to any recipient.
+ * The trigger is the *bare* `Triggers.self.dealsDamage()` — any damage, of any type, to any recipient.
  * That is wider than the usual combat-damage trigger on purpose: the Attendants' own pinger feeds
  * it, and so does a blocked creature's damage to a blocker, or damage a fight effect makes it deal.
  *
@@ -42,7 +42,7 @@ val OliviasAttendants = card("Olivia's Attendants") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.DealsDamage
+        trigger = Triggers.self.dealsDamage()
         effect = Effects.CreateBlood(
             DynamicAmounts.triggerDamageAmount()
         )

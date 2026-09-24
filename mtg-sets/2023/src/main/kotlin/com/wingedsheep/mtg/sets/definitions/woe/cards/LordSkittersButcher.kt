@@ -42,7 +42,7 @@ val LordSkittersButcher = card("Lord Skitter's Butcher") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             Mode(
                 effect = woeRatToken(),

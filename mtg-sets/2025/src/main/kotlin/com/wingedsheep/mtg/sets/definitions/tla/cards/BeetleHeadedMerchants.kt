@@ -34,7 +34,7 @@ val BeetleHeadedMerchants = card("Beetle-Headed Merchants") {
         "If you do, draw a card and put a +1/+1 counter on this creature."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeOwn(
                 filter = GameObjectFilter.Creature.or(GameObjectFilter.Artifact),

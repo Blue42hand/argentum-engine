@@ -30,7 +30,7 @@ data class ShuffleLibraryEffect(
 /**
  * Emit a `ScriedEvent` after a scry pipeline finishes resolving. Appended internally
  * by [com.wingedsheep.sdk.dsl.LibraryPatterns.scry] so that "Whenever you scry"
- * triggers ([com.wingedsheep.sdk.dsl.Triggers.WheneverYouScry]) fire exactly once
+ * triggers (`Triggers.you.scries()`) fire exactly once
  * per scry, carrying the actual number of cards looked at.
  *
  * The count is the size of the named gather collection (`"scried"` by default) at
@@ -56,8 +56,8 @@ data class EmitScriedEventEffect(
  * Emit a `SurveiledEvent` after a surveil pipeline finishes resolving — the surveil twin of
  * [EmitScriedEventEffect]. Appended internally by [com.wingedsheep.sdk.dsl.LibraryPatterns.surveil]
  * so "Whenever you surveil" / "Whenever you scry or surveil" triggers
- * ([com.wingedsheep.sdk.dsl.Triggers.WheneverYouSurveil],
- * [com.wingedsheep.sdk.dsl.Triggers.WheneverYouScryOrSurveil]) fire exactly once per surveil,
+ * (`Triggers.you.surveils()`,
+ * `Triggers.you.scriesOrSurveils()`) fire exactly once per surveil,
  * carrying the actual number of cards looked at.
  *
  * The count is the size of the named gather collection (`"surveiled"` by default) at resolution
@@ -82,7 +82,7 @@ data class EmitSurveiledEventEffect(
  * Emit a `DiscoveredEvent` after a discover finishes resolving — the discover twin of
  * [EmitSurveiledEventEffect]. Appended internally by the discover executor to the tail of the
  * discover's follow-up so "Whenever you discover" triggers
- * ([com.wingedsheep.sdk.dsl.Triggers.WheneverYouDiscover]) fire exactly once per discover (CR
+ * (`Triggers.you.discovers()`) fire exactly once per discover (CR
  * 701.57), *after* the whole process — including the cast/hand decision — completes (CR 701.57b).
  *
  * Carries [value], the discover threshold N used, so the event can surface it via
@@ -103,7 +103,7 @@ data class EmitDiscoveredEventEffect(
  * Emit a `ManifestedDreadEvent` after a manifest-dread pipeline finishes resolving — the
  * manifest-dread twin of [EmitScriedEventEffect]. Appended internally by
  * [com.wingedsheep.sdk.dsl.LibraryPatterns.manifestDread] so "Whenever you manifest dread"
- * triggers ([com.wingedsheep.sdk.dsl.Triggers.WheneverYouManifestDread]) fire exactly once per
+ * triggers (`Triggers.you.manifestsDread()`) fire exactly once per
  * manifest-dread (CR 701.60), after the chosen card has been manifested and the other put into
  * the graveyard.
  *
@@ -130,8 +130,8 @@ data class EmitManifestedDreadEventEffect(
  * [com.wingedsheep.sdk.dsl.LibraryPatterns.searchLibrary] /
  * [com.wingedsheep.sdk.dsl.LibraryPatterns.searchMultipleZones] /
  * [com.wingedsheep.sdk.dsl.LibraryPatterns.eachPlayerSearchesLibrary] so "Whenever a player
- * searches their library" triggers ([com.wingedsheep.sdk.dsl.Triggers.WheneverYouSearchYourLibrary],
- * [com.wingedsheep.sdk.dsl.Triggers.WheneverAnOpponentSearchesTheirLibrary]) fire exactly once per
+ * searches their library" triggers (`Triggers.you.searchesLibrary()`,
+ * `Triggers.anOpponent.searchesLibrary()`) fire exactly once per
  * search (CR 701.23), after the found cards have moved and the library has shuffled.
  *
  * The searching player is the effect's controller at resolution time — for a per-player

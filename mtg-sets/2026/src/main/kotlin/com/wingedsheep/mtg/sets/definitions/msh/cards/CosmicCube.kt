@@ -39,7 +39,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  *     library via a single-card play permission; if the cast pauses for targets, X, or modes, the
  *     pipeline pauses with it.
  *
- * "Whenever you attack" ([Triggers.YouAttack]) triggers once per combat in which you attack with
+ * "Whenever you attack" (`Triggers.you.attacks()`) triggers once per combat in which you attack with
  * one or more creatures — not once per attacker — and only on your turn, since only the attacking
  * player declares attackers.
  */
@@ -56,7 +56,7 @@ val CosmicCube = card("Cosmic Cube") {
     keywordAbility(KeywordAbility.ward("{2}"))
 
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         val greatestAttackingPower = DynamicAmounts.battlefield(
             Player.You,
             GameObjectFilter.Creature.attacking()

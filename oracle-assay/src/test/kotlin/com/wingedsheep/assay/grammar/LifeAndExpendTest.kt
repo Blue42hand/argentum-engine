@@ -86,9 +86,9 @@ class LifeAndExpendTest : StringSpec({
 
     "the life-change triggers and the gift payoff are the specs the SDK publishes" {
         ability("Whenever you gain life, each opponent loses 1 life.").trigger shouldBe
-            SdkTriggers.YouGainLife.event
-        ability("Whenever you lose life, draw a card.").trigger shouldBe SdkTriggers.YouLoseLife.event
-        ability("Whenever you give a gift, draw a card.").trigger shouldBe SdkTriggers.YouGiveAGift.event
+            SdkTriggers.you.gainsLife().event
+        ability("Whenever you lose life, draw a card.").trigger shouldBe SdkTriggers.you.losesLife().event
+        ability("Whenever you give a gift, draw a card.").trigger shouldBe SdkTriggers.you.givesAGift().event
         listOf(
             "Whenever you gain life, each opponent loses 1 life.",
             "Whenever you lose life, draw a card.",

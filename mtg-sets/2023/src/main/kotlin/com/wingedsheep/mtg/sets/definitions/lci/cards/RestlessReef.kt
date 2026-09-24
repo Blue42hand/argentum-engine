@@ -67,7 +67,7 @@ val RestlessReef = card("Restless Reef") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val player = target("target player", Targets.Player)
         effect = Patterns.Library.mill(4, player)
         description = "Whenever this land attacks, target player mills four cards."

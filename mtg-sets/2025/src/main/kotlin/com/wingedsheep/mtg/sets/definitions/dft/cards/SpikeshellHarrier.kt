@@ -51,7 +51,7 @@ val SpikeshellHarrier = card("Spikeshell Harrier") {
         "reduce that opponent's speed by 1. This effect can't reduce their speed below 1."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val bounced = target(
             "target creature or Vehicle an opponent controls",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrVehicle.opponentControls()))

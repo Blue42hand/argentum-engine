@@ -37,7 +37,7 @@ val FellGravship = card("Fell Gravship") {
 
     // ETB: Mill 3 cards, then return a creature or Spacecraft card from graveyard to hand
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             listOf(
                 // Mill 3 cards

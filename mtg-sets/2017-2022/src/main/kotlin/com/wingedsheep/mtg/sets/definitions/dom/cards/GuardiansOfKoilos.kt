@@ -17,7 +17,7 @@ val GuardiansOfKoilos = card("Guardians of Koilos") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target("historic", TargetPermanent(
             filter = TargetFilter(GameObjectFilter.Historic.youControl(), excludeSelf = true)

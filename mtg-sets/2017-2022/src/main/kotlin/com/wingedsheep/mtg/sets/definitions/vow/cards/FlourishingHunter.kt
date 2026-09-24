@@ -31,7 +31,7 @@ val FlourishingHunter = card("Flourishing Hunter") {
         "other creatures you control."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(
             DynamicAmounts.battlefield(
                 Player.You,

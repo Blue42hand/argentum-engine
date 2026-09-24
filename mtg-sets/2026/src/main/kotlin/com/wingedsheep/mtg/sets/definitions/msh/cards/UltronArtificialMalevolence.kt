@@ -10,8 +10,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Ultron, Artificial Malevolence — Marvel Super Heroes #252
@@ -52,13 +52,7 @@ val UltronArtificialMalevolence = card("Ultron, Artificial Malevolence") {
         "Robot Villain creature in addition to its other types."
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = ZoneChangeEvent(
-                filter = GameObjectFilter.Artifact.youControl().nontoken(),
-                to = Zone.BATTLEFIELD
-            ),
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.Artifact.youControl().nontoken()).enters()
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}"),
             then = Effects.If(

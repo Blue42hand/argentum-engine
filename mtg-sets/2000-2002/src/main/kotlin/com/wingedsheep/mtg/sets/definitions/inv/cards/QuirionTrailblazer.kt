@@ -26,7 +26,7 @@ val QuirionTrailblazer = card("Quirion Trailblazer") {
         "put that card onto the battlefield tapped, then shuffle."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.BasicLand,

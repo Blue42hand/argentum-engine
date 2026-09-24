@@ -17,7 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Starting Loyalty: 2
  *
  * - The static-looking first line is a triggered ability on the planeswalker itself: each life-gain
- *   event is one trigger, one loyalty counter ([Triggers.YouGainLife]).
+ *   event is one trigger, one loyalty counter (`Triggers.you.gainsLife()`).
  * - −4's token is a *named* token ("Ajani's Pridemate") carrying its own Pridemate trigger, the same
  *   shape Teferi, Temporal Pilgrim uses for its Spirit token.
  * - −10 is a permanent emblem over creatures you control, so creatures that arrive later also get
@@ -35,7 +35,7 @@ val AjaniResolute = card("Ajani Resolute") {
         "−10: You get an emblem with \"Creatures you control get +2/+2.\""
 
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         effect = Effects.AddCounters(CounterType.LOYALTY, 1, EffectTarget.Self)
         description = "Whenever you gain life, put a loyalty counter on Ajani."
     }
@@ -54,8 +54,7 @@ val AjaniResolute = card("Ajani Resolute") {
             name = "Ajani's Pridemate",
             triggeredAbilities = listOf(
                 TriggeredAbility.create(
-                    trigger = Triggers.YouGainLife.event,
-                    binding = Triggers.YouGainLife.binding,
+                    trigger = Triggers.you.gainsLife(),
                     effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                     descriptionOverride = "Whenever you gain life, put a +1/+1 counter on this token.",
                 )

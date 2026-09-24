@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Lavaborn Muse
@@ -30,7 +31,7 @@ val LavabornMuse = card("Lavaborn Muse") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.EachOpponentUpkeep
+        trigger = Triggers.anOpponent.beginningOf(Step.UPKEEP)
         // "That player" is the player whose upkeep it is — bound by the step trigger.
         interveningIf = upkeepPlayerHandAtMost(2)
         effect = Effects.DealDamage(3, EffectTarget.PlayerRef(Player.TriggeringPlayer))

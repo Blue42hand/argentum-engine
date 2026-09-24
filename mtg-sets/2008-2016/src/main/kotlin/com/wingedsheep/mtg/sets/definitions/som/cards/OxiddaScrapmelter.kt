@@ -12,7 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  *
  * When this creature enters, destroy target artifact.
  *
- * A plain SELF-bound [Triggers.EntersBattlefield] over [Effects.Destroy]. The trigger is not
+ * A plain SELF-bound `Triggers.self.enters()` over [Effects.Destroy]. The trigger is not
  * optional and its target is not "up to", so it must pick an artifact if one is on the battlefield
  * — including one of yours when the opponent has none. `Destroy` lowers to a graveyard move flagged
  * `byDestruction`, which is what lets indestructible and regeneration see it.
@@ -26,7 +26,7 @@ val OxiddaScrapmelter = card("Oxidda Scrapmelter") {
     oracleText = "When this creature enters, destroy target artifact."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val artifact = target("target artifact", Targets.Artifact)
         effect = Effects.Destroy(artifact)
     }

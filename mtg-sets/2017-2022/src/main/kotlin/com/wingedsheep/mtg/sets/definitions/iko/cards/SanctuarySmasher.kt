@@ -36,7 +36,7 @@ val SanctuarySmasher = card("Sanctuary Smasher") {
     keywordAbility(KeywordAbility.cycling("{2}{R}"))
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         val creature = target("target", Targets.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.FIRST_STRIKE, 1, creature)
     }

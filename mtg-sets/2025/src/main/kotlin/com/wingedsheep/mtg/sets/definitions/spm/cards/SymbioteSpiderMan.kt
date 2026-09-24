@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Symbiote Spider-Man
@@ -48,8 +49,7 @@ private const val DIG_DESCRIPTION =
         "of your library. Put one of them into your hand and the rest into your graveyard."
 
 private fun symbioteCombatDamageTrigger(): TriggeredAbility = TriggeredAbility.create(
-    trigger = Triggers.DealsCombatDamageToPlayer.event,
-    binding = Triggers.DealsCombatDamageToPlayer.binding,
+    trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer),
     effect = symbioteDigEffect(),
     descriptionOverride = DIG_DESCRIPTION,
 )
@@ -68,7 +68,7 @@ val SymbioteSpiderMan = card("Symbiote Spider-Man") {
         "sorcery."
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = symbioteDigEffect()
         description = DIG_DESCRIPTION
     }

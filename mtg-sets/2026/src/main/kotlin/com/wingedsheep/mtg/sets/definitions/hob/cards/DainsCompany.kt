@@ -58,7 +58,7 @@ val DainsCompany = card("Dáin's Company") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val looked = gather(CardSource.TopOfLibrary(4))
             val (kept, rest) = chooseUpToSplit(

@@ -61,14 +61,14 @@ val CemeteryIlluminator = card("Cemetery Illuminator") {
 
     // Whenever this creature enters …
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = exileFromAGraveyard()
         description = "When Cemetery Illuminator enters, exile a card from a graveyard."
     }
 
     // … or attacks, exile a card from a graveyard.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = exileFromAGraveyard()
         description = "Whenever Cemetery Illuminator attacks, exile a card from a graveyard."
     }

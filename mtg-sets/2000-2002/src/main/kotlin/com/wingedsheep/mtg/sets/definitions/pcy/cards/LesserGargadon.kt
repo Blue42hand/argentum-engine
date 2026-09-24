@@ -26,11 +26,11 @@ val LesserGargadon = card("Lesser Gargadon") {
     power = 6
     toughness = 4
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.SacrificeOwn(GameObjectFilter.Land)
     }
     triggeredAbility {
-        trigger = Triggers.Blocks
+        trigger = Triggers.self.blocks()
         effect = Effects.SacrificeOwn(GameObjectFilter.Land)
     }
     metadata {

@@ -37,7 +37,7 @@ val GlenElendraPranksters = card("Glen Elendra Pranksters") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YouCastSpell
+        trigger = Triggers.you.casts()
         triggerRestriction = Conditions.IsNotYourTurn
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.May(Effects.ReturnToHand(creature))

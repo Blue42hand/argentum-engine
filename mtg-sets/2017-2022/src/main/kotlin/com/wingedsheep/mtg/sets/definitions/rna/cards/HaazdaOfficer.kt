@@ -21,7 +21,7 @@ val HaazdaOfficer = card("Haazda Officer") {
     oracleText = "When this creature enters, target creature you control gets +1/+1 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val ally = target("target", Targets.CreatureYouControl)
         effect = Effects.ModifyStats(1, 1, ally)
     }

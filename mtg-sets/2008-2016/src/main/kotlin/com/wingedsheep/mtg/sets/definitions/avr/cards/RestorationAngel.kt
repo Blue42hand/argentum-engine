@@ -33,7 +33,7 @@ val RestorationAngel = card("Restoration Angel") {
     keywords(Keyword.FLASH, Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "non-Angel creature you control",
             TargetCreature(

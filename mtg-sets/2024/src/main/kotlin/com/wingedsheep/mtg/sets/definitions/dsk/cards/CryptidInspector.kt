@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -22,10 +21,10 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * The "X and whenever Y" templating is two distinct triggered abilities sharing one payoff
  * (CR has no "or" trigger combiner), so it's modelled as two `triggeredAbility` blocks, both
  * putting a +1/+1 counter on this creature ([EffectTarget.Self]):
- *  - a face-down permanent you control entering ([Triggers.entersBattlefield] filtered to
+ *  - a face-down permanent you control entering (`Triggers.a(filter).enters()` filtered to
  *    face-down permanents you control); and
  *  - any permanent you control (including this creature) being turned face up
- *    ([Triggers.CreatureTurnedFaceUp] — in DSK every face-up turn is a manifested creature).
+ *    (`Triggers.<player>.permanentTurnedFaceUp(filter)` — in DSK every face-up turn is a manifested creature).
  */
 val CryptidInspector = card("Cryptid Inspector") {
     manaCost = "{2}{G}"
@@ -40,15 +39,12 @@ val CryptidInspector = card("Cryptid Inspector") {
     keywords(Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Permanent.faceDown().youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Permanent.faceDown().youControl()).enters()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
     triggeredAbility {
-        trigger = Triggers.CreatureTurnedFaceUp()
+        trigger = Triggers.you.permanentTurnedFaceUp()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

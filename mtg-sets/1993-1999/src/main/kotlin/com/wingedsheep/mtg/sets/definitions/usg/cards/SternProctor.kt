@@ -28,7 +28,7 @@ val SternProctor = card("Stern Proctor") {
     power = 1
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetPermanent(filter = TargetFilter.ArtifactOrEnchantment))
         effect = Effects.Move(t, Zone.HAND)
     }

@@ -39,7 +39,7 @@ val SpecimenFreighter = card("Specimen Freighter") {
 
     // ETB: return up to two target non-Spacecraft creatures to their owners' hands
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target(
             "up to two target non-Spacecraft creatures",
             TargetCreature(
@@ -73,7 +73,7 @@ val SpecimenFreighter = card("Specimen Freighter") {
 
     // Whenever this Spacecraft attacks, defending player mills four cards
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Patterns.Library.mill(4, EffectTarget.PlayerRef(Player.DefendingPlayer))
     }
 

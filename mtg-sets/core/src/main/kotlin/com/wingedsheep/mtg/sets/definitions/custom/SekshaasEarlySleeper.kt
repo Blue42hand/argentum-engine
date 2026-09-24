@@ -60,7 +60,7 @@ val SekshaasEarlySleeper = card("Sekshaas, Early Sleeper") {
 
     // Early to Rest — exile at each end step, return at your next upkeep with haste
     triggeredAbility {
-        trigger = Triggers.EachEndStep
+        trigger = Triggers.anyPlayer.beginningOf(Step.END)
         effect = Effects.Composite(
             listOf(
                 Effects.Move(EffectTarget.Self, Zone.EXILE),

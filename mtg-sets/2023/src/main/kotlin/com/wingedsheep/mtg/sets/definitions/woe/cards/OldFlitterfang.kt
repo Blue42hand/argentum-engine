@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Old Flitterfang
@@ -27,7 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * around the effect. [Conditions.CreatureDiedThisTurn] is the global variant (any player's
  * creature), matching the unqualified "a creature".
  *
- * [Triggers.EachEndStep] rather than `YourEndStep`: it fires in every player's end step, so Old
+ * `Triggers.anyPlayer.beginningOf(Step.END)` rather than `YourEndStep`: it fires in every player's end step, so Old
  * Flitterfang converts an opponent's removal spell into a Food on their own turn.
  *
  * The pump's sacrifice is a *cost*, so it's paid on activation and can't be undone by removal in
@@ -49,7 +50,7 @@ val OldFlitterfang = card("Old Flitterfang") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EachEndStep
+        trigger = Triggers.anyPlayer.beginningOf(Step.END)
         interveningIf = Conditions.CreatureDiedThisTurn
         effect = Effects.CreateFood()
         description = "At the beginning of each end step, if a creature died this turn, create a Food token."

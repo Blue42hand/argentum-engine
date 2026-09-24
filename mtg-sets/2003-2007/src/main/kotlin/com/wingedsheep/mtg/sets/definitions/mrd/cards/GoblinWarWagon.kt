@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Goblin War Wagon — Mirrodin #179
@@ -40,7 +41,7 @@ val GoblinWarWagon = card("Goblin War Wagon") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}"),
             then = Effects.Untap(EffectTarget.Self)

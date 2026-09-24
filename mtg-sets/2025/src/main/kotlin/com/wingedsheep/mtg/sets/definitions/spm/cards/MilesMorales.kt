@@ -39,7 +39,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *  - Camouflage (back): [Effects.Composite] of a permanent +1/+1 counter, [Effects.GrantHexproof]
  *    (until end of turn) and [Effects.ChangeColor] with an empty color set = colorless (until end
  *    of turn). Only the hexproof and colorless clauses are end-of-turn; the counter is permanent.
- *  - Attack trigger (back): [Triggers.YouAttack] + [Effects.ForEachInGroup] applying
+ *  - Attack trigger (back): `Triggers.you.attacks()` + [Effects.ForEachInGroup] applying
  *    [Effects.DoubleAllCounters] (counterType null → each kind of counter) to every Spider or
  *    legendary creature you control.
  */
@@ -56,7 +56,7 @@ private val MilesMoralesFront = card("Miles Morales") {
 
     // When Miles Morales enters, put a +1/+1 counter on each of up to two target creatures.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target = Targets.UpToCreatures(2)
         effect = Effects.ForEachTarget(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
@@ -111,7 +111,7 @@ private val UltimateSpiderMan = card("Ultimate Spider-Man") {
     // Whenever you attack, double the number of each kind of counter on each Spider and legendary
     // creature you control.
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         effect = Effects.ForEachInGroup(
             GroupFilter(
                 GameObjectFilter.Creature.youControl().withSubtype("Spider") or

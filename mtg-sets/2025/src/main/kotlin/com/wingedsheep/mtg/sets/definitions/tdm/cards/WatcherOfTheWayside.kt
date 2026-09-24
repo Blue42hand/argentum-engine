@@ -27,7 +27,7 @@ val WatcherOfTheWayside = card("Watcher of the Wayside") {
     oracleText = "When this creature enters, target player mills two cards. You gain 2 life."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val player = target("target player", Targets.Player)
         effect = Effects.Composite(
             Patterns.Library.mill(2, player),

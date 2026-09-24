@@ -41,7 +41,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    nothing. "Activate only as a sorcery" is [TimingRule.SorcerySpeed].
  *
  *  - **Enrage** is an ability word — flavor only, no rules meaning — over an ordinary
- *    [Triggers.TakesDamage] trigger bound to the source. It fires on *any* damage (combat or not,
+ *    `Triggers.self.isDealtDamage()` trigger bound to the source. It fires on *any* damage (combat or not,
  *    from any source, including damage that is lethal: the trigger still goes on the stack even
  *    though the Hulk may already be in the graveyard when it resolves, in which case the counter
  *    has nowhere to go).
@@ -105,7 +105,7 @@ private val TheIncredibleHulkBack = card("The Incredible Hulk") {
     // Enrage — Whenever The Incredible Hulk is dealt damage, put a +1/+1 counter on him. If he's
     // attacking, untap him and there is an additional combat phase after this phase.
     triggeredAbility {
-        trigger = Triggers.TakesDamage
+        trigger = Triggers.self.isDealtDamage()
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             Effects.If(

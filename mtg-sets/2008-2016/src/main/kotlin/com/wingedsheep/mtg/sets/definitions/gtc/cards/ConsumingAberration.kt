@@ -38,7 +38,7 @@ val ConsumingAberration = card("Consuming Aberration") {
     )
 
     triggeredAbility {
-        trigger = Triggers.YouCastSpell
+        trigger = Triggers.you.casts()
         effect = Effects.ForEachPlayer(
             Player.EachOpponent,
             Effects.Pipeline {

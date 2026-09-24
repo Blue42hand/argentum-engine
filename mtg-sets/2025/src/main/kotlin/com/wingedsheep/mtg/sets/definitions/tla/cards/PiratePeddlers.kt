@@ -36,7 +36,7 @@ val PiratePeddlers = card("Pirate Peddlers") {
 
     // Whenever you sacrifice another permanent, put a +1/+1 counter on this creature.
     triggeredAbility {
-        trigger = Triggers.YouSacrificeAnother(GameObjectFilter.Permanent)
+        trigger = Triggers.you.sacrificesAnother(GameObjectFilter.Permanent)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever you sacrifice another permanent, put a +1/+1 counter on this creature."
     }

@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 
 /**
@@ -27,7 +28,7 @@ val Guttersnipe = card("Guttersnipe") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.YouCastInstantOrSorcery
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         effect = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent))
     }
     metadata {

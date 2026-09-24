@@ -46,7 +46,7 @@ val FaeFlight = card("Fae Flight") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GrantHexproof(EffectTarget.EnchantedCreature)
         description = "When this Aura enters, enchanted creature gains hexproof until end of turn."
     }

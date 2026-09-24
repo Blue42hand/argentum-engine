@@ -30,7 +30,7 @@ val HonestRutstein = card("Honest Rutstein") {
         "Creature spells you cast cost {1} less to cast."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature", Targets.CreatureCardInYourGraveyard)
         effect = Effects.Move(creature, Zone.HAND)
     }

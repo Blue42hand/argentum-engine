@@ -9,13 +9,11 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Wick, the Whorled Mind
@@ -39,13 +37,7 @@ val WickTheWhorledMind = card("Wick, the Whorled Mind") {
 
     // Triggered ability: Whenever a Rat you control enters (including self, since Wick is a Rat)
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = ZoneChangeEvent(
-                filter = GameObjectFilter.Creature.withSubtype("Rat").youControl(),
-                to = Zone.BATTLEFIELD
-            ),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.withSubtype("Rat").youControl()).enters()
         effect = Effects.If(
             condition = Exists(
                 player = Player.You,

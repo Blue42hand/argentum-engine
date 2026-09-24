@@ -29,7 +29,7 @@ val ZealousLorecaster = card("Zealous Lorecaster") {
     power = 4
     toughness = 4
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target",
             TargetObject(filter = TargetFilter(GameObjectFilter.InstantOrSorcery.ownedByYou(), zone = Zone.GRAVEYARD))

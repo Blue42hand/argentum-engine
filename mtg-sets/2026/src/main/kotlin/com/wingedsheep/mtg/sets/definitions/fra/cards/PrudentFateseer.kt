@@ -21,7 +21,7 @@ val PrudentFateseer = card("Prudent Fateseer") {
     keywords(Keyword.PREPARED)
 
     triggeredAbility {
-        trigger = Triggers.WheneverYouScryOrSurveil
+        trigger = Triggers.you.scriesOrSurveils()
         oncePerTurn = true
         effect = Patterns.Group.modifyStatsForAll(1, 0, GroupFilter(GameObjectFilter.Creature.youControl()))
         description = "Whenever you scry or surveil, creatures you control get +1/+0 until end of turn. " +

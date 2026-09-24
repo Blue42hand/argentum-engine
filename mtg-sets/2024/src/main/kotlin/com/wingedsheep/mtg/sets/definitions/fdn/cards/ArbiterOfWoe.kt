@@ -36,7 +36,7 @@ val ArbiterOfWoe = card("Arbiter of Woe") {
     additionalCost(Costs.additional.SacrificePermanent(GameObjectFilter.Creature))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.EachOpponentDiscards(1),
             Effects.ForEachPlayer(

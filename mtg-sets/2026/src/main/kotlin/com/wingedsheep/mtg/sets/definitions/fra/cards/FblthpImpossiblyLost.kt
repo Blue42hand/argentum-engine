@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * library. (If you draw from an empty library this way, you still win the game.)
  *
  * The trigger is the opponent-keyed combat-damage batch
- * ([Triggers.OneOrMoreOpponentsDealtCombatDamage]) — once per combat-damage step however many
+ * (`Triggers.anOpponent.isDealtCombatDamage()`) — once per combat-damage step however many
  * opponents were hit — narrowed to your turn with a trigger restriction.
  *
  * The reminder text works because drawing from an empty library doesn't lose on the spot: the
@@ -38,7 +38,7 @@ val FblthpImpossiblyLost = card("Fblthp, Impossibly Lost") {
         "(If you draw from an empty library this way, you still win the game.)"
 
     triggeredAbility {
-        trigger = Triggers.OneOrMoreOpponentsDealtCombatDamage
+        trigger = Triggers.anOpponent.isDealtCombatDamage()
         triggerRestriction = Conditions.IsYourTurn
         effect = Effects.Composite(
             Effects.DrawCards(2),

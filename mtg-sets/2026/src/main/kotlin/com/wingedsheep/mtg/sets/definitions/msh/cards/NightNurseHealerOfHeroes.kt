@@ -43,7 +43,7 @@ val NightNurseHealerOfHeroes = card("Night Nurse, Healer of Heroes") {
     keywords(Keyword.FLASH, Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val rescued = target(
             "permanent card in your graveyard that was put there this turn",
             TargetObject(

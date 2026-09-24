@@ -39,7 +39,7 @@ val DamageControlCrew = card("Damage Control Crew") {
         "• Impound — Exile target artifact or enchantment."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Repair — Return target card with mana value 4 or greater from your graveyard to your hand.") {
                 val cardInGraveyard = target("target card in graveyard", TargetObject(

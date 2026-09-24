@@ -55,7 +55,7 @@ val PublicThoroughfare = card("Public Thoroughfare") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Tap(GameObjectFilter.ArtifactOrLand),
             suffer = SacrificeSelfEffect

@@ -44,7 +44,7 @@ val IsochronScepter = card("Isochron Scepter") {
     // Imprint — When this artifact enters, you may exile an instant card with mana value 2 or
     // less from your hand.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Patterns.Hand.revealHandAndExileChosen(
                 target = EffectTarget.Controller,

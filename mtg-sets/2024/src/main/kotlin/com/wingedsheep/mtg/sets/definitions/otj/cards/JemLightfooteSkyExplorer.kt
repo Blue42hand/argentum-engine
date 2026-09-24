@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.core.Step
 
 
 /**
@@ -30,7 +31,7 @@ val JemLightfooteSkyExplorer = card("Jem Lightfoote, Sky Explorer") {
     toughness = 3
     keywords(Keyword.FLYING, Keyword.VIGILANCE)
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.Not(Conditions.YouCastSpellsThisTurn(1, fromZone = Zone.HAND))
         effect = Effects.DrawCards(1)
     }

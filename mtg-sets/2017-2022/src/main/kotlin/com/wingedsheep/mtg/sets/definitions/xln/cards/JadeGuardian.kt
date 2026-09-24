@@ -33,7 +33,7 @@ val JadeGuardian = card("Jade Guardian") {
     keywords(Keyword.HEXPROOF)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val merfolk = target(
             "target",
             TargetObject(

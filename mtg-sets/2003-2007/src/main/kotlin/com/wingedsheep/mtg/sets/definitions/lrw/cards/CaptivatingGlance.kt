@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Captivating Glance
@@ -50,7 +51,7 @@ val CaptivatingGlance = card("Captivating Glance") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = Patterns.Mechanic.clash(
             ifYouWin = Effects.GainControl(EffectTarget.EnchantedCreature),
             otherwise = Effects.GiveControl(

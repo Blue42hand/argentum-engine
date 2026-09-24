@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 
 /**
@@ -27,7 +26,7 @@ val SoulWarden = card("Soul Warden") {
     power = 1
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(filter = GameObjectFilter.Creature, binding = TriggerBinding.OTHER)
+        trigger = Triggers.another(GameObjectFilter.Creature).enters()
         effect = Effects.GainLife(1)
     }
     metadata {

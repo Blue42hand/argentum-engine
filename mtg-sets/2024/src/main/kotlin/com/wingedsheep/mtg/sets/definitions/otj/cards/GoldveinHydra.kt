@@ -32,7 +32,7 @@ val GoldveinHydra = card("Goldvein Hydra") {
 
     // When this creature dies, create tapped Treasure tokens equal to its (last-known) power
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.CreateTreasure(count = DynamicAmounts.sourcePower(), tapped = true)
     }
 

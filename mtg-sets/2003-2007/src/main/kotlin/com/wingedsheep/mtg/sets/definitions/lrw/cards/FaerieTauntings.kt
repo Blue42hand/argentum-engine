@@ -29,7 +29,7 @@ val FaerieTauntings = card("Faerie Tauntings") {
     oracleText = "Whenever you cast a spell during an opponent's turn, you may have each opponent lose 1 life."
 
     triggeredAbility {
-        trigger = Triggers.YouCastSpell
+        trigger = Triggers.you.casts()
         triggerRestriction = Conditions.IsNotYourTurn
         effect = Effects.May(Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)))
         description = "Whenever you cast a spell during an opponent's turn, you may have each opponent lose 1 life."

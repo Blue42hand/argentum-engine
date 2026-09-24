@@ -28,7 +28,7 @@ val PoisonersApprentice = card("Poisoner's Apprentice") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         triggerRestriction = Conditions.YouGainedLifeThisTurn
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.ModifyStats(-4, -4, t)

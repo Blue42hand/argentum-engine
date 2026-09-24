@@ -69,7 +69,7 @@ val TheBalrogDurinsBane = card("The Balrog, Durin's Bane") {
 
     // When The Balrog dies, destroy target artifact or creature an opponent controls.
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val artifactOrCreatureOpponentControls = target(
             "target artifact or creature an opponent controls",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrArtifact.opponentControls())),

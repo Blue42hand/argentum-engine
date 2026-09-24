@@ -26,7 +26,7 @@ val WindgraceAcolyte = card("Windgrace Acolyte") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.mill(3)
             .then(Effects.GainLife(3))
     }

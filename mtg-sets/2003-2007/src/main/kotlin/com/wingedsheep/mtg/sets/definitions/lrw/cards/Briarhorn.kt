@@ -34,7 +34,7 @@ val Briarhorn = card("Briarhorn") {
     evoke = "{1}{G}"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature", Targets.Creature)
         effect = Effects.ModifyStats(3, 3, creature)
         description = "target creature gets +3/+3 until end of turn."

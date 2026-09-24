@@ -59,7 +59,7 @@ class BattleCardTypeScenarioTest : ScenarioTestBase() {
         oracleText = "At the beginning of your upkeep, draw a card."
 
         triggeredAbility {
-            trigger = Triggers.YourUpkeep
+            trigger = Triggers.you.beginningOf(Step.UPKEEP)
             effect = Effects.DrawCards(1)
             description = "At the beginning of your upkeep, draw a card."
         }
@@ -73,7 +73,7 @@ class BattleCardTypeScenarioTest : ScenarioTestBase() {
         oracleText = "At the beginning of your upkeep, draw a card."
 
         triggeredAbility {
-            trigger = Triggers.YourUpkeep
+            trigger = Triggers.you.beginningOf(Step.UPKEEP)
             effect = Effects.DrawCards(1)
             description = "At the beginning of your upkeep, draw a card."
         }

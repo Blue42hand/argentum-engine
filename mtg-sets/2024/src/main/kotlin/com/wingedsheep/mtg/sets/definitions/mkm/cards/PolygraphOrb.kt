@@ -52,7 +52,7 @@ val PolygraphOrb = card("Polygraph Orb") {
         "greater from your graveyard.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Patterns.Library.lookAtTopAndKeep(count = 4, keepCount = 2),
             Effects.LoseLife(2, EffectTarget.Controller)

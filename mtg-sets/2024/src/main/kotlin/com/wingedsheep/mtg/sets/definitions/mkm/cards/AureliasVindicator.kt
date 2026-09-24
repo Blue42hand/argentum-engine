@@ -67,7 +67,7 @@ val AureliasVindicator = card("Aurelia's Vindicator") {
     disguise = "{X}{3}{W}"
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         target(
             "up to X other target creatures from the battlefield and/or creature cards from graveyards",
             TargetObject(
@@ -85,7 +85,7 @@ val AureliasVindicator = card("Aurelia's Vindicator") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileToHand()
         description = "When this creature leaves the battlefield, return the exiled cards to " +
             "their owners' hands."

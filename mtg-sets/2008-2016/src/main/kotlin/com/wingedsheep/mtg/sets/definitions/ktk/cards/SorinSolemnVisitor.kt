@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Sorin, Solemn Visitor - {2}{W}{B}
@@ -60,8 +61,7 @@ val SorinSolemnVisitor = card("Sorin, Solemn Visitor") {
     loyaltyAbility(-6) {
         effect = Effects.CreateGlobalTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.EachOpponentUpkeep.event,
-                binding = Triggers.EachOpponentUpkeep.binding,
+                trigger = Triggers.anOpponent.beginningOf(Step.UPKEEP),
                 effect = Effects.Sacrifice(
                     filter = GameObjectFilter.Creature,
                     count = 1,

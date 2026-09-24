@@ -32,7 +32,7 @@ val DarettiRocketeerEngineer = card("Daretti, Rocketeer Engineer") {
     )
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val artifactCard = target(
             "target artifact card in your graveyard",
             TargetObject(
@@ -46,7 +46,7 @@ val DarettiRocketeerEngineer = card("Daretti, Rocketeer Engineer") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val artifactCard = target(
             "target artifact card in your graveyard",
             TargetObject(

@@ -33,7 +33,7 @@ val FireNavyTrebuchet = card("Fire Navy Trebuchet") {
 
     // Whenever you attack, create a tapped-and-attacking Ballistic Boulder, sacrificed next end step.
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         effect = Effects.CreateToken(
             power = 2,
             toughness = 1,

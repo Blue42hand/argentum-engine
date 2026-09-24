@@ -42,7 +42,7 @@ val AgonasaurRex = card("Agonasaur Rex") {
     keywordAbility(KeywordAbility.cycling("{2}{G}"))
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         val t = target(
             "up to one target creature or Vehicle",
             TargetPermanent(optional = true, filter = TargetFilter(GameObjectFilter.CreatureOrVehicle))

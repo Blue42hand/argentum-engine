@@ -49,7 +49,7 @@ val GuidelightPathmaker = card("Guidelight Pathmaker") {
     keywords(Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Effects.Pipeline {
                 val searchable = gather(

@@ -30,7 +30,7 @@ val ZealousConscripts = card("Zealous Conscripts") {
     toughness = 3
     keywords(Keyword.HASTE)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetPermanent())
         effect = Effects.Composite(
             Effects.GainControl(t, Duration.EndOfTurn),

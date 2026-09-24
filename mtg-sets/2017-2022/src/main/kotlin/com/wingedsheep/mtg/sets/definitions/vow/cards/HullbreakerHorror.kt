@@ -37,7 +37,7 @@ val HullbreakerHorror = card("Hullbreaker Horror") {
     cantBeCountered = true
 
     triggeredAbility {
-        trigger = Triggers.YouCastSpell
+        trigger = Triggers.you.casts()
         effect = Effects.Modal(
             modes = listOf(
                 Mode.withTarget(

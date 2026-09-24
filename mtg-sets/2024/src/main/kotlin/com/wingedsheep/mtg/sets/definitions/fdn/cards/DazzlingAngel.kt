@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 
 /**
@@ -30,10 +29,7 @@ val DazzlingAngel = card("Dazzling Angel") {
     toughness = 3
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Creature.youControl(),
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
         effect = Effects.GainLife(1)
     }
     metadata {

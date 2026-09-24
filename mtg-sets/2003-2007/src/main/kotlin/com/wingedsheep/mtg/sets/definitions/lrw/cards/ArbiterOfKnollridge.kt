@@ -39,7 +39,7 @@ val ArbiterOfKnollridge = card("Arbiter of Knollridge") {
     keywords(Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.SetLifeTotal(
             amount = DynamicAmounts.greatestAmongPlayers(DynamicAmounts.lifeTotal(Player.You), players = Player.Each),
             target = EffectTarget.PlayerRef(Player.Each)

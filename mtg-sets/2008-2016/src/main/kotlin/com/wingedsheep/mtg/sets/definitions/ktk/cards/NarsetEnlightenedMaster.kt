@@ -29,7 +29,7 @@ val NarsetEnlightenedMaster = card("Narset, Enlightened Master") {
     keywords(Keyword.FIRST_STRIKE, Keyword.HEXPROOF)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Pipeline {
             // Exile the top 4 cards of your library
             val exiledCards = gather(CardSource.TopOfLibrary(4))

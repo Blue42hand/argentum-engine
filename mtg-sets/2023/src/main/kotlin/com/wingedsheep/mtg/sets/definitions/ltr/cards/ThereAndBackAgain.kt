@@ -35,7 +35,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  *
  * Chapter III spawns Smaug as a one-off named legendary 6/6 red Dragon token. The death
  * rider is granted on the token via [CreateTokenEffect.triggeredAbilities] — a
- * `Triggers.Dies` event with [Effects.CreateTreasure]`(14)` as the payoff.
+ * `Triggers.self.dies()` event with [Effects.CreateTreasure]`(14)` as the payoff.
  */
 val ThereAndBackAgain = card("There and Back Again") {
     manaCost = "{3}{R}{R}"
@@ -77,8 +77,7 @@ val ThereAndBackAgain = card("There and Back Again") {
             legendary = true,
             triggeredAbilities = listOf(
                 TriggeredAbility.create(
-                    trigger = Triggers.Dies.event,
-                    binding = Triggers.Dies.binding,
+                    trigger = Triggers.self.dies(),
                     effect = Effects.CreateTreasure(14)
                 )
             ),

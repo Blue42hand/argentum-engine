@@ -100,7 +100,7 @@ class CollectEvidenceScenarioTest : ScenarioTestBase() {
         toughness = 3
         collectEvidence(6)
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             interveningIf = Conditions.WasEvidenceCollected
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         }
@@ -114,7 +114,7 @@ class CollectEvidenceScenarioTest : ScenarioTestBase() {
         toughness = 2
         collectEvidence(6)
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             effect = Effects.Composite(
                 Effects.GainLife(1),
                 Effects.If(
@@ -148,7 +148,7 @@ class CollectEvidenceScenarioTest : ScenarioTestBase() {
         power = 2
         toughness = 3
         triggeredAbility {
-            trigger = Triggers.Attacks
+            trigger = Triggers.self.attacks()
             effect = ReflexiveTriggerEffect(
                 action = Effects.CollectEvidence(3),
                 optional = true,
@@ -182,11 +182,11 @@ class CollectEvidenceScenarioTest : ScenarioTestBase() {
         power = 3
         toughness = 3
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             effect = Effects.May(Effects.CollectEvidence(4))
         }
         triggeredAbility {
-            trigger = Triggers.WheneverYouCollectEvidence
+            trigger = Triggers.you.collectsEvidence()
             effect = Effects.GainLife(7)
         }
     }
@@ -198,7 +198,7 @@ class CollectEvidenceScenarioTest : ScenarioTestBase() {
         power = 1
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             effect = Effects.MayPay(
                 cost = Effects.CollectEvidence(4),
                 then = Effects.GainLife(7),
@@ -214,7 +214,7 @@ class CollectEvidenceScenarioTest : ScenarioTestBase() {
         toughness = 2
         keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{1}")))
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             interveningIf = Conditions.WasEvidenceCollected
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         }
@@ -227,7 +227,7 @@ class CollectEvidenceScenarioTest : ScenarioTestBase() {
         toughness = 2
         collectEvidence(6)
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             interveningIf = WasKicked
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         }

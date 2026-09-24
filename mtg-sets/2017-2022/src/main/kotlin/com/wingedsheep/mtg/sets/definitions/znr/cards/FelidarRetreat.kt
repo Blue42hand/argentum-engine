@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Felidar Retreat — ZNR #16
@@ -36,7 +37,7 @@ val FelidarRetreat = card("Felidar Retreat") {
         "• Put a +1/+1 counter on each creature you control. Those creatures gain vigilance until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
                 Effects.CreateToken(

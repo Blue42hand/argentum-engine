@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.SelectionRestriction
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Sanar, Innovative First-Year
@@ -47,7 +48,7 @@ val SanarInnovativeFirstYear = card("Sanar, Innovative First-Year") {
     val colorCount = DynamicAmounts.colorsAmongPermanents()
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.Pipeline {
             // Walk the library until X nonland cards have been revealed.
             val (nonlandCards, allRevealed) = gatherUntilMatch(GameObjectFilter.Nonland, count = colorCount)

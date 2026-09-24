@@ -55,7 +55,7 @@ val LazavWearerOfFaces = card("Lazav, Wearer of Faces") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val graveyardCard = target("target card from a graveyard", Targets.CardInGraveyard)
         effect = Effects.Composite(
             Effects.Move(graveyardCard, Zone.EXILE, linkToSource = true),
@@ -65,7 +65,7 @@ val LazavWearerOfFaces = card("Lazav, Wearer of Faces") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouSacrificeA(GameObjectFilter.Artifact.withSubtype("Clue"))
+        trigger = Triggers.you.sacrifices(GameObjectFilter.Artifact.withSubtype("Clue"))
         effect = Effects.Pipeline {
             val exiledWithLazav = gather(CardSource.FromLinkedExile())
             val creatureCards = filter(

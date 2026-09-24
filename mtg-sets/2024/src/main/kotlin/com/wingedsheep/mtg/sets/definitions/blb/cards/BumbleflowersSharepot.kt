@@ -25,7 +25,7 @@ val BumbleflowersSharepot = card("Bumbleflower's Sharepot") {
 
     // ETB: Create a Food token
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateFood()
     }
 

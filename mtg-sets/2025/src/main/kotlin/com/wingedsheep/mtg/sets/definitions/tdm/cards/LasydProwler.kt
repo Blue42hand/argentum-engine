@@ -35,7 +35,7 @@ val LasydProwler = card("Lasyd Prowler") {
         "where X is the number of land cards in your graveyard. Activate only as a sorcery."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Patterns.Library.mill(DynamicAmounts.count(Player.You, Zone.BATTLEFIELD, Filters.Land)),
             descriptionOverride = "You may mill cards equal to the number of lands you control."

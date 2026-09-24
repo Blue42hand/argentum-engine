@@ -29,7 +29,7 @@ val WitheringHex = card("Withering Hex") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.AnyPlayerCycles
+        trigger = Triggers.anyPlayer.cycles()
         effect = Effects.AddCounters(CounterType.PLAGUE, 1, EffectTarget.Self)
     }
 

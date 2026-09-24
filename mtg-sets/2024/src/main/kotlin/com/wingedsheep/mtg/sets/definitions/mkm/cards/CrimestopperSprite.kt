@@ -47,7 +47,7 @@ val CrimestopperSprite = card("Crimestopper Sprite") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature", TargetCreature())
         effect = Effects.Composite(
             Effects.Tap(creature),

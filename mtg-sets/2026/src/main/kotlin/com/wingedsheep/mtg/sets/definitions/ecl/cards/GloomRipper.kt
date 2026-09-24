@@ -35,7 +35,7 @@ val GloomRipper = card("Gloom Ripper") {
         "the number of Elves you control plus the number of Elf cards in your graveyard."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
 
         val ally = target(
             "creature you control",

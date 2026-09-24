@@ -44,6 +44,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import kotlin.reflect.KClass
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Executor for CreateTokenEffect.
@@ -448,8 +449,7 @@ class CreateTokenExecutor(
         if (Keyword.PROWESS in effect.keywords) {
             val prowessAbility = TriggeredAbility.create(
                 id = AbilityId("prowess"),
-                trigger = Triggers.YouCastNoncreature.event,
-                binding = Triggers.YouCastNoncreature.binding,
+                trigger = Triggers.you.casts(GameObjectFilter.Noncreature),
                 effect = ModifyStatsEffect(
                     powerModifier = 1,
                     toughnessModifier = 1,

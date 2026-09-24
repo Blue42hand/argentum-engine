@@ -37,12 +37,7 @@ val InspiredTethermage = card("Inspired Tethermage") {
         "\"[−3]: Draw a card.\")"
 
     triggeredAbility {
-        trigger = Triggers.countersPlacedOn(
-            filter = GameObjectFilter.Planeswalker,
-            counterType = CounterType.LOYALTY,
-            firstTimeEachTurn = false,
-            placedBy = Player.You
-        )
+        trigger = Triggers.a(GameObjectFilter.Planeswalker).getsCounters(CounterType.LOYALTY, by = Player.You)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever you put one or more loyalty counters on a planeswalker, put a +1/+1 " +
             "counter on this creature."

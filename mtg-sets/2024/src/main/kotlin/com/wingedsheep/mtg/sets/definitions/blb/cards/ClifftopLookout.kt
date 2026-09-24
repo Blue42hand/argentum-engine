@@ -32,7 +32,7 @@ val ClifftopLookout = card("Clifftop Lookout") {
     keywords(Keyword.REACH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val (revealedLand, allRevealed) = gatherUntilMatch(GameObjectFilter.Land)
             reveal(allRevealed)

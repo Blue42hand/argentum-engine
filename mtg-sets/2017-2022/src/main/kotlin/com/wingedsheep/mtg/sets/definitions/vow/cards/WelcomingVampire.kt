@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 /**
  * Welcoming Vampire
@@ -26,10 +25,7 @@ val WelcomingVampire = card("Welcoming Vampire") {
     toughness = 3
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Creature.powerAtMost(2).youControl(),
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.Creature.powerAtMost(2).youControl()).enters()
         oncePerTurn = true
         effect = Effects.DrawCards(1)
     }

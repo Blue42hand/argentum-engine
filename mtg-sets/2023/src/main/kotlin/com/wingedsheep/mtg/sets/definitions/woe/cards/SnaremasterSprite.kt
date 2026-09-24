@@ -42,7 +42,7 @@ val SnaremasterSprite = card("Snaremaster Sprite") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target creature an opponent controls",
             TargetCreature(filter = TargetFilter.Creature.opponentControls())

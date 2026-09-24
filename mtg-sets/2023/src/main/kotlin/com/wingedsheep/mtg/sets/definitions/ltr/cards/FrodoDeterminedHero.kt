@@ -41,7 +41,7 @@ val FrodoDeterminedHero = card("Frodo, Determined Hero") {
 
     // "Whenever Frodo enters …"
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val equipment = target(
             "Equipment you control with mana value 2 or 3",
             TargetPermanent(
@@ -57,7 +57,7 @@ val FrodoDeterminedHero = card("Frodo, Determined Hero") {
 
     // "… or attacks"
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val equipment = target(
             "Equipment you control with mana value 2 or 3",
             TargetPermanent(

@@ -55,10 +55,7 @@ val ConfusionInTheRanks = card("Confusion in the Ranks") {
         "control of those permanents."
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.ArtifactCreatureOrEnchantment,
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.ArtifactCreatureOrEnchantment).enters()
         val swapped = target(
             "permanent another player controls that shares a card type with it",
             TargetObject(

@@ -32,7 +32,7 @@ val StopCold = card("Stop Cold") {
     auraTarget = Targets.CreatureOrArtifact
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Tap(EffectTarget.EnchantedCreature)
     }
 

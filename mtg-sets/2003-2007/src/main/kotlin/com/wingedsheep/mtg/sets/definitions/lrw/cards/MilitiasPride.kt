@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 /**
  * Militia's Pride
@@ -38,10 +37,7 @@ val MilitiasPride = card("Militia's Pride") {
         "create a 1/1 white Kithkin Soldier creature token that's tapped and attacking."
 
     triggeredAbility {
-        trigger = Triggers.attacks(
-            filter = GameObjectFilter.Creature.youControl().nontoken(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl().nontoken()).attacks()
         effect = Effects.MayPay(
             cost = ManaCost.parse("{W}"),
             then = Effects.CreateToken(

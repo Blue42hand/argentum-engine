@@ -26,7 +26,7 @@ val FaerieDuelist = card("Faerie Duelist") {
 
     keywords(Keyword.FLASH, Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val victim = target("target", Targets.CreatureOpponentControls)
         effect = Effects.ModifyStats(-2, 0, victim)
     }

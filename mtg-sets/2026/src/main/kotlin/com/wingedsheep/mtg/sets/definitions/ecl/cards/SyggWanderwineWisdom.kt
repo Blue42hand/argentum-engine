@@ -12,9 +12,9 @@ import com.wingedsheep.sdk.scripting.CantBeBlocked
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Sygg, Wanderwine Wisdom // Sygg, Wanderbrine Shield
@@ -36,10 +36,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   At the beginning of your first main phase, you may pay {U}. If you do, transform Sygg.
  */
 
-private val drawOnCombatDamageSpec = Triggers.dealsDamage(
-    damageType = DamageType.Combat,
-    recipient = Recipient.AnyPlayerOrPlaneswalker,
-)
+private val drawOnCombatDamageSpec = Triggers.self.dealsCombatDamage(Recipient.AnyPlayerOrPlaneswalker)
 
 // Protection from each color until your next turn — compose five keyword grants so each
 // color is independently tracked by the floating-effect cleanup system.
@@ -64,13 +61,13 @@ private val SyggWanderbrineShield = card("Sygg, Wanderbrine Shield") {
     }
 
     triggeredAbility {
-        trigger = Triggers.TransformsToBack
+        trigger = Triggers.self.transforms(true)
         val t = target("target creature you control", Targets.CreatureYouControl)
         effect = protectionFromEachColor(t)
     }
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{U}"),
             then = Effects.Transform(EffectTarget.Self)
@@ -107,7 +104,7 @@ private val SyggWanderwineWisdomFront = card("Sygg, Wanderwine Wisdom") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target creature", Targets.Creature)
         effect = Effects.GrantTriggeredAbility(
             ability = drawOnCombatDamage,
@@ -117,7 +114,7 @@ private val SyggWanderwineWisdomFront = card("Sygg, Wanderwine Wisdom") {
     }
 
     triggeredAbility {
-        trigger = Triggers.TransformsToFront
+        trigger = Triggers.self.transforms(false)
         val t = target("target creature", Targets.Creature)
         effect = Effects.GrantTriggeredAbility(
             ability = drawOnCombatDamage,
@@ -127,7 +124,7 @@ private val SyggWanderwineWisdomFront = card("Sygg, Wanderwine Wisdom") {
     }
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{W}"),
             then = Effects.Transform(EffectTarget.Self)

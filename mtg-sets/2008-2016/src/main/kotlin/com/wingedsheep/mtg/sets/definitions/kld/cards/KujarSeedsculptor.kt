@@ -28,7 +28,7 @@ val KujarSeedsculptor = card("Kujar Seedsculptor") {
     oracleText = "When this creature enters, put a +1/+1 counter on target creature you control."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.CreatureYouControl))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
     }

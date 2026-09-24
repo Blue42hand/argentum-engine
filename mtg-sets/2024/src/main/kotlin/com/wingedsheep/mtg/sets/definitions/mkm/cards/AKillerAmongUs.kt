@@ -62,7 +62,7 @@ val AKillerAmongUs = card("A Killer Among Us") {
         "deathtouch until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.CreateToken(
                 power = 1,

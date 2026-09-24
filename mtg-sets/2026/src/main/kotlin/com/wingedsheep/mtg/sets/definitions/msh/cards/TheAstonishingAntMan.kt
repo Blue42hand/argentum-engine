@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * many 1/1 green Insect creature tokens.
  *
  * Modeling notes:
- *  - The trigger is [Triggers.YouDraw], which fires once per card drawn (CR 121.2) — a
+ *  - The trigger is `Triggers.you.draws()`, which fires once per card drawn (CR 121.2) — a
  *    multi-card draw puts on that many counters, one trigger at a time. Cards put into hand
  *    without the word "draw" (CR 121.5) don't trigger it.
  *  - "Remove any number of +1/+1 counters from ~" is the Retribution of the Ancients cost shape:
@@ -42,7 +42,7 @@ val TheAstonishingAntMan = card("The Astonishing Ant-Man") {
         "Create that many 1/1 green Insect creature tokens."
 
     triggeredAbility {
-        trigger = Triggers.YouDraw
+        trigger = Triggers.you.draws()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever you draw a card, put a +1/+1 counter on The Astonishing Ant-Man."
     }

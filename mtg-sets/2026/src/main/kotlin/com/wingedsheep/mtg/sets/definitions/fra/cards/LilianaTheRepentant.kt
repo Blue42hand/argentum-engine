@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -30,10 +29,7 @@ val LilianaTheRepentant = card("Liliana the Repentant") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.CreatureOrPlaneswalker.youControl(),
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.CreatureOrPlaneswalker.youControl()).enters()
         effect = Patterns.Library.mill(2)
         description = "Whenever another creature or planeswalker you control enters, mill two cards."
     }

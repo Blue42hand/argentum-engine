@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBeAttackedBy
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Form of the Dragon
@@ -27,14 +28,14 @@ val FormOfTheDragon = card("Form of the Dragon") {
 
     // At the beginning of your upkeep, this enchantment deals 5 damage to any target.
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         val t = target("any target", Targets.Any)
         effect = Effects.DealDamage(5, t)
     }
 
     // At the beginning of each end step, your life total becomes 5.
     triggeredAbility {
-        trigger = Triggers.EachEndStep
+        trigger = Triggers.anyPlayer.beginningOf(Step.END)
         effect = Effects.SetLifeTotal(5)
     }
 

@@ -45,8 +45,7 @@ fun CardBuilder.increment() {
 
     triggeredAbilities.add(
         TriggeredAbility.create(
-            trigger = Triggers.YouCastSpell.event,
-            binding = Triggers.YouCastSpell.binding,
+            trigger = Triggers.you.casts(),
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             interveningIf = incrementCondition,
             descriptionOverride = "Increment (Whenever you cast a spell, if the amount of mana " +

@@ -61,7 +61,7 @@ val BumiKingOfThreeTrials = card("Bumi, King of Three Trials") {
         "battlefield tapped.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseUpToDynamic(
             dynamicMax = DynamicAmounts.count(
                 Player.You,

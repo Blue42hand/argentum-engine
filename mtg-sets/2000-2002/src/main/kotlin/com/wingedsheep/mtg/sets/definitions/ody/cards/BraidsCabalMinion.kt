@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 
 /**
@@ -28,7 +29,7 @@ val BraidsCabalMinion = card("Braids, Cabal Minion") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         effect = Effects.Sacrifice(GameObjectFilter.Creature, 1, EffectTarget.PlayerRef(Player.TriggeringPlayer))
     }
     metadata {

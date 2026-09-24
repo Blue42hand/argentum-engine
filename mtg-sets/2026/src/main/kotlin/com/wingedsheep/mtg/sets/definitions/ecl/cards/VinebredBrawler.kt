@@ -27,12 +27,12 @@ val VinebredBrawler = card("Vinebred Brawler") {
     oracleText = "This creature must be blocked if able.\nWhenever this creature attacks, another target Elf you control gets +2/+1 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.MustBeBlocked(EffectTarget.Self, allCreatures = false)
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val elf = target(
             "another target Elf you control",
             TargetCreature(filter = TargetFilter.OtherCreatureYouControl.withSubtype(Subtype.ELF))

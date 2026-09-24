@@ -20,7 +20,7 @@ val AdventurersInn = card("Adventurer's Inn") {
     typeLine = "Land — Town"
     oracleText = "When this land enters, you gain 2 life.\n{T}: Add {C}."
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(2)
     }
     activatedAbility {

@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Chief Warg's Company — The Hobbit #151
@@ -59,7 +60,7 @@ val ChiefWargsCompany = card("Chief Warg's Company") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,

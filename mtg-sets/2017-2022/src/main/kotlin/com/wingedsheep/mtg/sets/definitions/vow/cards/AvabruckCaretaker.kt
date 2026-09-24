@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Avabruck Caretaker // Hollowhenge Huntmaster (Innistrad: Crimson Vow)
@@ -26,7 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *          beginning of combat on your turn, put two +1/+1 counters on each creature you control";
  *          Nightbound.
  *
- * Both faces have hexproof as a printed keyword. The front's combat trigger ([Triggers.BeginCombat],
+ * Both faces have hexproof as a printed keyword. The front's combat trigger (`Triggers.you.beginningOf(Step.BEGIN_COMBAT)`,
  * which only fires on your turn) targets **another** creature you control ([Targets.OtherCreatureYouControl])
  * and adds two +1/+1 counters. The night face upgrades the trigger to *each* creature you control
  * ([Effects.ForEachInGroup] over `GameObjectFilter.Creature.youControl()`, the Cathars' Crusade rail),
@@ -52,7 +53,7 @@ private val AvabruckCaretakerFront = card("Avabruck Caretaker") {
     keywords(Keyword.HEXPROOF)
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val creature = target("another target creature you control", Targets.OtherCreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature)
         description = "Put two +1/+1 counters on another target creature you control."
@@ -89,7 +90,7 @@ private val HollowhengeHuntmaster = card("Hollowhenge Huntmaster") {
     }
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.IterationEntity),

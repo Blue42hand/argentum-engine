@@ -25,7 +25,7 @@ val TwoHeadedGiant = card("Two-Headed Giant") {
     oracleText = "Whenever Two-Headed Giant attacks, flip two coins. If both coins come up heads, Two-Headed Giant gains double strike until end of turn. If both coins come up tails, Two-Headed Giant gains menace until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.FlipTwoCoins(
             bothHeadsEffect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, EffectTarget.Self),
             bothTailsEffect = Effects.GrantKeyword(Keyword.MENACE, EffectTarget.Self)

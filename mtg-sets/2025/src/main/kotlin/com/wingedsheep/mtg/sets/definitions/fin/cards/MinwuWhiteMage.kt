@@ -30,7 +30,7 @@ val MinwuWhiteMage = card("Minwu, White Mage") {
     keywords(Keyword.VIGILANCE, Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         // "each Cleric you control" includes Minwu herself, so no excludeSelf.
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.CLERIC).youControl()),

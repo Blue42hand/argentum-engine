@@ -30,12 +30,12 @@ val ElvishMariner = card("Elvish Mariner") {
         "number of cards looked at while scrying this way."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Patterns.Library.scry(1)
     }
 
     triggeredAbility {
-        trigger = Triggers.WheneverYouScry
+        trigger = Triggers.you.scries()
         target(
             "up to X target nonland permanents",
             TargetPermanent(

@@ -31,7 +31,7 @@ val SeasonedCryomancer = card("Seasoned Cryomancer") {
         "{3}{U}{U}, Exile this card from your graveyard: Draw two cards."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             run(Effects.DrawCards(2))
             run(Patterns.Hand.discardCards(2))

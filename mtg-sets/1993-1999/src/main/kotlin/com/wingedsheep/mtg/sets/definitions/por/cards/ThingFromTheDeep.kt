@@ -29,7 +29,7 @@ val ThingFromTheDeep = card("Thing from the Deep") {
     power = 9
     toughness = 9
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Sacrifice(GameObjectFilter.Land.withSubtype(Subtype.ISLAND)),
             suffer = SacrificeSelfEffect

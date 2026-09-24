@@ -36,7 +36,7 @@ val ShreddersArmor = card("Shredder's Armor") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.AttachEquipment(creature)
     }

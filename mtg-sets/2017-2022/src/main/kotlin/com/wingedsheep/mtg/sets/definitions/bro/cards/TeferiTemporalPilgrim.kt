@@ -43,7 +43,7 @@ val TeferiTemporalPilgrim = card("Teferi, Temporal Pilgrim") {
 
     // Whenever you draw a card, put a loyalty counter on Teferi.
     triggeredAbility {
-        trigger = Triggers.YouDraw
+        trigger = Triggers.you.draws()
         effect = Effects.AddCounters(CounterType.LOYALTY, 1, EffectTarget.Self)
     }
 
@@ -63,8 +63,7 @@ val TeferiTemporalPilgrim = card("Teferi, Temporal Pilgrim") {
             keywords = setOf(Keyword.VIGILANCE),
             triggeredAbilities = listOf(
                 TriggeredAbility.create(
-                    trigger = Triggers.YouDraw.event,
-                    binding = Triggers.YouDraw.binding,
+                    trigger = Triggers.you.draws(),
                     effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
                 )
             ),

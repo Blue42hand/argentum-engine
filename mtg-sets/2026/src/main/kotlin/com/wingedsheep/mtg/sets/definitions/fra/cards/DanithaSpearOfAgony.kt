@@ -28,16 +28,14 @@ val DanithaSpearOfAgony = card("Danitha, Spear of Agony") {
     keywords(Keyword.FIRST_STRIKE)
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            requires = setOf(
+        trigger = Triggers.you.casts(requires = setOf(
                 SpellCastPredicate.AnyOf(
                     listOf(
                         SpellCastPredicate.TargetsOpponent,
                         SpellCastPredicate.TargetsMatching(GameObjectFilter.Creature.opponentControls()),
                     )
                 )
-            )
-        )
+            ))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

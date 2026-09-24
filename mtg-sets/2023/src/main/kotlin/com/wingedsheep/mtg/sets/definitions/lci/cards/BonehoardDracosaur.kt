@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Bonehoard Dracosaur
@@ -47,7 +48,7 @@ val BonehoardDracosaur = card("Bonehoard Dracosaur") {
 
     // At the beginning of your upkeep: impulse 2 + conditional token bonuses.
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.Pipeline {
             // Exile the top two cards; you may play them this turn (impulse draw).
             val exiled = runStoringCollection { Patterns.Exile.impulse(count = 2, storeAs = it) }

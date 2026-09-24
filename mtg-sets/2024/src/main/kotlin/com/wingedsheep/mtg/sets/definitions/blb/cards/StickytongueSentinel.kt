@@ -29,7 +29,7 @@ val StickytongueSentinel = card("Stickytongue Sentinel") {
 
     // When this creature enters, return up to one other target permanent you control to hand
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "other permanent you control",
             TargetPermanent(optional = true, filter = TargetFilter.PermanentYouControl.other())

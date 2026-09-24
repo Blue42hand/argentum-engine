@@ -30,7 +30,7 @@ val HareApparent = card("Hare Apparent") {
     oracleText = "When this creature enters, create a number of 1/1 white Rabbit creature tokens equal to the number of other creatures you control named Hare Apparent.\nA deck can have any number of cards named Hare Apparent."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             count = DynamicAmounts.battlefield(
                 Player.You,

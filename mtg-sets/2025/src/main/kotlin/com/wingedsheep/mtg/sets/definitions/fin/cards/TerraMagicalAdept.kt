@@ -134,7 +134,7 @@ private val TerraMagicalAdeptFront = card("Terra, Magical Adept") {
 
     // When Terra enters, mill five cards. Put up to one enchantment card milled this way into hand.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val milled = mill(5)
             val selected = chooseUpTo(

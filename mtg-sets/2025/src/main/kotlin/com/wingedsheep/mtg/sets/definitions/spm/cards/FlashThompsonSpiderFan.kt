@@ -40,7 +40,7 @@ val FlashThompsonSpiderFan = card("Flash Thompson, Spider-Fan") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Modal(
             modes = listOf(
                 mode("Heckle — Tap target creature.") {

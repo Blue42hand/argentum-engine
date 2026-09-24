@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Leatherhead, Swamp Stalker
@@ -56,7 +57,7 @@ val LeatherheadSwampStalker = card("Leatherhead, Swamp Stalker") {
     // `controlledByTriggeringPlayer()` rather than "any opponent" — the two only coincide in a
     // two-player game.
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.ReflexiveTrigger(
             action = Effects.RemoveCounterOfAnyKind(EffectTarget.Self),
             optional = true,

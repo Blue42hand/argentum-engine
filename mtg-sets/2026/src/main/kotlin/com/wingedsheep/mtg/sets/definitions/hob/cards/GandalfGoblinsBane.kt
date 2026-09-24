@@ -51,7 +51,7 @@ val GandalfGoblinsBane = card("Gandalf, Goblins' Bane") {
         "deals 1 damage to each opponent."
 
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.Composite(
             Effects.ModifyStats(power = 1, toughness = 1, target = EffectTarget.Self),
             Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent))

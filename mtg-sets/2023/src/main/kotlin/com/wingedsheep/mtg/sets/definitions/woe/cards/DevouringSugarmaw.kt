@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Devouring Sugarmaw // Have for Dinner
@@ -46,7 +47,7 @@ val DevouringSugarmaw = card("Devouring Sugarmaw") {
     keywords(Keyword.MENACE, Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         optional = true
         effect = Effects.SacrificeOwn(GameObjectFilter.ArtifactEnchantmentOrToken)
         elseEffect = Effects.Tap(EffectTarget.Self)

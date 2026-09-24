@@ -26,7 +26,7 @@ val TaintedWell = card("Tainted Well") {
     auraTarget = Targets.Land
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(1)
     }
 

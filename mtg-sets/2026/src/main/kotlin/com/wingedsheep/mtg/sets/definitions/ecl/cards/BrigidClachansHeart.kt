@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Brigid, Clachan's Heart // Brigid, Doun's Mind
@@ -57,7 +58,7 @@ private val BrigidDounsMind = card("Brigid, Doun's Mind") {
     }
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{W}"),
             then = Effects.Transform(EffectTarget.Self)
@@ -82,17 +83,17 @@ private val BrigidClachansHeartFrontFace = card("Brigid, Clachan's Heart") {
         "At the beginning of your first main phase, you may pay {G}. If you do, transform Brigid."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = createKithkinToken
     }
 
     triggeredAbility {
-        trigger = Triggers.TransformsToFront
+        trigger = Triggers.self.transforms(false)
         effect = createKithkinToken
     }
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{G}"),
             then = Effects.Transform(EffectTarget.Self)

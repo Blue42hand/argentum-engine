@@ -40,7 +40,7 @@ val ShepherdOfTheCosmos = card("Shepherd of the Cosmos") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val card = target(
             "target",
             TargetObject(

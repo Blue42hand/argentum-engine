@@ -51,14 +51,14 @@ val BlossomingTortoise = card("Blossoming Tortoise") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = millAndReturnLand
         description = "Whenever this creature enters, mill three cards, then return a land card " +
             "from your graveyard to the battlefield tapped."
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = millAndReturnLand
         description = "Whenever this creature attacks, mill three cards, then return a land card " +
             "from your graveyard to the battlefield tapped."

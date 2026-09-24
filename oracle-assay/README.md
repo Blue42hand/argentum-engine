@@ -174,7 +174,7 @@ See [the card's mana value](#the-cards-mana-value).
 Before it came **Bloomburrow's second pass** — the set read again after the
 [Bloomburrow band](#the-bloomburrow-band) left it at 60 of 280, and the first band aimed at a set
 that already has one. It is **rows in six existing families and no new machinery**, which is what a
-second pass on a set is supposed to cost: `Triggers.Expend(n)` as the first trigger prefix whose
+second pass on a set is supposed to cost: `Triggers.you.expends(n)` as the first trigger prefix whose
 event carries a *number*, the two life-change trigger specs, the five life-state conditions
 Bloomburrow's Bats check, and the two "each opponent" clauses that pay them off. The set went
 **69 → 83 cards** and the corpus **8,364 → 8,516** — the disproportion is the point: "each opponent
@@ -183,7 +183,7 @@ sentences, so a set-shaped pick paid corpus-wide. It found **four card bugs**, t
 shape (a bare tribal noun typed as `IsCreature`), and it declined the set's largest family on
 purpose: gift's printed line means two different models depending on whether the card is a permanent
 or a spell, and the line grammar cannot see a type line. It also closed the two **forage** findings
-the same section had been carrying — a missing `ForagedEvent` (now `Triggers.WheneverYouForage`,
+the same section had been carrying — a missing `ForagedEvent` (now `Triggers.you.forages()`,
 emitted from the cost resolver *and* from a marker inside the effect form) and a genuine rules bug
 in Treetop Sentries, which spelled its printed "If you do" as CR 603.12's reflexive trigger. See
 [Bloomburrow's second pass](#bloomburrows-second-pass).
@@ -274,7 +274,7 @@ See [the trigger join](#the-trigger-join).
 
 Before it came the **step-trigger band** — "At the beginning of **each opponent's end
 step**, …" (**+3 whole cards**, and the "At the beginning …" decline family from 197 cards to 20).
-`dsl.Triggers.phase(step, player, binding)` is the SDK's one language for a step trigger and the
+`dsl.Triggers.<player>.beginningOf(step)` is the SDK's one language for a step trigger and the
 grammar was calling its frozen constants — thirteen whole-prefix rules, one per printed sentence — so
 [`Phases`](src/main/kotlin/com/wingedsheep/assay/grammar/Phases.kt) makes it the product it already
 was: a step noun, a whose-turn layer that is `Player.possessive` rather than a table copied here, and
@@ -861,7 +861,7 @@ literal.
 **What the differential found: eight card bugs, five of them one shape.** The new sacrifice prefix
 made "Whenever you sacrifice a *Blood token* / *artifact* / *permanent* / *another creature*"
 comparable for the first time, and five cards had it modelled as the **batch**
-`Triggers.YouSacrificeOneOrMore` — Gluttonous Guest, Fleshtaker, Biotech Specialist, Tolls of War,
+`Triggers.you.sacrifices(filter, batch = true)` — Gluttonous Guest, Fleshtaker, Biotech Specialist, Tolls of War,
 Sandbender Scavengers, plus Unlucky Cabbage Merchant and Lightless Evangel that the same grep found
 outside the compared set. CR 603.2c makes the singular wording per-permanent: sacrificing two Blood
 tokens to one cost is two triggers and two life, and the batch spec paid once. The other three:
@@ -1176,7 +1176,7 @@ corpus 8,364 → **8,516**, against 27 added lines in `Triggers`, 17 in `Conditi
 `Steps`.
 
 **A trigger event with a number in it.** Expend is Bloomburrow's own keyword action — "you spend
-your Nth total mana to cast spells this turn" — and `dsl.Triggers.Expend(n)` is the whole spec, with
+your Nth total mana to cast spells this turn" — and `dsl.Triggers.you.expends(n)` is the whole spec, with
 the watched player frozen at `Player.You` because that is the only subject Oracle prints. So it is
 the first prefix in [`Triggers`](src/main/kotlin/com/wingedsheep/assay/grammar/Triggers.kt) that is a
 `slottedTriggerRule` over a **number** rather than over a noun phrase, and the leaf is
@@ -1246,7 +1246,7 @@ was a fold.
 The gap: Corpseberry Cultivator prints "Whenever you forage, put a +1/+1 counter on this creature."
 and the card folded that counter into its *own* forage's `afterEffect`, so a forage from any other
 source did not grow it — there was no forage event in `EventPattern` to trigger off. There is now
-(`Triggers.WheneverYouForage`), and the shape it took is the transferable part: a keyword action that
+(`Triggers.you.forages()`), and the shape it took is the transferable part: a keyword action that
 is sometimes a **cost** and sometimes an **effect** cannot be observed from one place. The three cost
 contexts share `ForageCostResolver.pay`, so the event is emitted there — as one wrapper over that
 function's four exits rather than a line in each, so a mode added later cannot forget it. The effect
@@ -1319,7 +1319,7 @@ two-member shape over (player, zone, direction).
 **What it found.** Fifteen bugs in hand-written cards and one in `mtg-sdk`, every one surfaced by the
 differential on the day a line stopped declining:
 
-- **`Triggers.LandYouControlEnters` was `TriggerBinding.OTHER`** — one facade, 29 cards. No landfall
+- **`Triggers.a(GameObjectFilter.Land.youControl()).enters()` was `TriggerBinding.OTHER`** — one facade, 29 cards. No landfall
   ability prints "another"; the distinction is invisible on a creature and load-bearing on a *land*
   with a landfall trigger, which under `OTHER` would silently not see itself enter.
 - **Five more bare-noun-is-permanents cards** — Kargan Dragonrider, Corsair Captain, Lathliss,
@@ -2397,7 +2397,7 @@ a *granted* ability, not a prefix). MISMATCH, AMBIGUOUS and redundant readings s
 differential's 15 divergences and 3,412 compared cards are unchanged, so nothing here changed what an
 already-readable card means.
 
-**The frozen arguments.** `dsl.Triggers.phase(step, player, binding)` is the SDK's one language for
+**The frozen arguments.** `dsl.Triggers.<player>.beginningOf(step)` is the SDK's one language for
 "at the beginning of a step" — its own KDoc says to "reach for this factory for any other combination
 of (step, player, binding)" — and `YourUpkeep`, `EachEndStep`, `BeginCombat` and the rest are calls to
 it with all three fixed. [`Triggers`](src/main/kotlin/com/wingedsheep/assay/grammar/Triggers.kt) was
@@ -2447,7 +2447,7 @@ an approximation: the binding is what re-scopes "you" to the attached permanent'
 The thirteen new spellings are each opponent's end step and draw step, each player's draw step and
 first main phase, the chosen player's upkeep, enchanted player's upkeep, combat on each opponent's
 turn, the two attached frames, and four second spellings that parse without printing — "the end step"
-(pre-2015 templating for `Player.Each`; Skizzik's golden reads it as `Triggers.EachEndStep`), "each of
+(pre-2015 templating for `Player.Each`; Skizzik's golden reads it as `Triggers.anyPlayer.beginningOf(Step.END)`), "each of
 your postcombat main phases", "each of your upkeeps" and "precombat main phase".
 
 The 179 that remain are four groups, and only the first is a band:
@@ -4111,7 +4111,7 @@ to read it" is a gate the card work cannot pass by accident.
 
 ### "Becomes tapped" is four rows the tap/untap pair had never been given
 
-`Triggers.BecomesTapped`, `BecomesUntapped` and the `becomesTapped(binding, filter, …)` factory have
+`Triggers.self.becomesTapped()`, `BecomesUntapped` and the `becomesTapped(binding, filter, …)` factory have
 been in `mtg-sdk` for as long as the tap-event atom has, and 26 hand-written cards use them. The
 grammar had no rule for any of it. So this half is not a modelling problem at all — it is the shape
 this file keeps finding, a family the SDK factored correctly and the parser had simply never been

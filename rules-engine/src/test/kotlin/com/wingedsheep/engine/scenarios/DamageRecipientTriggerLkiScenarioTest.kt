@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import io.kotest.core.spec.style.FunSpec
@@ -35,22 +34,14 @@ class DamageRecipientTriggerLkiScenarioTest : FunSpec({
     val OpponentCreatureWatcher = card("Opp Creature Watcher") {
         manaCost = "{0}"; typeLine = "Creature — Spirit"; power = 0; toughness = 8
         triggeredAbility {
-            trigger = Triggers.dealsDamage(
-                damageType = DamageType.Combat,
-                recipient = Recipient.CreatureOpponentControls,
-                binding = TriggerBinding.ANY,
-            )
+            trigger = Triggers.a().dealsCombatDamage(Recipient.CreatureOpponentControls)
             effect = Effects.DrawCards(1)
         }
     }
     val YourCreatureWatcher = card("Your Creature Watcher") {
         manaCost = "{0}"; typeLine = "Creature — Spirit"; power = 0; toughness = 8
         triggeredAbility {
-            trigger = Triggers.dealsDamage(
-                damageType = DamageType.Combat,
-                recipient = Recipient.CreatureYouControl,
-                binding = TriggerBinding.ANY,
-            )
+            trigger = Triggers.a().dealsCombatDamage(Recipient.CreatureYouControl)
             effect = Effects.DrawCards(1)
         }
     }
@@ -58,11 +49,7 @@ class DamageRecipientTriggerLkiScenarioTest : FunSpec({
     val OpponentCreatureWatcherNoncombat = card("Opp Creature Watcher NC") {
         manaCost = "{0}"; typeLine = "Creature — Spirit"; power = 0; toughness = 8
         triggeredAbility {
-            trigger = Triggers.dealsDamage(
-                damageType = DamageType.NonCombat,
-                recipient = Recipient.CreatureOpponentControls,
-                binding = TriggerBinding.ANY,
-            )
+            trigger = Triggers.a().dealsDamage(Recipient.CreatureOpponentControls, damageType = DamageType.NonCombat)
             effect = Effects.DrawCards(1)
         }
     }

@@ -28,7 +28,7 @@ val RufusShinra = card("Rufus Shinra") {
     oracleText = "Whenever Rufus Shinra attacks, if you don't control a creature named Darkstar, create Darkstar, a legendary 2/2 white and black Dog creature token."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         interveningIf = Conditions.YouControl(
             GameObjectFilter.Creature.named("Darkstar"),
             negate = true

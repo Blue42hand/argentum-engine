@@ -24,7 +24,7 @@ import io.kotest.matchers.shouldBe
  * Firebending has no engine handler — the printed keyword is a display tag plus an attack-triggered
  * combat-duration "add {R}{R}" effect — so the firebending test asserts the *behavior* (attacking
  * produces two red combat-duration mana). The sacrifice payoff is the per-permanent
- * "you sacrifice another permanent" trigger (OTHER binding, `Triggers.YouSacrificeAnother`): the
+ * "you sacrifice another permanent" trigger (OTHER binding, `Triggers.you.sacrificesAnother(filter)`): the
  * Mazirek/Savra template that fires once for EACH permanent sacrificed even when several are
  * sacrificed simultaneously (CR 603.2c), so three simultaneous sacrifices pump the team +3/+0. It
  * is driven here with a {0} "Sacrifice target permanent" sorcery (single) and a {0} "Sacrifice all

@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -13,7 +12,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -63,11 +61,11 @@ private val SephirothOneWingedAngel = card("Sephiroth, One-Winged Angel") {
 
     // Super Nova — As this creature transforms into Sephiroth, One-Winged Angel, you get an emblem.
     triggeredAbility {
-        trigger = Triggers.TransformsToBack
+        trigger = Triggers.self.transforms(true)
         effect = Effects.CreateGlobalTriggeredAbility(
             duration = Duration.Permanent,
             ability = grantedTriggeredAbility {
-                trigger = Triggers.AnyCreatureDies
+                trigger = Triggers.a(GameObjectFilter.Creature).dies()
                 val opponent = target("target opponent", Targets.Opponent)
                 effect = Effects.Composite(
                     listOf(
@@ -89,7 +87,7 @@ private val SephirothOneWingedAngel = card("Sephiroth, One-Winged Angel") {
     // Whenever Sephiroth attacks, you may sacrifice any number of other creatures. If you do, draw
     // that many cards.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.SacrificeAnyNumber(
             filter = GameObjectFilter.Creature,
             excludeSource = true,
@@ -120,7 +118,7 @@ private val SephirothFabledSoldierFrontFace = card("Sephiroth, Fabled SOLDIER") 
     // Whenever Sephiroth enters or attacks, you may sacrifice another creature. If you do, draw a
     // card. — modeled as two sibling triggers sharing one body.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.MayPay(
             cost = Effects.SacrificeOwn(
                 filter = GameObjectFilter.Creature,
@@ -133,7 +131,7 @@ private val SephirothFabledSoldierFrontFace = card("Sephiroth, Fabled SOLDIER") 
             "draw a card."
     }
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.MayPay(
             cost = Effects.SacrificeOwn(
                 filter = GameObjectFilter.Creature,
@@ -149,11 +147,7 @@ private val SephirothFabledSoldierFrontFace = card("Sephiroth, Fabled SOLDIER") 
     // Whenever another creature dies, target opponent loses 1 life and you gain 1 life. If this is
     // the fourth time this ability has resolved this turn, transform Sephiroth.
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature,
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.OTHER,
-        )
+        trigger = Triggers.another(GameObjectFilter.Creature).dies()
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Composite(
             listOf(

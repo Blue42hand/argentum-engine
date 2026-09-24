@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * The Soul Stone (Marvel's Spider-Man, #66)
@@ -69,7 +70,7 @@ val TheSoulStone = card("The Soul Stone") {
     // ∞ — At the beginning of your upkeep (once harnessed), return target creature card from your
     // graveyard to the battlefield.
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         triggerRestriction = Conditions.SourceHasCounter(CounterType.HARNESS)
         val graveyardCreature = target("target creature card in your graveyard", Targets.CreatureCardInYourGraveyard)
         effect = Effects.PutOntoBattlefield(graveyardCreature)

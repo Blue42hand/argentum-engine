@@ -36,7 +36,7 @@ val CoatiScavenger = card("Coati Scavenger") {
     oracleText = "Descend 4 — When this creature enters, if there are four or more permanent cards in your graveyard, return target permanent card from your graveyard to your hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.CardsInGraveyardMatchingAtLeast(4, GameObjectFilter.Permanent)
         val card = target(
             "target permanent card from your graveyard",

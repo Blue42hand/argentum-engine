@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.jud.cards
 
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -9,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -31,11 +29,7 @@ val SoulcatchersAerie = card("Soulcatchers' Aerie") {
     // "Your graveyard" is ownership, not control: a permanent always goes to its owner's
     // graveyard (CR 400.3), so we filter by ownedByYou rather than youControl.
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.withSubtype("Bird").ownedByYou(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.withSubtype("Bird").ownedByYou()).dies()
         effect = Effects.AddCounters(CounterType.FEATHER, 1, EffectTarget.Self)
     }
 

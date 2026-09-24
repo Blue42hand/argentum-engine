@@ -6,10 +6,7 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern.OneOrMoreDealCombatDamageToPlayerEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
@@ -17,6 +14,7 @@ import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Kastral, the Windcrested
@@ -48,12 +46,7 @@ val KastralTheWindcrested = card("Kastral, the Windcrested") {
 
     // Whenever one or more Birds you control deal combat damage to a player, choose one —
     triggeredAbility {
-        trigger = TriggerSpec(
-            OneOrMoreDealCombatDamageToPlayerEvent(
-                sourceFilter = GameObjectFilter.Creature.withSubtype("Bird")
-            ),
-            TriggerBinding.ANY
-        )
+        trigger = Triggers.oneOrMore(GameObjectFilter.Creature.withSubtype("Bird")).dealCombatDamageToAPlayer()
         effect = ModalEffect.chooseOne(
             // Mode 1: Put a Bird creature card from your hand or graveyard onto the battlefield
             // with a finality counter on it (optional — "you may")

@@ -49,7 +49,7 @@ val BonnyPallClearcutter = card("Bonny Pall, Clearcutter") {
 
     // When Bonny Pall enters, create Beau (a legendary blue Ox with a CDA P/T).
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             count = 1,
             power = 0,
@@ -72,7 +72,7 @@ val BonnyPallClearcutter = card("Bonny Pall, Clearcutter") {
     // Whenever you attack, draw a card, then you may put a land card from your hand or
     // graveyard onto the battlefield.
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         effect = Effects.Pipeline {
             run(Effects.DrawCards(1))
             val bonnyPallLands = gather(

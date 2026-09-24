@@ -62,7 +62,7 @@ class ChampionKeywordTest : FunSpec({
         toughness = 4
         champion(Subtype.FAERIE)
         triggeredAbility {
-            trigger = Triggers.championedWith()
+            trigger = Triggers.self.champions()
             effect = Effects.DrawCards(1)
             description = "When a Faerie is championed with this creature, draw a card."
         }

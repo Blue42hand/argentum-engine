@@ -22,7 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  * Whenever you attack with one or more Faeries, draw a card, then discard a card. When you discard
  * a card this way, put a +1/+1 counter on target Faerie you control.
  *
- * [Triggers.YouAttackWithFilter] fires once per declare-attackers step, not once per attacker —
+ * `Triggers.you.attacks(with)` fires once per declare-attackers step, not once per attacker —
  * "one or more Faeries" is a batch, so attacking with three Faeries loots once. The Messenger
  * itself is a Faerie and satisfies its own trigger when it attacks.
  *
@@ -51,7 +51,7 @@ val TalionsMessenger = card("Talion's Messenger") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YouAttackWithFilter(GameObjectFilter.Any.withSubtype("Faerie"))
+        trigger = Triggers.you.attacks(GameObjectFilter.Any.withSubtype("Faerie"))
         effect = Effects.Composite(
             Effects.DrawCards(1, EffectTarget.Controller),
             Effects.ReflexiveTrigger(

@@ -25,7 +25,7 @@ val JennikaBadAppleBigSister = card("Jennika, Bad Apple Big Sister") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,

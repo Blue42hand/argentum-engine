@@ -32,7 +32,7 @@ val PinnacleKillShip = card("Pinnacle Kill-Ship") {
 
     // ETB: deals 10 damage to up to one target creature
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val target = target("up to one target creature", TargetCreature(optional = true))
         effect = Effects.DealDamage(10, target)
     }

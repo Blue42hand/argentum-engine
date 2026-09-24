@@ -31,7 +31,7 @@ val GoldnightRedeemer = card("Goldnight Redeemer") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(
             DynamicAmounts.battlefield(
                 Player.You,

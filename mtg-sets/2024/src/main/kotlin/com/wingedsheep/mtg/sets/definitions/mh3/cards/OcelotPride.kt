@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Ocelot Pride
@@ -62,7 +63,7 @@ val OcelotPride = card("Ocelot Pride") {
     keywords(Keyword.FIRST_STRIKE, Keyword.LIFELINK, Keyword.ASCEND)
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.YouGainedLifeThisTurn
         effect = Effects.CreateToken(
             power = 1,

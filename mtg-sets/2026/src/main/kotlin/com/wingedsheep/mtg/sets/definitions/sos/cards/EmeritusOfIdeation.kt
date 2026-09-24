@@ -50,7 +50,7 @@ val EmeritusOfIdeation = card("Emeritus of Ideation") {
     // Whenever this creature attacks, you may exile eight cards from your graveyard.
     // If you do, this creature becomes prepared.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.May(
             effect = Effects.IfYouDo(
                 action = Effects.Pipeline {

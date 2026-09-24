@@ -52,7 +52,7 @@ val CaseOfTheStashedSkeleton = card("Case of the Stashed Skeleton") {
         "hand, then shuffle. Activate only as a sorcery."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.CreateToken(
                 power = 2,

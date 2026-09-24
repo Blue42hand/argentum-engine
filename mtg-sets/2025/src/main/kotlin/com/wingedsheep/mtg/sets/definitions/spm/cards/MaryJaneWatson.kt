@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 /**
  * Mary Jane Watson
@@ -23,12 +22,7 @@ val MaryJaneWatson = card("Mary Jane Watson") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            // "a Spider you control", not "a Spider creature" — a bare tribal noun names
-            // *permanents* of that type, so a noncreature Spider entering fires this too.
-            filter = GameObjectFilter.Permanent.withSubtype(Subtype.SPIDER).youControl(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Permanent.withSubtype(Subtype.SPIDER).youControl()).enters()
         oncePerTurn = true
         effect = Effects.DrawCards(1)
     }

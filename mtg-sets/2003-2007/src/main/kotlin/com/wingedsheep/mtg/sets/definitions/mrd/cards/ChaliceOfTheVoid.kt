@@ -36,7 +36,7 @@ val ChaliceOfTheVoid = card("Chalice of the Void") {
     )
 
     triggeredAbility {
-        trigger = Triggers.AnyPlayerCastsSpell
+        trigger = Triggers.anyPlayer.casts()
         triggerRestriction = Conditions.CompareAmounts(
             DynamicAmounts.triggeringManaValue(),
             ComparisonOperator.EQ,

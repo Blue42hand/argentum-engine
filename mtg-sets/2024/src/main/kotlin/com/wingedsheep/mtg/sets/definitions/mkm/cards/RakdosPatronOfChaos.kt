@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Rakdos, Patron of Chaos — Murders at Karlov Manor #224
@@ -61,7 +62,7 @@ val RakdosPatronOfChaos = card("Rakdos, Patron of Chaos") {
     keywords(Keyword.FLYING, Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         val opponent = target("target opponent", Targets.Opponent)
         val fodder = GameObjectFilter.NonlandPermanent.nontoken()
         effect = Effects.ChooseAction(

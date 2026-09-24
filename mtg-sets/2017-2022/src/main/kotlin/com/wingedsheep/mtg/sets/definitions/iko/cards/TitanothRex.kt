@@ -40,7 +40,7 @@ val TitanothRex = card("Titanoth Rex") {
     keywordAbility(KeywordAbility.cycling("{1}{G}"))
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         val t = target("target", Targets.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.TRAMPLE, 1, t)
     }

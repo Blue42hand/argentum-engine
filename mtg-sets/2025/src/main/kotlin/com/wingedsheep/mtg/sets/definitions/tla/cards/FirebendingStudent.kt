@@ -39,7 +39,7 @@ val FirebendingStudent = card("Firebending Student") {
     prowess()
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.AddMana(
             Color.RED,
             DynamicAmounts.sourcePower(),

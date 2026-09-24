@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Don & Leo, Problem Solvers
@@ -35,7 +36,7 @@ val DonAndLeoProblemSolvers = card("Don & Leo, Problem Solvers") {
     // Exile both targets first, then return both — so the two re-enter simultaneously and
     // see each other's ETBs. Declined ("up to one") targets simply no-op.
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         val artifact = target(
             "up to one target artifact you control",
             TargetObject(count = 1, optional = true, filter = TargetFilter(GameObjectFilter.Artifact.youControl()))

@@ -37,7 +37,7 @@ val TerritoryForge = card("Territory Forge") {
         "This artifact has all activated abilities of the exiled card."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.WasCast
         val exiled = target("target artifact or land", Targets.ArtifactOrLand)
         effect = Effects.ExileLinkedToSource(exiled)

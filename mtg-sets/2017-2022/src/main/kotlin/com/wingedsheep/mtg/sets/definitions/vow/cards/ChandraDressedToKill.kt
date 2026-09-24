@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayerOrPlaneswalker
@@ -91,9 +89,7 @@ val ChandraDressedToKill = card("Chandra, Dressed to Kill") {
             ))
             run(Effects.CreateGlobalTriggeredAbility(
                 ability = grantedTriggeredAbility {
-                    trigger = TriggerSpec(Triggers.youCastSpell(
-                        spellFilter = GameObjectFilter.Any.withColor(Color.RED)
-                    ).event, TriggerBinding.ANY)
+                    trigger = Triggers.you.casts(GameObjectFilter.Any.withColor(Color.RED))
                     val anyTarget = target("target any", Targets.Any)
                     effect = Effects.DealDamage(
                         DynamicAmounts.propertyOf(EffectTarget.TriggeringEntity, EntityNumericProperty.ManaSpent),

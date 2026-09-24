@@ -8,13 +8,13 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Dance of Many
@@ -50,7 +50,7 @@ val DanceOfMany = card("Dance of Many") {
 
     triggeredAbility {
         val creature = target("target creature", TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.nontoken())))
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateTokenCopyOfTarget(
             target = creature,
             stampCreator = true,
@@ -59,7 +59,7 @@ val DanceOfMany = card("Dance of Many") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.Pipeline {
             val danceToken = gather(
                 CardSource.BattlefieldMatching(
@@ -73,16 +73,13 @@ val DanceOfMany = card("Dance of Many") {
     }
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Any.createdBySource(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Any.createdBySource()).leaves()
         effect = SacrificeSelfEffect
         description = "When the token leaves the battlefield, sacrifice this enchantment."
     }
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Mana("{U}{U}"),
             suffer = SacrificeSelfEffect,

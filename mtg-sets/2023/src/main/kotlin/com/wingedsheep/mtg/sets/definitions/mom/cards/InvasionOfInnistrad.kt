@@ -47,7 +47,7 @@ private val InvasionOfInnistradFront = card("Invasion of Innistrad") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val victim = target("target creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.ModifyStats(-13, -13, victim)
         description = "When this Siege enters, target creature an opponent controls gets -13/-13 until end of turn."
@@ -81,7 +81,7 @@ private val DelugeOfTheDead = card("Deluge of the Dead") {
         "black Zombie creature token."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,

@@ -23,7 +23,7 @@ val PatronOfTheWild = card("Patron of the Wild") {
     oracleText = "Morph {2}{G} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen this creature is turned face up, target creature gets +3/+3 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val t = target("creature", Targets.Creature)
         effect = Effects.ModifyStats(3, 3, t)
     }

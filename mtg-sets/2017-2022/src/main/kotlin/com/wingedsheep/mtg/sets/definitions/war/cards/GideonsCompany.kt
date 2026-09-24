@@ -36,7 +36,7 @@ val GideonsCompany = card("Gideon's Company") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
     }
 

@@ -39,7 +39,7 @@ val CrimeNovelist = card("Crime Novelist") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.YouSacrificeA(GameObjectFilter.Artifact)
+        trigger = Triggers.you.sacrifices(GameObjectFilter.Artifact)
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             Effects.AddMana(Color.RED)

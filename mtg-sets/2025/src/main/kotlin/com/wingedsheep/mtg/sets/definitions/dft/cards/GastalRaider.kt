@@ -47,7 +47,7 @@ val GastalRaider = card("Gastal Raider") {
     startYourEngines()
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Pipeline {
             run(Effects.RevealHand(opponent))

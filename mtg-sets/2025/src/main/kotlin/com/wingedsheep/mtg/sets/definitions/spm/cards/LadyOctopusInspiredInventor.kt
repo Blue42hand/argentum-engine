@@ -22,9 +22,9 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * {T}: You may cast an artifact spell from your hand with mana value less than or equal to the
  * number of ingenuity counters on Lady Octopus without paying its mana cost.
  *
- * The "first or second card each turn" clause is two [Triggers.NthCardDrawn] triggers — one for the
+ * The "first or second card each turn" clause is two `Triggers.<player>.drawsNth(n)` triggers — one for the
  * first draw, one for the second — each of which adds an [CounterType.INGENUITY] counter to Lady
- * Octopus. A third (or later) draw advances no [Triggers.NthCardDrawn] and so adds no counter.
+ * Octopus. A third (or later) draw advances no `Triggers.<player>.drawsNth(n)` and so adds no counter.
  *
  * The {T} ability is the standard gather → filter → choose-up-to-one → cast-without-paying pipeline
  * (as on Yue, the Moon Spirit / Kellan, the Kid): [GatherCardsEffect] pulls artifact cards from
@@ -45,13 +45,13 @@ val LadyOctopusInspiredInventor = card("Lady Octopus, Inspired Inventor") {
         "the number of ingenuity counters on Lady Octopus without paying its mana cost."
 
     triggeredAbility {
-        trigger = Triggers.NthCardDrawn(1)
+        trigger = Triggers.you.drawsNth(1)
         effect = Effects.AddCounters(CounterType.INGENUITY, 1, EffectTarget.Self)
         description = "Whenever you draw your first card each turn, put an ingenuity counter on Lady Octopus."
     }
 
     triggeredAbility {
-        trigger = Triggers.NthCardDrawn(2)
+        trigger = Triggers.you.drawsNth(2)
         effect = Effects.AddCounters(CounterType.INGENUITY, 1, EffectTarget.Self)
         description = "Whenever you draw your second card each turn, put an ingenuity counter on Lady Octopus."
     }

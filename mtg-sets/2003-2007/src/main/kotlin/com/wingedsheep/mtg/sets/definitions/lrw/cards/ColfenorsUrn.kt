@@ -8,10 +8,10 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Colfenor's Urn
@@ -55,11 +55,7 @@ val ColfenorsUrn = card("Colfenor's Urn") {
         "owner's control."
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.toughnessAtLeast(4).ownedByYou(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.toughnessAtLeast(4).ownedByYou()).dies()
         optional = true
         effect = Effects.Move(
             EffectTarget.TriggeringEntity,
@@ -72,7 +68,7 @@ val ColfenorsUrn = card("Colfenor's Urn") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EachEndStep
+        trigger = Triggers.anyPlayer.beginningOf(Step.END)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.linkedExileCardCount(),
             ComparisonOperator.GTE,

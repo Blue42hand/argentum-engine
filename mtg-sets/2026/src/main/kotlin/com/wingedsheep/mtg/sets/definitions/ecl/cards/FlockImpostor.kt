@@ -33,7 +33,7 @@ val FlockImpostor = card("Flock Impostor") {
     keywords(Keyword.CHANGELING, Keyword.FLASH, Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "up to one other target creature you control",
             TargetCreature(optional = true, filter = TargetFilter.OtherCreatureYouControl)

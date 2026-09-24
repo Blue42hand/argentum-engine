@@ -39,7 +39,7 @@ val MirrorRoomFracturedRealm = card("Mirror Room // Fractured Realm") {
             "you control, except it's a Reflection in addition to its other creature types."
 
         triggeredAbility {
-            trigger = Triggers.OnDoorUnlocked
+            trigger = Triggers.self.doorUnlocked()
             val creature = target("target creature you control", Targets.CreatureYouControl)
             effect = Effects.CreateTokenCopyOfTarget(
                 target = creature,

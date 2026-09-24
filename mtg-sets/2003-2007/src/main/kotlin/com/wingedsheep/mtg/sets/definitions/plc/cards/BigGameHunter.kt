@@ -32,7 +32,7 @@ val BigGameHunter = card("Big Game Hunter") {
     madness("{B}")
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target",
             TargetObject(filter = TargetFilter(GameObjectFilter.Creature.powerAtLeast(4)))

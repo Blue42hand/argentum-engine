@@ -47,7 +47,7 @@ val EnnisDebateModerator = card("Ennis, Debate Moderator") {
             optional = true,
             filter = TargetFilter.OtherCreatureYouControl,
         ))
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.Exile(creature),
             Effects.CreateDelayedTrigger(
@@ -60,7 +60,7 @@ val EnnisDebateModerator = card("Ennis, Debate Moderator") {
     // At the beginning of your end step, if one or more cards were put into exile this turn,
     // put a +1/+1 counter on Ennis.
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.CardsPutIntoExileThisTurn()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }

@@ -24,7 +24,7 @@ val BileVialBoggart = card("Bile-Vial Boggart") {
     oracleText = "When this creature dies, put a -1/-1 counter on up to one target creature."
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val creature = target("creature", TargetCreature(count = 1, optional = true))
         effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, creature)
     }

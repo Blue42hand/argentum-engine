@@ -32,7 +32,7 @@ class AnnieJoinsUpTest : FunSpec({
         toughness = 2
         oracleText = "When Test Legendary Drawer enters, draw a card."
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             effect = Effects.DrawCards(1)
         }
     }
@@ -46,7 +46,7 @@ class AnnieJoinsUpTest : FunSpec({
         toughness = 2
         oracleText = "When Test Plain Drawer enters, draw a card."
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             effect = Effects.DrawCards(1)
         }
     }

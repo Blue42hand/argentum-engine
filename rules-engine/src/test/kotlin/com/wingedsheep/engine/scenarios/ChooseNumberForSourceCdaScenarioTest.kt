@@ -39,12 +39,12 @@ class ChooseNumberForSourceCdaScenarioTest : ScenarioTestBase() {
             "Its power is the last chosen number and its toughness is 7 minus that number."
 
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             effect = Effects.ChooseNumberForSource(minValue = 0, maxValue = 7)
         }
 
         triggeredAbility {
-            trigger = Triggers.YourUpkeep
+            trigger = Triggers.you.beginningOf(Step.UPKEEP)
             optional = true
             effect = Effects.ChooseNumberForSource(minValue = 0, maxValue = 7)
         }

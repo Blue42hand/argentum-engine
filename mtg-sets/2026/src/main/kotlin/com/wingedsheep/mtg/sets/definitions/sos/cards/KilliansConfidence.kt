@@ -6,12 +6,11 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.EventPattern.OneOrMoreDealCombatDamageToPlayerEvent
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Killian's Confidence
@@ -43,7 +42,7 @@ val KilliansConfidence = card("Killian's Confidence") {
         // "you control" is the event's own, not the filter's: `OneOrMoreDealCombatDamageToPlayerEvent`
         // reads "one or more creatures matching sourceFilter **you control**", so a controller
         // predicate here would say it twice.
-        trigger = TriggerSpec(OneOrMoreDealCombatDamageToPlayerEvent(), TriggerBinding.ANY)
+        trigger = Triggers.oneOrMore(GameObjectFilter.Creature).dealCombatDamageToAPlayer()
         effect = Effects.MayPay(
             cost = ManaCost.parse("{W/B}"),
             then = Effects.ReturnToHandFromGraveyard(EffectTarget.Self)

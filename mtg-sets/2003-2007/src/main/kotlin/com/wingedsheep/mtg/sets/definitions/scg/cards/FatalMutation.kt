@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -18,7 +17,7 @@ val FatalMutation = card("Fatal Mutation") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.turnedFaceUp(binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.turnedFaceUp()
         effect = Effects.CantBeRegenerated(EffectTarget.EnchantedCreature) then
                 Effects.Move(EffectTarget.EnchantedCreature, Zone.GRAVEYARD, byDestruction = true)
     }

@@ -25,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * counters and the card. An artifact **enchantment** entering satisfies both filters and likewise
  * triggers both abilities once each.
  *
- * The default controller scope on [Triggers.OneOrMorePermanentsEnter] is "you control", which is what
+ * The default controller scope on `Triggers.oneOrMore(filter).enter()` is "you control", which is what
  * the oracle says; an opponent's artifacts entering do nothing here.
  *
  * `excludeSource` is deliberately left at its default: Elvish Archivist is a creature, not an artifact
@@ -48,7 +48,7 @@ val ElvishArchivist = card("Elvish Archivist") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.OneOrMorePermanentsEnter(GameObjectFilter.Artifact)
+        trigger = Triggers.oneOrMore(GameObjectFilter.Artifact).enter()
         oncePerTurn = true
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         description = "Whenever one or more artifacts you control enter, put two +1/+1 counters on " +
@@ -56,7 +56,7 @@ val ElvishArchivist = card("Elvish Archivist") {
     }
 
     triggeredAbility {
-        trigger = Triggers.OneOrMorePermanentsEnter(GameObjectFilter.Enchantment)
+        trigger = Triggers.oneOrMore(GameObjectFilter.Enchantment).enter()
         oncePerTurn = true
         effect = Effects.DrawCards(1)
         description = "Whenever one or more enchantments you control enter, draw a card. This " +

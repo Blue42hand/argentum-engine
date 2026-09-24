@@ -21,7 +21,7 @@ val SeamRip = card("Seam Rip") {
     oracleText = "When this enchantment enters, exile target nonland permanent an opponent controls with mana value 2 or less until this enchantment leaves the battlefield."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "nonland permanent an opponent controls with mana value 2 or less",
             TargetPermanent(filter = TargetFilter.NonlandPermanentOpponentControls.manaValueAtMost(2))
@@ -30,7 +30,7 @@ val SeamRip = card("Seam Rip") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

@@ -27,14 +27,14 @@ class PausedSpellTriggerFinalizationTest : FunSpec({
                 val witness = card("Finalization Draw Witness") {
                     manaCost = "{0}"; typeLine = "Enchantment"
                     triggeredAbility {
-                        trigger = Triggers.YouDraw
+                        trigger = Triggers.you.draws()
                         if (targeted) target("target spell", Targets.Spell)
                         effect = if (targeted) Effects.CounterSpell() else Effects.GainLife(1)
                     }
                 }
                 val opposingWitness = card("Finalization Opposing Draw Witness") {
                     manaCost = "{0}"; typeLine = "Enchantment"
-                    triggeredAbility { trigger = Triggers.OpponentDraws; effect = Effects.GainLife(1) }
+                    triggeredAbility { trigger = Triggers.anOpponent.draws(); effect = Effects.GainLife(1) }
                 }
                 val spell = card("Finalization Paused Draw") {
                     manaCost = "{0}"; typeLine = "Sorcery"

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.AttackPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -32,7 +31,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   {B}, {T}, Remove a dread counter from this land: You draw a card and you lose 1 life.
  *
  * Implementation:
- *  - Attacks-alone trigger via [Triggers.attacks]`(Creature.youControl(), requires =
+ *  - Attacks-alone trigger via `Triggers.<subject>.attacks(requires)``(Creature.youControl(), requires =
  *    AttackPredicate.Alone, binding = ANY)`; the lone attacker is [EffectTarget.TriggeringEntity].
  *    Effect grants deathtouch + lifelink (until end of turn), adds a [CounterType.DREAD] counter to
  *    Self, then a [Effects.If] on [Conditions.SourceCounterCountAtLeast]`(dread, 3)` flips
@@ -50,11 +49,7 @@ private val GraspingShadowsFront = card("Grasping Shadows") {
         "are three or more dread counters on it, transform it."
 
     triggeredAbility {
-        trigger = Triggers.attacks(
-            filter = GameObjectFilter.Creature.youControl(),
-            requires = setOf(AttackPredicate.Alone),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).attacks(setOf(AttackPredicate.Alone))
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.TriggeringEntity),
             Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.TriggeringEntity),

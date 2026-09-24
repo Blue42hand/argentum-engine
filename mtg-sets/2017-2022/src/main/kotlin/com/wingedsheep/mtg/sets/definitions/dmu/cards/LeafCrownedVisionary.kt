@@ -40,7 +40,7 @@ val LeafCrownedVisionary = card("Leaf-Crowned Visionary") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouCastSubtype(Subtype("Elf"))
+        trigger = Triggers.you.casts(GameObjectFilter.Any.withSubtype(Subtype("Elf")))
         effect = Effects.MayPay(ManaCost.parse("{G}"), Effects.DrawCards(1))
     }
 

@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Guide of Souls
@@ -41,12 +42,12 @@ val GuideOfSouls = card("Guide of Souls") {
         "in addition to its other types."
 
     triggeredAbility {
-        trigger = Triggers.OtherCreatureEnters
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
         effect = Effects.GainLife(1).then(Effects.GetEnergy(1))
     }
 
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         effect = Effects.ReflexiveTrigger(
             action = Effects.PayFixedCounters(CounterType.ENERGY, 3),
             optional = true,

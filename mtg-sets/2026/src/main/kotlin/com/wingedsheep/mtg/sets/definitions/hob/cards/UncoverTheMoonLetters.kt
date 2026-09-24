@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Uncover the Moon-Letters — The Hobbit #57
@@ -32,7 +33,7 @@ val UncoverTheMoonLetters = card("Uncover the Moon-Letters") {
         "amount of mana spent to cast that spell. If you do, discard two cards."
 
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.May(
             Effects.Composite(
                 Effects.DrawCards(

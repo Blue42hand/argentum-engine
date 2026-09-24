@@ -46,13 +46,13 @@ val EntropicBattlecruiser = card("Entropic Battlecruiser") {
     val atLeast8Charge = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 8)
 
     triggeredAbility {
-        trigger = Triggers.AnyOpponentDiscards
+        trigger = Triggers.anOpponent.discards()
         triggerRestriction = atLeast1Charge
         effect = Effects.LoseLife(3, EffectTarget.PlayerRef(Player.TriggeringPlayer))
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ForEachPlayer(
             players = Player.EachOpponent,
             effect = Effects.If(

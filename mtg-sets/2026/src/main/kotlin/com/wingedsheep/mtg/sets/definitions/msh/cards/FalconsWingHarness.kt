@@ -37,7 +37,7 @@ val FalconsWingHarness = card("Falcon's Wing Harness") {
         "Equip {2}{U} ({2}{U}: Attach to target creature you control. Equip only as a sorcery.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.AttachEquipment(creature)
         description = "When this Equipment enters, attach it to target creature you control."

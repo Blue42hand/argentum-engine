@@ -102,7 +102,7 @@ class BargainMechanicScenarioTest : ScenarioTestBase() {
             "on it."
         bargain()
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             interveningIf = Conditions.WasBargained
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         }
@@ -156,7 +156,7 @@ class BargainMechanicScenarioTest : ScenarioTestBase() {
             "counters on it."
         keywordAbility(KeywordAbility.OptionalAdditionalCost(ManaCost.parse("{1}")))
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             interveningIf = WasKicked
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         }
@@ -171,7 +171,7 @@ class BargainMechanicScenarioTest : ScenarioTestBase() {
         toughness = 1
         oracleText = "Whenever you cast a kicked spell, you gain 3 life."
         triggeredAbility {
-            trigger = Triggers.youCastSpell(requires = setOf(SpellCastPredicate.WasKicked))
+            trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.WasKicked))
             effect = Effects.GainLife(3)
         }
     }

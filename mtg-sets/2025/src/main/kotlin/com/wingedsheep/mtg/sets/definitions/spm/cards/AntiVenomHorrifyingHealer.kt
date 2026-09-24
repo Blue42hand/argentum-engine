@@ -38,7 +38,7 @@ val AntiVenomHorrifyingHealer = card("Anti-Venom, Horrifying Healer") {
 
     // When Anti-Venom enters, if he was cast, reanimate a creature from your graveyard.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.WasCast
         val creature = target("target creature card", Targets.CreatureCardInYourGraveyard)
         effect = Effects.PutOntoBattlefield(creature)

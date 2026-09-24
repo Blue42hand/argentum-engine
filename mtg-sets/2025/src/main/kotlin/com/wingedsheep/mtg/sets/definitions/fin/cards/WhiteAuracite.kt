@@ -28,7 +28,7 @@ val WhiteAuracite = card("White Auracite") {
     typeLine = "Artifact"
     oracleText = "When this artifact enters, exile target nonland permanent an opponent controls until this artifact leaves the battlefield.\n{T}: Add {W}."
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetPermanent(filter = TargetFilter.NonlandPermanentOpponentControls))
         effect = Effects.ExileUntilLeaves(t)
     }
@@ -39,7 +39,7 @@ val WhiteAuracite = card("White Auracite") {
         timing = TimingRule.ManaAbility
     }
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
     metadata {

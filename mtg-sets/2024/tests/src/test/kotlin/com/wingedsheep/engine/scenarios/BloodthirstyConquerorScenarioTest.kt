@@ -22,7 +22,7 @@ import com.wingedsheep.engine.core.Outcome
  *   Flying, deathtouch
  *   Whenever an opponent loses life, you gain that much life.
  *
- * Proves the new [com.wingedsheep.sdk.dsl.Triggers.AnOpponentLosesLife] trigger fires on both
+ * Proves the new `Triggers.anOpponent.losesLife()` trigger fires on both
  * combat and non-combat life loss, and that the controller gains exactly the amount lost.
  */
 class BloodthirstyConquerorScenarioTest : FunSpec({

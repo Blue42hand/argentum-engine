@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Markov Purifier
@@ -34,7 +35,7 @@ val MarkovPurifier = card("Markov Purifier") {
     keywords(Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.YouGainedLifeThisTurn
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}"),

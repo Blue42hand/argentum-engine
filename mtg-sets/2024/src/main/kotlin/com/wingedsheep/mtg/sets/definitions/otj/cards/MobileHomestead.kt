@@ -52,7 +52,7 @@ val MobileHomestead = card("Mobile Homestead") {
     // Whenever this Vehicle attacks, look at the top card of your library.
     // If it's a land card, you may put it onto the battlefield tapped.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Pipeline {
             // Look at top 1 card.
             val looked = gather(CardSource.TopOfLibrary(1))

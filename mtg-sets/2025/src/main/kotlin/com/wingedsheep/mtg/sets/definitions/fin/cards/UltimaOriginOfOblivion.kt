@@ -64,7 +64,7 @@ val UltimaOriginOfOblivion = card("Ultima, Origin of Oblivion") {
     // Whenever Ultima attacks, put a blight counter on target land, then transform that land for
     // as long as the counter remains on it.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val land = target("target land", Targets.Land)
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.BLIGHT, 1, land),

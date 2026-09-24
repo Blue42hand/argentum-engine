@@ -23,14 +23,14 @@ import com.wingedsheep.sdk.scripting.targets.TargetOther
  * Whenever you put one or more counters on Aragorn, put one of each of those kinds of counters on
  * up to one other target creature.
  *
- * The first ability is the Ring-tempt payoff (`Triggers.RingTemptsYou` +
+ * The first ability is the Ring-tempt payoff (`Triggers.you.isTemptedByTheRing()` +
  * `Conditions.YouChoseOtherCreatureAsRingBearer`); "put your choice of a counter from among …" is a
  * resolution-time `Effects.ChooseAction` over the four keyword-counter kinds, each branch adding one
  * counter of that kind to Aragorn (`EffectTarget.Self`). The four counters are keyword counters
  * (CR 122.1b): a first strike / vigilance / deathtouch / lifelink counter grants the matching
  * keyword via the state projection's keyword-counter map.
  *
- * The second ability fires on `Triggers.CountersPlacedOnThis` (SELF-bound `CountersPlacedEvent`, any
+ * The second ability fires on `Triggers.self.getsCounters()` (SELF-bound `CountersPlacedEvent`, any
  * kind), so any counter landing on Aragorn — including the one from his own first ability — puts one
  * of EACH of the four named kinds onto up to one OTHER target creature
  * (`TargetOther(TargetCreature(optional))`).
@@ -48,7 +48,7 @@ val AragornCompanyLeader = card("Aragorn, Company Leader") {
         "counters on up to one other target creature."
 
     triggeredAbility {
-        trigger = Triggers.RingTemptsYou
+        trigger = Triggers.you.isTemptedByTheRing()
         interveningIf = Conditions.YouChoseOtherCreatureAsRingBearer
         effect = Effects.ChooseAction(
             listOf(
@@ -76,7 +76,7 @@ val AragornCompanyLeader = card("Aragorn, Company Leader") {
     }
 
     triggeredAbility {
-        trigger = Triggers.CountersPlacedOnThis
+        trigger = Triggers.self.getsCounters()
         val upToOneOtherCreature = target("up to one other target creature", TargetOther(TargetCreature(count = 1, minCount = 0, optional = true)))
         effect = Effects.Composite(
             listOf(

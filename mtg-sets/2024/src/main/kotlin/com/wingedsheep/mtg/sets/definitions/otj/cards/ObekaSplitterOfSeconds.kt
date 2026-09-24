@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
@@ -44,11 +42,7 @@ val ObekaSplitterOfSeconds = card("Obeka, Splitter of Seconds") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.Combat,
-            recipient = Recipient.AnyPlayer,
-            binding = TriggerBinding.SELF
-        )
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.AddAdditionalUpkeepSteps(
             DynamicAmounts.triggerDamageAmount()
         )

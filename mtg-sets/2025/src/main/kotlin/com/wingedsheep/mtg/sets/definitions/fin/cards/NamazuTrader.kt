@@ -31,12 +31,12 @@ val NamazuTrader = card("Namazu Trader") {
         "(Look at the top two cards of your library, then put any number of them into your graveyard and the rest on top of your library in any order.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.LoseLife(1, EffectTarget.Controller) then Effects.CreateTreasure(1)
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val sacrificeTarget = target(
             "another creature or artifact",
             TargetPermanent(

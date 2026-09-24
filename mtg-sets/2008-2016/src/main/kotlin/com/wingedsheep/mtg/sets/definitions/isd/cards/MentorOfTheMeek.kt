@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 /**
  * Mentor of the Meek
@@ -33,10 +32,7 @@ val MentorOfTheMeek = card("Mentor of the Meek") {
         "If you do, draw a card."
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Creature.youControl().powerAtMost(2),
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl().powerAtMost(2)).enters()
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
             then = Effects.DrawCards(1)

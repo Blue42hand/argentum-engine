@@ -18,7 +18,7 @@ val StingcasterMage = card("Stingcaster Mage") {
 
     keywords(Keyword.HASTE)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val card = target("instant or sorcery card in your graveyard",
             TargetObject(filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByYou()))
         effect = Effects.GrantFlashback(card)

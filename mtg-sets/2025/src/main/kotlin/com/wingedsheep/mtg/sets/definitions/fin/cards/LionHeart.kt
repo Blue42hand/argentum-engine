@@ -22,7 +22,7 @@ val LionHeart = card("Lion Heart") {
     typeLine = "Artifact — Equipment"
     oracleText = "When this Equipment enters, it deals 2 damage to any target.\nEquipped creature gets +2/+1.\nEquip {2}"
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", AnyTarget())
         effect = Effects.DealDamage(2, t)
     }

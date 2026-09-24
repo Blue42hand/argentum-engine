@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Edgar, Moonlit Sovereign — the end-step clause is an intervening "if", so it is checked both when
@@ -30,7 +31,7 @@ val EdgarMoonlitSovereign = card("Edgar, Moonlit Sovereign") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.Not(Conditions.YouCastSpellsThisTurn(1))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         description = "At the beginning of your end step, if you didn't cast a spell this turn, " +

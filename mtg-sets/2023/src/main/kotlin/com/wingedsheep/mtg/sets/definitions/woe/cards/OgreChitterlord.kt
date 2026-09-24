@@ -26,7 +26,7 @@ private val ratsYouControl = GameObjectFilter.Creature.withSubtype("Rat").youCon
  * resolution, not again when the ability would trigger.
  *
  * Shared by the enters and attacks halves of the printed ability, which the SDK models as two
- * triggered abilities (the [Triggers.EntersBattlefield] / [Triggers.Attacks] pair used for every
+ * triggered abilities (the `Triggers.self.enters()` / `Triggers.self.attacks()` pair used for every
  * "enters or attacks" card).
  */
 private fun ratSwarmAndRally(): Effect = woeRatToken(DynamicAmounts.fixed(2)).then(
@@ -69,14 +69,14 @@ val OgreChitterlord = card("Ogre Chitterlord") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ratSwarmAndRally()
         description = "Create two 1/1 black Rat creature tokens with \"This token can't block.\" " +
             "Then if you control five or more Rats, each Rat you control gets +2/+0 until end of turn."
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = ratSwarmAndRally()
         description = "Create two 1/1 black Rat creature tokens with \"This token can't block.\" " +
             "Then if you control five or more Rats, each Rat you control gets +2/+0 until end of turn."

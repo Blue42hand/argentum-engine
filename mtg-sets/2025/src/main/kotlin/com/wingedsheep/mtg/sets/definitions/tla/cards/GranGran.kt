@@ -35,7 +35,7 @@ val GranGran = card("Gran-Gran") {
         "Noncreature spells you cast cost {1} less to cast as long as there are three or more Lesson cards in your graveyard."
 
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
+        trigger = Triggers.self.becomesTapped()
         effect = Patterns.Hand.loot(draw = 1, discard = 1)
     }
 

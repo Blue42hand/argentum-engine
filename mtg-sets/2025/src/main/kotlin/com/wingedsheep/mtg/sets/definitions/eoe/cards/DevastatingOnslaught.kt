@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Devastating Onslaught
@@ -33,8 +34,7 @@ val DevastatingOnslaught = card("Devastating Onslaught") {
         "Those tokens gain haste until end of turn. Sacrifice them at the beginning of the next end step."
 
     val sacrificeAtEndStep = TriggeredAbility.create(
-        trigger = Triggers.EachEndStep.event,
-        binding = Triggers.EachEndStep.binding,
+        trigger = Triggers.anyPlayer.beginningOf(Step.END),
         effect = Effects.SacrificeTarget(EffectTarget.Self)
     )
 

@@ -29,7 +29,7 @@ val AzraSmokeshaper = card("Azra Smokeshaper") {
     ninjutsu("{1}{B}")
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
     }

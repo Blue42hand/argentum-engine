@@ -71,7 +71,7 @@ class DayNightMechanicScenarioTest : ScenarioTestBase() {
             toughness = 3
             nightbound()
             triggeredAbility {
-                trigger = Triggers.TransformsToBack
+                trigger = Triggers.self.transforms(true)
                 effect = Effects.GainLife(1, EffectTarget.Controller)
             }
         },

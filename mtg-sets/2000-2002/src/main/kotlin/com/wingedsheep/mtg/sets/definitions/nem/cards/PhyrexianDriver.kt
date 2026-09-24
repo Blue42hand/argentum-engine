@@ -29,7 +29,7 @@ val PhyrexianDriver = card("Phyrexian Driver") {
     power = 1
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.MERCENARY), excludeSelf = true),
             Effects.ModifyStats(1, 1, EffectTarget.IterationEntity)

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.references.Player
 
 
 /**
@@ -31,7 +30,7 @@ val ConclavePhalanx = card("Conclave Phalanx") {
     toughness = 4
     keywords(Keyword.CONVOKE)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(DynamicAmounts.creaturesYouControl())
     }
     metadata {

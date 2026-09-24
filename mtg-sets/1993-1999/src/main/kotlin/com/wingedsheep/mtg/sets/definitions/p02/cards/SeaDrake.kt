@@ -35,7 +35,7 @@ val SeaDrake = card("Sea Drake") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target("target", TargetPermanent(count = 2, filter = TargetFilter.Land.youControl()))
         effect = Effects.ForEachTarget(
             Effects.ReturnToHand(EffectTarget.ContextTarget(0))

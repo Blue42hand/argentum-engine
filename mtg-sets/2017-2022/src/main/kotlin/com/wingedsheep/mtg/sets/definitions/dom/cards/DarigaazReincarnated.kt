@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.RedirectZoneChangeWith
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Darigaaz Reincarnated
@@ -52,7 +53,7 @@ val DarigaazReincarnated = card("Darigaaz Reincarnated") {
     // At the beginning of your upkeep, if exiled with an egg counter,
     // remove an egg counter. Then if no egg counters, return to battlefield.
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         triggerZone = Zone.EXILE
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.countersOnSelf(CounterType.EGG),

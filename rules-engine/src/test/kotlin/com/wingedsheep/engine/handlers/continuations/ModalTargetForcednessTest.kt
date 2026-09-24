@@ -87,7 +87,7 @@ class ModalTargetForcednessTest : FunSpec({
         power = 1
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             effect = ModalEffect.chooseOne(
                 mode(optional),
                 Mode.noTarget(Effects.GainLife(2), "Gain 2 life"),

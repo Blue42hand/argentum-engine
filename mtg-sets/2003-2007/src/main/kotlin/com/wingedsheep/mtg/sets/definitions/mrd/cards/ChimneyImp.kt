@@ -48,7 +48,7 @@ val ChimneyImp = card("Chimney Imp") {
 
     triggeredAbility {
         val opponent = target("target opponent", TargetOpponent())
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.Pipeline {
             val impHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
             val impTucked = chooseExactly(

@@ -22,7 +22,7 @@ val SpiderByteWebWarden = card("Spider-Byte, Web Warden") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetPermanent(optional = true, filter = TargetFilter.NonlandPermanent))
         effect = Effects.Move(t, Zone.HAND)
     }

@@ -42,7 +42,7 @@ private val CecilRedeemedPaladin = card("Cecil, Redeemed Paladin") {
 
     // Protect — Whenever Cecil attacks, other attacking creatures gain indestructible until end of turn.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Patterns.Group.grantKeywordToAll(
             keyword = Keyword.INDESTRUCTIBLE,
             filter = GroupFilter(GameObjectFilter.Creature.attacking(), excludeSelf = true)
@@ -72,7 +72,7 @@ private val CecilDarkKnightFrontFace = card("Cecil, Dark Knight") {
     // Darkness — Whenever Cecil deals damage, you lose that much life. Then if your life
     // total is less than or equal to half your starting life total, untap Cecil and transform it.
     triggeredAbility {
-        trigger = Triggers.DealsDamage
+        trigger = Triggers.self.dealsDamage()
         effect = Effects.Composite(listOf(
             Effects.LoseLife(DynamicAmounts.triggerDamageAmount(), EffectTarget.Controller),
             Effects.If(

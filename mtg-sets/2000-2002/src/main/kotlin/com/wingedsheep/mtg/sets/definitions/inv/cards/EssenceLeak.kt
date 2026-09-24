@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Essence Leak
@@ -27,7 +28,7 @@ import com.wingedsheep.sdk.dsl.Costs
  * attached permanent ([GroupFilter.attachedCreature], which is scope-by-attachment and
  * works for any permanent type). The condition [Conditions.EnchantedPermanentMatches]
  * checks the enchanted permanent's color in projected state. The granted upkeep trigger
- * fires on the enchanted permanent's controller ([Triggers.YourUpkeep]) and uses a
+ * fires on the enchanted permanent's controller (`Triggers.you.beginningOf(Step.UPKEEP)`) and uses a
  * [PayOrSufferEffect] with [Costs.pay.OwnManaCost] — "pay its mana cost" reads the enchanted
  * permanent's own mana cost — otherwise that permanent ([EffectTarget.Self]) is sacrificed.
  */
@@ -45,8 +46,7 @@ val EssenceLeak = card("Essence Leak") {
         ability = ConditionalStaticAbility(
             ability = GrantTriggeredAbility(
                 ability = TriggeredAbility.create(
-                    trigger = Triggers.YourUpkeep.event,
-                    binding = Triggers.YourUpkeep.binding,
+                    trigger = Triggers.you.beginningOf(Step.UPKEEP),
                     effect = Effects.PayOrSuffer(
                         cost = Costs.pay.OwnManaCost,
                         suffer = Effects.SacrificeTarget(EffectTarget.Self)

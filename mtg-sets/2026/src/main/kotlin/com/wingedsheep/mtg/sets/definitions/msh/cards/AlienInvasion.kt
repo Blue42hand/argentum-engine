@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.MustAttack
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Alien Invasion — Marvel Super Heroes #200
@@ -41,7 +42,7 @@ val AlienInvasion = card("Alien Invasion") {
         "each invasion counter on this enchantment, then put an invasion counter on this enchantment."
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = Effects.Composite(
             Effects.CreateToken(
                 power = 1,

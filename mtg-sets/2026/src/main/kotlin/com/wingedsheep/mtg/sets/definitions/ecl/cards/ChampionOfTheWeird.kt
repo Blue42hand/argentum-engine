@@ -43,7 +43,7 @@ val ChampionOfTheWeird = card("Champion of the Weird") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileToHand()
     }
 

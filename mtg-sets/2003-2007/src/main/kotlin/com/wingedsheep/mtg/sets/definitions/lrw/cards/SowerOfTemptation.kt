@@ -41,7 +41,7 @@ val SowerOfTemptation = card("Sower of Temptation") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature", Targets.Creature)
         effect = Effects.GainControl(
             creature,

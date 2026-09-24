@@ -75,7 +75,7 @@ class WebSlingingTest : FunSpec({
         toughness = 3
         webSlinging("{4}{G}{G}")
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             interveningIf = Conditions.WebSlungCostWasPaid
             effect = Effects.GainLife(3)
         }
@@ -111,7 +111,7 @@ class WebSlingingTest : FunSpec({
         power = 3
         toughness = 4
         triggeredAbility {
-            trigger = Triggers.YourEndStep
+            trigger = Triggers.you.beginningOf(Step.END)
             interveningIf = Conditions.CreaturesEnteredThisTurn(atLeast = 2)
             effect = Effects.DrawCards(1) then Effects.GainLife(2)
         }
@@ -133,7 +133,7 @@ class WebSlingingTest : FunSpec({
         power = 1
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             effect = Effects.GainLife(5)
         }
     }

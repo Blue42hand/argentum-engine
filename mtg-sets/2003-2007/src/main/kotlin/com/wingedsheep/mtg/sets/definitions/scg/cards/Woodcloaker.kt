@@ -25,7 +25,7 @@ val Woodcloaker = card("Woodcloaker") {
     oracleText = "Morph {2}{G}{G}\nWhen Woodcloaker is turned face up, target creature gains trample until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val t = target("target", Targets.Creature)
         effect = Effects.GrantKeyword(Keyword.TRAMPLE, t)
     }

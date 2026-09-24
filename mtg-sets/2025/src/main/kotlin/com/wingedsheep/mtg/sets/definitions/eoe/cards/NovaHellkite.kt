@@ -28,7 +28,7 @@ val NovaHellkite = card("Nova Hellkite") {
     keywords(Keyword.FLYING, Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val target = target("creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.DealDamage(1, target)
     }

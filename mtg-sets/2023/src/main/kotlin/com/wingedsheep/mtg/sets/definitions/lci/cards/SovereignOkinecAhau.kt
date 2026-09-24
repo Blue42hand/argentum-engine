@@ -25,7 +25,7 @@ import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
  *
  * Composed entirely from existing primitives — no bespoke effect:
  *  - **Ward {2}** — `KeywordAbility.Ward(WardCost.Mana("{2}"))`, the standard mana-ward idiom.
- *  - **The attack payoff** is `Triggers.Attacks` (SELF) driving an [Effects.ForEachInGroup] over
+ *  - **The attack payoff** is `Triggers.self.attacks()` (SELF) driving an [Effects.ForEachInGroup] over
  *    `GroupFilter(GameObjectFilter.Creature.youControl().powerGreaterThanBase())` — the same
  *    self-relative `PowerGreaterThanBase` filter the Malamet cycle (Kutzil, Malamet Exemplar) uses,
  *    so a creature qualifies exactly when its current (projected) power exceeds its printed base.
@@ -54,7 +54,7 @@ val SovereignOkinecAhau = card("Sovereign Okinec Ahau") {
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Creature.youControl().powerGreaterThanBase()),
             effect = Effects.AddDynamicCounters(

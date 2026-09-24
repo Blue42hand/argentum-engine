@@ -71,13 +71,13 @@ val GilgameshMasterAtArms = card("Gilgamesh, Master-at-Arms") {
 
     // "Whenever Gilgamesh enters …"
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = lookAtTopSixPutEquipment()
     }
 
     // "… or attacks"
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = lookAtTopSixPutEquipment()
     }
 

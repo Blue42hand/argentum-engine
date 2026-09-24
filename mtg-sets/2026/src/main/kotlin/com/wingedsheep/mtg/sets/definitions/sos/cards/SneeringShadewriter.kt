@@ -30,7 +30,7 @@ val SneeringShadewriter = card("Sneering Shadewriter") {
     toughness = 3
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)),
             Effects.GainLife(2)

@@ -95,7 +95,7 @@ val SuperAdaptoid = card("Super-Adaptoid") {
         "menace, reach, trample, and vigilance."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val otherCreature = target("another target creature", TargetCreature(filter = TargetFilter.OtherCreature))
         effect = absorbKeywords(otherCreature)
         description = "Whenever Super-Adaptoid enters, choose another target creature. If that " +
@@ -105,7 +105,7 @@ val SuperAdaptoid = card("Super-Adaptoid") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val otherCreature = target("another target creature", TargetCreature(filter = TargetFilter.OtherCreature))
         effect = absorbKeywords(otherCreature)
         description = "Whenever Super-Adaptoid attacks, choose another target creature. If that " +

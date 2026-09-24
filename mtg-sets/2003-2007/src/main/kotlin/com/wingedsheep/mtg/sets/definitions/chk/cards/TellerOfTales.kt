@@ -17,7 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.Mode
  * Flying
  * Whenever you cast a Spirit or Arcane spell, you may tap or untap target creature.
  *
- * The shared CHK "Whenever you cast a Spirit or Arcane spell" trigger — [Triggers.youCastSpell]
+ * The shared CHK "Whenever you cast a Spirit or Arcane spell" trigger — `Triggers.you.casts(spell, requires)`
  * over a homogeneous OR of the two subtype filters, binding `ANY`.
  *
  * "You may tap or untap target creature" is the corpus' Granite Witness idiom: the printed
@@ -43,9 +43,7 @@ val TellerOfTales = card("Teller of Tales") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.Any.withAnySubtype("Spirit", "Arcane")
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.Any.withAnySubtype("Spirit", "Arcane"))
         val creature = target("target", Targets.Creature)
         effect = Effects.Modal(
             modes = listOf(

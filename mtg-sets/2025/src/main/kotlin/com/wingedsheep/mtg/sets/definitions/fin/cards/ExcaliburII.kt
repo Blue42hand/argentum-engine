@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Composed from existing primitives — the Withering Hex shape (an attachment whose grant
  * scales with counters on the attachment itself), inverted to a positive buff:
- *   - A [Triggers.YouGainLife] trigger adds a charge counter to the Equipment
+ *   - A `Triggers.you.gainsLife()` trigger adds a charge counter to the Equipment
  *     ([EffectTarget.Self]). Per Scryfall rulings, each life-gaining *event* triggers this
  *     once regardless of how much life it represents, which is exactly how YouGainLife fires.
  *   - A [GrantDynamicStats] (Layer 7c bonus) on [GroupFilter.attachedCreature] reads
@@ -37,7 +37,7 @@ val ExcaliburII = card("Excalibur II") {
         "Equip {3}"
 
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         effect = Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)
     }
 

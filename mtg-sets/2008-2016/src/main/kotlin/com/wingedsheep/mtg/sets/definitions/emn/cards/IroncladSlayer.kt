@@ -28,7 +28,7 @@ val IroncladSlayer = card("Ironclad Slayer") {
     power = 3
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target("target", TargetObject(filter = TargetFilter.CardInGraveyard))
         effect = Effects.Move(t, Zone.HAND)

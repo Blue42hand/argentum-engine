@@ -19,7 +19,7 @@ val MeandersGuide = card("Meanders Guide") {
         "When you do, return target creature card with mana value 3 or less from your graveyard to the battlefield."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         // The "may tap another untapped Merfolk" is not a target — it's a resolution-time
         // choice. Selecting the Merfolk happens via SelectTargetEffect after the player
         // accepts the optional, so declining the may does not force them to commit to one.

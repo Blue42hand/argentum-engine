@@ -48,7 +48,7 @@ val CaseOfTheBurningMasks = card("Case of the Burning Masks") {
 
     triggeredAbility {
         val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DealDamage(3, creature)
     }
 

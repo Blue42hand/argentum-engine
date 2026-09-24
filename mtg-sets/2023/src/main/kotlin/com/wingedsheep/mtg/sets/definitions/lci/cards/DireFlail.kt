@@ -42,7 +42,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  *    returns this card transformed under its owner's control. Unlike Sovereign's
  *    Macuahuitl, the back face has no ETB attach trigger — it enters unattached.
  *  - Back: [ModifyStats] +3/+0 static, and the quoted attack ability is granted to the
- *    equipped creature via [GrantTriggeredAbility] + [Triggers.attacks] (SELF binding, the
+ *    equipped creature via [GrantTriggeredAbility] + `Triggers.<subject>.attacks(requires)` (SELF binding, the
  *    Pirate Hat idiom), so it lives on the creature and fires when that creature attacks.
  *    The ability body is a [ReflexiveTriggerEffect] (the Glorifier of Suffering /
  *    Thousand Moons Crackshot idiom): the optional action selects an artifact you control
@@ -110,8 +110,7 @@ private val DireBlunderbuss = card("Dire Blunderbuss") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.attacks().event,
-                binding = Triggers.attacks().binding,
+                trigger = Triggers.self.attacks(),
                 effect = Effects.ReflexiveTrigger(
                     // "you may sacrifice an artifact other than Dire Blunderbuss" — a
                     // resolution-time choice of your own artifact (name-based exclusion of

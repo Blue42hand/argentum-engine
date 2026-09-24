@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 
 /**
@@ -24,7 +25,7 @@ val CopperTablet = card("Copper Tablet") {
     typeLine = "Artifact"
     oracleText = "At the beginning of each player's upkeep, this artifact deals 1 damage to that player."
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.TriggeringPlayer))
     }
     metadata {

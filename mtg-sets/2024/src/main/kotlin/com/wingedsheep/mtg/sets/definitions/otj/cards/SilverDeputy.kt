@@ -29,7 +29,7 @@ val SilverDeputy = card("Silver Deputy") {
     oracleText = "When this creature enters, you may search your library for a basic land card or a Desert card, reveal it, then shuffle and put it on top.\n{T}: Target creature you control gets +1/+0 until end of turn. Activate only as a sorcery."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.BasicLand or GameObjectFilter.Land.withSubtype("Desert"),

@@ -37,7 +37,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    [Effects.LoseLife] at `Player.EachOpponent` plus a fixed [Effects.GainLife], the Kang,
  *    Temporal Tyrant idiom, rather than `Effects.DrainLife`.
  *  - "When the **fifth** plan counter is put on this enchantment" composes from existing
- *    vocabulary, as with the rest of the Plan cycle: a SELF-bound [Triggers.countersPlacedOn] on
+ *    vocabulary, as with the rest of the Plan cycle: a SELF-bound `Triggers.<subject>.getsCounters(type, by, firstTimeEachTurn, batch)` on
  *    [CounterType.PLAN] gated by `triggerRestriction = `[Conditions.SourceCounterCountAtLeast]`(PLAN,
  *    5)`. The at-least gate is behaviourally exact because the payoff **sacrifices its own
  *    source**, so the enchantment is gone before a sixth counter could ever land — the threshold
@@ -68,10 +68,7 @@ val DoomReignsSupreme = card("Doom Reigns Supreme") {
         "spells from among the exiled cards without paying their mana costs."
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Permanent.withSubtype(Subtype.VILLAIN).youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Permanent.withSubtype(Subtype.VILLAIN).youControl()).enters()
         effect = Effects.Composite(
             Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
             Effects.GainLife(1),
@@ -82,12 +79,7 @@ val DoomReignsSupreme = card("Doom Reigns Supreme") {
     }
 
     triggeredAbility {
-        trigger = Triggers.countersPlacedOn(
-            filter = GameObjectFilter.Any,
-            counterType = CounterType.PLAN,
-            firstTimeEachTurn = false,
-            binding = TriggerBinding.SELF,
-        )
+        trigger = Triggers.self.getsCounters(CounterType.PLAN)
         triggerRestriction = Conditions.SourceCounterCountAtLeast(CounterType.PLAN, 5)
         effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeTarget(EffectTarget.Self),

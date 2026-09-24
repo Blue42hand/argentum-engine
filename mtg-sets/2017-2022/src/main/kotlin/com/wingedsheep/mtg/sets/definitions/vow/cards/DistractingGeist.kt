@@ -33,7 +33,7 @@ import com.wingedsheep.sdk.scripting.RedirectZoneChange
  * Thunder Lasso, Web-Shooters). The back face prints the front face's ability in quotation marks,
  * so it is a [GrantTriggeredAbility] rebuilding that same ability — the granted ability carries its
  * own `targetRequirement`, and `Effects.Tap` reads it back as `ContextTarget(0)`. It keeps
- * `Triggers.Attacks`' SELF binding: "this creature" inside the quotes is whatever creature has the
+ * `Triggers.self.attacks()`' SELF binding: "this creature" inside the quotes is whatever creature has the
  * ability, i.e. the enchanted creature, and `GrantTriggeredAbility` defaults its filter to the
  * attached creature. Disturb is CR 702.146; the disturb cast puts the card on the stack back face
  * up (CR 712.8c) as an Aura spell, and the exile-instead clause is [RedirectZoneChange] with
@@ -49,7 +49,7 @@ private val DistractingGeistFront = card("Distracting Geist") {
         "Disturb {4}{W} (You may cast this card from your graveyard transformed for its disturb cost.)"
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val tapped = target("creature defending player controls", Targets.CreatureOpponentControls)
         effect = Effects.Tap(tapped)
     }
@@ -87,7 +87,7 @@ private val CleverDistraction = card("Clever Distraction") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = grantedTriggeredAbility {
-                trigger = Triggers.Attacks
+                trigger = Triggers.self.attacks()
                 val creatureOpponentControls = target(
                     "target creature opponent controls",
                     Targets.CreatureOpponentControls

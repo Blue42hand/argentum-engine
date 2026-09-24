@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -25,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * opponent controls at resolution ([Effects.ForEachInGroup] over [GroupFilter], with the
  * iterated creature as [EffectTarget.IterationEntity]); creatures that enter later are unaffected, as
  * the affected set is fixed when the ability resolves. The death trigger is a
- * [Triggers.leavesBattlefield] to the graveyard, filtered to opponent-controlled creatures
+ * `Triggers.<subject>.leaves(to, excludeTo, excludeSacrifice)` to the graveyard, filtered to opponent-controlled creatures
  * with [TriggerBinding.ANY].
  */
 val SephirothPlanetsHeir = card("Sephiroth, Planet's Heir") {
@@ -41,7 +40,7 @@ val SephirothPlanetsHeir = card("Sephiroth, Planet's Heir") {
     keywords(Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.opponentControls()),
             Effects.ModifyStats(power = -2, toughness = -2, target = EffectTarget.IterationEntity)
@@ -49,11 +48,7 @@ val SephirothPlanetsHeir = card("Sephiroth, Planet's Heir") {
     }
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.opponentControls(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.opponentControls()).dies()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

@@ -20,7 +20,7 @@ val DiviningDuelist = card("Divining Duelist") {
 
     keywords(Keyword.FLASH)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Tap target creature.") {
                 val creature = target("target creature", Targets.Creature)

@@ -14,7 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
  * Whenever you manifest dread, put a card you put into your graveyard this way into your hand.
  *
  * Implementation notes:
- * - Listens for [Triggers.WheneverYouManifestDread] (CR 701.60). Every manifest dread emits a
+ * - Listens for `Triggers.you.manifestsDread()` (CR 701.60). Every manifest dread emits a
  *   `ManifestedDreadEvent` carrying the card(s) put into the graveyard this way; the engine seeds
  *   those into the resolving trigger's pipeline under
  *   [IterationSpace.TRIGGER_CAPTURED_COLLECTION] (the same engine-seeded slot Kambal's batch payoff
@@ -35,7 +35,7 @@ val ParanormalAnalyst = card("Paranormal Analyst") {
         "into your hand."
 
     triggeredAbility {
-        trigger = Triggers.WheneverYouManifestDread
+        trigger = Triggers.you.manifestsDread()
         effect = Effects.Pipeline { toHand(triggerCaptured) }
     }
 

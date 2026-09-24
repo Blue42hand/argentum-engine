@@ -24,7 +24,7 @@ val IndrikStomphowler = card("Indrik Stomphowler") {
 
     triggeredAbility {
         val artifactOrEnchantment = target("target artifact or enchantment", Targets.ArtifactOrEnchantment)
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Destroy(artifactOrEnchantment)
     }
 

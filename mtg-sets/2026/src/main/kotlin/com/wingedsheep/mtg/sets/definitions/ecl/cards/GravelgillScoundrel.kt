@@ -23,7 +23,7 @@ val GravelgillScoundrel = card("Gravelgill Scoundrel") {
     keywords(Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         // The "may tap another untapped creature" is a resolution-time choice, not a target.
         // Selection happens via SelectTargetEffect after the player accepts the optional,
         // so declining doesn't force them to commit to one.

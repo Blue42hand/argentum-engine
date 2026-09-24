@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -22,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Modeling notes:
  *  - "When the **fourth** plan counter is put on this enchantment" composes from existing
- *    vocabulary: a SELF-bound [Triggers.countersPlacedOn] on [CounterType.PLAN] gated by
+ *    vocabulary: a SELF-bound `Triggers.<subject>.getsCounters(type, by, firstTimeEachTurn, batch)` on [CounterType.PLAN] gated by
  *    `triggerRestriction = `[Conditions.SourceCounterCountAtLeast]`(PLAN, 4)`. The at-least gate is
  *    behaviourally exact here because the payoff **sacrifices its own source**, so the enchantment
  *    is gone before a fifth counter could ever land — the threshold can never fire twice. No
@@ -44,7 +43,7 @@ val DeathToOurEnemies = card("Death to Our Enemies") {
         "deals 7 damage divided as you choose among one or two targets."
 
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.Composite(
             Effects.CreateTreasure(1, tapped = true),
             Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self),
@@ -54,12 +53,7 @@ val DeathToOurEnemies = card("Death to Our Enemies") {
     }
 
     triggeredAbility {
-        trigger = Triggers.countersPlacedOn(
-            filter = GameObjectFilter.Any,
-            counterType = CounterType.PLAN,
-            firstTimeEachTurn = false,
-            binding = TriggerBinding.SELF,
-        )
+        trigger = Triggers.self.getsCounters(CounterType.PLAN)
         triggerRestriction = Conditions.SourceCounterCountAtLeast(CounterType.PLAN, 4)
         effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeTarget(EffectTarget.Self),

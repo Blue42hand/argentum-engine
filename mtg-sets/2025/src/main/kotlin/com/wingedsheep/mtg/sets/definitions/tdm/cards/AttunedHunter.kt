@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Attuned Hunter — Tarkir: Dragonstorm #135
@@ -33,7 +34,7 @@ val AttunedHunter = card("Attuned Hunter") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.CardsLeaveYourGraveyard()
+        trigger = Triggers.oneOrMore(GameObjectFilter.Any).leaveYourGraveyard()
         triggerRestriction = Conditions.IsYourTurn
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }

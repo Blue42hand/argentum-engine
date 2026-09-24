@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Tourach's Gate
@@ -51,7 +52,7 @@ val TourachsGate = card("Tourach's Gate") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.RemoveCounters(CounterType.TIME, 1, EffectTarget.Self)
             .then(
                 Effects.If(

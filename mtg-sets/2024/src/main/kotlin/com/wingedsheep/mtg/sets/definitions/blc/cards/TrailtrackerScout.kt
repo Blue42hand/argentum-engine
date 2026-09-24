@@ -30,7 +30,7 @@ val TrailtrackerScout = card("Trailtracker Scout") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Expend(8)
+        trigger = Triggers.you.expends(8)
         val card = target(
             "permanent card from your graveyard",
             TargetObject(

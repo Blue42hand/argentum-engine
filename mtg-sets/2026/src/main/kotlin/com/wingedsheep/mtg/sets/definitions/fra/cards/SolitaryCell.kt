@@ -30,7 +30,7 @@ val SolitaryCell = card("Solitary Cell") {
         "{1}, {T}, Discard a legendary card: Draw a card."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "target nonland permanent an opponent controls with mana value 3 or less",
             TargetPermanent(filter = TargetFilter.NonlandPermanentOpponentControls.manaValueAtMost(3))
@@ -39,7 +39,7 @@ val SolitaryCell = card("Solitary Cell") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

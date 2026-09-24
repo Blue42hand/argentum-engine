@@ -28,7 +28,7 @@ val SurveillingSprite = card("Surveilling Sprite") {
     toughness = 1
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         optional = true
         effect = Effects.DrawCards(1)
     }

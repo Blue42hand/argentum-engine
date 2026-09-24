@@ -55,8 +55,7 @@ val TalionTheKindlyLord = card("Talion, the Kindly Lord") {
     )
 
     triggeredAbility {
-        trigger = Triggers.opponentCasts(
-            GameObjectFilter.Any.copy(
+        trigger = Triggers.anOpponent.casts(GameObjectFilter.Any.copy(
                 cardPredicates = listOf(
                     CardPredicate.Or(
                         listOf(
@@ -72,8 +71,7 @@ val TalionTheKindlyLord = card("Talion, the Kindly Lord") {
                         )
                     )
                 )
-            )
-        )
+            ))
         effect = Effects.Composite(
             Effects.LoseLife(2, EffectTarget.PlayerRef(Player.TriggeringPlayer)),
             Effects.DrawCards(1)

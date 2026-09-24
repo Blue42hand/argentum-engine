@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Darklight Phoenix — a graveyard begin-combat trigger (as on Flamewake Phoenix) gated as an
@@ -27,7 +28,7 @@ val DarklightPhoenix = card("Darklight Phoenix") {
     keywords(Keyword.FLYING, Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         triggerZone = Zone.GRAVEYARD
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.creaturesDiedThisTurn(Player.Each),

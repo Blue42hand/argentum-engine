@@ -22,7 +22,7 @@ val SymbioticWurm = card("Symbiotic Wurm") {
     oracleText = "When Symbiotic Wurm dies, create seven 1/1 green Insect creature tokens."
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.CreateToken(
             count = 7,
             power = 1,

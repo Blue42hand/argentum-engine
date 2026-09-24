@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
 /**
@@ -28,10 +27,7 @@ val MarduAscendancy = card("Mardu Ascendancy") {
     spell {}
 
     triggeredAbility {
-        trigger = Triggers.attacks(
-            filter = GameObjectFilter.Creature.youControl().nontoken(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl().nontoken()).attacks()
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

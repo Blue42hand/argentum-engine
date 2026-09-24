@@ -39,7 +39,7 @@ val WickerfolkThresher = card("Wickerfolk Thresher") {
         "it into your hand."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         interveningIf = Conditions.Delirium()
         effect = Effects.Pipeline {
             // Look at the top card of your library.

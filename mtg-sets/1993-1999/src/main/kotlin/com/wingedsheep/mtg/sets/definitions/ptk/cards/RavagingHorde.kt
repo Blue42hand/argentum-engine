@@ -20,7 +20,7 @@ val RavagingHorde = card("Ravaging Horde") {
     oracleText = "When this creature enters, destroy target land."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val land = target("target", Targets.Land)
         effect = Effects.Destroy(land)
     }

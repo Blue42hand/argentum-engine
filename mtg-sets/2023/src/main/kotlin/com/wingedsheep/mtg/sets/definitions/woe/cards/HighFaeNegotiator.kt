@@ -47,7 +47,7 @@ val HighFaeNegotiator = card("High Fae Negotiator") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.WasBargained
         effect = Effects.Composite(
             Effects.LoseLife(3, EffectTarget.PlayerRef(Player.EachOpponent)),

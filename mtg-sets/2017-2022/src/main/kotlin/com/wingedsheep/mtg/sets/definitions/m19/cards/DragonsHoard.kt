@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -30,10 +29,7 @@ val DragonsHoard = card("Dragon's Hoard") {
     oracleText = "Whenever a Dragon you control enters, put a gold counter on this artifact.\n{T}, Remove a gold counter from this artifact: Draw a card.\n{T}: Add one mana of any color."
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Permanent.youControl().withSubtype(Subtype.DRAGON),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Permanent.youControl().withSubtype(Subtype.DRAGON)).enters()
         effect = Effects.AddCounters(CounterType.GOLD, 1, EffectTarget.Self)
         description = "Whenever a Dragon you control enters, put a gold counter on this artifact."
     }

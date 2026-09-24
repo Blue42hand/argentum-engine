@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -34,7 +33,7 @@ val CosmograndZenith = card("Cosmogrand Zenith") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.NthSpellCast(2, Player.You)
+        trigger = Triggers.you.castsNth(2)
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
                 Effects.CreateToken(

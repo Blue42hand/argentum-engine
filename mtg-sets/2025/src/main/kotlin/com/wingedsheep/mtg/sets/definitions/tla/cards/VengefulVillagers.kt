@@ -36,7 +36,7 @@ val VengefulVillagers = card("Vengeful Villagers") {
         "creature. (If a permanent with a stun counter would become untapped, remove one from it instead.)"
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val chosen = target(
             "chosen creature",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.Creature.opponentControls()))

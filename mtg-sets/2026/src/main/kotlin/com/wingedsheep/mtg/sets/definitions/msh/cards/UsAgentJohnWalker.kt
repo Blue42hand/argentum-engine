@@ -36,7 +36,7 @@ val UsAgentJohnWalker = card("U.S.Agent, John Walker") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.CreatePredefinedToken("Sturdy Shield"),
             Effects.AttachTargetEquipmentToCreature(

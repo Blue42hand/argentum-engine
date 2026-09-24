@@ -25,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *  - **Extort** (CR 702.101) has no `Keyword` of its own here, and it does not need one: it *is*
  *    exactly "whenever you cast a spell, you may pay {W/B}. If you do, each opponent loses 1 life
  *    and you gain that much life", which composes from primitives already in the SDK —
- *    [Triggers.YouCastSpell] + [Effects.MayPay] over [Effects.DrainLife]. The hybrid `{W/B}`
+ *    `Triggers.you.casts()` + [Effects.MayPay] over [Effects.DrainLife]. The hybrid `{W/B}`
  *    parses and pays as a hybrid symbol (either color, or two generic-equivalent sources of
  *    either), and `DrainLife(1)` is the single-event "each opponent loses 1, you gain that much"
  *    shape — so a multiplayer drain gains the total, not 1 per opponent. `Effects.MayPay` is
@@ -40,7 +40,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    `GatedEffectExecutor.canAfford` is `life >= amount`, so paying at exactly 2 life *is* offered:
  *    CR 118.3/118.3b bar only a payment you lack the life for, so paying down to 0 is legal, and it
  *    is the separate state-based action (CR 704.5a) that ends the game afterwards.
- *    Fires on [Triggers.YouAttack] (declare attackers, once per combat,
+ *    Fires on `Triggers.you.attacks()` (declare attackers, once per combat,
  *    regardless of whether the Kingpin himself attacks — he is a 1/5 that would rather stay home).
  *
  *  - **"creatures you control with toughness greater than their power"** stays a *dynamic* set for
@@ -81,7 +81,7 @@ val TheKingpinOfCrime = card("The Kingpin of Crime") {
     // Extort — whenever you cast a spell, you may pay {W/B}. If you do, each opponent loses 1
     // life and you gain that much life.
     triggeredAbility {
-        trigger = Triggers.YouCastSpell
+        trigger = Triggers.you.casts()
         effect = Effects.MayPay(
             cost = ManaCost.parse("{W/B}"),
             then = Effects.DrainLife(1),
@@ -94,7 +94,7 @@ val TheKingpinOfCrime = card("The Kingpin of Crime") {
     // control with toughness greater than their power assign combat damage equal to their
     // toughness rather than their power.
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         effect = Effects.MayPay(
             cost = Effects.PayLife(2),
             then = Effects.GrantStaticAbility(

@@ -29,7 +29,7 @@ val RadhaHeirToKeld = card("Radha, Heir to Keld") {
         "{T}: Add {G}."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.May(Effects.AddMana(Color.RED, 2))
     }
 

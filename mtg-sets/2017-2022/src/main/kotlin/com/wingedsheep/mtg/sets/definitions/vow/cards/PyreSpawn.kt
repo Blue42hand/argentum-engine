@@ -23,7 +23,7 @@ val PyreSpawn = card("Pyre Spawn") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val damaged = target("any target", Targets.Any)
         effect = Effects.DealDamage(3, damaged)
     }

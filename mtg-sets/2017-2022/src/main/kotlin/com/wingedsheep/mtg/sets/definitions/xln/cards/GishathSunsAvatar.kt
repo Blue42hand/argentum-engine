@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Gishath, Sun's Avatar
@@ -36,7 +37,7 @@ val GishathSunsAvatar = card("Gishath, Sun's Avatar") {
     keywords(Keyword.VIGILANCE, Keyword.TRAMPLE, Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         val damageDealt = DynamicAmounts.triggerDamageAmount()
         effect = Effects.Pipeline {
             val gishathRevealed = gather(

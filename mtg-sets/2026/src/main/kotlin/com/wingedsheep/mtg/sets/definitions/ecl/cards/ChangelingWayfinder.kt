@@ -31,7 +31,7 @@ val ChangelingWayfinder = card("Changeling Wayfinder") {
     keywords(Keyword.CHANGELING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         description = "When this creature enters, you may search your library for a basic land card, reveal it, put it into your hand, then shuffle."
         effect = Effects.May(
             Patterns.Library.searchLibrary(

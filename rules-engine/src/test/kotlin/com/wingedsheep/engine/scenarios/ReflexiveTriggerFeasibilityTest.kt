@@ -65,7 +65,7 @@ class ReflexiveTriggerFeasibilityTest : FunSpec({
         toughness = 1
         oracleText = "Whenever you attack, you may discard a card. When you do, you gain 3 life."
         triggeredAbility {
-            trigger = Triggers.YouAttack
+            trigger = Triggers.you.attacks()
             effect = ReflexiveTriggerEffect(
                 action = Effects.Discard(1),
                 optional = true,
@@ -83,7 +83,7 @@ class ReflexiveTriggerFeasibilityTest : FunSpec({
         oracleText = "Whenever you attack, you may draw a card, then discard a card. " +
             "When you do, you gain 3 life."
         triggeredAbility {
-            trigger = Triggers.YouAttack
+            trigger = Triggers.you.attacks()
             effect = ReflexiveTriggerEffect(
                 action = Effects.DrawCards(1).then(Patterns.Hand.discardCards(1)),
                 optional = true,
@@ -100,7 +100,7 @@ class ReflexiveTriggerFeasibilityTest : FunSpec({
         toughness = 1
         oracleText = "Whenever you attack, you may discard two cards. When you do, you gain 3 life."
         triggeredAbility {
-            trigger = Triggers.YouAttack
+            trigger = Triggers.you.attacks()
             effect = ReflexiveTriggerEffect(
                 action = Effects.Discard(2),
                 optional = true,
@@ -123,7 +123,7 @@ class ReflexiveTriggerFeasibilityTest : FunSpec({
         oracleText = "Whenever you attack, you may remove a counter from a creature you control. " +
             "When you do, you gain 3 life."
         triggeredAbility {
-            trigger = Triggers.YouAttack
+            trigger = Triggers.you.attacks()
             effect = ReflexiveTriggerEffect(
                 action = Effects.Composite(
                     Effects.SelectTarget(Targets.CreatureYouControl, storeAs = "counterSource"),
@@ -149,7 +149,7 @@ class ReflexiveTriggerFeasibilityTest : FunSpec({
         oracleText = "Whenever you attack, you may remove a -1/-1 counter from this creature. " +
             "When you do, you gain 3 life."
         triggeredAbility {
-            trigger = Triggers.YouAttack
+            trigger = Triggers.you.attacks()
             effect = ReflexiveTriggerEffect(
                 action = Effects.RemoveCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, EffectTarget.Self),
                 optional = true,
@@ -167,7 +167,7 @@ class ReflexiveTriggerFeasibilityTest : FunSpec({
         oracleText = "Whenever you attack, you may remove a counter from this creature. " +
             "When you do, you gain 3 life."
         triggeredAbility {
-            trigger = Triggers.YouAttack
+            trigger = Triggers.you.attacks()
             effect = ReflexiveTriggerEffect(
                 action = Effects.RemoveCounterOfAnyKind(EffectTarget.Self),
                 optional = true,
@@ -184,7 +184,7 @@ class ReflexiveTriggerFeasibilityTest : FunSpec({
         toughness = 1
         oracleText = "Whenever you attack, discard a card. When you do, you gain 3 life."
         triggeredAbility {
-            trigger = Triggers.YouAttack
+            trigger = Triggers.you.attacks()
             effect = ReflexiveTriggerEffect(
                 action = Effects.Discard(1),
                 optional = false,

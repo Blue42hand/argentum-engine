@@ -43,14 +43,14 @@ val AerithGainsborough = card("Aerith Gainsborough") {
 
     // Whenever you gain life, put a +1/+1 counter on Aerith.
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
     // When Aerith dies, put X +1/+1 counters on each legendary creature you control,
     // where X is the number of +1/+1 counters Aerith had as it last existed on the battlefield.
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.Pipeline {
             val legendaryCreatures = gather(
                 CardSource.BattlefieldMatching(

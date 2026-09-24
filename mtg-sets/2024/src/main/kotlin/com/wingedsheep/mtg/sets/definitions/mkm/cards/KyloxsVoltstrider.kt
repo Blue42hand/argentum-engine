@@ -71,7 +71,7 @@ val KyloxsVoltstrider = card("Kylox's Voltstrider") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Pipeline {
             val exiledWithIt = gather(CardSource.FromLinkedExile())
             // No `showAllCards`: the pile is public exile the player can already read, and

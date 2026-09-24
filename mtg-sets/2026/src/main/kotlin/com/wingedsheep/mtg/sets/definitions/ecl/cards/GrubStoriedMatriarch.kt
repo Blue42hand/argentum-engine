@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Grub, Storied Matriarch // Grub, Notorious Auntie
@@ -38,13 +39,12 @@ private val GrubNotoriousAuntie = card("Grub, Notorious Auntie") {
     keywords(Keyword.MENACE)
 
     val sacrificeAtEndStep = TriggeredAbility.create(
-        trigger = Triggers.EachEndStep.event,
-        binding = Triggers.EachEndStep.binding,
+        trigger = Triggers.anyPlayer.beginningOf(Step.END),
         effect = Effects.SacrificeTarget(EffectTarget.Self)
     )
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.May(
             effect = Effects.Pipeline {
                 val blightTargets = gather(CardSource.ControlledPermanents(Player.You, GameObjectFilter.Creature))
@@ -71,7 +71,7 @@ private val GrubNotoriousAuntie = card("Grub, Notorious Auntie") {
     }
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{B}"),
             then = Effects.Transform(EffectTarget.Self)
@@ -99,7 +99,7 @@ private val GrubStoriedMatriarchFrontFace = card("Grub, Storied Matriarch") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val goblin = target(
             "Goblin card from your graveyard",
             TargetObject(optional = true, filter = TargetFilter.CardInGraveyard.ownedByYou().withSubtype(Subtype.GOBLIN))
@@ -108,7 +108,7 @@ private val GrubStoriedMatriarchFrontFace = card("Grub, Storied Matriarch") {
     }
 
     triggeredAbility {
-        trigger = Triggers.TransformsToFront
+        trigger = Triggers.self.transforms(false)
         val goblin = target(
             "Goblin card from your graveyard",
             TargetObject(optional = true, filter = TargetFilter.CardInGraveyard.ownedByYou().withSubtype(Subtype.GOBLIN))
@@ -117,7 +117,7 @@ private val GrubStoriedMatriarchFrontFace = card("Grub, Storied Matriarch") {
     }
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{R}"),
             then = Effects.Transform(EffectTarget.Self)

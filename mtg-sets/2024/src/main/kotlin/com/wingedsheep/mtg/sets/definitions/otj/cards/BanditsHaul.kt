@@ -31,7 +31,7 @@ val BanditsHaul = card("Bandit's Haul") {
         "{2}, {T}, Remove two loot counters from this artifact: Draw a card."
 
     triggeredAbility {
-        trigger = Triggers.YouCommitCrime
+        trigger = Triggers.you.commitsCrime()
         oncePerTurn = true
         effect = Effects.AddCounters(
             counterType = CounterType.LOOT,

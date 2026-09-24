@@ -18,7 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * Whenever this creature or another creature you control dies, if it had counters on it,
  * put its counters on up to one target creature you control.
  *
- * "This creature or another creature you control dies" is `Triggers.YourCreatureDies`
+ * "This creature or another creature you control dies" is `Triggers.a(GameObjectFilter.Creature.youControl()).dies()`
  * (ANY binding, creatures-you-control filter — which includes Host itself). The intervening
  * "if it had counters on it" (CR 603.4) is `Conditions.TriggeringEntityHadCounters`, reading
  * the dying creature's last-known total counter count. `Effects.MoveAllLastKnownCounters`
@@ -42,7 +42,7 @@ val HostOfTheHereafter = card("Host of the Hereafter") {
             optional = true,
             filter = TargetFilter(GameObjectFilter.Creature.youControl())
         ))
-        trigger = Triggers.YourCreatureDies
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dies()
         interveningIf = Conditions.TriggeringEntityHadCounters
         effect = Effects.MoveAllLastKnownCounters(creature)
         description = "Whenever this creature or another creature you control dies, if it had " +

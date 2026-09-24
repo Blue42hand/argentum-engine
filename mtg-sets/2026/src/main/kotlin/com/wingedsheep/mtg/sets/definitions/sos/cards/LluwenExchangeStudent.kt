@@ -63,8 +63,7 @@ val LluwenExchangeStudent = card("Lluwen, Exchange Student") {
                 creatureTypes = setOf("Pest"),
                 triggeredAbilities = listOf(
                     TriggeredAbility.create(
-                        trigger = Triggers.Attacks.event,
-                        binding = Triggers.Attacks.binding,
+                        trigger = Triggers.self.attacks(),
                         effect = Effects.GainLife(1),
                     ),
                 ),

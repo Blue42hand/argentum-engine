@@ -38,7 +38,7 @@ val SonicShrieker = card("Sonic Shrieker") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val anyTarget = target("any target", Targets.Any)
         effect = Effects.Composite(listOf(
             Effects.DealDamage(2, anyTarget),

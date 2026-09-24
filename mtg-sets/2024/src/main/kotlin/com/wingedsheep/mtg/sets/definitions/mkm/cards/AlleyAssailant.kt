@@ -44,7 +44,7 @@ val AlleyAssailant = card("Alley Assailant") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val victim = target("target opponent", TargetOpponent())
         effect = Effects.Composite(
             Effects.LoseLife(3, target = victim),

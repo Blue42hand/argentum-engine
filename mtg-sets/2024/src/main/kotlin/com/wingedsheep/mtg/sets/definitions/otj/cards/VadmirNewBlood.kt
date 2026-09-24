@@ -39,7 +39,7 @@ val VadmirNewBlood = card("Vadmir, New Blood") {
         "As long as Vadmir has four or more +1/+1 counters on it, it has menace and lifelink."
 
     triggeredAbility {
-        trigger = Triggers.YouCommitCrime
+        trigger = Triggers.you.commitsCrime()
         oncePerTurn = true
         effect = Effects.AddCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,

@@ -17,7 +17,7 @@ import com.wingedsheep.sdk.model.Rarity
  * end of turn.
  *
  * Unlike its Disguise neighbours that read "enters **or** is turned face up", this trigger is
- * face-up only ([Triggers.TurnedFaceUp], SELF). Hard-casting the Savior for {1}{W}{B} gets you a
+ * face-up only (`Triggers.self.turnedFaceUp()`, SELF). Hard-casting the Savior for {1}{W}{B} gets you a
  * flying lifelinker and nothing else; the lifelink hand-out is the reward for going the long way
  * round, and CR 702.168d — turning face up is not entering the battlefield — is what keeps the two
  * routes apart with no extra wiring.
@@ -44,7 +44,7 @@ val SanguineSavior = card("Sanguine Savior") {
     disguise = "{W/B}{W/B}"
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val other = target("another target creature you control", Targets.OtherCreatureYouControl)
         effect = Effects.GrantKeyword(Keyword.LIFELINK, other)
         description = "When this creature is turned face up, another target creature you control " +

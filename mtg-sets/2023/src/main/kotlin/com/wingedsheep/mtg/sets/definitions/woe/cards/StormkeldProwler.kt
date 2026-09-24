@@ -25,7 +25,7 @@ val StormkeldProwler = card("Stormkeld Prowler") {
     oracleText = "Whenever you cast a spell with mana value 5 or greater, put two +1/+1 counters on this creature."
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(GameObjectFilter.Any.manaValueAtLeast(5))
+        trigger = Triggers.you.casts(GameObjectFilter.Any.manaValueAtLeast(5))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
     }
 

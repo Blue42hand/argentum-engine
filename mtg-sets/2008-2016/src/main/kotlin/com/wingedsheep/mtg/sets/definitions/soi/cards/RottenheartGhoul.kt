@@ -26,7 +26,7 @@ val RottenheartGhoul = card("Rottenheart Ghoul") {
     oracleText = "When this creature dies, target player discards a card."
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val player = target("target", Targets.Player)
         effect = Effects.Discard(1, player)
     }

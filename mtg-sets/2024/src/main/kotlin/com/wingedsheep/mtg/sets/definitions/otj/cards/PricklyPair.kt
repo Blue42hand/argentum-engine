@@ -32,7 +32,7 @@ val PricklyPair = card("Prickly Pair") {
         "\"{T}: Target creature you control gets +1/+0 until end of turn. Activate only as a sorcery.\""
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

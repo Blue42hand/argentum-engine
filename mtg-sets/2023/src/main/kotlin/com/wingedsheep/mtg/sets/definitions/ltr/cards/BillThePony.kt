@@ -38,7 +38,7 @@ val BillThePony = card("Bill the Pony") {
         "equal to its toughness rather than its power."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateFood(2)
     }
 

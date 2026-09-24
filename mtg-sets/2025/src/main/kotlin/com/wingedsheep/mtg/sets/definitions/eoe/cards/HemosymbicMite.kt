@@ -24,7 +24,7 @@ val HemosymbicMite = card("Hemosymbic Mite") {
 
     // Whenever this creature becomes tapped, another target creature you control gets +X/+X until end of turn, where X is this creature's power
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
+        trigger = Triggers.self.becomesTapped()
         val target = target("another target creature you control", Targets.OtherCreatureYouControl)
         val powerBonus = DynamicAmounts.sourcePower()
         effect = Effects.ModifyStats(powerBonus, powerBonus, target)

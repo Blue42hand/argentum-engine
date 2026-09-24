@@ -28,7 +28,7 @@ val Voidwielder = card("Voidwielder") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target("target creature", Targets.Creature)
         effect = Effects.ReturnToHand(t)

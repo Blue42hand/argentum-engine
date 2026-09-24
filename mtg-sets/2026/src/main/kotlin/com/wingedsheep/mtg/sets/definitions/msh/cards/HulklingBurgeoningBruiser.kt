@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Hulkling, Burgeoning Bruiser — Marvel Super Heroes #173
@@ -20,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Whenever another creature you control enters, if it has greater power or toughness than
  * Hulkling, put a +1/+1 counter on Hulkling.
  *
- * [Triggers.OtherCreatureEnters] is the "another creature you control enters" template (OTHER
+ * `Triggers.another(GameObjectFilter.Creature.youControl()).enters()` is the "another creature you control enters" template (OTHER
  * binding + a `Creature.youControl()` filter), so Hulkling's own arrival never fires it.
  *
  * The "if it has greater power or toughness" clause is an intervening-if (CR 603.4): it is
@@ -44,7 +45,7 @@ val HulklingBurgeoningBruiser = card("Hulkling, Burgeoning Bruiser") {
     keywords(Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.OtherCreatureEnters
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
         interveningIf = Conditions.Any(
             Conditions.CompareAmounts(
                 DynamicAmounts.triggeringPower(),

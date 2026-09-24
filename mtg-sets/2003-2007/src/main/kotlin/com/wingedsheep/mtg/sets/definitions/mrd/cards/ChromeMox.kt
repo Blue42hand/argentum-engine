@@ -30,7 +30,7 @@ val ChromeMox = card("Chrome Mox") {
         "{T}: Add one mana of any of the exiled card's colors."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Patterns.Hand.revealHandAndExileChosen(
                 target = EffectTarget.Controller,

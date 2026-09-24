@@ -32,7 +32,7 @@ val GastalBlockbuster = card("Gastal Blockbuster") {
         "destroy target artifact an opponent controls."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Effects.Pipeline {
                 val toSacrifice = selectTarget(

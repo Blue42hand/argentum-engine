@@ -32,7 +32,7 @@ val SauronTheLidlessEye = card("Sauron, the Lidless Eye") {
     oracleText = "When Sauron enters, gain control of target creature an opponent controls until end of turn. Untap it. It gains haste until end of turn.\n{1}{B}{R}: Creatures you control get +2/+0 until end of turn. Each opponent loses 2 life."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.Composite(
             Effects.GainControl(creature, Duration.EndOfTurn),

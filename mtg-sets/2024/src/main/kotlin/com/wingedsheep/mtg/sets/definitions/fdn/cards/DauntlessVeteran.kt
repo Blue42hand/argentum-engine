@@ -28,7 +28,7 @@ val DauntlessVeteran = card("Dauntless Veteran") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.ModifyStats(1, 1, EffectTarget.IterationEntity)

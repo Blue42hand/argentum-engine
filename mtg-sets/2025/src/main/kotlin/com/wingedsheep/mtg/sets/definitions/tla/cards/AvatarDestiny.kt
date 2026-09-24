@@ -69,10 +69,7 @@ val AvatarDestiny = card("Avatar Destiny") {
     // When enchanted creature dies, mill cards equal to its power. Return this card to its owner's
     // hand and up to one creature card milled this way to the battlefield under your control.
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ATTACHED
-        )
+        trigger = Triggers.attached.dies()
         effect = Effects.Pipeline {
             // Mill cards equal to its power (last-known power of the dying creature).
             val milled = gather(CardSource.TopOfLibrary(DynamicAmounts.triggeringPower()))

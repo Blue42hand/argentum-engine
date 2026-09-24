@@ -5,10 +5,9 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Rakshasa Vizier
@@ -31,10 +30,7 @@ val RakshasaVizier = card("Rakshasa Vizier") {
     oracleText = "Whenever one or more cards are put into exile from your graveyard, put that many +1/+1 counters on Rakshasa Vizier."
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = ZoneChangeEvent(from = Zone.GRAVEYARD, to = Zone.EXILE),
-            binding = TriggerBinding.ANY
-        ).youControl()
+        trigger = Triggers.a(GameObjectFilter.Any.youControl()).changesZone(from = Zone.GRAVEYARD, to = Zone.EXILE)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

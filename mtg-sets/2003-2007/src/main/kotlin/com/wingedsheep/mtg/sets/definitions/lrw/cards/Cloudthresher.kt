@@ -39,7 +39,7 @@ val Cloudthresher = card("Cloudthresher") {
     evoke = "{2}{G}{G}"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING)),

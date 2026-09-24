@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.ChooseCreatureTypeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Oko, Lorwyn Liege // Oko, Shadowmoor Scion
@@ -46,7 +47,7 @@ private val OkoShadowmoorScion = card("Oko, Shadowmoor Scion") {
         "type get +3/+3 and have vigilance and hexproof.\""
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{U}"),
             then = Effects.Transform(EffectTarget.Self)
@@ -120,7 +121,7 @@ private val OkoLorwynLiegeFront = card("Oko, Lorwyn Liege") {
         "+1: Target creature gets -2/-0 until your next turn."
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{G}"),
             then = Effects.Transform(EffectTarget.Self)

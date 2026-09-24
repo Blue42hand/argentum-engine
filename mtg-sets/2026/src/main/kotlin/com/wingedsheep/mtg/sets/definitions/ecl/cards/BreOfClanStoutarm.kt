@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Bre of Clan Stoutarm
@@ -50,7 +51,7 @@ val BreOfClanStoutarm = card("Bre of Clan Stoutarm") {
     // less than or equal to the amount of life you gained this turn.
     // Otherwise, put it into your hand.
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.YouGainedLifeThisTurn
         effect = Effects.Pipeline {
             // Exile from top until nonland — same pipeline as The Infamous Cruelclaw.

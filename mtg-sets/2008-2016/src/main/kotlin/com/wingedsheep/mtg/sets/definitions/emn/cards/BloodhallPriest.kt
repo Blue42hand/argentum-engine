@@ -21,14 +21,14 @@ val BloodhallPriest = card("Bloodhall Priest") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.EmptyHand
         val damageTarget = target("any target", Targets.Any)
         effect = Effects.DealDamage(2, damageTarget)
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         interveningIf = Conditions.EmptyHand
         val damageTarget = target("any target", Targets.Any)
         effect = Effects.DealDamage(2, damageTarget)

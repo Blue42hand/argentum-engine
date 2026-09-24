@@ -36,8 +36,7 @@ val RabidAttack = card("Rabid Attack") {
             Effects.ModifyStats(1, 0, EffectTarget.ContextTarget(0)),
             Effects.GrantTriggeredAbility(
                 ability = TriggeredAbility.create(
-                    trigger = Triggers.Dies.event,
-                    binding = Triggers.Dies.binding,
+                    trigger = Triggers.self.dies(),
                     effect = Effects.DrawCards(1),
                     descriptionOverride = "When this creature dies, draw a card.",
                 ),

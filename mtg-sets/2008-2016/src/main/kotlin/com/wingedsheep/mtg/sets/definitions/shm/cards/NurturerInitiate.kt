@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * until end of turn.
  *
  * - "A player" is *every* player, the Initiate's controller included, so this is
- *   [Triggers.anyPlayerCasts] (ANY binding) rather than a "whenever you cast" trigger.
+ *   `Triggers.anyPlayer.casts(spell, requires)` (ANY binding) rather than a "whenever you cast" trigger.
  * - The target is chosen when the ability goes on the stack (a `targetRequirement` on the trigger),
  *   *before* the optional {1} is paid — declining the payment still consumed the target choice.
  * - "You may pay {1}. If you do, …" is the [Effects.MayPay] gate; the pump is the gate's `then`,
@@ -34,7 +34,7 @@ val NurturerInitiate = card("Nurturer Initiate") {
     oracleText = "Whenever a player casts a green spell, you may pay {1}. If you do, target creature gets +1/+1 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.anyPlayerCasts(GameObjectFilter.Any.withColor(Color.GREEN))
+        trigger = Triggers.anyPlayer.casts(GameObjectFilter.Any.withColor(Color.GREEN))
         val creature = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),

@@ -38,7 +38,7 @@ val GriffnautTracker = card("Griffnaut Tracker") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target(
             "up to two target cards from a single graveyard",
             TargetObject(

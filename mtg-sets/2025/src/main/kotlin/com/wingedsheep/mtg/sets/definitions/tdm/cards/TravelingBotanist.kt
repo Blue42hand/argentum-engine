@@ -40,7 +40,7 @@ val TravelingBotanist = card("Traveling Botanist") {
         "card into your hand, you may put it into your graveyard."
 
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
+        trigger = Triggers.self.becomesTapped()
         effect = Effects.Pipeline {
             // Look at the top card of your library (private peek).
             val looked = gather(CardSource.TopOfLibrary(1))

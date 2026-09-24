@@ -6,13 +6,10 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern.AttackEvent
 import com.wingedsheep.sdk.scripting.CostModification
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -57,10 +54,7 @@ val DoranBesiegedByTime = card("Doran, Besieged by Time") {
     // Whenever a creature you control attacks, it gets +X/+X until end of turn,
     // where X is the difference between its power and toughness.
     triggeredAbility {
-        trigger = TriggerSpec(
-            AttackEvent(filter = GameObjectFilter.Creature.youControl()),
-            TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).attacks()
         effect = Effects.ModifyStats(
             power = TriggeringPowerToughnessDifference,
             toughness = TriggeringPowerToughnessDifference,
@@ -70,10 +64,7 @@ val DoranBesiegedByTime = card("Doran, Besieged by Time") {
 
     // Whenever a creature you control blocks, same.
     triggeredAbility {
-        trigger = Triggers.blocks(
-            filter = GameObjectFilter.Creature.youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).blocks()
         effect = Effects.ModifyStats(
             power = TriggeringPowerToughnessDifference,
             toughness = TriggeringPowerToughnessDifference,

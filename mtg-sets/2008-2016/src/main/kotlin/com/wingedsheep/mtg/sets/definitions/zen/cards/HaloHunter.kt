@@ -31,7 +31,7 @@ val HaloHunter = card("Halo Hunter") {
     keywords(Keyword.INTIMIDATE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val angel = target("Angel", TargetPermanent(filter = TargetFilter.Permanent.withSubtype("Angel")))
         effect = Effects.Destroy(angel)
     }

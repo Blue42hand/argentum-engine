@@ -31,7 +31,7 @@ val NoxiousDragon = card("Noxious Dragon") {
     toughness = 4
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         optional = true
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.manaValueAtMost(3)))
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)

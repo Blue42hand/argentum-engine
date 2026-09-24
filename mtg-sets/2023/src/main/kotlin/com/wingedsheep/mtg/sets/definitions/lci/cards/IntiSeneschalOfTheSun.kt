@@ -26,7 +26,7 @@ import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
  * reflexive ability — which targets an attacking creature chosen as it goes on the stack —
  * only fires if a card is actually discarded ([ReflexiveTriggerEffect]).
  *
- * Ability 2 uses [Triggers.YouDiscardOneOrMore] — the batch discard trigger (CR 603.2c):
+ * Ability 2 uses `Triggers.you.discards(batch = true)` — the batch discard trigger (CR 603.2c):
  * discarding several cards in one discard event fires it once, matching the printed "one or
  * more cards" wording (a per-card trigger would impulse-exile once per discarded card). The
  * impulse-exile grants play permission until the controller's next end step
@@ -46,7 +46,7 @@ val IntiSeneschalOfTheSun = card("Inti, Seneschal of the Sun") {
     // "Whenever you attack, you may discard a card. When you do, put a +1/+1 counter on
     // target attacking creature. It gains trample until end of turn."
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         effect = Effects.ReflexiveTrigger(
             action = Effects.Discard(1),
             optional = true) {
@@ -61,7 +61,7 @@ val IntiSeneschalOfTheSun = card("Inti, Seneschal of the Sun") {
     // "Whenever you discard one or more cards, exile the top card of your library. You may
     // play that card until your next end step."
     triggeredAbility {
-        trigger = Triggers.YouDiscardOneOrMore
+        trigger = Triggers.you.discards(batch = true)
         effect = Effects.Pipeline {
             val intiExiled = gather(CardSource.TopOfLibrary(1))
             exile(intiExiled)

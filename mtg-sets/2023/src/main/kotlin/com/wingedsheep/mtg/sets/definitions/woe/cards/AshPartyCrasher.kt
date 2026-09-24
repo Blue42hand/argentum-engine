@@ -42,7 +42,7 @@ val AshPartyCrasher = card("Ash, Party Crasher") {
     keywords(Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         interveningIf = Conditions.Celebration
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever Ash attacks, if two or more nonland permanents entered the " +

@@ -10,8 +10,8 @@ import com.wingedsheep.sdk.scripting.GrantAdditionalLandDrop
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Zell Dincht — Final Fantasy #170
@@ -57,7 +57,7 @@ val ZellDincht = card("Zell Dincht") {
         val target = target("target", TargetObject(
             filter = TargetFilter(GameObjectFilter.Land.youControl()),
         ))
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.ReturnToHand(target)
         description = "At the beginning of your end step, return a land you control to its owner's hand."
     }

@@ -22,7 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * onto the battlefield tapped. If you search your library this way, put this creature on the
  * bottom of its owner's library, then shuffle.
  *
- * The sacrifice trigger is modeled with [Triggers.YouSacrificeOneOrMore] filtered to Foods.
+ * The sacrifice trigger is modeled with `Triggers.you.sacrifices(filter, batch = true)` filtered to Foods.
  * The whole search-and-bounce is wrapped in a single [Effects.May] so the optional "you may search"
  * decision gates the self-bounce: declining keeps the creature, while accepting always puts it on
  * the bottom of the library (even if no basic land is found), matching "If you search this way".
@@ -40,7 +40,7 @@ val UnluckyCabbageMerchant = card("Unlucky Cabbage Merchant") {
 
     // When this creature enters, create a Food token.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateFood(1)
     }
 
@@ -48,7 +48,7 @@ val UnluckyCabbageMerchant = card("Unlucky Cabbage Merchant") {
     // onto the battlefield tapped. If you search your library this way, put this creature on the
     // bottom of its owner's library, then shuffle.
     triggeredAbility {
-        trigger = Triggers.YouSacrificeA(GameObjectFilter.Artifact.withSubtype("Food"))
+        trigger = Triggers.you.sacrifices(GameObjectFilter.Artifact.withSubtype("Food"))
         effect = Effects.May(
             effect = Effects.Composite(
                 Patterns.Library.searchLibrary(

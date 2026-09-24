@@ -23,7 +23,7 @@ val ConclaveNaturalists = card("Conclave Naturalists") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target("target artifact or enchantment", Targets.ArtifactOrEnchantment)
         effect = Effects.Destroy(t)

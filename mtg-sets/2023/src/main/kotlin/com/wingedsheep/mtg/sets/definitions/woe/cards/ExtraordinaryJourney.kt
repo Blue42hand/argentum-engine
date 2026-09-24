@@ -53,7 +53,7 @@ val ExtraordinaryJourney = card("Extraordinary Journey") {
             filter = TargetFilter.Creature,
             dynamicMaxCount = DynamicAmounts.castX()
         ))
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val extraordinaryJourneyExiled = gather(CardSource.ChosenTargets)
             exile(extraordinaryJourneyExiled)
@@ -68,9 +68,7 @@ val ExtraordinaryJourney = card("Extraordinary Journey") {
     }
 
     triggeredAbility {
-        trigger = Triggers.OneOrMorePermanentsEnter(
-            GameObjectFilter.Creature.nontoken().anyController()
-        )
+        trigger = Triggers.oneOrMore(GameObjectFilter.Creature.nontoken().anyController()).enter()
         interveningIf = Conditions.AnyEnteredOrWasCastFromExile
         oncePerTurn = true
         effect = Effects.DrawCards(1)

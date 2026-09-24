@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 val UnstoppableSlasher = card("Unstoppable Slasher") {
     manaCost = "{2}{B}"
@@ -25,7 +26,7 @@ val UnstoppableSlasher = card("Unstoppable Slasher") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.LoseHalfLife(
             roundUp = true,
             target = EffectTarget.PlayerRef(Player.TriggeringPlayer),
@@ -34,7 +35,7 @@ val UnstoppableSlasher = card("Unstoppable Slasher") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.If(
             condition = Conditions.CompareAmounts(
                 DynamicAmounts.lastKnownCounterCount(),

@@ -21,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * X is the number of +1/+1 counters on Anim Pakal.
  *
  * Implementation notes:
- * - Trigger: [Triggers.YouAttackWithFilter] over [GameObjectFilter.Creature.notSubtype(Subtype.GNOME)]
+ * - Trigger: `Triggers.you.attacks(with)` over [GameObjectFilter.Creature.notSubtype(Subtype.GNOME)]
  *   fires whenever you attack with at least one non-Gnome creature. Anim Pakal need not be
  *   attacking herself, but since she is a Human Soldier (not a Gnome) her presence in the attack
  *   alone satisfies the condition.
@@ -43,7 +43,7 @@ val AnimPakal = card("Anim Pakal, Thousandth Moon") {
     oracleText = "Whenever you attack with one or more non-Gnome creatures, put a +1/+1 counter on Anim Pakal, then create X 1/1 colorless Gnome artifact creature tokens that are tapped and attacking, where X is the number of +1/+1 counters on Anim Pakal."
 
     triggeredAbility {
-        trigger = Triggers.YouAttackWithFilter(GameObjectFilter.Creature.notSubtype(Subtype.GNOME))
+        trigger = Triggers.you.attacks(GameObjectFilter.Creature.notSubtype(Subtype.GNOME))
         effect = Effects.Composite(
             // Step 1: put a +1/+1 counter on Anim Pakal.
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),

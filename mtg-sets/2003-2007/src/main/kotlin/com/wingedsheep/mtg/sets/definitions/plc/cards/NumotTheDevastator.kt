@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Numot, the Devastator
@@ -33,7 +34,7 @@ val NumotTheDevastator = card("Numot, the Devastator") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         target = TargetObject(
             count = 2,
             optional = true,

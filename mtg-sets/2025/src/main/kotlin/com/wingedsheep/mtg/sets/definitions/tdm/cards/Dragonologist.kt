@@ -41,7 +41,7 @@ val Dragonologist = card("Dragonologist") {
         "Untapped Dragons you control have hexproof."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val looked = gather(CardSource.TopOfLibrary(count = 6, player = Player.You))
             val (kept, toBottom) = chooseUpToSplit(

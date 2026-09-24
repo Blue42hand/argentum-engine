@@ -15,12 +15,12 @@ import com.wingedsheep.sdk.scripting.CanOnlyBlockCreaturesWith
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Soulcipher Board // Cipherbound Spirit (Innistrad: Crimson Vow)
@@ -46,7 +46,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The countdown trigger is a per-card `ZoneChangeEvent(to = GRAVEYARD)` over creature cards you
  * own, with `TriggerBinding.ANY` — deliberately **not** the batching
- * `Triggers.CardsPutIntoYourGraveyard`: two creature cards hitting the graveyard at once remove two
+ * `Triggers.oneOrMore(filter).putIntoYourGraveyard()`: two creature cards hitting the graveyard at once remove two
  * counters, not one. "From anywhere" is expressed by leaving `from` unset. The follow-up
  * "Then if it has no omen counters on it" is an intervening check at resolution, so it is a
  * [Effects.If] over the *current* counter count rather than a second trigger.
@@ -92,13 +92,7 @@ private val SoulcipherBoardFront = card("Soulcipher Board") {
     }
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = ZoneChangeEvent(
-                filter = GameObjectFilter.Creature.ownedByYou().nontoken(),
-                to = Zone.GRAVEYARD,
-            ),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.ownedByYou().nontoken()).changesZone(to = Zone.GRAVEYARD)
         effect = Effects.Composite(
             Effects.RemoveCounters(CounterType.OMEN, 1, EffectTarget.Self),
             Effects.If(

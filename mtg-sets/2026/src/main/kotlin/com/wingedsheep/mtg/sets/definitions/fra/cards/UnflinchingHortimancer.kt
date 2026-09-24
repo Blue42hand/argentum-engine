@@ -20,7 +20,7 @@ val UnflinchingHortimancer = card("Unflinching Hortimancer") {
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{1}")))
 
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

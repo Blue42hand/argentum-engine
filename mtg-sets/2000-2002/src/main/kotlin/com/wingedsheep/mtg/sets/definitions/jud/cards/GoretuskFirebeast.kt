@@ -26,7 +26,7 @@ val GoretuskFirebeast = card("Goretusk Firebeast") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetPlayerOrPlaneswalker())
         effect = Effects.DealDamage(4, t)
     }

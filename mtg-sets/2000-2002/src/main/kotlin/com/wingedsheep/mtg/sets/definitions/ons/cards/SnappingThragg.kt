@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Snapping Thragg
@@ -24,7 +25,7 @@ val SnappingThragg = card("Snapping Thragg") {
     oracleText = "Whenever Snapping Thragg deals combat damage to a player, you may have it deal 3 damage to target creature that player controls.\nMorph {4}{R}{R}"
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         val t = target("target", Targets.CreatureOpponentControls)
         effect = Effects.May(Effects.DealDamage(3, t))
     }

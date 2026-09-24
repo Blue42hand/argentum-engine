@@ -26,12 +26,12 @@ private val BiolumeEggFront = card("Biolume Egg") {
     keywords(Keyword.DEFENDER)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Scry(2)
     }
 
     triggeredAbility {
-        trigger = Triggers.Sacrificed
+        trigger = Triggers.self.isSacrificed()
         effect = Effects.CreateDelayedTrigger(
             step = Step.END,
             effect = Effects.ReturnSelfFromGraveyardTransformed(),

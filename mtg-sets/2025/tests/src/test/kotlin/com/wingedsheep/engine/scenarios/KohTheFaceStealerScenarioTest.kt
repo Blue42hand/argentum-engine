@@ -58,7 +58,7 @@ class KohTheFaceStealerScenarioTest : FunSpec({
         toughness = 2
         oracleText = "Whenever this creature attacks, you gain 3 life."
         triggeredAbility {
-            trigger = Triggers.Attacks
+            trigger = Triggers.self.attacks()
             effect = Effects.GainLife(3)
         }
     }

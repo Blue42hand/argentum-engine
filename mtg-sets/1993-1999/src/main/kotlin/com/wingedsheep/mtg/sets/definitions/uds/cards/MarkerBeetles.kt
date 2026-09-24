@@ -29,7 +29,7 @@ val MarkerBeetles = card("Marker Beetles") {
     power = 2
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.ModifyStats(1, 1, t)
     }

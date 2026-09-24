@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.ReplaceDamageWithCounters
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Force Bubble
@@ -38,7 +39,7 @@ val ForceBubble = card("Force Bubble") {
 
     // At the beginning of each end step, remove all depletion counters
     triggeredAbility {
-        trigger = Triggers.EachEndStep
+        trigger = Triggers.anyPlayer.beginningOf(Step.END)
         effect = Effects.RemoveCounters(CounterType.DEPLETION, Int.MAX_VALUE, EffectTarget.Self)
     }
 

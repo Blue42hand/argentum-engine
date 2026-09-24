@@ -36,7 +36,7 @@ val HotshotInvestigators = card("Hotshot Investigators") {
         "\"{2}, Sacrifice this token: Draw a card.\")"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "other creature",
             TargetCreature(

@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Veteran Survivor
@@ -37,7 +38,7 @@ val VeteranSurvivor = card("Veteran Survivor") {
     // Survival — At the beginning of your second main phase, if this creature is tapped,
     // exile up to one target card from a graveyard (linked to this creature).
     triggeredAbility {
-        trigger = Triggers.YourPostcombatMain
+        trigger = Triggers.you.beginningOf(Step.POSTCOMBAT_MAIN)
         interveningIf = Conditions.SourceIsTapped
         optional = true
         val card = target("card in a graveyard", Targets.CardInGraveyard)

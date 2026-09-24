@@ -35,7 +35,7 @@ val EerieGravestone = card("Eerie Gravestone") {
         "library into your graveyard.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(1)
         description = "When this artifact enters, draw a card."
     }

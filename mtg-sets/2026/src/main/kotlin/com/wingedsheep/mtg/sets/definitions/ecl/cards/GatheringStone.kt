@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Gathering Stone
@@ -75,12 +76,12 @@ val GatheringStone = card("Gathering Stone") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = lookAtTopEffect
     }
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = lookAtTopEffect
     }
 

@@ -27,7 +27,7 @@ val HumblingElder = card("Humbling Elder") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature", Targets.CreatureOpponentControls)
         effect = Effects.ModifyStats(-2, 0, creature)
         description = "When this creature enters, target creature an opponent controls gets -2/-0 until end of turn."

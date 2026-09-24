@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Sawblade Skinripper
@@ -47,7 +48,7 @@ val SawbladeSkinripper = card("Sawblade Skinripper") {
     // Intervening-if on the per-player "permanents sacrificed this turn" counter. "That much"
     // is the same controller-scoped count, dealt by Sawblade itself to any target.
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.YouSacrificedPermanentsThisTurn()
         val any = target("any target", Targets.Any)
         effect = Effects.DealDamage(

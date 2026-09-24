@@ -22,7 +22,7 @@ val TauntingElf = card("Taunting Elf") {
     oracleText = "All creatures able to block Taunting Elf do so."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.MustBeBlocked(EffectTarget.Self)
     }
 

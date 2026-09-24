@@ -29,7 +29,7 @@ val SpinedFluke = card("Spined Fluke") {
     power = 5
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.SacrificeOwn(GameObjectFilter.Creature)
     }
     activatedAbility {

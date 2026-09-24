@@ -23,7 +23,7 @@ val SuspensionField = card("Suspension Field") {
     oracleText = "When this enchantment enters, you may exile target creature with toughness 3 or greater until this enchantment leaves the battlefield."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "creature with toughness 3 or greater",
             TargetCreature(filter = TargetFilter.Creature.toughnessAtLeast(3))
@@ -33,7 +33,7 @@ val SuspensionField = card("Suspension Field") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

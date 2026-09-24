@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Three nested riders, each a different primitive:
  *
- *  - **"Whenever you clash"** — [Triggers.WheneverYouClash], not the "and win" variant: the {1} is
+ *  - **"Whenever you clash"** — `Triggers.you.clashes()`, not the "and win" variant: the {1} is
  *    offered whether or not you won, and per its ruling it is offered on a clash an opponent's spell
  *    started too.
  *  - **"you may pay {1}. If you do, …"** — a [Gate.MayPay] over [PayManaCostEffect]; declining or
@@ -43,7 +43,7 @@ val RebellionOfTheFlamekin = card("Rebellion of the Flamekin") {
         "(This ability triggers after the clash ends.)"
 
     triggeredAbility {
-        trigger = Triggers.WheneverYouClash
+        trigger = Triggers.you.clashes()
         effect = Effects.MayPay(
             cost = Effects.PayMana("{1}"),
             then = Effects.Composite(

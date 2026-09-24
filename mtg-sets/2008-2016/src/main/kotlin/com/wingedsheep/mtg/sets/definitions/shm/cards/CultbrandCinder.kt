@@ -29,7 +29,7 @@ val CultbrandCinder = card("Cultbrand Cinder") {
     oracleText = "When this creature enters, put a -1/-1 counter on target creature."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, creature)
         description = "When this creature enters, put a -1/-1 counter on target creature."

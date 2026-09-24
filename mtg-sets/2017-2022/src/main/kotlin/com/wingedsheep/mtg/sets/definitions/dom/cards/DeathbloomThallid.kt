@@ -22,7 +22,7 @@ val DeathbloomThallid = card("Deathbloom Thallid") {
     oracleText = "When this creature dies, create a 1/1 green Saproling creature token."
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.CreateToken(
             count = 1,
             power = 1,

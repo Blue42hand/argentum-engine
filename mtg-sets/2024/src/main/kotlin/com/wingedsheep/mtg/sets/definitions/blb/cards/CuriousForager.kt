@@ -33,7 +33,7 @@ val CuriousForager = card("Curious Forager") {
     oracleText = "When this creature enters, you may forage. When you do, return target permanent card from your graveyard to your hand. (To forage, exile three cards from your graveyard or sacrifice a Food.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Patterns.Mechanic.forage(),
             optional = true,

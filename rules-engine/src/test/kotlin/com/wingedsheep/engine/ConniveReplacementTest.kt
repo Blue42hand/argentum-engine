@@ -124,8 +124,8 @@ class ConniveReplacementTest : FunSpec({
             triggeredAbilities = listOf(
                 TriggeredAbility(
                     id = AbilityId(UUID.randomUUID().toString()),
-                    trigger = Triggers.WheneverCreatureYouControlConnives.event,
-                    binding = Triggers.WheneverCreatureYouControlConnives.binding,
+                    trigger = Triggers.a(GameObjectFilter.Creature.youControl()).connives().event,
+                    binding = Triggers.a(GameObjectFilter.Creature.youControl()).connives().binding,
                     effect = Effects.GainLife(7)
                 )
             )

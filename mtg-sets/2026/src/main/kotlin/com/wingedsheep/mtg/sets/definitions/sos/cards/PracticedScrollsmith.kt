@@ -34,7 +34,7 @@ val PracticedScrollsmith = card("Practiced Scrollsmith") {
     keywords(Keyword.FIRST_STRIKE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val card = target(
             "target noncreature, nonland card from your graveyard",
             TargetObject(

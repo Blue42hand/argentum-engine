@@ -26,7 +26,7 @@ val FloriferousVinewall = card("Floriferous Vinewall") {
     keywords(Keyword.DEFENDER)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.lookAtTopRevealMatchingToHand(
             count = 6,
             filter = GameObjectFilter.Land,

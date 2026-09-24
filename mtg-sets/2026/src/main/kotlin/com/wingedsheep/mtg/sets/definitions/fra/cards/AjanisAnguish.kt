@@ -24,7 +24,7 @@ val AjanisAnguish = card("Ajani's Anguish") {
         "Creatures you control have trample."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("any target", Targets.Any)
         effect = Effects.DealDamage(DynamicAmounts.castX(), t)
     }

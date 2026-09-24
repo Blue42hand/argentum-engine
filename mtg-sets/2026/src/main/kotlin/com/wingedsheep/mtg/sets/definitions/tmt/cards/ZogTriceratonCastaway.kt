@@ -29,7 +29,7 @@ val ZogTriceratonCastaway = card("Zog, Triceraton Castaway") {
     keywords(Keyword.REACH, Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature", Targets.Creature)
         effect = Effects.CantBlock(creature)
     }

@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Mightform Harmonizer
@@ -26,7 +27,7 @@ val MightformHarmonizer = card("Mightform Harmonizer") {
 
     // Landfall triggered ability: double power of target creature you control until end of turn
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.ModifyStats(
             power = DynamicAmounts.powerOf(creature),

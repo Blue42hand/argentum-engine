@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -41,7 +40,7 @@ val FungalFortitude = card("Fungal Fortitude") {
     // trigger: enchanted creature leaves battlefield to graveyard (TriggerBinding.ATTACHED watches the host)
     // effect: PutOntoBattlefield without controllerOverride defaults to the card's owner's control
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(to = Zone.GRAVEYARD, binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.dies()
         effect = Effects.PutOntoBattlefield(EffectTarget.TriggeringEntity, tapped = true)
     }
 

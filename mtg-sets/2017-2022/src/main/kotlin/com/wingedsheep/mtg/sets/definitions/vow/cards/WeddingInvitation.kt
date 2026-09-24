@@ -31,7 +31,7 @@ val WeddingInvitation = card("Wedding Invitation") {
         "Vampire, it also gains lifelink until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(1)
     }
 

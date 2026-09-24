@@ -41,7 +41,7 @@ val CouncilOfEchoes = card("Council of Echoes") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.CardsInGraveyardMatchingAtLeast(4, GameObjectFilter.Permanent)
         val permanent = target(
             "up to one target nonland permanent other than this creature",

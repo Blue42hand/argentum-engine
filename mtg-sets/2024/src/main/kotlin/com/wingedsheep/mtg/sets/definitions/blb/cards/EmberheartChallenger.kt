@@ -30,7 +30,7 @@ val EmberheartChallenger = card("Emberheart Challenger") {
     prowess()
 
     triggeredAbility {
-        trigger = Triggers.Valiant
+        trigger = Triggers.self.becomesTarget(byYou = true, firstTimeEachTurn = true)
         effect = Effects.Pipeline {
             val exiledCard = gather(CardSource.TopOfLibrary(1))
             exile(exiledCard)

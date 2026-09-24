@@ -31,7 +31,7 @@ val TicketBoothTunnelOfHate = card("Ticket Booth // Tunnel of Hate") {
         oracleText = "When you unlock this door, manifest dread."
 
         triggeredAbility {
-            trigger = Triggers.OnDoorUnlocked
+            trigger = Triggers.self.doorUnlocked()
             effect = Patterns.Library.manifestDread()
         }
     }
@@ -42,7 +42,7 @@ val TicketBoothTunnelOfHate = card("Ticket Booth // Tunnel of Hate") {
         oracleText = "Whenever you attack, target attacking creature gains double strike until end of turn."
 
         triggeredAbility {
-            trigger = Triggers.YouAttack
+            trigger = Triggers.you.attacks()
             val creature = target("target attacking creature", Targets.AttackingCreature)
             effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, creature)
             description = "Whenever you attack, target attacking creature gains double strike until end of turn."

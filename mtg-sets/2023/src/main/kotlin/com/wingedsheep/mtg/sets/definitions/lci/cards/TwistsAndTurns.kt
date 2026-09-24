@@ -39,9 +39,9 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  *    control would explore, first [Effects.Scry] 1, then it explores." `ExploreEffectExecutor`
  *    consults it and re-issues the explore as a Composite so the scry's top/bottom decision
  *    resolves before the explore.
- *  - ETB is [Triggers.EntersBattlefield] → [Effects.Explore] on a target creature you control; the
+ *  - ETB is `Triggers.self.enters()` → [Effects.Explore] on a target creature you control; the
  *    replacement applies to that explore too (scry 1 first).
- *  - The transform is [Triggers.LandYouControlEnters] with intervening-if
+ *  - The transform is `Triggers.a(GameObjectFilter.Land.youControl()).enters()` with intervening-if
  *    [Conditions.YouControlAtLeast]`(7, Land)` → [TransformEffect].
  *  - Back's activated ability is [Patterns.Library.lookAtTopRevealMatchingToHand] (count 4,
  *    creature, rest to the bottom in random order).
@@ -67,7 +67,7 @@ private val TwistsAndTurnsFront = card("Twists and Turns") {
 
     // When Twists and Turns enters, target creature you control explores.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "target creature you control",
             TargetCreature(filter = TargetFilter.Creature.youControl()),
@@ -77,7 +77,7 @@ private val TwistsAndTurnsFront = card("Twists and Turns") {
 
     // When a land you control enters, if you control seven or more lands, transform.
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         interveningIf = Conditions.YouControlAtLeast(7, GameObjectFilter.Land)
         effect = Effects.Transform(EffectTarget.Self)
         description = "When a land you control enters, if you control seven or more lands, " +

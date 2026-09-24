@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Concerted Effort — Ravnica: City of Guilds #8
@@ -31,7 +32,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * with protection from red plus one with protection from green give everyone both. It needs no
  * gate: with no protection in the group it grants nothing.
  *
- * "Each upkeep" is [Triggers.EachUpkeep], so it works on opponents' turns as well.
+ * "Each upkeep" is `Triggers.anyPlayer.beginningOf(Step.UPKEEP)`, so it works on opponents' turns as well.
  */
 private val SHARED_KEYWORDS = listOf(
     Keyword.FLYING,
@@ -60,7 +61,7 @@ val ConcertedEffort = card("Concerted Effort") {
         "protection, trample, and vigilance."
 
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         effect = Effects.Composite(
             SHARED_KEYWORDS.map { keyword ->
                 Effects.If(

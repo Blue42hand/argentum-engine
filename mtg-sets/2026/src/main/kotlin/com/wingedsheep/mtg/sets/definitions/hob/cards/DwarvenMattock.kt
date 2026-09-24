@@ -35,7 +35,7 @@ val DwarvenMattock = card("Dwarven Mattock") {
         "Equip {3} ({3}: Attach to target creature you control. Equip only as a sorcery.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val dwarf = target(
             "target Dwarf you control",
             TargetCreature(filter = TargetFilter.CreatureYouControl.withSubtype(Subtype.DWARF))

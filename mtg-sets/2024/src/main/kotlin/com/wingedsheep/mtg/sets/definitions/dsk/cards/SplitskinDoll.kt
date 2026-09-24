@@ -25,7 +25,7 @@ val SplitskinDoll = card("Splitskin Doll") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         // "draw a card. Then discard a card unless you control another creature with power 2 or
         // less." Modeled as draw, then a conditional discard gated on NOT controlling such a
         // creature — the discard only happens when the "unless" clause is unmet.

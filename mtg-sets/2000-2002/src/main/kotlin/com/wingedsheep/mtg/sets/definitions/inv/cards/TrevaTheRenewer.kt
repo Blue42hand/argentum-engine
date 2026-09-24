@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Treva, the Renewer
@@ -37,7 +38,7 @@ val TrevaTheRenewer = card("Treva, the Renewer") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}{W}"),
             then = Effects.ChooseColorThen(

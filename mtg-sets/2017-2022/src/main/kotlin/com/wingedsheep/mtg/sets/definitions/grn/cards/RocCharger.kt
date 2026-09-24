@@ -28,7 +28,7 @@ val RocCharger = card("Roc Charger") {
 
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val flyer = target(
             "target",
             TargetObject(

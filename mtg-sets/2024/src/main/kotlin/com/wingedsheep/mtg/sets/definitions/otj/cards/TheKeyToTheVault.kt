@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -52,11 +51,7 @@ val TheKeyToTheVault = card("The Key to the Vault") {
         "the exiled card without paying its mana cost.\nEquip {2}{U}"
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.Combat,
-            recipient = Recipient.AnyPlayer,
-            binding = TriggerBinding.ATTACHED
-        )
+        trigger = Triggers.attached.dealsCombatDamage(Recipient.AnyPlayer)
         val damageDealt = DynamicAmounts.triggerDamageAmount()
         effect = Effects.Pipeline {
             val keyLooked = gather(

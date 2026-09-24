@@ -32,7 +32,7 @@ val DebrisBeetle = card("Debris Beetle") {
     toughness = 6
     keywords(Keyword.TRAMPLE)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.LoseLife(3, EffectTarget.PlayerRef(Player.EachOpponent)),
             Effects.GainLife(3)

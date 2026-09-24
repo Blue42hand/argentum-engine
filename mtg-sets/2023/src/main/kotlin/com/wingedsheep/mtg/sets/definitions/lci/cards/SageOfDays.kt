@@ -37,7 +37,7 @@ val SageOfDays = card("Sage of Days") {
         "one of those cards back on top of your library. Put the rest into your graveyard."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val looked = gather(CardSource.TopOfLibrary(3))
             val (toTop, toGraveyardCards) = chooseUpToSplit(

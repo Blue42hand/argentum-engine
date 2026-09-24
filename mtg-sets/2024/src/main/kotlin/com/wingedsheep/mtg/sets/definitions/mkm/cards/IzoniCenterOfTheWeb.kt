@@ -53,14 +53,14 @@ val IzoniCenterOfTheWeb = card("Izoni, Center of the Web") {
     )
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = collectAndCreateSpiders
         description = "Whenever Izoni enters or attacks, you may collect evidence 4. If you do, " +
             "create two 2/1 black and green Spider creature tokens with reach and menace."
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = collectAndCreateSpiders
         description = "Whenever Izoni enters or attacks, you may collect evidence 4. If you do, " +
             "create two 2/1 black and green Spider creature tokens with reach and menace."

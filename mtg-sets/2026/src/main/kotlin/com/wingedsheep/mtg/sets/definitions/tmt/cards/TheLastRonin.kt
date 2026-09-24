@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.events.AttackPredicate
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -58,11 +57,7 @@ val TheLastRonin = card("The Last Ronin") {
         // Turn-scoped, filter-scoped delayed trigger; the per-attacker fan-out in
         // TriggerDetector.detectEventBasedDelayedTriggers binds each lone attacker to TriggeringEntity.
         effect = Effects.CreateDelayedTrigger(
-            trigger = Triggers.attacks(
-                filter = GameObjectFilter.Creature.youControl(),
-                requires = setOf(AttackPredicate.Alone),
-                binding = TriggerBinding.ANY
-            ),
+            trigger = Triggers.a(GameObjectFilter.Creature.youControl()).attacks(setOf(AttackPredicate.Alone)),
             expiry = DelayedTriggerExpiry.EndOfTurn,
             effect = Effects.Composite(
                 listOf(

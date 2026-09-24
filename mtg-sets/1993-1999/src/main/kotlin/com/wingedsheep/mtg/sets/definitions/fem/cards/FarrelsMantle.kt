@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -40,7 +39,7 @@ val FarrelsMantle = card("Farrel's Mantle") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.AttacksAndIsntBlocked.copy(binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.attacksAndIsntBlocked()
         val t = target(
             "another target creature",
             TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.notAttachedToBySource()))

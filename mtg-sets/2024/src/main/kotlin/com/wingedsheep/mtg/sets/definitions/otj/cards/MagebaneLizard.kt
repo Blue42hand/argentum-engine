@@ -27,7 +27,7 @@ val MagebaneLizard = card("Magebane Lizard") {
         "equal to the number of noncreature spells they've cast this turn."
 
     triggeredAbility {
-        trigger = Triggers.anyPlayerCasts(GameObjectFilter.Noncreature)
+        trigger = Triggers.anyPlayer.casts(GameObjectFilter.Noncreature)
         effect = Effects.DealDamage(
             amount = DynamicAmounts.spellsCastThisTurn(Player.TriggeringPlayer, GameObjectFilter.Noncreature),
             target = EffectTarget.ControllerOfTriggeringEntity

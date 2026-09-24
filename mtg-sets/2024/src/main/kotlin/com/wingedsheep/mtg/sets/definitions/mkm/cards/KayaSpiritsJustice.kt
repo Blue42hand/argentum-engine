@@ -33,7 +33,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * that player controls.
  *
  * Implementation:
- * - **The trigger** is the exile batch ([Triggers.CardsPutIntoExile]) narrowed two ways. The filter
+ * - **The trigger** is the exile batch (`Triggers.oneOrMore(filter).putIntoExile(from, includeTokens)`) narrowed two ways. The filter
  *   carries the ownership — `GameObjectFilter.Creature.youControl()` reads as "creatures **you
  *   control**" for the battlefield arm and "creature cards in **your** graveyard" for the graveyard
  *   arm, because the detector tests last-known control for a battlefield exit and ownership
@@ -82,11 +82,7 @@ val KayaSpiritsJustice = card("Kaya, Spirits' Justice") {
         "creature that player controls."
 
     triggeredAbility {
-        trigger = Triggers.CardsPutIntoExile(
-            fromZones = setOf(Zone.BATTLEFIELD, Zone.GRAVEYARD),
-            filter = GameObjectFilter.Creature.youControl(),
-            includeTokens = true,
-        )
+        trigger = Triggers.oneOrMore(GameObjectFilter.Creature.youControl()).putIntoExile(setOf(Zone.BATTLEFIELD, Zone.GRAVEYARD), includeTokens = true)
         val tokenYouControl = target("token you control", Targets.TokenYouControl)
         effect = Effects.Pipeline {
             // "from among them" — the exiled batch, narrowed to creature cards that are still in

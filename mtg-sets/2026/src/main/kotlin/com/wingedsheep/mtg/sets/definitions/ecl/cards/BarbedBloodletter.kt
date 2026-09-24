@@ -31,7 +31,7 @@ val BarbedBloodletter = card("Barbed Bloodletter") {
 
     // ETB: attach to target creature you control, grant wither until end of turn
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature you control", Targets.CreatureYouControl)
         effect = Effects.AttachEquipment(creature)
             .then(Effects.GrantKeyword(Keyword.WITHER, creature))

@@ -39,20 +39,20 @@ val LichsMastery = card("Lich's Mastery") {
 
     // Whenever you gain life, draw that many cards
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         effect = Effects.DrawCards(DynamicAmounts.triggerLifeGained())
     }
 
     // Whenever you lose life, for each 1 life you lost, exile a permanent you control
     // or a card from your hand or graveyard
     triggeredAbility {
-        trigger = Triggers.YouLoseLife
+        trigger = Triggers.you.losesLife()
         effect = Effects.ForceExileMultiZone(DynamicAmounts.triggerLifeLost())
     }
 
     // When Lich's Mastery leaves the battlefield, you lose the game
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.LoseGame()
     }
 

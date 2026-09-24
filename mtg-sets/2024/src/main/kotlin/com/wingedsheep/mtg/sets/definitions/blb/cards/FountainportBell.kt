@@ -27,7 +27,7 @@ val FountainportBell = card("Fountainport Bell") {
         "{1}, Sacrifice this artifact: Draw a card."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.BasicLand,

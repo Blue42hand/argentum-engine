@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBlock
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 
@@ -40,10 +39,7 @@ val NorinSwiftSurvivalist = card("Norin, Swift Survivalist") {
     }
 
     triggeredAbility {
-        trigger = Triggers.becomesBlocked(
-            filter = GameObjectFilter.Creature.youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).becomesBlocked()
         effect = Effects.May(
             Effects.Pipeline {
                 val exiledBlockedCreature = gather(CardSource.TriggeringEntity)

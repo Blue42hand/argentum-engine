@@ -45,7 +45,7 @@ val MudbuttonCursetosser = card("Mudbutton Cursetosser") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val creature = target(
             "creature an opponent controls with power 2 or less",
             TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.opponentControls().powerAtMost(2)))

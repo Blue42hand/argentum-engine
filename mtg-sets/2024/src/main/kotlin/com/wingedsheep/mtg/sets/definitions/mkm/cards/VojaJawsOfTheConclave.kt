@@ -37,7 +37,7 @@ val VojaJawsOfTheConclave = card("Voja, Jaws of the Conclave") {
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{3}")))
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.AddDynamicCounters(

@@ -29,7 +29,7 @@ val FootMystic = card("Foot Mystic") {
     keywords(Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.YouHadPermanentLeaveBattlefieldThisTurn
         effect = Effects.CreateToken(
             power = 1,

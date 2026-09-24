@@ -34,12 +34,12 @@ val BloodcrazedSocialite = card("Bloodcrazed Socialite") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateBlood(1)
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.MayPay(
             cost = Effects.SacrificeOwn(filter = GameObjectFilter.Artifact.withSubtype("Blood")),
             then = Effects.ModifyStats(2, 2, EffectTarget.Self)

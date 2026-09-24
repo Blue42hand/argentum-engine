@@ -37,7 +37,7 @@ val BulwarkOx = card("Bulwark Ox") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         triggerRestriction = Conditions.SourceIsSaddled
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)

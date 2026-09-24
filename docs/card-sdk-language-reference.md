@@ -120,7 +120,7 @@ section; do not let SDK additions land without a corresponding doc update.
   ward {2}**, flip for this cost.
 - `disguiseCost: PayCost?` — non-mana disguise cost.
 - **`{X}` in a turn-up cost** — `Disguise {X}{3}{W}` (Aurelia's Vindicator) is legal, and the chosen X
-  is readable by the card's `Triggers.TurnedFaceUp` ability as **`DynamicAmount.XValue`** — carried
+  is readable by the card's `Triggers.self.turnedFaceUp()` ability as **`DynamicAmount.XValue`** — carried
   `TurnFaceUp.xValue` → `TurnFaceUpEvent.xValue` → `TriggerContext.xValue` → the trigger's stack
   object → `EffectContext.xValue`. It is **not `DynamicAmount.CastX`**, which is the X paid to cast a
   *spell*: a disguised card was cast face down for `{3}`, with no X anywhere in that cost, so `CastX`
@@ -131,7 +131,7 @@ section; do not let SDK additions land without a corresponding doc update.
   "As this creature is turned face up, …" replacement clause (Bubble Smuggler = "put four +1/+1
   counters on it" → `Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 4, EffectTarget.Self)`). It is
   applied **as part of the turn-up special action**, so it doesn't use the stack and can't be
-  responded to — that is what separates it from a `Triggers.TurnedFaceUp` ability ("When this
+  responded to — that is what separates it from a `Triggers.self.turnedFaceUp()` ability ("When this
   creature is turned face up, …", Granite Witness / Exit Specialist), which does use the stack.
   Like `morphFaceUpEffect` it rides the *turn-up procedure* (CR 702.37b's megamorph treatment), so
   a card put face down by cloak or manifest and flipped for its mana cost instead of its disguise
@@ -549,7 +549,7 @@ exist in the cost and charges the life through the shared life-payment service.
   additional cost (Feed the Cycle), and the graveyard-cast permission (Osteomancer Adept, where the
   card being cast is excluded from the exile pool). For a "you may forage" *effect* (not a cost) use
   `Patterns.Mechanic.forage(afterEffect?)` instead. Every one of these paths emits the foraged event
-  that fires `Triggers.WheneverYouForage` — the cost forms from `ForageCostResolver.pay`, the effect
+  that fires `Triggers.you.forages()` — the cost forms from `ForageCostResolver.pay`, the effect
   form from a marker inside each of its modes — so no context can forage without the payoffs seeing
   it. A forage that was declined, or one no mode was feasible for, emits nothing: forage has no
   "even if you can't" clause.
@@ -561,7 +561,7 @@ exist in the cost and charges the life through the shared life-payment service.
   zones, a tap can be restored, this does neither. Its affordability gate is the card's own ruling
   ("You can't pay the cost of unattaching Sunforger unless Sunforger is attached to a creature"), so
   the ability is offered as unaffordable while the Equipment sits loose. Payment runs through the same
-  `ZoneMovementUtils.unattachEmittingEvent` chokepoint as the effect, so a `Triggers.becomesUnattached`
+  `ZoneMovementUtils.unattachEmittingEvent` chokepoint as the effect, so a `Triggers.<subject>.becomesUnattached(from, controller)`
   trigger cannot tell the two apart. Activated-ability-only: a spell on the stack is attached to
   nothing, so every other cost context reports it unpayable rather than half-paying it. Sunforger is
   `Costs.Composite(Costs.Mana("{R}{W}"), Costs.Unattach)`.
@@ -1493,7 +1493,7 @@ Types that are not effects no longer carry the `Effect` suffix, so the rule has 
 - `ReturnSelfFromGraveyardTransformed(tapped = false)` — "Return this card from your graveyard to the
   battlefield transformed" (Garland, Knight of Cornelia). Returns the *source card* from the graveyard
   to the battlefield with its back face up; pair with `activateFromZone = Zone.GRAVEYARD` on the owning
-  activated ability, **or wire it to `Triggers.Dies`** for the "when this dies, return it transformed"
+  activated ability, **or wire it to `Triggers.self.dies()`** for the "when this dies, return it transformed"
   templating (LCI god cycle — Ojer Axonil/Kaslem/Pakpatiq/Taq // Temples, Aclazotz). No transform
   triggers fire (the card was never turned over on the battlefield); the back face's ETB triggers fire
   normally. No-ops if the source left the graveyard before resolution, or if it isn't a double-faced
@@ -1543,7 +1543,7 @@ Types that are not effects no longer carry the `Effect` suffix, so the rule has 
   offer to cast it for free, bottom-randomize every exiled card that isn't cast.
   **`Keyword.CASCADE` alone does nothing** — the engine never reads it. Cascade *is* a "when you cast
   this spell" triggered ability, so a card with cascade carries the keyword (for the printed line)
-  **plus** `triggeredAbility { trigger = Triggers.WhenYouCastThisSpell(); effect = Effects.Cascade }`.
+  **plus** `triggeredAbility { trigger = Triggers.self.isCast(); effect = Effects.Cascade }`.
   Quandrix, the Proof; Meteoric Mace; Annoyed Altisaur. The card type is irrelevant — it fires on an
   Equipment spell exactly as on a creature spell.
 - `Effects.Discover(amount, storeDiscoveredAs?, thenEffect?)` — Discover N, CR 701.57 (`DiscoverEffect`).
@@ -1679,7 +1679,7 @@ Types that are not effects no longer carry the `Effect` suffix, so the rule has 
   `printed` for the card spelling (`+1/+1`, `first strike`) and `CounterType.of(text)` as the only way
   back from text (any case, id or printed; an unknown word is a new kind, never a `+1/+1` fallback).
   Where a position means "counters of any kind" it is `CounterType?` and `null` is the wildcard
-  (`Triggers.countersPlacedOn(counterType = null)`, `Conditions.SourceHasCounter(null)`,
+  (`Triggers.a(GameObjectFilter.Creature.youControl()).getsCounters(firstTimeEachTurn = true)`, `Conditions.SourceHasCounter(null)`,
   `DynamicAmounts.countersOnSelf(null)`). Every kind a card names must be one of `CounterType.KNOWN` —
   `CounterTypeVocabularyTest` walks the corpus for it — so a new kind is a constant in `CounterType`
   (plus the client's mirror in `web-client/src/types/enums.ts`), never a string on a card.
@@ -1821,8 +1821,7 @@ Types that are not effects no longer carry the `Effect` suffix, so the rule has 
   three via `EntersWithCounters(CounterType.FILM, count = 3, selfOnly = true)` and its
   `{2}, {T}` copy ability spends one per activation via `Costs.RemoveCounterFromSelf(CounterType.FILM, 1)`),
   `CounterType.PLAN` (MSH's Plan enchantment cycle — each Plan's own "whenever …" trigger adds one, and a
-  second `Triggers.countersPlacedOn(filter = GameObjectFilter.Any, counterType = CounterType.PLAN,
-  firstTimeEachTurn = false, binding = TriggerBinding.SELF)` ability gated on
+  second `Triggers.self.getsCounters(CounterType.PLAN)` ability gated on
   `triggerRestriction = Conditions.SourceCounterCountAtLeast(CounterType.PLAN, N)` models "when the Nth plan
   counter is put on this enchantment"; exact because every payoff sacrifices its own source, so the
   at-least gate can never fire a second time — no dedicated "Nth counter" trigger event is needed),
@@ -2560,9 +2559,9 @@ Types that are not effects no longer carry the `Effect` suffix, so the rule has 
 - `OpenLifeBid(onWin, participant = Player.AnOpponent)` — open life-bidding auction between you and `participant` (resolved against the effect context). You open at a bid of 1; the two bidders alternate topping the high bid (yes/no to top, then a number for the amount, capped at the bidder's life) until one passes. The high bidder loses that much life; `onWin` runs **only if you win**, with the original targets in context. If `participant` resolves to you (or to nobody), you're the sole bidder and win at the opening bid. For Mages' Contest, bid against the targeted spell's controller and counter it: `Effects.OpenLifeBid(Effects.CounterSpell(), Player.ControllerOf("target spell"))` — pair with a `TargetSpell` requirement.
 - `DestroySourceOfTargetedAbilityEffect` — when the targeted stack object is a permanent's activated/triggered ability, destroy that source permanent. Compose *before* the counter step so the ability component is still readable (Teferi's Response).
 - `RemoveAbilitiesFromSourceOfTargetedAbilityEffect(duration = EndOfTurn, sourceCardTypes = emptySet())` (facade `Effects.RemoveAbilitiesFromSourceOfTargetedAbility(duration, sourceCardTypes)`) — the ability-strip sibling of `DestroySourceOfTargetedAbilityEffect`. When the targeted stack object is a permanent's activated/triggered ability whose source is still on the battlefield **and** (when `sourceCardTypes` is non-empty) has one of those projected card types, that source permanent gains a Layer-6 `RemoveAllAbilities` floating effect for `duration`. The floating effect is keyed to *this effect's* source, so `Duration.WhileSourceOnBattlefield` ends when that permanent (e.g. Tishana) leaves. No-op for a spell target, an already-gone source, or a type mismatch. Compose *before* the counter step so the ability's source component is still readable. Used by **Tishana's Tidebinder** ("If an ability of an artifact, creature, or planeswalker is countered this way, that permanent loses all abilities for as long as this creature remains on the battlefield") — pair with `CounterAbility()`, `Duration.WhileSourceOnBattlefield`, and `sourceCardTypes = {ARTIFACT, CREATURE, PLANESWALKER}`, targeting via an optional (`optional = true`) `Targets.ActivatedOrTriggeredAbility` slot for "up to one".
-- `CopyTargetSpellEffect(target, keywordsForCopy, removeLegendary, addedTokenKeywords, sacrificeTokenAtStep, sacrificeTokenOnlyOnControllersTurn, copies = DynamicAmount.Fixed(1))` (facade `Effects.CopyTargetSpell(...)`) — copy a spell on the stack. `keywordsForCopy` grants keywords to the copy **while it remains a spell** (wither/lifelink). When the copied spell is a **permanent spell** it becomes a token as it resolves (CR 707.10f); the *token-side* riders bake onto that token for its life on the battlefield: `addedTokenKeywords` (e.g. `HASTE`) are unioned into the token's base keywords, and `sacrificeTokenAtStep: Step?` registers a delayed "sacrifice this token" trigger at the next matching step (`sacrificeTokenOnlyOnControllersTurn` gates it to "your next" step). The spell-copy mirror of `CreateTokenCopyOfTargetEffect.addedKeywords` / `sacrificeAtStep`. Used by **Choreographed Sparks** ("Copy target creature spell you control. The copy gains haste and 'At the beginning of the end step, sacrifice this token.'"). Pair with `Targets.CreatureSpellYouControl`. `copies` (a `DynamicAmount`, default 1) makes *N independent copies*, each retargeted separately (CR 707.10c) — **Thousand-Year Storm** ("copy it for each other instant and sorcery spell you've cast before it this turn") pairs `Effects.CopyTargetSpell(TriggeringEntity, copies = DynamicAmounts.spellsCastThisTurn(filter = InstantOrSorcery, beforeTriggeringSpell = true))` with `Triggers.youCastSpell(InstantOrSorcery)`. A count of zero or less makes no copies at all; a spell with no targets, or one with no legal replacement target, gets its copies without a prompt (inheriting the original's targets).
+- `CopyTargetSpellEffect(target, keywordsForCopy, removeLegendary, addedTokenKeywords, sacrificeTokenAtStep, sacrificeTokenOnlyOnControllersTurn, copies = DynamicAmount.Fixed(1))` (facade `Effects.CopyTargetSpell(...)`) — copy a spell on the stack. `keywordsForCopy` grants keywords to the copy **while it remains a spell** (wither/lifelink). When the copied spell is a **permanent spell** it becomes a token as it resolves (CR 707.10f); the *token-side* riders bake onto that token for its life on the battlefield: `addedTokenKeywords` (e.g. `HASTE`) are unioned into the token's base keywords, and `sacrificeTokenAtStep: Step?` registers a delayed "sacrifice this token" trigger at the next matching step (`sacrificeTokenOnlyOnControllersTurn` gates it to "your next" step). The spell-copy mirror of `CreateTokenCopyOfTargetEffect.addedKeywords` / `sacrificeAtStep`. Used by **Choreographed Sparks** ("Copy target creature spell you control. The copy gains haste and 'At the beginning of the end step, sacrifice this token.'"). Pair with `Targets.CreatureSpellYouControl`. `copies` (a `DynamicAmount`, default 1) makes *N independent copies*, each retargeted separately (CR 707.10c) — **Thousand-Year Storm** ("copy it for each other instant and sorcery spell you've cast before it this turn") pairs `Effects.CopyTargetSpell(TriggeringEntity, copies = DynamicAmounts.spellsCastThisTurn(filter = InstantOrSorcery, beforeTriggeringSpell = true))` with `Triggers.you.casts(InstantOrSorcery)`. A count of zero or less makes no copies at all; a spell with no targets, or one with no legal replacement target, gets its copies without a prompt (inheriting the original's targets).
 - `CopyEachTargetSpellEffect()` (facade `Effects.CopyEachTargetSpell(keywordsForCopy, removeLegendary)`) — copy **every** spell targeted by this effect (one copy per `ChosenTarget.Spell` in context), pausing per copy that has targets so the controller may choose new targets (CR 707.10). Pair with an unlimited spell target requirement — `Targets.AnyNumberOfInstantOrSorcerySpells`. Used by Display of Power ("Copy any number of target instant and/or sorcery spells."). Spells flagged `cantBeCopied` are skipped.
-- `CopySpellForEachOtherPossibleTargetEffect(spell = EffectTarget.TriggeringEntity, candidates)` (facade `Effects.CopySpellForEachOtherPossibleTarget(candidates, spell)`) — copy a spell once **for each other object it could target**, auto-assigning every copy a distinct one of those objects (CR 707.10d). The Zada family: **Mirrorwing Dragon**, Zada, Hedron Grinder. This is the 707.10d shape, **not** 707.10c — no decision is made, so contrast `CopyTargetSpellEffect(copies = …)`, which makes N copies and pauses to let the controller *choose* new targets for each. The candidate set is every object matching `candidates` that is a legal target for **every** instance of the word "target" on the spell (the per-requirement legal-target sets are intersected, so hexproof/shroud/protection and per-requirement filters are honored — "any creature that couldn't be targeted … is just ignored"), minus the objects the spell already targets (the "each **other** …" of the card text). Each copy fills *all* of the spell's target slots with its one object; a modal spell keeps its chosen modes with its per-mode targets rewritten the same way (700.2g — "a different mode cannot be chosen"). **`candidates` and control of the copies both resolve against the copied spell's controller, not this ability's controller** — which is what makes one effect express both wordings: Zada's "each other creature **you** control" (a trigger only its own controller's casts fire) and Mirrorwing's "each other creature **they** control … **that player** copies" (a trigger watching every seat), so `GameObjectFilter.Creature.youControl()` reads as "creature the caster controls". Cast Murder on an opponent's Mirrorwing Dragon and *your* creatures each get a Murder. The copies aren't cast, so cast triggers (including the Dragon's own) don't refire; a spell flagged `cantBeCopied` yields no copies. Pair with `Triggers.anyPlayerCasts(InstantOrSorcery, requires = setOf(SpellCastPredicate.TargetsOnlySource))`.
+- `CopySpellForEachOtherPossibleTargetEffect(spell = EffectTarget.TriggeringEntity, candidates)` (facade `Effects.CopySpellForEachOtherPossibleTarget(candidates, spell)`) — copy a spell once **for each other object it could target**, auto-assigning every copy a distinct one of those objects (CR 707.10d). The Zada family: **Mirrorwing Dragon**, Zada, Hedron Grinder. This is the 707.10d shape, **not** 707.10c — no decision is made, so contrast `CopyTargetSpellEffect(copies = …)`, which makes N copies and pauses to let the controller *choose* new targets for each. The candidate set is every object matching `candidates` that is a legal target for **every** instance of the word "target" on the spell (the per-requirement legal-target sets are intersected, so hexproof/shroud/protection and per-requirement filters are honored — "any creature that couldn't be targeted … is just ignored"), minus the objects the spell already targets (the "each **other** …" of the card text). Each copy fills *all* of the spell's target slots with its one object; a modal spell keeps its chosen modes with its per-mode targets rewritten the same way (700.2g — "a different mode cannot be chosen"). **`candidates` and control of the copies both resolve against the copied spell's controller, not this ability's controller** — which is what makes one effect express both wordings: Zada's "each other creature **you** control" (a trigger only its own controller's casts fire) and Mirrorwing's "each other creature **they** control … **that player** copies" (a trigger watching every seat), so `GameObjectFilter.Creature.youControl()` reads as "creature the caster controls". Cast Murder on an opponent's Mirrorwing Dragon and *your* creatures each get a Murder. The copies aren't cast, so cast triggers (including the Dragon's own) don't refire; a spell flagged `cantBeCopied` yields no copies. Pair with `Triggers.anyPlayer.casts(InstantOrSorcery, requires = setOf(SpellCastPredicate.TargetsOnlySource))`.
 - `CopyTargetTriggeredAbilityEffect(target)` — copy a triggered ability on the stack.
 - `CopyTargetSpellOrAbilityEffect(target, copies = DynamicAmount.Fixed(1))` (facade `Effects.CopyTargetSpellOrAbility(target, copies)`) — copy whichever kind of stack object the single target resolved to, dispatching at resolution by inspecting the stack entity's component: an instant/sorcery **spell** copies via the spell-copy path, a **triggered ability** via `CopyTargetTriggeredAbilityEffect`'s logic, an **activated ability** by cloning its `ActivatedAbilityOnStackComponent`. You may choose new targets for the copy (CR 707.10c). Pair with `Targets.InstantSorcerySpellOrAbility` (one requirement admitting all four kinds). Generalizes the two single-kind copy effects into the "copy target instant/sorcery spell, activated ability, or triggered ability" clause — **Return the Favor**. `copies` (a `DynamicAmount`, default 1) makes *N independent copies* of an **ability** — pass `DynamicAmount.XValue` for "copy target activated or triggered ability you control X times" (**Gogo, Master of Mimicry**); the executor pauses per copy that has targets so each is retargeted independently, and a no-target ability is copied all the same. `copies` > 1 is honored on both branches — the spell branch forwards it to `CopyTargetSpellEffect.copies`. An ability instance tagged "can't be copied" (`ActivatedAbility.cantBeCopied`, see §9/§11) yields no copies (CR 707.10e).
 - `CopyNextSpellCastEffect(copies = 1, spellFilter = InstantOrSorcery)` (facade `Effects.CopyNextSpellCast(copies, spellFilter)`) — when its controller next casts a spell matching `spellFilter` this turn, create `copies` copies of it. `spellFilter` is a `GameObjectFilter` matched against the spell as it's cast, so the default "instant or sorcery" (Howl of the Horde) can be widened — e.g. `GameObjectFilter.Creature` for "copy the next creature spell." The filter is evaluated with the rider's **own source** in the predicate context, so it may be source-relative — Loki Laufeyson's "with mana value less than or equal to Loki's power" is `InstantOrSorcery.manaValueAtMostDynamic(DynamicAmounts.sourcePower())`, resolved as the spell is cast (which is when the delayed trigger's condition is checked), not when the rider was created. Consumed after one matching cast. Non-matching casts leave the entry waiting. A source-relative filter keeps working after the source **leaves the battlefield** (CR 608.2h / 113.7a — the rider exists independently of its source): `ZoneTransitionService` stamps the departing permanent's `EntitySnapshot` onto the pending entry, and `PredicateEvaluator.evaluateDynamicCap` threads it into the reconstructed `EffectContext` so `DynamicAmountEvaluator`'s existing last-known-information branch resolves the cap. The stamp happens at **departure**, not at rider creation, so a source that grew after arming the rider caps on the larger value — Loki armed at 2/1, powered up to 4/3, then killed still copies a mana-value-4 spell.
@@ -2764,7 +2763,7 @@ Types that are not effects no longer carry the `Effect` suffix, so the rule has 
   designation. Distinct from the *unlock cost* special action (CR 709.5e, `ModifyUnlockCost` below) — the
   resolving controller pays nothing. Routes through the same shared `RoomDoorUnlocker` the special action uses,
   so it emits the identical `DoorUnlockedEvent`/`RoomFullyUnlockedEvent` and a face's "When you unlock this
-  door" trigger (`Triggers.OnDoorUnlocked`, CR 709.5h) fires either way. Pair with an **up-to-one** target
+  door" trigger (`Triggers.self.doorUnlocked()`, CR 709.5h) fires either way. Pair with an **up-to-one** target
   Room restricted to one with a locked door —
   `TargetObject(optional = true, filter = TargetFilter(GameObjectFilter.Any.withSubtype(Subtype.ROOM).youControl()).hasLockedDoor())`
   — so a fully-unlocked Room is never a legal target and the controller may choose no target. If the Room has
@@ -2785,7 +2784,7 @@ Types that are not effects no longer carry the `Effect` suffix, so the rule has 
   chooses lock or unlock as it resolves, then the chosen door effect runs against the same outer `target`. Pair
   with a single **"target Room you control"** `TargetObject` (no locked/unlocked restriction — either choice can
   always do something on a Room you control).
-- `PhaseOutEffect(target = Self)` — phase the target permanent out (Rule 702.26); facade `Effects.PhaseOut(target)`. While phased out it's treated as though it doesn't exist (excluded from `getBattlefield`, so from projection, triggers, combat, targeting, and SBAs) and phases back in before its controller's next untap step. Indirect phasing (attached Auras/Equipment) is handled automatically. Used as the `suffer` branch of a pay-or-phase trigger (Vaporous Djinn: "phases out unless you pay {U}{U}" = `PayOrSufferEffect(Costs.pay.Mana(...), Effects.PhaseOut())`), or as the reaction of a "becomes the target of a spell, it phases out" trigger (King of the Oathbreakers = `Triggers.BecomesTargetOfSpell(...)` + `Effects.PhaseOut(EffectTarget.TriggeringEntity)`). The matching phase-in moment is the `Triggers.PhasesIn(filter?)` trigger (see Triggers below).
+- `PhaseOutEffect(target = Self)` — phase the target permanent out (Rule 702.26); facade `Effects.PhaseOut(target)`. While phased out it's treated as though it doesn't exist (excluded from `getBattlefield`, so from projection, triggers, combat, targeting, and SBAs) and phases back in before its controller's next untap step. Indirect phasing (attached Auras/Equipment) is handled automatically. Used as the `suffer` branch of a pay-or-phase trigger (Vaporous Djinn: "phases out unless you pay {U}{U}" = `PayOrSufferEffect(Costs.pay.Mana(...), Effects.PhaseOut())`), or as the reaction of a "becomes the target of a spell, it phases out" trigger (King of the Oathbreakers = `Triggers.a(...).becomesTarget(spellsOnly = true)` + `Effects.PhaseOut(EffectTarget.TriggeringEntity)`). The matching phase-in moment is the `Triggers.a(filter?).phasesIn()` trigger (see Triggers below).
 - `PhaseOutUntilLeavesEffect(target, tapOnPhaseIn)` / `Effects.PhaseOutUntilLeaves(target, tapOnPhaseIn)` — phase the target out **indefinitely, linked to the effect's source** (the phasing analogue of `ExileUntilLeaves`): it skips its untap-step phase-in and stays out until the source leaves the battlefield. Pair with `Effects.PhaseInLinkedToSource()` on the source's `LeavesBattlefield` trigger, which phases everything the source phased out this way back in (tapping those flagged `tapOnPhaseIn`). The link lives on the phased-out permanent (`PhasedOutComponent.phaseInOnSourceLeaves`); indirect phasing carries Auras/Equipment out with the creature. This is Oubliette (ETB phase-out + leaves-trigger phase-in, tapped).
 - `MarkExileOnDeathEffect(target)` — replace next "to graveyard" with "to exile".
 - `Effects.AddCombatPhase` / `Effects.AddMainPhase` — the two **atomic extra-phase** effects
@@ -3415,7 +3414,7 @@ one-off pipeline belongs inline in the card file via `Effects.Pipeline { }` (§5
   those creatures" — e.g. **Valgavoth's Onslaught**: `RepeatDynamicTimes(XValue, manifestDread(true))`
   → `GatherCards(EnteredViaThisResolution, "manifested")` → `AddCountersToCollection("manifested",
   +1/+1, XValue)`. The trailing `EmitManifestedDreadEventEffect` tail (internal — not for card
-  authors) fires `Triggers.WheneverYouManifestDread` (see Triggers) once per manifest-dread,
+  authors) fires `Triggers.you.manifestsDread()` (see Triggers) once per manifest-dread,
   carrying the card put into the graveyard this way so a "this way" payoff can pull it back out
   (**Paranormal Analyst**).
 
@@ -3548,7 +3547,7 @@ one-off pipeline belongs inline in the card file via `Effects.Pipeline { }` (§5
   the player choose to exile three cards from their graveyard or sacrifice a Food (each gated by a
   feasibility check), with `afterEffect` appended to whichever mode is taken (Bushy Bodyguard,
   Treetop Sentries). Each mode also ends with `Effects.Foraged()`, the marker that fires
-  `Triggers.WheneverYouForage`; because it sits *inside* the mode, a declined or infeasible forage
+  `Triggers.you.forages()`; because it sits *inside* the mode, a declined or infeasible forage
   emits nothing. For forage as a *cost*, use `Costs.Forage()` / `Costs.additional.Forage` (§3).
   **"you may forage. *If you do*, X" is `Effects.May(forage(afterEffect = X))`** — one resolution.
   Reserve `ReflexiveTriggerEffect` for the cards that print "*When* you do, X" (Curious Forager),
@@ -4106,7 +4105,7 @@ A resolving nonpermanent spell retains its stack instance through serialized eff
   exiled card's owner manifests dread", CR 701.62) = `ForEachPlayer(Player.OwnersOfLinkedExile,
   Patterns.Library.manifestDread().effects)`.
 - `Player.ControllerOfTargetingSource` — the controller of the spell or ability that **targeted**
-  the source: the other end of a `Triggers.BecomesTarget*` trigger, read off
+  the source: the other end of a `Triggers.self.becomesTarget()*` trigger, read off
   `TriggerContext.targetingSourceEntityId` (the same field ward uses). Nothing else reaches it — a
   becomes-target trigger binds the *targeted object* as its triggering entity, so
   `Player.TriggeringPlayer` is null unless the thing targeted was itself a player, and
@@ -4129,7 +4128,7 @@ A resolving nonpermanent spell retains its stack instance through serialized eff
   damage to this creature, that source's controller mills that many cards") =
   `Patterns.Library.mill(DynamicAmount.ContextProperty(TRIGGER_DAMAGE_AMOUNT),
   EffectTarget.ControllerOfTriggeringEntity)`; Mesmeric Orb is the same shape on
-  `Triggers.becomesUntapped`.
+  `Triggers.<subject>.becomesUntapped()`.
 - `handle.asPlayer` (`Player.BoundVariable(name)`) — the player chosen for a named target, read in a
   player-typed slot: `CardSource.FromZone(Zone.HAND, opponent.asPlayer)`,
   `DynamicAmounts.damageReceivedThisTurn(opponent.asPlayer)`. It shares `EffectTarget.BoundVariable`'s
@@ -4146,11 +4145,11 @@ A resolving nonpermanent spell retains its stack instance through serialized eff
 - `EnchantedPermanent` — same `AttachedToComponent` resolution as `EnchantedCreature`, but type-agnostic; use for
   Auras that enchant non-creature permanents (e.g. Wellspring enchants a land: "gain control of enchanted land").
 - `AttachedToTriggeringPermanent` — the permanent on the other end of an attachment trigger; requires
-  the state-aware `resolveTarget(target, state)` overload. Inside `Triggers.becomesAttached` it is the
+  the state-aware `resolveTarget(target, state)` overload. Inside `Triggers.<subject>.becomesAttached(to, controller)` it is the
   host the triggering attachment became attached to, resolved **live** from the triggering object's
   `AttachedToComponent` (so a "for as long as attached" payoff does nothing if the attachment already
   left — CR 611.2b): Eriette ("gain control of that permanent"), Assimilation Aegis ("that creature
-  becomes a copy …"). Inside `Triggers.becomesUnattached` it is instead the host it came **off**,
+  becomes a copy …"). Inside `Triggers.<subject>.becomesUnattached(from, controller)` it is instead the host it came **off**,
   read from the id recorded on the trigger (`TriggerContext.unattachedFromEntityId`) — a live read
   would be wrong there, since by resolution the link is gone or, if the unattach was caused by
   equipping the attachment elsewhere, already re-pointed at the new host. That recorded id is scoped
@@ -4621,7 +4620,7 @@ This is the player-arm prerequisite for the planned composable mixed `TargetUnio
 
 - `.youControl()` / `.controlledByOpponent()` — control predicate.
 - `.controlledByActivePlayer()` — controlled by the player whose turn it is (`ControllerPredicate.ControlledByActivePlayer`).
-  Pairs with `Triggers.EachUpkeep` for "at the beginning of each player's upkeep, do X to permanents that player
+  Pairs with `Triggers.anyPlayer.beginningOf(Step.UPKEEP)` for "at the beginning of each player's upkeep, do X to permanents that player
   controls" (the upkeep player is the active player — Temporal Distortion).
 - `.targetPlayerControls(target)` — controlled by a referenced player. Resolves `EffectTarget`
   bindings/context targets, plus `EffectTarget.ControllerOfTriggeringEntity` (controller of the
@@ -4941,7 +4940,7 @@ This is the player-arm prerequisite for the planned composable mixed `TargetUnio
   or toughness — a noncreature spell — never matches the two P/T forms rather than reading the missing
   characteristic as 0. Combine them under `CardPredicate.Or` for a multi-characteristic clause:
   **Talion, the Kindly Lord** ("Whenever an opponent casts a spell with mana value, power, or toughness
-  equal to the chosen number") pairs `Triggers.opponentCasts(...)` with an `Or` of all three, each
+  equal to the chosen number") pairs `Triggers.anOpponent.casts(...)` with an `Or` of all three, each
   reading `DynamicAmount.CastChoice(ChoiceSlot.CHOSEN_NUMBER)` — the number recorded by its
   `EntersWithChoice(ChoiceType.NUMBER, minValue = 1, maxValue = 10)` as-enters replacement.
 - `.manaValueIsOdd()` / `.manaValueIsEven()` — mana-value parity (zero is even). Pair with modal
@@ -5048,7 +5047,7 @@ This is the player-arm prerequisite for the planned composable mixed `TargetUnio
   backed by `StatePredicate.BecameTappedOnlyOnceThisTurn`, reading the per-permanent tap counter the `tap()`
   atom maintains (`HasBecomeTappedComponent`). Live, so it is the half of Captain America, Living Legend's
   printed intervening-`if` that CR 603.4 re-checks at resolution; the trigger-time half rides on the tap event
-  as `Triggers.becomesTapped(firstTimeEachTurn = true)`. Aimed at the triggering permanent it is
+  as `Triggers.self.becomesTapped(firstTimeEachTurn = true)`. Aimed at the triggering permanent it is
   `Conditions.TriggeringPermanentBecameTappedOnlyOnceThisTurn`. "Became tapped" is a transition (CR 701.26a),
   so a permanent that entered the battlefield tapped counts zero and does not match; the count resets on a zone
   change (CR 400.7) and expires at the turn boundary with no cleanup entry.
@@ -5320,7 +5319,7 @@ work for abilities-on-stack (which carry no `CardComponent`).
   `stampCreator = true`. Backs "tokens created with this creature" (Tetravus reabsorbing its own Tetravite
   tokens), which `"{filter} tokens you control"` can't express when several sources mint the same token.
   Yields false for non-tokens / unstamped tokens / no source context. Also gates a **trigger filter**:
-  `Triggers.leavesBattlefield(filter = GameObjectFilter.Any.createdBySource(), binding = ANY)` is
+  `Triggers.<subject>.leaves(to, excludeTo, excludeSacrifice)` / `.dies()` is
   "when *the token* leaves the battlefield" (Dance of Many), where the permanent that leaves is the
   token rather than the ability's own source. There the stamp is read from the leaving permanent's
   last-known information (`EntitySnapshot.createdBy`), because a token is swept out of existence
@@ -5576,6 +5575,78 @@ costs, and records the chosen face's name in turn history.
 
 `triggeredAbility { trigger; effect; target?; triggerZone?/triggerZones?; interveningIf?; triggerRestriction?; optional?; elseEffect?; checkOnNextState?; dealsDamageBeforeResolve?; controlledByTriggeringEntityController?; oncePerTurn?; effectOncePerTurn?; triggersOnce? }`.
 
+### Writing a trigger: subject, then verb
+
+A trigger reads the way its Oracle text does — a **subject**, then a **verb**:
+
+```kotlin
+trigger = Triggers.self.enters()                                   // When this creature enters
+trigger = Triggers.another(Creature.youControl().nontoken()).dies() // Whenever another nontoken creature you control dies
+trigger = Triggers.a(Land.youControl()).enters()                   // Landfall
+trigger = Triggers.attached.attacks()                              // Whenever equipped creature attacks
+trigger = Triggers.oneOrMore(Creature.youControl()).die()          // Whenever one or more creatures you control die
+trigger = Triggers.you.casts(GameObjectFilter.Noncreature)         // Whenever you cast a noncreature spell
+trigger = Triggers.anOpponent.draws()                              // Whenever an opponent draws a card
+trigger = Triggers.you.beginningOf(Step.UPKEEP)                    // At the beginning of your upkeep
+```
+
+**The subject decides the `TriggerBinding`**; a card never passes one, and `FacadeBoundaryTest`
+rejects a raw `TriggerSpec(...)` in a card.
+
+| Subject | Printed wording | Binding |
+|---|---|---|
+| `Triggers.self` | "this creature", "~", "this card" | `SELF` |
+| `Triggers.attached` | "enchanted / equipped creature" | `ATTACHED` |
+| `Triggers.a(filter?)` | "a creature you control" — the source counts | `ANY` |
+| `Triggers.another(filter?)` | "another creature you control" — the source doesn't | `OTHER` |
+| `Triggers.oneOrMore(filter)` / `oneOrMoreOther(filter)` | "one or more …" — a batch (CR 603.2c), once per simultaneous batch | `ANY` |
+| `Triggers.you` / `anOpponent` / `anyPlayer` / `chosenOpponent` / `player(p)` | a player does something | `ANY` |
+
+"A" vs "another" is load-bearing: a landfall trigger on a *land* only sees itself enter under `a`.
+Copy the subject the Oracle text prints. `Triggers.self.matching(filter)` narrows the self subject
+("when this creature, if it's a …").
+
+**Object verbs** (`self` / `attached` / `a` / `another`): `enters(from?)`, `leaves(to?, excludeTo?,
+excludeSacrifice?, asCraftMaterial?)`, `dies()`, `changesZone(from?, to?, excludeTo?)` (non-battlefield
+moves), `attacks(requires)`, `blocks(attackerFilter?, minBlockedAttackers?)`, `becomesBlocked()`,
+`blocksOrBecomesBlocked(by?, oncePerCombat?)`, `attacksAndIsntBlocked()`, `dealsDamage(to, damageType,
+requireExcess, batch, requires)`, `dealsCombatDamage(to, …)`, `isDealtDamage(by)`,
+`damagedCreatureDies(dying?)`, `becomesTapped(reason?, firstTimeEachTurn?)`, `becomesUntapped()`,
+`turnedFaceUp()`, `transforms(intoBackFace?)`, `phasesIn()`, `becomesTarget(of?, byYou, byOpponent,
+spellsOnly, abilitiesOnly, firstTimeEachTurn, includeSpellTargets, includePlayerTargets)`,
+`getsCounters(type?, by?, firstTimeEachTurn?, batch?)`, `losesCounters(type?, lastRemoved?,
+byDamagePrevention?)`, `trains()`, `champions()`, `crews()`, `saddles()`, `becomesSaddled()`,
+`becomesRenowned()`, `becomesPlotted()`, `explores(revealed?)`, `connives()`, `becomesAttached(to,
+controller)`, `becomesUnattached(from, controller)`, `controlChanges(direction, toOpponent?)`,
+`isCast()`, `isCycled()`, `isDiscarded()`, `isSacrificed()`, `doorUnlocked()`, and on `attached`
+only, `beginningOf(step)` (the enchanted creature's controller's step) and
+`hasAbilityActivatedWithoutTap(by)`.
+
+**Batch verbs** (`oneOrMore` / `oneOrMoreOther`): `enter()`, `die()`, `leaveWithoutDying()`,
+`dealCombatDamageToAPlayer()`, `dealCombatDamageToYou()`, `becomeTapped(reason?)`, `becomeUntapped()`,
+`putIntoYourGraveyard(fromLibrary?)`, `leaveYourGraveyard()`, `putIntoExile(from, includeTokens)`.
+For `enter()` and `die()`, a filter with no controller predicate means "you control"; say
+`.youControl()` anyway.
+
+**Player verbs**: `beginningOf(step)`, `casts(spell, requires)`, `castsNth(n, spell?)`,
+`choosesTargets()`, `putsSpellOrAbilityOnStack()`, `activatesAbility(of?, targeting?, loyalty,
+minLoyaltyRemoved, exhaust, includeManaAbilities, excludeManaAbilities, withoutTapInCost)`,
+`attackTriggersAbility()`, `attacks(with?, minAttackers?)` (you declare attackers), `isAttacked(…)`,
+`isDealtDamage(by?, damageType?)`, `isDealtCombatDamage()`, `draws(exceptFirstInDrawStep?)`,
+`drawsNth(n)`, `revealsFirstDraw(card?)`, `discards(card?, batch?)`, `cycles()`, `playsLand(…)`,
+`permanentTurnedFaceUp(filter)`, `searchesLibrary()`, `shufflesLibrary()`, `gainsLife(firstTimeEachTurn?)`,
+`losesLife()`, `gainsOrLosesLife()`, `losesGame()`, `sacrifices(filter, batch?)`,
+`sacrificesAnother(filter)`, `taps(filter, batch?)`, `tapsLandForMana(land?)`, `createsToken(token?)`,
+`exploits(nontoken?)`, `commitsCrime()`, `givesAGift()`, `scries()`, `surveils()`, `scriesOrSurveils()`,
+`discovers()`, `collectsEvidence()`, `forages()`, `solvesACase()`, `clashes(andWins?)`,
+`isTemptedByTheRing(bearerChosen?)`, `bends(types)`, `manifestsDread()`, `expends(n)`,
+`fullyUnlocksARoom()`, `sagaChapterResolves(finalOnly?)`.
+
+A verb whose event has no room for the subject's filter (`transforms`, `crews`, …) rejects a
+filtered subject rather than dropping the filter; SELF-only verbs (`isCast`, `becomesPlotted`, …)
+reject other subjects. `Triggers.or(a, b, …)` still joins same-binding triggers. The catalog below
+keeps the engine notes for each shape, written in these spellings.
+
 **`interveningIf` vs `triggerRestriction` — a trigger's condition, and which of the two checks it
 gets.** Both are checked when the trigger event occurs, and only one of them is checked again as the
 ability resolves. Pick by reading the printed line; there is no safe default, which is why there is
@@ -5756,31 +5827,30 @@ What that gets you, uniformly, for targeted and untargeted triggers alike:
 
 ### Zone change
 
-Named sugar for the common cases; reach for `entersBattlefield(...)` / `leavesBattlefield(...)`
-for any other (filter, binding, to/excludeTo) combination.
+The shapes in this family, with their engine notes.
 
 **Enters the battlefield**
 
-- `EntersBattlefield` — SELF, no filter. ("When this permanent enters.")
-- `OtherCreatureEnters` — OTHER binding, filter = `Creature.youControl()`.
-- `LandYouControlEnters` — landfall: **ANY** binding, filter = `Land.youControl()`. No landfall
+- `Triggers.self.enters()` — SELF, no filter. ("When this permanent enters.")
+- `Triggers.another(GameObjectFilter.Creature.youControl()).enters()` — OTHER binding, filter = `Creature.youControl()`.
+- `Triggers.a(GameObjectFilter.Land.youControl()).enters()` — landfall: **ANY** binding, filter = `Land.youControl()`. No landfall
   ability prints "another", so a land carrying one sees itself enter; a card that *does* print
-  "another land you control" wants `entersBattlefield(..., TriggerBinding.OTHER)` instead.
-- `entersBattlefield(filter, binding)` — factory. Covers face-down filters,
+  "another land you control" wants `Triggers.a(filter).enters()` / `Triggers.another(filter).enters()` instead.
+- `Triggers.a(filter).enters()` / `Triggers.another(filter).enters()` — Covers face-down filters,
   ANY-binding tribal scopes, permanent-you-control scopes, enchantment-enters scopes (Eerie), etc.
 
 **Leaves / dies**
 
-- `LeavesBattlefield` — SELF, any destination.
-- `Dies` — SELF, battlefield → graveyard.
-- `AnyCreatureDies` — ANY binding, filter = `Creature`.
-- `YourCreatureDies` — ANY binding, filter = `Creature.youControl()`. **Per-creature**: fires
+- `Triggers.self.leaves()` — SELF, any destination.
+- `Triggers.self.dies()` — SELF, battlefield → graveyard.
+- `Triggers.a(GameObjectFilter.Creature).dies()` — ANY binding, filter = `Creature`.
+- `Triggers.a(GameObjectFilter.Creature.youControl()).dies()` — ANY binding, filter = `Creature.youControl()`. **Per-creature**: fires
   once for *each* matching death, so a board wipe fires it once per creature. Use this for
   "whenever another creature you control dies, …" (Unruly Mob, Rot Shambler, Pitiless Plunderer).
-- `OneOrMoreCreaturesYouControlDie(filter = Creature, excludeSelf = false)` — **batched** death
+- `Triggers.oneOrMore(filter).die()` / `Triggers.oneOrMoreOther(filter).die()` — **batched** death
   trigger: fires **at most once per event batch** regardless of how many matching creatures died
   simultaneously. This is the correct shape for "whenever one or more [other] creatures you control
-  die, …" (Vengeful Townsfolk) — a per-creature `YourCreatureDies` would over-count on mass removal.
+  die, …" (Vengeful Townsfolk) — a per-creature `Triggers.a(GameObjectFilter.Creature.youControl()).dies()` would over-count on mass removal.
   Set `excludeSelf = true` for the "*other* creatures" wording (the source's own death is excluded).
   Detected specially by `TriggerDetector` (grouped by each dying creature's last-known controller).
   Rule 603.10 "look back in time": if the source itself dies in the *same* batch as another
@@ -5791,31 +5861,31 @@ for any other (filter, binding, to/excludeTo) combination.
   also kills the source. The `filter`'s controller predicate scopes which players' deaths count
   (mirrors the enter-batch trigger): no predicate means "you control"; `.opponentControls()` scopes
   to your opponents.
-- `OneOrMoreCreaturesAnOpponentControlsDie(filter = Creature)` — the opponent-scoped variant of the
-  above (sugar for `OneOrMoreCreaturesYouControlDie(filter.opponentControls())`): batched, fires at
+- `Triggers.oneOrMore(filter.opponentControls()).die()` — the opponent-scoped variant of the
+  above (sugar for `Triggers.oneOrMore(filter).die()` / `Triggers.oneOrMoreOther(filter).die()`): batched, fires at
   most once per death batch, so it pairs with `oncePerTurn` without over-firing on mass removal —
   "Whenever one or more creatures your opponents control die, …" (Spiteful Banditry). A per-creature
-  `leavesBattlefield(binding = ANY)` would create a separate trigger per death, and simultaneous
+  `Triggers.<subject>.leaves(to, excludeTo, excludeSacrifice)` / `.dies()` would create a separate trigger per death, and simultaneous
   deaths each fire before the once-per-turn marker is set, so the batched form is required here.
-- `OneOrMoreCreaturesDie(filter = Creature)` — the unscoped variant: "Whenever one or more creatures
+- `Triggers.oneOrMore(filter.anyController()).die()` — the unscoped variant: "Whenever one or more creatures
   die, …" (any player's creatures, regardless of controller — Chainsaw). Sugar for
-  `OneOrMoreCreaturesYouControlDie(filter.anyController())`; same batched once-per-death-batch
+  `Triggers.oneOrMore(filter).die()` / `Triggers.oneOrMoreOther(filter).die()`; same batched once-per-death-batch
   semantics. The filter carries `ControllerPredicate.ControlledByAny`, which `TriggerDetector`
   treats as "every controller's deaths count". Use `.anyController()` on a `GameObjectFilter` to
   widen any controller-scoped filter the same way.
-- `PutIntoGraveyardFromBattlefield` — SELF, same event shape as `Dies`; rename
+- `Triggers.self.dies()` — SELF, same event shape as `Triggers.self.dies()`; rename
   clarifies non-creature intent (artifact / enchantment going to yard).
-- `ExiledAsCraftMaterial` — SELF, battlefield → exile, gated on `requireCraftMaterial = true`:
+- `Triggers.self.leaves(to = Zone.EXILE, asCraftMaterial = true)` — SELF, battlefield → exile, gated on `requireCraftMaterial = true`:
   "When this permanent is exiled from the battlefield while you're activating a craft ability"
   (Market Gnome, CR 702.167). Fires **only** when this permanent was one of the materials chosen
   to pay a Craft cost, not on removal-style exile and not on the crafted card's own self-exile.
   The matcher reads the triggering `ZoneChangeEvent.craftMaterial` flag, which the Craft cost
   payment (`CostHandler.payCraftCost`) stamps via `ZoneEntryOptions(craftMaterial = true)` on each
   material's exile — every other exile leaves it `false`. Because the exile goes to `EXILE`, not
-  `GRAVEYARD`, a companion `Dies` trigger on the same card does **not** also fire (exile is not
+  `GRAVEYARD`, a companion `Triggers.self.dies()` trigger on the same card does **not** also fire (exile is not
   death). The SELF leaves-battlefield detector honors the `requireCraftMaterial` gate too, so a
   non-craft exile fires neither.
-- `leavesBattlefield(filter, to?, excludeTo?, binding, excludeSacrifice = false)` — factory.
+- `Triggers.<subject>.leaves(to, excludeTo, excludeSacrifice)` / `.dies()` —
   `to = GRAVEYARD` gives a "dies" variant scoped beyond the named constants (other tribal deaths,
   any-controller deaths); `excludeTo = GRAVEYARD` gives "leaves without dying"
   (Three Tree Scribe shape); leaving both null gives "leaves to any zone."
@@ -5841,25 +5911,23 @@ for any other (filter, binding, to/excludeTo) combination.
 
 ### Combat
 
-Named sugar for the common cases; reach for `attacks(...)` / `blocks(...)` /
-`becomesBlocked(...)` for any other combination, and use the [AttackPredicate]
-sealed set for attack-time facts beyond the basics.
+The shapes in this family, with their engine notes.
 
 **Attacks (per-attacker `AttackEvent`)**
 
-- `Attacks` — SELF, no filter. ("When this creature attacks.")
-- `AttacksFirstTimeEachTurn` — SELF sugar for
-  `attacks(requires = setOf(AttackPredicate.FirstTimeEachTurn))`. ("Whenever this
+- `Triggers.self.attacks()` — SELF, no filter. ("When this creature attacks.")
+- `Triggers.self.attacks(setOf(AttackPredicate.FirstTimeEachTurn))` — SELF sugar for
+  `Triggers.<subject>.attacks(requires)`. ("Whenever this
   creature attacks for the first time each turn.")
-- `attacks(filter?, requires?, binding?)` — factory. Covers ANY-binding scopes,
+- `Triggers.<subject>.attacks(requires)` — Covers ANY-binding scopes,
   type-filtered scopes (creature-you-control, nontoken-creature-you-control),
   and attack-time predicates (alone, Battalion-style count gates, first-attack-each-turn).
 
 **Attacks (player-level)**
 
-- `YouAttack` — when you declare attackers (player-level, ANY binding).
-- `YouAttackWithFilter(filter)` — when you attack with ≥1 matching attacker.
-- `CreaturesAttackYou` — defender side; fires once per `AttackersDeclaredEvent`,
+- `Triggers.you.attacks()` — when you declare attackers (player-level, ANY binding).
+- `Triggers.you.attacks(with)` — when you attack with ≥1 matching attacker.
+- `Triggers.you.isAttacked()` — defender side; fires once per `AttackersDeclaredEvent`,
   not per attacker. Excludes creatures attacking a planeswalker you control
   (CR 509.1b). Pair with `DynamicAmounts.creaturesAttackingYou()` for
   attacker-count payoffs (e.g., Orim's Prayer).
@@ -5870,17 +5938,17 @@ sealed set for attack-time facts beyond the basics.
   you control**" reading that CR 509.1b denies by default. Tomik, Wielder of Law uses both. Note the
   widened flag changes only which attackers *count*; the trigger still belongs to the defending player,
   and battles are never included.
-- `CreaturesAttackYourOpponent` — the "your opponents are attacked" counterpart of
-  `CreaturesAttackYou`; fires once per `AttackersDeclaredEvent` when one or more declared
+- `Triggers.anOpponent.isAttacked()` — the "your opponents are attacked" counterpart of
+  `Triggers.you.isAttacked()`; fires once per `AttackersDeclaredEvent` when one or more declared
   attackers have one of the controller's opponents (a player, via `state.getOpponents`) as
   their defender. Like the "you" side, attacks against an opponent's planeswalker don't count.
   Party Dude level 3.
 
 **Blocks**
 
-- `Blocks` — SELF, no filter.
-- `BecomesBlocked` — SELF, no filter.
-- `blocks(filter?, binding?, attackerFilter?, minBlockedAttackers = 1)` — factory. `filter`
+- `Triggers.self.blocks()` — SELF, no filter.
+- `Triggers.self.becomesBlocked()` — SELF, no filter.
+- `Triggers.<subject>.blocks(attackerFilter, minBlockedAttackers)` — `filter`
   constrains the blocker (ANY binding). `attackerFilter` constrains the blocked attacker — requires
   SELF binding for "whenever this creature blocks a [filter]" (Skystinger);
   combining it with ANY is rejected (the ANY detector branch ignores `attackerFilter`).
@@ -5890,11 +5958,11 @@ sealed set for attack-time facts beyond the basics.
   once per blocked attacker, and is SELF-only and incompatible with `attackerFilter` (both rejected
   at construction). Read off `BlockersDeclaredEvent`, so a block count raised mid-combat by a later
   effect does not re-check it.
-- `becomesBlocked(filter?, binding?)` — factory. Replaces the old
+- `Triggers.<subject>.becomesBlocked()` — Replaces the old
   `CreatureYouControlBecomesBlocked` and `FilteredBecomesBlocked(filter)`.
-- `BlocksOrBecomesBlockedBy(filter, binding = SELF, oncePerCombat = false)` — either direction,
+- `Triggers.<subject>.blocksOrBecomesBlocked(by, oncePerCombat)` — either direction,
   partner-filtered; sole consumer of `BlocksOrBecomesBlockedByEvent`. Prefer
-  `blocks(attackerFilter=...)` when only the blocking direction should fire. `binding = ATTACHED`
+  `Triggers.<subject>.blocks(attackerFilter, minBlockedAttackers)` when only the blocking direction should fire. `binding = ATTACHED`
   fires off the equipped/enchanted creature's combat (Barrow-Blade — "Whenever equipped creature
   blocks or becomes blocked by a creature, …"); the partner is the `TriggeringEntity`.
   Fires **once per matching partner** by default, which is the singular printed wording
@@ -5903,20 +5971,20 @@ sealed set for attack-time facts beyond the basics.
   match. Getting this wrong is easy to miss — two identical stat-modifying resolutions collapse
   into one continuous effect, so the P/T can read correctly while two copies of the ability sit on
   the stack. Assert the stack, not just the projection.
-- `BlocksOrBecomesBlocked(binding = SELF)` — the **partner-less** printed wording ("whenever this
+- `Triggers.self.blocksOrBecomesBlocked()` — the **partner-less** printed wording ("whenever this
   creature blocks or becomes blocked"), which is a *single* trigger however many creatures the
   source ends up paired with (Spitting Slug) — CR 509.3a/509.3c. Same event with `oncePerCombat = true`, which
   collapses the per-partner firings to the first match; the `TriggeringEntity` is that first
-  partner, so a card that says "it" still has one. Reach for `BlocksOrBecomesBlockedBy` only when
+  partner, so a card that says "it" still has one. Reach for `Triggers.<subject>.blocksOrBecomesBlocked(by, oncePerCombat)` only when
   the card names a partner quality — that one fires once per matching partner.
-- `AttacksAndIsntBlocked` — SELF or ATTACHED. Fires once per attacker that reaches end of
+- `Triggers.self.attacksAndIsntBlocked()` — SELF or ATTACHED. Fires once per attacker that reaches end of
   Declare Blockers with no creatures declared as blockers (CR 509.3g). Backed by
   `BecomesUnblockedEvent` matched against `BlockersDeclaredEvent`. Used for
   Merchant Ship: "Whenever this creature attacks and isn't blocked, you gain 2 life."
   `.copy(binding = TriggerBinding.ATTACHED)` fires off the enchanted/equipped creature's
   unblocked attack (Farrel's Mantle); the combat relationships are read against that creature and
   it becomes the `TriggeringEntity`, while the trigger's source stays the Aura/Equipment. Like
-  `BlocksOrBecomesBlockedBy`, ATTACHED is resolved in the main `TriggerDetector` loop rather than
+  `Triggers.<subject>.blocksOrBecomesBlocked(by, oncePerCombat)`, ATTACHED is resolved in the main `TriggerDetector` loop rather than
   `AttachmentTriggerDetector`, because "isn't blocked" is a *negative* over the whole block map,
   which the per-entity attachment path never sees.
   (An ANY-binding filtered variant still isn't wired in `TriggerMatcher`.)
@@ -5929,7 +5997,7 @@ Adding a new attack-time mechanic is one new sealed-case + one matcher branch
   combat (`attacker count == 1`). Replaces the old `alone: Boolean` axis.
 - `AttackPredicate.AttackerCountAtLeast(n)` — at least N creatures total were
   declared as attackers (counting the trigger's attacker). Battalion shape:
-  `attacks(requires = setOf(AttackerCountAtLeast(3)))` on a `SELF` binding.
+  `Triggers.<subject>.attacks(requires)` on a `SELF` binding.
 - `AttackPredicate.FirstTimeEachTurn` — the trigger's own attacker is attacking for
   the **first time this turn** (it had not been declared as an attacker in an earlier
   combat phase this turn). Per-attacker, so use it on a `SELF` binding. Fires once on
@@ -5937,7 +6005,7 @@ Adding a new attack-time mechanic is one new sealed-case + one matcher branch
   same turn (extra-combat effects like Fear of Missing Out); the window resets each
   turn. The "first time" fact is captured on `AttackersDeclaredEvent.firstTimeAttackers`
   at declaration — post-declaration state can't tell, since the per-turn attacker set
-  already includes the just-declared attacker. Prefer the `AttacksFirstTimeEachTurn`
+  already includes the just-declared attacker. Prefer the `Triggers.self.attacks(setOf(AttackPredicate.FirstTimeEachTurn))`
   sugar.
 - `AttackPredicate.DefenderIsPlayer` — the trigger's own attacker was declared as
   attacking a **player**, not a planeswalker or a battle (CR 508.1). A creature only
@@ -5947,7 +6015,7 @@ Adding a new attack-time mechanic is one new sealed-case + one matcher branch
   Per-attacker, so use it on a `SELF` binding (or an ANY-binding attacker filter that
   already scopes to one creature). The defender kind is fixed at declaration, so it's
   captured on `AttackersDeclaredEvent.attackersAgainstPlayer` rather than re-derived
-  from post-declaration state. Prefer the `AttacksAnOpponent` sugar.
+  from post-declaration state. Prefer the `Triggers.self.attacks(setOf(AttackPredicate.DefenderIsPlayer))` sugar.
 - `AttackPredicate.AttackedAlongsideGreaterPower` — the trigger's own attacker was declared
   **and** at least one *other* declared attacker has strictly greater **projected** power than
   the trigger's attacker (CR 702.149a, the Training condition). Unlike the count/stamped-set
@@ -5961,103 +6029,94 @@ Examples:
 
 ```kotlin
 // "Whenever this creature attacks alone"
-Triggers.attacks(requires = setOf(AttackPredicate.Alone))
+Triggers.self.attacks(setOf(AttackPredicate.Alone))
 
 // "Whenever this creature attacks for the first time each turn" (prefer the sugar)
-Triggers.AttacksFirstTimeEachTurn
+Triggers.self.attacks(setOf(AttackPredicate.FirstTimeEachTurn))
 
 // "Whenever this creature attacks a player / an opponent" — does NOT fire on attacking a
 // planeswalker or battle (Kaalia of the Vast). Prefer the sugar:
-Triggers.AttacksAnOpponent
-// equivalent to: Triggers.attacks(requires = setOf(AttackPredicate.DefenderIsPlayer))
+Triggers.self.attacks(setOf(AttackPredicate.DefenderIsPlayer))
+// equivalent to: Triggers.self.attacks(setOf(AttackPredicate.DefenderIsPlayer))
 
 // "Whenever a nontoken creature you control attacks"
-Triggers.attacks(
-    filter = GameObjectFilter.Creature.youControl().nontoken(),
-    binding = TriggerBinding.ANY,
-)
+Triggers.a(GameObjectFilter.Creature.youControl().nontoken()).attacks()
 
 // "Whenever a Beast becomes blocked"
-Triggers.becomesBlocked(
-    filter = GameObjectFilter.Creature.withSubtype("Beast"),
-    binding = TriggerBinding.ANY,
-)
+Triggers.a(GameObjectFilter.Creature.withSubtype("Beast")).becomesBlocked()
 
 // "Whenever this creature blocks a creature with flying" (Skystinger)
-Triggers.blocks(attackerFilter = GameObjectFilter.Creature.withKeyword(Keyword.FLYING))
+Triggers.self.blocks(attackerFilter = GameObjectFilter.Creature.withKeyword(Keyword.FLYING))
 ```
 
-`Triggers.BecomesBlocked` (SELF, **unfiltered**) fires **once** when the creature becomes
+`Triggers.self.becomesBlocked()` (SELF, **unfiltered**) fires **once** when the creature becomes
 blocked, regardless of how many creatures block it, with `triggeringEntityId` = the source —
 so `DynamicAmounts.numberOfBlockers()` reads this creature's blocker count (Rampage). The
-**filtered** SELF form `becomesBlocked(filter = …)` instead fires once per matching blocker,
+**filtered** SELF form `Triggers.<subject>.becomesBlocked()` instead fires once per matching blocker,
 with `triggeringEntityId` = that blocker (Flanking gives each blocker -1/-1).
 
 ### Damage
 
-Named sugar for the common cases; reach for the factories for any other combination of axes.
+The shapes in this family, with their engine notes.
 
-- `DealsDamage` — source deals any damage (SELF binding).
-- `DealsCombatDamageToPlayer` — source deals combat damage to a player (SELF binding).
-- `DealsCombatDamageToCreature` — source deals combat damage to a creature (SELF binding).
+- `Triggers.self.dealsDamage()` — source deals any damage (SELF binding).
+- `Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)` — source deals combat damage to a player (SELF binding).
+- `Triggers.self.dealsCombatDamage(Recipient.AnyCreature)` — source deals combat damage to a creature (SELF binding).
 - `OneOrMoreDealCombatDamageToPlayerEvent(sourceFilter = Creature)` — **offensive combat-damage batch trigger** (ANY binding, via `TriggerSpec(OneOrMoreDealCombatDamageToPlayerEvent(sourceFilter = …), TriggerBinding.ANY)`): "whenever one or more [matching creatures] you control deal combat damage to a player" (Kastral, the Windcrested: `Creature.withSubtype("Bird")`; Vaan, Street Thief: `Creature.withAnySubtype("Scout", "Pirate", "Rogue")`). The `sourceFilter`'s "you control" is implied by the observer — don't add `youControl()`. Fires **once per damaged player** (a batch per recipient): multiple matching creatures hitting the same player still fire a single trigger, but two players each dealt damage fire it twice. `Player.TriggeringPlayer` resolves to the damaged player, so effects can reference "that player" (e.g. exile the top card of *that player's* library); `triggeringEntityId` is an arbitrary matching source for that player (batch triggers don't dispatch per source). **Face-down attackers count**: a face-down permanent is a creature (CR 708.2), so it satisfies an unfiltered "creatures you control" batch trigger, and the filtered forms are decided by `PredicateEvaluator`'s face-down masking alone (subtypes, colors, mana value and **name** all read as absent) — which is why Yarus, Roar of the Old Gods can filter *to* `Creature.faceDown()` while Kastral's `Bird` filter still excludes one.
-- `OneOrMoreCreaturesDealCombatDamageToYou(filter = Creature)` — **defensive combat-damage batch trigger** (ANY binding): "whenever one or more creatures deal combat damage to *you*" (Witch-king of Angmar). Fires at most once per combat-damage batch regardless of how many creatures connected with the trigger's controller (the damaged player), unlike per-source `dealsDamage(recipient = You, …)` which fires once per connecting creature. The triggering entity is an arbitrary matching damager. Pair with the `dealtCombatDamageToSourceControllerThisTurn()` filter for "...each opponent sacrifices a creature that dealt combat damage to you this turn".
-- `OneOrMoreOpponentsDealtCombatDamage` — **opponent-keyed combat-damage batch trigger** (ANY binding, event `OpponentsDealtCombatDamageEvent`): "when(ever) one or more of your opponents are dealt combat damage" (Fblthp, Impossibly Lost). Keyed on the *damaged players*, not the sources: it fires at most once per combat-damage step however many of the controller's opponents (CR 102.3 — teammates excluded) were hit and whoever controlled the damage sources, unlike `OneOrMoreDealCombatDamageToPlayerEvent`, which fires once per damaged player for sources you control. `triggeringPlayerId` is one damaged opponent. "During your turn" is `triggerRestriction = Conditions.IsYourTurn`.
-- `TakesDamage` — source is dealt damage by any source (SELF binding).
-- `YouAreDealtDamage` — "whenever **you're** dealt damage" (ANY binding, `DealsDamageEvent(recipient = You)` with no source filter): the *player*-recipient sibling of `TakesDamage`, firing for **every** source — a creature in combat, a burn spell, an artifact. Fires once per damage instance; read the amount with `DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)` for "put that many counters" payoffs (Sun Droplet), and the triggering entity is the damage source.
+- `Triggers.oneOrMore(filter).dealCombatDamageToYou()` — **defensive combat-damage batch trigger** (ANY binding): "whenever one or more creatures deal combat damage to *you*" (Witch-king of Angmar). Fires at most once per combat-damage batch regardless of how many creatures connected with the trigger's controller (the damaged player), unlike per-source `Triggers.<subject>.dealsDamage(to, damageType, requireExcess, batch, requires)` / `.dealsCombatDamage(to, …)` which fires once per connecting creature. The triggering entity is an arbitrary matching damager. Pair with the `dealtCombatDamageToSourceControllerThisTurn()` filter for "...each opponent sacrifices a creature that dealt combat damage to you this turn".
+- `Triggers.anOpponent.isDealtCombatDamage()` — **opponent-keyed combat-damage batch trigger** (ANY binding, event `OpponentsDealtCombatDamageEvent`): "when(ever) one or more of your opponents are dealt combat damage" (Fblthp, Impossibly Lost). Keyed on the *damaged players*, not the sources: it fires at most once per combat-damage step however many of the controller's opponents (CR 102.3 — teammates excluded) were hit and whoever controlled the damage sources, unlike `OneOrMoreDealCombatDamageToPlayerEvent`, which fires once per damaged player for sources you control. `triggeringPlayerId` is one damaged opponent. "During your turn" is `triggerRestriction = Conditions.IsYourTurn`.
+- `Triggers.self.isDealtDamage()` — source is dealt damage by any source (SELF binding).
+- `Triggers.you.isDealtDamage()` — "whenever **you're** dealt damage" (ANY binding, `DealsDamageEvent(recipient = You)` with no source filter): the *player*-recipient sibling of `Triggers.self.isDealtDamage()`, firing for **every** source — a creature in combat, a burn spell, an artifact. Fires once per damage instance; read the amount with `DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)` for "put that many counters" payoffs (Sun Droplet), and the triggering entity is the damage source.
 - `Recipient.EnchantedPlayer` — the *player* the observing ability's source Aura is attached to (CR
   303 enchant player), the enchant-player sibling of `Recipient.EnchantedCreature`. Scoped by the
   source's **attachment**, not its controller, so a Curse on one opponent can't fire off damage dealt to
   another — which is exactly why `Recipient.Opponent` is wrong for a Curse. Matches only when the
   attachment target is a player. Pair it with `binding = TriggerBinding.ANY` + a `sourceFilter`, **not**
   with `ATTACHED`: the source filter is what binds the *damaging creature* as the triggering entity, which
-  is what "that creature's controller" needs. Curse of Hospitality: `Triggers.dealsDamage(damageType =
-  DamageType.Combat, recipient = Recipient.EnchantedPlayer, sourceFilter = GameObjectFilter.Creature,
-  binding = TriggerBinding.ANY)`, paying off into `GrantMayPlayFromExileEffect(recipient =
+  is what "that creature's controller" needs. Curse of Hospitality: `Triggers.a(GameObjectFilter.Creature).dealsCombatDamage(Recipient.EnchantedPlayer)`, paying off into `GrantMayPlayFromExileEffect(recipient =
   EffectTarget.ControllerOfTriggeringEntity)`.
-- `damageDealtToYou(sourceFilter?, damageType?)` — the source-restricted factory behind `YouAreDealtDamage`: "whenever [a source matching the filter] deals damage to you". `GameObjectFilter.Creature` for Aurification's "whenever a creature deals damage to you"; `GameObjectFilter.Any.opponentControls()` for Farsight Mask's "a source an opponent controls". "You" is the controller of the permanent bearing the trigger, and the filter's controller-relative predicates resolve against that same player. **Always use one of these two for a player-recipient damage trigger** — an ANY-bound `Recipient.You` trigger is routed only to the dedicated damage-to-you index, which binds the damage *source* as the triggering entity.
-- `CreatureDealtDamageByThisDies` — Etali / Sengir / Soul Collector shape (SELF binding): "whenever a creature dealt damage by *this* permanent this turn dies". Uses `CreatureDealtDamageBySourceDiesEvent(sourceFilter = null)`.
-- `CreatureDealtDamageByAttachedDies` — the same event and the same tracker read one object further out (ATTACHED binding): "whenever a creature dealt damage by **equipped** creature this turn dies" (Scythe of the Wretched). The only difference from `CreatureDealtDamageByThisDies` is where the damage tracker is read from — the attachment target rather than the permanent bearing the trigger. The attachment is resolved when the creature *dies*, not when the damage was dealt, so an Equipment that moved between the two moments still fires (its own ruling) and an unattached Equipment never fires. Use this for any Equipment or Aura whose text says "equipped creature" / "enchanted creature" in a dealt-damage-dies trigger; `creatureDealtDamageBySourceDies(filter)` is for the board-wide observer wording instead.
-- `creatureDealtDamageByThisDies(dyingFilter)` — `CreatureDealtDamageByThisDies` narrowed to a dying creature matching `dyingFilter` (Trophy Hunter: "whenever a creature **with flying** dealt damage by this creature this turn dies"). `dyingFilter` is orthogonal to `sourceFilter` — the latter narrows the damaging source, this one the creature that died — and is matched against the dying creature's last-known information as it left the battlefield (CR 608.2h), through the same LKI-aware predicate path as an ordinary dies trigger. Trophy Hunter's ruling turns on exactly that: the check is whether the creature *currently* has flying, so one that lost it before dying doesn't count and one that gained it does.
-- `creatureDealtDamageBySourceDies(sourceFilter)` — observer variant (ANY binding): "whenever another creature dealt damage this turn by [a source matching the filter] dies" (Shelob, Child of Ungoliant: `GameObjectFilter.Creature.youControl().withSubtype("Spider")`). The damaging source is matched against the filter using last-known info from when it dealt the damage (a `DamagedBySourcesThisTurnComponent` snapshot of the source's controller + subtypes), so a source that died in the same combat still qualifies (CR 608.2h). Only the filter's controller predicate, required subtype, and creature requirement are evaluated against the snapshot.
+- `Triggers.you.isDealtDamage(by, damageType)` — the source-restricted factory behind `Triggers.you.isDealtDamage()`: "whenever [a source matching the filter] deals damage to you". `GameObjectFilter.Creature` for Aurification's "whenever a creature deals damage to you"; `GameObjectFilter.Any.opponentControls()` for Farsight Mask's "a source an opponent controls". "You" is the controller of the permanent bearing the trigger, and the filter's controller-relative predicates resolve against that same player. **Always use one of these two for a player-recipient damage trigger** — an ANY-bound `Recipient.You` trigger is routed only to the dedicated damage-to-you index, which binds the damage *source* as the triggering entity.
+- `Triggers.self.damagedCreatureDies()` — Etali / Sengir / Soul Collector shape (SELF binding): "whenever a creature dealt damage by *this* permanent this turn dies". Uses `CreatureDealtDamageBySourceDiesEvent(sourceFilter = null)`.
+- `Triggers.attached.damagedCreatureDies()` — the same event and the same tracker read one object further out (ATTACHED binding): "whenever a creature dealt damage by **equipped** creature this turn dies" (Scythe of the Wretched). The only difference from `Triggers.self.damagedCreatureDies()` is where the damage tracker is read from — the attachment target rather than the permanent bearing the trigger. The attachment is resolved when the creature *dies*, not when the damage was dealt, so an Equipment that moved between the two moments still fires (its own ruling) and an unattached Equipment never fires. Use this for any Equipment or Aura whose text says "equipped creature" / "enchanted creature" in a dealt-damage-dies trigger; `Triggers.a(sourceFilter).damagedCreatureDies()` is for the board-wide observer wording instead.
+- `Triggers.self.damagedCreatureDies(dying)` — `Triggers.self.damagedCreatureDies()` narrowed to a dying creature matching `dyingFilter` (Trophy Hunter: "whenever a creature **with flying** dealt damage by this creature this turn dies"). `dyingFilter` is orthogonal to `sourceFilter` — the latter narrows the damaging source, this one the creature that died — and is matched against the dying creature's last-known information as it left the battlefield (CR 608.2h), through the same LKI-aware predicate path as an ordinary dies trigger. Trophy Hunter's ruling turns on exactly that: the check is whether the creature *currently* has flying, so one that lost it before dying doesn't count and one that gained it does.
+- `Triggers.a(sourceFilter).damagedCreatureDies()` — observer variant (ANY binding): "whenever another creature dealt damage this turn by [a source matching the filter] dies" (Shelob, Child of Ungoliant: `GameObjectFilter.Creature.youControl().withSubtype("Spider")`). The damaging source is matched against the filter using last-known info from when it dealt the damage (a `DamagedBySourcesThisTurnComponent` snapshot of the source's controller + subtypes), so a source that died in the same combat still qualifies (CR 608.2h). Only the filter's controller predicate, required subtype, and creature requirement are evaluated against the snapshot.
 
 **Factories** (axes: `damageType` × `recipient` × `sourceFilter` × `binding` for outgoing; `source` × `binding` for incoming):
 
-- `dealsDamage(damageType?, recipient?, sourceFilter?, binding?, requireExcess?, batch?, requires?)` — outgoing-damage trigger. Pick `DamageType.{Any,Combat,NonCombat}`, `Recipient.{Any,AnyPlayer,AnyPlayerOrPlaneswalker,AnyCreature,…}`, an optional source `GameObjectFilter`, and `TriggerBinding.{SELF,ANY,ATTACHED}`. Covers "deals combat damage to a player or planeswalker", "creature you control deals combat damage to a player" (`binding = ANY` + `sourceFilter = Creature.youControl()`), "nontoken creature you control deals…" (`.nontoken()`), and "enchanted creature deals damage" (`binding = ATTACHED`). The conjunctive `requires` set adds damage-event facts: `DamagePredicate.SourceSoleTargetIsRecipient` requires the source to have exactly one chosen target and that target to be this damage recipient, so "a spell that targets only a single creature deals damage to that creature" does not fire for the same spell's collateral damage (Imodane, the Pyrohammer). Pass `requireExcess = true` to fire only when the recipient was dealt damage past lethal (CR 120.4a) — Fall of Cair Andros' "is dealt excess noncombat damage". Pass `batch = true` for recipient-side **"one or more" batch wording** (CR 603.2c) — "whenever one or more creatures your opponents control are dealt excess noncombat damage" (Magmatic Galleon): simultaneous damage to several matching recipients (a sweeper, combat damage to multiple blockers) fires the trigger once per event batch instead of once per damaged recipient. Batch is only honored on the `binding = ANY` observer path; SELF/ATTACHED damage triggers are inherently per-source-event. Read the excess via `DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_EXCESS_DAMAGE_AMOUNT)`. For a creature recipient, read its toughness *as it last existed at damage time* (CR 603.10 LKI — survives a lethal hit) via `DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_RECIPIENT_TOUGHNESS)`; pair it with a `triggerRestriction` such as `Conditions.CompareAmounts(ContextProperty(TRIGGER_DAMAGE_AMOUNT), ComparisonOperator.EQ, ContextProperty(TRIGGER_RECIPIENT_TOUGHNESS))` for "deals noncombat damage to a creature equal to that creature's toughness" (Taii Wakeen, Perfect Shot). On the observer path (`binding = ANY` + `sourceFilter`), `EffectTarget.TriggeringEntity` is the damage SOURCE, but the recipient toughness is still carried in this context key. **Dead recipients:** combat-damage state-based actions run *before* trigger detection, so a recipient killed by the same damage has already left the battlefield (a token has ceased to exist). The recipient is then read from `DamageDealtEvent.targetLastKnown`, the snapshot taken as the damage was dealt (CR 603.10), so "a creature an opponent controls is dealt damage" still fires for the killing blow. That snapshot answers types, subtypes, keywords, token-ness and controller; a filter asking anything else of a departed recipient (colour, P/T) fails closed.
-- `takesDamage(source?, binding?)` — incoming-damage trigger. `source` is a `GameObjectFilter` (default `Any`) evaluated against the damage source as it is when the trigger is detected — its card's own characteristics if it has already left the battlefield, which is why Tephraderm's "a spell" is `GameObjectFilter.InstantOrSorcery` rather than an on-the-stack test (the spell has finished resolving by then). Pair it with `TriggerBinding.{SELF,ATTACHED}`. Covers "damaged by a creature/spell" and "enchanted creature is dealt damage" (`binding = ATTACHED`, Frozen Solid shape). For "*you* are dealt damage" use `YouAreDealtDamage` / `damageDealtToYou` above — the recipient is a player, not this permanent.
-- `becomesTapped(binding?, filter?, reason?, firstTimeEachTurn?)` — "becomes tapped" trigger. `BecomesTapped` is the SELF constant; pass `binding = TriggerBinding.ANY` with an optional `filter: GameObjectFilter` for "whenever a [filter] becomes tapped" (e.g. `GameObjectFilter.CreatureOrLand` — Temporal Distortion). The filter is matched against the tapped permanent via projected state. Fires once **per** tapped permanent. `reason: TapReason?` restricts *why* it became tapped — see `BecomesTappedForTeamwork` below; the default `null` is cause-agnostic and matches every tap. Use `null` for "any cause", **never `TapReason.UNSPECIFIED`** — that would match only the taps the engine has not classified, a predicate whose meaning shrinks the day a new cause is named, and it renders as no clause at all.
-- `firstTimeEachTurn = true` on `becomesTapped` / `OneOrMoreBecomeTapped` — the **per-permanent** "if it's the first time that creature has become tapped this turn" rider (Captain America, Living Legend: `becomesTapped(binding = ANY, filter = Creature.youControl(), firstTimeEachTurn = true)` + `triggerRestriction = Conditions.IsYourTurn` + `Effects.Untap(EffectTarget.TriggeringEntity)`; "during your turn" narrows the trigger event, so it is a `triggerRestriction` rather than an `interveningIf`, while the "first time" clause — the actual CR 603.4 intervening-`if` — rides on the event pattern and is therefore checked only when the tap happens). **Not the same as `oncePerTurn`**, which caps the *ability* at one firing per turn: with several creatures tapping in one turn, `firstTimeEachTurn` fires once for *each* of them while `oncePerTurn` answers only the first. Reach for this one whenever the printed "first time" clause names the object rather than the ability; the two are composable and can be used together. The window is a *becomes tapped* window, not a *was tapped* one — a permanent that **entered the battlefield tapped** never became tapped (CR 701.26a), so it is never stamped and tapping it later that turn is still its first time. Backed by `TappedEvent.firstThisTurn`, computed in the `tap()` atom — the chokepoint every tap transition goes through, regeneration's tap included (CR 701.19a: "its controller taps it"), with `TapEventEnforcementTest` banning new bypasses — against the permanent's `HasBecomeTappedComponent(lastBecameTappedTurn)` turn stamp, read *before* the stamp is updated. The stamp is a turn number rather than a cleanup-cleared marker — the window closes on its own when `turnNumber` moves — and is stripped on a zone change (CR 400.7: what comes back is a new object). **It is only half of the clause.** "if it's the first time…" is a printed intervening-`if` (CR 603.4), which is checked when the trigger event occurs *and again as the ability resolves*; this rider carries the first check only. Pair it with `interveningIf = Conditions.TriggeringPermanentBecameTappedOnlyOnceThisTurn` (backed by `StatePredicate.BecameTappedOnlyOnceThisTurn`, which reads the same tap counter *live*) for the second — untap the creature and tap it again in response and it has become tapped twice by resolution, so the ability is removed from the stack, which a frozen copy of the event flag could never produce. **Cannot be combined with the batch wording:** `TapEvent` rejects `batch = true` alongside it, because no printed card pairs them and the two readings of that pairing are not distinguishable without one — the first real card decides, rather than inheriting a guess.
-- `BecomesTappedForTeamwork` — SELF constant for "Whenever this becomes tapped **to pay a teamwork cost**" (CR 702.194a — Agent Maria Hill). The cause travels on the tap event as `TapReason` (`com.wingedsheep.sdk.scripting.TapReason`), matched by `EventPattern.TapEvent.reason`. **This is a separate axis from `tapper`**: a teamwork tap, an attack tap and a crew tap are all performed by the permanent's own controller, so `tappedById` is identical across them and only the cause separates them. `TapReason` has exactly two members today — `UNSPECIFIED` (every tap site the engine has not been taught to name: attacking, crew, saddle, convoke, mana abilities, a `{T}` activation cost, any "tap target permanent" effect) and `TEAMWORK`, stamped by `CastSpellHandler` on the creatures tapped to pay an optional additional cost declared under `ChoiceSlot.TEAMWORK` (`TapReason.forChoiceSlot`). **Deliberately under-claimed:** an unclassified tap reports `UNSPECIFIED` rather than being guessed at, because a wrong cause makes a reading card fire wrongly while a missing one only makes it stay silent. To name a further cause, add the enum constant, pass it at that cause's tap site (`AttackPhaseManager` for attack taps, `CrewVehicleHandler` for crew, …), and test both directions. Most taps run through the `tap()` atom, which takes the reason as a parameter, but two mana-payment sites build a `TappedEvent` by hand and never call it (`ManaPaymentWindow.tapOrSacrifice` and `ManaPaymentContinuationResumer`, for a `{T}, Sacrifice this` source) — a mana-flavoured cause has to be stamped in all three.
-- `OneOrMoreBecomeTapped(filter, reason?)` — the **batch** sibling of `becomesTapped` (`TapEvent(batch = true)`, ANY binding). Fires at most **once** per simultaneous tap batch (CR 603.2c) regardless of how many matching permanents were tapped together — "Whenever one or more [filter] become tapped" (Deeproot Pilgrimage: `OneOrMoreBecomeTapped(GameObjectFilter.Creature.withSubtype("Merfolk").youControl().nontoken())`). Tapping several matching permanents at once (attacking, convoke, crew) makes a single payoff, not one per permanent. Handled by `TriggerDetector.detectTapBatchTriggers`; the per-event path skips batch taps. The first matching tapped permanent is bound as the triggering entity. `reason: TapReason?` narrows the batch by tap cause exactly as on `becomesTapped` — a batch that also holds taps from an unnamed cause is *narrowed* to the matching ones rather than discarded, the same way `YouTap`'s batch narrows by tapper, so the trigger still fires once on the matching subset.
-- `YouTap(filter, batch = false)` — "Whenever **you tap** an untapped [filter]" (`TapEvent(tapper = Player.You)`, ANY binding) — the Wilds of Eldraine cluster: Hylda of the Icy Crown, Icewrought Sentry, Solitary Sanctuary with `GameObjectFilter.Creature.opponentControls()`, and Sharae of Numbing Depths with `batch = true` for the "one or more" wording. Two things separate it from `becomesTapped`: (1) **attribution** — the tap must have been *caused by* the trigger's controller. `TappedEvent.tappedById` carries the causing player: the `tap()` atom defaults it to the tapped permanent's own controller (right for every cost payment, mana ability, crew/saddle, and the turn-based attack tap), and the tap *effect* executors override it with the effect's `controllerId`. Because a per-player loop rebinds `controllerId`, a spell you control that instructs an **opponent** to tap their own creature is *their* tap and does not fire a `You` pattern (Tangle Wire; per the printed rulings). (2) **"untapped" is intrinsic** — tapping is a transition (CR 701.26a, "only untapped permanents can be tapped"), so an already-tapped permanent emits no tap event and needs no condition. `batch = true` routes to `TriggerDetector.detectTapBatchTriggers`, which narrows the batch to the taps this controller caused before applying the filter; pair it with `oncePerTurn` for "This ability triggers only once each turn".
-- `OneOrMoreBecomeUntapped(filter)` — the **untap** analogue of `OneOrMoreBecomeTapped` (`UntapEvent(batch = true)`, ANY binding). Fires at most **once** per untap step (CR 603.2c) — "Whenever you untap one or more [filter] **during your untap step** …" — even though the untap step untaps all your permanents at once (The Millennium Calendar: `OneOrMoreBecomeUntapped(GameObjectFilter.Permanent.youControl())`). Handled by `TriggerDetector.detectUntapBatchTriggers`; the per-event `UntapEvent` path (`BecomesUntapped`) skips batch untaps. **Unlike the tap batch, it exposes the untapped permanents as the trigger's captured collection** (`IterationSpace.TRIGGER_CAPTURED_COLLECTION`), so a "put **that many** counters" payoff reads the count with `Effects.AddDynamicCounters(type, DynamicAmount.DistinctEntitiesInCollections(listOf(TRIGGER_CAPTURED_COLLECTION)), EffectTarget.Self)`. The **"during your untap step" scoping is intrinsic** — the detector fires it only for the active player's untap-step untaps (not instant-speed untaps, nor an opponent-turn Seedborn Muse untap of your permanents), so no `triggerRestriction` is needed. (An untap-step untap advances straight to upkeep before any player gets priority, so an `IsInStep(UNTAP)` intervening-if would read false at detection time — hence the restriction lives in the detector.)
+- `Triggers.<subject>.dealsDamage(to, damageType, requireExcess, batch, requires)` / `.dealsCombatDamage(to, …)` — outgoing-damage trigger. Pick `DamageType.{Any,Combat,NonCombat}`, `Recipient.{Any,AnyPlayer,AnyPlayerOrPlaneswalker,AnyCreature,…}`, an optional source `GameObjectFilter`, and `TriggerBinding.{SELF,ANY,ATTACHED}`. Covers "deals combat damage to a player or planeswalker", "creature you control deals combat damage to a player" (`binding = ANY` + `sourceFilter = Creature.youControl()`), "nontoken creature you control deals…" (`.nontoken()`), and "enchanted creature deals damage" (`binding = ATTACHED`). The conjunctive `requires` set adds damage-event facts: `DamagePredicate.SourceSoleTargetIsRecipient` requires the source to have exactly one chosen target and that target to be this damage recipient, so "a spell that targets only a single creature deals damage to that creature" does not fire for the same spell's collateral damage (Imodane, the Pyrohammer). Pass `requireExcess = true` to fire only when the recipient was dealt damage past lethal (CR 120.4a) — Fall of Cair Andros' "is dealt excess noncombat damage". Pass `batch = true` for recipient-side **"one or more" batch wording** (CR 603.2c) — "whenever one or more creatures your opponents control are dealt excess noncombat damage" (Magmatic Galleon): simultaneous damage to several matching recipients (a sweeper, combat damage to multiple blockers) fires the trigger once per event batch instead of once per damaged recipient. Batch is only honored on the `binding = ANY` observer path; SELF/ATTACHED damage triggers are inherently per-source-event. Read the excess via `DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_EXCESS_DAMAGE_AMOUNT)`. For a creature recipient, read its toughness *as it last existed at damage time* (CR 603.10 LKI — survives a lethal hit) via `DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_RECIPIENT_TOUGHNESS)`; pair it with a `triggerRestriction` such as `Conditions.CompareAmounts(ContextProperty(TRIGGER_DAMAGE_AMOUNT), ComparisonOperator.EQ, ContextProperty(TRIGGER_RECIPIENT_TOUGHNESS))` for "deals noncombat damage to a creature equal to that creature's toughness" (Taii Wakeen, Perfect Shot). On the observer path (`binding = ANY` + `sourceFilter`), `EffectTarget.TriggeringEntity` is the damage SOURCE, but the recipient toughness is still carried in this context key. **Dead recipients:** combat-damage state-based actions run *before* trigger detection, so a recipient killed by the same damage has already left the battlefield (a token has ceased to exist). The recipient is then read from `DamageDealtEvent.targetLastKnown`, the snapshot taken as the damage was dealt (CR 603.10), so "a creature an opponent controls is dealt damage" still fires for the killing blow. That snapshot answers types, subtypes, keywords, token-ness and controller; a filter asking anything else of a departed recipient (colour, P/T) fails closed.
+- `Triggers.<subject>.isDealtDamage(by)` — incoming-damage trigger. `source` is a `GameObjectFilter` (default `Any`) evaluated against the damage source as it is when the trigger is detected — its card's own characteristics if it has already left the battlefield, which is why Tephraderm's "a spell" is `GameObjectFilter.InstantOrSorcery` rather than an on-the-stack test (the spell has finished resolving by then). Pair it with `TriggerBinding.{SELF,ATTACHED}`. Covers "damaged by a creature/spell" and "enchanted creature is dealt damage" (`binding = ATTACHED`, Frozen Solid shape). For "*you* are dealt damage" use `Triggers.you.isDealtDamage()` / `Triggers.you.isDealtDamage(by, damageType)` above — the recipient is a player, not this permanent.
+- `Triggers.<subject>.becomesTapped(reason, firstTimeEachTurn)` — "becomes tapped" trigger. `Triggers.self.becomesTapped()` is the SELF constant; pass `binding = TriggerBinding.ANY` with an optional `filter: GameObjectFilter` for "whenever a [filter] becomes tapped" (e.g. `GameObjectFilter.CreatureOrLand` — Temporal Distortion). The filter is matched against the tapped permanent via projected state. Fires once **per** tapped permanent. `reason: TapReason?` restricts *why* it became tapped — see `Triggers.self.becomesTapped(TapReason.TEAMWORK)` below; the default `null` is cause-agnostic and matches every tap. Use `null` for "any cause", **never `TapReason.UNSPECIFIED`** — that would match only the taps the engine has not classified, a predicate whose meaning shrinks the day a new cause is named, and it renders as no clause at all.
+- `firstTimeEachTurn = true` on `Triggers.<subject>.becomesTapped(reason, firstTimeEachTurn)` / `Triggers.oneOrMore(filter).becomeTapped(reason)` — the **per-permanent** "if it's the first time that creature has become tapped this turn" rider (Captain America, Living Legend: `Triggers.<subject>.becomesTapped(reason, firstTimeEachTurn)` + `triggerRestriction = Conditions.IsYourTurn` + `Effects.Untap(EffectTarget.TriggeringEntity)`; "during your turn" narrows the trigger event, so it is a `triggerRestriction` rather than an `interveningIf`, while the "first time" clause — the actual CR 603.4 intervening-`if` — rides on the event pattern and is therefore checked only when the tap happens). **Not the same as `oncePerTurn`**, which caps the *ability* at one firing per turn: with several creatures tapping in one turn, `firstTimeEachTurn` fires once for *each* of them while `oncePerTurn` answers only the first. Reach for this one whenever the printed "first time" clause names the object rather than the ability; the two are composable and can be used together. The window is a *becomes tapped* window, not a *was tapped* one — a permanent that **entered the battlefield tapped** never became tapped (CR 701.26a), so it is never stamped and tapping it later that turn is still its first time. Backed by `TappedEvent.firstThisTurn`, computed in the `tap()` atom — the chokepoint every tap transition goes through, regeneration's tap included (CR 701.19a: "its controller taps it"), with `TapEventEnforcementTest` banning new bypasses — against the permanent's `HasBecomeTappedComponent(lastBecameTappedTurn)` turn stamp, read *before* the stamp is updated. The stamp is a turn number rather than a cleanup-cleared marker — the window closes on its own when `turnNumber` moves — and is stripped on a zone change (CR 400.7: what comes back is a new object). **It is only half of the clause.** "if it's the first time…" is a printed intervening-`if` (CR 603.4), which is checked when the trigger event occurs *and again as the ability resolves*; this rider carries the first check only. Pair it with `interveningIf = Conditions.TriggeringPermanentBecameTappedOnlyOnceThisTurn` (backed by `StatePredicate.BecameTappedOnlyOnceThisTurn`, which reads the same tap counter *live*) for the second — untap the creature and tap it again in response and it has become tapped twice by resolution, so the ability is removed from the stack, which a frozen copy of the event flag could never produce. **Cannot be combined with the batch wording:** `TapEvent` rejects `batch = true` alongside it, because no printed card pairs them and the two readings of that pairing are not distinguishable without one — the first real card decides, rather than inheriting a guess.
+- `Triggers.self.becomesTapped(TapReason.TEAMWORK)` — SELF constant for "Whenever this becomes tapped **to pay a teamwork cost**" (CR 702.194a — Agent Maria Hill). The cause travels on the tap event as `TapReason` (`com.wingedsheep.sdk.scripting.TapReason`), matched by `EventPattern.TapEvent.reason`. **This is a separate axis from `tapper`**: a teamwork tap, an attack tap and a crew tap are all performed by the permanent's own controller, so `tappedById` is identical across them and only the cause separates them. `TapReason` has exactly two members today — `UNSPECIFIED` (every tap site the engine has not been taught to name: attacking, crew, saddle, convoke, mana abilities, a `{T}` activation cost, any "tap target permanent" effect) and `TEAMWORK`, stamped by `CastSpellHandler` on the creatures tapped to pay an optional additional cost declared under `ChoiceSlot.TEAMWORK` (`TapReason.forChoiceSlot`). **Deliberately under-claimed:** an unclassified tap reports `UNSPECIFIED` rather than being guessed at, because a wrong cause makes a reading card fire wrongly while a missing one only makes it stay silent. To name a further cause, add the enum constant, pass it at that cause's tap site (`AttackPhaseManager` for attack taps, `CrewVehicleHandler` for crew, …), and test both directions. Most taps run through the `tap()` atom, which takes the reason as a parameter, but two mana-payment sites build a `TappedEvent` by hand and never call it (`ManaPaymentWindow.tapOrSacrifice` and `ManaPaymentContinuationResumer`, for a `{T}, Sacrifice this` source) — a mana-flavoured cause has to be stamped in all three.
+- `Triggers.oneOrMore(filter).becomeTapped(reason)` — the **batch** sibling of `Triggers.<subject>.becomesTapped(reason, firstTimeEachTurn)` (`TapEvent(batch = true)`, ANY binding). Fires at most **once** per simultaneous tap batch (CR 603.2c) regardless of how many matching permanents were tapped together — "Whenever one or more [filter] become tapped" (Deeproot Pilgrimage: `Triggers.oneOrMore(filter).becomeTapped(reason)`). Tapping several matching permanents at once (attacking, convoke, crew) makes a single payoff, not one per permanent. Handled by `TriggerDetector.detectTapBatchTriggers`; the per-event path skips batch taps. The first matching tapped permanent is bound as the triggering entity. `reason: TapReason?` narrows the batch by tap cause exactly as on `Triggers.<subject>.becomesTapped(reason, firstTimeEachTurn)` — a batch that also holds taps from an unnamed cause is *narrowed* to the matching ones rather than discarded, the same way `Triggers.you.taps(filter, batch)`'s batch narrows by tapper, so the trigger still fires once on the matching subset.
+- `Triggers.you.taps(filter, batch)` — "Whenever **you tap** an untapped [filter]" (`TapEvent(tapper = Player.You)`, ANY binding) — the Wilds of Eldraine cluster: Hylda of the Icy Crown, Icewrought Sentry, Solitary Sanctuary with `GameObjectFilter.Creature.opponentControls()`, and Sharae of Numbing Depths with `batch = true` for the "one or more" wording. Two things separate it from `Triggers.<subject>.becomesTapped(reason, firstTimeEachTurn)`: (1) **attribution** — the tap must have been *caused by* the trigger's controller. `TappedEvent.tappedById` carries the causing player: the `tap()` atom defaults it to the tapped permanent's own controller (right for every cost payment, mana ability, crew/saddle, and the turn-based attack tap), and the tap *effect* executors override it with the effect's `controllerId`. Because a per-player loop rebinds `controllerId`, a spell you control that instructs an **opponent** to tap their own creature is *their* tap and does not fire a `You` pattern (Tangle Wire; per the printed rulings). (2) **"untapped" is intrinsic** — tapping is a transition (CR 701.26a, "only untapped permanents can be tapped"), so an already-tapped permanent emits no tap event and needs no condition. `batch = true` routes to `TriggerDetector.detectTapBatchTriggers`, which narrows the batch to the taps this controller caused before applying the filter; pair it with `oncePerTurn` for "This ability triggers only once each turn".
+- `Triggers.oneOrMore(filter).becomeUntapped()` — the **untap** analogue of `Triggers.oneOrMore(filter).becomeTapped(reason)` (`UntapEvent(batch = true)`, ANY binding). Fires at most **once** per untap step (CR 603.2c) — "Whenever you untap one or more [filter] **during your untap step** …" — even though the untap step untaps all your permanents at once (The Millennium Calendar: `Triggers.oneOrMore(filter).becomeUntapped()`). Handled by `TriggerDetector.detectUntapBatchTriggers`; the per-event `UntapEvent` path (`Triggers.self.becomesUntapped()`) skips batch untaps. **Unlike the tap batch, it exposes the untapped permanents as the trigger's captured collection** (`IterationSpace.TRIGGER_CAPTURED_COLLECTION`), so a "put **that many** counters" payoff reads the count with `Effects.AddDynamicCounters(type, DynamicAmount.DistinctEntitiesInCollections(listOf(TRIGGER_CAPTURED_COLLECTION)), EffectTarget.Self)`. The **"during your untap step" scoping is intrinsic** — the detector fires it only for the active player's untap-step untaps (not instant-speed untaps, nor an opponent-turn Seedborn Muse untap of your permanents), so no `triggerRestriction` is needed. (An untap-step untap advances straight to upkeep before any player gets priority, so an `IsInStep(UNTAP)` intervening-if would read false at detection time — hence the restriction lives in the detector.)
 
 ### Phase & turn
 
-Named sugar for the common `(step, player)` cases; reach for `phase(step, player?, binding?)`
-for anything else (the ATTACHED-binding aura shapes, custom step/player combinations).
+The shapes in this family, with their engine notes.
 
-- `YourUpkeep` — start of your upkeep.
-- `YourDrawStep` — start of your draw step.
-- `EachUpkeep` — every upkeep.
-- `EachOpponentUpkeep` — at each opponent's upkeep.
-- `ChosenOpponentUpkeep` — at the upkeep of the opponent chosen as the source entered (The Rack).
+- `Triggers.you.beginningOf(Step.UPKEEP)` — start of your upkeep.
+- `Triggers.you.beginningOf(Step.DRAW)` — start of your draw step.
+- `Triggers.anyPlayer.beginningOf(Step.UPKEEP)` — every upkeep.
+- `Triggers.anOpponent.beginningOf(Step.UPKEEP)` — at each opponent's upkeep.
+- `Triggers.chosenOpponent.beginningOf(Step.UPKEEP)` — at the upkeep of the opponent chosen as the source entered (The Rack).
   Pairs with `replacementEffect(EntersWithChoice(ChoiceType.OPPONENT))`; the step trigger
   (`StepEvent(UPKEEP, Player.ChosenOpponent)`) fires only on that stored player's upkeep — the
   matcher resolves `Player.ChosenOpponent` against the source's `ChoiceSlot.OPPONENT` and doesn't
   fire until a choice is recorded. Effects/dynamic amounts in the ability can reference
   `Player.ChosenOpponent` / `EffectTarget.PlayerRef(Player.ChosenOpponent)` for "that player".
-- `YourEndStep` — beginning of your end step.
-- `EachEndStep` — beginning of each end step.
-- `BeginCombat` — start of combat on your turn.
-- `EachCombat` — beginning of each combat (any player's turn).
-- `EachEndOfCombat` — at end of combat (CR 511.1), on any player's turn. `YourEndOfCombat` for your
+- `Triggers.you.beginningOf(Step.END)` — beginning of your end step.
+- `Triggers.anyPlayer.beginningOf(Step.END)` — beginning of each end step.
+- `Triggers.you.beginningOf(Step.BEGIN_COMBAT)` — start of combat on your turn.
+- `Triggers.anyPlayer.beginningOf(Step.BEGIN_COMBAT)` — beginning of each combat (any player's turn).
+- `Triggers.anyPlayer.beginningOf(Step.END_COMBAT)` — at end of combat (CR 511.1), on any player's turn. `Triggers.you.beginningOf(Step.END_COMBAT)` for your
   turn only. Pair with `triggerRestriction = Conditions.SourceAttackedOrBlockedThisCombat` for "at end of
   combat, if this creature attacked or blocked this combat, …" (Clockwork Avian).
-- `FirstMainPhase` — start of pre-combat main.
-- `YourPostcombatMain` — start of post-combat main.
+- `Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)` — start of pre-combat main.
+- `Triggers.you.beginningOf(Step.POSTCOMBAT_MAIN)` — start of post-combat main.
 
-**Factory** — `phase(step, player = Player.You, binding = TriggerBinding.ANY)`.
+**Factory** — `Triggers.<player>.beginningOf(step)` / `Triggers.attached.beginningOf(step)`.
 
 ### Aura / equipment
 
@@ -6066,63 +6125,63 @@ the existing event factories with `binding = TriggerBinding.ATTACHED`. Examples 
 in the repo today):
 
 - *Enchanted creature dies* (Demonic Vigor):
-  `Triggers.leavesBattlefield(to = Zone.GRAVEYARD, binding = TriggerBinding.ATTACHED)`
+  `Triggers.attached.dies()`
 - *Enchanted/equipped creature leaves the battlefield* (Curator's Ward):
-  `Triggers.leavesBattlefield(binding = TriggerBinding.ATTACHED)`
+  `Triggers.attached.leaves()`
 - *Enchanted/equipped creature attacks* (Extra Arms, Heart-Piercer Bow, Ordeal of Nylea,
   Chorale of the Void, Atomic Microsizer, Sorcerer Role token):
-  `Triggers.attacks(binding = TriggerBinding.ATTACHED)`
+  `Triggers.attached.attacks()`
 - *Enchanted permanent becomes tapped* (Uncontrolled Infestation, Cryoshatter):
-  `Triggers.becomesTapped(binding = TriggerBinding.ATTACHED)`
+  `Triggers.attached.becomesTapped()`
 - *Equipped creature becomes untapped* (Fishing Pole):
-  `Triggers.becomesUntapped(binding = TriggerBinding.ATTACHED)` — the factory form of the SELF-only
-  `Triggers.BecomesUntapped`. `UntapEvent` carries no filter, so binding is the only axis.
+  `Triggers.attached.becomesUntapped()` — the factory form of the SELF-only
+  `Triggers.self.becomesUntapped()`. `UntapEvent` carries no filter, so binding is the only axis.
 - *Enchanted creature is turned face up* (Fatal Mutation):
-  `Triggers.turnedFaceUp(binding = TriggerBinding.ATTACHED)`
+  `Triggers.attached.turnedFaceUp()`
 - *At the beginning of enchanted creature's controller's `<step>`* (Custody Battle,
-  Lingering Death): `Triggers.phase(step, binding = TriggerBinding.ATTACHED)`
+  Lingering Death): `Triggers.attached.beginningOf(step)`
 - *Enchanted-creature damage triggers* — damage factories already support binding:
-  `Triggers.dealsDamage(binding = TriggerBinding.ATTACHED)` (any damage),
-  `Triggers.dealsDamage(damageType = Combat, recipient = AnyPlayer, binding = TriggerBinding.ATTACHED)`,
-  `Triggers.takesDamage(binding = TriggerBinding.ATTACHED)` (Frozen Solid).
+  `Triggers.attached.dealsDamage()` (any damage),
+  `Triggers.attached.dealsDamage(AnyPlayer, damageType = Combat)`,
+  `Triggers.attached.isDealtDamage()` (Frozen Solid).
 
 ### Cards & draws
 
-- `YouDraw` — when you draw a card. Fires once per individual card drawn (CR 121.2), so a
+- `Triggers.you.draws()` — when you draw a card. Fires once per individual card drawn (CR 121.2), so a
   single "draw N" effect triggers it N times.
-- `OpponentDraws` — when an opponent draws a card (once per card; the `Player.EachOpponent` analogue
-  of `YouDraw`).
-- `OpponentDrawsExceptFirstEachDrawStep` — whenever an opponent draws a card **except** the first
+- `Triggers.anOpponent.draws()` — when an opponent draws a card (once per card; the `Player.EachOpponent` analogue
+  of `Triggers.you.draws()`).
+- `Triggers.anOpponent.draws(true)` — whenever an opponent draws a card **except** the first
   card they draw in each of their own draw steps (CR 504.1's turn-based draw is exempt; every
   other draw — additional draw-step draws and all draws outside the draw step — fires once per
   card). Backed by `DrawEvent(exceptFirstInDrawStep = true)` plus a per-player draw-step-start
   snapshot (`GameState.drawStepStartDrawCountByPlayer`) that identifies the one exempt card. Used
   by Orcish Bowmasters / A-Orcish Bowmasters.
-- `NthCardDrawn(n, player?)` — fires when the drawing player draws their Nth card each turn
-  (CR 121.2). Draw analogue of `NthSpellCast`; backed by `CardsDrawnThisTurnComponent` (reset
+- `Triggers.<player>.drawsNth(n)` — fires when the drawing player draws their Nth card each turn
+  (CR 121.2). Draw analogue of `Triggers.<player>.castsNth(n, spell)`; backed by `CardsDrawnThisTurnComponent` (reset
   per turn). Fires exactly once per crossing — a single multi-card draw that spans the
   threshold triggers it once, not N times. Putting cards into hand without "draw" (CR 121.5)
   does not advance the count. Used by Knights of Dol Amroth, Prince Imrahil the Fair,
   Stalwarts of Osgiliath ("Whenever you draw your second card each turn, …").
-- `RevealCreatureFromDraw` — Hatching Plans-style top-card reveal.
-- `RevealCardFromDraw` — generic reveal-from-draw trigger.
-- `CardsPutIntoYourGraveyard(filter?)` — when matching cards enter your yard.
-- `PermanentCardsPutIntoYourGraveyard` — only permanent cards.
-- `CreaturesPutIntoGraveyardFromLibrary` — mill-trigger shape.
-- `LandsPutIntoGraveyardFromLibrary` — batching mill-trigger filtered to land cards. The matching
+- `Triggers.you.revealsFirstDraw(GameObjectFilter.Creature)` — Hatching Plans-style top-card reveal.
+- `Triggers.you.revealsFirstDraw()` — generic reveal-from-draw trigger.
+- `Triggers.oneOrMore(filter).putIntoYourGraveyard()` — when matching cards enter your yard.
+- `Triggers.oneOrMore(GameObjectFilter.Permanent).putIntoYourGraveyard()` — only permanent cards.
+- `Triggers.oneOrMore(GameObjectFilter.Creature).putIntoYourGraveyard(fromLibrary = true)` — mill-trigger shape.
+- `Triggers.oneOrMore(GameObjectFilter.Land).putIntoYourGraveyard(fromLibrary = true)` — batching mill-trigger filtered to land cards. The matching
   land cards are captured into the resolving ability's pipeline under
   `IterationSpace.TRIGGER_CAPTURED_COLLECTION`, so a `MoveCollectionEffect(from = …, destination =
   ToZone(BATTLEFIELD, placement = Tapped))` payoff can put exactly those lands onto the battlefield
-  (Hedge Shredder). Like `CreaturesPutIntoGraveyardFromLibrary`, both wrap
+  (Hedge Shredder). Like `Triggers.oneOrMore(GameObjectFilter.Creature).putIntoYourGraveyard(fromLibrary = true)`, both wrap
   `CardsPutIntoGraveyardFromLibraryEvent(filter)`; the batch detector matches `IsCreature` /
   `IsLand` / `IsNonland` / `HasSubtype` predicates and captures the matching cards.
-- `CardsLeaveYourGraveyard(filter?)` — batching trigger; fires once per event batch when one
+- `Triggers.oneOrMore(filter).leaveYourGraveyard()` — batching trigger; fires once per event batch when one
   or more matching cards **leave** your graveyard (cast/exiled/reanimated/returned to hand,
   etc.), regardless of how many or where they went. For the common "leave your graveyard
   **during your turn**" wording, add `triggerRestriction = Conditions.IsYourTurn`; for "this
   ability triggers only once each turn", add `oncePerTurn = true`. (Attuned Hunter, Kishla
   Skimmer, Kheru Goldkeeper.)
-- `CardsPutIntoExile(fromZones?, filter?, includeTokens?)` — batching trigger; fires once per event
+- `Triggers.oneOrMore(filter).putIntoExile(from, includeTokens)` — batching trigger; fires once per event
   batch when one or more matching **cards** are put into exile from any of `fromZones` (default:
   graveyard and battlefield). Left unfiltered it is **not** scoped to one player's zones —
   "graveyards and/or the battlefield" means any graveyard and anyone's permanents, so every
@@ -6149,7 +6208,7 @@ in the repo today):
 ### Discard
 
 Fires once per card discarded — a single resolution that discards N cards fires the
-trigger N times (mirrors how `YouDraw` handles multi-card draws). The engine emits
+trigger N times (mirrors how `Triggers.you.draws()` handles multi-card draws). The engine emits
 one aggregate `CardsDiscardedEvent` per resolution and fans it out in the detector.
 `Player.TriggeringPlayer` resolves to the discarding player inside the effect, and **each firing
 binds its own discarded card** as the triggering entity — so `EffectTarget.TriggeringEntity` /
@@ -6160,22 +6219,22 @@ trigger can find the new object a card became in a public zone). Tinybones, Baub
 Batch wording (`batch = true`) collapses the event to a single firing and binds no card — there is no
 single "it" for "one or more cards".
 
-- `AnyOpponentDiscards` — whenever an opponent discards a card. (Entropic Battlecruiser.)
-- `YouDiscard` — whenever you discard a card.
-- `YouDiscardThis` — **self-bound**: "when *you* discard **this** card" (Edgar's Awakening). The
+- `Triggers.anOpponent.discards()` — whenever an opponent discards a card. (Entropic Battlecruiser.)
+- `Triggers.you.discards()` — whenever you discard a card.
+- `Triggers.self.isDiscarded()` — **self-bound**: "when *you* discard **this** card" (Edgar's Awakening). The
   ability functions in hand and fires as the card is discarded, wherever the discard sends it —
   graveyard normally, exile if the card also has madness. Detected on the discarded card itself
   (`TriggerDetector.detectSelfDiscardTriggers`, the sibling of the cycling pass), so it needs no
   permanent watching for it. The trigger's controller is the discarding player, which is what
   "when you discard" means even for an opponent's Mind Rot on your hand.
-- `YouDiscardOneOrMore` — **batch wording** "whenever you discard one or more cards"
+- `Triggers.you.discards(batch = true)` — **batch wording** "whenever you discard one or more cards"
   (CR 603.2c): fires once per discard event no matter how many cards it contained
   (Inti, Seneschal of the Sun). Sequential discards in the same resolution ("discard a
   card, then discard a card") are separate `CardsDiscardedEvent`s and fire separately.
   Read the batch size ("that much" / "that many") via
   `DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DISCARD_COUNT)` — Magmakin Artillerist.
 
-**Factory** — `discards(player?, cardFilter?, batch?)` — generic shape. `player = Player.Each`
+**Factory** — `Triggers.<player>.discards(card, batch)` — generic shape. `player = Player.Each`
 matches any player; `cardFilter` narrows the fan-out to matching cards, so a batch that
 discards a creature and two lands fires a `cardFilter = Creature` trigger once, not three
 times. The cardFilter is evaluated against the **post-discard zone** (the cards are already
@@ -6186,52 +6245,51 @@ cards match the filter.
 
 ### Spell casting
 
-Named sugar for the common type-primitive cases; reach for `youCastSpell(...)` plus a
-`SpellCastPredicate` set for anything from-zone / kicked / mana-source-tagged.
+The shapes in this family, with their engine notes.
 
-- `YouCastSpell` — any spell you cast.
-- `YouCastCreature` — any creature spell you cast.
-- `YouCastNoncreature` — non-creature spells you cast.
-- `YouCastInstantOrSorcery` — instant/sorcery you cast.
-- `YouCastEnchantment` — any enchantment you cast.
-- `YouCastHistoric` — artifact / legendary / Saga.
-- `YouCastSubtype(subtype)` — tribal helper: spell with matching subtype.
-- `AnySpellOrAbilityOnStack` — any object hits the stack.
-- `OpponentActivatesAbility` — an opponent activates an ability that **isn't a mana ability** (CR 605/606). Mana
+- `Triggers.you.casts()` — any spell you cast.
+- `Triggers.you.casts(GameObjectFilter.Creature)` — any creature spell you cast.
+- `Triggers.you.casts(GameObjectFilter.Noncreature)` — non-creature spells you cast.
+- `Triggers.you.casts(GameObjectFilter.InstantOrSorcery)` — instant/sorcery you cast.
+- `Triggers.you.casts(GameObjectFilter.Enchantment)` — any enchantment you cast.
+- `Triggers.you.casts(GameObjectFilter.Historic)` — artifact / legendary / Saga.
+- `Triggers.you.casts(GameObjectFilter.Any.withSubtype(subtype))` — tribal helper: spell with matching subtype.
+- `Triggers.anyPlayer.putsSpellOrAbilityOnStack()` — any object hits the stack.
+- `Triggers.anOpponent.activatesAbility()` — an opponent activates an ability that **isn't a mana ability** (CR 605/606). Mana
   abilities don't use the stack, so they never fire this; loyalty abilities (which are activated abilities) do. Pair
   with `Effects.DealDamage(n, EffectTarget.PlayerRef(Player.TriggeringPlayer))` to punish the activator (Flamescroll
   Celebrant). Backed by `EventPattern.AbilityActivatedEvent(player)`.
-- `YouActivateAbility` — you activate an ability that isn't a mana ability (the `Player.You` form of the above).
-- `activatesAbilityOf(sourceFilter, player?, includeManaAbilities?)` — the source-scoped form of the above: an
+- `Triggers.you.activatesAbility()` — you activate an ability that isn't a mana ability (the `Player.You` form of the above).
+- `Triggers.<player>.activatesAbility(of = filter, includeManaAbilities)` — the source-scoped form of the above: an
   ability activated from a permanent matching `sourceFilter`. By default it keeps the "isn't a mana ability" gate;
   set `includeManaAbilities = true` for the unqualified Oracle wording, where mana abilities count too. Elrond,
   Moon-Reader's "whenever you activate an ability of a creature" is
-  `activatesAbilityOf(GameObjectFilter.Creature, includeManaAbilities = true)` — its ruling confirms a creature's
+  `Triggers.<player>.activatesAbility(of = filter, includeManaAbilities)` — its ruling confirms a creature's
   `{T}: Add {G}` triggers it, since a mana ability is still an activated ability (CR 605.3). Pair it with
   `oncePerTurn = true` on the triggered ability for the "this ability triggers only once each turn" clause. Backed
   by `EventPattern.AbilityActivatedEvent(player, sourceFilter, includeManaAbilities)`. Unlike
-  `activatesAbilityWithoutTap` (below), which keys on the literal `{T}`-in-cost wording, this ignores the tap cost
+  `Triggers.<player>.activatesAbility(of, withoutTapInCost = true)` / `Triggers.attached.hasAbilityActivatedWithoutTap(by)` (below), which keys on the literal `{T}`-in-cost wording, this ignores the tap cost
   entirely. A trigger that sets `includeManaAbilities` must not itself be able to add mana, or CR 605.1b would make
   it a mana ability (and it would resolve off the stack).
 
   **Engine note.** The engine emits `AbilityActivatedEvent` for *every* activated mana ability, on the manual
   activation path and on the auto-tap fast path used to pay for spells and abilities, with `isManaAbility = true`
   and `costsTap` set from the cost. Mana-ability activations are deliberately kept out of the client game log.
-- `YouActivateExhaustAbility` — you activate an ability marked `isExhaust`. Backed by
+- `Triggers.you.activatesAbility(exhaust = true)` — you activate an ability marked `isExhaust`. Backed by
   `EventPattern.AbilityActivatedEvent(player = Player.You, requireExhaust = true)` and the activation event's
   `isExhaust` flag. The event is emitted as soon as the exhaust ability is put on the stack, so the triggered
   ability is stacked above it and resolves first (Adrenaline Jockey, Rangers' Aetherhive). This is the plain
   Aetherdrift wording, which counts an exhaust *mana* ability too.
-- `YouActivateLoyaltyAbility` / `OpponentActivatesLoyaltyAbility` — you / an opponent activates a
+- `Triggers.you.activatesAbility(loyalty = true)` / `Triggers.anOpponent.activatesAbility(loyalty = true)` — you / an opponent activates a
   **loyalty ability** (CR 606): `AbilityActivatedEvent(requireLoyalty = true)`, matched against the
   activation event's `isLoyalty` flag (set from `ActivatedAbility.isPlaneswalkerAbility`). Way of the
   Paradox, Gideon the Oathless — "that player" is `EffectTarget.PlayerRef(Player.TriggeringPlayer)`.
-- `YouActivateLoyaltyAbilityRemovingAtLeast(n)` — "whenever you activate a loyalty ability, if you removed
+- `Triggers.you.activatesAbility(minLoyaltyRemoved = n)` — "whenever you activate a loyalty ability, if you removed
   *n* or more loyalty counters to activate it" (Way of the Mind Sculptor):
   `AbilityActivatedEvent(requireLoyalty = true, minLoyaltyRemoved = n)`, matched against the activation
   event's `loyaltyCountersRemoved` — N for a [−N] cost (CR 606.4), the chosen X for [−X], 0 for [+N] / [0].
   The count is fixed once the cost is paid, so matching it on the event is the same as the CR 603.4 recheck.
-- `YouActivateNonManaExhaustAbility` — the same, but with the "that isn't a mana ability" clause
+- `Triggers.you.activatesAbility(exhaust = true, excludeManaAbilities = true)` — the same, but with the "that isn't a mana ability" clause
   (`EventPattern.AbilityActivatedEvent(requireExhaust = true, excludeManaAbilities = true)`). Pit Automaton's
   Oracle text was updated on release to add that clause so its copy payoff can't latch onto a mana ability;
   the activated ability is exposed as `EffectTarget.TriggeringEntity`, so
@@ -6239,7 +6297,7 @@ Named sugar for the common type-primitive cases; reach for `youCastSpell(...)` p
   too (`CreateDelayedTriggerEffect(trigger = …, fireOnce = true)` = "when you next activate an exhaust ability
   that isn't a mana ability this turn, …") — `AbilityActivatedEvent` is one of the filter-scoped patterns the
   delayed-trigger matcher dispatches to the canonical `TriggerMatcher`.
-- `youActivateAbilityTargeting(targetMatch)` — you activate an ability whose **chosen targets** satisfy
+- `Triggers.you.activatesAbility(targeting = recipient)` — you activate an ability whose **chosen targets** satisfy
   `targetMatch`. Backed by `EventPattern.AbilityActivatedEvent(player, targetMatch)`: when `targetMatch != null`, the
   activated ability on the stack must have at least one chosen target matching it, so a non-targeting ability (e.g.
   tap-for-mana) never fires. `targetMatch` is a `Recipient` (§7 — the same player-or-object type damage and counter
@@ -6249,21 +6307,21 @@ Named sugar for the common type-primitive cases; reach for `youCastSpell(...)` p
   Mentor, whose payoff is `Effects.CopyTargetSpellOrAbility(EffectTarget.TriggeringEntity)` (for an
   `AbilityActivatedEvent` the triggering entity is the activated ability on the stack; the copy executor reprompts for
   new targets, CR 707.10/707.10c).
-- `activatesAbilityWithoutTap(player?, sourceFilter?, binding?)` — the Antiquities "tap / activate an artifact"
+- `Triggers.<player>.activatesAbility(of, withoutTapInCost = true)` / `Triggers.attached.hasAbilityActivatedWithoutTap(by)` — the Antiquities "tap / activate an artifact"
   punisher half: a permanent matching `sourceFilter` has an activated ability used **without `{T}` in its activation
   cost** (Haunting Wind, Powerleech, Artifact Possession). Backed by
   `EventPattern.AbilityActivatedEvent(player, sourceFilter, requireNoTapInCost = true)`. This differs from
-  `OpponentActivatesAbility` / `YouActivateAbility` in two ways: it keys on the literal `{T}`-in-cost wording rather
+  `Triggers.anOpponent.activatesAbility()` / `Triggers.you.activatesAbility()` in two ways: it keys on the literal `{T}`-in-cost wording rather
   than "isn't a mana ability", so **a non-`{T}` mana ability also fires it** (the engine emits an
   `AbilityActivatedEvent` for every activated ability whose cost lacks `{T}`, mana or not, and `costsTap`/`isManaAbility`
   on the event let the matcher pick the right wording); and `sourceFilter` restricts which permanent's ability counts
   (`GameObjectFilter.Artifact`, `Artifact.opponentControls()`, or null with `TriggerBinding.ATTACHED` for "enchanted
-  artifact"). Pair with `becomesTapped(...)` to cover the full "becomes tapped or has a non-`{T}` ability activated"
+  artifact"). Pair with `Triggers.<subject>.becomesTapped(reason, firstTimeEachTurn)` to cover the full "becomes tapped or has a non-`{T}` ability activated"
   clause. For "that artifact's controller": the **global** form uses
   `EffectTarget.PlayerRef(Player.TriggeringPlayer)` (the activator); the **ATTACHED** form uses
   `EffectTarget.ControllerOfTriggeringEntity` (the enchanted artifact's controller, exposed by
   `AttachmentTriggerDetector`).
-- `AttackCausesYourCreaturesTriggeredAbility` — **a creature you control attacking causes a triggered ability of that
+- `Triggers.you.attackTriggersAbility()` — **a creature you control attacking causes a triggered ability of that
   creature to trigger** (Firebender Ascension). Backed by `EventPattern.AbilityTriggeredEvent(player, requireAttackCause,
   sourceFilter?)`, which matches the engine's `AbilityTriggeredEvent` when a triggered ability is put on the stack.
   With `requireAttackCause = true` it fires only for a creature's **own** "whenever this creature attacks" ability — a
@@ -6279,18 +6337,18 @@ Named sugar for the common type-primitive cases; reach for `youCastSpell(...)` p
 `Player.Each` / `Player.EachOpponent` matching on `SpellCastEvent`. Bind the payoff to the
 caster with `EffectTarget.PlayerRef(Player.TriggeringPlayer)`.
 
-- `AnyPlayerCastsSpell` — any player (including you) casts a spell.
-- `OpponentCastsSpell` — an opponent casts a spell.
-- `AnyPlayerChoosesTargets` — any player casts a spell, activates an ability, or puts a triggered ability on the stack with ≥1 target (fires once per object via `EventPattern.TargetsChosenEvent`). The triggering entity is that spell/ability, so the payoff can read/change its targets (Psychic Battle).
-- `anyPlayerCasts(spellFilter?, requires?)` — factory; e.g. `anyPlayerCasts(GameObjectFilter.Creature)`
+- `Triggers.anyPlayer.casts()` — any player (including you) casts a spell.
+- `Triggers.anOpponent.casts()` — an opponent casts a spell.
+- `Triggers.anyPlayer.choosesTargets()` — any player casts a spell, activates an ability, or puts a triggered ability on the stack with ≥1 target (fires once per object via `EventPattern.TargetsChosenEvent`). The triggering entity is that spell/ability, so the payoff can read/change its targets (Psychic Battle).
+- `Triggers.anyPlayer.casts(spell, requires)` — e.g.
   for "whenever a player casts a creature spell" (Pure Reflection).
-- `opponentCasts(spellFilter?, requires?)` — factory; e.g. `opponentCasts(GameObjectFilter.Multicolored)`
+- `Triggers.anOpponent.casts(spell, requires)` — e.g.
   for "whenever an opponent casts a multicolored spell" (Rewards of Diversity).
-- `youCastSpellTargetingSource()` — "whenever you cast a spell that targets [this permanent]"
-  (Legolas, Master Archer). Sugar for `youCastSpell(requires = setOf(SpellCastPredicate.TargetsSource))`.
-- `youCastSpellTargeting(filter)` — "whenever you cast a spell that targets a [filter]" (Legolas,
+- `Triggers.you.casts(requires = setOf(SpellCastPredicate.TargetsSource))` — "whenever you cast a spell that targets [this permanent]"
+  (Legolas, Master Archer). Sugar for `Triggers.you.casts(spell, requires)`.
+- `Triggers.you.casts(requires = setOf(SpellCastPredicate.TargetsMatching(filter)))` — "whenever you cast a spell that targets a [filter]" (Legolas,
   Master Archer's `Creature.opponentControls()`). Sugar for
-  `youCastSpell(requires = setOf(SpellCastPredicate.TargetsMatching(filter)))`.
+  `Triggers.you.casts(spell, requires)`.
   **The matching targets are captured for the payoff**: the detector records exactly the targets
   that satisfied the gate into `IterationSpace.TRIGGER_CAPTURED_COLLECTION` (the same engine-seeded
   slot a batched ETB trigger uses), so "…, **those** creatures gain flying until end of turn"
@@ -6305,23 +6363,23 @@ caster with `EffectTarget.PlayerRef(Player.TriggeringPlayer)`.
   `FilterCollectionEffect(from = TRIGGER_CAPTURED_COLLECTION, …)` if it must act on fewer objects
   than the gate matched.
 
-- `youPlayLand(fromZoneOtherThan: Zone? = null)` — "whenever you play a land" (CR 305.1, the special
+- `Triggers.you.playsLand(fromZoneOtherThan)` — "whenever you play a land" (CR 305.1, the special
   land-play action). Pass `fromZoneOtherThan = Zone.HAND` for "whenever you play a land … from anywhere
   other than your hand" (Shadow of the Goblin). Backed by the engine's `LandPlayedEvent`, emitted **only**
   for a played land — never for a land an effect *puts* onto the battlefield (fetch / reanimate / ramp), so
   it does not over-trigger. ANY binding (a player-scoped observer). For the union "play a land **or** cast a
   spell from a non-hand zone", use two triggered abilities — this one plus
-  `youCastSpell(requires = setOf(SpellCastPredicate.CastFromZoneOtherThan(Zone.HAND)))`.
+  `Triggers.you.casts(spell, requires)`.
 
-- `anyPlayerPlaysLand(fromZoneOtherThan: Zone? = null)` — "whenever **a player** plays a land"
-  (Cemetery Gatekeeper). The any-player scope of `youPlayLand`, and the land-play counterpart of
-  `AnyPlayerCastsSpell`: `EventPattern.LandPlayedEvent.player` reads the same `Player` vocabulary
+- `Triggers.anyPlayer.playsLand(fromZoneOtherThan)` — "whenever **a player** plays a land"
+  (Cemetery Gatekeeper). The any-player scope of `Triggers.you.playsLand(fromZoneOtherThan)`, and the land-play counterpart of
+  `Triggers.anyPlayer.casts()`: `EventPattern.LandPlayedEvent.player` reads the same `Player` vocabulary
   `SpellCastEvent.player` does, so the two compose for the printed "plays a land or casts a spell"
   — write that as **two** triggered abilities, one per event, which is what the corpus spells and
   what Argentum Assay reads. The played land is the triggering entity, so an intervening-`if` over
   it (`Conditions.TriggeringSpellMatches(...)`) and a `Player.TriggeringPlayer` payoff both resolve.
 
-**Factory** — `youCastSpell(spellFilter?, requires: Set<SpellCastPredicate>)`. The
+**Factory** — `Triggers.you.casts(spell, requires)`. The
 `requires` set is conjunctive — every predicate must hold for the trigger to fire.
 
 **`SpellCastPredicate`** — extensible "facts about a cast." Adding a new cast-time mechanic
@@ -6384,7 +6442,7 @@ matcher branch — `SpellCastEvent` does not grow a new field per axis.
   *caster* rather than the trigger's controller makes it read correctly under both wordings —
   "whenever **you** cast a spell you don't own" (where `player = Player.You` has already pinned the
   caster to the trigger's controller) and "whenever **a player** casts a spell they don't own"
-  (Gonti, Night Minister, `Triggers.anyPlayerCasts(requires = …)`), which observes every seat.
+  (Gonti, Night Minister, `Triggers.anyPlayer.casts(requires = …)`), which observes every seat.
 - `SpellCastPredicate.CastAsAdventure` — the spell was cast **as an Adventure** (CR 715.3), i.e. using
   the card's alternative characteristics. Used by Chancellor of Tales ("whenever you cast an Adventure
   spell, you may copy it"). A cast-time fact, not a card characteristic: the same adventurer card cast
@@ -6394,8 +6452,7 @@ matcher branch — `SpellCastEvent` does not grow a new field per axis.
 - `SpellCastPredicate.CastAsPrepareSpell` — the spell was cast **as a prepare spell** (CR 722.3c):
   it is the copy a prepared permanent keeps in exile (`PreparedSpellCopyComponent`), which is the only
   way a prepare spell is ever cast. Renders as "a prepared spell". Used by Codie, Ravenous Codex
-  ("whenever you cast a prepared spell, copy it" — `Triggers.youCastSpell(requires =
-  setOf(CastAsPrepareSpell))` + `Effects.CopyTargetSpell(TriggeringEntity)`). The prepare sibling of
+  ("whenever you cast a prepared spell, copy it" — `Triggers.you.casts(requires = setOf(CastAsPrepareSpell))` + `Effects.CopyTargetSpell(TriggeringEntity)`). The prepare sibling of
   `CastAsAdventure`: the same preparation card cast from hand as its creature never matches. Contrast
   `StatePredicate.IsPrepared` / `.prepared()`, the *permanent's* prepared designation.
 - `SpellCastPredicate.TargetsOpponent` — the cast spell has ≥1 chosen target that is an **opponent** of
@@ -6413,65 +6470,58 @@ Examples:
 
 ```kotlin
 // "Whenever you cast a spell from your hand"
-Triggers.youCastSpell(requires = setOf(SpellCastPredicate.CastFromZone(Zone.HAND)))
+Triggers.you.casts(requires = setOf(SpellCastPredicate.CastFromZone(Zone.HAND)))
 
 // "Whenever you cast an instant or sorcery from your hand"
-Triggers.youCastSpell(
-    spellFilter = GameObjectFilter.InstantOrSorcery,
-    requires = setOf(SpellCastPredicate.CastFromZone(Zone.HAND)),
-)
+Triggers.you.casts(GameObjectFilter.InstantOrSorcery, requires = setOf(SpellCastPredicate.CastFromZone(Zone.HAND)))
 
 // "Whenever you cast a kicked spell"
-Triggers.youCastSpell(requires = setOf(SpellCastPredicate.WasKicked))
+Triggers.you.casts(requires = setOf(SpellCastPredicate.WasKicked))
 
 // "Whenever you cast a spell using mana from a Treasure"
-Triggers.youCastSpell(
-    requires = setOf(SpellCastPredicate.PaidWithManaFromSubtype(Subtype.TREASURE)),
-)
+Triggers.you.casts(requires = setOf(SpellCastPredicate.PaidWithManaFromSubtype(Subtype.TREASURE)))
 
 // "Whenever you cast a modal spell" (Riku of Many Paths)
-Triggers.youCastSpell(requires = setOf(SpellCastPredicate.IsModal))
+Triggers.you.casts(requires = setOf(SpellCastPredicate.IsModal))
 
 // "Whenever you cast a spell with {X} in its mana cost" (Geometer's Arthropod) —
 // then dig X cards: keep one, bottom the rest in a random order.
-Triggers.youCastSpell(requires = setOf(SpellCastPredicate.HasXInCost))
+Triggers.you.casts(requires = setOf(SpellCastPredicate.HasXInCost))
 // payoff count: DynamicAmounts.xValueOfTriggeringSpell()
 
 // "Whenever you cast a noncreature or Otter spell"
-Triggers.youCastSpell(
-    spellFilter = GameObjectFilter.Noncreature or
-                  GameObjectFilter.Any.withSubtype(Subtype("Otter")),
-)
+Triggers.you.casts(GameObjectFilter.Noncreature or
+                  GameObjectFilter.Any.withSubtype(Subtype("Otter")))
 ```
 
 ### State change & misc
 
-- `TurnedFaceUp` — source turns face up. Use `turnedFaceUp(binding)` for the ATTACHED-binding aura variant (Fatal Mutation).
-- `CreatureTurnedFaceUp(player?, filter?)` — when a creature you control turns face up. `filter`
+- `Triggers.self.turnedFaceUp()` — source turns face up. Use `Triggers.self.turnedFaceUp()` / `Triggers.attached.turnedFaceUp()` for the ATTACHED-binding aura variant (Fatal Mutation).
+- `Triggers.<player>.permanentTurnedFaceUp(filter)` — when a creature you control turns face up. `filter`
   narrows *which* creature and is evaluated against the permanent's **post-flip** characteristics
   (a face-down creature is a nameless 2/2 with no subtypes, so a face-down check could never match):
-  `CreatureTurnedFaceUp(filter = GameObjectFilter.Creature.withSubtype(Subtype.DETECTIVE))` is
+  `Triggers.<player>.permanentTurnedFaceUp(filter)` is
   "whenever a Detective you control is turned face up" (Perimeter Enforcer).
-- `GainControlOfSelf` — you gain control of source. Built on `ControlChangeEvent(ControlChangeDirection.GAINED)`
+- `Triggers.self.controlChanges(ControlChangeDirection.GAINED)` — you gain control of source. Built on `ControlChangeEvent(ControlChangeDirection.GAINED)`
   + `TriggerBinding.SELF` — the resident "when you gain control of this" self-trigger (Risky Move).
-- `LoseControlOfWatched` — `ControlChangeEvent(ControlChangeDirection.LOST)` + `TriggerBinding.SELF`,
+- `Triggers.self.controlChanges(ControlChangeDirection.LOST)` — `ControlChangeEvent(ControlChangeDirection.LOST)` + `TriggerBinding.SELF`,
   used as the `trigger` of an **event-based delayed trigger** scoped to a watched permanent
-  (`CreateDelayedTriggerEffect(trigger = Triggers.LoseControlOfWatched, watchedTarget = …)`): "when you
+  (`CreateDelayedTriggerEffect(trigger = Triggers.self.controlChanges(ControlChangeDirection.LOST), watchedTarget = …)`): "when you
   lose control of [that permanent] this turn …". It fires on any mid-turn control change of the watched
   permanent *away from* the trigger's controller (the old controller was you). Stolen Uniform pairs it
   with `DelayedTriggerExpiry.EndOfTurn` + `fireOnce`. `EventPattern.ControlChangeEvent(direction,
   requireOpponent)` is the underlying primitive: `direction` (`ControlChangeDirection.GAINED` default /
   `LOST`) selects which side of the control change — relative to the ability's controller — the ability
   watches.
-- `OpponentGainsControlOfYourPermanent` — `ControlChangeEvent(ControlChangeDirection.LOST,
+- `Triggers.a().controlChanges(ControlChangeDirection.LOST, toOpponent = true)` — `ControlChangeEvent(ControlChangeDirection.LOST,
   requireOpponent = true)` + `TriggerBinding.ANY`: "whenever an opponent gains control of a permanent from
-  you …". A resident, battlefield-wide watcher (not entity-scoped like `LoseControlOfWatched`): it fires
+  you …". A resident, battlefield-wide watcher (not entity-scoped like `Triggers.self.controlChanges(ControlChangeDirection.LOST)`): it fires
   once for each permanent the ability's controller loses to an opponent (team-aware, CR 810). The trigger
   belongs to the *old* controller via look-back-in-time (CR 603.10), so it still fires for you even when the
   permanent being stolen is the ability's own source (Zidane, Tantalus Thief — a stolen Zidane still makes a
   Treasure for its old controller). `requireOpponent` (LOST only) adds the "new controller is an opponent"
   gate on top of the plain LOST direction.
-- `BecomesTarget(filter?)` — source becomes target of spell/ability. The engine emits the
+- `Triggers.a(filter).becomesTarget()` — source becomes target of spell/ability. The engine emits the
   underlying `BecomesTargetEvent` for permanent targets, spell targets on the stack, and **player**
   targets, but the trigger matches **permanent targets only** by default — "a creature you control"
   is a battlefield creature, not a creature spell and not a player. Set `includeSpellTargets = true`
@@ -6494,24 +6544,24 @@ Triggers.youCastSpell(
   redirect makes it one. Pre-existing and orthogonal to the player axis, so it is pinned rather than
   fixed by `BecomesTargetPlayerAndAbilityAxesTest`, which characterizes current-and-wrong behaviour —
   when a later unit fixes it, invert that test rather than deleting it.
-- `CreatureYouControlBecomesTargetByOpponent(filter?, includeSpellTargets = false)` — your creature
+- `Triggers.a(filter.youControl()).becomesTarget(byOpponent = true, includeSpellTargets)` — your creature
   gets targeted by an opponent's spell or ability. Permanent-only unless `includeSpellTargets = true`
   (Surrak), which also fires when an opponent targets a matching creature spell you control.
-- `BecomesTargetByOpponent` — the self-bound counterpart of the above: source becomes the target of a
+- `Triggers.self.becomesTarget(byOpponent = true)` — the self-bound counterpart of the above: source becomes the target of a
   spell or ability **an opponent controls** (Cactarantula's "Whenever this creature becomes the target
   of a spell or ability an opponent controls, you may draw a card").
-- `BecomesTargetOfYourSpell` — the source becomes the target of a **spell you control** (Stormchaser
+- `Triggers.self.becomesTarget(byYou = true, spellsOnly = true)` — the source becomes the target of a **spell you control** (Stormchaser
   Drake: "Whenever this creature becomes the target of a spell you control, draw a card"). Self-bound
-  `BecomesTargetEvent(byYou = true, spellsOnly = true)` — the same two axes `BecomesTargetOfSpell` and
-  `BecomesTargetOfAbility` read, crossed. It is `Valiant` without the once-a-turn limit and without
+  `BecomesTargetEvent(byYou = true, spellsOnly = true)` — the same two axes `Triggers.a(filter).becomesTarget(spellsOnly = true)` and
+  `Triggers.a(filter).becomesTarget(abilitiesOnly = true, byYou, includePlayerTargets)` read, crossed. It is `Triggers.self.becomesTarget(byYou = true, firstTimeEachTurn = true)` without the once-a-turn limit and without
   abilities.
-- `BecomesTargetOfSpell(filter)` — a permanent matching `filter` becomes the target of a **spell**
+- `Triggers.a(filter).becomesTarget(spellsOnly = true)` — a permanent matching `filter` becomes the target of a **spell**
   only (not an ability). Sets `BecomesTargetEvent(spellsOnly = true)`, which matches only when the
   targeting source is a spell on the stack (`sourceIsSpell`). ANY-bound; a filter like "a Spirit you
   control" covers both halves of "King of the Oathbreakers or another Spirit you control becomes the
   target of a spell" because the source itself matches the filter. Pair with
   `Effects.PhaseOut(EffectTarget.TriggeringEntity)` to phase out the targeted permanent.
-- `BecomesTargetOfAuraSpell(binding = SELF)` — the bound permanent becomes the target of an **Aura
+- `Triggers.<subject>.becomesTarget(of = Aura, spellsOnly = true)` — the bound permanent becomes the target of an **Aura
   spell** (Brine Comber // Brinebound Gift). Where `spellsOnly` says only *that* a spell did the
   targeting, this narrows *which kind*: it sets `BecomesTargetEvent.sourceFilter`, a
   `GameObjectFilter?` matched against the **targeting** object rather than the targeted one, to
@@ -6524,50 +6574,50 @@ Triggers.youCastSpell(
   permanent is already enchanted by — only for a new one being cast at it. `sourceFilter` is
   general: any `EventPattern.BecomesTargetEvent` may carry one, and its `description` prints the
   filter's subtype alone when it has one ("an Aura spell", not "an Aura enchantment spell").
-- `BecomesTargetOfAbility(filter = Any, byYou = false, includePlayerTargets = false)` — the exact mirror of
-  `BecomesTargetOfSpell`: something becomes the target of an **ability** (activated *or* triggered),
+- `Triggers.a(filter).becomesTarget(abilitiesOnly = true, byYou, includePlayerTargets)` — the exact mirror of
+  `Triggers.a(filter).becomesTarget(spellsOnly = true)`: something becomes the target of an **ability** (activated *or* triggered),
   never a spell. Sets `BecomesTargetEvent(abilitiesOnly = true)`, reading the same `sourceIsSpell`
   axis from the other side; the two are mutually exclusive and asking for both throws. `byYou` is
   the "an ability **you control**" half and `includePlayerTargets` the "a **player** or permanent"
-  half (which keeps `filter` at `Any` — see `BecomesTarget` above) —
-  Loki, God of Mischief is `BecomesTargetOfAbility(byYou = true, includePlayerTargets = true)` plus
+  half (which keeps `filter` at `Any` — see `Triggers.a(filter).becomesTarget()` above) —
+  Loki, God of Mischief is `Triggers.a(filter).becomesTarget(abilitiesOnly = true, byYou, includePlayerTargets)` plus
   `oncePerTurn = true` on the ability for "This ability triggers only once each turn". ANY-bound.
   The trigger fires at target announcement (CR 601.2c for spells, CR 602.2b / 603.3d for activated
   and triggered abilities), so it still fires when the ability is later countered or fizzles.
-- `PhasesIn(filter?)` — a permanent matching `filter` phases in (Rule 702.26). Matches the engine's
+- `Triggers.a(filter).phasesIn()` — a permanent matching `filter` phases in (Rule 702.26). Matches the engine's
   `PhasedInEvent`, which `BeginningPhaseManager.performUntapStep` emits when a phased-out permanent
   returns during its controller's untap step. ANY-bound (use the filter, e.g. "a Spirit you control",
   for "King of the Oathbreakers or another Spirit you control phases in"); `TriggeringEntity` resolves
   to the phased-in permanent. King of the Oathbreakers makes a tapped token on each phase-in.
-- `Transforms` — source transforms (either direction).
-- `TransformsToFront` — to front face.
-- `TransformsToBack` — to back face.
-- `transforms(binding, intoBackFace?)` — the factory behind the three SELF constants; reach for it to bind
+- `Triggers.self.transforms()` — source transforms (either direction).
+- `Triggers.self.transforms(false)` — to front face.
+- `Triggers.self.transforms(true)` — to back face.
+- `Triggers.<subject>.transforms(intoBackFace)` — the factory behind the three SELF constants; reach for it to bind
   the trigger elsewhere. `binding = TriggerBinding.ATTACHED` is "**when equipped/enchanted creature
   transforms**" (Neglected Heirloom: "When equipped creature transforms, transform this Equipment"),
   detected by `AttachmentTriggerDetector` like every other ATTACHED trigger — a transform flips the
   permanent in place, so the Aura/Equipment is still attached when the event fires. `intoBackFace` filters
   direction (`null` = either).
-- `YouCycleThis` — you cycle source.
-- `AnyPlayerCycles` — anyone cycles.
-- `AnyPlayerTapsLandForMana` / `landTappedForMana(player, landFilter, binding)` — **not wired: a
+- `Triggers.self.isCycled()` — you cycle source.
+- `Triggers.anyPlayer.cycles()` — anyone cycles.
+- `Triggers.anyPlayer.tapsLandForMana()` / `Triggers.<player>.tapsLandForMana(land)` — **not wired: a
   trigger authored with these never fires.** `TriggerIndex` gives the pattern no category, because
   the engine event is emitted on the manual mana-ability path only (auto-pay adds mana via the solver
   without it), so indexing it would fire inconsistently. No card uses it. The mana-adding family
   (Mana Flare, Heartbeat of Spring, Groundchuck & Dirtbag) is a triggered mana ability (CR 605.1b)
   and uses `AdditionalManaOnSourceTap` or the other mana statics in §9.
-- `YouCommitCrime` — MKM crime mechanic.
-- `YouGiveAGift` — Gift mechanic.
-- `WheneverYouForage` — Bloomburrow forage (CR 701.59a). Observes **any** forage by the player, in any
+- `Triggers.you.commitsCrime()` — MKM crime mechanic.
+- `Triggers.you.givesAGift()` — Gift mechanic.
+- `Triggers.you.forages()` — Bloomburrow forage (CR 701.59a). Observes **any** forage by the player, in any
   context — the permanent's own "you may forage" effect, another permanent's `{2}, Forage:` cost, a
   cast-time additional cost — because every path emits `EventPattern.ForagedEvent` (see § Forage).
   Never fires for a declined forage or one no mode was feasible for. The forager is whoever paid,
   so a forage an opponent pays resolves "you" as that opponent. Corpseberry Cultivator.
-- `BecomesPlotted` — OTJ Plot (CR 718) — "when this card becomes plotted". SELF binding; fires for the
+- `Triggers.self.becomesPlotted()` — OTJ Plot (CR 718) — "when this card becomes plotted". SELF binding; fires for the
   very card that was plotted while it sits face up in exile (Aloe Alchemist). Detected by
   `TriggerDetector.detectPlottedCardTriggers` off the plot special action's `CardPlottedEvent`, since
   the card is never on the battlefield for the index loop to see.
-- `becomesRenowned(filter = Any, binding = SELF)` — a permanent gains the renowned designation
+- `Triggers.<subject>.becomesRenowned()` — a permanent gains the renowned designation
   (CR 702.112b). SELF = "when this creature becomes renowned" (Relic Seeker); ANY with a filter =
   "whenever a creature you control becomes renowned" (Valeron Wardens). Backed by
   `EventPattern.BecameRenownedEvent` + the engine `BecameRenownedEvent`, which carries the renowned
@@ -6575,7 +6625,7 @@ Triggers.youCastSpell(
   per permanent object — the designation is sticky and renown's intervening-`if` blocks a repeat —
   so there is no "first time each turn" axis. This is the *moment it flips*; the standing state is
   `Conditions.SourceIsRenowned` / `.renowned()`.
-- `becomesSaddled(filter = Any, firstTimeEachTurn = false, binding = SELF)` — OTJ Saddle (CR 702.171b)
+- `Triggers.<subject>.becomesSaddled(firstTimeEachTurn)` — OTJ Saddle (CR 702.171b)
   — "whenever this creature becomes saddled". Fires when a Saddle ability resolves on the permanent
   (`BecameSaddledEvent`); the Mount stays on the battlefield while saddled, so it matches in the regular
   battlefield index loop (`TriggerCategory.BECAME_SADDLED`). Pass `firstTimeEachTurn = true` for the
@@ -6583,7 +6633,7 @@ Triggers.youCastSpell(
   `firstThisTurn` flag, which is true only when the permanent wasn't already saddled when the ability
   resolved (re-saddling in the same turn reports false, since `SaddledComponent` persists until
   cleanup). Use an `ANY` binding + `filter` for "whenever a [filter] becomes saddled".
-- `Crews` / `Saddles` — SELF-bound atomic triggers for "whenever this creature crews a Vehicle" and
+- `Triggers.self.crews()` / `Triggers.self.saddles()` — SELF-bound atomic triggers for "whenever this creature crews a Vehicle" and
   "whenever this creature saddles a Mount". Crew and Saddle action handlers emit one contribution
   event for each creature tapped to pay the activation cost. The contributing creature is used for
   SELF matching; the Mount or Vehicle it contributed to is exposed as `EffectTarget.TriggeringEntity`.
@@ -6591,9 +6641,9 @@ Triggers.youCastSpell(
   ability and resolves first.
 - `or(first, second, vararg others)` — composes two or more trigger atoms with the same binding into a
   single disjunctive trigger. Nested disjunctions are flattened. Example: the Aetherdrift Pilot wording
-  uses `Triggers.or(Triggers.Saddles, Triggers.Crews)` plus
+  uses `Triggers.or(Triggers.self.saddles(), Triggers.self.crews())` plus
   `triggerRestriction = Conditions.IsYourMainPhase`.
-- `becomesAttached(attachmentFilter = Any, attachmentController = Any, attachedToFilter = Any, binding = SELF)`
+- `Triggers.<subject>.becomesAttached(to, controller)`
   — "whenever an Aura/Equipment becomes attached to a permanent" (CR 603.2e). Fires from
   `PermanentAttachedEvent`, emitted at every attach site (aura ETB onto its enchant target, equip
   resolution, an aura moved onto the battlefield attached by an effect) only when newly attached —
@@ -6606,7 +6656,7 @@ Triggers.youCastSpell(
   `EffectTarget.TriggeringEntity`, so relative predicates like
   `manaValueAtMostEntity(EffectTarget.TriggeringEntity)` ("MV ≤ that Aura's MV") resolve against it.
   Indexed under `TriggerCategory.BECOMES_ATTACHED`.
-- `becomesUnattached(attachmentFilter = Any, attachmentController = Any, unattachedFromFilter = Any, binding = SELF)`
+- `Triggers.<subject>.becomesUnattached(from, controller)`
   — the mirror: "whenever an Aura/Equipment becomes **unattached** from a permanent" (CR 701.3d).
   Fires from `PermanentUnattachedEvent`, which every unattach path emits — the explicit
   `Effects.UnattachEquipment`, equipping the attachment onto a *different* host, the CR 704.5m/n
@@ -6620,41 +6670,41 @@ Triggers.youCastSpell(
   `EffectTarget.AttachedToTriggeringPermanent`. Indexed under `TriggerCategory.BECOMES_UNATTACHED`.
   Backs **Stitcher's Graft** ("Whenever this Equipment becomes unattached from a permanent,
   sacrifice that permanent").
-- `Valiant` — Bloomburrow Valiant trigger.
-- `RoomFullyUnlocked` — Rooms — both doors unlocked.
-- `OnDoorUnlocked` — single Room door unlocked.
+- `Triggers.self.becomesTarget(byYou = true, firstTimeEachTurn = true)` — Bloomburrow Valiant trigger.
+- `Triggers.you.fullyUnlocksARoom()` — Rooms — both doors unlocked.
+- `Triggers.self.doorUnlocked()` — single Room door unlocked.
 
 ### Life
 
-- `YouGainLife` — you gain any life.
-- `YouGainLifeFirstTimeEachTurn` — you gain life for the first time each turn (Leech Collector). Backed by `LifeGainEvent(firstTimeEachTurn = true)`, matched against `LifeChangedEvent.firstThisTurn` (computed in `DamageUtils.gainLife` before the per-turn life-gained marker is set).
-- `AnyPlayerGainsLife` — anyone gains life.
-- `YouLoseLife` — you lose any life.
-- `AnyPlayerLosesLife` — anyone loses life.
-- `AnOpponentLosesLife` — an opponent loses life (fires per opponent life-loss event; read the amount via `ContextPropertyKey.TRIGGER_LIFE_LOST`). Bloodthirsty Conqueror; Kefka, Ruler of Ruin (pair with `triggerRestriction = Conditions.IsYourTurn` for "during your turn").
-- `YouGainOrLoseLife` — combined life-change.
-- `AnyPlayerLosesGame` — a player loses the game (CR 104.3; backed by `EventPattern.PlayerLostGameEvent`, matched against the engine's `PlayerLostEvent`). Fires for every player's loss; `Player.TriggeringPlayer` inside the effect is the loser. Narrow to one player with a `triggerRestriction` — Shinryu, Transcendent Rival's "When the chosen player loses the game, you win the game" uses `triggerRestriction = Conditions.TriggeringPlayerIs(Player.ChosenOpponent)` + `Effects.WinGame()`.
+- `Triggers.you.gainsLife()` — you gain any life.
+- `Triggers.you.gainsLife(true)` — you gain life for the first time each turn (Leech Collector). Backed by `LifeGainEvent(firstTimeEachTurn = true)`, matched against `LifeChangedEvent.firstThisTurn` (computed in `DamageUtils.gainLife` before the per-turn life-gained marker is set).
+- `Triggers.anyPlayer.gainsLife()` — anyone gains life.
+- `Triggers.you.losesLife()` — you lose any life.
+- `Triggers.anyPlayer.losesLife()` — anyone loses life.
+- `Triggers.anOpponent.losesLife()` — an opponent loses life (fires per opponent life-loss event; read the amount via `ContextPropertyKey.TRIGGER_LIFE_LOST`). Bloodthirsty Conqueror; Kefka, Ruler of Ruin (pair with `triggerRestriction = Conditions.IsYourTurn` for "during your turn").
+- `Triggers.you.gainsOrLosesLife()` — combined life-change.
+- `Triggers.anyPlayer.losesGame()` — a player loses the game (CR 104.3; backed by `EventPattern.PlayerLostGameEvent`, matched against the engine's `PlayerLostEvent`). Fires for every player's loss; `Player.TriggeringPlayer` inside the effect is the loser. Narrow to one player with a `triggerRestriction` — Shinryu, Transcendent Rival's "When the chosen player loses the game, you win the game" uses `triggerRestriction = Conditions.TriggeringPlayerIs(Player.ChosenOpponent)` + `Effects.WinGame()`.
 
 ### The Ring
 
-- `RingTemptsYou` — whenever the Ring tempts you (CR 701.54d). Paired with `Effects.TheRingTemptsYou()`.
-- `WheneverYouChooseRingBearer` — whenever you choose a creature as your Ring-bearer (CR 701.54a–b).
+- `Triggers.you.isTemptedByTheRing()` — whenever the Ring tempts you (CR 701.54d). Paired with `Effects.TheRingTemptsYou()`.
+- `Triggers.you.isTemptedByTheRing(true)` — whenever you choose a creature as your Ring-bearer (CR 701.54a–b).
   A `RingTemptedEvent` pattern with `requireBearerChosen = true`, so it fires only when the temptation
   actually designates a creature (the event's `bearerId` is non-null) — not when you control none to
   choose. Used by Call of the Ring.
 
 ### Clash
 
-- `WheneverYouClash` — fires once the clash has fully ended (CR 701.30): both cards revealed, both
+- `Triggers.you.clashes()` — fires once the clash has fully ended (CR 701.30): both cards revealed, both
   top-or-bottom decisions taken and both moves resolved, exactly as the printed reminder text says
   ("This ability triggers after the clash ends"). **Fires for a clash you did not start** — a clash
   names two players, and the ruling on Entangling Trap and Rebellion of the Flamekin is explicit
   that "if you clash because of a spell or ability an opponent controls, the ability will still
   trigger." The engine emits one `ClashedEvent` per participant for exactly this reason.
-- `WheneverYouClashAndWin` — the "and win" wording (Sylvan Echoes). The win is a condition on the
+- `Triggers.you.clashes(true)` — the "and win" wording (Sylvan Echoes). The win is a condition on the
   *trigger* (`EventPattern.ClashedEvent(requireWin = true)`), so a lost clash puts nothing on the
   stack at all. You can win — and be paid for — a clash an opponent initiated. A card whose payoff
-  merely *differs* on a win ("… If you won, …" — Entangling Trap) uses `WheneverYouClash` and
+  merely *differs* on a win ("… If you won, …" — Entangling Trap) uses `Triggers.you.clashes()` and
   branches inside its effect instead.
 - `Conditions.YouWonTheClash` — the **"if you won"** rider *inside* such an effect (CR 701.30d).
   True when the clash that fired this trigger was won by the ability's controller; false on a tie,
@@ -6669,21 +6719,21 @@ Triggers.youCastSpell(
   | Wording | Spelling |
   |---|---|
   | "Clash with an opponent. If you win, …" (the card clashes) | `Patterns.Mechanic.clash(ifYouWin, otherwise?)` — reads the `clashWon` pipeline collection |
-  | "Whenever you clash **and win**, …" (whole ability) | `Triggers.WheneverYouClashAndWin` — nothing goes on the stack on a loss |
-  | "Whenever you clash, X. **If you won**, Y." (part of the effect) | `Triggers.WheneverYouClash` + `Effects.If(Conditions.YouWonTheClash, …)` |
+  | "Whenever you clash **and win**, …" (whole ability) | `Triggers.you.clashes(true)` — nothing goes on the stack on a loss |
+  | "Whenever you clash, X. **If you won**, Y." (part of the effect) | `Triggers.you.clashes()` + `Effects.If(Conditions.YouWonTheClash, …)` |
 
 ### Scry / Surveil
 
-- `WheneverYouScry` — fires once per scry resolution (CR 701.22), after the cards have
+- `Triggers.you.scries()` — fires once per scry resolution (CR 701.22), after the cards have
   been placed on top/bottom. Pair with `DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_SCRY_COUNT)`
   for "for each card looked at" payoffs (Celeborn the Wise, Elrond Master of Healing).
   Automatically emitted by `Patterns.Library.scry(N)`; no card has to opt in.
-- `WheneverYouSurveil` — the surveil twin (CR 701.25), fired once per surveil resolution.
+- `Triggers.you.surveils()` — the surveil twin (CR 701.25), fired once per surveil resolution.
   Automatically emitted by `Patterns.Library.surveil(N)`. Reads the same `TRIGGER_SCRY_COUNT`
   ("cards looked at"). Used by Golbez.
-- `WheneverYouScryOrSurveil` — the combined look-at-top trigger; fires once per scry **and**
+- `Triggers.you.scriesOrSurveils()` — the combined look-at-top trigger; fires once per scry **and**
   once per surveil (Matoya, Archon Elder).
-- `WheneverYouDiscover` — fires once per discover (CR 701.57), after the whole discover process —
+- `Triggers.you.discovers()` — fires once per discover (CR 701.57), after the whole discover process —
   including the "cast for free or put into hand" decision — resolves (CR 701.57b). Pair with
   `DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DISCOVER_VALUE)` to reuse the discover
   value N ("discover again for the same value"), and `oncePerTurn = true` on the triggered ability
@@ -6693,7 +6743,7 @@ Triggers.youCastSpell(
 
 ### Cases (CR 719)
 
-- `WheneverYouSolveACase` — fires as one of your Cases becomes solved (CR 719.3a), i.e. when its
+- `Triggers.you.solvesACase()` — fires as one of your Cases becomes solved (CR 719.3a), i.e. when its
   "To solve" trigger resolves and `BecomeSolvedExecutor` stamps the designation. Case File Auditor's
   printed ruling words it as "whenever a 'to solve' ability you control resolves". Backed by
   `EventPattern.CaseSolvedEvent(player)` + the engine `CaseSolvedEvent`; the binding is
@@ -6712,23 +6762,23 @@ Triggers.youCastSpell(
 
 ### Explore (CR 701.44)
 
-- `Triggers.creatureExplores(filter, revealedType)` — "Whenever a permanent matching `filter`
+- `Triggers.a(filter).explores(revealedType)` — "Whenever a permanent matching `filter`
   explores." The exploring permanent is the event subject, so the binding is `TriggerBinding.ANY`
   and `filter.youControl()` resolves "you" to the observing ability's controller. `revealedType`
   (`ExploreReveal.ANY | LAND | NONLAND`) gates on the reveal outcome (CR 701.44a). Backed by
   `EventPattern.ExploredEvent`; emitted by `ExploreEffectExecutor` as `PermanentExploredEvent`
   once per explore.
-  - `WheneverCreatureYouControlExplores` — ANY reveal (Merfolk Cave-Diver).
-  - `WheneverCreatureYouControlExploresLand` — only when a **land** card was revealed (Nicanzil,
+  - `Triggers.a(GameObjectFilter.Creature.youControl()).explores()` — ANY reveal (Merfolk Cave-Diver).
+  - `Triggers.a(GameObjectFilter.Creature.youControl()).explores(ExploreReveal.LAND)` — only when a **land** card was revealed (Nicanzil,
     Current Conductor's first ability).
-  - `WheneverCreatureYouControlExploresNonland` — only when a **nonland** card was revealed
+  - `Triggers.a(GameObjectFilter.Creature.youControl()).explores(ExploreReveal.NONLAND)` — only when a **nonland** card was revealed
     (Nicanzil's second ability).
   - Fires even on an **empty library** (CR 701.44b — the permanent still explored): `ANY` matches,
     `LAND`/`NONLAND` do not (`revealedCardWasLand == null`).
 
 ### Connive (CR 701.50)
 
-- `Triggers.creatureConnives(filter)` / `Triggers.WheneverCreatureYouControlConnives` — "Whenever a
+- `Triggers.a(filter).connives()` / `Triggers.a(GameObjectFilter.Creature.youControl()).connives()` — "Whenever a
   permanent matching `filter` connives." The conniving permanent is the event subject, so the
   binding is `TriggerBinding.ANY` and `filter.youControl()` resolves "you" to the observing
   ability's controller. Backed by `EventPattern.ConnivedEvent`; emitted by `ConniveEffectExecutor`
@@ -6744,7 +6794,7 @@ Triggers.youCastSpell(
 
 ### Library search (CR 701.23)
 
-- `WheneverYouSearchYourLibrary` / `WheneverAnOpponentSearchesTheirLibrary` — fire once per
+- `Triggers.you.searchesLibrary()` / `Triggers.anOpponent.searchesLibrary()` — fire once per
   library search (CR 701.23), after the found cards have moved and the library has shuffled.
   Backed by the `SearchLibraryEvent(player)` pattern + the engine `LibrarySearchedEvent`, emitted
   automatically by every search primitive (`Patterns.Library.searchLibrary` / `searchMultipleZones`
@@ -6758,7 +6808,7 @@ Triggers.youCastSpell(
 
 ### Library shuffle (CR 701.24)
 
-- `WheneverAPlayerShufflesTheirLibrary` — the shuffle twin of the search trigger, backed by the
+- `Triggers.player(Player.Any).shufflesLibrary()` — the shuffle twin of the search trigger, backed by the
   `ShuffleLibraryEvent(player)` pattern + the engine `LibraryShuffledEvent`. Fires once per shuffle,
   so every shuffle the engine performs on behalf of an effect drives it: `Effects.ShuffleLibrary`,
   the shuffle leg of every search pipeline, `ZonePlacement.Shuffled` moves, and the
@@ -6779,7 +6829,7 @@ Triggers.youCastSpell(
 
 ### Manifest Dread
 
-- `WheneverYouManifestDread` — fires once per manifest-dread resolution (CR 701.60), after the
+- `Triggers.you.manifestsDread()` — fires once per manifest-dread resolution (CR 701.60), after the
   chosen card is manifested face down and the other put into your graveyard. Automatically emitted
   by `Patterns.Library.manifestDread()`; no card has to opt in. Per CR 701.60b it fires even when
   the library held fewer than two cards. The card(s) put into the graveyard this way are seeded into
@@ -6826,23 +6876,23 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
 
 ### Saga chapter resolution (CR 714)
 
-- `WheneverFinalChapterOfYourSagaResolves` — fires when the *final* chapter ability of a Saga you
+- `Triggers.you.sagaChapterResolves(true)` — fires when the *final* chapter ability of a Saga you
   control finishes resolving (Tom Bombadil). The engine detects Saga chapter abilities from
   lore-counter additions, marks them, and emits `SagaChapterResolvedEvent` on resolution; this
   trigger matches the ones flagged as the final chapter. Pair with `oncePerTurn = true` for "This
   ability triggers only once each turn."
-- `WheneverChapterOfYourSagaResolves` — same, but matches *any* chapter ability's resolution
+- `Triggers.you.sagaChapterResolves()` — same, but matches *any* chapter ability's resolution
   (`finalChapterOnly = false`).
 
 ### Sacrifice & counters
 
-- `YouSacrificeOneOrMore(filter?)` — you sac ≥1 matching. Built with `binding = ANY`, which (CR-faithfully)
+- `Triggers.you.sacrifices(filter, batch = true)` — you sac ≥1 matching. Built with `binding = ANY`, which (CR-faithfully)
   **includes the source sacrificing itself**: an ANY-binding sacrifice-batch trigger fires both when *another*
   matching permanent is sacrificed and when the source permanent is itself sacrificed. The triggering entity is
   bound to the just-sacrificed permanent, so a payoff reading "that <permanent>" (its mana value / a token copy
   of it) resolves against its last-known information in the graveyard. This is exactly the wording "whenever you
   sacrifice this permanent or another <filter>" (Esoteric Duplicator). For the singular "whenever you sacrifice
-  **a** <filter>" wording, which fires once per sacrificed permanent, use `YouSacrificeA`; for the "another"
+  **a** <filter>" wording, which fires once per sacrificed permanent, use `Triggers.you.sacrifices(filter)`; for the "another"
   exclusion use an `OTHER`-binding trigger instead.
   By default the ANY-binding form watches only the source *controller's* sacrifices ("whenever **you**
   sacrifice…"). `EventPattern.PermanentsSacrificedEvent.sacrificedBy` widens that scope and takes exactly
@@ -6853,30 +6903,30 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   payoff aimed at `Player.TriggeringPlayer` hits whoever actually sacrificed. `Player.EachOpponent` respects
   CR 102.3 (teammates are not opponents) and never fires on the source's own controller, including when the
   source is itself among the sacrificed permanents.
-- `OpponentSacrificesA(filter?)` / `OpponentSacrificesOneOrMore(filter?)` — the opponent-scoped siblings of
-  `YouSacrificeA` / `YouSacrificeOneOrMore`, i.e. `sacrificedBy = Player.EachOpponent` with `binding = ANY`.
-  `OpponentSacrificesA` is the per-permanent wording "whenever an opponent sacrifices **an** artifact"
-  (Vengeful Tracker — an opponent cracking two Clues gets hit twice); `OpponentSacrificesOneOrMore` is the
+- `Triggers.anOpponent.sacrifices(filter)` / `Triggers.anOpponent.sacrifices(filter, batch = true)` — the opponent-scoped siblings of
+  `Triggers.you.sacrifices(filter)` / `Triggers.you.sacrifices(filter, batch = true)`, i.e. `sacrificedBy = Player.EachOpponent` with `binding = ANY`.
+  `Triggers.anOpponent.sacrifices(filter)` is the per-permanent wording "whenever an opponent sacrifices **an** artifact"
+  (Vengeful Tracker — an opponent cracking two Clues gets hit twice); `Triggers.anOpponent.sacrifices(filter, batch = true)` is the
   batch wording, firing once per opponent per batch.
-- `YouSacrificeAnother(filter?)` — the **per-permanent** template "whenever you sacrifice **another**
+- `Triggers.you.sacrificesAnother(filter)` — the **per-permanent** template "whenever you sacrifice **another**
   permanent" (Mazirek, Kraul Death Priest; Savra; Zhao, Ruthless Admiral). Built with `binding = OTHER`
   and `EventPattern.PermanentsSacrificedEvent(filter, perPermanent = true)`. Distinct from
-  `YouSacrificeOneOrMore` on **two** axes: (1) *multiplicity* — it fires once for **each** matching
+  `Triggers.you.sacrifices(filter, batch = true)` on **two** axes: (1) *multiplicity* — it fires once for **each** matching
   permanent sacrificed, even when several are sacrificed simultaneously (CR 603.2c), so sacrificing three
-  permanents fires it three times; `YouSacrificeOneOrMore` (batch) fires once per event. (2) *exclusion* —
+  permanents fires it three times; `Triggers.you.sacrifices(filter, batch = true)` (batch) fires once per event. (2) *exclusion* —
   `OTHER` excludes the source sacrificing itself; a source sacrificed *alongside* other permanents still
   reacts to those others (fires once per other), but not to itself. The `perPermanent` flag is the general
-  multiplicity switch on `PermanentsSacrificedEvent`; `YouSacrificeA` is the `ANY`-binding half of it.
-- `YouSacrificeA(filter?)` — the **per-permanent** template "whenever you sacrifice **a** <filter>"
+  multiplicity switch on `PermanentsSacrificedEvent`; `Triggers.you.sacrifices(filter)` is the `ANY`-binding half of it.
+- `Triggers.you.sacrifices(filter)` — the **per-permanent** template "whenever you sacrifice **a** <filter>"
   (Experimental Confectioner — "Whenever you sacrifice a Food, create a 1/1 black Rat…"). Built with
   `binding = ANY` and `PermanentsSacrificedEvent(filter, perPermanent = true)`, so it sits between the other
-  two: per-permanent multiplicity like `YouSacrificeAnother` (three Foods sacrificed at once = three Rats,
-  where `YouSacrificeOneOrMore` would give one) but ANY exclusion like `YouSacrificeOneOrMore` (a source that
+  two: per-permanent multiplicity like `Triggers.you.sacrificesAnother(filter)` (three Foods sacrificed at once = three Rats,
+  where `Triggers.you.sacrifices(filter, batch = true)` would give one) but ANY exclusion like `Triggers.you.sacrifices(filter, batch = true)` (a source that
   is itself a Food counts its own sacrifice). Pick by the printed article — "one or more" → batch,
-  "a" → `YouSacrificeA`, "another" → `YouSacrificeAnother`.
-- `Sacrificed` — source is sacrificed.
+  "a" → `Triggers.you.sacrifices(filter)`, "another" → `Triggers.you.sacrificesAnother(filter)`.
+- `Triggers.self.isSacrificed()` — source is sacrificed.
 - `EventPattern.ChampionedEvent` — "when a [quality] is championed with this creature" (CR 702.72c;
-  Mistbind Clique). Reach it through `Triggers.championedWith(binding)`. A parameterless pattern whose
+  Mistbind Clique). Reach it through `Triggers.self.champions()`. A parameterless pattern whose
   subject is the **championing** permanent, selected by the ability's `TriggerBinding`: `SELF` is
   "championed with **this** creature", `OTHER` is "with another permanent you control", `ANY` has no
   restriction. Emitted by `EmitChampionedEventEffect`, the success branch of the champion ability's own
@@ -6895,8 +6945,8 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   "exploits a nontoken creature") — a boolean rather than a full `GameObjectFilter` because the exploited creature is
   gone by the time the event is observed, so only its last-known token-ness (`GameEvent.ExploitedEvent.sacrificedWasToken`,
   snapshotted before the zone change) is available. See the `Exploit` keyword entry for full wiring.
-- `PlusOneCountersPlacedOnYourCreature` — Hardened Scales shape (+1/+1 only).
-- `countersPlacedOn(filter = Creature.youControl(), counterType = null, batch = false, firstTimeEachTurn = !batch, binding = ANY, placedBy = null)`
+- `Triggers.a(GameObjectFilter.Creature.youControl()).getsCounters(CounterType.PLUS_ONE_PLUS_ONE)` — Hardened Scales shape (+1/+1 only).
+- `Triggers.<subject>.getsCounters(type, by, firstTimeEachTurn, batch)`
   — fires when counters of any type (a `null` `counterType`) land on a matching permanent;
   `firstTimeEachTurn` gates it to the first counter placement on *that* permanent this turn
   (engine-tracked via `ReceivedCountersThisTurnComponent`). `binding = SELF` restricts it to the
@@ -6913,8 +6963,7 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   a placement too (CR 606.4): paying it emits `CountersAddedEvent(loyalty, N, placedBy = activator)`
   (a cost, so counter-placement replacements such as Doubling Season don't apply), while [−N]/[0]
   costs still emit `LoyaltyChangedEvent`. Inspired Tethermage's "Whenever you put one or more
-  loyalty counters on a planeswalker" is `countersPlacedOn(filter = Planeswalker, counterType =
-  Counters.LOYALTY, firstTimeEachTurn = false, placedBy = Player.You)` — it sees [+N] costs,
+  loyalty counters on a planeswalker" is `Triggers.<subject>.getsCounters(type, by, firstTimeEachTurn, batch)` — it sees [+N] costs,
   planeswalkers entering with loyalty, and empower Jace. Triggering permanent is
   `EffectTarget.TriggeringEntity`. Stalwart Successor shape.
   `batch = true` switches the multiplicity from the per-permanent template ("… on **a** creature you
@@ -6935,7 +6984,7 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   constant, so a batch template — which essentially never carries a printed "first time this turn"
   rider — doesn't silently inherit one; pass `firstTimeEachTurn = true` alongside `batch = true` if
   you actually want both.
-  Mirrors `TapEvent(batch)` / `UntapEvent(batch)` / `dealsDamage(batch)`, except those three are
+  Mirrors `TapEvent(batch)` / `UntapEvent(batch)` / `Triggers.<subject>.dealsDamage(to, damageType, requireExcess, batch, requires)` / `.dealsCombatDamage(to, …)`, except those three are
   ANY-binding only while this one also honors `SELF` and `OTHER`.
   Caveat on no-op placements: a permanent that can't have counters put on it stays out of the batch
   only when the placing executor checks `ProjectedState.canReceiveCounters` before emitting.
@@ -6943,10 +6992,10 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   `DistributeCountersAmongTargetsExecutor` — the multi-recipient paths — do not, and would put a
   no-op placement in the batch. That gap is per-executor and pre-dates the batch pass (those
   executors also add the counters to the component), so don't rely on the batch to filter it.
-- `CountersPlacedOnThis` — "whenever you put one or more counters on ~" (any kind, SELF-bound).
+- `Triggers.self.getsCounters()` — "whenever you put one or more counters on ~" (any kind, SELF-bound).
   Aragorn, Company Leader.
-- `countersRemovedFrom(filter = Any, counterType = null, lastRemoved = false, binding = ANY)`
-  (`EventPattern.CountersRemovedEvent`) — the mirror of `countersPlacedOn`: fires when counters of
+- `Triggers.<subject>.losesCounters(type, lastRemoved, byDamagePrevention)`
+  (`EventPattern.CountersRemovedEvent`) — the mirror of `Triggers.<subject>.getsCounters(type, by, firstTimeEachTurn, batch)`: fires when counters of
   `counterType` are **removed** from a permanent matching `filter`. `binding = SELF` restricts it to
   the source permanent; the permanent the counters left is `EffectTarget.TriggeringEntity` and how
   many left it is the trigger's counter count. `lastRemoved = true` narrows it to the removal that
@@ -6959,7 +7008,7 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   live count, because several removals can land in one batch (two attackers damaging the same battle)
   and the live count would make every one of them look like the last. Backs the intrinsic Siege
   defeat ability (`Sieges.defeatAbility`, CR 310.12b).
-- `EventPattern.TrainedEvent` (facade: `Triggers.trains(binding = TriggerBinding.SELF)`) — "when this creature trains"
+- `EventPattern.TrainedEvent` (facade: `Triggers.self.trains()`) — "when this creature trains"
   (CR 702.149c: "a resolving training ability puts one or more
   +1/+1 counters on this creature"). A `data object` (no parameters); the trainer identity is selected by the ability's
   `TriggerBinding` against the event's `trainedId` — `SELF` = "when **this** creature trains" (Savior of Ollenbock), `OTHER`
@@ -6967,9 +7016,9 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   training `AddCounters`, which fires this **only when a +1/+1 counter actually landed** (recomputed on the post-placement
   state), so a Solemnity-type prohibition trains nothing and emits nothing. This is *not* a generic counter-placed watcher:
   it fires only for counters a training ability's resolution placed, never for other +1/+1 counter sources on the same
-  creature (use `countersPlacedOn` / `PlusOneCountersPlacedOnYourCreature` for those). See the `Training` keyword entry for
+  creature (use `Triggers.<subject>.getsCounters(type, by, firstTimeEachTurn, batch)` / `Triggers.a(GameObjectFilter.Creature.youControl()).getsCounters(CounterType.PLUS_ONE_PLUS_ONE)` for those). See the `Training` keyword entry for
   full wiring.
-- `OneOrMorePermanentsEnter(filter?, excludeSource?)` — batched ETB trigger; fires at most once per
+- `Triggers.oneOrMore(filter).enter()` / `Triggers.oneOrMoreOther(filter).enter()` — batched ETB trigger; fires at most once per
   event batch (CR 603.3b). The `filter`'s controller predicate scopes which players' permanents
   count: no predicate means "you control" (default), `.opponentControls()` scopes to your opponents.
   `excludeSource = true` models "one or more **other** … you control enter" — the source's own entry
@@ -6980,24 +7029,24 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   `ForEachInCollectionEffect(PipelineState.TRIGGER_CAPTURED_COLLECTION, body)` where the body uses
   `EffectTarget.IterationEntity` for the current entered permanent ("for each of them, create a tapped copy of
   it" — Kambal, Profiteering Mayor).
-- `OneOrMoreOpponentPermanentsEnter(filter?)` — same batched ETB trigger with the controller scope
-  fixed to your opponents (sugar for `OneOrMorePermanentsEnter(filter.opponentControls())`).
-- `OneOrMoreLeaveWithoutDying(...)` — batched LTB-without-dying.
+- `Triggers.oneOrMore(filter.opponentControls()).enter()` — same batched ETB trigger with the controller scope
+  fixed to your opponents (sugar for `Triggers.oneOrMore(filter).enter()` / `Triggers.oneOrMoreOther(filter).enter()`).
+- `Triggers.oneOrMore(filter).leaveWithoutDying()` — batched LTB-without-dying.
 
 ### Conditional
 
-- `NthSpellCast(n, player?, spellFilter?)` — fires on the Nth spell cast each turn. `spellFilter` makes the
+- `Triggers.<player>.castsNth(n, spell)` — fires on the Nth spell cast each turn. `spellFilter` makes the
   ordinal per-kind rather than over every spell — The Queen of Dale's "whenever an opponent casts their **first
-  noncreature** spell each turn" is `NthSpellCast(1, Player.EachOpponent, GameObjectFilter.Noncreature)`. With a
+  noncreature** spell each turn" is `Triggers.<player>.castsNth(n, spell)`. With a
   filter the count runs over the caster's `spellsCastThisTurnByPlayer` records (the same history
   `CostGating.NthOfTypePerTurn` and the `nthOfTypePerTurn` flash gate read) instead of the flat
   `playerSpellsCastThisTurn` total, so it counts **casts, not resolutions**: a matching spell that was countered
   still closes the window for that turn. Without a filter it is the flat total, the Hearthborn Battler shape.
   Like any triggered ability of a permanent card it functions only on the battlefield (CR 113.6): a card that
   is *itself* the Nth spell cast doesn't trigger off its own cast (Hearthborn Battler, Plan for All Outcomes).
-- `WhenYouCastThisSpell()` — a "cast trigger" that fires on the spell's **own** cast while it is on
+- `Triggers.self.isCast()` — a "cast trigger" that fires on the spell's **own** cast while it is on
   the stack (`EventPattern.CastThisSpellEvent`, `binding = SELF`). Distinct from a battlefield
-  `SpellCast`/`NthSpellCast` trigger that observes *other* spells: this one travels with the spell
+  `SpellCast`/`Triggers.<player>.castsNth(n, spell)` trigger that observes *other* spells: this one travels with the spell
   onto the stack and is detected only by `TriggerDetector`'s self-cast path (it is deliberately
   **not** indexed against battlefield permanents, so it never fires after the spell resolves).
   Pair with a `interveningIf` for an intervening "if" (CR 603.4). Sage of the Skies — "When you
@@ -7006,7 +7055,7 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   counted, so "two or more" = "another spell") and `Effects.CopyTargetSpell(TriggeringEntity)` to
   copy itself; copying a permanent spell yields a token (CR 707.10f), and the copy isn't cast so it
   doesn't re-trigger (CR 707.10).
-- `Expend(threshold)` — Expend N (CLB mechanic).
+- `Triggers.you.expends(n)` — Expend N (CLB mechanic).
 
 ### Delayed & granted triggers
 
@@ -7061,7 +7110,7 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   `ZoneChangeEvent`, the internal `DamagePreventedEvent`, and the attack-declaration events
   `YouAttackEvent` / `AttackEvent` and the defender-side batch events `CreaturesAttackYouEvent` /
   `CreaturesAttackYourOpponentEvent` (Garruk, Curse Breaker's −4: `trigger =
-  Triggers.CreaturesAttackYourOpponent, expiry = UntilControllersNextTurn`, paying off "those
+  Triggers.anOpponent.isAttacked(), expiry = UntilControllersNextTurn`, paying off "those
   creatures" with a `GroupFilter(Creature.attackingAnOpponent())` sweep). There are two ways to scope
   which events match:
   - **Entity-scoped** — set `watchedTarget` to bind the trigger to one concrete entity (resolved at
@@ -7084,13 +7133,13 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   - **Filter-scoped** — leave `watchedTarget` null and let the `TriggerSpec`'s `GameObjectFilter` +
     `TriggerBinding` describe the group, exactly like a battlefield-resident trigger. Use this for
     "whenever a creature you control enters this turn, …" (Thunder of Unity chapters II/III):
-    `trigger = Triggers.entersBattlefield(GameObjectFilter.Creature.youControl(), binding = ANY)`.
+    `trigger = Triggers.a(GameObjectFilter.Creature.youControl()).enters()`.
     Matching delegates to the same `TriggerMatcher` the battlefield triggers use, so the filter's
     type **and** controller predicates are honored — it fires only for *your* creatures, not every
     permanent that enters. (`YouAttackEvent` / `AttackEvent` / `CreaturesAttackYouEvent` /
     `CreaturesAttackYourOpponentEvent` are always filter-scoped this way.)
   - `fireOnce = true` makes it a **one-shot**: it's consumed the first time it fires, then gone —
-    "when you **next** [event] this turn". Combine with `trigger = Triggers.YouAttack` for the
+    "when you **next** [event] this turn". Combine with `trigger = Triggers.you.attacks()` for the
     common "when you next attack this turn, …" template (All-Out Assault: untap each creature you
     control on your next attack). With `fireOnce = false` (default) it fires on every matching event
     until expiry (double-strike combat damage). One-shot consumption happens when the trigger goes
@@ -7115,13 +7164,13 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
     keeps it across turns until it fires (pair with `fireOnce = true`) or the game ends — for
     watch-a-permanent-until-it-leaves reflexive triggers that aren't turn-scoped, e.g. Zenos yae
     Galvus's "When the chosen creature leaves the battlefield, transform Zenos yae Galvus"
-    (`trigger = Triggers.LeavesBattlefield, watchedTarget = <chosen>, fireOnce = true,
+    (`trigger = Triggers.self.leaves(), watchedTarget = <chosen>, fireOnce = true,
     expiry = DelayedTriggerExpiry.Never`). `EffectTarget.Self` inside the effect resolves to the
     delayed trigger's source (the permanent that created it).
   - `targetRequirement = <TargetRequirement>` — a target chosen **each time** the delayed trigger
     fires, exposed to `effect` as `EffectTarget.ContextTarget`. Use for delayed triggers whose payoff
     targets: Rediscover the Way chapter III installs
-    `CreateDelayedTriggerEffect(trigger = Triggers.YouCastNoncreature, fireOnce = false,
+    `CreateDelayedTriggerEffect(trigger = Triggers.you.casts(GameObjectFilter.Noncreature), fireOnce = false,
     expiry = EndOfTurn, targetRequirement = Targets.CreatureYouControl,
     effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE))` — "whenever you cast a noncreature spell
     this turn, target creature you control gains double strike". Works on both event-based and
@@ -9163,7 +9212,7 @@ copy of it (CR 707.10e). The activated-ability analogue of the spell-level `cant
 > `notBeforeTurn = turn + 1`) whose effect is `Effects.May(GatherCards(Self) → CastFromCollectionWithoutPayingCostEffect)`
 > — the same free-cast-from-exile pipeline suspend uses. Casting from exile is not "from hand", so it
 > doesn't rebound again. **Ojer Pakpatiq, Deepest Epoch** grants it to instants you cast from hand via
-> `Triggers.youCastSpell(GameObjectFilter.Instant, requires = setOf(SpellCastPredicate.CastFromZone(Zone.HAND)))`
+> `Triggers.you.casts(GameObjectFilter.Instant, requires = setOf(SpellCastPredicate.CastFromZone(Zone.HAND)))`
 > → `GrantKeywordToSpellEffect(Keyword.REBOUND, EffectTarget.TriggeringEntity)`.
 
 > **Split second** (`Keyword.SPLIT_SECOND`, CR 702.61). "As long as this spell is on the stack,
@@ -9274,7 +9323,7 @@ copy of it (CR 707.10e). The activated-ability analogue of the spell-level `cant
 >   CostGating.OnlyIf(Conditions.WasEvidenceCollected))` (Bite Down on Crime). The gate is evaluated
 >   against the cast branch being priced, so there is no "the choice happens during casting but the
 >   cost is needed before it" ordering problem to solve.
-> - **"Whenever you collect evidence"** — `Triggers.WheneverYouCollectEvidence` (Surveillance Monitor,
+> - **"Whenever you collect evidence"** — `Triggers.you.collectsEvidence()` (Surveillance Monitor,
 >   Evidence Examiner). A *different* fact from the linkage: it observes any collection by the player,
 >   in any context, including the permanent's own.
 
@@ -9361,7 +9410,7 @@ copy of it (CR 707.10e). The activated-ability analogue of the spell-level `cant
 >
 > **The payer-side payoff** is the one exception, because it is about the creatures that *paid* rather
 > than the spell that was cast: "Whenever this becomes tapped **to pay a teamwork cost**" (Agent Maria
-> Hill) is `Triggers.BecomesTappedForTeamwork`, reading `TapReason.TEAMWORK` off the tap event. See the
+> Hill) is `Triggers.self.becomesTapped(TapReason.TEAMWORK)`, reading `TapReason.TEAMWORK` off the tap event. See the
 > tap-trigger section for `TapReason`. `Conditions.TeamworkWasPaid` cannot express it — that condition
 > answers "was *this spell* cast using teamwork", and the trigger's subject is a creature on the
 > battlefield that may or may not have been among the payers.
@@ -9592,7 +9641,7 @@ composite abilities).
 - `Devour(multiplier, sacrificeFilter, variant)` — "As this enters, you may sacrifice any number of [sacrificeFilter]. It enters with [multiplier] × that many +1/+1 counters." Plain Devour uses `sacrificeFilter = Creature` and `variant = ""`; the Edge of Eternities variant "Devour land N" uses `KeywordAbility.devourLand(n)` (`sacrificeFilter = Land`, `variant = "land"`). The keyword surfaces the rules text; pair with [`EntersWithDevour`](#15-replacement-effects) for the mechanical behavior.
 - `Annihilator(n)` — attacker forces sacrifices. Display-only; nothing in the engine reads
   `Keyword.ANNIHILATOR`. Lower it alongside the keyword ability as the trigger it abbreviates —
-  `triggeredAbility { trigger = Triggers.Attacks; effect = Effects.Sacrifice(GameObjectFilter.Permanent,
+  `triggeredAbility { trigger = Triggers.self.attacks(); effect = Effects.Sacrifice(GameObjectFilter.Permanent,
   n, EffectTarget.PlayerRef(Player.DefendingPlayer)) }` (Nulldrifter). `Permanent`, not `Creature`:
   annihilator eats any permanent, and the *defending player* chooses, which is why it's the edict
   facade rather than a targeted sacrifice.
@@ -9604,7 +9653,7 @@ composite abilities).
 - `Flurry` (Tarkir: Dragonstorm, Jeskai) — "Flurry — Whenever you cast your second spell each turn,
   [effect]." Display-only `Keyword.FLURRY`; wire the behavior with the `card { flurry { … } }` builder
   helper. Author the effect/target/optional inside the block exactly like `triggeredAbility { }` — the
-  helper forces the `Triggers.NthSpellCast(2, Player.You)` trigger, adds the FLURRY tag, and prefixes the
+  helper forces the `Triggers.you.castsNth(2)` trigger, adds the FLURRY tag, and prefixes the
   rendered text with "Flurry — Whenever you cast your second spell each turn," (mirrors `prowess()` /
   `rampage()`). The second-spell-cast event is matched by `EventPattern.NthSpellCastEvent`; no new engine
   subsystem is involved. Example: `flurry { effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent), damageSource = EffectTarget.Self) }`.
@@ -9732,7 +9781,7 @@ composite abilities).
 - `Modular(n)` — ETB with +1/+1 counters, transfer on death. Display-only; nothing in the engine
   reads `Keyword.MODULAR`. Lower it alongside the keyword ability as its two printed halves
   (Arcbound Condor): `replacementEffect(EntersWithCounters(CounterType.PLUS_ONE_PLUS_ONE, n,
-  selfOnly = true))`, plus an **optional** `Triggers.Dies` trigger targeting an artifact creature
+  selfOnly = true))`, plus an **optional** `Triggers.self.dies()` trigger targeting an artifact creature
   whose effect is `Effects.AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE,
   DynamicAmount.ContextProperty(ContextPropertyKey.LAST_KNOWN_PLUS_ONE_COUNTER_COUNT), …)`. Read the
   last-known **+1/+1** count specifically rather than reaching for `Effects.MoveAllLastKnownCounters`
@@ -9824,14 +9873,14 @@ composite abilities).
 - `Increment` — "Whenever you cast a spell, if the amount of mana you spent is greater than this creature's power
   or toughness, put a +1/+1 counter on this creature." (Secrets of Strixhaven). Display-only; wire the behavior with
   the `card { increment() }` builder helper, which adds the `KeywordAbility.Increment` display marker (surfacing
-  `Keyword.INCREMENT`) plus a `Triggers.YouCastSpell` triggered `AddCounters(+1/+1, 1, Self)` gated by an
+  `Keyword.INCREMENT`) plus a `Triggers.you.casts()` triggered `AddCounters(+1/+1, 1, Self)` gated by an
   intervening-if (CR 603.4) that compares the triggering spell's mana spent (`EntityProperty(TriggeringEntity,
   ManaSpent)`) against the source's power *or* toughness — modelled as an `AnyCondition` of two `Compare(GT)`
   arms, so it fires when the mana exceeds the smaller characteristic. No parameter (mirrors `firebending()` /
   `decayed()`).
 - `Opus` — "Opus — Whenever you cast an instant or sorcery spell, [base]. If five or more mana was spent to cast
   that spell, [bonus] [instead]." (Secrets of Strixhaven). **Opus is an ability word** (CR 207.2c — flavor only),
-  so it adds *no keyword*; the whole mechanic is one `Triggers.YouCastInstantOrSorcery` triggered ability wired by
+  so it adds *no keyword*; the whole mechanic is one `Triggers.you.casts(GameObjectFilter.InstantOrSorcery)` triggered ability wired by
   the `card { opus { … } }` builder helper. The 5+ mana tier is a `Compare` of
   `ContextProperty(MANA_SPENT_ON_TRIGGERING_SPELL) >= 5` (the mana spent on the *triggering* spell, not the
   resolving object's own cast). Author the base effect as `effect = …` and pick exactly one bonus setter:
@@ -9884,7 +9933,7 @@ composite abilities).
     criterion is `SuccessCriterion.CollectionNonEmpty(CHAMPIONED_CARDS)` — the cards that actually
     reached exile, not merely the ones picked — with `otherwise = SacrificeSelfEffect` and
     `then = EmitChampionedEventEffect()`.
-  - **leaves** — `Triggers.LeavesBattlefield` running `Effects.ReturnLinkedExileUnderOwnersControl()`,
+  - **leaves** — `Triggers.self.leaves()` running `Effects.ReturnLinkedExileUnderOwnersControl()`,
     which reads the linked-exile pile of the **originating battlefield visit**, so a champion that
     blinks never returns the other visit's card and never sacrifices for the other visit's obligation.
   - **the quality is a permanent filter.** "Champion a Goblin" is a bare tribal noun, so per CR 109.2
@@ -9896,7 +9945,7 @@ composite abilities).
     trigger resolves has already run its leaves trigger against an empty pile, and then exiles a
     permanent that never comes back. The sacrifice is a genuine no-op when the champion is already
     gone, exactly as the printed instruction behaves.
-  - **CR 702.72c payoff** — `Triggers.championedWith()` (`EventPattern.ChampionedEvent`) is
+  - **CR 702.72c payoff** — `Triggers.self.champions()` (`EventPattern.ChampionedEvent`) is
     "when a [quality] is championed with this creature" (Mistbind Clique). It fires only when a
     permanent actually reached exile, so declining the choice taps nothing. The quality is not
     restated on the trigger: the champion clause above it can only ever exile a matching permanent.
@@ -9942,7 +9991,7 @@ composite abilities).
     declines), and an empty gather prompts nothing, which is also how the intervening-if's "if you control … another
     creature" comes out right. `useTargetingUI` puts the choice on the battlefield rather than in an overlay.
   - **"Whenever another creature you control enters, … you may pair that creature with this creature"** —
-    `Triggers.OtherCreatureEnters` (which already carries the "another creature **you control**" clause) with
+    `Triggers.another(GameObjectFilter.Creature.youControl()).enters()` (which already carries the "another creature **you control**" clause) with
     `optional = true` for a plain yes/no, `triggerRestriction = Conditions.SourceIsUnpaired` for the rest of the
     intervening-if (a creature that just entered can never already be paired), and a
     `Pipeline { gather(CardSource.TriggeringEntity); pairWithSource(…) }` body.
@@ -9967,7 +10016,7 @@ composite abilities).
 - `Training` — "Training (Whenever this creature and at least one other creature with power greater than this creature's
   power attack, put a +1/+1 counter on this creature.)" (CR 702.149, Innistrad: Midnight Hunt; also WHO, SLD). Display-only
   keyword; wire the behavior with the `card { training() }` builder helper. It adds the keyword plus one attack-triggered
-  ability — `Triggers.attacks(requires = setOf(AttackPredicate.AttackedAlongsideGreaterPower))` (SELF) → a two-step
+  ability — `Triggers.self.attacks(setOf(AttackPredicate.AttackedAlongsideGreaterPower))` (SELF) → a two-step
   `CompositeEffect(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self), EmitTrainedEventEffect)`. The predicate
   reads **projected** power for every attacker (§8 `AttackPredicate`), so an anthem/aura on the *other* attacker can flip the
   trigger on; the comparison is strict. Multiple instances trigger separately (CR 702.149b) — call `training()` twice, or add a
@@ -9998,7 +10047,7 @@ composite abilities).
   announced as it's activated (CR 107.3a). The legal action carries `hasXCost` / `maxAffordableX` so the client's
   xSelection phase asks for X and submits it on `CycleCard.xValue`; a bare submission instead pauses on an engine
   `ChooseNumberDecision` (`CycleCardChooseXContinuation`) rather than silently defaulting X to 0. The announced X
-  rides `CardCycledEvent.xValue` into the cycling trigger's context, so a `Triggers.YouCycleThis` payoff reads it as
+  rides `CardCycledEvent.xValue` into the cycling trigger's context, so a `Triggers.self.isCycled()` payoff reads it as
   `DynamicAmount.XValue` (Valor's Flagship's "create X Pilot tokens") or via `manaValueEqualsX()` /
   `manaValueAtMostX()` in a target filter (Webstrike Elite's "artifact or enchantment with mana value X").
   X-cost **typecycling** is not wired — no such card is printed.
@@ -10570,7 +10619,7 @@ answer it and would silently return `false`.
   control, … hexproof and indestructible").
 - `TriggeringEntityHadCounters` — intervening-if for dies/leaves triggers: true when the triggering
   entity had ≥1 counter of *any* kind on it the moment it left the battlefield (reads the last-known
-  total counter count, CR 603.10 / 603.6c). Resolution-only. Pair with `Triggers.YourCreatureDies` +
+  total counter count, CR 603.10 / 603.6c). Resolution-only. Pair with `Triggers.a(GameObjectFilter.Creature.youControl()).dies()` +
   `Effects.MoveAllLastKnownCounters` for "whenever this or another creature you control dies, if it
   had counters on it, move its counters" (Host of the Hereafter). Companion to the existing
   `TriggeringEntityHadMinusOneMinusOneCounter` (which checks only -1/-1 counters, e.g. Retched Wretch).
@@ -10592,7 +10641,7 @@ answer it and would silently return `false`.
   they came back as, so the guard fails and the loop stops. Reads
   `TriggerContext.lastKnownCardTypes`, populated from the `ZoneChangeEvent`'s
   `EntitySnapshot.typeLine`.
-- `YouWonTheClash` — the "if you won" rider inside a `Triggers.WheneverYouClash` effect (CR 701.30d).
+- `YouWonTheClash` — the "if you won" rider inside a `Triggers.you.clashes()` effect (CR 701.30d).
   True when the clash that fired this trigger was won by the ability's controller; false on a tie,
   on revealing nothing from an empty library, and on any trigger a clash did not fire.
   Resolution-only. Reads `TriggerContext.clashWon`, populated from `ClashedEvent.won` — the clash
@@ -10613,7 +10662,7 @@ answer it and would silently return `false`.
   `Player` reference. Narrows a broad "whenever a player …" trigger to one player without a bespoke
   event filter; both sides resolve through the shared player resolver. Shinryu, Transcendent Rival
   gates "When the chosen player loses the game, you win the game" with
-  `triggerRestriction = TriggeringPlayerIs(Player.ChosenOpponent)` on `Triggers.AnyPlayerLosesGame`.
+  `triggerRestriction = TriggeringPlayerIs(Player.ChosenOpponent)` on `Triggers.anyPlayer.losesGame()`.
 - `TargetIsCreatureCard(targetIndex = 0)` — the context target is a creature *card*, tested by the
   underlying card's printed types rather than projected state. Unlike `TargetMatchesFilter(Creature)`
   (which reads projection, where a face-down permanent always projects as a typeless 2/2 Creature),
@@ -10672,7 +10721,7 @@ answer it and would silently return `false`.
 - `YouHaveCitysBlessing` — you have City's Blessing (10+ permanents).
 - `YouHaveEnduringStory` — you have an enduring story (storied: 3+ artifacts/Sagas/legendaries).
 - `SourceIsRingBearer` — the source permanent is your Ring-bearer (CR 701.54e).
-- `YouChoseOtherCreatureAsRingBearer` — intervening-if for `Triggers.RingTemptsYou` payoffs that fire
+- `YouChoseOtherCreatureAsRingBearer` — intervening-if for `Triggers.you.isTemptedByTheRing()` payoffs that fire
   only when the controller chose a Ring-bearer other than the source (CR 701.54a). True iff the
   controller currently has a Ring-bearer designated AND that bearer isn't the source — so it's false
   both when the source itself was chosen and when the controller had no creature to choose. Used by
@@ -10795,11 +10844,11 @@ answer it and would silently return `false`.
   Resolution-only.
 - `NoManaSpentToCastEntered` — the batch-enters variant of `NoManaSpentToCast`: "if none of them were
   cast or no mana was spent to cast them." Evaluated at resolution over the permanents a batch-enters
-  trigger captured (the `Triggers.OneOrMorePermanentsEnter` batch, exposed as the `trigger.captured`
+  trigger captured (the `Triggers.oneOrMore(filter).enter()` / `Triggers.oneOrMoreOther(filter).enter()` batch, exposed as the `trigger.captured`
   pipeline collection), it's true iff **every** captured permanent had no mana spent to cast it (an empty
   capture is vacuously true). Use as a resolution-time `Effects.If` gate on the payoff — **Satoru,
   the Infiltrator**: `Effects.If(Conditions.NoManaSpentToCastEntered, Effects.DrawCards(1))` under a
-  `Triggers.OneOrMorePermanentsEnter(GameObjectFilter.Creature.nontoken())` trigger. Resolution-only.
+  `Triggers.oneOrMore(GameObjectFilter.Creature.nontoken()).enter()` trigger. Resolution-only.
 - `AnyEnteredOrWasCastFromExile` — the batch-enters *any*-of exile condition: "if one or more of them
   entered from exile or was cast from exile." The exile twin of
   `TriggeringEntityEnteredOrWasCastFromGraveyard`, evaluated over the same `trigger.captured` collection
@@ -10812,7 +10861,7 @@ answer it and would silently return `false`.
   captures are now seeded into the condition context at trigger-detection time as well as at resolution.
   That distinction is load-bearing whenever the ability also carries `oncePerTurn`: CR 603.4 says an
   ability whose intervening-"if" is false never triggers, so it must not consume the turn's single
-  firing. **Extraordinary Journey**: `Triggers.OneOrMorePermanentsEnter(Creature.nontoken().anyController())`
+  firing. **Extraordinary Journey**: `Triggers.oneOrMore(Creature.nontoken().anyController()).enter()`
   + `interveningIf = Conditions.AnyEnteredOrWasCastFromExile` + `oncePerTurn = true`. The same
   provenance marker also backs `WasCastFromZone(Zone.EXILE)` for a permanent already on the battlefield.
 - `TriggeringSpellCastWithoutPayingMana` — triggering-entity counterpart of `NoManaSpentToCast`: "if no
@@ -11854,7 +11903,7 @@ All desugar to `EntityProperty(EffectTarget.TriggeringEntity, …)`.
 ### Death-batch total-power shortcut (`DynamicAmounts.*` facade)
 
 For "one or more creatures you control die" **batch** triggers
-(`Triggers.OneOrMoreCreaturesYouControlDie`, CR 603.2c) whose payoff scales by the combined power of
+(`Triggers.oneOrMore(filter).die()` / `Triggers.oneOrMoreOther(filter).die()`, CR 603.2c) whose payoff scales by the combined power of
 the creatures that died:
 
 - `DynamicAmounts.diedBatchTotalPower()` — the summed **last-known** power of the creatures that died
@@ -12047,10 +12096,10 @@ Army just amassed by a sibling/action effect, or any cost-chosen entity. The plu
     Magmakin Artillerist's "whenever you discard one or more cards, this creature deals **that much**
     damage to each opponent." Populated from `CardsDiscardedEvent.cardIds.size`, so one event of
     three cards reports `3` while three sequential single discards fire three triggers reporting `1`.
-    Pair with `Triggers.YouDiscardOneOrMore`; `0` for non-discard triggers.
+    Pair with `Triggers.you.discards(batch = true)`; `0` for non-discard triggers.
   - `TRIGGER_DISCOVER_VALUE` — the discover value N (mana-value threshold) of the discover that
     fired the trigger (CR 701.57) — Curator of Sun's Creation's "discover again for the same value."
-    Pair with `Triggers.WheneverYouDiscover`; `0` for non-discover triggers.
+    Pair with `Triggers.you.discovers()`; `0` for non-discover triggers.
   - `TRIGGER_EXCESS_DAMAGE_AMOUNT` — damage past lethal in the trigger payload (CR 120.4a).
     Set from `DamageDealtEvent.excessAmount`; non-zero only for `DealsDamageEvent(requireExcess = true)`
     triggers — Fall of Cair Andros' "amass Orcs X, where X is the excess damage."
@@ -12640,7 +12689,7 @@ abilities on a persistent source, not one-shot modal spells.
 
 ```kotlin
 triggeredAbility {
-    trigger = Triggers.YouCastInstantOrSorcery
+    trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
     effect = ModalEffect.chooseOneNotYetChosen(
         Mode.withTarget(/* tap or untap */, Targets.Permanent, "You may tap or untap target permanent"),
         Mode.noTarget(Effects.DealDamage(3, EffectTarget.PlayerRef(Player.EachOpponent)), "…"),
@@ -12816,7 +12865,7 @@ The priority groups are (CR 616.1a–f):
   assignments, because CR 510.2 makes all combat damage one event: a creature double-blocked for 2 and
   3 loses five counters, not two then three.
   The removal emits its `CountersRemovedEvent` with `byDamagePrevention = true`, which is the "**this
-  way**" scope `Triggers.countersRemovedFrom(byDamagePrevention = true)` matches — the Pummeler's
+  way**" scope `Triggers.a().losesCounters(byDamagePrevention = true)` matches — the Pummeler's
   reflexive "When one or more counters are removed from this creature this way, it deals that much
   damage to any target" must not fire for a counter paid as a cost or removed by an opponent. The
   payoff amount is `ContextPropertyKey.TRIGGER_COUNTERS_REMOVED_AMOUNT` (the removal mirror of
@@ -13448,7 +13497,7 @@ are their printed spellings (`CounterType.printed`). Text converts back only thr
   DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature.withChosenSubtype()))`; a
   `GrantDynamicStats` sized by `DynamicAmounts.countersOnSelf(...)` reads the count back) — a pure
   passive resource counter with no inherent rule.
-  `ingenuity` (`CounterType.INGENUITY`): SPM — Lady Octopus, Inspired Inventor (two `Triggers.NthCardDrawn`
+  `ingenuity` (`CounterType.INGENUITY`): SPM — Lady Octopus, Inspired Inventor (two `Triggers.<player>.drawsNth(n)`
   triggers — first and second draw each turn — each add one via `AddCounters(CounterType.INGENUITY, 1, EffectTarget.Self)`;
   her `{T}` ability reads the count via `DynamicAmounts.countersOnSelf(CounterType.INGENUITY)`
   inside a `manaValueAtMostDynamic` filter to gate which hand artifact she can free-cast) — a pure passive
@@ -13468,7 +13517,7 @@ are their printed spellings (`CounterType.printed`). Text converts back only thr
   A pure tally counter with no inherent rule.
   `ice` (`CounterType.ICE`): SOI — Thing in the Ice (enters with four via an `EntersWithCounters(
   CounterType.ICE, count = 4, selfOnly = true)` replacement; its
-  `Triggers.YouCastInstantOrSorcery` trigger removes one and then flips the permanent through a
+  `Triggers.you.casts(GameObjectFilter.InstantOrSorcery)` trigger removes one and then flips the permanent through a
   `Effects.If(Conditions.SourceCounterCountAtMost(CounterType.ICE, 0), TransformEffect(Self))`).
   A "countdown to zero" counter with no inherent rule — the inverse of the `wish`/`film` "uses left" shape:
   read down rather than spent as a cost. Gating the flip on the live count *inside the ability's resolution*
@@ -13704,7 +13753,7 @@ Counter effects live in §4 (`AddCounters`, `RemoveCounters`, `Proliferate`, `Mo
 **Face-down**
 
 - `PutOntoBattlefieldFaceDown(count, target?)` — enter face-down (morph shape).
-- `Triggers.TurnedFaceUp` — fires when source flips face-up.
+- `Triggers.self.turnedFaceUp()` — fires when source flips face-up.
 - UI label: `"Turn Face-Up"` (used by E2E `selectAction("Turn Face-Up")`).
 
 ---
@@ -13759,7 +13808,7 @@ Card authors rarely reference these directly; they are created/updated by the ma
   onto vocabulary that already existed.
   - `toSolve(condition)` — the **"To solve — [condition]"** ability (CR 719.3a) = "At the beginning of
     your end step, if [condition] and this Case is not solved, this Case becomes solved". Emits a
-    `Triggers.YourEndStep` triggered ability whose `interveningIf` is
+    `Triggers.you.beginningOf(Step.END)` triggered ability whose `interveningIf` is
     `All(condition, Not(SourceIsSolved))` and whose effect is `Effects.BecomeSolved()`. Both halves are
     re-checked on resolution (CR 603.4), so a Case whose condition is undone in response stays unsolved,
     and the `not solved` half is what stops a solved Case re-triggering every turn.
@@ -13776,7 +13825,7 @@ Card authors rarely reference these directly; they are created/updated by the ma
     nor a copiable value. `Effects.BecomeSolved` stamps it, `Conditions.SourceIsSolved` / `.solved()` /
     `StatePredicate.IsSolved` read it, `ClientCard.isSolved` surfaces it as a card badge, and
     `ZoneMovementUtils.stripBattlefieldComponents` drops it when the Case leaves the battlefield.
-  - The **moment** it flips is `Triggers.WheneverYouSolveACase` (§ Cases (CR 719) under triggers) —
+  - The **moment** it flips is `Triggers.you.solvesACase()` (§ Cases (CR 719) under triggers) —
     "when this creature enters **and whenever you solve a Case**" (Case File Auditor). That is the
     event, not the standing state; `SourceIsSolved` is the state.
   - An **unsolved** Case shows how close its criterion is as a `current/required` badge — Case of the
@@ -13958,13 +14007,13 @@ Card authors rarely reference these directly; they are created/updated by the ma
   cost. Morph plus ward {2}, and that is the whole difference: the same sorcery-speed `{3}`
   face-down cast (`MorphCastEnumerator`), the same turn-face-up special action, and the ward carried
   as a face-down characteristic by `FaceDownMode.DISGUISE` rather than as an ability of the card
-  (see the `FaceDownMode` notes under the move effects). Pair with `Triggers.TurnedFaceUp` for the
+  (see the `FaceDownMode` notes under the move effects). Pair with `Triggers.self.turnedFaceUp()` for the
   common "when this creature is turned face up, …" payoff, or
-  `Triggers.or(Triggers.EntersBattlefield, Triggers.TurnedFaceUp)` for the "enters **or** is turned
+  `Triggers.or(Triggers.self.enters(), Triggers.self.turnedFaceUp())` for the "enters **or** is turned
   face up" wording (Rakish Scoundrel) — one ability with two conditions, which must fire once on
   either route, not twice. For the **replacement** wording "As this creature is turned face up, …"
   (Bubble Smuggler) reach for `disguiseFaceUpEffect` instead: it applies inside the special action,
-  so it can't be responded to, where the `Triggers.TurnedFaceUp` form goes on the stack first.
+  so it can't be responded to, where the `Triggers.self.turnedFaceUp()` form goes on the stack first.
 - **Cloak** (CR 701.58) — no keyword to author: it is `FaceDownMode.CLOAK` on whichever move puts
   the card onto the battlefield, exactly as manifest is `FaceDownMode.MANIFEST`. For the common
   "look at the top N, cloak M" shape use
@@ -14023,7 +14072,7 @@ Card authors rarely reference these directly; they are created/updated by the ma
   actually exiled (CR 701.65b). (`Effects.AirbendSpell` is `Effects.ExileTargetSpell` with `emitAirbend = true`; use the
   plain `ExileTargetSpell` — no bend — for a non-airbend exile like Aven Interrupter.)
 - **"Whenever you waterbend, earthbend, firebend, or airbend" (the four-bend event) + "all four this turn"** —
-  `Triggers.YouBend(types = BendType.ALL)` fires once per bend of any element in `types` the controller performs
+  `Triggers.you.bends()` fires once per bend of any element in `types` the controller performs
   (Avatar Aang uses all four; pass a subset like `setOf(BendType.EARTH)` for a single-element variant). Backed by a
   `BendPerformedEvent(playerId, bendType)` emitted at each of the four keyword actions, per CR 701.65b / 701.66b /
   701.67c / 702.189b:
@@ -14052,7 +14101,7 @@ Card authors rarely reference these directly; they are created/updated by the ma
   (`Costs.Forage()`, `Costs.additional.Forage`, and the cast-from-graveyard permission) route their
   payment, candidate-finding, and per-mode legal-action cost-info through the single
   `ForageCostResolver`, so the player chooses exile-vs-sacrifice and which cards/Food everywhere
-  (CR 701.59a). The payoff is `Triggers.WheneverYouForage` (`EventPattern.ForagedEvent`), emitted
+  (CR 701.59a). The payoff is `Triggers.you.forages()` (`EventPattern.ForagedEvent`), emitted
   from `ForageCostResolver.pay` for the cost forms and from the `Effects.Foraged()` marker inside
   each effect-form mode — the same cost/effect split waterbend uses. The foraging player is whoever
   *paid*, which need not be the source's controller.
@@ -14070,10 +14119,10 @@ Card authors rarely reference these directly; they are created/updated by the ma
   Ring-bearer (`RingBearerComponent` designation). The emblem's four cumulative abilities are resolved by the engine,
   not card data: the bearer is made legendary in `StateProjector` and can't be blocked by greater power via
   `RingBearerCantBeBlockedByGreaterPowerRule`; the ≥2/≥3/≥4 triggered abilities are appended to the bearer by
-  `TriggerAbilityResolver` (see `TheRingAbilities`). For card triggers/checks use `Triggers.RingTemptsYou`
+  `TriggerAbilityResolver` (see `TheRingAbilities`). For card triggers/checks use `Triggers.you.isTemptedByTheRing()`
   ("Whenever the Ring tempts you"), `Conditions.SourceIsRingBearer` ("if this is your Ring-bearer"), and
   `Conditions.YouChoseOtherCreatureAsRingBearer` ("if you chose a creature other than this as your
-  Ring-bearer" — pairs with `Triggers.RingTemptsYou` for the Aragorn/Faramir/Gandalf/Galadriel cycle).
+  Ring-bearer" — pairs with `Triggers.you.isTemptedByTheRing()` for the Aragorn/Faramir/Gandalf/Galadriel cycle).
   CR 701.54a: the designation ends permanently when another player gains control of the bearer —
   every control-change executor strips `RingBearerComponent` via `clearRingBearerOnControlChange`, so a
   temporary steal (Threaten) does not silently restore the designation when control reverts.

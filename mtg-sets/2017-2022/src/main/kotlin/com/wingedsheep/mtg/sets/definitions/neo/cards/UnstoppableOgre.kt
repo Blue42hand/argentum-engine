@@ -21,7 +21,7 @@ val UnstoppableOgre = card("Unstoppable Ogre") {
     oracleText = "When this creature enters, target creature can't block this turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("creature that can't block", TargetCreature())
         effect = Effects.CantBlock(t)
         description = "When this creature enters, target creature can't block this turn."

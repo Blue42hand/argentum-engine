@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.AttackPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -21,7 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * where X is the number of counters on it.
  *
  * The trigger is the Squall / Thoughtweft Imbuer "attacks alone" shape — an ANY-bound
- * [Triggers.attacks] with [AttackPredicate.Alone] over "creature you control" — so "it" is the
+ * `Triggers.<subject>.attacks(requires)` with [AttackPredicate.Alone] over "creature you control" — so "it" is the
  * lone attacker ([EffectTarget.TriggeringEntity]), not Spider-Man Noir. The +1/+1 counter lands
  * first, then "surveil X" reads the number of counters on that same triggering creature *after*
  * the counter is added (so X is always at least 1). X counts counters of every kind
@@ -39,11 +38,7 @@ val SpiderManNoir = card("Spider-Man Noir") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.attacks(
-            filter = GameObjectFilter.Creature.youControl(),
-            requires = setOf(AttackPredicate.Alone),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).attacks(setOf(AttackPredicate.Alone))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.TriggeringEntity) then
             Effects.Surveil(DynamicAmounts.countersOnTriggering())
         description = "Whenever a creature you control attacks alone, put a +1/+1 counter on it. " +

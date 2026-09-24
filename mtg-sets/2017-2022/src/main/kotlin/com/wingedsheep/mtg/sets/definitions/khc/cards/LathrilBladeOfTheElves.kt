@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 
 /**
@@ -37,7 +38,7 @@ val LathrilBladeOfTheElves = card("Lathril, Blade of the Elves") {
     toughness = 3
     keywords(Keyword.MENACE)
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.CreateToken(
             count = DynamicAmounts.triggerDamageAmount(),
             power = 1,

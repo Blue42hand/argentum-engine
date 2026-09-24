@@ -30,7 +30,7 @@ val Badgermole = card("Badgermole") {
         "Creatures you control with +1/+1 counters on them have trample."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val land = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
         effect = Effects.Earthbend(2, land)
         description = "When this creature enters, earthbend 2."

@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Ascendant Dustspeaker
@@ -35,7 +36,7 @@ val AscendantDustspeaker = card("Ascendant Dustspeaker") {
 
     // When this creature enters, put a +1/+1 counter on another target creature you control.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "another target creature you control",
             TargetCreature(filter = TargetFilter.OtherCreatureYouControl),
@@ -45,7 +46,7 @@ val AscendantDustspeaker = card("Ascendant Dustspeaker") {
 
     // At the beginning of combat on your turn, exile up to one target card from a graveyard.
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val t = target("target card from a graveyard", TargetObject(optional = true, filter = TargetFilter.CardInGraveyard))
         effect = Effects.Move(t, Zone.EXILE)
     }

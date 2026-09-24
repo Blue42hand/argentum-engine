@@ -33,7 +33,7 @@ val DreamdewEntrancer = card("Dreamdew Entrancer") {
     // ETB: tap up to one target creature, put 3 stun counters on it,
     // and if you control it, draw 2 cards
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("creature", Targets.UpToCreatures(1))
         effect = Effects.Tap(t)
             .then(Effects.AddCounters(CounterType.STUN, 3, t))

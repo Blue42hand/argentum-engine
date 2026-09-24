@@ -34,14 +34,14 @@ val IntrepidRabbit = card("Intrepid Rabbit") {
 
     // Offspring ETB: create token copy when kicked
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = WasKicked
         effect = Effects.CreateTokenCopyOfSelf(overridePower = 1, overrideToughness = 1)
     }
 
     // ETB: target creature you control gets +1/+1 until end of turn
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature you control to get +1/+1", Targets.CreatureYouControl)
         effect = Effects.ModifyStats(1, 1, creature)
     }

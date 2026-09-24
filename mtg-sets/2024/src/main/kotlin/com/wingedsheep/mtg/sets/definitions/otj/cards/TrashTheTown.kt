@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.scripting.TriggeredAbility
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Trash the Town {G}
@@ -59,8 +60,7 @@ val TrashTheTown = card("Trash the Town") {
                     additionalManaCost = "{1}"
                     effect = Effects.GrantTriggeredAbility(
                         ability = TriggeredAbility.create(
-                            trigger = Triggers.DealsCombatDamageToPlayer.event,
-                            binding = Triggers.DealsCombatDamageToPlayer.binding,
+                            trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer),
                             effect = Effects.DrawCards(2)
                         ),
                         target = creature

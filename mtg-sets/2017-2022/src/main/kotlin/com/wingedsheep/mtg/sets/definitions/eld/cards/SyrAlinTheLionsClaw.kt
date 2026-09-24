@@ -31,7 +31,7 @@ val SyrAlinTheLionsClaw = card("Syr Alin, the Lion's Claw") {
     toughness = 4
     keywords(Keyword.FIRST_STRIKE)
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
             Effects.ModifyStats(1, 1, EffectTarget.IterationEntity)

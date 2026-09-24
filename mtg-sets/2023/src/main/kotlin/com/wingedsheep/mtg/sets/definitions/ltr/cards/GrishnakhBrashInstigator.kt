@@ -42,7 +42,7 @@ val GrishnakhBrashInstigator = card("Grishnákh, Brash Instigator") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(action = Effects.Amass(2, "Orc"), optional = false) {
             val controlled = target(
                 "target nonlegendary creature an opponent controls",

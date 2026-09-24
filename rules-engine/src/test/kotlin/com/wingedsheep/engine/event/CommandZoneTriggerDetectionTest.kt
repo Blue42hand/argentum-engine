@@ -20,6 +20,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Unit tests for the command-zone arm of trigger detection — abilities that declare
@@ -40,7 +41,7 @@ class CommandZoneTriggerDetectionTest : FunSpec({
         power = 2
         toughness = 2
         triggeredAbility {
-            trigger = Triggers.YouCastSubtype(Subtype.VAMPIRE)
+            trigger = Triggers.you.casts(GameObjectFilter.Any.withSubtype(Subtype.VAMPIRE))
             triggerZones = setOf(Zone.BATTLEFIELD, Zone.COMMAND)
             effect = LoseLifeEffect(1, EffectTarget.PlayerRef(Player.You))
         }
@@ -53,7 +54,7 @@ class CommandZoneTriggerDetectionTest : FunSpec({
         power = 2
         toughness = 2
         triggeredAbility {
-            trigger = Triggers.YouCastSubtype(Subtype.VAMPIRE)
+            trigger = Triggers.you.casts(GameObjectFilter.Any.withSubtype(Subtype.VAMPIRE))
             triggerZones = setOf(Zone.COMMAND)
             effect = LoseLifeEffect(1, EffectTarget.PlayerRef(Player.You))
         }
@@ -66,7 +67,7 @@ class CommandZoneTriggerDetectionTest : FunSpec({
         power = 2
         toughness = 2
         triggeredAbility {
-            trigger = Triggers.YouCastSubtype(Subtype.VAMPIRE)
+            trigger = Triggers.you.casts(GameObjectFilter.Any.withSubtype(Subtype.VAMPIRE))
             effect = LoseLifeEffect(1, EffectTarget.PlayerRef(Player.You))
         }
     }
@@ -79,7 +80,7 @@ class CommandZoneTriggerDetectionTest : FunSpec({
         power = 2
         toughness = 2
         triggeredAbility {
-            trigger = Triggers.YourUpkeep
+            trigger = Triggers.you.beginningOf(Step.UPKEEP)
             triggerZones = setOf(Zone.BATTLEFIELD, Zone.COMMAND)
             effect = LoseLifeEffect(1, EffectTarget.PlayerRef(Player.You))
         }

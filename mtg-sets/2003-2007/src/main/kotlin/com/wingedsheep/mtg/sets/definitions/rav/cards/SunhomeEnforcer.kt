@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -19,7 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * "That much" is the damage the trigger fired on, read live off the event as
  * [ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT]. The trigger names no recipient — combat damage to a
- * player *or* to a blocking creature both count — so it takes the bare [Triggers.dealsDamage]
+ * player *or* to a blocking creature both count — so it takes the bare `Triggers.<subject>.dealsDamage(to, damageType, requireExcess, batch, requires)`
  * factory rather than one of the recipient-scoped constants.
  */
 val SunhomeEnforcer = card("Sunhome Enforcer") {
@@ -32,7 +31,7 @@ val SunhomeEnforcer = card("Sunhome Enforcer") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(DamageType.Combat)
+        trigger = Triggers.self.dealsCombatDamage()
         effect = Effects.GainLife(DynamicAmounts.triggerDamageAmount())
     }
 

@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Krosan Cloudscraper
@@ -25,7 +26,7 @@ val KrosanCloudscraper = card("Krosan Cloudscraper") {
     oracleText = "At the beginning of your upkeep, sacrifice Krosan Cloudscraper unless you pay {G}{G}.\nMorph {7}{G}{G} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)"
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Mana(ManaCost.parse("{G}{G}")),
             suffer = SacrificeSelfEffect

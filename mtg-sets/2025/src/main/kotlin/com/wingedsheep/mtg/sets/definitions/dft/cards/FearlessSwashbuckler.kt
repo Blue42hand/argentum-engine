@@ -48,7 +48,7 @@ val FearlessSwashbuckler = card("Fearless Swashbuckler") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         interveningIf = Conditions.All(
             Conditions.YouControlAtLeast(
                 1,

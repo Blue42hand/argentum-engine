@@ -45,7 +45,7 @@ val DigsiteConservator = card("Digsite Conservator") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.MayPay(
             cost = ManaCost.parse("{4}"),
             then = Effects.Discover(4)

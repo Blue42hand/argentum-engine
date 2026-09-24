@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.CostReductionSource
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.references.Player
@@ -53,14 +52,14 @@ val CemeteryProwler = card("Cemetery Prowler") {
 
     // Whenever this creature enters …
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = exileFromAGraveyard()
         description = "When Cemetery Prowler enters, exile a card from a graveyard."
     }
 
     // … or attacks, exile a card from a graveyard.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = exileFromAGraveyard()
         description = "Whenever Cemetery Prowler attacks, exile a card from a graveyard."
     }

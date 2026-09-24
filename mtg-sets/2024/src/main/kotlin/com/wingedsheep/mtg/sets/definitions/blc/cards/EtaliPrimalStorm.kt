@@ -17,7 +17,7 @@ val EtaliPrimalStorm = card("Etali, Primal Storm") {
     toughness = 6
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Pipeline {
             val exiledCards = gather(
                 CardSource.TopOfLibrary(

@@ -17,7 +17,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
  *
  * The red member of the Alara "Resounding" cycle, composed like the Onslaught cycling cycle: a
  * `spell { }` body, [KeywordAbility.cycling] for the wedge-coloured cycling cost, and a
- * [Triggers.YouCycleThis] triggered ability carrying the larger effect. Both halves are
+ * `Triggers.self.isCycled()` triggered ability carrying the larger effect. Both halves are
  * [Effects.DealDamage] over a [Targets].`Any` requirement declared on their own ability, and the
  * damage source is left implicit so it resolves to the card itself. Unlike the Onslaught cycle there
  * is no printed "you may", so the trigger is not optional.
@@ -38,7 +38,7 @@ val ResoundingThunder = card("Resounding Thunder") {
     keywordAbility(KeywordAbility.cycling("{5}{B}{R}{G}"))
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         val t = target("target", Targets.Any)
         effect = Effects.DealDamage(6, t)
     }

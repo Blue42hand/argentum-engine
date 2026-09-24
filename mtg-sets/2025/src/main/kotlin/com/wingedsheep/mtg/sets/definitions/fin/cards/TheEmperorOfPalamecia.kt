@@ -53,7 +53,7 @@ private val TheLordMasterOfHell = card("The Lord Master of Hell") {
     // Starfall — Whenever The Lord Master of Hell attacks, it deals X damage to each opponent,
     // where X is the number of noncreature, nonland cards in your graveyard.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.DealDamage(
             amount = DynamicAmounts.count(
                 Player.You,
@@ -103,7 +103,7 @@ private val TheEmperorOfPalameciaFront = card("The Emperor of Palamecia") {
     // +1/+1 counter on The Emperor of Palamecia. Then if it has three or more +1/+1 counters
     // on it, transform it.
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.If(
             condition = Conditions.CompareAmounts(
                 DynamicAmounts.manaSpentOnTriggeringSpell(),

@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Retreat to Kazandu
@@ -32,7 +33,7 @@ val RetreatToKazandu = card("Retreat to Kazandu") {
         "• You gain 2 life."
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = ModalEffect.chooseOne(
             mode("Put a +1/+1 counter on target creature") {
                 val creature = target("target creature", TargetCreature())

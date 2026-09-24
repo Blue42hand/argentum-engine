@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -27,7 +26,7 @@ val HeartPiercerBow = card("Heart-Piercer Bow") {
     oracleText = "Whenever equipped creature attacks, Heart-Piercer Bow deals 1 damage to target creature defending player controls.\nEquip {1}"
 
     triggeredAbility {
-        trigger = Triggers.attacks(binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.attacks()
         val creature = target("creature defending player controls", Targets.CreatureOpponentControls)
         effect = Effects.DealDamage(
             amount = 1,

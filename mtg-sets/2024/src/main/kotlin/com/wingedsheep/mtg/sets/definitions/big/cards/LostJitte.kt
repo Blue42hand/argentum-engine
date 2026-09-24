@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -47,11 +46,7 @@ val LostJitte = card("Lost Jitte") {
 
     // Whenever equipped creature deals combat damage, put a charge counter on Lost Jitte.
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.Combat,
-            recipient = Recipient.Any,
-            binding = TriggerBinding.ATTACHED
-        )
+        trigger = Triggers.attached.dealsCombatDamage()
         effect = Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)
     }
 

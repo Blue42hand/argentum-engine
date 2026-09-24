@@ -33,7 +33,7 @@ val EsikasChariot = card("Esika's Chariot") {
         "Crew 4"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,
@@ -45,7 +45,7 @@ val EsikasChariot = card("Esika's Chariot") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val token = target(
             "target token you control",
             TargetObject(filter = TargetFilter(GameObjectFilter.Token.youControl()))

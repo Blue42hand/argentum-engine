@@ -18,7 +18,7 @@ val Bloombrute = card("Bloombrute") {
         "{4}{G}{W}: Target creature gains trample and lifelink until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         oncePerTurn = true
         effect = Effects.DrawCards(1)
     }

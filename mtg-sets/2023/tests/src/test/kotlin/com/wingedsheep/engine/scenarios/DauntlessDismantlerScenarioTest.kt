@@ -41,7 +41,7 @@ class DauntlessDismantlerScenarioTest : FunSpec({
         power = 1
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             effect = Effects.CreateMapToken(1)
         }
     }
@@ -54,7 +54,7 @@ class DauntlessDismantlerScenarioTest : FunSpec({
         power = 1
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             effect = Effects.CreateToken(
                 power = 1, toughness = 1, creatureTypes = setOf("Construct"), artifactToken = true,
             )

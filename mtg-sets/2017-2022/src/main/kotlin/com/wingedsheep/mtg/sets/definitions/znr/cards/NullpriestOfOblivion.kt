@@ -50,7 +50,7 @@ val NullpriestOfOblivion = card("Nullpriest of Oblivion") {
     // When this creature enters, if it was kicked, return target creature card from your graveyard
     // to the battlefield.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.WasKicked
         val t = target(
             "target creature card from your graveyard",

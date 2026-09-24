@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Morcant's Eyes
@@ -33,7 +34,7 @@ val MorcantsEyes = card("Morcant's Eyes") {
         "where X is the number of Elf cards in your graveyard. Activate only as a sorcery."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Patterns.Library.surveil(1)
     }
 

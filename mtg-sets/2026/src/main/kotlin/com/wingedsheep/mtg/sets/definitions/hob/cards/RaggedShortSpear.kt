@@ -25,7 +25,7 @@ val RaggedShortSpear = card("Ragged Short Spear") {
     typeLine = "Artifact — Equipment"
     oracleText = "When this Equipment enters, you may discard a card. If you do, draw two cards.\nEquipped creature gets +2/+0.\nEquip {3} ({3}: Attach to target creature you control. Equip only as a sorcery.)"
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(effect = Effects.IfYouDo(action = Patterns.Hand.discardCards(1), then = Effects.DrawCards(2)))
     }
     staticAbility {

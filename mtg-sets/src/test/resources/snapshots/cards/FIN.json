@@ -19512,7 +19512,8 @@
                                     "IsCreature"
                                 ]
                             }
-                        }
+                        },
+                        "binding": "ANY"
                     },
                     "fireOnce": true
                 }
@@ -19534,7 +19535,8 @@
                                     "IsCreature"
                                 ]
                             }
-                        }
+                        },
+                        "binding": "ANY"
                     },
                     "fireOnce": true
                 }
@@ -19968,7 +19970,8 @@
                                     "IsCreature"
                                 ]
                             }
-                        }
+                        },
+                        "binding": "ANY"
                     },
                     "fireOnce": true
                 }

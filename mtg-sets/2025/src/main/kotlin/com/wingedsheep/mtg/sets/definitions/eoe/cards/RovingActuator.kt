@@ -38,7 +38,7 @@ val RovingActuator = card("Roving Actuator") {
         "without paying its mana cost."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.Void
         description = "Void — When this creature enters, if a nonland permanent left the " +
             "battlefield this turn or a spell was warped this turn, exile up to one target " +

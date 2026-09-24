@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * Whenever you tap one or more untapped creatures your opponents control, draw a card. This ability
  * triggers only once each turn.
  *
- * The draw is the **batch** form of the tap-attribution trigger — `Triggers.YouTap(…, batch = true)`
+ * The draw is the **batch** form of the tap-attribution trigger — `Triggers.you.taps(…, batch = true)`
  * (CR 603.2c): tapping several of your opponents' creatures at once (a sweeper tapper, one
  * resolution that taps two) is one event batch and draws one card, not one per creature. Only taps
  * *you* caused count toward the batch, so an opponent tapping their own creatures never fires it,
@@ -42,7 +42,7 @@ val SharaeOfNumbingDepths = card("Sharae of Numbing Depths") {
         "ability triggers only once each turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val victim = target(
             "target creature an opponent controls",
             TargetCreature(filter = TargetFilter.Creature.opponentControls())
@@ -53,7 +53,7 @@ val SharaeOfNumbingDepths = card("Sharae of Numbing Depths") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouTap(GameObjectFilter.Creature.opponentControls(), batch = true)
+        trigger = Triggers.you.taps(GameObjectFilter.Creature.opponentControls(), batch = true)
         oncePerTurn = true
         effect = Effects.DrawCards(1)
         description = "Whenever you tap one or more untapped creatures your opponents control, draw " +

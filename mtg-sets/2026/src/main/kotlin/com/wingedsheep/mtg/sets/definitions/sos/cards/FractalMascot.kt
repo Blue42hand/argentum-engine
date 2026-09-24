@@ -39,7 +39,7 @@ val FractalMascot = card("Fractal Mascot") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "target creature an opponent controls",
             TargetCreature(filter = TargetFilter.CreatureOpponentControls)

@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 
 /**
@@ -31,7 +32,7 @@ val QueenBrahne = card("Queen Brahne") {
     toughness = 1
     prowess()
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.CreateToken(
             power = 0,
             toughness = 1,
@@ -40,8 +41,7 @@ val QueenBrahne = card("Queen Brahne") {
             imageUri = "https://cards.scryfall.io/normal/front/1/8/187fe54c-7d0c-4225-9d46-3affbead897d.jpg?1782725378",
             triggeredAbilities = listOf(
                 TriggeredAbility.create(
-                    trigger = Triggers.YouCastNoncreature.event,
-                    binding = Triggers.YouCastNoncreature.binding,
+                    trigger = Triggers.you.casts(GameObjectFilter.Noncreature),
                     effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent))
                 )
             )

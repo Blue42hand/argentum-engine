@@ -25,7 +25,7 @@ val CraftworkCrusher = card("Craftwork Crusher") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseTwo(
             mode("This creature deals 4 damage to target creature or planeswalker.") {
                 val creatureOrPlaneswalker = target(

@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.ChooseCreatureTypeEffect
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -56,11 +55,7 @@ val OrcristGoblinCleaver = card("Orcrist, Goblin-cleaver") {
     }
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            DamageType.Combat,
-            Recipient.AnyPlayer,
-            binding = TriggerBinding.ATTACHED
-        )
+        trigger = Triggers.attached.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.Composite(
             ChooseCreatureTypeEffect,
             Effects.CreateTreasure(

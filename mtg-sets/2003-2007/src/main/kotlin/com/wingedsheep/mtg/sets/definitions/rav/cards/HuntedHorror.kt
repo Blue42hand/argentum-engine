@@ -49,7 +49,7 @@ val HuntedHorror = card("Hunted Horror") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.CreateToken(
             power = 3,

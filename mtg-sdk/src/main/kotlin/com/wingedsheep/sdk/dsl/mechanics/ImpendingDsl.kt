@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.conditions.AllConditions
 import com.wingedsheep.sdk.scripting.conditions.SourceCastForImpending
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Add Impending N—[cost] (CR 702.175, Duskmourn: House of Horror).
@@ -52,8 +53,7 @@ fun CardBuilder.impending(time: Int, cost: String) {
     )
     triggeredAbilities.add(
         TriggeredAbility.create(
-            trigger = Triggers.YourEndStep.event,
-            binding = Triggers.YourEndStep.binding,
+            trigger = Triggers.you.beginningOf(Step.END),
             effect = Effects.RemoveCounters(CounterType.TIME, 1, EffectTarget.Self),
             interveningIf = impendingActive,
             descriptionOverride = "At the beginning of your end step, remove a time counter from this permanent."

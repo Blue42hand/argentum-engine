@@ -25,7 +25,7 @@ val MarduHeartPiercer = card("Mardu Heart-Piercer") {
     oracleText = "Raid — When Mardu Heart-Piercer enters, if you attacked this turn, Mardu Heart-Piercer deals 2 damage to any target."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.YouAttackedThisTurn
         val t = target("any target", Targets.Any)
         effect = Effects.DealDamage(2, t)

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.ControlChangeDirection
 
 /**
  * Stolen Uniform
@@ -29,7 +30,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  *    independent targets: if the creature target is illegal at resolution, the attach is a no-op but
  *    you still gain control of the Equipment (per the card's ruling).
  *  - A reflexive "when you lose control of that Equipment" delayed trigger
- *    ([Triggers.LoseControlOfWatched] = `ControlChangeEvent(LOST)`) scoped to the Equipment. It
+ *    (`Triggers.self.controlChanges(ControlChangeDirection.LOST)` = `ControlChangeEvent(LOST)`) scoped to the Equipment. It
  *    fires on any mid-turn control change away from you and, if the Equipment is still attached to a
  *    creature you control, unattaches it ([Effects.UnattachEquipment]).
  */
@@ -56,7 +57,7 @@ val StolenUniform = card("Stolen Uniform") {
                 creatureTarget = creature
             ),
             Effects.CreateDelayedTrigger(
-                trigger = Triggers.LoseControlOfWatched,
+                trigger = Triggers.self.controlChanges(ControlChangeDirection.LOST),
                 watchedTarget = equipment,
                 fireOnce = true,
                 expiry = DelayedTriggerExpiry.EndOfTurn,

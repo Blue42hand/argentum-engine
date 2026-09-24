@@ -39,7 +39,7 @@ val VoraciousFellBeast = card("Voracious Fell Beast") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Sacrifice(
             GameObjectFilter.Creature,
             1,

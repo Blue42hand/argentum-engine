@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -45,17 +43,14 @@ val AlongTheCrookedWay = card("Along the Crooked Way") {
         "{1}{B}: Goblins and Orcs you control gain menace until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creatureCard = target("target creature card in your graveyard", Targets.CreatureCardInYourGraveyard)
         effect = Effects.Move(creatureCard, Zone.HAND)
         description = "Return target creature card from your graveyard to your hand."
     }
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = ZoneChangeEvent(filter = GameObjectFilter.Creature, from = Zone.GRAVEYARD),
-            binding = TriggerBinding.ANY
-        ).youControl()
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).changesZone(from = Zone.GRAVEYARD)
         effect = Effects.Amass(1, "Goblin")
         description = "Amass Goblins 1."
     }

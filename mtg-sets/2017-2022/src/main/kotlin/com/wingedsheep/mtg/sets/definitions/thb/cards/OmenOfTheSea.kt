@@ -34,7 +34,7 @@ val OmenOfTheSea = card("Omen of the Sea") {
 
     // When this enchantment enters, scry 2, then draw a card.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Scry(2).then(Effects.DrawCards(1))
     }
 

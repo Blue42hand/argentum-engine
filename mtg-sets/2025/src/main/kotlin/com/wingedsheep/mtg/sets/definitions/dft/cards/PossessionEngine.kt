@@ -41,7 +41,7 @@ val PossessionEngine = card("Possession Engine") {
     toughness = 5
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val stolen = target("target creature an opponent controls", Targets.CreatureOpponentControls)
         val whileControlled = Duration.WhileYouControlSource("this Vehicle")
         effect = Effects.Composite(

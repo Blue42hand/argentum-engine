@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Hedge Shredder
@@ -43,13 +44,13 @@ val HedgeShredder = card("Hedge Shredder") {
         "becomes an artifact creature until end of turn.)"
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         optional = true
         effect = Patterns.Library.mill(2)
     }
 
     triggeredAbility {
-        trigger = Triggers.LandsPutIntoGraveyardFromLibrary
+        trigger = Triggers.oneOrMore(GameObjectFilter.Land).putIntoYourGraveyard(fromLibrary = true)
         effect = Effects.Pipeline {
             move(triggerCaptured, CardDestination.ToZone(zone = Zone.BATTLEFIELD, placement = ZonePlacement.Tapped))
         }

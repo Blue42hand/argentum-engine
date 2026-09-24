@@ -45,7 +45,7 @@ private val BindingGeistFront = card("Binding Geist") {
         "Disturb {1}{U} (You may cast this card from your graveyard transformed for its disturb cost.)"
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val weakened = target("creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.ModifyStats(-2, 0, weakened)
     }

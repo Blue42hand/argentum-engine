@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -24,12 +23,7 @@ val MasterOfBarbs = card("Master of Barbs") {
     // "One or more" batches simultaneous damage (CR 603.2c): a spell that hits two opponents at
     // once triggers this once.
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.NonCombat,
-            recipient = Recipient.Opponent,
-            binding = TriggerBinding.ANY,
-            batch = true,
-        )
+        trigger = Triggers.a().dealsDamage(Recipient.Opponent, damageType = DamageType.NonCombat, batch = true)
         effect = Patterns.Group.modifyStatsForAll(1, 0, GroupFilter(GameObjectFilter.Creature.youControl()))
         description = "Whenever one or more opponents are dealt noncombat damage, creatures you control get +1/+0 until end of turn."
     }

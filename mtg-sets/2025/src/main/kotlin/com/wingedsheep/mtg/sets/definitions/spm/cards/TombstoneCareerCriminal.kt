@@ -30,7 +30,7 @@ val TombstoneCareerCriminal = card("Tombstone, Career Criminal") {
         "Villain spells you cast cost {1} less to cast."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val villainCard = target(
             "target Villain card from your graveyard",
             TargetObject(

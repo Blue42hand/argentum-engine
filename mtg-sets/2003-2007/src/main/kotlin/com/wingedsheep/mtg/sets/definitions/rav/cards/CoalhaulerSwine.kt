@@ -15,7 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * 4/4
  * Whenever this creature is dealt damage, it deals that much damage to each player.
  *
- * [Triggers.TakesDamage] is the any-source "is dealt damage" trigger (combat, burn, pingers alike);
+ * `Triggers.self.isDealtDamage()` is the any-source "is dealt damage" trigger (combat, burn, pingers alike);
  * the amount rides the trigger context as [ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT], the same way
  * Tephraderm reads it. "Each player" includes the Swine's own controller, so the payoff is a single
  * [DealDamageEffect] at [EffectTarget.PlayerRef] over [Player.Each] rather than an opponent loop.
@@ -28,7 +28,7 @@ val CoalhaulerSwine = card("Coalhauler Swine") {
     power = 4
     toughness = 4
     triggeredAbility {
-        trigger = Triggers.TakesDamage
+        trigger = Triggers.self.isDealtDamage()
         effect = Effects.DealDamage(
             amount = DynamicAmounts.triggerDamageAmount(),
             target = EffectTarget.PlayerRef(Player.Each),

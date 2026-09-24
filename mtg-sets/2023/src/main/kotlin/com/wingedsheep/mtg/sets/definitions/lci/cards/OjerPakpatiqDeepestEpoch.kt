@@ -33,7 +33,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   a sorcery.
  *
  * Implementation:
- *  - The grant is a [Triggers.youCastSpell]`(Instant, CastFromZone(HAND))` trigger whose effect is
+ *  - The grant is a `Triggers.you.casts(spell, requires)``(Instant, CastFromZone(HAND))` trigger whose effect is
  *    [GrantKeywordToSpellEffect]`(Keyword.REBOUND, TriggeringEntity)` — it stamps the just-cast
  *    spell with rebound, which the spell-resolution path (CR 702.88) honors by exiling the spell
  *    and arming a next-upkeep free recast.
@@ -61,16 +61,13 @@ private val OjerPakpatiqDeepestEpochFront = card("Ojer Pakpatiq, Deepest Epoch")
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.Instant,
-            requires = setOf(SpellCastPredicate.CastFromZone(Zone.HAND)),
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.Instant, requires = setOf(SpellCastPredicate.CastFromZone(Zone.HAND)))
         effect = Effects.GrantKeywordToSpell(Keyword.REBOUND, EffectTarget.TriggeringEntity)
         description = "Whenever you cast an instant spell from your hand, it gains rebound."
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.Composite(
             Effects.ReturnSelfFromGraveyardTransformed(tapped = true),
             Effects.AddCounters(CounterType.TIME, 3, EffectTarget.Self),

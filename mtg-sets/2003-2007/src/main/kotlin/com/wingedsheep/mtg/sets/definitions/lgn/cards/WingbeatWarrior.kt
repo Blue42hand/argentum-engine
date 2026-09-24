@@ -27,7 +27,7 @@ val WingbeatWarrior = card("Wingbeat Warrior") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val t = target("creature", Targets.Creature)
         effect = Effects.GrantKeyword(Keyword.FIRST_STRIKE, t)
     }

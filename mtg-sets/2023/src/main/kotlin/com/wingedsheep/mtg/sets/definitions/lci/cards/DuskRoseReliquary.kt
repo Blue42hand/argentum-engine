@@ -32,7 +32,7 @@ val DuskRoseReliquary = card("Dusk Rose Reliquary") {
     additionalCost(Costs.additional.SacrificePermanent(GameObjectFilter.CreatureOrArtifact))
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrArtifact.opponentControls()))
@@ -40,7 +40,7 @@ val DuskRoseReliquary = card("Dusk Rose Reliquary") {
         effect = Effects.ExileUntilLeaves(t)
     }
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
     metadata {

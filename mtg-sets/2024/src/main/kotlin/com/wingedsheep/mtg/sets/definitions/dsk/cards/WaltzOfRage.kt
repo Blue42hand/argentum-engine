@@ -29,9 +29,9 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    like deathtouch / lifelink on the chosen creature apply, and "dealt damage by" triggers see the
  *    correct source).
  *  - A turn-duration event-based delayed trigger ([CreateDelayedTriggerEffect] with
- *    [Triggers.YourCreatureDies], `expiry = EndOfTurn`, `fireOnce = false`) that fires once per
+ *    `Triggers.a(GameObjectFilter.Creature.youControl()).dies()`, `expiry = EndOfTurn`, `fireOnce = false`) that fires once per
  *    creature-you-control death this turn, impulse-drawing the top card with
- *    [MayPlayExpiry.UntilEndOfNextTurn]. The per-creature [Triggers.YourCreatureDies] (ZoneChangeEvent,
+ *    [MayPlayExpiry.UntilEndOfNextTurn]. The per-creature `Triggers.a(GameObjectFilter.Creature.youControl()).dies()` (ZoneChangeEvent,
  *    ANY binding) matches the singular "a creature" wording — a board wipe fires it once per creature.
  */
 val WaltzOfRage = card("Waltz of Rage") {
@@ -57,7 +57,7 @@ val WaltzOfRage = card("Waltz of Rage") {
             // Until end of turn, whenever a creature you control dies, exile the top card of your
             // library. You may play it until the end of your next turn.
             Effects.CreateDelayedTrigger(
-                trigger = Triggers.YourCreatureDies,
+                trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dies(),
                 expiry = DelayedTriggerExpiry.EndOfTurn,
                 fireOnce = false,
                 effect = Effects.Pipeline {

@@ -25,7 +25,7 @@ val DaybreakCombatants = card("Daybreak Combatants") {
     toughness = 2
     keywords(Keyword.HASTE)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.ModifyStats(2, 0, t)
     }

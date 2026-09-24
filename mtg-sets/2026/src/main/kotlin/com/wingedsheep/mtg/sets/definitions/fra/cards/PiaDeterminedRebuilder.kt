@@ -20,7 +20,7 @@ val PiaDeterminedRebuilder = card("Pia, Determined Rebuilder") {
     oracleText = "When Pia enters, create a 1/1 colorless Thopter artifact creature token with flying.\n{5}{R}: Target creature gets +X/+0 until end of turn, where X is the number of artifacts you control."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(power = 1, toughness = 1, creatureTypes = setOf("Thopter"), artifactToken = true, keywords = setOf(Keyword.FLYING), imageUri = "https://cards.scryfall.io/normal/front/b/f/bfd6132f-c96b-4ce0-ac4d-c46356afc767.jpg?1789735223")
     }
     activatedAbility {

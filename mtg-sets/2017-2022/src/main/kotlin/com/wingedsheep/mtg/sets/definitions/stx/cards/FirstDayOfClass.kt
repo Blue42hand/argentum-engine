@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -46,10 +45,7 @@ val FirstDayOfClass = card("First Day of Class") {
 
     spell {
         effect = Effects.CreateDelayedTrigger(
-            trigger = Triggers.entersBattlefield(
-                filter = GameObjectFilter.Creature.youControl(),
-                binding = TriggerBinding.ANY
-            ),
+            trigger = Triggers.a(GameObjectFilter.Creature.youControl()).enters(),
             fireOnce = false,
             expiry = DelayedTriggerExpiry.EndOfTurn,
             effect = Effects.AddCounters(

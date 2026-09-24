@@ -36,7 +36,7 @@ val SunBlessedHealer = card("Sun-Blessed Healer") {
     keywords(Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = WasKicked
         val t = target(
             "target",

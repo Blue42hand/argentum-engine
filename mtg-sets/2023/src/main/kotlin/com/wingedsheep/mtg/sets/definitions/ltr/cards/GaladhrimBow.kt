@@ -30,7 +30,7 @@ val GaladhrimBow = card("Galadhrim Bow") {
 
     // ETB: attach to target creature you control, untap that creature
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature you control", Targets.CreatureYouControl)
         effect = Effects.AttachEquipment(creature)
             .then(Effects.Untap(creature))

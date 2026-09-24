@@ -20,7 +20,6 @@ import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.AdditionalETBOrLTBTriggers
 import com.wingedsheep.sdk.scripting.BattlefieldDirection
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import com.wingedsheep.engine.core.Outcome
@@ -87,10 +86,7 @@ class GandalfTheWhiteTest : FunSpec({
         toughness = 1
         oracleText = "Whenever another creature enters the battlefield, draw a card."
         triggeredAbility {
-            trigger = Triggers.entersBattlefield(
-                filter = GameObjectFilter.Creature,
-                binding = TriggerBinding.OTHER
-            )
+            trigger = Triggers.another(GameObjectFilter.Creature).enters()
             effect = Effects.DrawCards(1)
         }
     }
@@ -152,10 +148,7 @@ class GandalfTheWhiteTest : FunSpec({
         toughness = 1
         oracleText = "Whenever another creature leaves the battlefield, draw a card."
         triggeredAbility {
-            trigger = Triggers.leavesBattlefield(
-                filter = GameObjectFilter.Creature,
-                binding = TriggerBinding.OTHER
-            )
+            trigger = Triggers.another(GameObjectFilter.Creature).leaves()
             effect = Effects.DrawCards(1)
         }
     }

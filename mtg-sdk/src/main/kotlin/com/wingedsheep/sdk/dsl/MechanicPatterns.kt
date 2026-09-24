@@ -205,7 +205,7 @@ object MechanicPatterns {
      * offered when the player can actually fulfill at least one option.
      *
      * **Each mode ends by emitting the foraged event** ([Effects.Foraged]), which is what makes
-     * "Whenever you forage" (`Triggers.WheneverYouForage`) see a forage taken as an *effect*. The
+     * "Whenever you forage" (`Triggers.you.forages()`) see a forage taken as an *effect*. The
      * three *cost* contexts — an activated-ability cost, a cast-time additional cost, the
      * graveyard-cast permission — emit it from their shared payment implementation instead, because
      * they never come through here. That split is waterbend's: a keyword action that is sometimes a

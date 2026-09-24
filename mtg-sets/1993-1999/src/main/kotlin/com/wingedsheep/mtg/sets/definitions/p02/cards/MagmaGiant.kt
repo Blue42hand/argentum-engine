@@ -29,7 +29,7 @@ val MagmaGiant = card("Magma Giant") {
     power = 5
     toughness = 5
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), Effects.DealDamage(2, EffectTarget.IterationEntity)),
             Effects.ForEachPlayer(Player.Each, Effects.DealDamage(2, EffectTarget.Controller))

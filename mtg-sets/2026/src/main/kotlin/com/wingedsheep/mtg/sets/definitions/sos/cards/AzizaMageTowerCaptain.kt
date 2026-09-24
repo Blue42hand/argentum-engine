@@ -34,7 +34,7 @@ val AzizaMageTowerCaptain = card("Aziza, Mage Tower Captain") {
         "creatures you control. If you do, copy that spell. You may choose new targets for the copy."
 
     triggeredAbility {
-        trigger = Triggers.YouCastInstantOrSorcery
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         val tapCost = Effects.Pipeline {
             val azizaTapPool = gather(
                 CardSource.ControlledPermanents(

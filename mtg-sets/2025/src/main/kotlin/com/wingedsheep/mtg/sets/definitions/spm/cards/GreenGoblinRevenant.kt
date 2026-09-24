@@ -31,7 +31,7 @@ val GreenGoblinRevenant = card("Green Goblin, Revenant") {
     keywords(Keyword.FLYING, Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Composite(
             Effects.Discard(1),
             Effects.DrawCards(DynamicAmounts.cardsDiscardedThisTurn()),

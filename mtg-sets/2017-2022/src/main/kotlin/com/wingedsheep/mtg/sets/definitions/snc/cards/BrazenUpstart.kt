@@ -26,7 +26,7 @@ val BrazenUpstart = card("Brazen Upstart") {
     keywords(Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Patterns.Library.lookAtTopRevealMatchingToHand(
             count = 5,
             filter = GameObjectFilter.Creature,

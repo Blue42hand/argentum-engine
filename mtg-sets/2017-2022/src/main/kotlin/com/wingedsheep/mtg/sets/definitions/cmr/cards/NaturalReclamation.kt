@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  *
  * A Disenchant body — [Effects.Destroy] on [Targets.ArtifactOrEnchantment] — priced up to make room
  * for cascade. [Keyword.CASCADE] is display-only, so as on `cmr/cards/AnnoyedAltisaur.kt` the
- * keyword only prints the line and the real work is a [Triggers.WhenYouCastThisSpell] trigger
+ * keyword only prints the line and the real work is a `Triggers.self.isCast()` trigger
  * feeding [Effects.Cascade]; cascade fires on the cast, so an instant carries it unchanged.
  */
 val NaturalReclamation = card("Natural Reclamation") {
@@ -37,7 +37,7 @@ val NaturalReclamation = card("Natural Reclamation") {
 
     // Cascade — the cast trigger the keyword abbreviates.
     triggeredAbility {
-        trigger = Triggers.WhenYouCastThisSpell()
+        trigger = Triggers.self.isCast()
         effect = Effects.Cascade
         description = "Cascade"
     }

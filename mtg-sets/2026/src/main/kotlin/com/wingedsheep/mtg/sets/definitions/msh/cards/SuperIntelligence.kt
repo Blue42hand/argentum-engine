@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 /**
  * Super Intelligence
@@ -31,7 +30,7 @@ val SuperIntelligence = card("Super Intelligence") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.phase(Step.UPKEEP, binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.beginningOf(Step.UPKEEP)
         effect = Effects.DrawCards(1)
     }
 

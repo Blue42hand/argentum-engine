@@ -35,7 +35,7 @@ val IgnisScientia = card("Ignis Scientia") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             // Look at the top six cards of your library.
             val looked = gather(CardSource.TopOfLibrary(count = 6, player = Player.You))

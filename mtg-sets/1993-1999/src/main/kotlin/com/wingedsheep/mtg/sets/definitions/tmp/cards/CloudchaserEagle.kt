@@ -27,7 +27,7 @@ val CloudchaserEagle = card("Cloudchaser Eagle") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val victim = target("target", Targets.Enchantment)
         effect = Effects.Destroy(victim)
     }

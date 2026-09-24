@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 /**
  * Rook Turret
@@ -28,10 +27,7 @@ val RookTurret = card("Rook Turret") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Artifact.youControl(),
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.Artifact.youControl()).enters()
         // "you may draw a card. If you do, discard a card." — loot coupled draw+discard, gated by Effects.May.
         effect = Effects.May(Patterns.Hand.loot())
     }

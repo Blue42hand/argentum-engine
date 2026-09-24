@@ -5,10 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -35,15 +31,12 @@ val RosieCottonOfSouthLane = card("Rosie Cotton of South Lane") {
         "than Rosie Cotton."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateFood()
     }
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = EventPattern.TokenCreationEvent(controller = Player.You),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.you.createsToken()
         val otherCreatureYouControl = target("creature you control other than Rosie Cotton", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, otherCreatureYouControl)
     }

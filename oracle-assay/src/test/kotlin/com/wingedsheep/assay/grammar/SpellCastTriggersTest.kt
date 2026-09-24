@@ -44,7 +44,7 @@ class SpellCastTriggersTest : StringSpec({
                     spellFilter = GameObjectFilter.Noncreature,
                     player = Player.You,
                 ),
-                binding = SdkTriggers.YouCastNoncreature.binding,
+                binding = SdkTriggers.you.casts(GameObjectFilter.Noncreature).binding,
                 effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             )
         roundTrips("Whenever you cast a noncreature spell, put a +1/+1 counter on ~.")
@@ -138,7 +138,7 @@ class SpellCastTriggersTest : StringSpec({
                         player = Player.You,
                         spellFilter = GameObjectFilter.Any,
                     ),
-                    binding = SdkTriggers.YouCastSpell.binding,
+                    binding = SdkTriggers.you.casts().binding,
                     effect = Effects.DrawCards(1),
                 ),
             ),

@@ -58,10 +58,7 @@ val BaronStruckerHydraOverlord = card("Baron Strucker, HYDRA Overlord") {
     }
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Any.withSubtype(Subtype.VILLAIN).youControl(),
-            binding = TriggerBinding.OTHER,
-        )
+        trigger = Triggers.another(GameObjectFilter.Any.withSubtype(Subtype.VILLAIN).youControl()).enters()
         effect = Effects.May(Effects.Connive(EffectTarget.TriggeringEntity))
         effectOncePerTurn = true
         description = "Whenever another Villain you control enters, you may have it connive. " +

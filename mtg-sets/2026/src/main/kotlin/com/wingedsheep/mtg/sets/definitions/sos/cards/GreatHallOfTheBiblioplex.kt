@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -67,8 +66,7 @@ val GreatHallOfTheBiblioplex = card("Great Hall of the Biblioplex") {
                 ),
                 Effects.GrantTriggeredAbility(
                     ability = TriggeredAbility.create(
-                        trigger = Triggers.YouCastInstantOrSorcery.event,
-                        binding = TriggerBinding.SELF,
+                        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery),
                         effect = Effects.ModifyStats(power = 1, toughness = 0, target = EffectTarget.Self),
                         descriptionOverride = "Whenever you cast an instant or sorcery spell, this creature gets +1/+0 until end of turn.",
                     ),

@@ -22,7 +22,7 @@ val HornetHarasser = card("Hornet Harasser") {
     oracleText = "When this creature dies, target creature gets -2/-2 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val creature = target("target creature", Targets.Creature)
         effect = Effects.ModifyStats(-2, -2, creature)
         description = "When this creature dies, target creature gets -2/-2 until end of turn."

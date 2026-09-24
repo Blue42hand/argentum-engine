@@ -33,7 +33,7 @@ val MireTriton = card("Mire Triton") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Patterns.Library.mill(2),
             Effects.GainLife(2),

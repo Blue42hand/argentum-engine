@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Lord Skitter's Blessing
@@ -50,7 +51,7 @@ val LordSkittersBlessing = card("Lord Skitter's Blessing") {
         "and you draw an additional card."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "target creature you control",
             TargetCreature(filter = TargetFilter.CreatureYouControl),
@@ -61,7 +62,7 @@ val LordSkittersBlessing = card("Lord Skitter's Blessing") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourDrawStep
+        trigger = Triggers.you.beginningOf(Step.DRAW)
         interveningIf = Conditions.YouControlAtLeast(
             1,
             GameObjectFilter.Creature.youControl().enchanted(),

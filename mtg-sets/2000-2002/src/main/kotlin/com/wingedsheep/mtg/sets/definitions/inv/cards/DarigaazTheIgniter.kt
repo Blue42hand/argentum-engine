@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Darigaaz, the Igniter
@@ -42,7 +43,7 @@ val DarigaazTheIgniter = card("Darigaaz, the Igniter") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}{R}"),
             then = Effects.ChooseColorThen(

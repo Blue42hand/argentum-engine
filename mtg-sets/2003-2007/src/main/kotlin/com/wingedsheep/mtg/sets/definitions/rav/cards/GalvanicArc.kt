@@ -30,7 +30,7 @@ val GalvanicArc = card("Galvanic Arc") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("any target", Targets.Any)
         effect = Effects.DealDamage(3, t)
     }

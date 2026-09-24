@@ -33,7 +33,7 @@ val RunawayCarriage = card("Runaway Carriage") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.CreateDelayedTrigger(
             step = Step.END_COMBAT,
             effect = SacrificeSelfEffect
@@ -41,7 +41,7 @@ val RunawayCarriage = card("Runaway Carriage") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Blocks
+        trigger = Triggers.self.blocks()
         effect = Effects.CreateDelayedTrigger(
             step = Step.END_COMBAT,
             effect = SacrificeSelfEffect

@@ -30,7 +30,7 @@ val KunLunWarrior = card("K'un-Lun Warrior") {
         "If you do, draw a card."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             effect = Effects.ChooseAction(
                 choices = listOf(

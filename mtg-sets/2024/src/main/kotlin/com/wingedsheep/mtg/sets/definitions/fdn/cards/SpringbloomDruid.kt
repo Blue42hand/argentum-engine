@@ -25,7 +25,7 @@ val SpringbloomDruid = card("Springbloom Druid") {
     oracleText = "When this creature enters, you may sacrifice a land. If you do, search your library for up to two basic land cards, put them onto the battlefield tapped, then shuffle."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Effects.Sacrifice(GameObjectFilter.Land, count = 1, target = EffectTarget.Controller)
                 .then(Patterns.Library.searchLibrary(

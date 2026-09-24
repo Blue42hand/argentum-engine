@@ -50,7 +50,7 @@ val HuntedBonebrute = card("Hunted Bonebrute") {
     disguise = "{1}{B}"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.CreateToken(
             power = 1,
@@ -65,7 +65,7 @@ val HuntedBonebrute = card("Hunted Bonebrute") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.LoseLife(3, EffectTarget.PlayerRef(Player.EachOpponent))
         description = "When this creature dies, each opponent loses 3 life."
     }

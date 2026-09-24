@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  * Flying
  * When this creature dies, you may return target enchantment card from your graveyard to the battlefield.
  *
- * A plain [Triggers.Dies] — battlefield → graveyard, SELF binding, and *no* `triggerZone`: setting
+ * A plain `Triggers.self.dies()` — battlefield → graveyard, SELF binding, and *no* `triggerZone`: setting
  * one replaces the default `{BATTLEFIELD}` and the dies trigger would never be indexed.
  *
  * The target is an object in the graveyard, so its controller predicate reads **owner**
@@ -42,7 +42,7 @@ val ArchonOfFallingStars = card("Archon of Falling Stars") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val enchantment = target(
             "target",
             TargetObject(filter = TargetFilter(GameObjectFilter.Enchantment.ownedByYou(), zone = Zone.GRAVEYARD)),

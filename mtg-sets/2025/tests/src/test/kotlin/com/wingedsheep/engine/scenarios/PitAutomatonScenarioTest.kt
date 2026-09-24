@@ -29,7 +29,7 @@ import io.kotest.matchers.shouldBe
  *  - a *non*-exhaust activated ability leaves it armed;
  *  - an exhaust **mana** ability leaves it armed — the "that isn't a mana ability" clause Pit
  *    Automaton's Oracle text was updated to add, and the reason it can't reuse the plain
- *    `Triggers.YouActivateExhaustAbility` the set's other exhaust payoffs use;
+ *    `Triggers.you.activatesAbility(exhaust = true)` the set's other exhaust payoffs use;
  *  - the mana ability produces two colorless restricted to activating abilities.
  */
 class PitAutomatonScenarioTest : ScenarioTestBase() {

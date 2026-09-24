@@ -33,7 +33,7 @@ val IronHillsBlacksmith = card("Iron Hills Blacksmith") {
     keywords(Keyword.DOUBLE_STRIKE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreatePredefinedToken("Axe")
         description = "When this creature enters, create a colorless Equipment artifact token named " +
             "Axe with \"Equipped creature gets +1/+0\" and equip {2}."

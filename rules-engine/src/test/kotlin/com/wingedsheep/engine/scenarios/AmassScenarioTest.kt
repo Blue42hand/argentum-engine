@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -18,7 +17,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -66,7 +64,7 @@ class AmassScenarioTest : FunSpec({
         power = 1; toughness = 1
         keywords(Keyword.FLYING)
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             effect = Effects.Amass(2, "Orc")
         }
     }
@@ -79,11 +77,7 @@ class AmassScenarioTest : FunSpec({
         typeLine = "Creature — Beast"
         power = 5; toughness = 4
         triggeredAbility {
-            trigger = Triggers.leavesBattlefield(
-                filter = GameObjectFilter.Creature.youControl().powerAtLeast(4),
-                to = Zone.GRAVEYARD,
-                binding = TriggerBinding.ANY
-            )
+            trigger = Triggers.a(GameObjectFilter.Creature.youControl().powerAtLeast(4)).dies()
             effect = Effects.Amass(2, "Orc")
         }
     }

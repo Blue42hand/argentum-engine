@@ -55,13 +55,13 @@ val AppaLoyalSkyBison = card("Appa, Loyal Sky Bison") {
     )
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = choice
         description = "Whenever Appa enters or attacks, choose one — Target creature you control gains flying until end of turn; or airbend another target nonland permanent you control."
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = choice
         description = "Whenever Appa enters or attacks, choose one — Target creature you control gains flying until end of turn; or airbend another target nonland permanent you control."
     }

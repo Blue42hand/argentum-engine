@@ -31,7 +31,7 @@ val ShelteredByGhosts = card("Sheltered by Ghosts") {
     auraTarget = Targets.CreatureYouControl
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "nonland permanent an opponent controls",
             TargetPermanent(filter = TargetFilter.NonlandPermanentOpponentControls)
@@ -40,7 +40,7 @@ val ShelteredByGhosts = card("Sheltered by Ghosts") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

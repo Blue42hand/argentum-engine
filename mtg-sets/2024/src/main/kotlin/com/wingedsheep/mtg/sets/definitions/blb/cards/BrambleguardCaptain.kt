@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Brambleguard Captain
@@ -26,7 +27,7 @@ val BrambleguardCaptain = card("Brambleguard Captain") {
     oracleText = "At the beginning of combat on your turn, target creature you control gets +X/+0 until end of turn, where X is this creature's power."
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val t = target("creature you control", Targets.CreatureYouControl)
         effect = Effects.ModifyStats(
             power = DynamicAmounts.sourcePower(),

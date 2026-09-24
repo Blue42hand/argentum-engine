@@ -31,7 +31,7 @@ val MarchesaDealerOfDeath = card("Marchesa, Dealer of Death") {
         "(Targeting opponents, anything they control, and/or cards in their graveyards is a crime.)"
 
     triggeredAbility {
-        trigger = Triggers.YouCommitCrime
+        trigger = Triggers.you.commitsCrime()
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
             then = Patterns.Library.lookAtTopAndKeep(count = 2, keepCount = 1)

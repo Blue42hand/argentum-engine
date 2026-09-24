@@ -41,7 +41,7 @@ val SubterraneanSchooner = card("Subterranean Schooner") {
     keywordAbility(KeywordAbility.crew(1))
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val crewer = target(
             "target creature that crewed it this turn",
             TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.crewedOrSaddledSourceThisTurn()))

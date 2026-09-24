@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Meneldor, Swift Savior
@@ -33,7 +34,7 @@ val MeneldorSwiftSavior = card("Meneldor, Swift Savior") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         val creature = target(
             "up to one target creature you own",
             TargetCreature(

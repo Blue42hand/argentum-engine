@@ -28,7 +28,7 @@ val MendicantCoreGuidelight = card("Mendicant Core, Guidelight") {
     startYourEngines()
     maxSpeed {
         triggeredAbility {
-            trigger = Triggers.youCastSpell(GameObjectFilter.Artifact)
+            trigger = Triggers.you.casts(GameObjectFilter.Artifact)
             effect = Effects.MayPay(
                 cost = ManaCost.parse("{1}"),
                 then = Effects.CopyTargetSpell(EffectTarget.TriggeringEntity)

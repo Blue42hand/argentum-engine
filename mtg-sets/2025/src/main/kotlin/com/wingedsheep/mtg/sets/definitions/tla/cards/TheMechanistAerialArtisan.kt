@@ -35,7 +35,7 @@ val TheMechanistAerialArtisan = card("The Mechanist, Aerial Artisan") {
 
     // Whenever you cast a noncreature spell, create a Clue token.
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.CreateClue()
     }
 

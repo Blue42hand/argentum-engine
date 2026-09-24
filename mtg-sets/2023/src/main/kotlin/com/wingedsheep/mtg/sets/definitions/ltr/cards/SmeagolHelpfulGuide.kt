@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Sméagol, Helpful Guide
@@ -41,13 +42,13 @@ val SmeagolHelpfulGuide = card("Sméagol, Helpful Guide") {
         "your control and the rest into their graveyard."
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.ControlledCreatureDiedThisTurn
         effect = Effects.TheRingTemptsYou()
     }
 
     triggeredAbility {
-        trigger = Triggers.RingTemptsYou
+        trigger = Triggers.you.isTemptedByTheRing()
         target("target opponent", Targets.Opponent)
         effect = Effects.Pipeline {
             val (_, allRevealed) = gatherUntilMatch(GameObjectFilter.Land, player = Player.TargetOpponent)

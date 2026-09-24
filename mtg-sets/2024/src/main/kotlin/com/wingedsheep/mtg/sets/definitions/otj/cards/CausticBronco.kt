@@ -45,7 +45,7 @@ val CausticBronco = card("Caustic Bronco") {
     keywordAbility(KeywordAbility.saddle(3))
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Pipeline {
             val revealed = gather(CardSource.TopOfLibrary(1, Player.You))
             toHand(revealed, revealed = true)

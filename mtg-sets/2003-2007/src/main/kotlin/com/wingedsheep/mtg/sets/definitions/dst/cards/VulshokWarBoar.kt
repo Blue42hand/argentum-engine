@@ -28,7 +28,7 @@ val VulshokWarBoar = card("Vulshok War Boar") {
     power = 5
     toughness = 5
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.PayOrSuffer(cost = Costs.pay.Sacrifice(GameObjectFilter.Artifact), suffer = SacrificeSelfEffect)
     }
     metadata {

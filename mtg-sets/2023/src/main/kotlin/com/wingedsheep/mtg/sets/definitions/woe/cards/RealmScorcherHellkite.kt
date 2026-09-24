@@ -42,7 +42,7 @@ val RealmScorcherHellkite = card("Realm-Scorcher Hellkite") {
     bargain()
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.WasBargained
         effect = Effects.AddManaInAnyCombination(4)
         description = "When this creature enters, if it was bargained, add four mana in any " +

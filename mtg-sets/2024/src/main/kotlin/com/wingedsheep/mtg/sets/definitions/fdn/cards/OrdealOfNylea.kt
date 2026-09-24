@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -41,7 +40,7 @@ val OrdealOfNylea = card("Ordeal of Nylea") {
     // Whenever enchanted creature attacks, put a +1/+1 counter on it.
     // Then if it has three or more +1/+1 counters on it, sacrifice this Aura.
     triggeredAbility {
-        trigger = Triggers.attacks(binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.attacks()
         // EffectTarget.TriggeringEntity resolves to the enchanted (attacking) creature here —
         // AttachmentTriggerDetector sets triggeringEntityId to the attached entity.
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.EnchantedCreature) then
@@ -58,7 +57,7 @@ val OrdealOfNylea = card("Ordeal of Nylea") {
     // When you sacrifice this Aura, search your library for up to two basic land cards,
     // put them onto the battlefield tapped, then shuffle.
     triggeredAbility {
-        trigger = Triggers.Sacrificed
+        trigger = Triggers.self.isSacrificed()
         effect = Patterns.Library.searchLibrary(
             filter = GameObjectFilter.BasicLand,
             count = 2,

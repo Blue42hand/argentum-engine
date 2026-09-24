@@ -27,7 +27,7 @@ val CraterclawColossus = card("Craterclaw Colossus") {
     // X is counted once on resolution, then one pass over the group carries both the pump and
     // the trample grant (Overrun's shape — see Patterns.Group.pumpAndGrantToAll).
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val artifactCount = storeNumber(DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count())
             run(Effects.ForEachInGroup(

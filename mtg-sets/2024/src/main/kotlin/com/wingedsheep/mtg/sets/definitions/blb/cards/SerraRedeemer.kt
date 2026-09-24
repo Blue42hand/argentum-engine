@@ -2,15 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Serra Redeemer
@@ -33,13 +30,7 @@ val SerraRedeemer = card("Serra Redeemer") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = ZoneChangeEvent(
-                filter = GameObjectFilter.Creature.youControl().powerAtMost(2),
-                to = Zone.BATTLEFIELD
-            ),
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl().powerAtMost(2)).enters()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.TriggeringEntity)
     }
 

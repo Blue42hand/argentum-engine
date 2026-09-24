@@ -43,7 +43,7 @@ val WarmakerGunship = card("Warmaker Gunship") {
     // When this Spacecraft enters, it deals damage equal to the number of artifacts you control
     // to target creature an opponent controls.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.DealDamage(
             amount = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count(),

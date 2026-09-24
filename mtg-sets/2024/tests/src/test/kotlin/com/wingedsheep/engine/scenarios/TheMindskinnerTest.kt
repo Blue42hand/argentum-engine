@@ -33,7 +33,7 @@ class TheMindskinnerTest : FunSpec({
         toughness = 1
         oracleText = "When Test Zapper enters, it deals 3 damage to target opponent."
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             val foe = target("target opponent", Targets.Opponent)
             effect = Effects.DealDamage(3, foe)
         }

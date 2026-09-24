@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Retreat to Valakut
@@ -25,7 +26,7 @@ val RetreatToValakut = card("Retreat to Valakut") {
         "• Target creature can't block this turn."
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = ModalEffect.chooseOne(
             mode("Target creature gets +2/+0 until end of turn") {
                 val creature = target("target creature", TargetCreature())

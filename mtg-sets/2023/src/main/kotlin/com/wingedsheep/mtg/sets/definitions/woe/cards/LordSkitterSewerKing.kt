@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Lord Skitter, Sewer King
@@ -47,10 +48,7 @@ val LordSkitterSewerKing = card("Lord Skitter, Sewer King") {
         "\"This token can't block.\""
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Creature.withSubtype(Subtype.RAT).youControl(),
-            binding = TriggerBinding.OTHER,
-        )
+        trigger = Triggers.another(GameObjectFilter.Creature.withSubtype(Subtype.RAT).youControl()).enters()
         val card = target(
             "up to one target card in an opponent's graveyard",
             TargetObject(
@@ -64,7 +62,7 @@ val LordSkitterSewerKing = card("Lord Skitter, Sewer King") {
     }
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = woeRatToken()
         description = "At the beginning of combat on your turn, create a 1/1 black Rat creature " +
             "token with \"This token can't block.\""

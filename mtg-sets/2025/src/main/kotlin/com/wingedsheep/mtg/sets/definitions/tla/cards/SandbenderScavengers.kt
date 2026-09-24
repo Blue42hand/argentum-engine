@@ -47,7 +47,7 @@ val SandbenderScavengers = card("Sandbender Scavengers") {
 
     // Whenever you sacrifice another permanent, put a +1/+1 counter on this creature.
     triggeredAbility {
-        trigger = Triggers.YouSacrificeAnother(GameObjectFilter.Permanent)
+        trigger = Triggers.you.sacrificesAnother(GameObjectFilter.Permanent)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever you sacrifice another permanent, put a +1/+1 counter on this creature."
     }
@@ -55,7 +55,7 @@ val SandbenderScavengers = card("Sandbender Scavengers") {
     // When this creature dies, you may exile it. When you do, return target creature card with
     // mana value less than or equal to this creature's power from your graveyard to the battlefield.
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.ReflexiveTrigger(
             action = Effects.Exile(EffectTarget.Self),
             optional = true,

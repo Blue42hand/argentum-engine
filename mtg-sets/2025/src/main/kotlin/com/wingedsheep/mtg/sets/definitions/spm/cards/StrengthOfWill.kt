@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * "Whenever this creature is dealt damage, put that many +1/+1 counters on it."
  *
  * The granted "dealt damage → counters" ability is a self-bound triggered ability
- * ([Triggers.TakesDamage], SELF): at resolution it reads the damage amount off the
+ * (`Triggers.self.isDealtDamage()`, SELF): at resolution it reads the damage amount off the
  * trigger context ([ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT]) and puts that many
  * +1/+1 counters on the creature itself. Both grants share the EndOfTurn duration.
  */
@@ -40,8 +40,7 @@ val StrengthOfWill = card("Strength of Will") {
             Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature),
             Effects.GrantTriggeredAbility(
                 ability = TriggeredAbility.create(
-                    trigger = Triggers.TakesDamage.event,
-                    binding = Triggers.TakesDamage.binding,
+                    trigger = Triggers.self.isDealtDamage(),
                     effect = Effects.AddDynamicCounters(
                         CounterType.PLUS_ONE_PLUS_ONE,
                         DynamicAmounts.triggerDamageAmount(),

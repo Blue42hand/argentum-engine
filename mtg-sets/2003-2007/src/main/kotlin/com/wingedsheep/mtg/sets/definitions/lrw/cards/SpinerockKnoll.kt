@@ -52,7 +52,7 @@ val SpinerockKnoll = card("Spinerock Knoll") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val hideawayTop = gather(
                 CardSource.TopOfLibrary(

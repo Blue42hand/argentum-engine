@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -26,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  *   entering creature's projected power, so static pumps and entry counters count).
  * - +2 is one "up to two target lands" requirement (distinct objects, zero allowed), untapped
  *   per target with [ForEachTargetEffect].
- * - −4 installs a filter-scoped delayed trigger ([Triggers.CreaturesAttackYourOpponent]) that lives
+ * - −4 installs a filter-scoped delayed trigger (`Triggers.anOpponent.isAttacked()`) that lives
  *   until Garruk's controller's next turn ([DelayedTriggerExpiry.UntilControllersNextTurn]) — it is
  *   Garruk's delayed ability, so it keeps working after Garruk leaves the battlefield. It fires once
  *   per attack declaration in which at least one creature attacks one of your opponents, and
@@ -46,10 +45,7 @@ val GarrukCurseBreaker = card("Garruk, Curse Breaker") {
         "those creatures get +2/+2 and gain trample until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            GameObjectFilter.Creature.youControl().powerAtLeast(4),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl().powerAtLeast(4)).enters()
         effect = Effects.DrawCards(1)
         description = "Whenever a creature you control with power 4 or greater enters, draw a card."
     }
@@ -81,7 +77,7 @@ val GarrukCurseBreaker = card("Garruk, Curse Breaker") {
     //     those creatures get +2/+2 and gain trample until end of turn.
     loyaltyAbility(-4) {
         effect = Effects.CreateDelayedTrigger(
-            trigger = Triggers.CreaturesAttackYourOpponent,
+            trigger = Triggers.anOpponent.isAttacked(),
             effect = Patterns.Group.pumpAndGrantToAll(
                 power = 2,
                 toughness = 2,

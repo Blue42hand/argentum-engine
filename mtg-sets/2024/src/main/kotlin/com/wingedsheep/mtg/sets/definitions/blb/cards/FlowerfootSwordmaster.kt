@@ -37,14 +37,14 @@ val FlowerfootSwordmaster = card("Flowerfoot Swordmaster") {
 
     // Offspring ETB: create token copy when kicked
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = WasKicked
         effect = Effects.CreateTokenCopyOfSelf(overridePower = 1, overrideToughness = 1)
     }
 
     // Valiant — Mice you control get +1/+0 until end of turn
     triggeredAbility {
-        trigger = Triggers.Valiant
+        trigger = Triggers.self.becomesTarget(byYou = true, firstTimeEachTurn = true)
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Creature.withSubtype("Mouse")).youControl(),
             effect = Effects.ModifyStats(

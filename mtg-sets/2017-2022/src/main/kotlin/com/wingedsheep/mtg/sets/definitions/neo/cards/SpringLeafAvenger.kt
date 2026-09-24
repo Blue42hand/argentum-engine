@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Spring-Leaf Avenger — Kamigawa: Neon Dynasty #208 (canonical printing)
@@ -35,7 +36,7 @@ val SpringLeafAvenger = card("Spring-Leaf Avenger") {
     ninjutsu("{3}{G}")
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         val t = target(
             "permanent card in your graveyard",
             TargetObject(

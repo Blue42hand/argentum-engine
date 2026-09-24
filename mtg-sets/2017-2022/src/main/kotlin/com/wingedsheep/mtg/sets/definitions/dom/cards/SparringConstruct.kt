@@ -24,7 +24,7 @@ val SparringConstruct = card("Sparring Construct") {
 
     triggeredAbility {
         val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creatureYouControl)
     }
 

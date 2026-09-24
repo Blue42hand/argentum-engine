@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Mighty Mutanimals
@@ -27,7 +28,7 @@ val MightyMutanimals = card("Mighty Mutanimals") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,
@@ -38,7 +39,7 @@ val MightyMutanimals = card("Mighty Mutanimals") {
     }
 
     triggeredAbility {
-        trigger = Triggers.OtherCreatureEnters
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
         description = "Alliance — Whenever another creature you control enters, put a +1/+1 counter on target creature you control."

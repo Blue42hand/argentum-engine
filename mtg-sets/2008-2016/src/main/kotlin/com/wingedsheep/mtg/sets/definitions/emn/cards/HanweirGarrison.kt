@@ -28,7 +28,7 @@ val HanweirGarrison = card("Hanweir Garrison") {
         "are tapped and attacking.\n(Melds with Hanweir Battlements.)"
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.CreateToken(
             count = 2,
             power = 1,

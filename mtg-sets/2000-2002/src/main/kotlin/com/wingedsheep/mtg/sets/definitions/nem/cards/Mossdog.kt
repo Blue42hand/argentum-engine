@@ -27,7 +27,7 @@ val Mossdog = card("Mossdog") {
     power = 1
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.BecomesTargetByOpponent
+        trigger = Triggers.self.becomesTarget(byOpponent = true)
         effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {

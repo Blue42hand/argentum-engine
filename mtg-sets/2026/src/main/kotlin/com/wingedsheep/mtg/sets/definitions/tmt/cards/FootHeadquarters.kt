@@ -25,7 +25,7 @@ val FootHeadquarters = card("Foot Headquarters") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(1)
     }
 

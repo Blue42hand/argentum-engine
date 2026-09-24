@@ -1720,16 +1720,16 @@ private val KEYWORD_COUNTER_CONSTANT = mapOf(
 )
 
 private val TRIGGER_SPEC = mapOf(
-    "WhenAPermanentEntersTheBattlefield" to "Triggers.EntersBattlefield",
-    "WhenAPermanentDies" to "Triggers.Dies",
-    "WhenACreatureAttacks" to "Triggers.Attacks",
-    "WhenACreatureAttacksForTheFirstTimeEachTurn" to "Triggers.AttacksFirstTimeEachTurn",
-    "WhenACreatureBlocks" to "Triggers.Blocks",
-    "WhenACreatureDealsCombatDamageToAPlayer" to "Triggers.DealsCombatDamageToPlayer",
-    "WhenACreatureBecomesBlocked" to "Triggers.BecomesBlocked",
+    "WhenAPermanentEntersTheBattlefield" to "Triggers.self.enters()",
+    "WhenAPermanentDies" to "Triggers.self.dies()",
+    "WhenACreatureAttacks" to "Triggers.self.attacks()",
+    "WhenACreatureAttacksForTheFirstTimeEachTurn" to "Triggers.self.attacks(setOf(AttackPredicate.FirstTimeEachTurn))",
+    "WhenACreatureBlocks" to "Triggers.self.blocks()",
+    "WhenACreatureDealsCombatDamageToAPlayer" to "Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)",
+    "WhenACreatureBecomesBlocked" to "Triggers.self.becomesBlocked()",
     // "Whenever this permanent becomes tapped" (SELF) — e.g. Wylie Duke, Atiin Hero
     // ("Whenever Wylie Duke becomes tapped, you gain 1 life and draw a card.").
-    "WhenAPermanentBecomesTapped" to "Triggers.BecomesTapped",
+    "WhenAPermanentBecomesTapped" to "Triggers.self.becomesTapped()",
 )
 
 /**
@@ -2742,8 +2742,8 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
     // "one or more" quantifier, so the two can't be told apart here, yet they behave differently (a
     // board wipe fires the batch trigger once but the per-each trigger once per creature). Rendering
     // either way would mis-author the ~55 per-each cards that share this node, so we decline. The
-    // engine supports both shapes (Triggers.OneOrMoreCreaturesYouControlDie /
-    // Triggers.YourCreatureDies) and the bridge still scores these cards coverable — choosing between
+    // engine supports both shapes (Triggers.oneOrMore(filter).die() /
+    // Triggers.a(GameObjectFilter.Creature.youControl()).dies()) and the bridge still scores these cards coverable — choosing between
     // them is a human call (the add-card scenario test is the real gate).
     if (jsonContains(trig, "_Trigger", "WhenAPermanentDies") && !isSelf(trig)) return null
 
@@ -2752,58 +2752,58 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
     // first-time-each-turn trigger over the SELF (ThisPermanent) subject; a non-self subject has no
     // calibrated ANY-binding card yet, so it declines -> SCAFFOLD rather than guess a filter.
     if (jsonContains(trig, "_Trigger", "WhenAPermanentBecomesSaddledForTheFirstTimeInATurn") && isSelf(trig))
-        return "Triggers.becomesSaddled(firstTimeEachTurn = true)"
+        return "Triggers.self.becomesSaddled(true)"
 
     // "Whenever ~ deals damage" / "Whenever ~ is dealt damage" (SELF) — paired with a "that much"
     // gain/lose-life or token effect.
     if (jsonContains(trig, "_Trigger", "WhenAPermanentDealsDamage") && isSelf(trig))
-        return "Triggers.DealsDamage"
+        return "Triggers.self.dealsDamage()"
     if (jsonContains(trig, "_Trigger", "WhenAPermanentIsDealtDamage") && isSelf(trig))
-        return "Triggers.TakesDamage"
+        return "Triggers.self.isDealtDamage()"
 
     // Phase/step triggers. "your upkeep" is scoped to You; "each upkeep" to any player; "each
     // opponent's upkeep" to Opponent. The host-relative scopes (HostController / HostPlayer, an Aura
     // granting an upkeep trigger to the enchanted permanent's controller) decline -> SCAFFOLD, as do
     // the niche dynamic scopes (TheChosenPlayer, ControllerOfSpell, ...).
     if (jsonContains(trig, "_Trigger", "AtTheBeginningOfAPlayersUpkeep")) {
-        if (jsonContains(trig, "_Player", "You")) return "Triggers.YourUpkeep"
-        if (jsonContains(trig, "_Players", "AnyPlayer")) return "Triggers.EachUpkeep"
-        if (jsonContains(trig, "_Players", "Opponent")) return "Triggers.EachOpponentUpkeep"
+        if (jsonContains(trig, "_Player", "You")) return "Triggers.you.beginningOf(Step.UPKEEP)"
+        if (jsonContains(trig, "_Players", "AnyPlayer")) return "Triggers.anyPlayer.beginningOf(Step.UPKEEP)"
+        if (jsonContains(trig, "_Players", "Opponent")) return "Triggers.anOpponent.beginningOf(Step.UPKEEP)"
     }
     // "At the beginning of your second main phase" (You) — the postcombat main step trigger used by
     // the Survival ability word (Cautious Survivor, Veteran Survivor). Scoped exactly like upkeep/end-
     // step: only the You scope has a matching Triggers.* constant, so an any-player / opponent scope
     // declines -> SCAFFOLD.
     if (jsonContains(trig, "_Trigger", "AtTheBeginningOfAPlayersSecondMainPhase")) {
-        if (jsonContains(trig, "_Player", "You")) return "Triggers.YourPostcombatMain"
+        if (jsonContains(trig, "_Player", "You")) return "Triggers.you.beginningOf(Step.POSTCOMBAT_MAIN)"
     }
     // "your end step" is scoped to You (a SinglePlayer(You) subject); "each end step" to any player.
     // The opponent / host-relative end-step scopes have no matching Triggers.* constant yet, so they
     // decline -> SCAFFOLD, mirroring the upkeep block above (which has an EachOpponentUpkeep but no
     // end-step counterpart exists).
     if (jsonContains(trig, "_Trigger", "AtTheBeginningOfAPlayersEndStep")) {
-        if (jsonContains(trig, "_Player", "You")) return "Triggers.YourEndStep"
-        if (jsonContains(trig, "_Players", "AnyPlayer")) return "Triggers.EachEndStep"
+        if (jsonContains(trig, "_Player", "You")) return "Triggers.you.beginningOf(Step.END)"
+        if (jsonContains(trig, "_Players", "AnyPlayer")) return "Triggers.anyPlayer.beginningOf(Step.END)"
     }
 
     // "At the beginning of combat on your turn" (You) / "on each turn" (any player) — the begin-of-
     // combat step trigger (Ornery Tumblewagg). Scoped exactly like the upkeep/end-step blocks; an
     // opponent / host-relative scope has no matching Triggers.* constant, so it declines -> SCAFFOLD.
     if (jsonContains(trig, "_Trigger", "AtTheBeginningOfCombatDuringAPlayersTurn")) {
-        if (jsonContains(trig, "_Player", "You")) return "Triggers.BeginCombat"
-        if (jsonContains(trig, "_Players", "AnyPlayer")) return "Triggers.EachCombat"
+        if (jsonContains(trig, "_Player", "You")) return "Triggers.you.beginningOf(Step.BEGIN_COMBAT)"
+        if (jsonContains(trig, "_Players", "AnyPlayer")) return "Triggers.anyPlayer.beginningOf(Step.BEGIN_COMBAT)"
     }
 
     // "At the beginning of your first main phase" (You) — Abstract Paintmage's mana trigger. Only the
-    // You scope has a matching Triggers.FirstMainPhase constant; any-player / opponent scopes decline
+    // You scope has a matching Triggers.you.beginningOf(Step.PRECOMBAT_MAIN) constant; any-player / opponent scopes decline
     // -> SCAFFOLD, mirroring the upkeep/end-step/combat blocks above.
     if (jsonContains(trig, "_Trigger", "AtTheBeginningOfAPlayersFirstMainPhase")) {
-        if (jsonContains(trig, "_Player", "You")) return "Triggers.FirstMainPhase"
+        if (jsonContains(trig, "_Player", "You")) return "Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)"
     }
 
     // "Whenever a player cycles a card" (any player) — Fleeting Aven, Invigorating Boon.
     if (jsonContains(trig, "_Trigger", "WhenAPlayerCyclesACard") && jsonContains(trig, "_Players", "AnyPlayer"))
-        return "Triggers.AnyPlayerCycles"
+        return "Triggers.anyPlayer.cycles()"
 
     // "Whenever an opponent draws a card" (Razorkin Needlehead, Consecrated Sphinx) / "whenever you
     // draw a card" (A-Queza). The plain draw trigger fires once per card drawn (CR 121.2), with no
@@ -2813,10 +2813,10 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
     // (Ob Nixilis) has no plain constant yet, so it declines -> SCAFFOLD rather than guess a binding.
     if (jsonContains(trig, "_Trigger", "WhenAPlayerDrawsACard")) {
         val scope = trig["args"] as? JsonObject
-        if (scope?.strField("_Players") == "Opponent") return "Triggers.OpponentDraws"
+        if (scope?.strField("_Players") == "Opponent") return "Triggers.anOpponent.draws()"
         if (scope?.strField("_Players") == "SinglePlayer" &&
             jsonContains(scope["args"], "_Player", "You")
-        ) return "Triggers.YouDraw"
+        ) return "Triggers.you.draws()"
     }
 
     // "Whenever an opponent discards a card" (Entropic Battlecruiser, Tinybones, Bauble Burglar) /
@@ -2830,27 +2830,27 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
     ) {
         val args = trig["args"].asArr?.filterIsInstance<JsonObject>() ?: emptyList()
         val scope = args.firstOrNull { it.containsKey("_Players") || it.containsKey("_Player") }
-        if (scope?.strField("_Players") == "Opponent") return "Triggers.AnyOpponentDiscards"
+        if (scope?.strField("_Players") == "Opponent") return "Triggers.anOpponent.discards()"
         if (scope?.strField("_Player") == "You" ||
             (scope?.strField("_Players") == "SinglePlayer" && jsonContains(scope["args"], "_Player", "You"))
-        ) return "Triggers.YouDiscard"
+        ) return "Triggers.you.discards()"
     }
 
     // "Whenever you gain life" (You) — Pest Mascot, Essence Channeler. Only the You scope maps to
-    // Triggers.YouGainLife; an any-player / opponent scope has no calibrated card yet, so it
+    // Triggers.you.gainsLife(); an any-player / opponent scope has no calibrated card yet, so it
     // declines -> SCAFFOLD rather than guess a binding.
     if (jsonContains(trig, "_Trigger", "WhenAPlayerGainsLife") && jsonContains(trig, "_Player", "You"))
-        return "Triggers.YouGainLife"
+        return "Triggers.you.gainsLife()"
 
     // "Whenever you gain life for the first time each turn" (You) — Leech Collector. The IR tag bakes
     // in the once-per-turn semantics. Only the You scope renders.
     if (jsonContains(trig, "_Trigger", "WhenAPlayerGainsLifeForTheFirstTimeEachTurn") && jsonContains(trig, "_Player", "You"))
-        return "Triggers.YouGainLifeFirstTimeEachTurn"
+        return "Triggers.you.gainsLife(true)"
 
     // "Whenever an opponent gains control of a permanent from you" (Zidane, Tantalus Thief). The IR
     // scopes the gainer to Opponent, the permanent to an unfiltered IsPermanent, and the losing player
     // to SinglePlayer(You). Only that exact shape maps to the resident control-change watcher
-    // Triggers.OpponentGainsControlOfYourPermanent; a filtered permanent or a non-Opponent/non-You
+    // Triggers.a().controlChanges(ControlChangeDirection.LOST, toOpponent = true); a filtered permanent or a non-Opponent/non-You
     // scope has no calibrated card yet, so it declines -> SCAFFOLD rather than guess a binding.
     if (jsonContains(trig, "_Trigger", "WhenAPlayerGainsControlOfAPermanentFromAPlayer")) {
         val targs = trig["args"].asArr ?: return null
@@ -2862,12 +2862,12 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
         if (gainer?.strField("_Players") == "Opponent" &&
             perms?.strField("_Permanents") == "IsPermanent" &&
             fromYou
-        ) return "Triggers.OpponentGainsControlOfYourPermanent"
+        ) return "Triggers.a().controlChanges(ControlChangeDirection.LOST, toOpponent = true)"
     }
 
     // "Whenever you turn a permanent face up" (You, AnyPermanent) — Growing Dread. The IR scopes the
     // turner to a player and the permanent to a group; only the You scope over an unfiltered
-    // AnyPermanent maps to Triggers.CreatureTurnedFaceUp() (in Duskmourn every face-up turn is a
+    // AnyPermanent maps to Triggers.you.permanentTurnedFaceUp() (in Duskmourn every face-up turn is a
     // manifested creature). A non-You turner or a filtered permanent group has no calibrated card yet,
     // so it declines -> SCAFFOLD. The "that permanent" subject of the effect is the turned-up permanent
     // (the triggering entity) — see [EmitCtx.triggeringEntityIsTurnedUpPermanent], set in triggerBlock.
@@ -2878,13 +2878,13 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
         val youScoped = player?.strField("_Players") == "SinglePlayer" &&
             jsonContains(player["args"], "_Player", "You")
         if (youScoped && perms?.strField("_Permanents") == "AnyPermanent")
-            return "Triggers.CreatureTurnedFaceUp()"
+            return "Triggers.you.permanentTurnedFaceUp()"
     }
 
     // "Whenever this creature or another permanent you control is turned face up" — the permanent-
     // scoped face-up trigger (Cryptid Inspector, an arm of its Or-union). The subject is
     // `Or(ThisPermanent, And(Other(ThisPermanent), ControlledByAPlayer(You)))` = any permanent you
-    // control (self included) turned face up, which is exactly Triggers.CreatureTurnedFaceUp(You).
+    // control (self included) turned face up, which is exactly Triggers.player(You).permanentTurnedFaceUp().
     // Only that self-or-other-you-control shape renders; a foreign or filtered subject declines.
     if (jsonContains(trig, "_Trigger", "WhenAPermanentIsTurnedFaceUp")) {
         val subj = trig["args"] as? JsonObject
@@ -2892,20 +2892,20 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
             jsonContains(subj["args"], "_Permanent", "ThisPermanent") &&
             jsonContains(subj["args"], "_Permanents", "ControlledByAPlayer") &&
             jsonContains(subj["args"], "_Player", "You")
-        if (selfOrYours) return "Triggers.CreatureTurnedFaceUp()"
+        if (selfOrYours) return "Triggers.you.permanentTurnedFaceUp()"
         // "When this creature is turned face up" — the plain SELF-scoped form, which is every
         // disguise card's payoff (Dog Walker, Faerie Snoop, Alley Assailant, …) as well as the
         // classic morph unmorph triggers. `SinglePermanent(ThisPermanent)` maps exactly to the
-        // SELF-bound Triggers.TurnedFaceUp; any wider subject falls through to the decline below.
+        // SELF-bound Triggers.self.turnedFaceUp(); any wider subject falls through to the decline below.
         val selfOnly = subj?.strField("_Permanents") == "SinglePermanent" &&
             jsonContains(subj["args"], "_Permanent", "ThisPermanent")
-        if (selfOnly) return "Triggers.TurnedFaceUp"
+        if (selfOnly) return "Triggers.self.turnedFaceUp()"
     }
 
     // "Whenever this creature becomes the target of a spell or ability an opponent controls"
     // (Cactarantula). The trigger's args is a 2-tuple [subject, spell/ability-filter]; the subject must
     // be SinglePermanent(ThisPermanent) and the filter an opponent-controlled spell/ability. Only that
-    // exact self + opponent shape maps to Triggers.BecomesTargetByOpponent; anything else (a filtered
+    // exact self + opponent shape maps to Triggers.self.becomesTarget(byOpponent = true); anything else (a filtered
     // permanent group, your own spells, a count clause) declines -> SCAFFOLD.
     if (jsonContains(trig, "_Trigger", "WhenAPermanentBecomesTheTargetOfASpellOrAbility")) {
         val targs = trig["args"].asArr ?: return null
@@ -2915,34 +2915,34 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
         val filter = targs.getOrNull(1) as? JsonObject
         val opponentControlled = filter?.strField("_SpellsAndAbilities") == "ControlledByAPlayer" &&
             filter.field("args").strField("_Players") == "Opponent"
-        if (selfSubject && opponentControlled) return "Triggers.BecomesTargetByOpponent"
+        if (selfSubject && opponentControlled) return "Triggers.self.becomesTarget(byOpponent = true)"
         return null
     }
 
     // "When this <permanent> is put into a graveyard from the battlefield, …" — the self
     // leaves-to-graveyard trigger (Reach for the Sky's "draw a card"). The args are
     // [subject, players]; only the SELF subject (SinglePermanent(ThisPermanent)) maps to
-    // Triggers.PutIntoGraveyardFromBattlefield. A filtered / other-permanent subject ("whenever
+    // Triggers.self.dies(). A filtered / other-permanent subject ("whenever
     // ANOTHER … is put into a graveyard") has no matching self-trigger constant, so it declines
     // -> SCAFFOLD rather than mis-bind the trigger to the wrong permanent.
     if (jsonContains(trig, "_Trigger", "WhenAPermanentIsPutIntoAPlayersGraveyard")) {
-        return if (isSelf(trig)) "Triggers.PutIntoGraveyardFromBattlefield" else null
+        return if (isSelf(trig)) "Triggers.self.dies()" else null
     }
 
     // "Whenever equipped creature attacks" — an Equipment/Aura whose attack trigger is bound to the
     // permanent it's attached to (subject SinglePermanent(HostPermanent)). Maps to the ATTACHED binding
     // (Thunder Lasso, Heart-Piercer Bow). Only the bare host subject renders.
     if (jsonContains(trig, "_Trigger", "WhenACreatureAttacks") && isHost(trig))
-        return "Triggers.attacks(binding = TriggerBinding.ATTACHED)"
+        return "Triggers.attached.attacks()"
 
     // "Whenever a creature attacks" — only the unrestricted any-creature shape (no subtype / controller /
     // count clause), which maps to a filterless ANY-binding attacks trigger (Righteous Cause).
     if (jsonContains(trig, "_Trigger", "WhenACreatureAttacks") && isPlainCreatureFilter(trig))
-        return "Triggers.attacks(binding = TriggerBinding.ANY)"
+        return "Triggers.a().attacks()"
 
     // "Whenever this creature attacks a player" (SELF) — the attacks-a-player trigger gated on the
     // declared defender being a *player*, not a planeswalker or battle (AttackPredicate.DefenderIsPlayer
-    // / Triggers.AttacksAnOpponent; Kaalia of the Vast, CR 508.1 + Kaalia's 2024-06-07 ruling). The args
+    // / Triggers.self.attacks(setOf(AttackPredicate.DefenderIsPlayer)); Kaalia of the Vast, CR 508.1 + Kaalia's 2024-06-07 ruling). The args
     // are [subject, defending-player scope]; only the SELF subject over a bare Opponent / AnyPlayer scope
     // ("a player") renders — both mean "attacks a player" for a single attacker, exactly what
     // DefenderIsPlayer gates. A `SinglePlayer(You)` scope ("attacks you") or a constrained scope
@@ -2952,7 +2952,7 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
     // land cards) also declines, since the SELF sugar can't express an ANY-binding defender-player scope.
     if (jsonContains(trig, "_Trigger", "WhenACreatureAttacksAPlayer") && isSelf(trig)) {
         val scope = castScope(trig["args"].asArr?.getOrNull(1) as? JsonObject)
-        return if (scope == CastScope.OPPONENT || scope == CastScope.ANY) "Triggers.AttacksAnOpponent" else null
+        return if (scope == CastScope.OPPONENT || scope == CastScope.ANY) "Triggers.self.attacks(setOf(AttackPredicate.DefenderIsPlayer))" else null
     }
 
     // "Whenever you attack with N or more creatures" — WhenAPlayerAttacksWithANumberOfCreatures scoped to
@@ -2966,13 +2966,13 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
         val plainCreature = "Creature" in trig.argWordsTagged("IsCardtype") &&
             "IsCreatureType" !in blob && "ControlledByAPlayer" !in blob && "\"Other\"" !in blob && "_Color" !in blob
         val n = findInteger(trig) as? Int
-        if (plainCreature && n != null) return "TriggerSpec(EventPattern.YouAttackEvent(minAttackers = $n), TriggerBinding.ANY)"
+        if (plainCreature && n != null) return "Triggers.you.attacks(minAttackers = $n)"
     }
 
     // "Whenever you attack with one or more creatures [matching a filter]" —
     // WhenAPlayerAttacksWithAnyNumberOfCreatures scoped to You. The args are [caster scope, attacker
     // filter]; the batched trigger fires once per combat when at least one declared attacker matches.
-    // Maps to Triggers.YouAttackWithFilter(<filter>) (Jolene, Plundering Pugilist's "with power 4 or
+    // Maps to Triggers.you.attacks(<filter>) (Jolene, Plundering Pugilist's "with power 4 or
     // greater"). Only the You scope renders; the attacker filter must round-trip exactly through
     // gameObjectFilterDsl (a shape it can't recover declines -> SCAFFOLD rather than widening the trigger).
     if (jsonContains(trig, "_Trigger", "WhenAPlayerAttacksWithAnyNumberOfCreatures")) {
@@ -2980,14 +2980,14 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
         val scope = castScope(argv.getOrNull(0) as? JsonObject)
         if (scope != CastScope.YOU) return null
         val filter = gameObjectFilterDsl(argv.getOrNull(1)) ?: return null
-        return "Triggers.YouAttackWithFilter($filter)"
+        return "Triggers.you.attacks($filter)"
     }
 
     // "Whenever you tap an untapped [filter]" — WhenAPlayerTapsAPermanent(playerScope, permanentFilter),
     // the tap-*attribution* trigger (Wilds of Eldraine's Hylda of the Icy Crown, Icewrought Sentry,
     // Solitary Sanctuary, Sharae of Numbing Depths). Distinct from WhenAPermanentBecomesTapped in
     // TRIGGER_SPEC above, which is the passive SELF "becomes tapped" observer. Maps to
-    // Triggers.YouTap(<filter>); only the You scope has a calibrated form, so any other scope declines
+    // Triggers.you.taps(<filter>); only the You scope has a calibrated form, so any other scope declines
     // -> SCAFFOLD.
     //
     // The IR's `IsUntapped` clause must be *dropped*, not round-tripped: the filter is evaluated when
@@ -3002,21 +3002,21 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
         val permanents = withoutIsUntapped(argv.getOrNull(1))
         if (permanents.hasTag("IsUntapped")) return null
         val filter = gameObjectFilterDsl(permanents) ?: return null
-        return "Triggers.YouTap($filter)"
+        return "Triggers.you.taps($filter)"
     }
 
     // "Whenever you attack" — WhenAPlayerAttacks scoped to a SinglePlayer(You). The batched trigger
-    // fires once per combat when you declare one or more attackers. Maps to Triggers.YouAttack
+    // fires once per combat when you declare one or more attackers. Maps to Triggers.you.attacks()
     // (Living History). Only the You scope renders; any other player scope has no calibrated
     // Triggers.* constant, so it declines -> SCAFFOLD rather than widening the trigger.
     if (jsonContains(trig, "_Trigger", "WhenAPlayerAttacks")) {
         val scope = castScope(trig["args"] as? JsonObject)
         if (scope != CastScope.YOU) return null
-        return "Triggers.YouAttack"
+        return "Triggers.you.attacks()"
     }
 
     // "Whenever you fully unlock a Room" — the Eerie Room half (CR 709.5h, Balemurk Leech, Optimistic
-    // Scavenger). The args are [player scope, the Room subject]. The engine's Triggers.RoomFullyUnlocked
+    // Scavenger). The args are [player scope, the Room subject]. The engine's Triggers.you.fullyUnlocksARoom()
     // is fixed to the You scope over any Room, so only that exact shape renders: a SinglePlayer(You)
     // scope plus an IsEnchantmentType "Room" subject. Any other player scope, or a Room subject carrying
     // extra constraints, has no matching Triggers.* constant, so it declines -> SCAFFOLD rather than
@@ -3027,7 +3027,7 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
         val subject = argv.getOrNull(1) as? JsonObject
         val bareRoomSubject = subject?.strField("_Permanents") == "IsEnchantmentType" &&
             subject.field("args").asStr() == "Room"
-        if (scope == CastScope.YOU && bareRoomSubject) return "Triggers.RoomFullyUnlocked"
+        if (scope == CastScope.YOU && bareRoomSubject) return "Triggers.you.fullyUnlocksARoom()"
         return null
     }
 
@@ -3035,9 +3035,9 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
     // `Other(ThisPermanent)` clause means "another …" -> OTHER binding (Elvish Vanguard's "another
     // Elf", Wretched Anurid's "another creature"); otherwise "a …" -> ANY (Wirewood Savage's "a Beast").
     if (jsonContains(trig, "_Trigger", "WhenAPermanentEntersTheBattlefield")) {
-        val binding = if (jsonContains(trig, "_Permanents", "Other")) "TriggerBinding.OTHER" else "TriggerBinding.ANY"
+        val subject = if (jsonContains(trig, "_Permanents", "Other")) "another" else "a"
         val filter = gameObjectFilterDsl(trig) ?: return null
-        return "Triggers.entersBattlefield(filter = $filter, binding = $binding)"
+        return "Triggers.$subject($filter).enters()"
     }
 
     // "Whenever equipped creature deals combat damage to a player" — an Equipment/Aura combat-damage
@@ -3046,8 +3046,7 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
     if (jsonContains(trig, "_Trigger", "WhenACreatureDealsCombatDamageToAPlayer") && isHost(trig) &&
         jsonContains(trig, "_Players", "AnyPlayer")
     ) {
-        return "Triggers.dealsDamage(DamageType.Combat, Recipient.AnyPlayer, " +
-            "binding = TriggerBinding.ATTACHED)"
+        return "Triggers.attached.dealsCombatDamage(Recipient.AnyPlayer)"
     }
 
     // "Whenever a [creature type] deals combat damage to a player, …" — non-self
@@ -3061,9 +3060,8 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
         val blob = compact(trig)
         val bareSubtype = subtype != null && "ControlledByAPlayer" !in blob &&
             "_Color" !in blob && "_Comparison" !in blob && "\"Other\"" !in blob
-        if (bareSubtype) return "TriggerSpec(EventPattern.DealsDamageEvent(damageType = DamageType.Combat, " +
-            "recipient = Recipient.AnyPlayer, sourceFilter = GameObjectFilter.Creature.withSubtype(${subtypeArg(subtype)})), " +
-            "TriggerBinding.ANY)"
+        if (bareSubtype) return "Triggers.a(GameObjectFilter.Creature.withSubtype(${subtypeArg(subtype)}))" +
+            ".dealsCombatDamage(Recipient.AnyPlayer)"
         // "Whenever a [filtered] creature you control deals combat damage to a player, …" — a
         // controller/supertype-scoped source filter beyond a bare subtype (Vraska Joins Up's
         // "legendary creature you control"). Recover the source filter via gameObjectFilterDsl, which
@@ -3071,13 +3069,12 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
         // source. Only a creature filter renders — the trigger's source is always a creature here.
         val srcFilter = (trig["args"].asArr?.getOrNull(0) as? JsonObject)?.let { gameObjectFilterDsl(it) }
         if (srcFilter != null && srcFilter.startsWith("GameObjectFilter.Creature"))
-            return "Triggers.dealsDamage(DamageType.Combat, Recipient.AnyPlayer, " +
-                "sourceFilter = $srcFilter, binding = TriggerBinding.ANY)"
+            return "Triggers.a($srcFilter).dealsCombatDamage(Recipient.AnyPlayer)"
     }
 
     // "Whenever you cast your Nth spell each turn" — WhenAPlayerCastsTheirNthSpellInATurn. The args are
     // [caster scope, an `== N` comparison, a spell filter]. Only the exact You + EqualTo + AnySpell shape
-    // maps to Triggers.NthSpellCast(N, Player.You) (Rodeo Pyromancers' "first spell each turn"); any other
+    // maps to Triggers.you.castsNth(N) (Rodeo Pyromancers' "first spell each turn"); any other
     // caster scope, comparison, or a typed/constrained spell filter declines -> SCAFFOLD rather than
     // silently widening it.
     if (jsonContains(trig, "_Trigger", "WhenAPlayerCastsTheirNthSpellInATurn")) {
@@ -3091,7 +3088,7 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
             spells?.strField("_Spells") == "AnySpell" &&
             n != null
         ) {
-            return "Triggers.NthSpellCast($n, Player.You)"
+            return "Triggers.you.castsNth($n)"
         }
         return null
     }
@@ -3113,7 +3110,7 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
         // today; any other scope declines -> SCAFFOLD.
         if (spellsNode?.strField("_Spells") in setOf("HasXInCost", "HasXInManaCost")) {
             return if (scope == CastScope.YOU)
-                "Triggers.youCastSpell(requires = setOf(SpellCastPredicate.HasXInCost))"
+                "Triggers.you.casts(requires = setOf(SpellCastPredicate.HasXInCost))"
             else null
         }
         // "an instant or sorcery spell that targets a creature" (Repartee — Forum Necroscribe,
@@ -3134,21 +3131,21 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
         val scope = castScope(argv?.getOrNull(0) as? JsonObject)
         val abilityFilter = argv?.getOrNull(1) as? JsonObject
         if (scope == CastScope.YOU && abilityFilter?.strField("_ActivatedAbilities") == "ExhaustAbility") {
-            return "Triggers.YouActivateExhaustAbility"
+            return "Triggers.you.activatesAbility(exhaust = true)"
         }
         return null
     }
 
     // "Whenever you commit a crime" — WhenAPlayerCommitsACrime scoped to SinglePlayer(You). Only the
-    // You scope maps to Triggers.YouCommitCrime; any other player scope (AnyPlayer / Opponent) has no
+    // You scope maps to Triggers.you.commitsCrime(); any other player scope (AnyPlayer / Opponent) has no
     // matching Triggers.* constant yet, so it declines -> SCAFFOLD. Pairs with the TriggerOnceEachTurn
     // envelope for "this ability triggers only once each turn" (Marauding Sphinx).
     if (jsonContains(trig, "_Trigger", "WhenAPlayerCommitsACrime") && jsonContains(trig, "_Player", "You"))
-        return "Triggers.YouCommitCrime"
+        return "Triggers.you.commitsCrime()"
 
     // "Whenever one or more cards leave your graveyard" — WhenAnyNumberOfGraveyardCardsLeave over
     // InAPlayersGraveyard(SinglePlayer(You)). The batching leave-graveyard trigger fires once per
-    // event batch. Only the You scope maps to Triggers.CardsLeaveYourGraveyard(); any other graveyard
+    // event batch. Only the You scope maps to Triggers.oneOrMore(GameObjectFilter.Any).leaveYourGraveyard(); any other graveyard
     // owner has no matching Triggers.* constant yet, so it declines -> SCAFFOLD. The unfiltered shape
     // (no `_Cards`/`IsCardtype` constraint) renders the filterless any-card form (Owlin Historian,
     // Attuned Hunter). A constrained leave-graveyard (a typed card) declines rather than widening.
@@ -3158,7 +3155,7 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
         val blob = compact(trig)
         val unfiltered = "IsCardtype" !in blob && "IsCreatureType" !in blob &&
             "_Color" !in blob && "IsCardname" !in blob
-        if (unfiltered) return "Triggers.CardsLeaveYourGraveyard()"
+        if (unfiltered) return "Triggers.oneOrMore(GameObjectFilter.Any).leaveYourGraveyard()"
         return null
     }
 
@@ -3177,8 +3174,7 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
         val selfSubject = subject?.strField("_Permanents") == "SinglePermanent" &&
             subject.field("args").strField("_Permanent") == "ThisPermanent"
         if (!selfSubject) return null
-        return "TriggerSpec(EventPattern.CountersPlacedEvent(counterType = $counter, " +
-            "filter = GameObjectFilter.Any), TriggerBinding.SELF)"
+        return "Triggers.self.getsCounters($counter)"
     }
 
     // "Whenever a <counter> counter is removed from this permanent, …" — the removal mirror of the
@@ -3192,8 +3188,7 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
         val selfSubject = subject?.strField("_Permanents") == "SinglePermanent" &&
             subject.field("args").strField("_Permanent") == "ThisPermanent"
         if (!selfSubject) return null
-        return "TriggerSpec(EventPattern.CountersRemovedEvent(counterType = $counter, " +
-            "filter = GameObjectFilter.Any), TriggerBinding.SELF)"
+        return "Triggers.self.losesCounters($counter)"
     }
 
     // "Whenever one or more tokens you control enter, …" — the batched
@@ -3224,9 +3219,9 @@ private fun EmitCtx.triggerSpecFor(rule: JsonObject): String? {
         }
         if (!isTokenSubject) return null
         return if (opponentControlled)
-            "Triggers.OneOrMoreOpponentPermanentsEnter(GameObjectFilter.Token)"
+            "Triggers.oneOrMore(GameObjectFilter.Token.opponentControls()).enter()"
         else
-            "Triggers.OneOrMorePermanentsEnter(GameObjectFilter.Token)"
+            "Triggers.oneOrMore(GameObjectFilter.Token).enter()"
     }
 
     return null
@@ -3321,33 +3316,33 @@ private fun EmitCtx.spellCastTargetsMatching(spells: JsonObject?): Pair<String, 
  *  any-player / opponent scopes use the `anyPlayerCasts` / `opponentCasts` factories with a
  *  [GameObjectFilter]. When [targetsMatching] is set ("... that targets a creature"), the base
  *  filter is narrowed with `.targetsMatching(<filter>)` and the factory form is always used (the
- *  bare `Triggers.YouCastInstantOrSorcery`-style constants carry no spell filter). */
+ *  bare `Triggers.you.casts(GameObjectFilter.InstantOrSorcery)`-style constants carry no spell filter). */
 private fun castTriggerDsl(scope: CastScope, category: String, targetsMatching: String? = null): String? {
     val baseFilter = categoryFilter(category)
     if (targetsMatching != null) {
         // No bare "any spell that targets …" shape appears in the corpus; require a typed base filter.
         val composed = (baseFilter ?: return null) + ".targetsMatching($targetsMatching)"
         return when (scope) {
-            CastScope.YOU -> "Triggers.youCastSpell(spellFilter = $composed)"
-            CastScope.ANY -> "Triggers.anyPlayerCasts($composed)"
-            CastScope.OPPONENT -> "Triggers.opponentCasts($composed)"
+            CastScope.YOU -> "Triggers.you.casts($composed)"
+            CastScope.ANY -> "Triggers.anyPlayer.casts($composed)"
+            CastScope.OPPONENT -> "Triggers.anOpponent.casts($composed)"
         }
     }
     val filter = baseFilter
     return when (scope) {
         CastScope.YOU -> when (category) {
-            "any" -> "Triggers.YouCastSpell"
-            "creature" -> "Triggers.YouCastCreature"
-            "noncreature" -> "Triggers.YouCastNoncreature"
-            "enchantment" -> "Triggers.YouCastEnchantment"
-            "instantOrSorcery" -> "Triggers.YouCastInstantOrSorcery"
-            "historic" -> "Triggers.YouCastHistoric"
-            "outlaw" -> "Triggers.youCastSpell(spellFilter = ${categoryFilter("outlaw")})"
-            "multicolored" -> "Triggers.youCastSpell(spellFilter = ${categoryFilter("multicolored")})"
+            "any" -> "Triggers.you.casts()"
+            "creature" -> "Triggers.you.casts(GameObjectFilter.Creature)"
+            "noncreature" -> "Triggers.you.casts(GameObjectFilter.Noncreature)"
+            "enchantment" -> "Triggers.you.casts(GameObjectFilter.Enchantment)"
+            "instantOrSorcery" -> "Triggers.you.casts(GameObjectFilter.InstantOrSorcery)"
+            "historic" -> "Triggers.you.casts(GameObjectFilter.Historic)"
+            "outlaw" -> "Triggers.you.casts(${categoryFilter("outlaw")})"
+            "multicolored" -> "Triggers.you.casts(${categoryFilter("multicolored")})"
             else -> null
         }
-        CastScope.ANY -> if (filter == null) "Triggers.AnyPlayerCastsSpell" else "Triggers.anyPlayerCasts($filter)"
-        CastScope.OPPONENT -> if (filter == null) "Triggers.OpponentCastsSpell" else "Triggers.opponentCasts($filter)"
+        CastScope.ANY -> if (filter == null) "Triggers.anyPlayer.casts()" else "Triggers.anyPlayer.casts($filter)"
+        CastScope.OPPONENT -> if (filter == null) "Triggers.anOpponent.casts()" else "Triggers.anOpponent.casts($filter)"
     }
 }
 
@@ -3731,9 +3726,9 @@ internal fun EmitCtx.asEntersBlock(rule: JsonObject, condition: String? = null):
 /**
  * A `FromAnyZone { TriggerA { <trigger>(this) ... } }` rule -> a triggered ability. The two
  * self-on-this-card shapes recognised:
- *   - `WhenAPlayerCyclesACard(You, ThisCardInHand)` -> `Triggers.YouCycleThis` ("When you cycle this
+ *   - `WhenAPlayerCyclesACard(You, ThisCardInHand)` -> `Triggers.self.isCycled()` ("When you cycle this
  *     card, [bonus]").
- *   - `WhenACardBecomesPlotted(ThisCardInHand)` -> `Triggers.BecomesPlotted` ("When this card becomes
+ *   - `WhenACardBecomesPlotted(ThisCardInHand)` -> `Triggers.self.becomesPlotted()` ("When this card becomes
  *     plotted, [bonus]", OTJ Plot / CR 718 — Aloe Alchemist).
  * A lone `you may` bonus becomes `optional = true`, mirroring [triggerBlock].
  */
@@ -3742,8 +3737,8 @@ internal fun EmitCtx.fromAnyZoneBlock(rule: JsonObject): List<Stmt>? {
     if (inner?.strField("_Rule") != "TriggerA" ||
         !jsonContains(inner, "_CardInHand", "ThisCardInHand")) { reasons.add("FromAnyZone"); return null }
     val triggerSpec = when {
-        jsonContains(inner, "_Trigger", "WhenAPlayerCyclesACard") -> "Triggers.YouCycleThis"
-        jsonContains(inner, "_Trigger", "WhenACardBecomesPlotted") -> "Triggers.BecomesPlotted"
+        jsonContains(inner, "_Trigger", "WhenAPlayerCyclesACard") -> "Triggers.self.isCycled()"
+        jsonContains(inner, "_Trigger", "WhenACardBecomesPlotted") -> "Triggers.self.becomesPlotted()"
         else -> { reasons.add("FromAnyZone"); return null }
     }
     val (targets, actions) = extractEnvelope(inner)
@@ -3812,7 +3807,7 @@ internal fun EmitCtx.fromGraveyardBlock(rule: JsonObject): List<Stmt>? {
  * →
  * ```
  * triggeredAbility {
- *     trigger = Triggers.YouCastSubtype(Subtype.VAMPIRE)
+ *     trigger = Triggers.you.casts(GameObjectFilter.Any.withSubtype(Subtype.VAMPIRE))
  *     triggerZones = setOf(Zone.BATTLEFIELD, Zone.COMMAND)
  *     effect = Effects.If(
  *         condition = Conditions.SourceInZone(Zone.BATTLEFIELD, Zone.COMMAND),

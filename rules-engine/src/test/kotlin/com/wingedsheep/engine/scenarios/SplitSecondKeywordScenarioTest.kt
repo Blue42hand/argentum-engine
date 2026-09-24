@@ -67,7 +67,7 @@ class SplitSecondKeywordScenarioTest : FunSpec({
         typeLine = "Enchantment"
         oracleText = "Whenever a player casts a spell, you gain 1 life."
         triggeredAbility {
-            trigger = Triggers.AnyPlayerCastsSpell
+            trigger = Triggers.anyPlayer.casts()
             effect = Effects.GainLife(1)
         }
     }

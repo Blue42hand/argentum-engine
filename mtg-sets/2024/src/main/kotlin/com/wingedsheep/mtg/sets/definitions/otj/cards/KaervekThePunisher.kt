@@ -50,7 +50,7 @@ val KaervekThePunisher = card("Kaervek, the Punisher") {
         "of permanent spells become tokens.)"
 
     triggeredAbility {
-        trigger = Triggers.YouCommitCrime
+        trigger = Triggers.you.commitsCrime()
         description = "Whenever you commit a crime, exile up to one target black card from your " +
             "graveyard and copy it. You may cast the copy. If you do, you lose 2 life."
         val exiledCard = target(

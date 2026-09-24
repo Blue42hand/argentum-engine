@@ -32,10 +32,7 @@ val DeeprootElite = card("Deeproot Elite") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            GameObjectFilter.Permanent.withSubtype(Subtype.MERFOLK).youControl(),
-            TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.Permanent.withSubtype(Subtype.MERFOLK).youControl()).enters()
         val merfolk = target(
             "target Merfolk you control",
             TargetPermanent(

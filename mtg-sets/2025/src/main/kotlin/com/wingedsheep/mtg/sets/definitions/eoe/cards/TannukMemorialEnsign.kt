@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Tannuk, Memorial Ensign
@@ -26,7 +27,7 @@ val TannukMemorialEnsign = card("Tannuk, Memorial Ensign") {
     oracleText = "Landfall — Whenever a land you control enters, Tannuk deals 1 damage to each opponent. If this is the second time this ability has resolved this turn, draw a card."
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent))
             .then(IncrementAbilityResolutionCountEffect)
             .then(

@@ -28,7 +28,7 @@ val ItemShopkeep = card("Item Shopkeep") {
         "(It can't be blocked except by two or more creatures.)"
 
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         val attacker = target(
             "attacking equipped creature",
             TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.attacking().equipped()))

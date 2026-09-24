@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Oblivious Bookworm
@@ -32,7 +33,7 @@ val ObliviousBookworm = card("Oblivious Bookworm") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         // The "may" already represents the optional draw ("you may draw a card"); the IfYouDo
         // gates the discard rider on the draw actually happening ("If you do, …"). Auto can't
         // infer success from a bare draw, so the criterion is explicit.

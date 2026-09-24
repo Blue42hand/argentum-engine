@@ -43,7 +43,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  *  - ETB (front): a mandatory [Effects.Move] `GRAVEYARD → BATTLEFIELD` reanimation of a single
  *    target creature card in your graveyard, restricted to `manaValueAtMost(1)` (the same
  *    graveyard-target idiom as Reya Dawnbringer / Daily Bugle Reporters).
- *  - Attack trigger (back): [Triggers.Attacks] + [Effects.May] wrapping the optional sacrifice of
+ *  - Attack trigger (back): `Triggers.self.attacks()` + [Effects.May] wrapping the optional sacrifice of
  *    another creature ([Effects.SacrificeTarget] over a `.other()` creature you control), so "If
  *    you do" gates the payoff on actually sacrificing. The sacrificed creature's mana value is read
  *    from last-known information via [EffectTarget.SacrificedAsCost] — the same capture Memorial Vault
@@ -68,7 +68,7 @@ private val EddieBrockFront = card("Eddie Brock") {
     // When Eddie Brock enters, return target creature card with mana value 1 or less from your
     // graveyard to the battlefield.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val reanimated = target(
             "target creature card with mana value 1 or less from your graveyard",
             TargetObject(
@@ -119,7 +119,7 @@ private val VenomLethalProtector = card("Venom, Lethal Protector") {
     // may put a permanent card with mana value X or less from your hand onto the battlefield, where
     // X is the sacrificed creature's mana value.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val sacrificed = target(
             "another creature",
             TargetPermanent(

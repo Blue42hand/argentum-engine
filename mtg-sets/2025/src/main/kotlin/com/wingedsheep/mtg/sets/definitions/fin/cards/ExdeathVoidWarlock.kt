@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Exdeath, Void Warlock // Neo Exdeath, Dimension's End — Final Fantasy #220
@@ -65,14 +66,14 @@ private val ExdeathVoidWarlockFrontFace = card("Exdeath, Void Warlock") {
 
     // When Exdeath enters, you gain 3 life.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(3)
     }
 
     // At the beginning of your end step, if there are six or more permanent cards in your
     // graveyard, transform Exdeath.
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Permanent),
             ComparisonOperator.GTE,

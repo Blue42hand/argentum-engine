@@ -43,7 +43,7 @@ val AnzragTheQuakeMole = card("Anzrag, the Quake-Mole") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.BecomesBlocked
+        trigger = Triggers.self.becomesBlocked()
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),

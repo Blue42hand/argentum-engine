@@ -43,7 +43,7 @@ val OscorpIndustries = card("Oscorp Industries") {
     // resolution (a Effects.If), since TriggeringEntityEnteredOrWasCastFromGraveyard reads
     // the EnteredFromGraveyardComponent only in resolution context.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.If(
             condition = Conditions.TriggeringEntityEnteredOrWasCastFromGraveyard,
             then = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.You))

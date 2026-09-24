@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Eidolon of Inspiration
@@ -14,8 +15,8 @@ import com.wingedsheep.sdk.model.Rarity
  *
  * At the beginning of combat on your turn, target creature you control gets +2/+0 until end of turn.
  *
- * "on your turn" is the `StepEvent`'s player scope, not a condition: [Triggers.BeginCombat] is
- * `StepEvent(BEGIN_COMBAT, Player.You)`. Its each-combat sibling ([Triggers.EachCombat], which
+ * "on your turn" is the `StepEvent`'s player scope, not a condition: `Triggers.you.beginningOf(Step.BEGIN_COMBAT)` is
+ * `StepEvent(BEGIN_COMBAT, Player.You)`. Its each-combat sibling (`Triggers.anyPlayer.beginningOf(Step.BEGIN_COMBAT)`, which
  * Stampede Rider in this same set uses) differs only in that field.
  */
 val EidolonOfInspiration = card("Eidolon of Inspiration") {
@@ -27,7 +28,7 @@ val EidolonOfInspiration = card("Eidolon of Inspiration") {
     oracleText = "At the beginning of combat on your turn, target creature you control gets +2/+0 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val creature = target("target", Targets.CreatureYouControl)
         effect = Effects.ModifyStats(2, 0, creature)
     }

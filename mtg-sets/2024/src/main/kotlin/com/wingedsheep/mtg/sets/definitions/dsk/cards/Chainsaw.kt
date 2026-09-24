@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Chainsaw
@@ -22,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * Equip {3}
  *
  * The "whenever one or more creatures die" trigger is the batched death shape
- * ([Triggers.OneOrMoreCreaturesDie]): it fires at most once per death batch regardless of how many
+ * (`Triggers.oneOrMore(filter.anyController()).die()`): it fires at most once per death batch regardless of how many
  * creatures died simultaneously and regardless of who controlled them (CR 603.3b), so a board wipe
  * adds exactly one rev counter, not one per creature.
  *
@@ -40,13 +41,13 @@ val Chainsaw = card("Chainsaw") {
         "Equip {3}"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("up to one target creature", TargetCreature(optional = true, filter = TargetFilter.Creature))
         effect = Effects.DealDamage(3, t)
     }
 
     triggeredAbility {
-        trigger = Triggers.OneOrMoreCreaturesDie()
+        trigger = Triggers.oneOrMore(GameObjectFilter.Creature.anyController()).die()
         effect = Effects.AddCounters(CounterType.REV, 1, EffectTarget.Self)
     }
 

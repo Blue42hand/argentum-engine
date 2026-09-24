@@ -43,7 +43,7 @@ private val AvatarKuruk = card("Avatar Kuruk") {
         "ability only once.)"
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell()
+        trigger = Triggers.you.casts()
         effect = Effects.CreateToken(
             count = 1,
             power = 1,

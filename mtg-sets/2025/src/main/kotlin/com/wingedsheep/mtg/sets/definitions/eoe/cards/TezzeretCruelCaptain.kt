@@ -10,11 +10,11 @@ import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Tezzeret, Cruel Captain
@@ -41,10 +41,7 @@ val TezzeretCruelCaptain = card("Tezzeret, Cruel Captain") {
 
     // Whenever an artifact you control enters, put a loyalty counter on Tezzeret.
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Artifact.youControl(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Artifact.youControl()).enters()
         effect = Effects.AddCounters(CounterType.LOYALTY, 1, EffectTarget.Self)
     }
 
@@ -81,7 +78,7 @@ val TezzeretCruelCaptain = card("Tezzeret, Cruel Captain") {
     loyaltyAbility(-7) {
         effect = Effects.CreateGlobalTriggeredAbility(
             ability = grantedTriggeredAbility {
-                trigger = Triggers.BeginCombat
+                trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
                 val artifact = target("target artifact", TargetPermanent(
                     filter = TargetFilter(GameObjectFilter.Artifact.youControl())
                 ))

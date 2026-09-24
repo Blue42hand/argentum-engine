@@ -42,7 +42,7 @@ val StolenStarkTech = card("Stolen Stark Tech") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.AttachEquipment(creature)
             .then(Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature, Duration.EndOfTurn))

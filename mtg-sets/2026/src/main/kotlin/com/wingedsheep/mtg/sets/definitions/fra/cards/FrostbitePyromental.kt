@@ -6,6 +6,8 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
+import com.wingedsheep.sdk.core.Step
 
 val FrostbitePyromental = card("Frostbite Pyromental") {
     manaCost = "{U}{R}{R}"
@@ -18,12 +20,12 @@ val FrostbitePyromental = card("Frostbite Pyromental") {
     keywords(Keyword.TRAMPLE, Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.DrawCards(2)
     }
 
     triggeredAbility {
-        trigger = Triggers.EachEndStep
+        trigger = Triggers.anyPlayer.beginningOf(Step.END)
         effect = Effects.SacrificeTarget(EffectTarget.Self)
     }
 

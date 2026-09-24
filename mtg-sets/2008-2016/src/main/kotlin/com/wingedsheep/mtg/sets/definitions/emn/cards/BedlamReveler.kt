@@ -52,7 +52,7 @@ val BedlamReveler = card("Bedlam Reveler") {
     prowess()
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Patterns.Hand.discardHand(),
             Effects.DrawCards(3)

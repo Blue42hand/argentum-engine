@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Faithbound Judge // Sinner's Judgment — Innistrad: Crimson Vow #12
@@ -79,7 +80,7 @@ private val FaithboundJudgeFront = card("Faithbound Judge") {
     // At the beginning of your upkeep, if this creature has two or fewer judgment counters on it,
     // put a judgment counter on it.
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.SourceCounterCountAtMost(CounterType.JUDGMENT, 2)
         effect = Effects.AddCounters(CounterType.JUDGMENT, 1, EffectTarget.Self)
         description = "At the beginning of your upkeep, if this creature has two or fewer " +
@@ -125,7 +126,7 @@ private val SinnersJudgment = card("Sinner's Judgment") {
     // At the beginning of your upkeep, put a judgment counter on this Aura. Then if there are
     // three or more judgment counters on it, enchanted player loses the game.
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.JUDGMENT, 1, EffectTarget.Self),
             Effects.If(

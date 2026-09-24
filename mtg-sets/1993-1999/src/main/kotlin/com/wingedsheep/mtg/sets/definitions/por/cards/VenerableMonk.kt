@@ -25,7 +25,7 @@ val VenerableMonk = card("Venerable Monk") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(2)
     }
     metadata {

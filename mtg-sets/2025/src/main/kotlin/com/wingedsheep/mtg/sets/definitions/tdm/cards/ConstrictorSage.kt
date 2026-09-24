@@ -34,7 +34,7 @@ val ConstrictorSage = card("Constrictor Sage") {
         "controls and put a stun counter on it. Activate only as a sorcery."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature", Targets.CreatureOpponentControls)
         effect = Effects.Tap(creature)
             .then(Effects.AddCounters(CounterType.STUN, 1, creature))

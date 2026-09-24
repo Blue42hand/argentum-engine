@@ -30,8 +30,7 @@ val EssenceSliver = card("Essence Sliver") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.DealsDamage.event,
-                binding = Triggers.DealsDamage.binding,
+                trigger = Triggers.self.dealsDamage(),
                 effect = Effects.GainLife(DynamicAmounts.triggerDamageAmount())
             ),
             filter = sliverFilter

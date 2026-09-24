@@ -45,7 +45,7 @@ val WiccanRisingMagician = card("Wiccan, Rising Magician") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         val permanent = target(
             "another target nonland, nontoken permanent",
             TargetPermanent(

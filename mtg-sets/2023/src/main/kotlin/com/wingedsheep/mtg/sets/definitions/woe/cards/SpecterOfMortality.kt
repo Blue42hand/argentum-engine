@@ -53,7 +53,7 @@ val SpecterOfMortality = card("Specter of Mortality") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline(
             descriptionOverride = "You may exile one or more creature cards from your graveyard. " +
                 "When you do, each other creature gets -X/-X until end of turn, where X is the " +

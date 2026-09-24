@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.events.DamageType
 
 /**
  * Vigorous Charge
@@ -39,8 +38,7 @@ val VigorousCharge = card("Vigorous Charge") {
                     condition = WasKicked,
                     then = Effects.GrantTriggeredAbility(
                         ability = TriggeredAbility.create(
-                            trigger = Triggers.dealsDamage(damageType = DamageType.Combat).event,
-                            binding = Triggers.dealsDamage(damageType = DamageType.Combat).binding,
+                            trigger = Triggers.self.dealsCombatDamage(),
                             effect = Effects.GainLife(
                                 DynamicAmounts.triggerDamageAmount()
                             ),

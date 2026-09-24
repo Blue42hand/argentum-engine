@@ -29,7 +29,7 @@ val VampiricSpirit = card("Vampiric Spirit") {
     toughness = 3
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.LoseLife(4, EffectTarget.Controller)
     }
     metadata {

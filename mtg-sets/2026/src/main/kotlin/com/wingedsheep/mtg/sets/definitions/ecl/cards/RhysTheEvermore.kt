@@ -40,7 +40,7 @@ val RhysTheEvermore = card("Rhys, the Evermore") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "another target creature you control",
             TargetCreature(filter = TargetFilter.OtherCreatureYouControl)

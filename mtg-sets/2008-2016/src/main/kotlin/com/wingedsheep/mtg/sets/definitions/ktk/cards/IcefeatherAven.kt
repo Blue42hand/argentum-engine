@@ -30,7 +30,7 @@ val IcefeatherAven = card("Icefeather Aven") {
     morph = "{1}{G}{U}"
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         optional = true
         val t = target("another creature", TargetCreature(filter = TargetFilter.OtherCreature))
         effect = Effects.ReturnToHand(t)

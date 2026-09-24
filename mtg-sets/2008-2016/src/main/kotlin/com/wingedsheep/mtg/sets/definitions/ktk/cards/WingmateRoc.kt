@@ -31,7 +31,7 @@ val WingmateRoc = card("Wingmate Roc") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.YouAttackedThisTurn
         effect = Effects.CreateToken(
             count = 1,
@@ -45,7 +45,7 @@ val WingmateRoc = card("Wingmate Roc") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.GainLife(DynamicAmounts.attackingCreaturesYouControl())
     }
 

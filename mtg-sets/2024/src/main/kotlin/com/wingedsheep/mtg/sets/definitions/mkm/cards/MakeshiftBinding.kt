@@ -24,7 +24,7 @@ val MakeshiftBinding = card("Makeshift Binding") {
     typeLine = "Enchantment"
     oracleText = "When this enchantment enters, exile target creature an opponent controls until this enchantment leaves the battlefield. You gain 2 life."
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.Composite(
             Effects.ExileUntilLeaves(t),
@@ -32,7 +32,7 @@ val MakeshiftBinding = card("Makeshift Binding") {
         )
     }
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
     metadata {

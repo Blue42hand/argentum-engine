@@ -69,7 +69,7 @@ val SpellweaverHelix = card("Spellweaver Helix") {
     // Imprint — When this artifact enters, you may exile two target sorcery cards from a single
     // graveyard.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         target(
             "two target sorcery cards from a single graveyard",
@@ -91,7 +91,7 @@ val SpellweaverHelix = card("Spellweaver Helix") {
     // artifact, you may copy the other. If you do, you may cast the copy without paying its mana
     // cost.
     triggeredAbility {
-        trigger = Triggers.AnyPlayerCastsSpell
+        trigger = Triggers.anyPlayer.casts()
         // "one of the cards exiled with this artifact" — the imprint pile holds two, so the
         // intervening-if asks the same question of each slot.
         interveningIf = AnyCondition(

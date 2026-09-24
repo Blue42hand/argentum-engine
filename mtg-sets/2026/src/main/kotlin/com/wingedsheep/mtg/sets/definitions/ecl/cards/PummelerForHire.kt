@@ -35,7 +35,7 @@ val PummelerForHire = card("Pummeler for Hire") {
     keywordAbility(KeywordAbility.ward("{2}"))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(
             amount = DynamicAmounts.battlefield(
                 Player.You,

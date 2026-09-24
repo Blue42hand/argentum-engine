@@ -47,7 +47,7 @@ val CaseOfTheGatewayExpress = card("Case of the Gateway Express") {
 
     triggeredAbility {
         val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             filter = Filters.AllControlledCreatures,
             effect = Effects.DealDamage(

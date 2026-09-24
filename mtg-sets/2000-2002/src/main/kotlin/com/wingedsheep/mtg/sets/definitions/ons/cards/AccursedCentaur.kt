@@ -22,7 +22,7 @@ val AccursedCentaur = card("Accursed Centaur") {
     oracleText = "When Accursed Centaur enters the battlefield, sacrifice a creature."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.SacrificeOwn(GameObjectFilter.Creature)
     }
 

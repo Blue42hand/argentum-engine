@@ -40,7 +40,7 @@ val GiantSizedFlyingAnt = card("Giant-Sized Flying Ant") {
     keywords(Keyword.FLASH, Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Tap target nonland permanent") {
                 val nonlandPermanent = target("target nonland permanent", Targets.NonlandPermanent)

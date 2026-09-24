@@ -18,7 +18,7 @@ import com.wingedsheep.engine.core.Outcome
  *    of turn."
  *
  * Exercises the new [com.wingedsheep.sdk.scripting.EventPattern.BecomesPlottedEvent] trigger
- * ([com.wingedsheep.sdk.dsl.Triggers.BecomesPlotted]) end-to-end: paying the plot cost exiles
+ * (`Triggers.self.becomesPlotted()`) end-to-end: paying the plot cost exiles
  * the card face up (CR 718) and fires the SELF-bound trigger while the card sits in exile, even
  * though the card is never on the battlefield.
  */

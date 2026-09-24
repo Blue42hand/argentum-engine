@@ -32,7 +32,7 @@ val UthrosScanship = card("Uthros Scanship") {
 
     // ETB: draw two cards, then discard a card
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Hand.loot(draw = 2, discard = 1)
     }
 

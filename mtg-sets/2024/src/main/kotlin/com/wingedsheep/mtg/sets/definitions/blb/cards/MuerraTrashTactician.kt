@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Muerra, Trash Tactician
@@ -39,7 +40,7 @@ val MuerraTrashTactician = card("Muerra, Trash Tactician") {
 
     // At the beginning of your first main phase, add {R} or {G} for each Raccoon you control.
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.AddDynamicMana(
             amount = DynamicAmounts.battlefield(
                 Player.You,
@@ -51,14 +52,14 @@ val MuerraTrashTactician = card("Muerra, Trash Tactician") {
 
     // Whenever you expend 4, you gain 3 life.
     triggeredAbility {
-        trigger = Triggers.Expend(4)
+        trigger = Triggers.you.expends(4)
         effect = Effects.GainLife(3)
     }
 
     // Whenever you expend 8, exile the top two cards of your library.
     // Until the end of your next turn, you may play those cards.
     triggeredAbility {
-        trigger = Triggers.Expend(8)
+        trigger = Triggers.you.expends(8)
         effect = Effects.Pipeline {
             val exiledCards = gather(CardSource.TopOfLibrary(2))
             exile(exiledCards)

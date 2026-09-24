@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -24,11 +23,11 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * target opponent during their next turn.
  *
  * Modeling notes:
- *  - "Whenever you draw your second card each turn" is [Triggers.NthCardDrawn]`(2)`, which tracks
+ *  - "Whenever you draw your second card each turn" is `Triggers.<player>.drawsNth(n)``(2)`, which tracks
  *    the per-turn draw count and fires exactly once — including when a single multi-card draw
  *    crosses the threshold.
  *  - "When the **seventh** plan counter is put on this enchantment" composes from existing
- *    vocabulary: a SELF-bound [Triggers.countersPlacedOn] on [CounterType.PLAN] gated by
+ *    vocabulary: a SELF-bound `Triggers.<subject>.getsCounters(type, by, firstTimeEachTurn, batch)` on [CounterType.PLAN] gated by
  *    `triggerRestriction = `[Conditions.SourceCounterCountAtLeast]`(PLAN, 7)`. The at-least gate is
  *    behaviourally exact here because the payoff **sacrifices its own source**, so the enchantment
  *    is gone before an eighth counter could ever land — the threshold can never fire twice. No
@@ -48,7 +47,7 @@ val ConstructACosmicCube = card("Construct a Cosmic Cube") {
         "could see and make all decisions for them.)"
 
     triggeredAbility {
-        trigger = Triggers.NthCardDrawn(2)
+        trigger = Triggers.you.drawsNth(2)
         effect = Effects.Composite(
             Effects.CreateToken(
                 power = 2,
@@ -65,12 +64,7 @@ val ConstructACosmicCube = card("Construct a Cosmic Cube") {
     }
 
     triggeredAbility {
-        trigger = Triggers.countersPlacedOn(
-            filter = GameObjectFilter.Any,
-            counterType = CounterType.PLAN,
-            firstTimeEachTurn = false,
-            binding = TriggerBinding.SELF,
-        )
+        trigger = Triggers.self.getsCounters(CounterType.PLAN)
         triggerRestriction = Conditions.SourceCounterCountAtLeast(CounterType.PLAN, 7)
         effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeTarget(EffectTarget.Self),

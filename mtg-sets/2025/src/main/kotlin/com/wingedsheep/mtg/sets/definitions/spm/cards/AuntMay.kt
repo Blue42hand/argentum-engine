@@ -28,7 +28,7 @@ val AuntMay = card("Aunt May") {
         "If it's a Spider, put a +1/+1 counter on it."
 
     triggeredAbility {
-        trigger = Triggers.OtherCreatureEnters
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
         effect = Effects.GainLife(1)
             .then(
                 Effects.If(

@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Firemind's Research
@@ -26,7 +27,7 @@ val FiremindsResearch = card("Firemind's Research") {
         "{1}{R}, Remove five charge counters from this enchantment: It deals 5 damage to any target."
 
     triggeredAbility {
-        trigger = Triggers.YouCastInstantOrSorcery
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         effect = Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)
     }
     activatedAbility {

@@ -28,7 +28,7 @@ val ReliquaryMonk = card("Reliquary Monk") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val t = target("target", TargetPermanent(filter = TargetFilter.ArtifactOrEnchantment))
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }

@@ -36,10 +36,7 @@ val EyeOfTheStorm = card("Eye of the Storm") {
         "player may cast the copy without paying its mana cost."
 
     triggeredAbility {
-        trigger = Triggers.anyPlayerCasts(
-            spellFilter = GameObjectFilter.InstantOrSorcery,
-            requires = setOf(SpellCastPredicate.IsCard)
-        )
+        trigger = Triggers.anyPlayer.casts(GameObjectFilter.InstantOrSorcery, requires = setOf(SpellCastPredicate.IsCard))
         effect = Effects.Composite(
             Effects.ExileTriggeringSpell(linkToSource = true),
             Effects.ForEachPlayer(

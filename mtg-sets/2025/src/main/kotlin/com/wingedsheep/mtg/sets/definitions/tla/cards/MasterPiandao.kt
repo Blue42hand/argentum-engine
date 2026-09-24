@@ -40,7 +40,7 @@ val MasterPiandao = card("Master Piandao") {
     // Whenever Master Piandao attacks, dig four, optionally reveal an Ally/Equipment/Lesson to hand,
     // bottom the rest randomly.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Patterns.Library.lookAtTopRevealMatchingToHand(
             count = 4,
             filter = GameObjectFilter.Any.withAnySubtype("Ally", "Equipment", "Lesson"),

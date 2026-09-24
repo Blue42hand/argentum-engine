@@ -29,7 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  *    Equipment becoming illegal, leaves [Effects.AttachTargetEquipmentToCreature] a graceful no-op
  *    (the Raubahn / Weapons Vendor shape). The creature is a required target, so with no creature you
  *    control the trigger is simply removed from the stack for having no legal targets.
- *  - The attack trigger is a filtered [Triggers.attacks] with [TriggerBinding.ANY] — the equipped
+ *  - The attack trigger is a filtered `Triggers.<subject>.attacks(requires)` with [TriggerBinding.ANY] — the equipped
  *    state is a projected state predicate, so an Equipment attached during declare attackers by an
  *    earlier trigger doesn't retroactively add a connive, and Swordsman himself connives if he's the
  *    equipped attacker. Connive lands its +1/+1 counter on [EffectTarget.TriggeringEntity], i.e. the
@@ -47,10 +47,7 @@ val SwordsmanSharpScoundrel = card("Swordsman, Sharp Scoundrel") {
         "a card. If you discarded a nonland card, put a +1/+1 counter on that creature.)"
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Permanent.withSubtype(Subtype.VILLAIN).youControl(),
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.Permanent.withSubtype(Subtype.VILLAIN).youControl()).enters()
         val equipment = target(
             "up to one target Equipment you control",
             TargetPermanent(
@@ -65,10 +62,7 @@ val SwordsmanSharpScoundrel = card("Swordsman, Sharp Scoundrel") {
     }
 
     triggeredAbility {
-        trigger = Triggers.attacks(
-            filter = GameObjectFilter.Creature.youControl().equipped(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl().equipped()).attacks()
         effect = Effects.Connive(EffectTarget.TriggeringEntity)
     }
 

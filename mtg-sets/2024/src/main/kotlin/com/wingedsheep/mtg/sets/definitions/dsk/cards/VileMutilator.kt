@@ -25,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * - The additional cost is the standard [Costs.additional.SacrificePermanent] over
  *   [GameObjectFilter.CreatureOrEnchantment] (same shape as Final Vengeance / Embrace Oblivion).
  * - Flying and trample are plain keywords.
- * - The ETB is a [Triggers.EntersBattlefield] whose effect is a two-step [Effects.Composite] in the
+ * - The ETB is a `Triggers.self.enters()` whose effect is a two-step [Effects.Composite] in the
  *   printed order: first each opponent sacrifices a nontoken enchantment, *then* each opponent
  *   sacrifices a nontoken creature. Each step is an [Effects.Sacrifice] over the matching
  *   `.nontoken()` filter targeting [Player.EachOpponent]; because the sacrifice is forced onto a
@@ -50,7 +50,7 @@ val VileMutilator = card("Vile Mutilator") {
     keywords(Keyword.FLYING, Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             // First: each opponent sacrifices a nontoken enchantment of their choice.
             Effects.Sacrifice(

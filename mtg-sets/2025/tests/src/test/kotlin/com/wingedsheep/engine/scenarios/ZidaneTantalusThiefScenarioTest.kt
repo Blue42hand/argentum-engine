@@ -26,7 +26,7 @@ import io.kotest.matchers.shouldBe
  *     (GainControl + Untap + GrantKeyword), same shape as Zealous Conscripts.
  *  2. "Whenever an opponent gains control of a permanent from you, you create a Treasure token." —
  *     the new resident control-change watcher
- *     ([com.wingedsheep.sdk.dsl.Triggers.OpponentGainsControlOfYourPermanent]). Per the official
+ *     (`Triggers.a().controlChanges(ControlChangeDirection.LOST, toOpponent = true)`). Per the official
  *     ruling it fires once for each permanent stolen — including Zidane itself, whose old controller
  *     still gets the Treasure (look-back-in-time, CR 603.10).
  */

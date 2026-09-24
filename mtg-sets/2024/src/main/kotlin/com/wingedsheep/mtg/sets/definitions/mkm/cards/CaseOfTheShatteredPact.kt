@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Case of the Shattered Pact — Murders at Karlov Manor #1
@@ -49,7 +50,7 @@ val CaseOfTheShatteredPact = card("Case of the Shattered Pact") {
         "flying, double strike, and vigilance until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.searchLibrary(
             filter = GameObjectFilter.BasicLand,
             destination = SearchDestination.HAND,
@@ -67,7 +68,7 @@ val CaseOfTheShatteredPact = card("Case of the Shattered Pact") {
 
     solvedTriggeredAbility {
         val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature.youControl()))
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.FLYING, target = creature),
             Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, target = creature),

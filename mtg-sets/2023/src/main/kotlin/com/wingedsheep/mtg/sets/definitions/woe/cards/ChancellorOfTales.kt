@@ -37,7 +37,7 @@ val ChancellorOfTales = card("Chancellor of Tales") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(requires = setOf(SpellCastPredicate.CastAsAdventure))
+        trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.CastAsAdventure))
         effect = Effects.May(Effects.CopyTargetSpell(EffectTarget.TriggeringEntity))
     }
 

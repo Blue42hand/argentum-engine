@@ -28,7 +28,7 @@ val GeistcatchersRig = card("Geistcatcher's Rig") {
     power = 4
     toughness = 5
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.withKeyword(Keyword.FLYING)))
         effect = Effects.DealDamage(4, t)

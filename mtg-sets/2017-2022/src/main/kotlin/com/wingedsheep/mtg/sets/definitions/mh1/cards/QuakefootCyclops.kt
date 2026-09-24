@@ -40,13 +40,13 @@ val QuakefootCyclops = card("Quakefoot Cyclops") {
     keywordAbility(KeywordAbility.cycling("{1}{R}"))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target("up to two target creatures", TargetCreature(count = 2, optional = true))
         effect = Effects.ForEachTarget(Effects.CantBlock(EffectTarget.ContextTarget(0)))
     }
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         val creature = target("target creature", Targets.Creature)
         effect = Effects.CantBlock(creature)
     }

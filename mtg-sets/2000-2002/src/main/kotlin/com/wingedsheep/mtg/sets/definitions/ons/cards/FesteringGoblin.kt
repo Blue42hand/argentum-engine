@@ -23,7 +23,7 @@ val FesteringGoblin = card("Festering Goblin") {
     oracleText = "When Festering Goblin dies, target creature gets -1/-1 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val t = target("target", Targets.Creature)
         effect = Effects.ModifyStats(
             power = -1,

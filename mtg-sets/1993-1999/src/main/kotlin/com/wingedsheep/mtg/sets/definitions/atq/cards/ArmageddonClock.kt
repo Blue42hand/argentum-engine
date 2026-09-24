@@ -23,8 +23,8 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * during any upkeep step.
  *
  * Composed from existing primitives plus the new passive [CounterType.DOOM] counter (the only engine
- * addition). The accrual is a [Triggers.YourUpkeep] trigger that adds one doom counter
- * ([Effects.AddCounters]). The payoff is a [Triggers.YourDrawStep] trigger that deals
+ * addition). The accrual is a `Triggers.you.beginningOf(Step.UPKEEP)` trigger that adds one doom counter
+ * ([Effects.AddCounters]). The payoff is a `Triggers.you.beginningOf(Step.DRAW)` trigger that deals
  * `countersOnSelf(DOOM)` damage to each player ([EffectTarget.PlayerRef] over [Player.Each]). The
  * {4} ability removes one doom counter and is gated by [ActivationRestriction.All] of
  * [ActivationRestriction.AnyPlayerMay] (every player, not just the controller) and
@@ -43,7 +43,7 @@ val ArmageddonClock = card("Armageddon Clock") {
 
     // At the beginning of your upkeep, put a doom counter on this artifact.
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.AddCounters(CounterType.DOOM, 1, EffectTarget.Self)
         description = "At the beginning of your upkeep, put a doom counter on this artifact."
     }
@@ -51,7 +51,7 @@ val ArmageddonClock = card("Armageddon Clock") {
     // At the beginning of your draw step, this artifact deals damage equal to the number of doom
     // counters on it to each player.
     triggeredAbility {
-        trigger = Triggers.YourDrawStep
+        trigger = Triggers.you.beginningOf(Step.DRAW)
         effect = Effects.DealDamage(
             DynamicAmounts.countersOnSelf(CounterType.DOOM),
             EffectTarget.PlayerRef(Player.Each)

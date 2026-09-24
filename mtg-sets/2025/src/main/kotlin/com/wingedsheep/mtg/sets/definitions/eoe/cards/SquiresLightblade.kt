@@ -28,7 +28,7 @@ val SquiresLightblade = card("Squire's Lightblade") {
 
     // ETB: attach to target creature you control, grant first strike until end of turn
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature you control", Targets.CreatureYouControl)
         effect = Effects.AttachEquipment(creature)
             .then(Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature))

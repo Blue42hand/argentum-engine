@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Pawpatch Recruit
@@ -41,7 +42,7 @@ val PawpatchRecruit = card("Pawpatch Recruit") {
 
     // Offspring ETB: create token copy when kicked
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = WasKicked
         effect = Effects.CreateTokenCopyOfSelf(overridePower = 1, overrideToughness = 1)
     }
@@ -53,7 +54,7 @@ val PawpatchRecruit = card("Pawpatch Recruit") {
     // "That creature" = the creature that was targeted (the trigger's triggering entity),
     // not the Pawpatch Recruit source.
     triggeredAbility {
-        trigger = Triggers.CreatureYouControlBecomesTargetByOpponent()
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).becomesTarget(byOpponent = true)
         val creature = target(
             "target creature you control other than that creature",
             TargetCreature(filter = TargetFilter.CreatureYouControl.otherThanTriggeringEntity())

@@ -32,7 +32,7 @@ val SedraxisAlchemist = card("Sedraxis Alchemist") {
     oracleText = "When this creature enters, if you control a blue permanent, return target nonland permanent to its owner's hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.YouControl(GameObjectFilter.Permanent.withColor(Color.BLUE))
         val bounced = target("target", Targets.NonlandPermanent)
         effect = Effects.ReturnToHand(bounced)

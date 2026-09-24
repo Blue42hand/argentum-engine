@@ -45,7 +45,7 @@ val TenaciousTomeseeker = card("Tenacious Tomeseeker") {
     bargain()
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.WasBargained
         val spellCard = target(
             "target instant or sorcery card from your graveyard",

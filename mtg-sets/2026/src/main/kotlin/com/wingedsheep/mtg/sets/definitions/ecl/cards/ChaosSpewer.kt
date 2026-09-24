@@ -27,7 +27,7 @@ val ChaosSpewer = card("Chaos Spewer") {
         "(To blight 2, put two -1/-1 counters on a creature you control.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Mana(ManaCost.parse("{2}")),
             suffer = Patterns.Mechanic.blight(2)

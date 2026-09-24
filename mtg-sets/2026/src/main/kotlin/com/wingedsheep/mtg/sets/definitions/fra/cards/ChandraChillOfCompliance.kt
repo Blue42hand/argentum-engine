@@ -89,8 +89,7 @@ val ChandraChillOfCompliance = card("Chandra, Chill of Compliance") {
     loyaltyAbility(-6) {
         effect = Effects.CreateGlobalTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.YouCastSpell.event,
-                binding = Triggers.YouCastSpell.binding,
+                trigger = Triggers.you.casts(),
                 effect = Effects.DrawCards(1),
                 descriptionOverride = "Whenever you cast a spell, draw a card.",
             ),

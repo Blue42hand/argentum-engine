@@ -49,7 +49,7 @@ val CulvertAmbusher = card("Culvert Ambusher") {
     // When this creature enters …
     triggeredAbility {
         val creature = target("target creature", Targets.Creature)
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.MarkMustBlockThisTurn(target = creature)
         description = "When this creature enters, target creature blocks this turn if able."
     }
@@ -57,7 +57,7 @@ val CulvertAmbusher = card("Culvert Ambusher") {
     // … or is turned face up.
     triggeredAbility {
         val creature = target("target creature", Targets.Creature)
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         effect = Effects.MarkMustBlockThisTurn(target = creature)
         description = "When this creature is turned face up, target creature blocks this turn if able."
     }

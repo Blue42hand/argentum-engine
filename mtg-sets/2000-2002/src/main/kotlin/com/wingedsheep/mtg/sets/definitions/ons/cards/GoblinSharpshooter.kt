@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Goblin Sharpshooter
@@ -29,7 +30,7 @@ val GoblinSharpshooter = card("Goblin Sharpshooter") {
     flags(AbilityFlag.DOESNT_UNTAP)
 
     triggeredAbility {
-        trigger = Triggers.AnyCreatureDies
+        trigger = Triggers.a(GameObjectFilter.Creature).dies()
         effect = Effects.Untap(EffectTarget.Self)
     }
 

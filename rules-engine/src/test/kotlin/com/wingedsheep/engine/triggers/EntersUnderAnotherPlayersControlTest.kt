@@ -19,6 +19,7 @@ import com.wingedsheep.sdk.model.EntityId
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * "Whenever another creature **you control** enters" must read the entering permanent's
@@ -42,7 +43,7 @@ class EntersUnderAnotherPlayersControlTest : FunSpec({
         power = 0
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.OtherCreatureEnters
+            trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
             effect = Effects.GainLife(1)
         }
     }

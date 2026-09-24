@@ -30,7 +30,7 @@ val DivineFavor = card("Divine Favor") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(3)
         description = "When this Aura enters, you gain 3 life."
     }

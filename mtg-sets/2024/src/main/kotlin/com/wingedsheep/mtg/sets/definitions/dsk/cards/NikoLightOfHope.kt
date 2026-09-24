@@ -52,7 +52,7 @@ val NikoLightOfHope = card("Niko, Light of Hope") {
         "control at the beginning of the next end step."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateShard(2)
         description = "When Niko enters, create two Shard tokens."
     }

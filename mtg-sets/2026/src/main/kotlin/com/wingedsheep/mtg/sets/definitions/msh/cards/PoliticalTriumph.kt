@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -23,7 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *  - The accumulator is an ANY-bound enters trigger over `GameObjectFilter.Creature.youControl()`
  *    (the enchantment itself is not a creature, so no OTHER binding is needed).
  *  - "When the **fourth** plan counter is put on this enchantment" composes from existing
- *    vocabulary: a SELF-bound [Triggers.countersPlacedOn] on [CounterType.PLAN] gated by
+ *    vocabulary: a SELF-bound `Triggers.<subject>.getsCounters(type, by, firstTimeEachTurn, batch)` on [CounterType.PLAN] gated by
  *    `triggerRestriction = `[Conditions.SourceCounterCountAtLeast]`(PLAN, 4)`. The at-least gate is
  *    behaviourally exact for this cycle because the payoff **sacrifices its own source**, so the
  *    enchantment is gone before a fifth counter could ever land — the threshold can never fire
@@ -42,10 +41,7 @@ val PoliticalTriumph = card("Political Triumph") {
         "put a +1/+1 counter on each creature you control."
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Creature.youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).enters()
         effect = Effects.Composite(
             Effects.Scry(1),
             Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self),
@@ -55,12 +51,7 @@ val PoliticalTriumph = card("Political Triumph") {
     }
 
     triggeredAbility {
-        trigger = Triggers.countersPlacedOn(
-            filter = GameObjectFilter.Any,
-            counterType = CounterType.PLAN,
-            firstTimeEachTurn = false,
-            binding = TriggerBinding.SELF,
-        )
+        trigger = Triggers.self.getsCounters(CounterType.PLAN)
         triggerRestriction = Conditions.SourceCounterCountAtLeast(CounterType.PLAN, 4)
         effect = Effects.Composite(
             Effects.SacrificeTarget(EffectTarget.Self),

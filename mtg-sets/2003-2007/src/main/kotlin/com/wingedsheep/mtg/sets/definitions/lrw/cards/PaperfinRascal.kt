@@ -26,7 +26,7 @@ val PaperfinRascal = card("Paperfin Rascal") {
         "this creature."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Mechanic.clash(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         )

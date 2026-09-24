@@ -44,7 +44,7 @@ val ThunderingBroodwagon = card("Thundering Broodwagon") {
     keywords(Keyword.MENACE, Keyword.REACH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "nonland permanent an opponent controls with mana value 4 or less",
             TargetPermanent(filter = TargetFilter.NonlandPermanentOpponentControls.manaValueAtMost(4))

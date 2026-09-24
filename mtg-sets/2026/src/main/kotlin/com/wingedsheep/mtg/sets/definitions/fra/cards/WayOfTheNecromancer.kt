@@ -18,12 +18,12 @@ val WayOfTheNecromancer = card("Way of the Necromancer") {
         "Whenever a creature you control dies, put a loyalty counter on each planeswalker you control."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Mechanic.empowerJace(2)
     }
 
     triggeredAbility {
-        trigger = Triggers.YourCreatureDies
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dies()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Planeswalker.youControl()),
             Effects.AddCounters(CounterType.LOYALTY, 1, EffectTarget.IterationEntity)

@@ -36,7 +36,7 @@ val SandstormSalvager = card("Sandstorm Salvager") {
         "until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 3,
             toughness = 3,

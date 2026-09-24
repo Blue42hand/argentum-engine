@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Flame Blitz — Modern Horizons 2 #124
@@ -33,7 +34,7 @@ val FlameBlitz = card("Flame Blitz") {
         "Cycling {2} ({2}, Discard this card: Draw a card.)"
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Planeswalker),
             Effects.DealDamage(5, EffectTarget.IterationEntity)

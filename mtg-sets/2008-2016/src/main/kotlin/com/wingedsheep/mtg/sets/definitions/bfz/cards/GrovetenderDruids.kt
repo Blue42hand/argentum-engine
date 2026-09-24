@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 /**
  * Grovetender Druids
@@ -29,10 +28,7 @@ val GrovetenderDruids = card("Grovetender Druids") {
         "create a 1/1 green Plant creature token."
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Permanent.withSubtype("Ally").youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Permanent.withSubtype("Ally").youControl()).enters()
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
             then = Effects.CreateToken(

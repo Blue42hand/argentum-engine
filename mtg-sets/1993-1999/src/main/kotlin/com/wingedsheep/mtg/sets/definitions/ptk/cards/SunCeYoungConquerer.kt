@@ -33,7 +33,7 @@ val SunCeYoungConquerer = card("Sun Ce, Young Conquerer") {
     keywords(Keyword.HORSEMANSHIP)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val victim = target("target", TargetObject(filter = TargetFilter.Creature))
         effect = Effects.ReturnToHand(victim)

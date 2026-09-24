@@ -26,7 +26,7 @@ val UtromScientists = card("Utrom Scientists") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "up to one target creature",
             TargetCreature(count = 1, optional = true)

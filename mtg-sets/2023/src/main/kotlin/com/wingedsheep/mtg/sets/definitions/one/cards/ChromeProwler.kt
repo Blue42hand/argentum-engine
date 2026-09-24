@@ -28,7 +28,7 @@ val ChromeProwler = card("Chrome Prowler") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.Tap(t)
     }

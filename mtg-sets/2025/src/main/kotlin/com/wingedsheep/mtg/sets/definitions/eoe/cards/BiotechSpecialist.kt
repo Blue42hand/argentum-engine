@@ -26,13 +26,13 @@ val BiotechSpecialist = card("Biotech Specialist") {
 
     // ETB: create a Lander token
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateLander()
     }
 
     // Whenever you sacrifice an artifact, this creature deals 2 damage to target opponent
     triggeredAbility {
-        trigger = Triggers.YouSacrificeA(GameObjectFilter.Artifact)
+        trigger = Triggers.you.sacrifices(GameObjectFilter.Artifact)
         val target = target("target opponent", Targets.Opponent)
         effect = Effects.DealDamage(2, target)
     }

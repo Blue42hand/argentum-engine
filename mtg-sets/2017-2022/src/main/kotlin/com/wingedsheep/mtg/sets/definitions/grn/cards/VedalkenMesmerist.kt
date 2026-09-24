@@ -22,7 +22,7 @@ val VedalkenMesmerist = card("Vedalken Mesmerist") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val creature = target("target", Targets.CreatureOpponentControls)
         effect = Effects.ModifyStats(-2, 0, creature)
     }

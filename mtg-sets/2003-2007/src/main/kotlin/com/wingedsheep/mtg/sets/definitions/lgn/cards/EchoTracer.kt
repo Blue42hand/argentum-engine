@@ -23,7 +23,7 @@ val EchoTracer = card("Echo Tracer") {
     oracleText = "Morph {2}{U} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen this creature is turned face up, return target creature to its owner's hand."
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val t = target("creature", Targets.Creature)
         effect = Effects.ReturnToHand(t)
     }

@@ -4,9 +4,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern.TurnFaceUpEvent
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Bonethorn Valesk
@@ -24,7 +22,7 @@ val BonethornValesk = card("Bonethorn Valesk") {
     oracleText = "Whenever a permanent is turned face up, Bonethorn Valesk deals 1 damage to any target."
 
     triggeredAbility {
-        trigger = TriggerSpec(TurnFaceUpEvent, TriggerBinding.ANY)
+        trigger = Triggers.a().turnedFaceUp()
         val t = target("any target", Targets.Any)
         effect = Effects.DealDamage(1, t)
     }

@@ -51,7 +51,7 @@ val CaseOfTheTrampledGarden = card("Case of the Trampled Garden") {
         "trample until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target = TargetCreature(
             count = 2,
             minCount = 1,
@@ -73,7 +73,7 @@ val CaseOfTheTrampledGarden = card("Case of the Trampled Garden") {
 
     solvedTriggeredAbility {
         val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature.attacking()))
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
             Effects.GrantKeyword(Keyword.TRAMPLE, creature)

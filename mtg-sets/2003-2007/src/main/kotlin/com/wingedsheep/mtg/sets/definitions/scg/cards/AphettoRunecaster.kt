@@ -3,9 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.scg.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern.TurnFaceUpEvent
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Aphetto Runecaster
@@ -23,7 +21,7 @@ val AphettoRunecaster = card("Aphetto Runecaster") {
     oracleText = "Whenever a permanent is turned face up, you may draw a card."
 
     triggeredAbility {
-        trigger = TriggerSpec(TurnFaceUpEvent, TriggerBinding.ANY)
+        trigger = Triggers.a().turnedFaceUp()
         effect = Effects.May(Effects.DrawCards(1))
     }
 

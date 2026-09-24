@@ -28,12 +28,12 @@ val HaazdaVigilante = card("Haazda Vigilante") {
     power = 4
     toughness = 4
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.powerAtMost(2).youControl()))
         effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.powerAtMost(2).youControl()))
         effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }

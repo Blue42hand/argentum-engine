@@ -37,7 +37,7 @@ val LassoedByTheLaw = card("Lassoed by the Law") {
         "creature you control gets +1/+0 until end of turn. Activate only as a sorcery.\""
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "nonland permanent an opponent controls",
             TargetPermanent(filter = TargetFilter.NonlandPermanentOpponentControls)
@@ -46,7 +46,7 @@ val LassoedByTheLaw = card("Lassoed by the Law") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             count = 1,
             power = 1,
@@ -68,7 +68,7 @@ val LassoedByTheLaw = card("Lassoed by the Law") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

@@ -25,7 +25,7 @@ val GravpackMonoist = card("Gravpack Monoist") {
 
     // When this creature dies, create a tapped 2/2 colorless Robot artifact creature token
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.CreateToken(
             name = "Robot",
             power = 2,

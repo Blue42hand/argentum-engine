@@ -31,7 +31,7 @@ import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
  *    dynamic source over creatures you
  *    control. Read from projected state, so a creature whose power is defined by another value
  *    (e.g. cards in hand) contributes its current power. Cannot reduce the {G}{G} pips or go below 0.
- *  - Death trigger: a batched [Triggers.OneOrMoreCreaturesYouControlDie] over *nontoken* creatures
+ *  - Death trigger: a batched `Triggers.oneOrMore(filter).die()` over *nontoken* creatures
  *    (CR 603.2c — fires once per death batch, not once per creature). The token's base power and
  *    toughness are both [DynamicAmounts.diedBatchTotalPower], the summed *last-known* power of the
  *    nontoken creatures that died (ruling 2023-11-10: "as they last existed on the battlefield").
@@ -63,7 +63,7 @@ val TheSkullsporeNexus = card("The Skullspore Nexus") {
     // "Whenever one or more nontoken creatures you control die, create a green Fungus Dinosaur
     //  creature token with base power and toughness each equal to the total power of those creatures."
     triggeredAbility {
-        trigger = Triggers.OneOrMoreCreaturesYouControlDie(GameObjectFilter.Creature.nontoken())
+        trigger = Triggers.oneOrMore(GameObjectFilter.Creature.nontoken()).die()
         effect = Effects.CreateDynamicToken(
             dynamicPower = DynamicAmounts.diedBatchTotalPower(),
             dynamicToughness = DynamicAmounts.diedBatchTotalPower(),

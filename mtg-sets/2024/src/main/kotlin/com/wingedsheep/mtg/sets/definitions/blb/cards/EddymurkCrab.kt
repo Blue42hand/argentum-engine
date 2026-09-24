@@ -59,7 +59,7 @@ val EddymurkCrab = card("Eddymurk Crab") {
             optional = true,
             filter = TargetFilter.Creature
         ))
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.TapEachTarget()
     }
 

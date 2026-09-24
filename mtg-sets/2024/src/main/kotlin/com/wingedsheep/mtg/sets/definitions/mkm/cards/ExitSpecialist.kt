@@ -50,7 +50,7 @@ val ExitSpecialist = card("Exit Specialist") {
     }
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val creature = target(
             "another target creature",
             TargetCreature(filter = TargetFilter.OtherCreature)

@@ -46,10 +46,7 @@ val NurturingPresence = card("Nurturing Presence") {
 
     // Enchanted creature has "Whenever a creature you control enters, this creature gets +1/+1
     // until end of turn."
-    val creatureEnters = Triggers.entersBattlefield(
-        filter = GameObjectFilter.Creature.youControl(),
-        binding = TriggerBinding.ANY
-    )
+    val creatureEnters = Triggers.a(GameObjectFilter.Creature.youControl()).enters()
     staticAbility {
         ability = GrantTriggeredAbility(
             TriggeredAbility.create(
@@ -66,7 +63,7 @@ val NurturingPresence = card("Nurturing Presence") {
 
     // When this Aura enters, create a 1/1 white Spirit creature token with flying.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

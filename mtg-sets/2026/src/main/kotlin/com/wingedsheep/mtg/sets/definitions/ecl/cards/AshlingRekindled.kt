@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ManaColorSet
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Ashling, Rekindled // Ashling, Rimebound
@@ -59,17 +60,17 @@ private val AshlingRimebound = card("Ashling, Rimebound") {
         "At the beginning of your first main phase, you may pay {R}. If you do, transform Ashling."
 
     triggeredAbility {
-        trigger = Triggers.TransformsToBack
+        trigger = Triggers.self.transforms(true)
         effect = addRimeboundMana
     }
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = addRimeboundMana
     }
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{R}"),
             then = Effects.Transform(EffectTarget.Self)
@@ -94,17 +95,17 @@ private val AshlingRekindledFront = card("Ashling, Rekindled") {
         "At the beginning of your first main phase, you may pay {U}. If you do, transform Ashling."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = rummageMay
     }
 
     triggeredAbility {
-        trigger = Triggers.TransformsToFront
+        trigger = Triggers.self.transforms(false)
         effect = rummageMay
     }
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{U}"),
             then = Effects.Transform(EffectTarget.Self)

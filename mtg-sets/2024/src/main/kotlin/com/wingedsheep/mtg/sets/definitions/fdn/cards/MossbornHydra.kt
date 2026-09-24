@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Mossborn Hydra
@@ -37,7 +38,7 @@ val MossbornHydra = card("Mossborn Hydra") {
 
     // Landfall: double +1/+1 counters on this creature
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = Effects.AddDynamicCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
             amount = DynamicAmounts.countersOnSelf(CounterType.PLUS_ONE_PLUS_ONE),

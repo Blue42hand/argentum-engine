@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Psychic Allergy
@@ -46,7 +47,7 @@ val PsychicAllergy = card("Psychic Allergy") {
     replacementEffect(EntersWithChoice(ChoiceType.COLOR))
 
     triggeredAbility {
-        trigger = Triggers.EachOpponentUpkeep
+        trigger = Triggers.anOpponent.beginningOf(Step.UPKEEP)
         effect = Effects.DealDamage(
             // `Count`, not `AggregateZone`: only `Count` special-cases the battlefield. It scans
             // `state.getBattlefield()` and keeps what the upkeep player *controls* (read off
@@ -66,7 +67,7 @@ val PsychicAllergy = card("Psychic Allergy") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Sacrifice(GameObjectFilter.Land.withSubtype(Subtype.ISLAND), count = 2),
             suffer = Effects.Destroy(EffectTarget.Self),

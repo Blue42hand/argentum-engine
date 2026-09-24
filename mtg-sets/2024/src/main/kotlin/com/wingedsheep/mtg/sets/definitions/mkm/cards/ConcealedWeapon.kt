@@ -26,7 +26,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
  *
  * The flip is a two-for-one: {3} gets a surprise 2/2 blocker down, then {2}{R} turns it into a real
  * Equipment *and* attaches it for free. That attachment is a genuine triggered ability
- * ([Triggers.TurnedFaceUp]) rather than a `disguiseFaceUpEffect` replacement, because the oracle text
+ * (`Triggers.self.turnedFaceUp()`) rather than a `disguiseFaceUpEffect` replacement, because the oracle text
  * says "When", and it matters here: it uses the stack, it targets, and per the official ruling it is
  * *not* an equip activation — no mana, and none of equip's sorcery-speed timing restriction. So the
  * Equipment can arrive attached mid-combat.
@@ -55,7 +55,7 @@ val ConcealedWeapon = card("Concealed Weapon") {
 
     triggeredAbility {
         val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         effect = Effects.AttachEquipment(target = creatureYouControl)
         description = "When this Equipment is turned face up, attach it to target creature you control."
     }

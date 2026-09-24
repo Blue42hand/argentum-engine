@@ -45,16 +45,13 @@ val WildwoodMentor = card("Wildwood Mentor") {
         "of turn, where X is this creature's power."
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Any.youControl().token(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Any.youControl().token()).enters()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever a token you control enters, put a +1/+1 counter on this creature."
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val ally = target(
             "another target attacking creature",
             TargetCreature(filter = TargetFilter.Creature.attacking().other())

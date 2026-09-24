@@ -44,7 +44,7 @@ val VanilleCheerfulLCie = card("Vanille, Cheerful l'Cie") {
         "meld them into Ragnarok, Divine Deliverance."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             run(Patterns.Library.mill(2))
             val vanilleGraveyard = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.You, GameObjectFilter.Permanent))

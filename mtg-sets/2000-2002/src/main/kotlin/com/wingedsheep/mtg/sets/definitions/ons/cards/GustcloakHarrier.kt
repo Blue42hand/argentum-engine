@@ -25,7 +25,7 @@ val GustcloakHarrier = card("Gustcloak Harrier") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.BecomesBlocked
+        trigger = Triggers.self.becomesBlocked()
         effect = Effects.May(
             Effects.Untap(EffectTarget.Self) then Effects.RemoveFromCombat(EffectTarget.Self)
         )

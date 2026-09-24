@@ -30,7 +30,7 @@ val RinoaHeartilly = card("Rinoa Heartilly") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             count = 1,
             power = 1,
@@ -44,7 +44,7 @@ val RinoaHeartilly = card("Rinoa Heartilly") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val t = target("target", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
         effect = Effects.ModifyStats(
             power = DynamicAmounts.count(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature),

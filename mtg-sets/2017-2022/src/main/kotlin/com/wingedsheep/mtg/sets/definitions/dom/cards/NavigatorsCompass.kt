@@ -29,7 +29,7 @@ val NavigatorsCompass = card("Navigator's Compass") {
         "{T}: Until end of turn, target land you control becomes the basic land type of your choice in addition to its other types."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(3)
     }
 

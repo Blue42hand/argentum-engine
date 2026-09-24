@@ -48,7 +48,7 @@ class UndeterminedDynamicAmountTextTest : FunSpec({
         power = 1
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             val tgt = target("target creature you control", Targets.CreatureYouControl)
             effect = Effects.ModifyStats(DynamicAmounts.targetPower(), DynamicAmounts.targetToughness(), tgt)
         }

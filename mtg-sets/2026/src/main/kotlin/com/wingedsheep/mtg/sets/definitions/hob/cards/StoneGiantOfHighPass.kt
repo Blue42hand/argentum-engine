@@ -47,14 +47,14 @@ val StoneGiantOfHighPass = card("Stone-Giant of High Pass") {
     toughness = 7
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = stoneBoulderToken()
         description = "Whenever this creature enters, create a 3/1 colorless Wall artifact " +
             "creature token with defender named Stone Boulder."
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = stoneBoulderToken()
         description = "Whenever this creature attacks, create a 3/1 colorless Wall artifact " +
             "creature token with defender named Stone Boulder."

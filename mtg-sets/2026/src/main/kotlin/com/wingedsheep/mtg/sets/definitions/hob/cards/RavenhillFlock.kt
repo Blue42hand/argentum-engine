@@ -28,7 +28,7 @@ val RavenhillFlock = card("Ravenhill Flock") {
     toughness = 2
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.YouDraw
+        trigger = Triggers.you.draws()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
     metadata {

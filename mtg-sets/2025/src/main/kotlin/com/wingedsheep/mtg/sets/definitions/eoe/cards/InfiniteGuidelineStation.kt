@@ -42,7 +42,7 @@ val InfiniteGuidelineStation = card("Infinite Guideline Station") {
 
     // ETB: create a tapped 2/2 colorless Robot artifact creature token for each multicolored permanent.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             count = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Multicolored).count(),
             name = "Robot",
@@ -74,7 +74,7 @@ val InfiniteGuidelineStation = card("Infinite Guideline Station") {
 
     // Whenever this attacks, draw a card for each multicolored permanent you control.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.DrawCards(DynamicAmounts.battlefield(Player.You, GameObjectFilter.Multicolored).count())
         description = "Whenever Infinite Guideline Station attacks, draw a card for each multicolored permanent you control."
     }

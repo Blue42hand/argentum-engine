@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Acrobatic Cheerleader
@@ -29,7 +30,7 @@ val AcrobaticCheerleader = card("Acrobatic Cheerleader") {
     // flying counter on it. "This ability triggers only once" → triggersOnce caps it for the
     // permanent's lifetime (a flying counter grants flying via the keyword-counter projection).
     triggeredAbility {
-        trigger = Triggers.YourPostcombatMain
+        trigger = Triggers.you.beginningOf(Step.POSTCOMBAT_MAIN)
         interveningIf = Conditions.SourceIsTapped
         triggersOnce = true
         effect = Effects.AddCounters(CounterType.FLYING, 1, EffectTarget.Self)

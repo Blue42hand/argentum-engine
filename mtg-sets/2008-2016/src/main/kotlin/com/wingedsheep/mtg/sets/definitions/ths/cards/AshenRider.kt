@@ -31,13 +31,13 @@ val AshenRider = card("Ashen Rider") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", Targets.Permanent)
         effect = Effects.Exile(t)
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val t = target("target", Targets.Permanent)
         effect = Effects.Exile(t)
     }

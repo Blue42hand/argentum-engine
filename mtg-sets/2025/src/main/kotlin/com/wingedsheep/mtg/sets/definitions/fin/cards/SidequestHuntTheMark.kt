@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Sidequest: Hunt the Mark // Yiazmat, Ultimate Mark — Final Fantasy #119
@@ -79,7 +80,7 @@ private val SidequestHuntTheMarkFront = card("Sidequest: Hunt the Mark") {
 
     // When this enchantment enters, destroy up to one target creature.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "creature",
             TargetObject(optional = true, filter = TargetFilter.Creature),
@@ -91,7 +92,7 @@ private val SidequestHuntTheMarkFront = card("Sidequest: Hunt the Mark") {
     // turn, create a Treasure token. Then if you control three or more Treasures, transform
     // this enchantment.
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.creaturesDiedThisTurn(Player.EachOpponent),
             ComparisonOperator.GTE,

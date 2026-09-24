@@ -50,7 +50,7 @@ val CaseOfTheFilchedFalcon = card("Case of the Filched Falcon") {
         "artifact. It becomes a 0/0 Bird creature with flying in addition to its other types."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Investigate()
     }
 

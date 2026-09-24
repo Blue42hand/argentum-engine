@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.convergeEntersWithCounters
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Magmablood Archaic
@@ -44,7 +45,7 @@ val MagmabloodArchaic = card("Magmablood Archaic") {
     convergeEntersWithCounters()
 
     triggeredAbility {
-        trigger = Triggers.YouCastInstantOrSorcery
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         effect = Patterns.Group.modifyStatsForAll(
             power = DynamicAmounts.colorsSpentOnTriggeringSpell(),
             toughness = DynamicAmounts.fixed(0),

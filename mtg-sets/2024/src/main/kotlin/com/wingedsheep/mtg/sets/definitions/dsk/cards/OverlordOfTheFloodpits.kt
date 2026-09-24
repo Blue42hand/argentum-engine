@@ -47,13 +47,13 @@ val OverlordOfTheFloodpits = card("Overlord of the Floodpits") {
     val drawTwoDiscardOne: Effect = Effects.DrawCards(2).then(Effects.Discard(1))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = drawTwoDiscardOne
         description = "Whenever this permanent enters, draw two cards, then discard a card."
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = drawTwoDiscardOne
         description = "Whenever this permanent attacks, draw two cards, then discard a card."
     }

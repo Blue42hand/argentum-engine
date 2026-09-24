@@ -29,7 +29,7 @@ val FesteringGulch = card("Festering Gulch") {
     oracleText = "This land enters tapped.\nWhen this land enters, it deals 1 damage to target opponent.\n{T}: Add {B} or {G}."
     replacementEffect(EntersTapped())
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetOpponent())
         effect = Effects.DealDamage(1, t)
     }

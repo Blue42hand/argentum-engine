@@ -32,7 +32,7 @@ val LoomingHoverguard = card("Looming Hoverguard") {
     toughness = 3
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetPermanent(filter = TargetFilter.Artifact))
         effect = Effects.Move(t, Zone.LIBRARY, ZonePlacement.Top)
     }

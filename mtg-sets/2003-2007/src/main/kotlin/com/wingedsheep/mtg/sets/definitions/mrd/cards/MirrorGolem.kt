@@ -42,7 +42,7 @@ val MirrorGolem = card("Mirror Golem") {
 
     // "Imprint — When this creature enters, you may exile target card from a graveyard."
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val exiled = target("target card from a graveyard", Targets.CardInGraveyard)
         effect = Effects.ExileLinkedToSource(exiled)

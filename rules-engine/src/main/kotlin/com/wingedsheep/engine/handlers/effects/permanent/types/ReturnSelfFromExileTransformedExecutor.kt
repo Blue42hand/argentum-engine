@@ -28,7 +28,7 @@ import kotlin.reflect.KClass
  * Does **not** emit a `TransformedEvent` — CR 701.27a defines transforming as turning over
  * a permanent that is already on the battlefield. Craft's "return ... transformed" produces
  * a new battlefield object with its back face up; no transform action occurs, so triggers
- * keyed on `Triggers.TransformsToBack` / `TransformsToFront` must not fire. ETB triggers on
+ * keyed on `Triggers.self.transforms(true)` / `TransformsToFront` must not fire. ETB triggers on
  * the back face are dispatched normally by the `ZoneChangeEvent` emitted from the move.
  */
 class ReturnSelfFromExileTransformedExecutor(

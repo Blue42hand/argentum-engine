@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Parker Luck
@@ -35,7 +36,7 @@ val ParkerLuck = card("Parker Luck") {
         "other player. Then they each put the card they revealed into their hand."
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         // "two target players" — a single count-2 requirement; the engine enforces the two
         // chosen players are distinct (CR 115.1b). Referenced positionally as targets 0 and 1.
         val (firstPlayer, secondPlayer) = targets("players", TargetPlayer(count = 2))

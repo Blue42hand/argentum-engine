@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Web of Life and Destiny
@@ -43,7 +44,7 @@ val WebOfLifeAndDestiny = card("Web of Life and Destiny") {
     keywords(Keyword.CONVOKE)
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = Effects.Pipeline {
             // Look at the top five cards of your library.
             val looked = gather(CardSource.TopOfLibrary(5))

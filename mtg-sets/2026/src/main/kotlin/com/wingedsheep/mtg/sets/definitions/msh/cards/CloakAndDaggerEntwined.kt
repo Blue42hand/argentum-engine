@@ -89,7 +89,7 @@ val CloakAndDaggerEntwined = card("Cloak and Dagger, Entwined") {
     keywords(Keyword.DEATHTOUCH, Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponent = target("target opponent", Targets.Opponent)
         val creature = target(
             // Printed wording. The *filter* is the two-player approximation (see the KDoc); the
@@ -126,7 +126,7 @@ val CloakAndDaggerEntwined = card("Cloak and Dagger, Entwined") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileToZoneExiledFrom()
         description = "When Cloak and Dagger leave the battlefield, return the exiled card to " +
             "the zone it was exiled from."

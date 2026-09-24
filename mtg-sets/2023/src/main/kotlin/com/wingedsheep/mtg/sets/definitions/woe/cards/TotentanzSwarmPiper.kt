@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -48,11 +47,7 @@ val TotentanzSwarmPiper = card("Totentanz, Swarm Piper") {
         "{1}{B}: Target attacking Rat you control gains deathtouch until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.youControl().nontoken(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl().nontoken()).dies()
         effect = woeRatToken()
         description = "Whenever Totentanz or another nontoken creature you control dies, create a " +
             "1/1 black Rat creature token with \"This token can't block.\""

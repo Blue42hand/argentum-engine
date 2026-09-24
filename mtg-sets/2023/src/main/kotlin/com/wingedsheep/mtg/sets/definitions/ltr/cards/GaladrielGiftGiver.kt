@@ -52,12 +52,12 @@ val GaladrielGiftGiver = card("Galadriel, Gift-Giver") {
     )
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = galadrielModal
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = galadrielModal
     }
 

@@ -31,7 +31,7 @@ val LotusguardDisciple = card("Lotusguard Disciple") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target creature or Vehicle",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrVehicle))

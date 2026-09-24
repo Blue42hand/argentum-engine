@@ -7,9 +7,9 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.EventPattern
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Makeshift Mannequin — Lorwyn #124
@@ -50,8 +50,7 @@ val MakeshiftMannequin = card("Makeshift Mannequin") {
             .then(
                 Effects.GrantTriggeredAbility(
                     ability = TriggeredAbility.create(
-                        trigger = EventPattern.BecomesTargetEvent(),
-                        binding = TriggerBinding.SELF,
+                        trigger = Triggers.self.becomesTarget(),
                         effect = Effects.SacrificeTarget(EffectTarget.Self),
                         descriptionOverride = "When this creature becomes the target of a spell " +
                             "or ability, sacrifice it."

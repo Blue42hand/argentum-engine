@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Ragavan, Nimble Pilferer — Modern Horizons 2 #138
@@ -39,7 +40,7 @@ val RagavanNimblePilferer = card("Ragavan, Nimble Pilferer") {
     dash = "{1}{R}"
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         description = "Whenever Ragavan deals combat damage to a player, create a Treasure " +
             "token and exile the top card of that player's library. Until end of turn, you " +
             "may cast that card."

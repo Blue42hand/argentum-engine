@@ -29,7 +29,7 @@ val SunscorchRegent = card("Sunscorch Regent") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.OpponentCastsSpell
+        trigger = Triggers.anOpponent.casts()
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             Effects.GainLife(1)

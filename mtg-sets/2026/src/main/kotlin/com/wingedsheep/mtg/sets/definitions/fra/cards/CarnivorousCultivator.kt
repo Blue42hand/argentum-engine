@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 val CarnivorousCultivator = card("Carnivorous Cultivator") {
     manaCost = "{1}{G}"
@@ -25,7 +26,7 @@ val CarnivorousCultivator = card("Carnivorous Cultivator") {
     keywords(Keyword.PREPARED)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         val land = target(
             "target land card from your graveyard",
             TargetObject(filter = TargetFilter(GameObjectFilter.Land.ownedByYou(), zone = Zone.GRAVEYARD))

@@ -18,7 +18,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
  * Whenever you draw your second card each turn, put a +1/+1 counter on target creature.
  * Basic landcycling {2}
  *
- * The draw trigger is [Triggers.NthCardDrawn] (CR 121.2) — it reads the per-player draw counter and
+ * The draw trigger is `Triggers.<player>.drawsNth(n)` (CR 121.2) — it reads the per-player draw counter and
  * fires exactly once per turn, on the crossing into the second draw, so a single two-card draw fires
  * it once rather than twice. Unlike Atlantean Cavalry's self-buff, the counter here goes on a
  * declared *target* creature (any creature, either controller), so the ability needs a target on the
@@ -41,7 +41,7 @@ val RoxxonBrutes = card("Roxxon Brutes") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.NthCardDrawn(2)
+        trigger = Triggers.you.drawsNth(2)
         val creature = target("target creature", Targets.Creature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }

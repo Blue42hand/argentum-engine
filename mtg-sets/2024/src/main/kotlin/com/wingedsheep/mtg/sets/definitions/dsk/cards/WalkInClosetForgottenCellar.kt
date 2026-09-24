@@ -56,7 +56,7 @@ val WalkInClosetForgottenCellar = card("Walk-In Closet // Forgotten Cellar") {
             "and if a card would be put into your graveyard from anywhere this turn, exile it instead."
 
         triggeredAbility {
-            trigger = Triggers.OnDoorUnlocked
+            trigger = Triggers.self.doorUnlocked()
             effect = Effects.Composite(
                 listOf(
                     // ... you may cast spells from your graveyard this turn ...

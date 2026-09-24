@@ -45,7 +45,7 @@ val PlanetariumOfWanShiTong = card("Planetarium of Wan Shi Tong") {
     }
 
     triggeredAbility {
-        trigger = Triggers.WheneverYouScryOrSurveil
+        trigger = Triggers.you.scriesOrSurveils()
         effectOncePerTurn = true
         effect = Effects.Pipeline {
             val top = gather(

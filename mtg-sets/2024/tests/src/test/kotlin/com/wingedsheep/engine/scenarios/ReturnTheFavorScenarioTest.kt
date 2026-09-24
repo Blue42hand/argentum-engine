@@ -38,7 +38,7 @@ class ReturnTheFavorScenarioTest : FunSpec({
         toughness = 2
 
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             target = Targets.Player
             effect = Effects.DealDamage(2, EffectTarget.ContextTarget(0))
         }

@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  *
  * The blue member of the Alara "Resounding" cycle, composed like the Onslaught cycling cycle: a
  * `spell { }` body, [KeywordAbility.cycling] for the wedge-coloured cycling cost, and a
- * [Triggers.YouCycleThis] triggered ability carrying the larger effect. The spell half is a single
+ * `Triggers.self.isCycled()` triggered ability carrying the larger effect. The spell half is a single
  * [Effects.ReturnToHand]; the trigger declares a `count = 2` [TargetPermanent] requirement and fans
  * the bounce out with [ForEachTargetEffect] so each chosen permanent is moved independently — one
  * illegal target on resolution no longer costs the other its bounce. Unlike the Onslaught cycle
@@ -42,7 +42,7 @@ val ResoundingWave = card("Resounding Wave") {
     keywordAbility(KeywordAbility.cycling("{5}{W}{U}{B}"))
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         target("target", TargetPermanent(count = 2))
         effect = Effects.ForEachTarget(
             Effects.ReturnToHand(EffectTarget.ContextTarget(0))

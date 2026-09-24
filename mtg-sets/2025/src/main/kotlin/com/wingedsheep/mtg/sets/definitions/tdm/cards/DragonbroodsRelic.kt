@@ -60,7 +60,7 @@ val DragonbroodsRelic = card("Dragonbroods' Relic") {
             name = "Reliquary Dragon",
             triggeredAbilities = listOf(
                 grantedTriggeredAbility {
-                    trigger = Triggers.EntersBattlefield
+                    trigger = Triggers.self.enters()
                     val anyTarget = target("target any", Targets.Any)
                     effect = Effects.DealDamage(3, anyTarget)
                     description = "When this token enters, it deals 3 damage to any target."

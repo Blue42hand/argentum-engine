@@ -43,7 +43,7 @@ val Spelunking = card("Spelunking") {
     // When this enchantment enters, draw a card, then you may put a land card from your hand onto
     // the battlefield. If you put a Cave onto the battlefield this way, you gain 4 life.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             run(Effects.DrawCards(1, EffectTarget.Controller))
             val landsInHand = gather(CardSource.FromZone(Zone.HAND, Player.You, GameObjectFilter.Land))

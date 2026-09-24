@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.GraveyardCardsHaveMayhem
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Norman Osborn // Green Goblin — Marvel's Spider-Man #39 (mythic)
@@ -59,7 +60,7 @@ private val NormanOsbornFront = card("Norman Osborn") {
 
     // Whenever Norman Osborn deals combat damage to a player, he connives.
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.Connive(EffectTarget.Self)
         description = "Whenever Norman Osborn deals combat damage to a player, he connives."
     }

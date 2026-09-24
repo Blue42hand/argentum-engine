@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Adventure: Steam Clean — {1}{U}, Sorcery — Adventure
  * Return target nonland permanent to its owner's hand.
  *
- * The trigger is a cast watcher scoped to opponents ([Triggers.opponentCasts]) narrowed by mana
+ * The trigger is a cast watcher scoped to opponents (`Triggers.anOpponent.casts(spell, requires)`) narrowed by mana
  * value; "that player" is the caster ([Player.TriggeringPlayer]), not a target, so the ability
  * never fizzles. Per the WOE rulings, a spell with {X} in its cost uses the chosen X when its mana
  * value is computed, which is what the spell-on-stack the filter reads reports.
@@ -38,7 +38,7 @@ val ScaldingViper = card("Scalding Viper") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.opponentCasts(GameObjectFilter.Any.manaValueAtMost(3))
+        trigger = Triggers.anOpponent.casts(GameObjectFilter.Any.manaValueAtMost(3))
         effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.TriggeringPlayer))
     }
 

@@ -18,7 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * - **"if it isn't a mana ability" is part of the trigger, not an intervening "if".** It reads as a
  *   condition because Oracle templating puts it after the comma, but a mana ability never uses the
  *   stack (CR 605.1a) and so can never be the object of a "whenever you activate" trigger in the
- *   first place. [Triggers.YouActivateAbility] already carries that gate —
+ *   first place. `Triggers.you.activatesAbility()` already carries that gate —
  *   `AbilityActivatedEvent(player = Player.You)` excludes mana abilities by default — so wiring the
  *   clause a second time as an `interveningIf` would be redundant, and worse, would re-check it on
  *   resolution where the printed clause never does.
@@ -49,7 +49,7 @@ val RingsOfBrighthearth = card("Rings of Brighthearth") {
         "If you do, copy that ability. You may choose new targets for the copy."
 
     triggeredAbility {
-        trigger = Triggers.YouActivateAbility
+        trigger = Triggers.you.activatesAbility()
         effect = Effects.MayPay(
             cost = Effects.PayMana("{2}"),
             then = Effects.CopyTargetSpellOrAbility(EffectTarget.TriggeringEntity),

@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Alacrian Armory — Aetherdrift #2
@@ -67,7 +68,7 @@ val AlacrianArmory = card("Alacrian Armory") {
     }
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val permanent = target(
             "up to one target Mount or Vehicle you control",
             TargetPermanent(optional = true, filter = TargetFilter(MountOrVehicleYouControl))

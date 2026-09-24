@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -66,7 +65,7 @@ val FishingPole = card("Fishing Pole") {
     }
 
     triggeredAbility {
-        trigger = Triggers.becomesUntapped(binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.becomesUntapped()
         effect = Effects.IfYouDo(
             action = Effects.RemoveCounters(CounterType.BAIT, 1, EffectTarget.Self),
             // A counter removal is not a zone move, so Auto can't infer it — and "if you do" here

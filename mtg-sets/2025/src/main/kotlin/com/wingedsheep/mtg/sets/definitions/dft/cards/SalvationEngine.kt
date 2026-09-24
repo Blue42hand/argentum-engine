@@ -41,7 +41,7 @@ val SalvationEngine = card("Salvation Engine") {
         )
     }
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val t = target(
             "target",
             TargetObject(

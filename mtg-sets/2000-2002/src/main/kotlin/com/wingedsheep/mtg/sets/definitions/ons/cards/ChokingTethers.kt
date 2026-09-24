@@ -30,7 +30,7 @@ val ChokingTethers = card("Choking Tethers") {
     keywordAbility(KeywordAbility.cycling("{1}{U}"))
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         optional = true
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Tap(t)

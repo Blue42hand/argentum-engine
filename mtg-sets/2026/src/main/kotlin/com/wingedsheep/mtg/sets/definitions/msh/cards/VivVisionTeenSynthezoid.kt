@@ -46,7 +46,7 @@ val VivVisionTeenSynthezoid = card("Viv Vision, Teen Synthezoid") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.If(
             condition = Conditions.CompareAmounts(
                 DynamicAmounts.sourcePower(),

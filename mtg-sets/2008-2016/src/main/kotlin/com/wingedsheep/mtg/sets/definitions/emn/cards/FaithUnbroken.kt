@@ -34,12 +34,12 @@ val FaithUnbroken = card("Faith Unbroken") {
     auraTarget = Targets.CreatureYouControl
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val exiled = target("exiled", Targets.CreatureOpponentControls)
         effect = Effects.ExileUntilLeaves(exiled)
     }
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

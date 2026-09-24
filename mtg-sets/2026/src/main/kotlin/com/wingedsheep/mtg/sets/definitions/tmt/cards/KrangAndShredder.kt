@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 // Each opponent exiles from the top of their library until a nonland card, all linked to Krang &
 // Shredder so the Disappear ability can cast them. Shared by the enter and attack triggers.
@@ -42,13 +43,13 @@ val KrangAndShredder = card("Krang & Shredder") {
     toughness = 7
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = krangExileEachOpponent()
         description = "Whenever Krang & Shredder enter or attack, each opponent exiles cards from the top of their library until they exile a nonland card."
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = krangExileEachOpponent()
         description = "Whenever Krang & Shredder enter or attack, each opponent exiles cards from the top of their library until they exile a nonland card."
     }
@@ -59,7 +60,7 @@ val KrangAndShredder = card("Krang & Shredder") {
     // (cascade-style), not via a lingering "you may play it later" permission, so the card
     // actually enters the battlefield under the Disappear controller.
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.YouHadPermanentLeaveBattlefieldThisTurn
         effect = Effects.May(
             Effects.Pipeline {

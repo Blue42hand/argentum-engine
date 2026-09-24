@@ -31,7 +31,7 @@ val WanderingMind = card("Wandering Mind") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.lookAtTopRevealMatchingToHand(
             count = 6,
             filter = GameObjectFilter.Noncreature and GameObjectFilter.Nonland,

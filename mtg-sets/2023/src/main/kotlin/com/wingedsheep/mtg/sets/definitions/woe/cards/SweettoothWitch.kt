@@ -33,7 +33,7 @@ val SweettoothWitch = card("Sweettooth Witch") {
         "{2}, Sacrifice a Food: Target player loses 2 life."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateFood()
     }
 

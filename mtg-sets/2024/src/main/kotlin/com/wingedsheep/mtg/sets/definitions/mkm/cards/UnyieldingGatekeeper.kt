@@ -61,7 +61,7 @@ val UnyieldingGatekeeper = card("Unyielding Gatekeeper") {
     disguise = "{1}{W}"
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val permanent = target("another target nonland permanent", Targets.OtherNonlandPermanent)
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.NonlandPermanent.youControl(), permanent),

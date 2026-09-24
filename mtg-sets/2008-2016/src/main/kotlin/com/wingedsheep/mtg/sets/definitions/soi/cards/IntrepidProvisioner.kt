@@ -35,7 +35,7 @@ val IntrepidProvisioner = card("Intrepid Provisioner") {
                 excludeSelf = true
             )
         ))
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ModifyStats(2, 2, target)
     }
 

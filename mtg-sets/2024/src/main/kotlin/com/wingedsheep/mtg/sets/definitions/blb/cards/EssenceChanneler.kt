@@ -49,7 +49,7 @@ val EssenceChanneler = card("Essence Channeler") {
 
     // Whenever you gain life, put a +1/+1 counter on this creature
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
@@ -57,7 +57,7 @@ val EssenceChanneler = card("Essence Channeler") {
     // Per the Bloomburrow ruling, this moves *all* counter kinds, not just +1/+1.
     triggeredAbility {
         val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.MoveAllLastKnownCounters(creatureYouControl)
     }
 

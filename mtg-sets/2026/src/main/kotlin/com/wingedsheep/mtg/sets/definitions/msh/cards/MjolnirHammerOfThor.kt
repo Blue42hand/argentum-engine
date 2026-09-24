@@ -55,7 +55,7 @@ val MjolnirHammerOfThor = card("Mjölnir, Hammer of Thor") {
 
     // When Mjölnir enters, it deals 4 damage to up to one target creature.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "up to one target creature",
             TargetCreature(optional = true, filter = TargetFilter.Creature)

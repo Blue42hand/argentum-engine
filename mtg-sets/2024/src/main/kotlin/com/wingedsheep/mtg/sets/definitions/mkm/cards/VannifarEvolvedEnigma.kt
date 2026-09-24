@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Vannifar, Evolved Enigma — Murders at Karlov Manor #241
@@ -50,7 +51,7 @@ val VannifarEvolvedEnigma = card("Vannifar, Evolved Enigma") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = Effects.Modal(
             modes = listOf(
                 Mode.noTarget(

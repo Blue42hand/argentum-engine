@@ -72,7 +72,7 @@ val SorrowsPath = card("Sorrow's Path") {
     }
 
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
+        trigger = Triggers.self.becomesTapped()
         effect = Effects.Composite(
             Effects.DealDamage(2, EffectTarget.Controller),
             Patterns.Group.dealDamageToAll(2, Filters.Group.creaturesYouControl),

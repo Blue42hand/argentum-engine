@@ -24,7 +24,7 @@ val IzzetChronarch = card("Izzet Chronarch") {
     oracleText = "When this creature enters, return target instant or sorcery card from your graveyard to your hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         // "from your graveyard" — restrict to instant/sorcery cards you own (oracle wording).
         val t = target("target", TargetObject(filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByYou()))
         effect = Effects.Move(

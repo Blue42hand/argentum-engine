@@ -26,7 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * **Ward—Pay 3 life:** `KeywordAbility.Ward(WardCost.Life(3))`. When an opponent
  * targets Amalia, they must pay 3 life or the spell/ability is countered (CR 702.21).
  *
- * **YouGainLife trigger:** Fires once per life-gain event (`Triggers.YouGainLife`).
+ * **YouGainLife trigger:** Fires once per life-gain event (`Triggers.you.gainsLife()`).
  * The triggered effect is a sequential `Composite`:
  *
  * 1. `Effects.Explore(EffectTarget.Self)` — Amalia explores (CR 701.44): reveal the top
@@ -60,7 +60,7 @@ val AmaliaBenavidesAguirre = card("Amalia Benavides Aguirre") {
 
     // Whenever you gain life, Amalia explores, then wipe if power == 20.
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         effect = Effects.Composite(listOf(
             // Step 1: Amalia explores. Reveal top card; land → hand (no counter, no pause);
             // nonland → +1/+1 counter on Amalia, then optional graveyard decision.

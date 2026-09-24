@@ -22,7 +22,7 @@ val BasilicaBellHaunt = card("Basilica Bell-Haunt") {
     oracleText = "When this creature enters, each opponent discards a card and you gain 3 life."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(listOf(
             Patterns.Hand.eachOpponentDiscards(1),
             Effects.GainLife(3)

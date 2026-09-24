@@ -29,7 +29,7 @@ val PygmyKavu = card("Pygmy Kavu") {
     power = 1
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(
             DynamicAmounts.battlefield(Player.EachOpponent, GameObjectFilter.Creature.withColor(Color.BLACK)).count()
         )

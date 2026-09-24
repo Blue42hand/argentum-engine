@@ -28,7 +28,7 @@ val HeapedHarvest = card("Heaped Harvest") {
 
     // When this artifact enters, you may search for a basic land
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.BasicLand,
@@ -41,7 +41,7 @@ val HeapedHarvest = card("Heaped Harvest") {
 
     // When you sacrifice it, you may search for a basic land
     triggeredAbility {
-        trigger = Triggers.Sacrificed
+        trigger = Triggers.self.isSacrificed()
         effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.BasicLand,

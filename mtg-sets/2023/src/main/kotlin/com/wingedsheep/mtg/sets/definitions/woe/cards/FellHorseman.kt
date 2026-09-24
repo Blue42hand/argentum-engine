@@ -35,7 +35,7 @@ val FellHorseman = card("Fell Horseman") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.PutOnBottomOfLibrary(EffectTarget.Self)
     }
 

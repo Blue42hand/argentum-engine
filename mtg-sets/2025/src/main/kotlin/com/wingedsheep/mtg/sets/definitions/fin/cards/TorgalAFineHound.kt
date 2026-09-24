@@ -22,7 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * {T}: Add one mana of any color.
  *
  * Implementation notes:
- *  - "your first Human creature spell each turn" = a [Triggers.youCastSpell] trigger filtered to
+ *  - "your first Human creature spell each turn" = a `Triggers.you.casts(spell, requires)` trigger filtered to
  *    Human creature spells (`GameObjectFilter.Creature.withSubtype("Human")`) with
  *    `oncePerTurn = true`, so it fires on the first such spell you cast each turn and not again.
  *  - The counter is placed on the triggering spell while it is still on the stack
@@ -46,9 +46,7 @@ val TorgalAFineHound = card("Torgal, A Fine Hound") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.Creature.withSubtype("Human"),
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.Creature.withSubtype("Human"))
         oncePerTurn = true
         effect = Effects.AddDynamicCounters(
             CounterType.PLUS_ONE_PLUS_ONE,

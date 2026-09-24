@@ -28,7 +28,7 @@ import com.wingedsheep.engine.core.Outcome
  * Oracle: "At the beginning of combat on your turn, you may forage. (Exile three cards from your
  * graveyard or sacrifice a Food.) / Whenever you forage, put a +1/+1 counter on this creature."
  *
- * Two printed abilities, and the second is a real `Triggers.WheneverYouForage` trigger rather than
+ * Two printed abilities, and the second is a real `Triggers.you.forages()` trigger rather than
  * a counter folded into the card's own forage. So the load-bearing case here is the *cross-source*
  * one: a forage taken by something else on the board still grows the Cultivator.
  */

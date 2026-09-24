@@ -25,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * • Put a +1/+1 counter on each creature you control.
  * • Scry 2, then draw a card.
  *
- * [Triggers.YouTap] carries the *attribution* half — only a tap Hylda's controller caused fires
+ * `Triggers.you.taps(filter, batch)` carries the *attribution* half — only a tap Hylda's controller caused fires
  * this, so an opponent tapping their own creature (attacking, crewing, paying a cost) does nothing,
  * and neither does a spell you control that instructs *them* to tap (Tangle Wire). "Untapped" is
  * intrinsic: tapping is a transition (CR 603.2f), so an already-tapped creature emits no tap event.
@@ -48,7 +48,7 @@ val HyldaOfTheIcyCrown = card("Hylda of the Icy Crown") {
         "• Scry 2, then draw a card."
 
     triggeredAbility {
-        trigger = Triggers.YouTap(GameObjectFilter.Creature.opponentControls())
+        trigger = Triggers.you.taps(GameObjectFilter.Creature.opponentControls())
         effect = Effects.ReflexiveTrigger(
             action = Effects.PayMana("{1}"),
             optional = true,

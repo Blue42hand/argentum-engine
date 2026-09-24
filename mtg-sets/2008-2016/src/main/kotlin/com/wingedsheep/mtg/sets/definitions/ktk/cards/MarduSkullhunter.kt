@@ -29,7 +29,7 @@ val MarduSkullhunter = card("Mardu Skullhunter") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.YouAttackedThisTurn
         val t = target("target opponent", TargetOpponent())
         effect = Patterns.Hand.discardCards(1, t)

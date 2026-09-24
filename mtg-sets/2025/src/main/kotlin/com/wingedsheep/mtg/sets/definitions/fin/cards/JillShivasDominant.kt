@@ -82,7 +82,7 @@ private val JillShivasDominantFront = card("Jill, Shiva's Dominant") {
 
     // When Jill enters, return up to one other target nonland permanent to its owner's hand.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "nonland permanent",
             TargetObject(

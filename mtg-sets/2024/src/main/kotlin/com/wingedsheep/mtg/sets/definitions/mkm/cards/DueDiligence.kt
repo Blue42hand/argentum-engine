@@ -48,7 +48,7 @@ val DueDiligence = card("Due Diligence") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val other = target(
             "target creature you control other than enchanted creature",
             TargetCreature(

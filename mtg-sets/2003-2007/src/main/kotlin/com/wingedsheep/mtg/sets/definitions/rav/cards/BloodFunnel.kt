@@ -47,7 +47,7 @@ val BloodFunnel = card("Blood Funnel") {
 
     // "Whenever you cast a noncreature spell, counter that spell unless you sacrifice a creature."
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Sacrifice(GameObjectFilter.Creature),
             suffer = Effects.CounterTriggeringSpell(),

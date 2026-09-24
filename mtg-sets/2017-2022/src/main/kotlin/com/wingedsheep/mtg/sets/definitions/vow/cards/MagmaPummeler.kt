@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CounterRemovalAmount
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.PreventDamageByRemovingCounter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 /**
  * Magma Pummeler
@@ -65,11 +64,7 @@ val MagmaPummeler = card("Magma Pummeler") {
     )
 
     triggeredAbility {
-        trigger = Triggers.countersRemovedFrom(
-            counterType = CounterType.PLUS_ONE_PLUS_ONE,
-            byDamagePrevention = true,
-            binding = TriggerBinding.SELF
-        )
+        trigger = Triggers.self.losesCounters(CounterType.PLUS_ONE_PLUS_ONE, byDamagePrevention = true)
         val anyTarget = target("any target", Targets.Any)
         effect = Effects.DealDamage(
             DynamicAmounts.triggerCountersRemoved(),

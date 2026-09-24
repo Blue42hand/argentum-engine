@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * {1}{B}{G}, {T}, Sacrifice a creature: Return target creature card from your graveyard
  * to the battlefield. Activate only as a sorcery.
  *
- * The drain trigger is [Triggers.YourCreatureDies] (fires for any creature you control
+ * The drain trigger is `Triggers.a(GameObjectFilter.Creature.youControl()).dies()` (fires for any creature you control
  * entering your graveyard from the battlefield), composing a 1-life loss for each opponent
  * and a 1-life gain for you. The activated ability mirrors the Doomed Necromancer reanimator
  * shape — mana + tap + sacrifice a creature, returning a targeted creature card from your
@@ -35,7 +35,7 @@ val CauldronOfEssence = card("Cauldron of Essence") {
         "to the battlefield. Activate only as a sorcery."
 
     triggeredAbility {
-        trigger = Triggers.YourCreatureDies
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dies()
         effect = Effects.Composite(
             Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
             Effects.GainLife(1)

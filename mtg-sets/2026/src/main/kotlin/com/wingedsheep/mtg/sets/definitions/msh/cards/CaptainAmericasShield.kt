@@ -52,7 +52,7 @@ val CaptainAmericasShield = card("Captain America's Shield") {
 
     // Whenever equipped creature attacks, tap target creature defending player controls.
     triggeredAbility {
-        trigger = Triggers.attacks(binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.attacks()
         val creature = target("creature defending player controls", Targets.CreatureOpponentControls)
         effect = Effects.Tap(creature)
     }

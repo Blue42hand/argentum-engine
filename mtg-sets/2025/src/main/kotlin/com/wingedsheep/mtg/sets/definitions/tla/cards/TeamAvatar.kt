@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.events.AttackPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -34,11 +33,7 @@ val TeamAvatar = card("Team Avatar") {
     // Whenever a creature you control attacks alone, it gets +X/+X until end of turn,
     // where X is the number of creatures you control (counted on resolution).
     triggeredAbility {
-        trigger = Triggers.attacks(
-            filter = GameObjectFilter.Creature.youControl(),
-            requires = setOf(AttackPredicate.Alone),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).attacks(setOf(AttackPredicate.Alone))
         val creatureCount = DynamicAmounts.creaturesYouControl()
         effect = Effects.ModifyStats(creatureCount, creatureCount, EffectTarget.TriggeringEntity)
     }

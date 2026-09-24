@@ -50,7 +50,7 @@ val GrimgrinCorpseBorn = card("Grimgrin, Corpse-Born") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val creature = target("creature defending player controls", Targets.CreatureOpponentControls)
         effect = Effects.Composite(
             listOf(

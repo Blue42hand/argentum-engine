@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Savage Thallid
@@ -37,7 +38,7 @@ val SavageThallid = card("Savage Thallid") {
         "Sacrifice a Saproling: Regenerate target Fungus."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.AddCounters(CounterType.SPORE, 1, EffectTarget.Self)
         description = "At the beginning of your upkeep, put a spore counter on this creature."
     }

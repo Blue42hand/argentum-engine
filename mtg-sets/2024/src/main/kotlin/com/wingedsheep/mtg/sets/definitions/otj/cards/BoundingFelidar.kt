@@ -37,7 +37,7 @@ val BoundingFelidar = card("Bounding Felidar") {
     keywordAbility(KeywordAbility.saddle(2))
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         triggerRestriction = Conditions.SourceIsSaddled
         effect = Effects.Composite(
             listOf(

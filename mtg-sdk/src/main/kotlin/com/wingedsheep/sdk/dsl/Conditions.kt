@@ -76,7 +76,7 @@ object Conditions {
 
     /**
      * If you chose a creature other than this as your Ring-bearer (CR 701.54a). Intervening-if
-     * for `Triggers.RingTemptsYou` payoffs that fire only when the player picked someone else.
+     * for `Triggers.you.isTemptedByTheRing()` payoffs that fire only when the player picked someone else.
      */
     val YouChoseOtherCreatureAsRingBearer: ConditionInterface = YouChoseOtherCreatureAsRingBearerCondition
 
@@ -908,7 +908,7 @@ object Conditions {
     /**
      * "if none of them were cast or no mana was spent to cast them" — the batch-enters variant of
      * [NoManaSpentToCast]. True iff **every** permanent a batch trigger captured (the
-     * `Triggers.OneOrMorePermanentsEnter` batch, exposed at resolution as the `trigger.captured`
+     * `Triggers.oneOrMore(filter).enter()` batch, exposed at resolution as the `trigger.captured`
      * collection) had no mana spent to cast it; an empty capture is vacuously true. Use as a
      * resolution-time [com.wingedsheep.sdk.dsl.Effects] `Effects.If` gate on the payoff —
      * Satoru, the Infiltrator.
@@ -919,7 +919,7 @@ object Conditions {
     /**
      * "If one or more of them entered from exile or was cast from exile" — the batch-enters,
      * any-of exile counterpart of [TriggeringEntityEnteredOrWasCastFromGraveyard]. Evaluated over
-     * the permanents a `Triggers.OneOrMorePermanentsEnter` batch captured; works as a real
+     * the permanents a `Triggers.oneOrMore(filter).enter()` batch captured; works as a real
      * intervening-"if" (`interveningIf`) as well as a resolution-time gate. Extraordinary
      * Journey.
      */
@@ -2277,7 +2277,7 @@ object Conditions {
      *
      * Use it for the cards that act either way and only *part* of the effect depends on the
      * outcome — Entangling Trap taps a creature on every clash and only keeps it tapped on a win.
-     * When the *whole* ability is conditional, use [Triggers.WheneverYouClashAndWin] instead so no
+     * When the *whole* ability is conditional, use `Triggers.you.clashes(true)` instead so no
      * ability goes on the stack at all; when the card performs the clash itself, use
      * `MechanicPatterns.clash(ifYouWin = …)`, which reads the win off the clash's own pipeline
      * collection rather than out of trigger context.
@@ -2295,7 +2295,7 @@ object Conditions {
      * both when the trigger event occurs and again as the ability resolves, and this condition reads
      * live state so the second check can actually change the answer — untap the creature and tap it
      * again in response and it has become tapped twice by then, so the ability is removed from the
-     * stack. Pair it with `Triggers.becomesTapped(firstTimeEachTurn = true)`, which carries the same
+     * stack. Pair it with `Triggers.self.becomesTapped(firstTimeEachTurn = true)`, which carries the same
      * clause on the tap *event* for the first check.
      */
     val TriggeringPermanentBecameTappedOnlyOnceThisTurn: ConditionInterface =

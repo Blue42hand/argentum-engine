@@ -25,7 +25,7 @@ val CandyTrail = card("Candy Trail") {
     typeLine = "Artifact — Food Clue"
     oracleText = "When this artifact enters, scry 2.\n{2}, {T}, Sacrifice this artifact: You gain 3 life and draw a card."
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.scry(2)
     }
     activatedAbility {

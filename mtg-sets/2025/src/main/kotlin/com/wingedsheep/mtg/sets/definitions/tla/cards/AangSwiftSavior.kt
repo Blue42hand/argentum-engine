@@ -54,7 +54,7 @@ private val AangAndLaOceansFury = card("Aang and La, Ocean's Fury") {
     keywords(Keyword.REACH, Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl().tapped()),
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
@@ -85,7 +85,7 @@ private val AangSwiftSaviorFront = card("Aang, Swift Savior") {
     keywords(Keyword.FLASH, Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target(
             "up to one other target creature or spell",
             TargetOther(

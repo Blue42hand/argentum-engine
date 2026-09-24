@@ -35,7 +35,7 @@ val TrustedPegasus = card("Trusted Pegasus") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val grounded = target(
             "target",
             TargetCreature(filter = TargetFilter.AttackingCreature.withoutKeyword(Keyword.FLYING))

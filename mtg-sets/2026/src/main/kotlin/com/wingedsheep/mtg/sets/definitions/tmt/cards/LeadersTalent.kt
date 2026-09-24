@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -35,7 +34,7 @@ val LeadersTalent = card("Leader's Talent") {
 
     // Level 1: Whenever you attack, put a +1/+1 counter on target attacking creature.
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         val attacker = target("target attacking creature", Targets.AttackingCreature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, attacker)
     }
@@ -44,10 +43,7 @@ val LeadersTalent = card("Leader's Talent") {
     // on it, you gain 2 life.
     classLevel(2, "{2}{W}") {
         triggeredAbility {
-            trigger = Triggers.leavesBattlefield(
-                filter = GameObjectFilter.Creature.youControl(),
-                binding = TriggerBinding.ANY
-            )
+            trigger = Triggers.a(GameObjectFilter.Creature.youControl()).leaves()
             interveningIf = Conditions.TriggeringEntityHadCounters
             effect = Effects.GainLife(2)
         }
@@ -56,7 +52,7 @@ val LeadersTalent = card("Leader's Talent") {
     // Level 3: Whenever you cast a spell, put a +1/+1 counter on each creature you control.
     classLevel(3, "{3}{W}") {
         triggeredAbility {
-            trigger = Triggers.YouCastSpell
+            trigger = Triggers.you.casts()
             effect = Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.youControl()),
                 effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)

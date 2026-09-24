@@ -67,7 +67,7 @@ val RestlessAnchorage = card("Restless Anchorage") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.CreateMapToken()
     }
 

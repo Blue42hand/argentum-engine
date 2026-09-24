@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Generous Plunderer
@@ -37,7 +38,7 @@ val GenerousPlunderer = card("Generous Plunderer") {
 
     // "you may create a Treasure token. When you do, target opponent creates a tapped Treasure token."
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.ReflexiveTrigger(
             action = Effects.CreateTreasure(1),
             optional = true,
@@ -50,7 +51,7 @@ val GenerousPlunderer = card("Generous Plunderer") {
     // "Whenever this creature attacks, it deals damage to defending player equal
     // to the number of artifacts they control."
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.DealDamage(
             amount = DynamicAmounts.battlefield(
                 Player.DefendingPlayer,

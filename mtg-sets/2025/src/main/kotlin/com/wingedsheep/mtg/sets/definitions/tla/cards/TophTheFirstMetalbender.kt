@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.GrantAdditionalTypesToGroup
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Toph, the First Metalbender
@@ -27,7 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  *   (type-changing) static, expressed with [GrantAdditionalTypesToGroup] adding the LAND card
  *   type to the nontoken-artifacts-you-control group. Adding the land type alone grants no mana
  *   ability, which matches the reminder text.
- * - The end-step earthbend is the standard [Triggers.YourEndStep] + [Effects.Earthbend] pattern
+ * - The end-step earthbend is the standard `Triggers.you.beginningOf(Step.END)` + [Effects.Earthbend] pattern
  *   targeting a land you control.
  */
 val TophTheFirstMetalbender = card("Toph, the First Metalbender") {
@@ -52,7 +53,7 @@ val TophTheFirstMetalbender = card("Toph, the First Metalbender") {
 
     // At the beginning of your end step, earthbend 2.
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         val t = target("target", TargetPermanent(filter = TargetFilter.Land.youControl()))
         effect = Effects.Earthbend(2, t)
     }

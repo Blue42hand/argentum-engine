@@ -35,7 +35,7 @@ val NezumiProwler = card("Nezumi Prowler") {
     ninjutsu("{1}{B}")
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "creature you control",
             TargetCreature(filter = TargetFilter.CreatureYouControl),

@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
  * Whenever you discard a card, you may exile that card from your graveyard. If you do, until the
  * end of your next turn, you may play that card.
  *
- * [Triggers.YouDiscard] is the per-card (non-batch) discard trigger, so discarding three cards in
+ * `Triggers.you.discards()` is the per-card (non-batch) discard trigger, so discarding three cards in
  * one resolution fires it three times and each firing binds *its* card as the triggering entity
  * (CR 400.7e — the trigger can find the object the discarded card became in the graveyard). That
  * makes [CardSource.TriggeringEntity] "that card", feeding the Norin, Swift Survivalist
@@ -44,7 +44,7 @@ val MoonstoneHarshMistress = card("Moonstone, Harsh Mistress") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YouDiscard
+        trigger = Triggers.you.discards()
         effect = Effects.May(
             Effects.Pipeline {
                 val moonstoneDiscarded = gather(CardSource.TriggeringEntity)

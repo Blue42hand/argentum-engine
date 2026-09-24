@@ -27,7 +27,7 @@ val CaseyJonesVigilante = card("Casey Jones, Vigilante") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             listOf(
                 Effects.DrawCards(3),

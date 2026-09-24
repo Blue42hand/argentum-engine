@@ -31,7 +31,7 @@ val RampagingSpiketail = card("Rampaging Spiketail") {
     power = 5
     toughness = 6
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = Effects.Composite(
             Effects.ModifyStats(2, 0, t),

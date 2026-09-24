@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBlock
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -45,10 +44,7 @@ val FearOfInfinity = card("Fear of Infinity") {
 
     // Eerie trigger — part 1: whenever an enchantment you control enters (functions from graveyard).
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Enchantment.youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Enchantment.youControl()).enters()
         triggerZone = Zone.GRAVEYARD
         effect = Effects.May(Effects.Move(target = EffectTarget.Self, destination = Zone.HAND))
         description = "Eerie — Whenever an enchantment you control enters, you may return this card " +
@@ -57,7 +53,7 @@ val FearOfInfinity = card("Fear of Infinity") {
 
     // Eerie trigger — part 2: whenever you fully unlock a Room (functions from graveyard).
     triggeredAbility {
-        trigger = Triggers.RoomFullyUnlocked
+        trigger = Triggers.you.fullyUnlocksARoom()
         triggerZone = Zone.GRAVEYARD
         effect = Effects.May(Effects.Move(target = EffectTarget.Self, destination = Zone.HAND))
         description = "Eerie — Whenever you fully unlock a Room, you may return this card from your " +

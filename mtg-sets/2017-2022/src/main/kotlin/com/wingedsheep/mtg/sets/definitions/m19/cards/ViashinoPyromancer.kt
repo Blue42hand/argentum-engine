@@ -26,7 +26,7 @@ val ViashinoPyromancer = card("Viashino Pyromancer") {
     power = 2
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetPlayerOrPlaneswalker())
         effect = Effects.DealDamage(2, t)
     }

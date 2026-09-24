@@ -18,7 +18,7 @@ val PiaAetherAscetic = card("Pia, Aether Ascetic") {
         "card, reveal it, put it into your hand, then shuffle."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             effect = Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),

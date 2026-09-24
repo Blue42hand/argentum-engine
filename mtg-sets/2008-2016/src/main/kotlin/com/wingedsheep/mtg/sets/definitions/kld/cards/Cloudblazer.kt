@@ -28,7 +28,7 @@ val Cloudblazer = card("Cloudblazer") {
     toughness = 2
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.GainLife(2),
             Effects.DrawCards(2)

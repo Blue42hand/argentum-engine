@@ -57,16 +57,14 @@ val SarkhanTheDragonspeaker = card("Sarkhan, the Dragonspeaker") {
         effect = Effects.Composite(
             Effects.CreateGlobalTriggeredAbility(
                 ability = TriggeredAbility.create(
-                    trigger = Triggers.YourDrawStep.event,
-                    binding = Triggers.YourDrawStep.binding,
+                    trigger = Triggers.you.beginningOf(Step.DRAW),
                     effect = Effects.DrawCards(2)
                 ),
                 descriptionOverride = "At the beginning of your draw step, draw two additional cards."
             ),
             Effects.CreateGlobalTriggeredAbility(
                 ability = TriggeredAbility.create(
-                    trigger = Triggers.YourEndStep.event,
-                    binding = Triggers.YourEndStep.binding,
+                    trigger = Triggers.you.beginningOf(Step.END),
                     effect = Patterns.Hand.discardHand()
                 ),
                 descriptionOverride = "At the beginning of your end step, discard your hand."

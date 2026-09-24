@@ -43,7 +43,7 @@ val AngelOfGlorysRise = card("Angel of Glory's Rise") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Permanent.withSubtype("Zombie")),

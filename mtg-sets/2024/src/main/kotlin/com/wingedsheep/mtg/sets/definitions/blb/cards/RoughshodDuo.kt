@@ -30,7 +30,7 @@ val RoughshodDuo = card("Roughshod Duo") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.Expend(4)
+        trigger = Triggers.you.expends(4)
         val t = target("creature you control", Targets.CreatureYouControl)
         effect = Effects.ModifyStats(1, 1, t)
             .then(Effects.GrantKeyword(Keyword.TRAMPLE, t))

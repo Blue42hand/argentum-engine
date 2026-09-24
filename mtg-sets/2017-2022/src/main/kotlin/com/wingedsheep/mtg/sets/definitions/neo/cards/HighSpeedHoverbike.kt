@@ -35,7 +35,7 @@ val HighSpeedHoverbike = card("High-Speed Hoverbike") {
     keywordAbility(KeywordAbility.crew(1))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("creature to tap", TargetCreature(optional = true))
         effect = Effects.Tap(t)
         description = "When this Vehicle enters, tap up to one target creature."

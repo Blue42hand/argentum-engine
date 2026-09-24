@@ -29,7 +29,7 @@ val RagamuffinRaptor = card("Ragamuffin Raptor") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val card = target(
             "creature or Food card from your graveyard",
             TargetObject(

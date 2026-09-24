@@ -38,7 +38,7 @@ val DreamSpoilers = card("Dream Spoilers") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YouCastSpell
+        trigger = Triggers.you.casts()
         triggerRestriction = Conditions.IsNotYourTurn
         val t = target(
             "target",

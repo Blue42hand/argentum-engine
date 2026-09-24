@@ -33,7 +33,7 @@ val Mindmoil = card("Mindmoil") {
         "library in any order, then draw that many cards."
 
     triggeredAbility {
-        trigger = Triggers.YouCastSpell
+        trigger = Triggers.you.casts()
         effect = Effects.Pipeline {
             val hand = gather(CardSource.FromZone(Zone.HAND, Player.You))
             toLibraryBottom(hand)

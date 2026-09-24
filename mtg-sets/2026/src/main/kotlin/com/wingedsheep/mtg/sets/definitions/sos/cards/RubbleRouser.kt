@@ -39,7 +39,7 @@ val RubbleRouser = card("Rubble Rouser") {
         "damage to each opponent."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             effect = Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),

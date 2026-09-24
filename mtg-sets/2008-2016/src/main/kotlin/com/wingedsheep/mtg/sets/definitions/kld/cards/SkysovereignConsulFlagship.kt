@@ -40,7 +40,7 @@ val SkysovereignConsulFlagship = card("Skysovereign, Consul Flagship") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target",
             TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls()))
@@ -49,7 +49,7 @@ val SkysovereignConsulFlagship = card("Skysovereign, Consul Flagship") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val t = target(
             "target",
             TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls()))

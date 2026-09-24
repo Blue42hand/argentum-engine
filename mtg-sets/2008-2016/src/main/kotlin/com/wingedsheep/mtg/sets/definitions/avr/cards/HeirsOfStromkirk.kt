@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Heirs of Stromkirk
@@ -18,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * share a color with it.)
  * Whenever this creature deals combat damage to a player, put a +1/+1 counter on it.
  *
- * [Triggers.DealsCombatDamageToPlayer] is the SELF-bound combat-damage-to-a-player trigger; "it"
+ * `Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)` is the SELF-bound combat-damage-to-a-player trigger; "it"
  * is the Heirs themselves, so the counter lands on [EffectTarget.Self].
  */
 val HeirsOfStromkirk = card("Heirs of Stromkirk") {
@@ -34,7 +35,7 @@ val HeirsOfStromkirk = card("Heirs of Stromkirk") {
     keywords(Keyword.INTIMIDATE)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

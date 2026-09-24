@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Trample
  * Whenever a player casts a spell, put a +1/+1 counter on this creature.
  *
- * The whole card is one cast watcher scoped to *every* player: [Triggers.AnyPlayerCastsSpell] is the
+ * The whole card is one cast watcher scoped to *every* player: `Triggers.anyPlayer.casts()` is the
  * `Player.Each` form of the spell-cast event, so the Hydra grows off opponents' spells as well as
  * your own — the untargeted, self-directed [Effects.AddCounters] needs no target plumbing.
  */
@@ -32,7 +32,7 @@ val ManagorgerHydra = card("Managorger Hydra") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.AnyPlayerCastsSpell
+        trigger = Triggers.anyPlayer.casts()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever a player casts a spell, put a +1/+1 counter on this creature."
     }

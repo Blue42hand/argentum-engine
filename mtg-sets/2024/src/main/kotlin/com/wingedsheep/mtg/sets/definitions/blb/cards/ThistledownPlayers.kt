@@ -24,7 +24,7 @@ val ThistledownPlayers = card("Thistledown Players") {
     oracleText = "Whenever this creature attacks, untap target nonland permanent."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val nonland = target("nonland permanent", Targets.NonlandPermanent)
         effect = Effects.Untap(nonland)
     }

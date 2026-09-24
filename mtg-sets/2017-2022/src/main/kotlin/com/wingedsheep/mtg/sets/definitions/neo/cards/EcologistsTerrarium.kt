@@ -34,7 +34,7 @@ val EcologistsTerrarium = card("Ecologist's Terrarium") {
         "only as a sorcery."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         effect = Patterns.Library.searchLibrary(
             filter = GameObjectFilter.BasicLand,

@@ -24,7 +24,7 @@ val SiegehornCeratops = card("Siegehorn Ceratops") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.TakesDamage
+        trigger = Triggers.self.isDealtDamage()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         description = "Enrage — Whenever this creature is dealt damage, put two +1/+1 counters on it."
     }

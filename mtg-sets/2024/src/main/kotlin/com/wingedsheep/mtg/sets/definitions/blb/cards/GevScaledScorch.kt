@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.references.Player
 
 /**
  * Gev, Scaled Scorch
@@ -54,7 +53,7 @@ val GevScaledScorch = card("Gev, Scaled Scorch") {
 
     // Whenever you cast a Lizard spell, deal 1 damage to target opponent
     triggeredAbility {
-        trigger = Triggers.YouCastSubtype(Subtype.LIZARD)
+        trigger = Triggers.you.casts(GameObjectFilter.Any.withSubtype(Subtype.LIZARD))
         val opponent = target("opponent", Targets.Opponent)
         effect = Effects.DealDamage(1, opponent)
     }

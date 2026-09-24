@@ -31,7 +31,7 @@ val PackGuardian = card("Pack Guardian") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             effect = Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1, filter = GameObjectFilter.Land),

@@ -11,8 +11,6 @@ import com.wingedsheep.sdk.dsl.div
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -57,7 +55,7 @@ val ZodiarkUmbralGod = card("Zodiark, Umbral God") {
     keywords(Keyword.INDESTRUCTIBLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachPlayer(
             players = Player.Each,
             effect = Effects.Sacrifice(
@@ -72,13 +70,7 @@ val ZodiarkUmbralGod = card("Zodiark, Umbral God") {
     }
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = EventPattern.PermanentsSacrificedEvent(
-                filter = GameObjectFilter.Creature,
-                sacrificedBy = Player.Each
-            ),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.anyPlayer.sacrifices(GameObjectFilter.Creature, batch = true)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

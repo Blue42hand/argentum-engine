@@ -23,7 +23,7 @@ import com.wingedsheep.sdk.model.Rarity
  * pays — X = [DynamicAmounts.colorsOfManaSpent] (`DynamicAmount.DistinctColorsManaSpent`), read off
  * the entering creature's recorded payment (the dominant Converge shape, same as the Archaic cycle).
  *
- * Modelled as an [Triggers.EntersBattlefield] trigger whose body is an optional [Effects.May] draw of X
+ * Modelled as an `Triggers.self.enters()` trigger whose body is an optional [Effects.May] draw of X
  * cards, followed by a discard of two that is gated on "you drew one or more this way" — i.e. X >= 1.
  * The discard sits *inside* the `may`, so declining the draw never forces the discard; and a `yes`
  * with X = 0 (all-colourless payment) draws nothing and the `Effects.If` gate suppresses the
@@ -46,7 +46,7 @@ val TranscendentArchaic = card("Transcendent Archaic") {
     keywords(Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Effects.DrawCards(DynamicAmounts.colorsOfManaSpent())
                 .then(

@@ -40,7 +40,7 @@ val EowynFearlessKnight = card("Éowyn, Fearless Knight") {
     keywords(Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val victim = target(
             "creature an opponent controls with greater power",
             TargetCreature(

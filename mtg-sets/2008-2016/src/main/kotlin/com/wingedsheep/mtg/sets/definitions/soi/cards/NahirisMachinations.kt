@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Nahiri's Machinations (Shadows over Innistrad #28)
@@ -17,7 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * At the beginning of combat on your turn, target creature you control gains indestructible until end of turn.
  * {1}{R}: This enchantment deals 1 damage to target blocking creature.
  *
- * "On your turn" is [Triggers.BeginCombat]'s own scope, and "target blocking creature" is
+ * "On your turn" is `Triggers.you.beginningOf(Step.BEGIN_COMBAT)`'s own scope, and "target blocking creature" is
  * [TargetFilter.BlockingCreature] — the blocking check is read live from combat state, so the
  * ability is only activatable once blockers are declared.
  */
@@ -29,7 +30,7 @@ val NahirisMachinations = card("Nahiri's Machinations") {
         "{1}{R}: This enchantment deals 1 damage to target blocking creature."
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val t = target("target", TargetCreature(filter = TargetFilter.CreatureYouControl))
         effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
     }

@@ -33,7 +33,7 @@ val HuntingDrake = card("Hunting Drake") {
     toughness = 2
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.withAnyColor(Color.RED, Color.GREEN)))
         effect = Effects.Move(t, Zone.LIBRARY, ZonePlacement.Top)
     }

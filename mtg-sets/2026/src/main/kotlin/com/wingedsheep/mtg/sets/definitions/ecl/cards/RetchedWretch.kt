@@ -28,7 +28,7 @@ val RetchedWretch = card("Retched Wretch") {
         "battlefield under its owner's control and it loses all abilities."
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         interveningIf = Conditions.TriggeringEntityHadMinusOneMinusOneCounter
         effect = Effects.Move(
             target = EffectTarget.Self,

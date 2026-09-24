@@ -51,7 +51,7 @@ val CollectorsCage = card("Collector's Cage") {
 
     // Hideaway 5 — ETB look at top 5, exile one face down linked to this artifact, bottom-randomize rest.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val hideawayTop = gather(
                 CardSource.TopOfLibrary(

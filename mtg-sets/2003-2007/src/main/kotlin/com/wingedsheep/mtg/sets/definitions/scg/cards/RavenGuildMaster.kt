@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 val RavenGuildMaster = card("Raven Guild Master") {
     manaCost = "{1}{U}{U}"
@@ -16,7 +17,7 @@ val RavenGuildMaster = card("Raven Guild Master") {
     oracleText = "Whenever Raven Guild Master deals combat damage to a player, that player exiles the top ten cards of their library.\nMorph {2}{U}{U}"
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.Pipeline {
             val exiled = gather(CardSource.TopOfLibrary(10, Player.TriggeringPlayer))
             exile(exiled, Player.TriggeringPlayer)

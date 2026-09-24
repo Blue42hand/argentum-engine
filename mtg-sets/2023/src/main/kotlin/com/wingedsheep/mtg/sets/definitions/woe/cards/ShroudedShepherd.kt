@@ -33,7 +33,7 @@ val ShroudedShepherd = card("Shrouded Shepherd") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.ModifyStats(2, 2, t)
     }

@@ -28,7 +28,7 @@ val Mechanozoa = card("Mechanozoa") {
     toughness = 5
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val artifactOrCreatureOpponentControls = target("target artifact or creature an opponent controls", TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrArtifact.opponentControls())))
         effect = Effects.Composite(
             listOf(

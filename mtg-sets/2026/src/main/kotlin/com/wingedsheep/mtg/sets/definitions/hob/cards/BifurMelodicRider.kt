@@ -59,12 +59,12 @@ val BifurMelodicRider = card("Bifur, Melodic Rider") {
     storied()
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         counterRider()
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         counterRider()
     }
 

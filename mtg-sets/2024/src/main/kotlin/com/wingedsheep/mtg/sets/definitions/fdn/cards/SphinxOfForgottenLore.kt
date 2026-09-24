@@ -43,7 +43,7 @@ val SphinxOfForgottenLore = card("Sphinx of Forgotten Lore") {
         val target = target("target", TargetObject(
             filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByYou()
         ))
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.GrantFlashback(target)
         description = "Whenever this creature attacks, target instant or sorcery card in your " +
             "graveyard gains flashback until end of turn. The flashback cost is equal to that " +

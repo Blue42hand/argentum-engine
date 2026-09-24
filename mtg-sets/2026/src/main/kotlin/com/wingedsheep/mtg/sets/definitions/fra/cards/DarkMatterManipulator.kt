@@ -24,7 +24,7 @@ val DarkMatterManipulator = card("Dark Matter Manipulator") {
         "This creature gets +2/+0 for every seven cards in your graveyard."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.mill(3)
         description = "When this creature enters, mill three cards."
     }

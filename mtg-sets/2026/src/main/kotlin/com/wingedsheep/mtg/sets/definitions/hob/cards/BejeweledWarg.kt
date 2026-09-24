@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Bejeweled Warg — The Hobbit #117
@@ -50,7 +51,7 @@ val BejeweledWarg = card("Bejeweled Warg") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = ModalEffect.chooseOne(
             mode("Put a +1/+1 counter on target Wolf you control") {
                 val permanentYouControl = target(

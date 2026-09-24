@@ -105,7 +105,7 @@ val KitesailLarcenist = card("Kitesail Larcenist") {
     val whileKitesailRemains = Duration.WhileSourceOnBattlefield("Kitesail Larcenist")
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
 
         // "for each player, choose up to one other target artifact or creature that player controls"
         // (two-player rendering: one optional slot per player — see KDoc).

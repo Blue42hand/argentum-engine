@@ -31,13 +31,13 @@ val HoardersOverflow = card("Hoarder's Overflow") {
 
     // When this enchantment enters, put a stash counter on it.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.AddCounters(CounterType.STASH, 1, EffectTarget.Self)
     }
 
     // Whenever you expend 4, put a stash counter on it.
     triggeredAbility {
-        trigger = Triggers.Expend(4)
+        trigger = Triggers.you.expends(4)
         effect = Effects.AddCounters(CounterType.STASH, 1, EffectTarget.Self)
     }
 

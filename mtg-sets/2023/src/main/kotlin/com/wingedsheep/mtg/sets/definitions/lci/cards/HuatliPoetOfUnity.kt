@@ -135,7 +135,7 @@ private val HuatliPoetOfUnityFront = card("Huatli, Poet of Unity") {
     // When Huatli enters, search your library for a basic land card, reveal it, put it into your
     // hand, then shuffle.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.searchLibrary(
             filter = GameObjectFilter.BasicLand,
             count = 1,

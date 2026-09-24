@@ -1,16 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.HasAbilitiesOfChosenLinkedExiledCard
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -57,7 +54,7 @@ val KohTheFaceStealer = card("Koh, the Face Stealer") {
 
     // "When Koh enters, exile up to one other target creature." — permanent exile into Koh's pile.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "up to one other target creature",
             TargetPermanent(optional = true, filter = TargetFilter.Creature.other())
@@ -68,14 +65,7 @@ val KohTheFaceStealer = card("Koh, the Face Stealer") {
     // "Whenever another nontoken creature dies, you may exile it." — exile the dying card from its
     // graveyard into Koh's pile.
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = ZoneChangeEvent(
-                filter = GameObjectFilter.Creature.nontoken(),
-                from = Zone.BATTLEFIELD,
-                to = Zone.GRAVEYARD
-            ),
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.Creature.nontoken()).dies()
         effect = Effects.May(
             Effects.ExileLinkedToSource(EffectTarget.TriggeringEntity),
             inlineOnTrigger = true

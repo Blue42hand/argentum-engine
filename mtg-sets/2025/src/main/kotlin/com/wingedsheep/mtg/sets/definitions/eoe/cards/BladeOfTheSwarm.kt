@@ -43,7 +43,7 @@ val BladeOfTheSwarm = card("Blade of the Swarm") {
         "• Put target exiled card with warp on the bottom of its owner's library."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
                 Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self),

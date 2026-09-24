@@ -54,7 +54,7 @@ private val CovetousCastawayFront = card("Covetous Castaway") {
         "Disturb {3}{U}{U} (You may cast this card from your graveyard transformed for its disturb cost.)"
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Patterns.Library.mill(3)
         description = "When this creature dies, mill three cards."
     }
@@ -101,7 +101,7 @@ private val GhostlyCastigator = card("Ghostly Castigator") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target = TargetObject(
             count = 3,
             optional = true,

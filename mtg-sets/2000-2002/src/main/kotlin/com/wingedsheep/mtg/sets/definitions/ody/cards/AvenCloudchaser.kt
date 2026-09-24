@@ -31,7 +31,7 @@ val AvenCloudchaser = card("Aven Cloudchaser") {
     toughness = 2
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetPermanent(filter = TargetFilter.Enchantment))
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }

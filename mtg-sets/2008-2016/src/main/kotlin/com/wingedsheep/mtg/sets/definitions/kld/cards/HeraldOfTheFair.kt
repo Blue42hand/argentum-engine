@@ -26,7 +26,7 @@ val HeraldOfTheFair = card("Herald of the Fair") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.CreatureYouControl))
         effect = Effects.ModifyStats(1, 1, t)
     }

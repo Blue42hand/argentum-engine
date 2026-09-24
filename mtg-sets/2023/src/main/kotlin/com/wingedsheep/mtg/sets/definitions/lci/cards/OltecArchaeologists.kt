@@ -34,7 +34,7 @@ val OltecArchaeologists = card("Oltec Archaeologists") {
     power = 4
     toughness = 4
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Return target artifact card from your graveyard to your hand") {
                 val artifactInYourGraveyard = target(

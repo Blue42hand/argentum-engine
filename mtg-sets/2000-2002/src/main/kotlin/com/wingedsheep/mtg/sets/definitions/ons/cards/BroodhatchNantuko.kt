@@ -24,7 +24,7 @@ val BroodhatchNantuko = card("Broodhatch Nantuko") {
     oracleText = "Whenever Broodhatch Nantuko is dealt damage, create that many 1/1 green Insect creature tokens.\nMorph {2}{G}"
 
     triggeredAbility {
-        trigger = Triggers.TakesDamage
+        trigger = Triggers.self.isDealtDamage()
         effect = Effects.CreateToken(
             count = DynamicAmounts.triggerDamageAmount(),
             power = 1,

@@ -26,7 +26,7 @@ val KheruSpellsnatcher = card("Kheru Spellsnatcher") {
 
     triggeredAbility {
         val spell = target("target spell", Targets.Spell)
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         effect = Effects.CounterSpellToExile(grantFreeCast = true)
     }
 

@@ -25,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Two details the wording forces:
  *
  * - The draw trigger fires **per card drawn** (2007-10-01 ruling), which is what
- *   [Triggers.YouDraw] already does — a "draw three cards" spell gives three separate triggers,
+ *   `Triggers.you.draws()` already does — a "draw three cards" spell gives three separate triggers,
  *   each with its own "you may". [Effects.May] is that optionality; declining one doesn't decline
  *   the rest.
  * - "Activate only during your turn" is a timing restriction on the ability, not sorcery speed:
@@ -45,7 +45,7 @@ val HoofprintsOfTheStag = card("Hoofprints of the Stag") {
         "creature token with flying. Activate only during your turn."
 
     triggeredAbility {
-        trigger = Triggers.YouDraw
+        trigger = Triggers.you.draws()
         effect = Effects.May(
             Effects.AddCounters(
                 counterType = CounterType.HOOFPRINT,

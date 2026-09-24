@@ -30,7 +30,7 @@ val AttackInTheBox = card("Attack-in-the-Box") {
         "If you do, sacrifice it at the beginning of the next end step."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.May(
             Effects.Composite(
                 Effects.ModifyStats(4, 0, EffectTarget.Self),

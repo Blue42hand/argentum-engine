@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * The Rise of Sozin // Fire Lord Sozin (TLA #117)
@@ -83,7 +84,7 @@ private val FireLordSozin = card("Fire Lord Sozin") {
     // selection — its `action` is an empty composite because the "when you do" is already the pay-{X}
     // gate. `ownedByTriggeringPlayer()` scopes the graveyard to the player Sozin just damaged.
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.MayPayX(
             then = Effects.ReflexiveTrigger(
                 action = Effects.Composite(emptyList()),

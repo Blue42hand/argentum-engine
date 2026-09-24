@@ -48,7 +48,7 @@ val SilvanReveler = card("Silvan Reveler") {
         "this card from your graveyard to your hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             // "draw a card, then discard a card"
             run(Effects.DrawCards(1))
@@ -74,7 +74,7 @@ val SilvanReveler = card("Silvan Reveler") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         triggerZone = Zone.GRAVEYARD
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}{G}{U}"),

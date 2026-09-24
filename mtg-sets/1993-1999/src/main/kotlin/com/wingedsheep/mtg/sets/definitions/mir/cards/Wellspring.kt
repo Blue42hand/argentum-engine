@@ -29,12 +29,12 @@ val Wellspring = card("Wellspring") {
     auraTarget = Targets.Land
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainControl(EffectTarget.EnchantedPermanent, Duration.EndOfTurn)
     }
 
     triggeredAbility {
-        trigger = Triggers.phase(Step.UPKEEP)
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.Composite(
             Effects.Untap(EffectTarget.EnchantedPermanent),
             Effects.GainControl(EffectTarget.EnchantedPermanent, Duration.EndOfTurn),

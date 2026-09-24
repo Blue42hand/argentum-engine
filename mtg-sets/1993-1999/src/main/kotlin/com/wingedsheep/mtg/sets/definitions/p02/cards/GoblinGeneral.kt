@@ -27,7 +27,7 @@ val GoblinGeneral = card("Goblin General") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.GOBLIN).youControl()),
             Effects.ModifyStats(1, 1, EffectTarget.IterationEntity)

@@ -28,7 +28,7 @@ val CrocodileOfTheCrossing = card("Crocodile of the Crossing") {
     keywords(Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, creature)
         description = "When this creature enters, put a -1/-1 counter on target creature you control."

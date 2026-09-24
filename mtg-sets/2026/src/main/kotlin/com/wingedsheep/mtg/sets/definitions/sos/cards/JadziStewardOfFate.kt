@@ -50,7 +50,7 @@ val JadziStewardOfFate = card("Jadzi, Steward of Fate") {
 
     // When Jadzi enters, draw two cards, then discard two cards.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(2).then(Effects.Discard(2))
     }
 

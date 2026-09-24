@@ -35,7 +35,7 @@ val GetawayBarrel = card("Getaway Barrel") {
         "battlefield. Put the rest on the bottom of your library in a random order."
 
     triggeredAbility {
-        trigger = Triggers.PutIntoGraveyardFromBattlefield
+        trigger = Triggers.self.dies()
         effect = Effects.Pipeline {
             val revealed = gather(CardSource.TopOfLibrary(13, Player.You), revealed = true)
             val (creature, rest) = chooseRandomSplit(1, from = revealed, filter = GameObjectFilter.Creature)

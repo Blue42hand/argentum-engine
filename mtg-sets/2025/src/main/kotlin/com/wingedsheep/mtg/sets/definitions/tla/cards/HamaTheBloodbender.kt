@@ -52,7 +52,7 @@ val HamaTheBloodbender: CardDefinition = card("Hama, the Bloodbender") {
         "creatures to help. Each one pays for {1}.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Pipeline {
             // target opponent mills three cards

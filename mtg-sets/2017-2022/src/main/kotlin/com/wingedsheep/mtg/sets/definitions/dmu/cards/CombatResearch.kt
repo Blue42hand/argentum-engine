@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.GrantWard
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.WardCost
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Combat Research
@@ -31,8 +32,7 @@ val CombatResearch = card("Combat Research") {
     staticAbility {
         ability = GrantTriggeredAbility(
             TriggeredAbility.create(
-                trigger = Triggers.DealsCombatDamageToPlayer.event,
-                binding = Triggers.DealsCombatDamageToPlayer.binding,
+                trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer),
                 effect = Effects.DrawCards(1)
             )
         )

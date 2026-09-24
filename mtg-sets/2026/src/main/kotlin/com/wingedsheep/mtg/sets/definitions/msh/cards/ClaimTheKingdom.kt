@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -21,9 +20,9 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * indestructible counter on target creature you control.
  *
  * Modeling notes:
- *  - "Landfall" is an ability word (flavor only); the trigger itself is [Triggers.LandYouControlEnters].
+ *  - "Landfall" is an ability word (flavor only); the trigger itself is `Triggers.a(GameObjectFilter.Land.youControl()).enters()`.
  *  - "When the **fourth** plan counter is put on this enchantment" composes from existing
- *    vocabulary: a SELF-bound [Triggers.countersPlacedOn] on [CounterType.PLAN] gated by
+ *    vocabulary: a SELF-bound `Triggers.<subject>.getsCounters(type, by, firstTimeEachTurn, batch)` on [CounterType.PLAN] gated by
  *    `triggerRestriction = `[Conditions.SourceCounterCountAtLeast]`(PLAN, 4)`. The at-least gate is
  *    behaviourally exact here because the payoff **sacrifices its own source**, so the enchantment
  *    is gone before a fifth counter could ever land — the threshold can never fire twice. No
@@ -43,7 +42,7 @@ val ClaimTheKingdom = card("Claim the Kingdom") {
         "an indestructible counter on target creature you control."
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
@@ -54,12 +53,7 @@ val ClaimTheKingdom = card("Claim the Kingdom") {
     }
 
     triggeredAbility {
-        trigger = Triggers.countersPlacedOn(
-            filter = GameObjectFilter.Any,
-            counterType = CounterType.PLAN,
-            firstTimeEachTurn = false,
-            binding = TriggerBinding.SELF,
-        )
+        trigger = Triggers.self.getsCounters(CounterType.PLAN)
         triggerRestriction = Conditions.SourceCounterCountAtLeast(CounterType.PLAN, 4)
         effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeTarget(EffectTarget.Self),

@@ -36,19 +36,19 @@ val ChampionsOfTheShoal = card("Champions of the Shoal") {
     additionalCost(Costs.additional.BeholdAndExile(filter = Filters.WithSubtype("Merfolk")))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val victim = target("creature", TargetCreature(optional = true))
         effect = Effects.Tap(victim).then(Effects.AddCounters(CounterType.STUN, 1, victim))
     }
 
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
+        trigger = Triggers.self.becomesTapped()
         val victim = target("creature", TargetCreature(optional = true))
         effect = Effects.Tap(victim).then(Effects.AddCounters(CounterType.STUN, 1, victim))
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileToHand()
     }
 

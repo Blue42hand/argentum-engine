@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Haradrim Spearmaster
@@ -28,7 +29,7 @@ val HaradrimSpearmaster = card("Haradrim Spearmaster") {
     keywords(Keyword.REACH)
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val anotherCreatureYouControl = target("another creature you control", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
         effect = Effects.ModifyStats(1, 0, target = anotherCreatureYouControl)
     }

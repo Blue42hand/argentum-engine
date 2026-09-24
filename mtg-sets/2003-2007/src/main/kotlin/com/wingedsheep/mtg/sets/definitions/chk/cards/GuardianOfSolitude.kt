@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * The Kamigawa "Whenever you cast a Spirit or Arcane spell" trigger is a `SpellCastEvent` watching
  * *your* casts with an OR over the two subtypes — `withAnySubtype` builds the single
  * `CardPredicate.Or` the grammar expects, rather than the `anyOf` branch list that the `or` infix
- * on `GameObjectFilter` would produce. `Triggers.youCastSpell` supplies `Player.You` and
+ * on `GameObjectFilter` would produce. `Triggers.you.casts(spell, requires)` supplies `Player.You` and
  * `TriggerBinding.ANY`, so Guardian of Solitude also triggers off its own cast.
  */
 val GuardianOfSolitude = card("Guardian of Solitude") {
@@ -30,9 +30,7 @@ val GuardianOfSolitude = card("Guardian of Solitude") {
     power = 1
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.Any.withAnySubtype("Spirit", "Arcane")
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.Any.withAnySubtype("Spirit", "Arcane"))
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.GrantKeyword(Keyword.FLYING, t)
     }

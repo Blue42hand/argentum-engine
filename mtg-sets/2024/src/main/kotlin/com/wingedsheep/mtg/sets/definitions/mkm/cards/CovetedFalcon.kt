@@ -72,7 +72,7 @@ val CovetedFalcon = card("Coveted Falcon") {
     disguise = "{1}{U}"
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val stolen = target(
             "target permanent you own but don't control",
             TargetPermanent(
@@ -94,7 +94,7 @@ val CovetedFalcon = card("Coveted Falcon") {
     }
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val opponent = target("target opponent", TargetOpponent())
         target(
             "any number of target permanents you control",

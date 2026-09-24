@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Y'shtola Rhul
@@ -36,7 +37,7 @@ val YshtolaRhul = card("Y'shtola Rhul") {
         "of the turn, there is an additional end step after this step."
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         val creature = target("creature you control", Targets.CreatureYouControl)
         effect = Effects.Move(creature, Zone.EXILE)
             .then(Effects.Move(creature, Zone.BATTLEFIELD))

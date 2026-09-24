@@ -44,13 +44,13 @@ val ElectroAssaultingBattery = card("Electro, Assaulting Battery") {
 
     // Whenever you cast an instant or sorcery spell, add {R}.
     triggeredAbility {
-        trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.InstantOrSorcery)
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         effect = Effects.AddMana(Color.RED)
     }
 
     // When Electro leaves the battlefield, you may pay {X}. When you do, he deals X damage to a player.
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         val target = target("target player", Targets.Player)
         effect = Effects.MayPayX(
             then = Effects.DealDamage(DynamicAmounts.xValue(), target)

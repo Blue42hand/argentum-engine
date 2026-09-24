@@ -40,10 +40,7 @@ val CloudstoneCurio = card("Cloudstone Curio") {
         "permanent you control that shares a permanent type with it to its owner's hand."
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Permanent.nonartifact().youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Permanent.nonartifact().youControl()).enters()
         effect = Effects.Pipeline {
             val candidates = gather(
                 filter = GameObjectFilter.Permanent.sharingCardTypeWith(EffectTarget.TriggeringEntity),

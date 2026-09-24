@@ -20,7 +20,7 @@ val UrzasChalice = card("Urza's Chalice") {
     oracleText = "Whenever a player casts an artifact spell, you may pay {1}. If you do, you gain 1 life."
 
     triggeredAbility {
-        trigger = Triggers.anyPlayerCasts(GameObjectFilter.Artifact)
+        trigger = Triggers.anyPlayer.casts(GameObjectFilter.Artifact)
         effect = Effects.MayPay(ManaCost.parse("{1}"), Effects.GainLife(1))
         description = "Whenever a player casts an artifact spell, you may pay {1}. If you do, you gain 1 life."
     }

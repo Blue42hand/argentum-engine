@@ -54,7 +54,7 @@ private val KaslemsStonetreeFront = card("Kaslem's Stonetree") {
     // ETB: look at the top six, optionally put a land onto the battlefield tapped,
     // rest to the bottom of the library in a random order.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val looked = gather(CardSource.TopOfLibrary(6))
             val (kept, rest) = chooseUpToSplit(

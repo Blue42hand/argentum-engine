@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantAttackUnless
 import com.wingedsheep.sdk.scripting.CantBlockUnless
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Patchwork Beastie
@@ -39,7 +40,7 @@ val PatchworkBeastie = card("Patchwork Beastie") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.May(
             effect = Patterns.Library.mill(1),
             descriptionOverride = "You may mill a card.",

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -44,10 +43,7 @@ val NafsAsp = card("Nafs Asp") {
         "{1} before that draw step."
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.Any,
-            recipient = Recipient.AnyPlayer
-        )
+        trigger = Triggers.self.dealsDamage(Recipient.AnyPlayer)
         effect = Effects.CreateDelayedTrigger(
             step = Step.DRAW,
             fireOnPlayer = EffectTarget.PlayerRef(Player.TriggeringPlayer),

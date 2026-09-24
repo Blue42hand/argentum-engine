@@ -29,7 +29,7 @@ val CourierOfComestibles = card("Courier of Comestibles") {
     // The search is optional (ChooseUpTo 0..1); if no Food card ends up in hand
     // (declined or none found), the IfYouDont branch creates a Food token instead.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.IfYouDo(
             action = Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.Any.withSubtype("Food"),

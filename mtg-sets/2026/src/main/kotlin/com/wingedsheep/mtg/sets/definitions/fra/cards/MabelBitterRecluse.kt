@@ -26,7 +26,7 @@ val MabelBitterRecluse = card("Mabel, Bitter Recluse") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val victim = target(
             "another target creature or planeswalker",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker).other()),

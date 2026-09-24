@@ -25,7 +25,7 @@ val StormplainDetainment = card("Stormplain Detainment") {
         "controls until this enchantment leaves the battlefield."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "nonland permanent an opponent controls",
             TargetPermanent(filter = TargetFilter.NonlandPermanentOpponentControls)
@@ -34,7 +34,7 @@ val StormplainDetainment = card("Stormplain Detainment") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

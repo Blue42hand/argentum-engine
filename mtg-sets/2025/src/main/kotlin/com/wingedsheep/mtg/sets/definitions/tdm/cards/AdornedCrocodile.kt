@@ -31,7 +31,7 @@ val AdornedCrocodile = card("Adorned Crocodile") {
         "Activate only as a sorcery."
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,

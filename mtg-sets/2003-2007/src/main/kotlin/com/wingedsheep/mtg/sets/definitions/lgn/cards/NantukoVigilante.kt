@@ -25,7 +25,7 @@ val NantukoVigilante = card("Nantuko Vigilante") {
     oracleText = "Morph {1}{G} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen Nantuko Vigilante is turned face up, destroy target artifact or enchantment."
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val t = target("artifact or enchantment", TargetPermanent(filter = TargetFilter(GameObjectFilter.Artifact or GameObjectFilter.Enchantment)))
         effect = Effects.Destroy(t)
     }

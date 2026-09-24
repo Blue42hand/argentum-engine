@@ -34,7 +34,7 @@ val HanweirTheWrithingTownship = card("Hanweir, the Writhing Township") {
     keywords(Keyword.TRAMPLE, Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.CreateToken(
             count = 2,
             power = 3,

@@ -37,7 +37,7 @@ val HivespineWolverine = card("Hivespine Wolverine") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             // Mode 1: Put a +1/+1 counter on target creature you control
             mode("Put a +1/+1 counter on target creature you control") {

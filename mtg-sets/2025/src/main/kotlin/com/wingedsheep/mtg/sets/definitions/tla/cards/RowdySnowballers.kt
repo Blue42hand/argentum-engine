@@ -27,7 +27,7 @@ val RowdySnowballers = card("Rowdy Snowballers") {
     oracleText = "When this creature enters, tap target creature an opponent controls and put a stun counter on it. (If a permanent with a stun counter would become untapped, remove one from it instead.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "creature an opponent controls",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.Creature.opponentControls())),

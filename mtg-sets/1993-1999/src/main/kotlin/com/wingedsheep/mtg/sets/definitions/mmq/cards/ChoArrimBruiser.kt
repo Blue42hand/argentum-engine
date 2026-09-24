@@ -25,7 +25,7 @@ val ChoArrimBruiser = card("Cho-Arrim Bruiser") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         optional = true
         target("target", TargetCreature(count = 2, optional = true))
         effect = Effects.TapEachTarget()

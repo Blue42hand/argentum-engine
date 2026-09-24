@@ -32,14 +32,14 @@ val UndeadButler = card("Undead Butler") {
         "your graveyard to your hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.mill(3)
     }
 
     // Dies trigger functions from the graveyard so "exile it" can reference Self. Exiling is
     // optional ("you may"); once it happens the reflexive trigger returns a targeted creature card.
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         triggerZone = Zone.GRAVEYARD
         effect = Effects.ReflexiveTrigger(
             action = Effects.Exile(EffectTarget.Self),

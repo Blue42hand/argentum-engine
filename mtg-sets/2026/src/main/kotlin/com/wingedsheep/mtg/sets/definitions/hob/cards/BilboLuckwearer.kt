@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBeBlocked
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Bilbo, Luckwearer // Burglar's Plot — The Hobbit #32
@@ -48,7 +49,7 @@ val BilboLuckwearer = card("Bilbo, Luckwearer") {
     }
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Patterns.Hand.loot(draw = 1, discard = 1)
         description = "Draw a card, then discard a card."
     }

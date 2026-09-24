@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.dsl.startYourEngines
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * The Speed Demon — Aetherdrift #105
@@ -41,7 +42,7 @@ val TheSpeedDemon = card("The Speed Demon") {
     startYourEngines()
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.Composite(
             Effects.DrawCards(DynamicAmounts.speed(Player.You)),
             Effects.LoseLife(DynamicAmounts.speed(Player.You), EffectTarget.Controller),

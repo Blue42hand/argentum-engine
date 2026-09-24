@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.model.Rarity
  * Two independent pieces:
  *  - [training] gives the keyword + the attack trigger, which grows the Trainee with +1/+1
  *    counters over the course of combats.
- *  - A dies trigger ([Triggers.Dies]) that relocates *its counters* onto a creature you control.
+ *  - A dies trigger (`Triggers.self.dies()`) that relocates *its counters* onto a creature you control.
  *    [Effects.MoveAllLastKnownCounters] reads the Trainee's counters from last-known information
  *    (the permanent is already in the graveyard when the trigger resolves) and moves every kind,
  *    faithful to "put its counters" — so the +1/+1 counters Training accrued aren't wasted.
@@ -37,7 +37,7 @@ val ParishBladeTrainee = card("Parish-Blade Trainee") {
     training()
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val recipient = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.MoveAllLastKnownCounters(recipient)
     }

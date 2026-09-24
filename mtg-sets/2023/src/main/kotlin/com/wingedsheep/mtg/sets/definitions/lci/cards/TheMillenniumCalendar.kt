@@ -25,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * opponent loses 1,000 life.
  *
  * Three abilities over the shared TIME counter type (reused from suspend/vanishing):
- *  - The untap payoff is a **batch** trigger ([Triggers.OneOrMoreBecomeUntapped], CR 603.2c): the
+ *  - The untap payoff is a **batch** trigger (`Triggers.oneOrMore(filter).becomeUntapped()`, CR 603.2c): the
  *    untap step untaps all your permanents at once but the ability fires a single time, with the
  *    untapped permanents exposed as the trigger's captured collection so "that many" is read with
  *    `DynamicAmount.DistinctEntitiesInCollections(TRIGGER_CAPTURED_COLLECTION)`. The "during your
@@ -50,7 +50,7 @@ val TheMillenniumCalendar = card("The Millennium Calendar") {
 
     // Whenever you untap one or more permanents during your untap step, put that many time counters.
     triggeredAbility {
-        trigger = Triggers.OneOrMoreBecomeUntapped(GameObjectFilter.Permanent.youControl())
+        trigger = Triggers.oneOrMore(GameObjectFilter.Permanent.youControl()).becomeUntapped()
         effect = Effects.AddDynamicCounters(
             CounterType.TIME,
             DynamicAmounts.distinctEntitiesIn(IterationSpace.TRIGGER_CAPTURED_COLLECTION),

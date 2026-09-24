@@ -32,7 +32,7 @@ val MilitiaRallier = card("Militia Rallier") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val creature = target("creature", Targets.Creature)
         effect = Effects.Untap(creature)
     }

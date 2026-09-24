@@ -32,7 +32,7 @@ val TradeRouteEnvoy = card("Trade Route Envoy") {
         "If you don't draw a card this way, put a +1/+1 counter on this creature."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.If(
             condition = Conditions.YouControl(
                 GameObjectFilter.Creature.copy(

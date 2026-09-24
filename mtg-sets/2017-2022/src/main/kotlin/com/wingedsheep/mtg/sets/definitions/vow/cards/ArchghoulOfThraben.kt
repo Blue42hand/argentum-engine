@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.core.Subtype
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -51,11 +50,7 @@ val ArchghoulOfThraben = card("Archghoul of Thraben") {
         "don't put the card into your hand, you may put it into your graveyard."
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.withSubtype(Subtype.ZOMBIE).youControl(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.withSubtype(Subtype.ZOMBIE).youControl()).dies()
         effect = Effects.Pipeline {
             val looked = gather(CardSource.TopOfLibrary(1))
             val (toHandCards, notTaken) = chooseUpToSplit(

@@ -49,7 +49,7 @@ val FearOfAbduction = card("Fear of Abduction") {
 
     // ETB: exile target creature an opponent controls until this creature leaves the battlefield.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "creature an opponent controls",
             TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.opponentControls()))
@@ -59,7 +59,7 @@ val FearOfAbduction = card("Fear of Abduction") {
 
     // LTB: return each linked-exiled card to its owner's hand.
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileToHand()
     }
 

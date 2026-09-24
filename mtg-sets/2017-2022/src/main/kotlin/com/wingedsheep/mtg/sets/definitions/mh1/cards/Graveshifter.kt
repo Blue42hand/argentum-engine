@@ -30,7 +30,7 @@ val Graveshifter = card("Graveshifter") {
     keywords(Keyword.CHANGELING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val creature = target(
             "target creature card from your graveyard",

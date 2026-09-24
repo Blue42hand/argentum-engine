@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Shrewd Storyteller
@@ -28,7 +29,7 @@ val ShrewdStoryteller = card("Shrewd Storyteller") {
     // Survival — At the beginning of your second main phase, if this creature is tapped, put a
     // +1/+1 counter on target creature.
     triggeredAbility {
-        trigger = Triggers.YourPostcombatMain
+        trigger = Triggers.you.beginningOf(Step.POSTCOMBAT_MAIN)
         interveningIf = Conditions.SourceIsTapped
         val creature = target("target creature", Targets.Creature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)

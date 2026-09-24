@@ -25,7 +25,7 @@ val SelfcraftMechan = card("Selfcraft Mechan") {
     oracleText = "When this creature enters, you may sacrifice an artifact. When you do, put a +1/+1 counter on target creature and draw a card."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeOwn(GameObjectFilter.Artifact),
             optional = true) {

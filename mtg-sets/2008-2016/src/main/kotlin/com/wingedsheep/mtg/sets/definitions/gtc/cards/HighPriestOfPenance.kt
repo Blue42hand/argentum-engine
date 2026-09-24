@@ -14,7 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  * 1/1
  * Whenever this creature is dealt damage, you may destroy target nonland permanent.
  *
- * A 1/1 that punishes any answer aimed at it: [Triggers.TakesDamage] is the SELF-bound incoming-damage
+ * A 1/1 that punishes any answer aimed at it: `Triggers.self.isDealtDamage()` is the SELF-bound incoming-damage
  * event, so it fires even on lethal damage (the trigger is detected off the damage event before
  * state-based actions bury the Priest), and "you may" is the [Effects.May] wrapper around
  * [Effects.Destroy].
@@ -28,7 +28,7 @@ val HighPriestOfPenance = card("High Priest of Penance") {
     oracleText = "Whenever this creature is dealt damage, you may destroy target nonland permanent."
 
     triggeredAbility {
-        trigger = Triggers.TakesDamage
+        trigger = Triggers.self.isDealtDamage()
         val t = target(
             "target nonland permanent",
             TargetPermanent(filter = TargetFilter.NonlandPermanent),

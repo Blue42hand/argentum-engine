@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Sprite Dragon
@@ -16,7 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Flying, haste
  * Whenever you cast a noncreature spell, put a +1/+1 counter on this creature.
  *
- * A prowess-shaped payoff that keeps what it earns: [Triggers.YouCastNoncreature] is the
+ * A prowess-shaped payoff that keeps what it earns: `Triggers.you.casts(GameObjectFilter.Noncreature)` is the
  * `Player.You` + noncreature-filtered cast watcher, and the growth is a permanent
  * [Effects.AddCounters] on itself rather than an until-end-of-turn pump.
  */
@@ -32,7 +33,7 @@ val SpriteDragon = card("Sprite Dragon") {
     keywords(Keyword.FLYING, Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever you cast a noncreature spell, put a +1/+1 counter on this creature."
     }

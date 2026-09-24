@@ -25,7 +25,7 @@ val Tephraderm = card("Tephraderm") {
     oracleText = "Whenever a creature deals damage to Tephraderm, Tephraderm deals that much damage to that creature.\nWhenever a spell deals damage to Tephraderm, Tephraderm deals that much damage to that spell's controller."
 
     triggeredAbility {
-        trigger = Triggers.takesDamage(source = GameObjectFilter.Creature)
+        trigger = Triggers.self.isDealtDamage(GameObjectFilter.Creature)
         effect = Effects.DealDamage(
             amount = DynamicAmounts.triggerDamageAmount(),
             target = EffectTarget.TriggeringEntity
@@ -36,7 +36,7 @@ val Tephraderm = card("Tephraderm") {
         // The only spells that deal damage as spells are instants and sorceries (a permanent spell
         // resolves into a permanent first), and by the time this triggers the spell has finished
         // resolving and left the stack — so "a spell" is read off the card's type, not its zone.
-        trigger = Triggers.takesDamage(source = GameObjectFilter.InstantOrSorcery)
+        trigger = Triggers.self.isDealtDamage(GameObjectFilter.InstantOrSorcery)
         effect = Effects.DealDamage(
             amount = DynamicAmounts.triggerDamageAmount(),
             target = EffectTarget.ControllerOfTriggeringEntity

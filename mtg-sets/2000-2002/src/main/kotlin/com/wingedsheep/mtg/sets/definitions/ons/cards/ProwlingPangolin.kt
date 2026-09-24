@@ -25,7 +25,7 @@ val ProwlingPangolin = card("Prowling Pangolin") {
     oracleText = "When Prowling Pangolin enters the battlefield, any player may sacrifice two creatures. If a player does, sacrifice Prowling Pangolin."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.AnyPlayerMayPay(
             cost = Costs.pay.Sacrifice(GameObjectFilter.Creature, count = 2),
             consequence = SacrificeSelfEffect

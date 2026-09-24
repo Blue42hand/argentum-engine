@@ -26,7 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * - **"one or more other creatures you control enter"** is a batching trigger (CR 603.6a): a mass
  *   reanimation that returns four creatures fires this once, not four times.
- *   [Triggers.OneOrMorePermanentsEnter] with `excludeSource = true` is exactly that shape — the
+ *   `Triggers.oneOrMore(filter).enter()` with `excludeSource = true` is exactly that shape — the
  *   filter's default controller scope is "you control", and `excludeSource` realises "other" so the
  *   Goat's own entry can never feed its second ability. The matching members of the batch are
  *   seeded into the resolving trigger's pipeline as
@@ -71,13 +71,13 @@ val FranticScapegoat = card("Frantic Scapegoat") {
     keywords(Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Suspect(EffectTarget.Self)
         description = "When this creature enters, suspect it."
     }
 
     triggeredAbility {
-        trigger = Triggers.OneOrMorePermanentsEnter(GameObjectFilter.Creature, excludeSource = true)
+        trigger = Triggers.oneOrMoreOther(GameObjectFilter.Creature).enter()
         interveningIf = Conditions.SourceIsSuspected
         effect = Effects.Pipeline {
             val scapegoated = chooseUpTo(

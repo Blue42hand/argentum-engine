@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Pizza Face, Gastromancer
@@ -34,7 +35,7 @@ val PizzaFaceGastromancer = card("Pizza Face, Gastromancer") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateFood()
         description = "When Pizza Face enters, create a Food token."
     }
@@ -48,7 +49,7 @@ val PizzaFaceGastromancer = card("Pizza Face, Gastromancer") {
             optional = true,
             filter = TargetFilter.CreatureOrArtifact.copy(excludeSelf = true)
         ))
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.YouHadPermanentLeaveBattlefieldThisTurn
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, target)
             .then(

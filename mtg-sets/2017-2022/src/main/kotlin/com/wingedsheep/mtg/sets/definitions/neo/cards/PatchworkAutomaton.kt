@@ -32,7 +32,7 @@ val PatchworkAutomaton = card("Patchwork Automaton") {
     keywordAbility(KeywordAbility.ward("{2}"))
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(GameObjectFilter.Artifact)
+        trigger = Triggers.you.casts(GameObjectFilter.Artifact)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever you cast an artifact spell, put a +1/+1 counter on this creature."
     }

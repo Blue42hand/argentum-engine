@@ -35,7 +35,7 @@ val FalconWingedWonder = card("Falcon, Winged Wonder") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreatePredefinedToken("Redwing")
         description = "Avian Telepathy — When Falcon enters, create Redwing, a legendary 1/1 blue " +
             "Bird Scout creature token with flying and \"Whenever Redwing attacks, surveil 1.\""

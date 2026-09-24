@@ -35,7 +35,7 @@ val ColossusOfTheBloodAge = card("Colossus of the Blood Age") {
         "When this creature dies, discard any number of cards, then draw that many cards plus one."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         // No explicit damageSource: the engine attributes the damage to the ability's source
         // (Colossus itself) by default, matching the "it deals damage" self-source convention.
         effect = Effects.Composite(
@@ -45,7 +45,7 @@ val ColossusOfTheBloodAge = card("Colossus of the Blood Age") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.Pipeline {
             val hand = gather(CardSource.FromZone(Zone.HAND, Player.You))
             val discarded = chooseAnyNumber(

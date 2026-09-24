@@ -44,7 +44,7 @@ val AvenInterrupter = card("Aven Interrupter") {
     keywords(Keyword.FLASH, Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target("spell", Targets.Spell)
         effect = Effects.ExileTargetSpell(makePlotted = true)
         description = "When this creature enters, exile target spell. It becomes plotted."

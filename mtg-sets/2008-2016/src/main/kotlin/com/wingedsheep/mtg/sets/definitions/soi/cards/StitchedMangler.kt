@@ -37,7 +37,7 @@ val StitchedMangler = card("Stitched Mangler") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.Tap(creature) then
             Effects.GrantKeyword(

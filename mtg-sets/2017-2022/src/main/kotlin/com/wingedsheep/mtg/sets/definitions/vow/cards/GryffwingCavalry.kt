@@ -49,7 +49,7 @@ val GryffwingCavalry = card("Gryffwing Cavalry") {
     training()
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val flyer = target(
             "target attacking creature without flying",
             TargetCreature(filter = TargetFilter.AttackingCreature.withoutKeyword(Keyword.FLYING)),

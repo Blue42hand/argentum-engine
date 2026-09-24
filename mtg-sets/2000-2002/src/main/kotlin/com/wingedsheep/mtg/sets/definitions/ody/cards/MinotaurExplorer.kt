@@ -27,7 +27,7 @@ val MinotaurExplorer = card("Minotaur Explorer") {
     power = 3
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.PayOrSuffer(cost = Costs.pay.Discard(random = true), suffer = SacrificeSelfEffect)
     }
     metadata {

@@ -33,7 +33,7 @@ val RiftwingCloudskate = card("Riftwing Cloudskate") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", Targets.Permanent)
         effect = Effects.ReturnToHand(t)
     }

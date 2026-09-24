@@ -11,13 +11,11 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.effects.LookAudience
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -118,12 +116,7 @@ val EtrataDeadlyFugitive = card("Etrata, Deadly Fugitive") {
     }
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.Combat,
-            recipient = Recipient.Opponent,
-            sourceFilter = GameObjectFilter.Creature.withSubtype(Subtype.ASSASSIN).youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.withSubtype(Subtype.ASSASSIN).youControl()).dealsCombatDamage(Recipient.Opponent)
         effect = Effects.Pipeline {
             val etrataCloaked = gather(
                 CardSource.TopOfLibrary(

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -33,10 +32,7 @@ val SethronHurloonGeneral = card("Sethron, Hurloon General") {
     triggeredAbility {
         // "Sethron or another nontoken Minotaur you control" — the corpus spells this as one
         // ANY-bound trigger over the nontoken filter (Headless Rider's shape).
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Creature.withSubtype(Subtype.MINOTAUR).youControl().nontoken(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.withSubtype(Subtype.MINOTAUR).youControl().nontoken()).enters()
         effect = Effects.CreateToken(
             power = 2,
             toughness = 3,

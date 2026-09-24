@@ -28,7 +28,7 @@ val SilverbackShaman = card("Silverback Shaman") {
     toughness = 4
     keywords(Keyword.TRAMPLE)
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.DrawCards(1)
     }
     metadata {

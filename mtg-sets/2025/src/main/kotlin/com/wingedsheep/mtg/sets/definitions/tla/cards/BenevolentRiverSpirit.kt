@@ -35,7 +35,7 @@ val BenevolentRiverSpirit = card("Benevolent River Spirit") {
     keywordAbility(KeywordAbility.ward("{2}"))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.scry(2)
     }
 

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -34,7 +33,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  *   number of artifacts you control. Activate only as a sorcery.
  *
  * Implementation:
- *  - Front trigger is [Triggers.entersBattlefield]`(Artifact.youControl(), binding = ANY)` — the
+ *  - Front trigger is `Triggers.a(filter).enters()``(Artifact.youControl(), binding = ANY)` — the
  *    ANY binding fires for the device itself and every other artifact you control. The optional
  *    target ("up to one") is a [TargetCreature]`(optional = true)`; the effect pumps +1/+0
  *    ([Effects.ModifyStats]) and grants haste ([Effects.GrantKeyword]) until end of turn, then a
@@ -53,10 +52,7 @@ private val DowsingDeviceFront = card("Dowsing Device") {
         "transform this artifact if you control four or more artifacts."
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Artifact.youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Artifact.youControl()).enters()
         val creature = target(
             "up to one target creature you control",
             TargetCreature(optional = true, filter = TargetFilter.Creature.youControl()),

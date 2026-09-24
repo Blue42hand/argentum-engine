@@ -31,7 +31,7 @@ val CennsHeir = card("Cenn's Heir") {
     oracleText = "Whenever this creature attacks, it gets +1/+1 until end of turn for each other attacking Kithkin."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val otherAttackingKithkin = DynamicAmounts.battlefield(
             Player.Each,
             GameObjectFilter.Creature.withSubtype(Subtype.KITHKIN).attacking(),

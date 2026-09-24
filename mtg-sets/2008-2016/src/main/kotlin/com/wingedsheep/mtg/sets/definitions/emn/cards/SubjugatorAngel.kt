@@ -31,7 +31,7 @@ val SubjugatorAngel = card("Subjugator Angel") {
     toughness = 3
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.opponentControls()),
             Effects.Tap(EffectTarget.IterationEntity)

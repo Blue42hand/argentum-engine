@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Nexus of Becoming
@@ -35,7 +36,7 @@ val NexusOfBecoming = card("Nexus of Becoming") {
         "the exiled card, except it's a 3/3 Golem artifact creature in addition to its other types."
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = Effects.Pipeline {
             run(Effects.DrawCards(1))
             // You may exile an artifact or creature card from your hand.

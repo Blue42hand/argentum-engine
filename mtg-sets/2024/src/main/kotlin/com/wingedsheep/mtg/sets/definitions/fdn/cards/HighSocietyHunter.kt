@@ -2,13 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -38,7 +36,7 @@ val HighSocietyHunter = card("High-Society Hunter") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val sacrificeTarget = target(
             "another creature",
             TargetPermanent(
@@ -54,11 +52,7 @@ val HighSocietyHunter = card("High-Society Hunter") {
     }
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.nontoken(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.Creature.nontoken()).dies()
         effect = Effects.DrawCards(1)
         description = "Whenever another nontoken creature dies, draw a card."
     }

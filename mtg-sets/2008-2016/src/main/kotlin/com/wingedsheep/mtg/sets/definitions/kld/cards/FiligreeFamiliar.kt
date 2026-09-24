@@ -26,11 +26,11 @@ val FiligreeFamiliar = card("Filigree Familiar") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(2)
     }
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.DrawCards(1)
     }
     metadata {

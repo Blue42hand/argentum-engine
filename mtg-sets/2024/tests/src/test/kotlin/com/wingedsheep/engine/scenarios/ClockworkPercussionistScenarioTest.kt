@@ -16,7 +16,7 @@ import com.wingedsheep.engine.core.Outcome
  * "When this creature dies, exile the top card of your library. You may play it until the
  *  end of your next turn."
  *
- * Composes Triggers.Dies with the impulse-exile body (GatherCards(top 1) -> MoveCollection(EXILE)
+ * Composes Triggers.self.dies() with the impulse-exile body (GatherCards(top 1) -> MoveCollection(EXILE)
  * -> GrantMayPlayFromExile, MayPlayExpiry.UntilEndOfNextTurn) plus printed Haste. No new SDK surface.
  */
 class ClockworkPercussionistScenarioTest : FunSpec({

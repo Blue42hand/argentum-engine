@@ -40,7 +40,7 @@ val MabelHeirToCragflame = card("Mabel, Heir to Cragflame") {
 
     // ETB: create Cragflame Equipment token
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreatePredefinedToken("Cragflame")
     }
 

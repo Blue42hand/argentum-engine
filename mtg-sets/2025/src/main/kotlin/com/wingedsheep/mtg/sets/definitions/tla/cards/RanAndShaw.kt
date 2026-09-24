@@ -44,7 +44,7 @@ val RanAndShaw = card("Ran and Shaw") {
     firebending(2)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.All(
             Conditions.WasCast,
             Conditions.CardsInGraveyardMatchingAtLeast(3, GameObjectFilter.Any.withAnySubtype("Dragon", "Lesson")),

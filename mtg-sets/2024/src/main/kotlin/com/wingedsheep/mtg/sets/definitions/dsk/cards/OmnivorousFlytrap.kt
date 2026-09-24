@@ -56,14 +56,14 @@ val OmnivorousFlytrap = card("Omnivorous Flytrap") {
 
     triggeredAbility {
         val creature = target("target creature", TargetCreature(count = 2, minCount = 1))
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.Delirium()
         effect = payoff
     }
 
     triggeredAbility {
         val creature = target("target creature", TargetCreature(count = 2, minCount = 1))
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         interveningIf = Conditions.Delirium()
         effect = payoff
     }

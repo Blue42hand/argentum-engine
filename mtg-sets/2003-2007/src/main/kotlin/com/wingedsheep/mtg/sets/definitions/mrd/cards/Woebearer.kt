@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Woebearer — Mirrodin #83
@@ -42,7 +43,7 @@ val Woebearer = card("Woebearer") {
     keywords(Keyword.FEAR)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         optional = true
         val creatureCard = target(
             "target creature card",

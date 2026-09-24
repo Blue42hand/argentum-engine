@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Blacksmith's Talent {R}
@@ -39,14 +40,14 @@ val BlacksmithsTalent = card("Blacksmith's Talent") {
 
     // Level 1: ETB — create a Sword Equipment token
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreatePredefinedToken("Sword")
     }
 
     // Level 2: At the beginning of combat on your turn, attach target Equipment to up to one target creature
     classLevel(2, "{2}{R}") {
         triggeredAbility {
-            trigger = Triggers.BeginCombat
+            trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
             val equipment = target(
                 "Equipment you control",
                 TargetPermanent(

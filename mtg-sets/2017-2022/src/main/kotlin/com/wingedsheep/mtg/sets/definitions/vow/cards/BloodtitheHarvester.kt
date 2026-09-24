@@ -32,7 +32,7 @@ val BloodtitheHarvester = card("Bloodtithe Harvester") {
         "{T}, Sacrifice this creature: Target creature gets -X/-X until end of turn, where X is twice the number of Blood tokens you control. Activate only as a sorcery."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateBlood()
     }
 

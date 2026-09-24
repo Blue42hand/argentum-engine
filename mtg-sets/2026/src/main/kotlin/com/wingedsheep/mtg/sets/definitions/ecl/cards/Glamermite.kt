@@ -20,7 +20,7 @@ val Glamermite = card("Glamermite") {
     keywords(Keyword.FLASH, Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Tap target creature") {
                 val creature = target("target creature", Targets.Creature)

@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -46,14 +45,7 @@ val CallTheMountainChocobo = card("Call the Mountain Chocobo") {
                 imageUri = "https://cards.scryfall.io/normal/front/1/f/1fbc471d-5948-47fc-b7cc-81cc13a4cd15.jpg?1748704082",
                 triggeredAbilities = listOf(
                     TriggeredAbility.create(
-                        trigger = Triggers.entersBattlefield(
-                            filter = GameObjectFilter.Land.youControl(),
-                            binding = TriggerBinding.ANY
-                        ).event,
-                        binding = Triggers.entersBattlefield(
-                            filter = GameObjectFilter.Land.youControl(),
-                            binding = TriggerBinding.ANY
-                        ).binding,
+                        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters(),
                         effect = Effects.ModifyStats(1, 0, EffectTarget.Self)
                     )
                 )

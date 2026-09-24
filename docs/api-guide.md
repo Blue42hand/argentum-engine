@@ -74,7 +74,7 @@ val BellowingCrier = card("Bellowing Crier") {
     oracleText = "When Bellowing Crier enters the battlefield, draw a card, then discard a card."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Hand.loot()
     }
 

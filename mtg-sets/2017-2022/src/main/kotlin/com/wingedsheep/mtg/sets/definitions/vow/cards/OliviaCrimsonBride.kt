@@ -60,7 +60,7 @@ val OliviaCrimsonBride = card("Olivia, Crimson Bride") {
     keywords(Keyword.FLYING, Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val creature = target(
             "creature card from your graveyard",
             TargetObject(filter = TargetFilter.CreatureInYourGraveyard)

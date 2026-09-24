@@ -29,7 +29,7 @@ val Cartographer = card("Cartographer") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target(
             "target",

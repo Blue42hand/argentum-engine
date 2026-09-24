@@ -23,8 +23,6 @@ import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
@@ -109,7 +107,7 @@ class BecomesTargetPlayerAndAbilityAxesTest : FunSpec({
         power = 0
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.BecomesTargetOfAbility(byYou = true, includePlayerTargets = true)
+            trigger = Triggers.a().becomesTarget(byYou = true, abilitiesOnly = true, includePlayerTargets = true)
             oncePerTurn = true
             effect = Effects.DrawCards(1)
         }
@@ -122,7 +120,7 @@ class BecomesTargetPlayerAndAbilityAxesTest : FunSpec({
         power = 0
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.BecomesTargetOfAbility(byYou = true)
+            trigger = Triggers.a().becomesTarget(byYou = true, abilitiesOnly = true)
             effect = Effects.DrawCards(1)
         }
     }
@@ -134,10 +132,7 @@ class BecomesTargetPlayerAndAbilityAxesTest : FunSpec({
         power = 0
         toughness = 1
         triggeredAbility {
-            trigger = TriggerSpec(
-                event = EventPattern.BecomesTargetEvent(includePlayerTargets = true),
-                binding = TriggerBinding.ANY
-            )
+            trigger = Triggers.a().becomesTarget(includePlayerTargets = true)
             effect = Effects.DrawCards(1)
         }
     }
@@ -149,7 +144,7 @@ class BecomesTargetPlayerAndAbilityAxesTest : FunSpec({
         power = 0
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.BecomesTarget(GameObjectFilter.Any)
+            trigger = Triggers.a().becomesTarget()
             effect = Effects.DrawCards(1)
         }
     }
@@ -161,7 +156,7 @@ class BecomesTargetPlayerAndAbilityAxesTest : FunSpec({
         power = 0
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.BecomesTargetOfSpell(GameObjectFilter.Any)
+            trigger = Triggers.a().becomesTarget(spellsOnly = true)
             effect = Effects.DrawCards(1)
         }
     }

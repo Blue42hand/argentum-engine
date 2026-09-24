@@ -35,7 +35,7 @@ val RaphAndMikeyTroublemakers = card("Raph & Mikey, Troublemakers") {
     keywords(Keyword.TRAMPLE, Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Pipeline {
             val (raphCreature, raphRevealed) = gatherUntilMatch(GameObjectFilter.Creature)
             reveal(raphRevealed, fromZone = Zone.LIBRARY, toZone = Zone.BATTLEFIELD)

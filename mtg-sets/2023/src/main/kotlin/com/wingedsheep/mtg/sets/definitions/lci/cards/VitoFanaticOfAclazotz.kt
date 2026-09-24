@@ -23,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The "Victor template" — a single escalating triggered ability keyed to how many times *this
  * ability* has resolved this turn (cf. Victor, Valgavoth's Seneschal; Elrond, Lord of Rivendell).
- * The trigger fires per sacrificed permanent ([Triggers.YouSacrificeAnother], per-permanent /
+ * The trigger fires per sacrificed permanent (`Triggers.you.sacrificesAnother(filter)`, per-permanent /
  * [com.wingedsheep.sdk.scripting.TriggerBinding.OTHER] so the source sacrificing itself never fires
  * it). On each resolution it first bumps the source's per-turn resolution counter
  * ([IncrementAbilityResolutionCountEffect]) and then runs exactly one tier via
@@ -44,7 +44,7 @@ val VitoFanaticOfAclazotz = card("Vito, Fanatic of Aclazotz") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YouSacrificeAnother(GameObjectFilter.Permanent)
+        trigger = Triggers.you.sacrificesAnother(GameObjectFilter.Permanent)
         effect = Effects.Composite(
             IncrementAbilityResolutionCountEffect,
             // 1st time — you gain 2 life.

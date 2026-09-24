@@ -52,7 +52,7 @@ private val BalambGardenAirborne = card("Balamb Garden, Airborne") {
 
     // Whenever Balamb Garden attacks, draw a card.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.DrawCards(1)
     }
 

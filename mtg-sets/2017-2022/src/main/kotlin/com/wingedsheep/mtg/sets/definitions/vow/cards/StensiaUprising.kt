@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Stensia Uprising — Innistrad: Crimson Vow #178
@@ -23,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * exactly thirteen permanents, you may sacrifice this enchantment. When you do, it deals 7 damage
  * to any target.
  *
- * A single [Triggers.YourEndStep] trigger whose effect is a [Effects.Composite]:
+ * A single `Triggers.you.beginningOf(Step.END)` trigger whose effect is a [Effects.Composite]:
  *  1. [Effects.CreateToken] — one 1/1 red Human.
  *  2. A [Effects.If] gated on `CompareAmounts(AggregateBattlefield(You, Any) == 13)` — the
  *     "then if you control exactly thirteen permanents" intervening clause. GTE-style helpers
@@ -44,7 +45,7 @@ val StensiaUprising = card("Stensia Uprising") {
         "When you do, it deals 7 damage to any target."
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.Composite(
             Effects.CreateToken(
                 power = 1,

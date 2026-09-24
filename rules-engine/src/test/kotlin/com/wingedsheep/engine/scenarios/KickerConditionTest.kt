@@ -37,7 +37,7 @@ class KickerConditionTest : FunSpec({
         keywords(Keyword.HASTE)
 
         triggeredAbility {
-            trigger = Triggers.EachEndStep
+            trigger = Triggers.anyPlayer.beginningOf(Step.END)
             interveningIf = NotCondition(WasKicked)
             effect = SacrificeSelfEffect
         }

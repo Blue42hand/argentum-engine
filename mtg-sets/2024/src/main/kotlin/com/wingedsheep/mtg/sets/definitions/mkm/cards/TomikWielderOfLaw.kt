@@ -9,12 +9,11 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Tomik, Wielder of Law — Murders at Karlov Manor #431
@@ -66,13 +65,7 @@ val TomikWielderOfLaw = card("Tomik, Wielder of Law") {
     keywords(Keyword.FLYING, Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = EventPattern.CreaturesAttackYouEvent(
-                minAttackers = 2,
-                includePlaneswalkersYouControl = true,
-            ),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.you.isAttacked(2, includePlaneswalkers = true)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.battlefield(
                 Player.Each,

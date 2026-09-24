@@ -33,12 +33,12 @@ val BenthicCriminologists = card("Benthic Criminologists") {
     toughness = 5
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         sacrificeAnArtifactToDraw()
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         sacrificeAnArtifactToDraw()
     }
 

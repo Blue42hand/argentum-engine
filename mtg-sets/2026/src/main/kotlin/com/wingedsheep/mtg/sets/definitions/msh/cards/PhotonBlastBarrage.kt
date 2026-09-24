@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Photon Blast Barrage deals 1 damage to target creature.
  *
  * Implementation notes:
- *  - The cast trigger is [Triggers.WhenYouCastThisSpell] (Social Snub / Sage of the Skies), which
+ *  - The cast trigger is `Triggers.self.isCast()` (Social Snub / Sage of the Skies), which
  *    fires from the stack on this spell's own cast, so the copies are created — and resolve —
  *    before the original. [Effects.CopyTargetSpell] of [EffectTarget.TriggeringEntity] already
  *    means "copy that spell, you may choose new targets for the copy" and loops per copy,
@@ -39,7 +39,7 @@ val PhotonBlastBarrage = card("Photon Blast Barrage") {
 
     // "When you cast this spell, copy it X times. You may choose new targets for the copies."
     triggeredAbility {
-        trigger = Triggers.WhenYouCastThisSpell()
+        trigger = Triggers.self.isCast()
         effect = Effects.CopyTargetSpell(
             target = EffectTarget.TriggeringEntity,
             copies = DynamicAmounts.xValueOfTriggeringSpell(),

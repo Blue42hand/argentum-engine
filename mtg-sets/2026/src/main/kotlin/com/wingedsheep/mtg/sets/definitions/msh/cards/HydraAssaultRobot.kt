@@ -35,12 +35,9 @@ val HydraAssaultRobot = card("HYDRA Assault Robot") {
 
     triggeredAbility {
         val opponent = target("target opponent", Targets.Opponent)
-        trigger = Triggers.entersBattlefield(
-            filter = (
+        trigger = Triggers.another((
                 GameObjectFilter.Permanent.withSubtype(Subtype.VILLAIN) or GameObjectFilter.Artifact
-                ).youControl(),
-            binding = TriggerBinding.OTHER
-        )
+                ).youControl()).enters()
         effect = Effects.DealDamage(1, opponent)
     }
 

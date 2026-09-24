@@ -27,7 +27,7 @@ val WallOfHope = card("Wall of Hope") {
     keywords(Keyword.DEFENDER)
 
     triggeredAbility {
-        trigger = Triggers.TakesDamage
+        trigger = Triggers.self.isDealtDamage()
         effect = Effects.GainLife(
             amount = DynamicAmounts.triggerDamageAmount(),
             target = EffectTarget.Controller

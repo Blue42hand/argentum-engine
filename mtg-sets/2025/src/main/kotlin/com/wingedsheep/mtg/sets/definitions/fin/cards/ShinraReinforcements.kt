@@ -26,7 +26,7 @@ val ShinraReinforcements = card("Shinra Reinforcements") {
     power = 2
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Patterns.Library.mill(3),
             Effects.GainLife(3)

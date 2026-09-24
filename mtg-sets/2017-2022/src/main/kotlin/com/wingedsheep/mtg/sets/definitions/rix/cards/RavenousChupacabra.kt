@@ -26,7 +26,7 @@ val RavenousChupacabra = card("Ravenous Chupacabra") {
     oracleText = "When this creature enters, destroy target creature an opponent controls."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val victim = target("target", Targets.CreatureOpponentControls)
         effect = Effects.Destroy(victim)
         description = "When this creature enters, destroy target creature an opponent controls."

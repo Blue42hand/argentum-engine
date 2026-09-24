@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.references.Player
 
 /**
  * Saruman the White
@@ -29,7 +28,7 @@ val SarumanTheWhite = card("Saruman the White") {
     keywordAbility(KeywordAbility.ward("{2}"))
 
     triggeredAbility {
-        trigger = Triggers.NthSpellCast(2, Player.You)
+        trigger = Triggers.you.castsNth(2)
         effect = Effects.Amass(2, "Orc")
     }
 

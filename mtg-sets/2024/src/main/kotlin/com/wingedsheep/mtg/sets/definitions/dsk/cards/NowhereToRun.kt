@@ -34,7 +34,7 @@ val NowhereToRun = card("Nowhere to Run") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target creature", Targets.CreatureOpponentControls)
         effect = Effects.ModifyStats(-3, -3, t)
         description = "When this enchantment enters, target creature an opponent controls gets -3/-3 until end of turn."

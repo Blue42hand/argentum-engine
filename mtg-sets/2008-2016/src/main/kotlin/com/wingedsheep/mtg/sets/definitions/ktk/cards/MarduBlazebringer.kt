@@ -30,7 +30,7 @@ val MarduBlazebringer = card("Mardu Blazebringer") {
     oracleText = "When Mardu Blazebringer attacks or blocks, sacrifice it at end of combat."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.CreateDelayedTrigger(
                 step = Step.END_COMBAT,
                 effect = SacrificeSelfEffect
@@ -38,7 +38,7 @@ val MarduBlazebringer = card("Mardu Blazebringer") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Blocks
+        trigger = Triggers.self.blocks()
         effect = Effects.CreateDelayedTrigger(
                 step = Step.END_COMBAT,
                 effect = SacrificeSelfEffect

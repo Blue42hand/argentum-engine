@@ -26,7 +26,7 @@ val LunarMystic = card("Lunar Mystic") {
     oracleText = "Whenever you cast an instant spell, you may pay {1}. If you do, draw a card."
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Instant)
+        trigger = Triggers.you.casts(GameObjectFilter.Instant)
         effect = Effects.MayPay(
             cost = Effects.PayMana("{1}"),
             then = Effects.DrawCards(1)

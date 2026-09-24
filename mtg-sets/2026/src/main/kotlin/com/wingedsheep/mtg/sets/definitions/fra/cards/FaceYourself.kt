@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Face Yourself — Reality Fracture #83
@@ -41,8 +42,7 @@ val FaceYourself = card("Face Yourself") {
         "a planeswalker, sacrifice this creature.\""
 
     val sacrificeUnlessPlaneswalker = TriggeredAbility.create(
-        trigger = Triggers.EachEndStep.event,
-        binding = Triggers.EachEndStep.binding,
+        trigger = Triggers.anyPlayer.beginningOf(Step.END),
         effect = Effects.SacrificeTarget(EffectTarget.Self),
         interveningIf = Conditions.YouControl(GameObjectFilter.Planeswalker, negate = true),
     )

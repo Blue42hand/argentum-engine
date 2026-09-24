@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  * {1}{B}, Sacrifice another creature or artifact: Draw a card.
  *
  * - The first ability is the batched you-scoped token-ETB trigger
- *   ([Triggers.OneOrMorePermanentsEnter] on [GameObjectFilter.Token], which defaults to "you
+ *   (`Triggers.oneOrMore(filter).enter()` on [GameObjectFilter.Token], which defaults to "you
  *   control") with `oncePerTurn = true` for "This ability triggers only once each turn"
  *   (CR 603.3 / engine-tracked once-per-turn). It fires once per batch, no matter how many tokens
  *   entered.
@@ -39,7 +39,7 @@ val BaronBertramGraywater = card("Baron Bertram Graywater") {
         "{1}{B}, Sacrifice another creature or artifact: Draw a card."
 
     triggeredAbility {
-        trigger = Triggers.OneOrMorePermanentsEnter(GameObjectFilter.Token)
+        trigger = Triggers.oneOrMore(GameObjectFilter.Token).enter()
         oncePerTurn = true
         effect = Effects.CreateToken(
             count = 1,

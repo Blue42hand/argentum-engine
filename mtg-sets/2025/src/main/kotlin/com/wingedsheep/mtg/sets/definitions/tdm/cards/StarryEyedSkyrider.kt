@@ -38,7 +38,7 @@ val StarryEyedSkyrider = card("Starry-Eyed Skyrider") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val creature = target("another creature you control", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
         effect = Effects.GrantKeyword(Keyword.FLYING, creature)
     }

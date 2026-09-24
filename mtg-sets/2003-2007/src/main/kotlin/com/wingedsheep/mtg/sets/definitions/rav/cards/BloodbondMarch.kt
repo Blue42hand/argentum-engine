@@ -38,7 +38,7 @@ val BloodbondMarch = card("Bloodbond March") {
         "the same name as that spell from their graveyard to the battlefield."
 
     triggeredAbility {
-        trigger = Triggers.anyPlayerCasts(spellFilter = GameObjectFilter.Creature)
+        trigger = Triggers.anyPlayer.casts(GameObjectFilter.Creature)
         effect = Effects.Pipeline {
             val sameName = gather(
                 CardSource.FromZone(

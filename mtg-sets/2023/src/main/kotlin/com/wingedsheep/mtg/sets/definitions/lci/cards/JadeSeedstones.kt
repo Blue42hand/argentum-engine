@@ -49,7 +49,7 @@ private val JadeSeedstonesFront = card("Jade Seedstones") {
 
     // ETB: distribute three +1/+1 counters among one, two, or three target creatures you control.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target = TargetCreature(count = 3, minCount = 1, filter = TargetFilter.CreatureYouControl)
         effect = Effects.DistributeCountersAmongTargets(totalCounters = 3)
     }
@@ -81,7 +81,7 @@ private val JadeheartAttendant = card("Jadeheart Attendant") {
 
     // ETB: gain life equal to the mana value of the (exactly one) card exiled to craft it.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(DynamicAmounts.craftedMaterialsTotalManaValue())
     }
 

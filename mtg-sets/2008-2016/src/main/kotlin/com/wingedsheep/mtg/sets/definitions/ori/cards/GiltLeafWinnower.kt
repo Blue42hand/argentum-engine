@@ -31,7 +31,7 @@ val GiltLeafWinnower = card("Gilt-Leaf Winnower") {
     toughness = 3
     keywords(Keyword.MENACE)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)

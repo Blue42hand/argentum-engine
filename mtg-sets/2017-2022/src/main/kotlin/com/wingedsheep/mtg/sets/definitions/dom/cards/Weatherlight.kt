@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Weatherlight
@@ -34,7 +35,7 @@ val Weatherlight = card("Weatherlight") {
     keywordAbility(KeywordAbility.Numeric(Keyword.CREW, 3))
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.Pipeline {
             val looked = gather(CardSource.TopOfLibrary(5))
             val (kept, rest) = chooseUpToSplit(

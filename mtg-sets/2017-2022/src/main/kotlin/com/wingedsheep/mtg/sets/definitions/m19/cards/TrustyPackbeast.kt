@@ -28,7 +28,7 @@ val TrustyPackbeast = card("Trusty Packbeast") {
     power = 2
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target",
             TargetObject(filter = TargetFilter.ArtifactInYourGraveyard)

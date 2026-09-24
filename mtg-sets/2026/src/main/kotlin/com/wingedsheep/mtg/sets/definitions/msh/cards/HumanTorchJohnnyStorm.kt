@@ -50,7 +50,7 @@ val HumanTorchJohnnyStorm = card("Human Torch, Johnny Storm") {
 
     triggeredAbility {
         val opponent = target("target opponent", Targets.Opponent)
-        trigger = Triggers.YouDraw
+        trigger = Triggers.you.draws()
         interveningIf = Conditions.YouControl(
             GameObjectFilter.Any.withSubtype(Subtype.HERO.value),
             excludeSelf = true

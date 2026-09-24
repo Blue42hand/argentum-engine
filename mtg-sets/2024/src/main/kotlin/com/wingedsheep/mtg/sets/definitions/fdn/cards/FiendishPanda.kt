@@ -23,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  * When this creature dies, return another target non-Bear creature card with mana value less than
  * or equal to this creature's power from your graveyard to the battlefield.
  *
- * The life-gain trigger fires per life-gain event ([Triggers.YouGainLife]) and adds a +1/+1
+ * The life-gain trigger fires per life-gain event (`Triggers.you.gainsLife()`) and adds a +1/+1
  * counter. The dies trigger reanimates a graveyard creature: the target is a creature card in
  * **your** graveyard, not a Bear ([notSubtype]), whose mana value is at most Fiendish Panda's
  * power — a dynamic cap read via [DynamicAmount.EntityProperty] on the source's power, which falls
@@ -42,13 +42,13 @@ val FiendishPanda = card("Fiendish Panda") {
         "less than or equal to this creature's power from your graveyard to the battlefield."
 
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever you gain life, put a +1/+1 counter on this creature."
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val t = target(
             "another target non-Bear creature card with mana value less than or equal to " +
                 "this creature's power from your graveyard",

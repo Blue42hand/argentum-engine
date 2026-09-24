@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Reluctant Dounguard
@@ -38,7 +39,7 @@ val ReluctantDounguard = card("Reluctant Dounguard") {
     )
 
     triggeredAbility {
-        trigger = Triggers.OtherCreatureEnters
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
         triggerRestriction = Conditions.SourceHasCounter(CounterType.MINUS_ONE_MINUS_ONE)
         effect = Effects.RemoveCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, EffectTarget.Self)
     }

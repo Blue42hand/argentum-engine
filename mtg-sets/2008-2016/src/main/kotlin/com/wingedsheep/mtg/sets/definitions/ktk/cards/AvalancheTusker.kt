@@ -22,7 +22,7 @@ val AvalancheTusker = card("Avalanche Tusker") {
     oracleText = "Whenever Avalanche Tusker attacks, target creature defending player controls blocks it this combat if able."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val creature = target("creature defending player controls", Targets.CreatureOpponentControls)
         effect = Effects.ForceBlock(creature)
     }

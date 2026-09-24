@@ -36,7 +36,7 @@ val ApothecaryStomper = card("Apothecary Stomper") {
     toughness = 4
     keywords(Keyword.VIGILANCE)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Put two +1/+1 counters on target creature you control") {
                 val creature = target(

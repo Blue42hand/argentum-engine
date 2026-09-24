@@ -27,7 +27,7 @@ val IngotChewer = card("Ingot Chewer") {
     evoke = "{R}"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val artifact = target("target artifact", Targets.Artifact)
         effect = Effects.Destroy(artifact)
         description = "destroy target artifact."

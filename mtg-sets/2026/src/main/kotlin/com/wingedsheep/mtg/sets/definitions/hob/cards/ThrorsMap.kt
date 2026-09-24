@@ -27,7 +27,7 @@ val ThrorsMap = card("Thrór's Map") {
     typeLine = "Legendary Artifact"
     oracleText = "When Thrór's Map enters, search your library for a basic land card, reveal it, put it into your hand, then shuffle.\n{2}, {T}: Draw a card, then discard a card."
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.searchLibrary(
             filter = GameObjectFilter.BasicLand,
             destination = SearchDestination.HAND,

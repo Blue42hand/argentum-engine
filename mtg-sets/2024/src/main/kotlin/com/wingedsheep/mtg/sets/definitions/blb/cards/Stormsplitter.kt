@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Stormsplitter {3}{R}
@@ -27,7 +28,7 @@ val Stormsplitter = card("Stormsplitter") {
     keywords(Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.YouCastInstantOrSorcery
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         effect = Effects.CreateTokenCopyOfSelf(exileAtStep = Step.END)
     }
 

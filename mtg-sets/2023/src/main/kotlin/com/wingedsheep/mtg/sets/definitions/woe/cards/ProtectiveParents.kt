@@ -33,7 +33,7 @@ val ProtectiveParents = card("Protective Parents") {
         "or less, put a +1/+1 counter on it.\")"
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val t = target(
             "up to one target creature you control",
             TargetCreature(optional = true, filter = TargetFilter.CreatureYouControl)

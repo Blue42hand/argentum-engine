@@ -30,7 +30,7 @@ val PeregrineDrake = card("Peregrine Drake") {
     toughness = 3
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetPermanent(optional = true, count = 5, filter = TargetFilter.Land))
         effect = Effects.UntapEachTarget()
     }

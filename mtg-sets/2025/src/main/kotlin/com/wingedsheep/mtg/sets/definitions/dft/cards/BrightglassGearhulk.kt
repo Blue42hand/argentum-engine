@@ -31,7 +31,7 @@ val BrightglassGearhulk = card("Brightglass Gearhulk") {
     keywords(Keyword.FIRST_STRIKE, Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.ArtifactCreatureOrEnchantment.manaValueAtMost(1),

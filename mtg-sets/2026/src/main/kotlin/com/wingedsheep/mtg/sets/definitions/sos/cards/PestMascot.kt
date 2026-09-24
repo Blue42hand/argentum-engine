@@ -30,7 +30,7 @@ val PestMascot = card("Pest Mascot") {
 
     // Whenever you gain life, put a +1/+1 counter on this creature.
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

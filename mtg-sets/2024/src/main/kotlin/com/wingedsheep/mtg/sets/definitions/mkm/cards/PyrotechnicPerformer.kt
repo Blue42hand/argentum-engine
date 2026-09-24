@@ -23,8 +23,8 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Three details the modelling has to get right:
  *
  * - **"this creature or another creature you control"** has no "another" clause, so the ability
- *   must fire for the Performer's own flip too. That is [Triggers.CreatureTurnedFaceUp] with
- *   `Player.You` — an ANY-bound trigger over the controller's creatures — not [Triggers.TurnedFaceUp]
+ *   must fire for the Performer's own flip too. That is `Triggers.<player>.permanentTurnedFaceUp(filter)` with
+ *   `Player.You` — an ANY-bound trigger over the controller's creatures — not `Triggers.self.turnedFaceUp()`
  *   (SELF-only) nor an OTHER binding. The same reasoning [PerimeterEnforcer] documents.
  * - **The damage source is the flipped creature, not the Performer** ("*that creature* deals
  *   damage"), so `damageSource` is [EffectTarget.TriggeringEntity]. This is what makes the flipped
@@ -53,7 +53,7 @@ val PyrotechnicPerformer = card("Pyrotechnic Performer") {
     disguise = "{R}"
 
     triggeredAbility {
-        trigger = Triggers.CreatureTurnedFaceUp(player = Player.You)
+        trigger = Triggers.you.permanentTurnedFaceUp()
         effect = Effects.DealDamage(
             amount = DynamicAmounts.triggeringPower(),
             target = EffectTarget.PlayerRef(Player.EachOpponent),

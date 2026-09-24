@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Jinxed Choker — Mirrodin #189
@@ -36,7 +37,7 @@ val JinxedChoker = card("Jinxed Choker") {
         "{3}: Put a charge counter on this artifact or remove one from it."
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         val opponent = target("opponent", TargetOpponent())
         effect = Effects.Composite(
             Effects.GiveControl(
@@ -48,7 +49,7 @@ val JinxedChoker = card("Jinxed Choker") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.DealDamage(
             amount = DynamicAmounts.countersOnSelf(CounterType.CHARGE),
             target = EffectTarget.Controller,

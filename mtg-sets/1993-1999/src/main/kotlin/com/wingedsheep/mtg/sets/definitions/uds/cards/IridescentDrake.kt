@@ -30,7 +30,7 @@ val IridescentDrake = card("Iridescent Drake") {
     toughness = 2
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetObject(filter = TargetFilter.CardInGraveyard))
         effect = Effects.PutOntoBattlefieldUnderYourControl(t)
     }

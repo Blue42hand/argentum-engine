@@ -32,7 +32,7 @@ val Wistfulness = card("Wistfulness") {
 
     // Green gate defined first (goes on stack first, resolves second)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.ManaSpentToCastIncludes(requiredGreen = 2)
         val artifactOrEnchantment = target(
             "artifact or enchantment an opponent controls",
@@ -43,7 +43,7 @@ val Wistfulness = card("Wistfulness") {
 
     // Blue gate defined second (goes on stack second, resolves first)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.ManaSpentToCastIncludes(requiredBlue = 2)
         effect = Patterns.Hand.loot(draw = 2, discard = 1)
     }

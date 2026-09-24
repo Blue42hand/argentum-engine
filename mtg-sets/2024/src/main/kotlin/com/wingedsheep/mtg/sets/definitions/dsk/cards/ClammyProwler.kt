@@ -30,7 +30,7 @@ val ClammyProwler = card("Clammy Prowler") {
     toughness = 5
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val t = target(
             "another target attacking creature",
             TargetOther(baseRequirement = TargetCreature(filter = TargetFilter.AttackingCreature))

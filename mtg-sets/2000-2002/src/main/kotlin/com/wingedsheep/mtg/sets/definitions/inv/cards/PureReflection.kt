@@ -25,7 +25,7 @@ val PureReflection = card("Pure Reflection") {
         "creates an X/X white Reflection creature token, where X is the mana value of that spell."
 
     triggeredAbility {
-        trigger = Triggers.anyPlayerCasts(GameObjectFilter.Creature)
+        trigger = Triggers.anyPlayer.casts(GameObjectFilter.Creature)
         effect = Effects.Composite(
             Effects.DestroyAll(GameObjectFilter.Creature.withSubtype("Reflection")),
             Effects.CreateDynamicToken(

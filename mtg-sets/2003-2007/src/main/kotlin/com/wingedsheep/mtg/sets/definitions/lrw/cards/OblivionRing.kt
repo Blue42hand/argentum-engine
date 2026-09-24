@@ -31,7 +31,7 @@ val OblivionRing = card("Oblivion Ring") {
         "When this enchantment leaves the battlefield, return the exiled card to the battlefield under its owner's control."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val exiled = target(
             "another target nonland permanent",
             TargetPermanent(filter = TargetFilter.OtherNonlandPermanent),
@@ -40,7 +40,7 @@ val OblivionRing = card("Oblivion Ring") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

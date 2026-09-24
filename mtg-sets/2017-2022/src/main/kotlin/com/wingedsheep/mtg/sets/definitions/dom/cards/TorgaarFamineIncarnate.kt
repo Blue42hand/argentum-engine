@@ -31,7 +31,7 @@ val TorgaarFamineIncarnate = card("Torgaar, Famine Incarnate") {
     additionalCost(Costs.additional.SacrificeCreaturesForCostReduction())
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val player = target("player", TargetPlayer(optional = true))
         effect = Effects.SetLifeTotal(
             amount = DynamicAmounts.startingLifeTotal(player.asPlayer) / 2,

@@ -34,7 +34,7 @@ val LittleBear = card("Little Bear") {
     toughness = 2
     keywords(Keyword.FLASH)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
         effect = Effects.Composite(
             Effects.Untap(t),

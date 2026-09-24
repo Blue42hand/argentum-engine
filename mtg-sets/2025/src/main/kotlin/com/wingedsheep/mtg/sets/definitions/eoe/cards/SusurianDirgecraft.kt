@@ -34,7 +34,7 @@ val SusurianDirgecraft = card("Susurian Dirgecraft") {
 
     // ETB: each opponent sacrifices a nontoken creature of their choice
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Sacrifice(
             GameObjectFilter.Creature.nontoken(),
             target = EffectTarget.PlayerRef(Player.EachOpponent)

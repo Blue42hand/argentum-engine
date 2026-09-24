@@ -26,7 +26,7 @@ val DimensionalExile = card("Dimensional Exile") {
     auraTarget = TargetPermanent(filter = TargetFilter(GameObjectFilter.BasicLand.youControl()))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "creature an opponent controls",
             TargetPermanent(filter = TargetFilter.Creature.opponentControls())
@@ -35,7 +35,7 @@ val DimensionalExile = card("Dimensional Exile") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

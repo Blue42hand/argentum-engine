@@ -28,7 +28,7 @@ val TragicBanshee = card("Tragic Banshee") {
     power = 5
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.If(
             condition = Conditions.CreatureDiedThisTurn,

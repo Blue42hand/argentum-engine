@@ -31,7 +31,7 @@ val ShipwreckDowser = card("Shipwreck Dowser") {
     toughness = 3
     prowess()
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target",
             TargetObject(

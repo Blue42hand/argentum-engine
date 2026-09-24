@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
  * Target creature you control gets +2/+0 and gains haste until end of turn. When that creature
  * dies this turn, create a 2/2 white and blue Detective creature token.
  *
- * The death clause is an entity-scoped delayed triggered ability (`Triggers.Dies` with
+ * The death clause is an entity-scoped delayed triggered ability (`Triggers.self.dies()` with
  * `watchedTarget` bound to the chosen creature), not a rider on the pump — so it still fires if
  * the +2/+0 has been overwritten, if the creature dies after combat, or if it dies to something
  * other than damage. `fireOnce` matches the printed "When", not "Whenever": one token even if the
@@ -44,7 +44,7 @@ val FeloniousRage = card("Felonious Rage") {
                     colors = setOf(Color.WHITE, Color.BLUE),
                     creatureTypes = setOf("Detective")
                 ),
-                trigger = Triggers.Dies,
+                trigger = Triggers.self.dies(),
                 watchedTarget = t,
                 fireOnce = true,
                 expiry = DelayedTriggerExpiry.EndOfTurn

@@ -23,7 +23,7 @@ val SubterraneanScout = card("Subterranean Scout") {
     oracleText = "When this creature enters, target creature with power 2 or less can't be blocked this turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target creature with power 2 or less", Targets.CreatureWithPowerAtMost(2))
         effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t)
         description = "When this creature enters, target creature with power 2 or less can't be blocked this turn."

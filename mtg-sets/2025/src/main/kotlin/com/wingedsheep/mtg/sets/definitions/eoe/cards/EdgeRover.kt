@@ -32,7 +32,7 @@ val EdgeRover = card("Edge Rover") {
     keywords(Keyword.REACH)
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.ForEachPlayer(
             players = Player.Each,
             effect = Effects.CreateLander()

@@ -18,7 +18,7 @@ val WayOfTheHealer = card("Way of the Healer") {
         "Planeswalkers you control have \"[−2]: Create a 2/2 colorless Wizard Soldier creature token named Cadet. Surveil 1.\""
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Mechanic.empowerJace(5)
     }
 

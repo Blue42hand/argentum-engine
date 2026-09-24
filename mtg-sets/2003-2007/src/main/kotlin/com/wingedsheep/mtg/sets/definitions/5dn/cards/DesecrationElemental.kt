@@ -29,7 +29,7 @@ val DesecrationElemental = card("Desecration Elemental") {
     toughness = 8
     keywords(Keyword.FEAR)
     triggeredAbility {
-        trigger = Triggers.AnyPlayerCastsSpell
+        trigger = Triggers.anyPlayer.casts()
         effect = Effects.SacrificeOwn(GameObjectFilter.Creature)
     }
     metadata {

@@ -12,7 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
  *
  * When this creature enters, destroy target artifact.
  *
- * The Oxidda Scrapmelter shape: a SELF-bound [Triggers.EntersBattlefield] over [Effects.Destroy],
+ * The Oxidda Scrapmelter shape: a SELF-bound `Triggers.self.enters()` over [Effects.Destroy],
  * which lowers to a graveyard move flagged `byDestruction` so indestructible and regeneration see
  * it. The trigger is not optional and its target is not "up to", so it must pick an artifact when
  * one is on the battlefield — including one of yours when the opponent has none.
@@ -26,7 +26,7 @@ val ManicVandal = card("Manic Vandal") {
     oracleText = "When this creature enters, destroy target artifact."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val artifact = target("target artifact", Targets.Artifact)
         effect = Effects.Destroy(artifact)
     }

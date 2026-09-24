@@ -48,7 +48,7 @@ private val InvertedIcebergFront = card("Inverted Iceberg") {
 
     // When this artifact enters, mill a card, then draw a card.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Patterns.Library.mill(1),
             Effects.DrawCards(1)
@@ -85,7 +85,7 @@ private val IcebergTitan = card("Iceberg Titan") {
     // the engine asks the may-question and locks the target when the trigger goes on the
     // stack, then the tap/untap choice is made at resolution.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val permanent = target("target artifact or creature", Targets.CreatureOrArtifact)
         effect = Effects.May(
             Effects.ChooseAction(

@@ -51,7 +51,7 @@ val PicnicRuiner = card("Picnic Ruiner") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         triggerRestriction = Conditions.YouControl(GameObjectFilter.Creature.powerAtLeast(4))
         effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, EffectTarget.Self)
     }

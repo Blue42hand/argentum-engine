@@ -31,7 +31,7 @@ val SeedguideAsh = card("Seedguide Ash") {
         "put them onto the battlefield tapped, then shuffle."
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         optional = true
         effect = Patterns.Library.searchLibrary(
             filter = GameObjectFilter.Land.withSubtype(Subtype.FOREST),

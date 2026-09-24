@@ -27,7 +27,7 @@ val WandertaleMentor = card("Wandertale Mentor") {
     oracleText = "Whenever you expend 4, put a +1/+1 counter on this creature. (You expend 4 as you spend your fourth total mana to cast spells during a turn.)\n{T}: Add {R} or {G}."
 
     triggeredAbility {
-        trigger = Triggers.Expend(4)
+        trigger = Triggers.you.expends(4)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

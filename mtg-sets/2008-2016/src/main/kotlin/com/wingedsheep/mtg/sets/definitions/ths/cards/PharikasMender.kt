@@ -32,7 +32,7 @@ val PharikasMender = card("Pharika's Mender") {
     oracleText = "When this creature enters, you may return target creature or enchantment card from your graveyard to your hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val recovered = target(
             "creature or enchantment card in your graveyard",
             TargetObject(

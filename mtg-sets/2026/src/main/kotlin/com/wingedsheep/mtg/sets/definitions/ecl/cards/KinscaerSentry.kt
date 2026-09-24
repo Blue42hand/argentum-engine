@@ -35,7 +35,7 @@ val KinscaerSentry = card("Kinscaer Sentry") {
     keywords(Keyword.FIRST_STRIKE, Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Pipeline {
             val handCreatures = gather(CardSource.FromZone(Zone.HAND, Player.You, GameObjectFilter.Creature))
             val eligible = filter(

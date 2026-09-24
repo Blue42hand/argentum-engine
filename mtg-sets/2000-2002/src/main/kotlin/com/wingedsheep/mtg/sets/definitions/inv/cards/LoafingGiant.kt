@@ -42,12 +42,12 @@ val LoafingGiant = card("Loafing Giant") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = millAndMaybePrevent
     }
 
     triggeredAbility {
-        trigger = Triggers.Blocks
+        trigger = Triggers.self.blocks()
         effect = millAndMaybePrevent
     }
 

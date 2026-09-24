@@ -37,7 +37,7 @@ val HuntedTroll = card("Hunted Troll") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.CreateToken(
             power = 1,

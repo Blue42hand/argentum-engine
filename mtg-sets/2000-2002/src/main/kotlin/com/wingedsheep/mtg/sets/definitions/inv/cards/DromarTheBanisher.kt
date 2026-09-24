@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Dromar, the Banisher
@@ -36,7 +37,7 @@ val DromarTheBanisher = card("Dromar, the Banisher") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}{U}"),
             then = Effects.ChooseColorThen(

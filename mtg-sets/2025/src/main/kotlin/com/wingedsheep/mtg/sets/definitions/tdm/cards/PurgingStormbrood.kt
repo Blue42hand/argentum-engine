@@ -38,7 +38,7 @@ val PurgingStormbrood = card("Purging Stormbrood") {
 
     // ETB: remove all counters from up to one target creature.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val upToOneCreature = target("up to one target creature", Targets.UpToCreatures(1))
         effect = Effects.RemoveAllCounters(upToOneCreature)
     }

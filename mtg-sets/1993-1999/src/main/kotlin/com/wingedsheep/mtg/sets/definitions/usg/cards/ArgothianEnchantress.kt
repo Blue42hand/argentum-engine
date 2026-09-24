@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 
 /**
@@ -28,7 +29,7 @@ val ArgothianEnchantress = card("Argothian Enchantress") {
     toughness = 1
     keywords(Keyword.SHROUD)
     triggeredAbility {
-        trigger = Triggers.YouCastEnchantment
+        trigger = Triggers.you.casts(GameObjectFilter.Enchantment)
         effect = Effects.DrawCards(1)
     }
     metadata {

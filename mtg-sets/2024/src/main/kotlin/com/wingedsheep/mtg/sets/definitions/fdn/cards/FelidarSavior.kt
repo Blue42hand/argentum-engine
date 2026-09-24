@@ -37,7 +37,7 @@ val FelidarSavior = card("Felidar Savior") {
     keywords(Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target(
             "up to two other target creatures you control",
             TargetCreature(count = 2, optional = true, filter = TargetFilter.OtherCreatureYouControl),

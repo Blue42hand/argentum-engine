@@ -31,7 +31,7 @@ val ShivanEmissary = card("Shivan Emissary") {
     keywordAbility(KeywordAbility.kicker("{1}{B}"))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = WasKicked
         val creature = target(
             "target nonblack creature",

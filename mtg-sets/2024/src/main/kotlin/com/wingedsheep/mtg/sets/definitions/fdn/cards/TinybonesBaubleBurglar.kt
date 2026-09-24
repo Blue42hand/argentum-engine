@@ -25,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * {3}{B}, {T}: Each opponent discards a card. Activate only as a sorcery.
  *
  * Implementation:
- * - The discard trigger ([Triggers.AnyOpponentDiscards]) fires once per discarded card and binds
+ * - The discard trigger (`Triggers.anOpponent.discards()`) fires once per discarded card and binds
  *   that card as the triggering entity, so `EffectTarget.TriggeringEntity` is the card the discard
  *   put into the graveyard (CR 400.7e — a trigger can find the new object a card became in a public
  *   zone). `fromZone = GRAVEYARD` makes the exile a no-op if the card left the graveyard before the
@@ -57,7 +57,7 @@ val TinybonesBaubleBurglar = card("Tinybones, Bauble Burglar") {
         "{3}{B}, {T}: Each opponent discards a card. Activate only as a sorcery."
 
     triggeredAbility {
-        trigger = Triggers.AnyOpponentDiscards
+        trigger = Triggers.anOpponent.discards()
         effect = Effects.Exile(
             target = EffectTarget.TriggeringEntity,
             fromZone = Zone.GRAVEYARD,

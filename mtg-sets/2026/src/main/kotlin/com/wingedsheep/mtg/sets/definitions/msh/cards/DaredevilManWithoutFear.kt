@@ -25,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *  - "Radar Sense" is an ability word (pure flavor, no rules meaning), so the clause is just the
  *    static [LookAtTopOfLibrary] — the private top-card peek, as on Madame Web and Glowcap Lantern.
  *    No new vocabulary; the label lives in `oracleText` only.
- *  - "Whenever you attack" is the once-per-combat [Triggers.YouAttack] batch trigger (CR 506.5,
+ *  - "Whenever you attack" is the once-per-combat `Triggers.you.attacks()` batch trigger (CR 506.5,
  *    one trigger no matter how many creatures attack), *not* a per-attacker `attacks()`.
  *  - The trigger body is the Bonehoard Dracosaur shape wrapped in a "you may": `Patterns.Exile.impulse`
  *    exiles the top card into the `daredevilExiled` collection and grants play-this-turn permission
@@ -57,7 +57,7 @@ val DaredevilManWithoutFear = card("Daredevil, Man Without Fear") {
 
     // Whenever you attack, you may exile the top card of your library. …
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         effect = Effects.May(
             Effects.Pipeline {
                 val exiled = runStoringCollection { Patterns.Exile.impulse(count = 1, storeAs = it) }

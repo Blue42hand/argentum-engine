@@ -24,7 +24,7 @@ val HeavyInfantry = card("Heavy Infantry") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target creature an opponent controls", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.Tap(t)
     }

@@ -40,7 +40,7 @@ val UndercityEliminator = card("Undercity Eliminator") {
         "do, exile target creature an opponent controls."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeOwn(filter = GameObjectFilter.CreatureOrArtifact),
             optional = true,

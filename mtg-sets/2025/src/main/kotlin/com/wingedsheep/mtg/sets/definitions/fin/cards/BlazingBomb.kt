@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Blazing Bomb
@@ -45,7 +46,7 @@ val BlazingBomb = card("Blazing Bomb") {
     // Whenever you cast a noncreature spell, if at least four mana was spent to cast it,
     // put a +1/+1 counter on this creature.
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.manaSpentOnTriggeringSpell(),
             ComparisonOperator.GTE,

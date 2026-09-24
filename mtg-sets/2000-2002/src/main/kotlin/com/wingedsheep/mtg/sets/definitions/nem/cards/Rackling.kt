@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 
 /**
@@ -27,7 +28,7 @@ val Rackling = card("Rackling") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EachOpponentUpkeep
+        trigger = Triggers.anOpponent.beginningOf(Step.UPKEEP)
         effect = Effects.DealDamage(3, EffectTarget.PlayerRef(Player.TriggeringPlayer))
     }
     metadata {

@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Mesa Enchantress
@@ -21,7 +22,7 @@ val MesaEnchantress = card("Mesa Enchantress") {
     oracleText = "Whenever you cast an enchantment spell, you may draw a card."
 
     triggeredAbility {
-        trigger = Triggers.YouCastEnchantment
+        trigger = Triggers.you.casts(GameObjectFilter.Enchantment)
         effect = Effects.May(Effects.DrawCards(1))
     }
 

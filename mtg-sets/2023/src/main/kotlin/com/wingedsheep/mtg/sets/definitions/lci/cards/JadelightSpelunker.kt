@@ -32,7 +32,7 @@ val JadelightSpelunker = card("Jadelight Spelunker") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Repeat(
             amount = DynamicAmounts.xValue(),
             body = Effects.Explore(EffectTarget.Self)

@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.m12.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Targets
@@ -11,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.GrantSubtype
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -56,7 +54,7 @@ val AngelicDestiny = card("Angelic Destiny") {
     }
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(to = Zone.GRAVEYARD, binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.dies()
         effect = Effects.ReturnToHand(EffectTarget.Self)
     }
 

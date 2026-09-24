@@ -27,7 +27,7 @@ val SeasonedMarshal = card("Seasoned Marshal") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         optional = true
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Tap(t)

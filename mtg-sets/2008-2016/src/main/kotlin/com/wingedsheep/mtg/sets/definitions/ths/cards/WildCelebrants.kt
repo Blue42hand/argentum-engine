@@ -28,7 +28,7 @@ val WildCelebrants = card("Wild Celebrants") {
     power = 5
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target("target", TargetPermanent(filter = TargetFilter.Artifact))
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)

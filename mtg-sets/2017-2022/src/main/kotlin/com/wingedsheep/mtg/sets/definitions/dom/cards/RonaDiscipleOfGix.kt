@@ -32,7 +32,7 @@ val RonaDiscipleOfGix = card("Rona, Disciple of Gix") {
 
     // ETB: You may exile target historic card from your graveyard (linked to Rona)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target("historic card in your graveyard", TargetObject(
             filter = TargetFilter(

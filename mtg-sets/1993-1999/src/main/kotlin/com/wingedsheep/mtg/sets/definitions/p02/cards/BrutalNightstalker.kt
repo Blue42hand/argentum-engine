@@ -25,7 +25,7 @@ val BrutalNightstalker = card("Brutal Nightstalker") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponent = target("target", TargetOpponent())
         effect = Effects.May(Patterns.Hand.discardCards(1, opponent))
     }

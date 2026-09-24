@@ -38,7 +38,7 @@ val KoyaDeathFromAbove = card("Koya, Death from Above") {
     // Exile the creature linked to Koya; at the next end step, pay to keep it gone, otherwise
     // return the linked-exiled card to its owner's control (read by Koya's linked exile).
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "up to one other target creature",
             TargetCreature(optional = true, filter = TargetFilter(GameObjectFilter.Creature, excludeSelf = true))

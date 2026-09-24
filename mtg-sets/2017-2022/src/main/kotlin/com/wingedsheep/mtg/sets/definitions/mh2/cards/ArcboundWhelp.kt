@@ -75,7 +75,7 @@ val ArcboundWhelp = card("Arcbound Whelp") {
     // Modular, half two: "When it dies, you may put its +1/+1 counters on target artifact creature."
     triggeredAbility {
         val permanent = target("target permanent", TargetPermanent(filter = TargetFilter(GameObjectFilter.ArtifactCreature)))
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         optional = true
         effect = Effects.AddDynamicCounters(
             CounterType.PLUS_ONE_PLUS_ONE,

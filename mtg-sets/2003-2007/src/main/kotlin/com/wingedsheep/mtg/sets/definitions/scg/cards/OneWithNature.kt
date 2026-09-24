@@ -7,9 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
@@ -29,11 +27,7 @@ val OneWithNature = card("One with Nature") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.Combat,
-            recipient = Recipient.AnyPlayer,
-            binding = TriggerBinding.ATTACHED,
-        )
+        trigger = Triggers.attached.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = Filters.BasicLand,

@@ -28,7 +28,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
  * gain 3 life" — same shape here, but it is printed on the card rather than conferred by the
  * subtype, which is why it's written out.
  *
- * The leaves-the-battlefield trigger is [Triggers.Dies] (battlefield → graveyard, SELF binding),
+ * The leaves-the-battlefield trigger is `Triggers.self.dies()` (battlefield → graveyard, SELF binding),
  * which is a superset of the sacrifice ability's own path: cashing the Haunch in for 3 life *also*
  * offers the Dogs, since sacrificing puts it into the graveyard from the battlefield. The
  * [Effects.MayPay] models "you may pay {1}{W}. If you do" — a resolution-time optional mana
@@ -58,7 +58,7 @@ val KrovodHaunch = card("Krovod Haunch") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}{W}"),
             then = Effects.CreateToken(

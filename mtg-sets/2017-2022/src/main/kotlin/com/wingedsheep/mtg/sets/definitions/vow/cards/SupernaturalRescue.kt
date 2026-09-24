@@ -29,7 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * creature with it — the reading a Spirit land or a Spirit enchanted to be noncreature would
  * separate, and the one Assay's bare-subtype rule takes.
  *
- * The tap is a **cast** trigger ([Triggers.WhenYouCastThisSpell]), not an ETB one — it goes on the
+ * The tap is a **cast** trigger (`Triggers.self.isCast()`), not an ETB one — it goes on the
  * stack above the Aura and resolves first, so the creatures are tapped even if the Aura itself is
  * countered or its enchant target has gone away.
  *
@@ -53,7 +53,7 @@ val SupernaturalRescue = card("Supernatural Rescue") {
     auraTarget = Targets.CreatureYouControl
 
     triggeredAbility {
-        trigger = Triggers.WhenYouCastThisSpell()
+        trigger = Triggers.self.isCast()
         target(
             "up to two target creatures you don't control",
             TargetCreature(

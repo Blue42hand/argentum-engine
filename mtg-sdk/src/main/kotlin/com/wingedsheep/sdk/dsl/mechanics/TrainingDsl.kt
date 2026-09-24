@@ -40,7 +40,7 @@ private const val TRAINING_REMINDER =
  * (Savior of Ollenbock) without any per-card wiring.
  */
 fun trainingTriggeredAbility(): TriggeredAbility {
-    val spec = Triggers.attacks(requires = setOf(AttackPredicate.AttackedAlongsideGreaterPower))
+    val spec = Triggers.self.attacks(setOf(AttackPredicate.AttackedAlongsideGreaterPower))
     return TriggeredAbility.create(
         trigger = spec.event,
         binding = spec.binding, // SELF

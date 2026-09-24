@@ -47,7 +47,7 @@ val TheBlackArrow = card("The Black Arrow") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val anyTarget = target("any target", Targets.Any)
         effect = Effects.Composite(
             Effects.DealDamage(1, anyTarget),

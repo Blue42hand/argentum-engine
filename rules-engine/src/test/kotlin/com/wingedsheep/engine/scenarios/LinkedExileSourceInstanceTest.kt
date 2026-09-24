@@ -28,7 +28,7 @@ class LinkedExileSourceInstanceTest : FunSpec({
         power = 3
         toughness = 3
         triggeredAbility {
-            trigger = Triggers.EntersBattlefield
+            trigger = Triggers.self.enters()
             effect = Effects.Pipeline {
                 val eligible = gather(CardSource.BattlefieldMatching(
                     GameObjectFilter.Creature.youControl().notSourceItself()
@@ -38,7 +38,7 @@ class LinkedExileSourceInstanceTest : FunSpec({
             }
         }
         triggeredAbility {
-            trigger = Triggers.LeavesBattlefield
+            trigger = Triggers.self.leaves()
             effect = Effects.ReturnLinkedExileUnderOwnersControl()
         }
     }

@@ -28,7 +28,7 @@ val MalametBrawler = card("Malamet Brawler") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.attacking()))
         effect = Effects.GrantKeyword(Keyword.TRAMPLE, t)
     }

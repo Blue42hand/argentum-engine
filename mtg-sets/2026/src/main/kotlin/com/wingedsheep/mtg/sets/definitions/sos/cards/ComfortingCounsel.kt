@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * As long as there are five or more growth counters on this enchantment, creatures you control
  * get +3/+3.
  *
- * Same shape as Beastmaster Ascension: a [Triggers.YouGainLife] trigger that drops a [CounterType.GROWTH]
+ * Same shape as Beastmaster Ascension: a `Triggers.you.gainsLife()` trigger that drops a [CounterType.GROWTH]
  * counter on [EffectTarget.Self], plus a counter-gated anthem. The threshold gate is the generic
  * [Conditions.SourceCounterCountAtLeast] (≥5 growth counters), which reads the enchantment's counters
  * live, and the buff applies to all creatures you control via [GroupFilter.AllCreaturesYouControl].
@@ -32,7 +32,7 @@ val ComfortingCounsel = card("Comforting Counsel") {
         "As long as there are five or more growth counters on this enchantment, creatures you control get +3/+3."
 
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         effect = Effects.AddCounters(CounterType.GROWTH, 1, EffectTarget.Self)
     }
 

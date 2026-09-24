@@ -50,7 +50,7 @@ val MomentumBreaker = card("Momentum Breaker") {
     startYourEngines()
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachPlayer(
             players = Player.EachOpponent,
             effect = Effects.If(

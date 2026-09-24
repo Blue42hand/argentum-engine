@@ -28,7 +28,7 @@ val TowerGeist = card("Tower Geist") {
     toughness = 2
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.lookAtTopAndKeep(count = 2, keepCount = 1)
     }
     metadata {

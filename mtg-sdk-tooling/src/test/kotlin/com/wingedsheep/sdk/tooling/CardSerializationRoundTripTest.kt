@@ -36,8 +36,6 @@ import com.wingedsheep.sdk.scripting.predicates.StatePredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.serialization.CardSerialization
@@ -155,7 +153,7 @@ class CardSerializationRoundTripTest : DescribeSpec({
                 toughness = 2
 
                 triggeredAbility {
-                    trigger = Triggers.EntersBattlefield
+                    trigger = Triggers.self.enters()
                     effect = CreateTokenEffect(
                         name = "Goblin",
                         power = 1,
@@ -185,7 +183,7 @@ class CardSerializationRoundTripTest : DescribeSpec({
                 toughness = 2
 
                 triggeredAbility {
-                    trigger = Triggers.EntersBattlefield
+                    trigger = Triggers.self.enters()
                     target = TargetObject(filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByYou())
                     effect = Effects.GrantHarmonize(EffectTarget.ContextTarget(0))
                 }
@@ -231,10 +229,7 @@ class CardSerializationRoundTripTest : DescribeSpec({
                 toughness = 3
 
                 triggeredAbility {
-                    trigger = TriggerSpec(
-                        EventPattern.ZoneChangeEvent(filter = GameObjectFilter.Creature, to = Zone.BATTLEFIELD),
-                        TriggerBinding.OTHER
-                    )
+                    trigger = Triggers.another(GameObjectFilter.Creature).enters()
                     effect = LoseLifeEffect(
                         amount = DynamicAmount.Fixed(1),
                         target = EffectTarget.Controller
@@ -576,7 +571,7 @@ class CardSerializationRoundTripTest : DescribeSpec({
                     typeLine = "Enchantment — Room"
                     oracleText = "At the beginning of your end step, draw a card."
                     triggeredAbility {
-                        trigger = Triggers.YourEndStep
+                        trigger = Triggers.you.beginningOf(Step.END)
                         effect = Effects.DrawCards(1)
                     }
                 }
@@ -585,7 +580,7 @@ class CardSerializationRoundTripTest : DescribeSpec({
                     typeLine = "Enchantment — Room"
                     oracleText = "When this enters, draw a card."
                     triggeredAbility {
-                        trigger = Triggers.EntersBattlefield
+                        trigger = Triggers.self.enters()
                         effect = Effects.DrawCards(1)
                     }
                 }

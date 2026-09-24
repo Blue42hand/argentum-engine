@@ -30,7 +30,7 @@ val VoldarenDuelist = card("Voldaren Duelist") {
     toughness = 2
     keywords(Keyword.HASTE)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.CantBlock(t)
     }

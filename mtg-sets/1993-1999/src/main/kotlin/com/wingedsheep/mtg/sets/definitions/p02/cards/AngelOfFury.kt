@@ -27,7 +27,7 @@ val AngelOfFury = card("Angel of Fury") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.May(Effects.ShuffleIntoLibrary(EffectTarget.Self))
     }
 

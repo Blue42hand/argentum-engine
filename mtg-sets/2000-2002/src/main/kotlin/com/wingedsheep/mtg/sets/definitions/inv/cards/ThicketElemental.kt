@@ -34,7 +34,7 @@ val ThicketElemental = card("Thicket Elemental") {
     keywordAbility(KeywordAbility.kicker("{1}{G}"))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = WasKicked
         effect = Effects.May(
             Effects.Pipeline {

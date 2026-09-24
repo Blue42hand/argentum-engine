@@ -30,7 +30,7 @@ val Dinotomaton = card("Dinotomaton") {
     toughness = 3
     keywords(Keyword.MENACE)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = Effects.GrantKeyword(Keyword.MENACE, t)
     }

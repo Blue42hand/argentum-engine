@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 
 /**
@@ -25,7 +26,7 @@ val MightOfTheAncestors = card("Might of the Ancestors") {
     typeLine = "Enchantment"
     oracleText = "At the beginning of combat on your turn, target creature you control gets +2/+0 and gains vigilance until end of turn."
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = Effects.Composite(
             Effects.ModifyStats(2, 0, t),

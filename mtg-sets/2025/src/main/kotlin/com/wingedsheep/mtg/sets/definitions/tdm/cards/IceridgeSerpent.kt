@@ -22,7 +22,7 @@ val IceridgeSerpent = card("Iceridge Serpent") {
     oracleText = "When this creature enters, return target creature an opponent controls to its owner's hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature", Targets.CreatureOpponentControls)
         effect = Effects.ReturnToHand(creature)
         description = "When this creature enters, return target creature an opponent controls to its owner's hand."

@@ -28,7 +28,7 @@ val WinterTormentedLoner = card("Winter, Tormented Loner") {
         "Winter gets +1/+0 for each creature and planeswalker card in your graveyard."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeOwn(GameObjectFilter.CreatureOrPlaneswalker),
             optional = true,

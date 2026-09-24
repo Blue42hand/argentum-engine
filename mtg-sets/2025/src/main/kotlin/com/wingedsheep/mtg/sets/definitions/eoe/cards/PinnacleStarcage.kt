@@ -31,7 +31,7 @@ val PinnacleStarcage = card("Pinnacle Starcage") {
         "{6}{W}{W}: Put each card exiled with this artifact into its owner's graveyard, then create a 2/2 colorless Robot artifact creature token for each card put into a graveyard this way. Sacrifice this artifact."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         // (artifact|creature) with mana value 2 or less. Built from an explicit
         // CardPredicate.Or plus an AND-ed ManaValueAtMost -- equivalent to
         // `GameObjectFilter.Artifact or GameObjectFilter.Creature` then `.manaValueAtMost(2)`,
@@ -52,7 +52,7 @@ val PinnacleStarcage = card("Pinnacle Starcage") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

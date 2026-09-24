@@ -35,7 +35,7 @@ val PatientNaturalist = card("Patient Naturalist") {
         "cards, put the top three cards of your library into your graveyard.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val milled = gather(CardSource.TopOfLibrary(3, Player.You))
             toGraveyard(milled)

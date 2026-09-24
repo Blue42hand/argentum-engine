@@ -56,7 +56,7 @@ val KyloxVisionaryInventor = card("Kylox, Visionary Inventor") {
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Pipeline {
             run(Effects.SacrificeAnyNumber(GameObjectFilter.Creature, excludeSource = true))
             val exiled = gather(

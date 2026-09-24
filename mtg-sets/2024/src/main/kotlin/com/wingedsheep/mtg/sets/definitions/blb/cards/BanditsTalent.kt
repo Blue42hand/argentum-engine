@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Bandit's Talent
@@ -39,7 +40,7 @@ val BanditsTalent = card("Bandit's Talent") {
 
     // Level 1: When this Class enters, each opponent discards two cards unless they discard a nonland card.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachPlayer(
             players = Player.EachOpponent,
             effect = Patterns.Hand.discardCardsUnlessMatching(2, GameObjectFilter.Nonland)
@@ -50,7 +51,7 @@ val BanditsTalent = card("Bandit's Talent") {
     // cards in hand, they lose 2 life.
     classLevel(2, "{B}") {
         triggeredAbility {
-            trigger = Triggers.EachOpponentUpkeep
+            trigger = Triggers.anOpponent.beginningOf(Step.UPKEEP)
             interveningIf = Conditions.CompareAmounts(
                 left = DynamicAmounts.count(Player.TriggeringPlayer, Zone.HAND),
                 operator = ComparisonOperator.LTE,
@@ -67,7 +68,7 @@ val BanditsTalent = card("Bandit's Talent") {
     // who has one or fewer cards in hand.
     classLevel(3, "{3}{B}") {
         triggeredAbility {
-            trigger = Triggers.YourDrawStep
+            trigger = Triggers.you.beginningOf(Step.DRAW)
             effect = Effects.DrawCards(
                 count = DynamicAmounts.countPlayersWith(
                     scope = Player.EachOpponent,

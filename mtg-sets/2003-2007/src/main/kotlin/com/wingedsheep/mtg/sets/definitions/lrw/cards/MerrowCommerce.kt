@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Merrow Commerce
@@ -27,7 +28,7 @@ val MerrowCommerce = card("Merrow Commerce") {
     oracleText = "At the beginning of your end step, untap all Merfolk you control."
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Permanent.withSubtype(Subtype.MERFOLK)).youControl(),
             Effects.Untap(EffectTarget.IterationEntity)

@@ -38,7 +38,7 @@ val WreckRemover = card("Wreck Remover") {
         "Cycling {2} ({2}, Discard this card: Draw a card.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "up to one target card in a graveyard",
             TargetObject(optional = true, filter = TargetFilter.CardInGraveyard)
@@ -52,7 +52,7 @@ val WreckRemover = card("Wreck Remover") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val t = target(
             "up to one target card in a graveyard",
             TargetObject(optional = true, filter = TargetFilter.CardInGraveyard)

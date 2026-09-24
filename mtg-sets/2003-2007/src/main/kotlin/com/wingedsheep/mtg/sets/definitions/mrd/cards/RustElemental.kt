@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Rust Elemental — Mirrodin #234
@@ -43,7 +44,7 @@ val RustElemental = card("Rust Elemental") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.If(
             condition = Conditions.YouControl(GameObjectFilter.Artifact, excludeSelf = true),
             then = Effects.SacrificeOwn(GameObjectFilter.Artifact, excludeSource = true),

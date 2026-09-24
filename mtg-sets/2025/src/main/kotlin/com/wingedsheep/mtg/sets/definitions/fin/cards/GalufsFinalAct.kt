@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.Duration
  * put a number of +1/+1 counters equal to its power on up to one target creature."
  *
  * Composition: a +1/+0 pump until end of turn ([Effects.ModifyStats], EOT) plus a granted
- * self [Triggers.Dies] trigger ([GrantTriggeredAbilityEffect], EOT — mirrors the in-set
+ * self `Triggers.self.dies()` trigger ([GrantTriggeredAbilityEffect], EOT — mirrors the in-set
  * Vincent's Limit Break "dies → return tapped" grant). The granted ability's effect puts a
  * dynamic number of +1/+1 counters ([Effects.AddDynamicCounters]) equal to the dying
  * creature's power on up to one target creature.
@@ -45,7 +45,7 @@ val GalufsFinalAct = card("Galuf's Final Act") {
         val t = target("target", Targets.Creature)
 
         val diesGrantCounters = grantedTriggeredAbility {
-            trigger = Triggers.Dies
+            trigger = Triggers.self.dies()
             val upToCreatures = target("target up to creatures", Targets.UpToCreatures(1))
             effect = Effects.AddDynamicCounters(
                 CounterType.PLUS_ONE_PLUS_ONE,

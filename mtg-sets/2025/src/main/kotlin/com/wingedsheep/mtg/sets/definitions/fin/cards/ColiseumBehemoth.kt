@@ -36,7 +36,7 @@ val ColiseumBehemoth = card("Coliseum Behemoth") {
     toughness = 7
     keywords(Keyword.TRAMPLE)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Destroy target artifact or enchantment") {
                 val artifactOrEnchantment = target(

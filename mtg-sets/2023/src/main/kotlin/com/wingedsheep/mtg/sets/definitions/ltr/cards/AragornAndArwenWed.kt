@@ -52,12 +52,12 @@ val AragornAndArwenWed = card("Aragorn and Arwen, Wed") {
     )
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = effectBody
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = effectBody
     }
 

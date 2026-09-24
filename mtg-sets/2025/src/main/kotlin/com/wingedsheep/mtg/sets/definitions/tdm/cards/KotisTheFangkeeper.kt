@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Kotis, the Fangkeeper — Tarkir: Dragonstorm #202
@@ -50,7 +51,7 @@ val KotisTheFangkeeper = card("Kotis, the Fangkeeper") {
     keywords(Keyword.INDESTRUCTIBLE)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         description = "Whenever Kotis deals combat damage to a player, exile the top X cards " +
             "of their library, where X is the amount of damage dealt. You may cast any number " +
             "of spells with mana value X or less from among them without paying their mana costs."

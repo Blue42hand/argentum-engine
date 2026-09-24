@@ -27,7 +27,7 @@ val AshePrincessOfDalmasca = card("Ashe, Princess of Dalmasca") {
     power = 3
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Patterns.Library.lookAtTopRevealMatchingToHand(
             count = 5,
             filter = GameObjectFilter(cardPredicates = listOf(CardPredicate.IsArtifact)),

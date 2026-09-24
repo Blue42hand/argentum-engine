@@ -53,7 +53,7 @@ val UginsLabyrinth = card("Ugin's Labyrinth") {
         "{T}: Return the exiled card to its owner's hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val labyrinthEligible = gather(CardSource.FromZone(Zone.HAND, Player.You, imprintFilter))
             val labyrinthPicked = chooseUpTo(

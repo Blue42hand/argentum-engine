@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Fasting
@@ -40,7 +41,7 @@ val Fasting = card("Fasting") {
         "When you draw a card, destroy this enchantment."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.HUNGER, 1, EffectTarget.Self),
             // Checked after the counter goes on, so the fifth upkeep is the last one.
@@ -54,7 +55,7 @@ val Fasting = card("Fasting") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         optional = true
         effect = Effects.Composite(
             Effects.SkipNextDrawStep(EffectTarget.Controller),
@@ -65,7 +66,7 @@ val Fasting = card("Fasting") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouDraw
+        trigger = Triggers.you.draws()
         effect = Effects.Destroy(EffectTarget.Self)
         description = "When you draw a card, destroy this enchantment."
     }

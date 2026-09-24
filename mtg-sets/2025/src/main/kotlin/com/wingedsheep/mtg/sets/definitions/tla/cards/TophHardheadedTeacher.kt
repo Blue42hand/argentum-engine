@@ -35,7 +35,7 @@ val TophHardheadedTeacher = card("Toph, Hardheaded Teacher") {
 
     // ETB: optional discard; if you do, return the targeted instant/sorcery from your graveyard.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val spellCard = target(
             "target instant or sorcery card from your graveyard",
             TargetObject(filter = TargetFilter.InstantOrSorceryInYourGraveyard),
@@ -50,7 +50,7 @@ val TophHardheadedTeacher = card("Toph, Hardheaded Teacher") {
 
     // Whenever you cast a spell: earthbend 1, with an extra +1/+1 counter on that land if it's a Lesson.
     triggeredAbility {
-        trigger = Triggers.youCastSpell()
+        trigger = Triggers.you.casts()
         val land = target(
             "target land you control",
             TargetObject(filter = TargetFilter.Land.youControl()),

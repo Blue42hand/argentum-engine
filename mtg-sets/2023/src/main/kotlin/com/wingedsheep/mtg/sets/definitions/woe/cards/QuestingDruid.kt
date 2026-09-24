@@ -46,8 +46,7 @@ val QuestingDruid = card("Questing Druid") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            GameObjectFilter.Any.withCardPredicate(
+        trigger = Triggers.you.casts(GameObjectFilter.Any.withCardPredicate(
                 CardPredicate.Or(
                     listOf(
                         CardPredicate.HasColor(Color.WHITE),
@@ -56,8 +55,7 @@ val QuestingDruid = card("Questing Druid") {
                         CardPredicate.HasColor(Color.RED),
                     ),
                 ),
-            ),
-        )
+            ))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

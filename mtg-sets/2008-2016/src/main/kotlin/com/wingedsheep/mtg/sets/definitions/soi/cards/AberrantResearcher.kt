@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Aberrant Researcher // Perfected Form (Shadows over Innistrad #49)
@@ -47,7 +48,7 @@ private val AberrantResearcherFront = card("Aberrant Researcher") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.Composite(
             Patterns.Library.mill(1),
             Effects.If(

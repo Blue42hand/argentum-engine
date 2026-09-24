@@ -31,7 +31,7 @@ val AlpharaelStonechosen = card("Alpharael, Stonechosen") {
     keywordAbility(KeywordAbility.wardDiscard(count = 1, random = true))
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         interveningIf = Conditions.Void
         effect = Effects.LoseHalfLife(
             roundUp = true,

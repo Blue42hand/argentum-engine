@@ -15,7 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Enchantment
  * Whenever a creature you control with power 5 or greater enters, you may put two +1/+1 counters on it.
  *
- * The watcher is [Triggers.entersBattlefield] over `GameObjectFilter.Creature.youControl().powerAtLeast(5)`
+ * The watcher is `Triggers.a(filter).enters()` over `GameObjectFilter.Creature.youControl().powerAtLeast(5)`
  * with [TriggerBinding.ANY] — the enchantment can never be the creature that entered, and the printed
  * line says "a creature", not "another". The counters land on [EffectTarget.TriggeringEntity] (the
  * creature that entered, not a fresh target), and `optional = true` lowers the printed "you may" into
@@ -28,10 +28,7 @@ val MightyEmergence = card("Mighty Emergence") {
     oracleText = "Whenever a creature you control with power 5 or greater enters, you may put two +1/+1 counters on it."
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Creature.youControl().powerAtLeast(5),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl().powerAtLeast(5)).enters()
         optional = true
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.TriggeringEntity)
     }

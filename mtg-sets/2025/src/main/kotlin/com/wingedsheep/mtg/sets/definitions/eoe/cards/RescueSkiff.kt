@@ -42,7 +42,7 @@ val RescueSkiff = card("Rescue Skiff") {
     // When this Spacecraft enters, return target creature or enchantment card from your graveyard
     // to the battlefield.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target creature or enchantment card from your graveyard",
             TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrEnchantment.ownedByYou(), zone = Zone.GRAVEYARD))

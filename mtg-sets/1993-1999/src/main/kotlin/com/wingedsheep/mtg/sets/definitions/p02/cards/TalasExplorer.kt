@@ -33,7 +33,7 @@ val TalasExplorer = card("Talas Explorer") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponent = target("target", Targets.Opponent)
         effect = Effects.LookAtHand(opponent)
     }

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -23,8 +22,8 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * number of counters on this creature.
  *
  * The "Eerie" ability word is flavor; mechanically it is two triggered abilities (like the other
- * DSK Eerie creatures, e.g. Balemurk Leech): one on `Triggers.entersBattlefield` filtered to
- * enchantments you control, one on `Triggers.RoomFullyUnlocked`. Each adds one possession counter
+ * DSK Eerie creatures, e.g. Balemurk Leech): one on `Triggers.a(filter).enters()` filtered to
+ * enchantments you control, one on `Triggers.you.fullyUnlocksARoom()`. Each adds one possession counter
  * (a passive storage counter, no inherent rule) to this creature. The dies trigger creates one
  * X/X token where X is read at death from `ContextPropertyKey.LAST_KNOWN_TOTAL_COUNTER_COUNT` —
  * the total number of counters of every kind on the creature when it died (per the ruling, +1/+1
@@ -46,10 +45,7 @@ val UnwillingVessel = card("Unwilling Vessel") {
 
     // Eerie trigger — part 1: whenever an enchantment you control enters
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Enchantment.youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Enchantment.youControl()).enters()
         effect = Effects.AddCounters(CounterType.POSSESSION, 1, EffectTarget.Self)
         description = "Eerie — Whenever an enchantment you control enters, put a possession " +
             "counter on this creature."
@@ -57,7 +53,7 @@ val UnwillingVessel = card("Unwilling Vessel") {
 
     // Eerie trigger — part 2: whenever you fully unlock a Room
     triggeredAbility {
-        trigger = Triggers.RoomFullyUnlocked
+        trigger = Triggers.you.fullyUnlocksARoom()
         effect = Effects.AddCounters(CounterType.POSSESSION, 1, EffectTarget.Self)
         description = "Eerie — Whenever you fully unlock a Room, put a possession counter on this " +
             "creature."
@@ -65,7 +61,7 @@ val UnwillingVessel = card("Unwilling Vessel") {
 
     // When this creature dies, create an X/X blue Spirit creature token with flying.
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.CreateDynamicToken(
             dynamicPower = DynamicAmounts.lastKnownCounterCount(),
             dynamicToughness = DynamicAmounts.lastKnownCounterCount(),

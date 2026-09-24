@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  *
  * The white member of the Alara "Resounding" cycle, composed like the Onslaught cycling cycle: a
  * `spell { }` body, [KeywordAbility.cycling] for the wedge-coloured cycling cost, and a
- * [Triggers.YouCycleThis] triggered ability carrying the larger effect. The spell half is a single
+ * `Triggers.self.isCycled()` triggered ability carrying the larger effect. The spell half is a single
  * [Effects.Exile]; the trigger declares a `count = 2`, `optional = true` [TargetCreature] over
  * [TargetFilter.AttackingCreature] — that pair is exactly "up to two target" — and fans the exile
  * out with [ForEachTargetEffect] so each chosen creature is moved independently.
@@ -41,7 +41,7 @@ val ResoundingSilence = card("Resounding Silence") {
     keywordAbility(KeywordAbility.cycling("{5}{G}{W}{U}"))
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         target(
             "target",
             TargetCreature(count = 2, optional = true, filter = TargetFilter.AttackingCreature)

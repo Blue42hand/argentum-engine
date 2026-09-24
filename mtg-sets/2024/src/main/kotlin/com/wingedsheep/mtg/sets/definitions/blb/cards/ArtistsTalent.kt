@@ -35,7 +35,7 @@ val ArtistsTalent = card("Artist's Talent") {
 
     // Level 1: Whenever you cast a noncreature spell, you may discard a card. If you do, draw a card.
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.May(
             Effects.Composite(
                 listOf(

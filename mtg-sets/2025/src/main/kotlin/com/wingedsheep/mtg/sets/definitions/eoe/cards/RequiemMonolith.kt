@@ -32,8 +32,7 @@ val RequiemMonolith = card("Requiem Monolith") {
 
         val damage = DynamicAmounts.triggerDamageAmount()
         val grantedAbility = TriggeredAbility.create(
-            trigger = Triggers.TakesDamage.event,
-            binding = Triggers.TakesDamage.binding,
+            trigger = Triggers.self.isDealtDamage(),
             effect = Effects.Composite(
                 listOf(
                     Effects.DrawCards(damage, EffectTarget.Controller),

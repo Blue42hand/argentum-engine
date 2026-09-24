@@ -31,7 +31,7 @@ val TurntimberGrove = card("Turntimber Grove") {
     replacementEffect(EntersTapped())
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature", Targets.Creature)
         effect = Effects.ModifyStats(1, 1, creature)
     }

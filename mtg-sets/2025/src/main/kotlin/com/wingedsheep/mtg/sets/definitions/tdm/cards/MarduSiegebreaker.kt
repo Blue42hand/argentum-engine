@@ -49,7 +49,7 @@ val MarduSiegebreaker = card("Mardu Siegebreaker") {
 
     // ETB: exile up to one other target creature you control until this leaves the battlefield.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "up to one other target creature you control",
             TargetCreature(count = 1, optional = true, filter = TargetFilter.OtherCreatureYouControl)
@@ -59,13 +59,13 @@ val MarduSiegebreaker = card("Mardu Siegebreaker") {
 
     // LTB: return the exiled card to its owner's control.
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 
     // Attacks: create a tapped, attacking token copy of the exiled card; sacrifice it at your next end step.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Pipeline {
             val exiledCard = gather(CardSource.FromLinkedExile())
             run(Effects.CreateTokenCopyOfTarget(

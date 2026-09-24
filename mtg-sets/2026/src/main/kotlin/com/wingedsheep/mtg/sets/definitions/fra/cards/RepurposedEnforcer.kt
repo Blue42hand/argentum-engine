@@ -19,7 +19,7 @@ val RepurposedEnforcer = card("Repurposed Enforcer") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Patterns.Mechanic.empowerJace(DynamicAmounts.creaturesYouControl())
     }
 

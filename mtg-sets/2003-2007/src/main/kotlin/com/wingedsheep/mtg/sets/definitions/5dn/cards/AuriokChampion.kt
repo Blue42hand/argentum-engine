@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.ProtectionScope
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 
 /**
@@ -33,7 +32,7 @@ val AuriokChampion = card("Auriok Champion") {
     keywordAbility(KeywordAbility.Protection(ProtectionScope.Color(Color.BLACK)))
     keywordAbility(KeywordAbility.Protection(ProtectionScope.Color(Color.RED)))
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(filter = GameObjectFilter.Creature, binding = TriggerBinding.OTHER)
+        trigger = Triggers.another(GameObjectFilter.Creature).enters()
         optional = true
         effect = Effects.GainLife(1)
     }

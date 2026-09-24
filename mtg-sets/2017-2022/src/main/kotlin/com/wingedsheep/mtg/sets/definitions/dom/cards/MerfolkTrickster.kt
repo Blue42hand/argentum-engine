@@ -28,7 +28,7 @@ val MerfolkTrickster = card("Merfolk Trickster") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.Tap(t).then(Effects.RemoveAllAbilities(t))
     }

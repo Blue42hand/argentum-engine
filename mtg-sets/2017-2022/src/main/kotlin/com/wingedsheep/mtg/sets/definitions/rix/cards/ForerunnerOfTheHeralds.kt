@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -34,7 +33,7 @@ val ForerunnerOfTheHeralds = card("Forerunner of the Heralds") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         effect = Patterns.Library.searchLibrary(
             filter = GameObjectFilter.Any.withSubtype(Subtype.MERFOLK),
@@ -44,10 +43,7 @@ val ForerunnerOfTheHeralds = card("Forerunner of the Heralds") {
     }
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            GameObjectFilter.Permanent.withSubtype(Subtype.MERFOLK).youControl(),
-            TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.Permanent.withSubtype(Subtype.MERFOLK).youControl()).enters()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.wwk.cards
 
 import com.wingedsheep.sdk.core.ManaCost
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -38,11 +37,7 @@ val KalastriaHighborn = card("Kalastria Highborn") {
         "If you do, target player loses 2 life and you gain 2 life."
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Permanent.withSubtype("Vampire").youControl(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Permanent.withSubtype("Vampire").youControl()).dies()
         val player = target("target player", Targets.Player)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{B}"),

@@ -26,7 +26,7 @@ val TransitMage = card("Transit Mage") {
         "mana value 4 or 5, reveal it, put it into your hand, then shuffle."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.Artifact.manaValueAtLeast(4).manaValueAtMost(5),

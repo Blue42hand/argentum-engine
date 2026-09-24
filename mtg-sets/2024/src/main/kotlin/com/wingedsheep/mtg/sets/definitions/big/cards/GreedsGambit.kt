@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Greed's Gambit
@@ -23,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Three triggered abilities, each a [Effects.Composite] of atomic controller-scoped effects. Note
  * the loss clauses target [EffectTarget.Controller] explicitly because [Effects.LoseLife] and
  * [Effects.Sacrifice] default to the opponent. The leaves-the-battlefield trigger
- * ([Triggers.LeavesBattlefield]) fires off the enchantment's last controller, so the cleanup costs
+ * (`Triggers.self.leaves()`) fires off the enchantment's last controller, so the cleanup costs
  * fall on its owner regardless of how it left (destroyed, sacrificed, bounced, exiled).
  */
 val GreedsGambit = card("Greed's Gambit") {
@@ -38,7 +39,7 @@ val GreedsGambit = card("Greed's Gambit") {
 
     // When this enchantment enters: draw 3, gain 6 life, create three 2/1 black flying Bats.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             listOf(
                 Effects.DrawCards(3),
@@ -60,7 +61,7 @@ val GreedsGambit = card("Greed's Gambit") {
 
     // At the beginning of your end step: discard a card, lose 2 life, sacrifice a creature.
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.Composite(
             listOf(
                 Effects.Discard(1, EffectTarget.Controller),
@@ -73,7 +74,7 @@ val GreedsGambit = card("Greed's Gambit") {
 
     // When this enchantment leaves the battlefield: discard 3, lose 6 life, sacrifice 3 creatures.
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.Composite(
             listOf(
                 Effects.Discard(3, EffectTarget.Controller),

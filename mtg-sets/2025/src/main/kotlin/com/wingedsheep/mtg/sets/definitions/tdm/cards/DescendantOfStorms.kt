@@ -25,7 +25,7 @@ val DescendantOfStorms = card("Descendant of Storms") {
         "(Put a +1/+1 counter on it or create a 1/1 white Spirit creature token.)"
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.MayPay(
             cost = Effects.PayMana("{1}{W}"),
             then = Effects.Endure(1)

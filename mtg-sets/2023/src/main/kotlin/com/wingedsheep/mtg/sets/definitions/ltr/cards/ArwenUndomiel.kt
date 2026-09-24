@@ -28,7 +28,7 @@ val ArwenUndomiel = card("Arwen Undómiel") {
         "{4}{G}{U}: Scry 2."
 
     triggeredAbility {
-        trigger = Triggers.WheneverYouScry
+        trigger = Triggers.you.scries()
         val creature = target("target creature", Targets.Creature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }

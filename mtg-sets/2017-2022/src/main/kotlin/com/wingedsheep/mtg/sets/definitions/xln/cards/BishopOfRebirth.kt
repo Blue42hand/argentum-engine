@@ -33,7 +33,7 @@ val BishopOfRebirth = card("Bishop of Rebirth") {
     keywords(Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val card = target(
             "target",
             TargetObject(

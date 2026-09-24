@@ -30,7 +30,7 @@ val AnticausalVestige = card("Anticausal Vestige") {
     toughness = 5
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.Pipeline {
             run(Effects.DrawCards(1))
             val handPermanents = gather(CardSource.FromZone(Zone.HAND, Player.You, GameObjectFilter.Permanent))

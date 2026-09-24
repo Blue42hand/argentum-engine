@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.PermanentsEnterTapped
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
 /**
@@ -81,10 +80,7 @@ private val RadiantGraceFront = card("Radiant Grace") {
     // When enchanted creature dies, return this card to the battlefield transformed under your
     // control attached to target opponent.
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ATTACHED,
-        )
+        trigger = Triggers.attached.dies()
         val cursed = target("target opponent", Targets.Opponent)
         effect = Effects.ReturnSelfToBattlefieldAttached(target = cursed, transformed = true)
         description = "When enchanted creature dies, return this card to the battlefield " +

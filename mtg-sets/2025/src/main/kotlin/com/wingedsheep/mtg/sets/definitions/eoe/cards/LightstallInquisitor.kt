@@ -42,7 +42,7 @@ val LightstallInquisitor = card("Lightstall Inquisitor") {
     keywords(Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachPlayer(
             players = Player.EachOpponent,
             Effects.Pipeline {

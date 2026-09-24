@@ -70,7 +70,7 @@ val QuicksilverFountain = card("Quicksilver Fountain") {
     // "At the beginning of each player's upkeep, that player puts a flood counter on target
     // non-Island land they control of their choice."
     triggeredAbility {
-        trigger = Triggers.phase(Step.UPKEEP, Player.Each)
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         val land = target(
             "non-Island land they control",
             TargetObject(
@@ -95,7 +95,7 @@ val QuicksilverFountain = card("Quicksilver Fountain") {
     // "At the beginning of each end step, if all lands on the battlefield are Islands, remove all
     // flood counters from them."
     triggeredAbility {
-        trigger = Triggers.phase(Step.END, Player.Each)
+        trigger = Triggers.anyPlayer.beginningOf(Step.END)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.battlefield(
                 Player.Each,

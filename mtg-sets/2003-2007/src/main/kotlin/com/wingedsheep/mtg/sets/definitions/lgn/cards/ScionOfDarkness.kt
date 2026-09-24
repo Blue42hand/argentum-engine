@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Scion of Darkness
@@ -30,7 +31,7 @@ val ScionOfDarkness = card("Scion of Darkness") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         val t = target("target", TargetObject(filter = TargetFilter.CreatureInGraveyard.ownedByOpponent()))
         effect = Effects.May(Effects.PutOntoBattlefieldUnderYourControl(t))
     }

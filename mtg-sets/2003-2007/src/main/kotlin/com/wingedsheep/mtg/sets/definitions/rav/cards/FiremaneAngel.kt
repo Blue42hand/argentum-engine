@@ -53,7 +53,7 @@ val FiremaneAngel = card("Firemane Angel") {
     keywords(Keyword.FLYING, Keyword.FIRST_STRIKE)
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         triggerZones = setOf(Zone.BATTLEFIELD, Zone.GRAVEYARD)
         interveningIf = Conditions.SourceInZone(Zone.BATTLEFIELD, Zone.GRAVEYARD)
         effect = Effects.May(Effects.GainLife(1))

@@ -27,7 +27,7 @@ val EarthshakerDreadmaw = card("Earthshaker Dreadmaw") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(
             DynamicAmounts.battlefield(
                 Player.You,

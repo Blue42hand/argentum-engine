@@ -27,7 +27,7 @@ val ValdukKeeperOfTheFlame = card("Valduk, Keeper of the Flame") {
     oracleText = "At the beginning of combat on your turn, for each Aura and Equipment attached to Valduk, Keeper of the Flame, create a 3/1 red Elemental creature token with trample and haste. Exile those tokens at the beginning of the next end step."
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = Effects.CreateToken(
             count = DynamicAmounts.attachmentsOnSelf(),
             power = 3,

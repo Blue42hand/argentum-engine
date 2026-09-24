@@ -27,7 +27,7 @@ val FootElite = card("Foot Elite") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val creature = target(
             "another target creature you control",
             TargetPermanent(filter = TargetFilter.CreatureYouControl.other())

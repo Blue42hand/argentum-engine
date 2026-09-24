@@ -28,7 +28,7 @@ val SoldierOfTheGreyHost = card("Soldier of the Grey Host") {
     keywords(Keyword.FLASH, Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature", Targets.Creature)
         effect = Effects.ModifyStats(2, 0, creature)
     }

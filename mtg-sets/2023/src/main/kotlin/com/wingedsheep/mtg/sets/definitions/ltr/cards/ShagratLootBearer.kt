@@ -37,7 +37,7 @@ val ShagratLootBearer = card("Shagrat, Loot Bearer") {
         "control an Army, create a 0/0 black Orc Army creature token first.)"
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         // "up to one target Equipment" — any Equipment; control doesn't change, so it's not
         // restricted to Equipment you control.
         val equipment = target(

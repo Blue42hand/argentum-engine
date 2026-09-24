@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.references.Player
 
 /**
  * Suki, Kyoshi Warrior
@@ -33,7 +32,7 @@ val SukiKyoshiWarrior = card("Suki, Kyoshi Warrior") {
         "Whenever Suki attacks, create a 1/1 white Ally creature token that's tapped and attacking."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.CreateToken(
             count = 1,
             power = 1,

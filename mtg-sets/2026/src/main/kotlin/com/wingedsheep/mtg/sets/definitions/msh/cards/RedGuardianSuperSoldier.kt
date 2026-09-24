@@ -36,7 +36,7 @@ val RedGuardianSuperSoldier = card("Red Guardian, Super-Soldier") {
     toughness = 2
     keywords(Keyword.FLASH)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target",
             TargetCreature(filter = TargetFilter.Creature.hasDealtDamageThisTurn().opponentControls())

@@ -24,7 +24,7 @@ val WarbreakTrumpeter = card("Warbreak Trumpeter") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         effect = Effects.CreateToken(
             count = DynamicAmounts.xValue(),
             power = 1,

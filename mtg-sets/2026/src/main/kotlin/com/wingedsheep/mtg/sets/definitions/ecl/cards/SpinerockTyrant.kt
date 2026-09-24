@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Spinerock Tyrant
@@ -31,7 +32,7 @@ val SpinerockTyrant = card("Spinerock Tyrant") {
     // "Whenever you cast an instant or sorcery spell with a single target, you may copy it.
     //  If you do, those spells gain wither. You may choose new targets for the copy."
     triggeredAbility {
-        trigger = Triggers.YouCastInstantOrSorcery
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         triggerRestriction = Conditions.TriggeringSpellHasSingleTarget
         effect = Effects.May(
             effect = Effects.CopyTargetSpell(

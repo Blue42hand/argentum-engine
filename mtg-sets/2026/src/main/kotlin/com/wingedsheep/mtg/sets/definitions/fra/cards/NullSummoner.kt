@@ -31,7 +31,7 @@ val NullSummoner = card("Null Summoner") {
         "exiled card, and mana of any type can be spent to cast that spell."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.WasCast
         val opponent = target("target opponent", Targets.Opponent)
         effect = Patterns.Hand.revealHandAndExileChosen(target = opponent, linkToSource = true)

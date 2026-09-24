@@ -124,7 +124,7 @@ val AllFatesStalker = card("All-Fates Stalker") {
     power = 2
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target",
             TargetCreature(
@@ -400,7 +400,7 @@ val AtmosphericGreenhouse = card("Atmospheric Greenhouse") {
     typeLine = "Artifact — Spacecraft"
     oracleText = "When this Spacecraft enters, put a +1/+1 counter on each creature you control.\nStation (Tap another creature you control: Put charge counters equal to its power on this Spacecraft. Station only as a sorcery. It's an artifact creature at 8+.)\n8+ | Flying, trample"
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
@@ -441,7 +441,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -464,7 +463,7 @@ val AtomicMicrosizer = card("Atomic Microsizer") {
         ability = ModifyStats(1, 0)
     }
     triggeredAbility {
-        trigger = Triggers.attacks(binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.attacks()
         val t = target("target", TargetCreature(optional = true, filter = TargetFilter.Creature))
         effect = Effects.Composite(
             GrantKeywordEffect(AbilityFlag.CANT_BE_BLOCKED.name, t),
@@ -513,7 +512,7 @@ val AuxiliaryBoosters = card("Auxiliary Boosters") {
     typeLine = "Artifact — Equipment"
     oracleText = "When this Equipment enters, create a 2/2 colorless Robot artifact creature token and attach this Equipment to it.\nEquipped creature gets +1/+2 and has flying.\nEquip {3} ({3}: Attach to target creature you control. Equip only as a sorcery.)"
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.CreateToken(power = 2, toughness = 2, creatureTypes = setOf("Robot"), artifactToken = true),
             Effects.AttachEquipment(EffectTarget.PipelineTarget(CREATED_TOKENS, 0))
@@ -563,7 +562,7 @@ val BanishingLight = card("Banishing Light") {
     typeLine = "Enchantment"
     oracleText = "When this enchantment enters, exile target nonland permanent an opponent controls until this enchantment leaves the battlefield."
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetPermanent(filter = TargetFilter.NonlandPermanentOpponentControls))
         effect = Effects.MoveUntilSourceLeaves(t, Zone.EXILE)
     }
@@ -870,7 +869,7 @@ val BloomingStinger = card("Blooming Stinger") {
     toughness = 2
     keywords(Keyword.DEATHTOUCH)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
         effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, t)
     }
@@ -1171,7 +1170,7 @@ val ChromeCompanion = card("Chrome Companion") {
     power = 2
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
+        trigger = Triggers.self.becomesTapped()
         effect = GainLifeEffect(1)
     }
     activatedAbility {
@@ -1292,7 +1291,7 @@ val CodecrackerHound = card("Codecracker Hound") {
     power = 2
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.lookAtTopAndKeep(count = DynamicAmount.Fixed(2), keepCount = DynamicAmount.Fixed(1))
     }
     // STRUCTURE needs human wiring: Warp
@@ -1466,7 +1465,6 @@ import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
@@ -1487,7 +1485,7 @@ val CosmograndZenith = card("Cosmogrand Zenith") {
     power = 2
     toughness = 4
     triggeredAbility {
-        trigger = Triggers.NthSpellCast(2, Player.You)
+        trigger = Triggers.you.castsNth(2)
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
                 Effects.CreateToken(
@@ -1544,7 +1542,7 @@ val CryogenRelic = card("Cryogen Relic") {
     typeLine = "Artifact"
     oracleText = "When this artifact enters or leaves the battlefield, draw a card.\n{1}{U}, Sacrifice this artifact: Put a stun counter on up to one target tapped creature. (If a permanent with a stun counter would become untapped, remove one from it instead.)"
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = DrawCardsEffect(1)
     }
     // STRUCTURE needs human wiring: trigger-shape
@@ -1762,6 +1760,7 @@ package com.wingedsheep.mtg.sets.generated.demo.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -1790,7 +1789,7 @@ val DawnstrikeVanguard = card("Dawnstrike Vanguard") {
     toughness = 5
     keywords(Keyword.LIFELINK)
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         triggerCondition = Conditions.YouControlAtLeast(2, GameObjectFilter.Creature.tapped())
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
@@ -1837,7 +1836,7 @@ val DebrisFieldCrusher = card("Debris Field Crusher") {
     typeLine = "Artifact — Spacecraft"
     oracleText = "When this Spacecraft enters, it deals 3 damage to any target.\nStation (Tap another creature you control: Put charge counters equal to its power on this Spacecraft. Station only as a sorcery. It's an artifact creature at 8+.)\n8+ | Flying\n{1}{R}: This Spacecraft gets +2/+0 until end of turn."
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", AnyTarget())
         effect = DealDamageEffect(3, t)
     }
@@ -2096,7 +2095,7 @@ val DockworkerDrone = card("Dockworker Drone") {
     toughness = 1
     replacementEffect(EntersWithCounters(count = 1, selfOnly = true))
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = Effects.MoveAllLastKnownCounters(t)
     }
@@ -2182,7 +2181,7 @@ val DrixFatemaker = card("Drix Fatemaker") {
     power = 3
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
@@ -2319,7 +2318,7 @@ val DubiousDelicacy = card("Dubious Delicacy") {
     oracleText = "Flash\nWhen this artifact enters, up to one target creature gets -3/-3 until end of turn.\n{2}, {T}, Sacrifice this artifact: You gain 3 life.\n{2}, {T}, Sacrifice this artifact: Target opponent loses 3 life."
     keywords(Keyword.FLASH)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(optional = true, filter = TargetFilter.Creature))
         effect = Effects.ModifyStats(-3, -3, t)
     }
@@ -2612,7 +2611,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 
 
@@ -2631,7 +2629,7 @@ val EumidianTerrabotanist = card("Eumidian Terrabotanist") {
     power = 2
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(filter = GameObjectFilter.Land.youControl(), binding = TriggerBinding.ANY)
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = GainLifeEffect(1)
     }
     metadata {
@@ -2656,7 +2654,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 
 /**
@@ -2672,7 +2669,7 @@ val EusocialEngineering = card("Eusocial Engineering") {
     typeLine = "Enchantment"
     oracleText = "Landfall — Whenever a land you control enters, create a 2/2 colorless Robot artifact creature token.\nWarp {1}{G} (You may cast this card from your hand for its warp cost. Exile this enchantment at the beginning of the next end step, then you may cast it from exile on a later turn.)"
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(filter = GameObjectFilter.Land.youControl(), binding = TriggerBinding.ANY)
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = Effects.CreateToken(power = 2, toughness = 2, creatureTypes = setOf("Robot"), artifactToken = true)
     }
     // STRUCTURE needs human wiring: Warp
@@ -2962,6 +2959,7 @@ val FellGravship = card("Fell Gravship") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
+import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -2985,7 +2983,7 @@ val FlightDeckCoordinator = card("Flight-Deck Coordinator") {
     power = 3
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         triggerCondition = Conditions.YouControlAtLeast(2, GameObjectFilter.Creature.tapped())
         effect = GainLifeEffect(2)
     }
@@ -3109,6 +3107,7 @@ val FrenziedBaloth = card("Frenzied Baloth") {
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -3133,7 +3132,7 @@ val FrontlineWarRager = card("Frontline War-Rager") {
     power = 2
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         triggerCondition = Conditions.YouControlAtLeast(2, GameObjectFilter.Creature.tapped())
         effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
@@ -3353,7 +3352,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -3375,7 +3373,7 @@ val GenemorphImago = card("Genemorph Imago") {
     toughness = 3
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(filter = GameObjectFilter.Land.youControl(), binding = TriggerBinding.ANY)
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.If(
             condition = Conditions.YouControlAtLeast(6, GameObjectFilter.Land),
@@ -3422,7 +3420,7 @@ val GerminatingWurm = card("Germinating Wurm") {
     power = 5
     toughness = 5
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = GainLifeEffect(2)
     }
     // STRUCTURE needs human wiring: Warp
@@ -3642,7 +3640,7 @@ val GravpackMonoist = card("Gravpack Monoist") {
     toughness = 1
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = CreateTokenEffect(
             power = 2,
             toughness = 2,
@@ -3693,12 +3691,12 @@ val HaliyaAscendantCadet = card("Haliya, Ascendant Cadet") {
     power = 3
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
@@ -3720,12 +3718,12 @@ val HaliyaAscendantCadet = card("Haliya, Ascendant Cadet") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
+import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 
@@ -3747,14 +3745,11 @@ val HaliyaGuidedByLight = card("Haliya, Guided by Light") {
     power = 3
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.CreatureOrArtifact.youControl(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.CreatureOrArtifact.youControl()).enters()
         effect = GainLifeEffect(1)
     }
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         triggerCondition = Conditions.YouGainedLifeThisTurnAtLeast(3)
         effect = DrawCardsEffect(1)
     }
@@ -3875,7 +3870,7 @@ val HemosymbicMite = card("Hemosymbic Mite") {
     power = 1
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
+        trigger = Triggers.self.becomesTapped()
         val t = target("target", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
         effect = Effects.ModifyStats(DynamicAmounts.sourcePower(), DynamicAmounts.sourcePower(), t)
     }
@@ -3964,7 +3959,7 @@ val HonoredKnightCaptain = card("Honored Knight-Captain") {
     power = 1
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,
@@ -4103,7 +4098,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
@@ -4124,7 +4118,7 @@ val IcecaveCrasher = card("Icecave Crasher") {
     toughness = 4
     keywords(Keyword.TRAMPLE)
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(filter = GameObjectFilter.Land.youControl(), binding = TriggerBinding.ANY)
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = Effects.ModifyStats(1, 0, EffectTarget.Self)
     }
     metadata {
@@ -4288,7 +4282,7 @@ val IllvoiLightJammer = card("Illvoi Light Jammer") {
     oracleText = "Flash\nWhen this Equipment enters, attach it to target creature you control. That creature gains hexproof until end of turn. (It can't be the target of spells or abilities your opponents control.)\nEquipped creature gets +1/+2.\nEquip {3}"
     keywords(Keyword.FLASH)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = Effects.Composite(
             Effects.AttachEquipment(t),
@@ -4319,7 +4313,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
@@ -4338,7 +4331,7 @@ val IllvoiOperative = card("Illvoi Operative") {
     power = 2
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.NthSpellCast(2, Player.You)
+        trigger = Triggers.you.castsNth(2)
         effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
@@ -4383,7 +4376,7 @@ val InfiniteGuidelineStation = card("Infinite Guideline Station") {
     typeLine = "Legendary Artifact — Spacecraft"
     oracleText = "When Infinite Guideline Station enters, create a tapped 2/2 colorless Robot artifact creature token for each multicolored permanent you control.\nStation (Tap another creature you control: Put charge counters equal to its power on this Spacecraft. Station only as a sorcery. It's an artifact creature at 12+.)\n12+ | Flying\nWhenever Infinite Guideline Station attacks, draw a card for each multicolored permanent you control."
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = CreateTokenEffect(
             count = DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature),
             power = 2,
@@ -4479,7 +4472,7 @@ val InterceptorMechan = card("Interceptor Mechan") {
     toughness = 2
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target",
             TargetObject(
@@ -4847,7 +4840,7 @@ val KnightLuminary = card("Knight Luminary") {
     power = 3
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,
@@ -5210,7 +5203,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 
 /**
@@ -5228,10 +5220,7 @@ val MechanAssembler = card("Mechan Assembler") {
     power = 4
     toughness = 4
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Artifact.youControl(),
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.Artifact.youControl()).enters()
         oncePerTurn = true
         effect = Effects.CreateToken(power = 2, toughness = 2, creatureTypes = setOf("Robot"), artifactToken = true)
     }
@@ -5274,7 +5263,7 @@ val MechanNavigator = card("Mechan Navigator") {
     power = 2
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
+        trigger = Triggers.self.becomesTapped()
         effect = Effects.Composite(
             DrawCardsEffect(1),
             Patterns.Hand.discardCards(1)
@@ -5363,7 +5352,7 @@ val Mechanozoa = card("Mechanozoa") {
     power = 5
     toughness = 5
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrArtifact.opponentControls()))
@@ -5412,7 +5401,7 @@ val MeldedMoxite = card("Melded Moxite") {
     typeLine = "Artifact"
     oracleText = "When this artifact enters, you may discard a card. If you do, draw two cards.\n{3}, Sacrifice this artifact: Create a tapped 2/2 colorless Robot artifact creature token."
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             effect = Effects.IfYouDo(action = Patterns.Hand.discardCards(1), then = DrawCardsEffect(2))
         )
@@ -5504,7 +5493,7 @@ val MeltstridersGear = card("Meltstrider's Gear") {
     typeLine = "Artifact — Equipment"
     oracleText = "When this Equipment enters, attach it to target creature you control.\nEquipped creature gets +2/+1 and has reach.\nEquip {5} ({5}: Attach to target creature you control. Equip only as a sorcery.)"
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = Effects.AttachEquipment(t)
     }
@@ -5724,7 +5713,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -5747,10 +5735,7 @@ val MmmenonUthrosExile = card("Mm'menon, Uthros Exile") {
     toughness = 3
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Artifact.youControl(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Artifact.youControl()).enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
@@ -5811,6 +5796,7 @@ val MmmenonTheRightHand = card("Mm'menon, the Right Hand") {
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -5834,7 +5820,7 @@ val MolecularModifier = card("Molecular Modifier") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = Effects.Composite(
             Effects.ModifyStats(1, 0, t),
@@ -6031,7 +6017,7 @@ val MouthOfTheStorm = card("Mouth of the Storm") {
     keywords(Keyword.FLYING)
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.opponentControls()),
             ModifyStatsEffect(-3, 0, EffectTarget.IterationEntity, Duration.UntilYourNextTurn)
@@ -6146,7 +6132,7 @@ val NebulaDragon = card("Nebula Dragon") {
     toughness = 4
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", AnyTarget())
         effect = DealDamageEffect(3, t)
     }
@@ -6194,7 +6180,7 @@ val NovaHellkite = card("Nova Hellkite") {
     toughness = 5
     keywords(Keyword.FLYING, Keyword.HASTE)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = DealDamageEffect(1, t)
     }
@@ -6242,7 +6228,7 @@ val NutrientBlock = card("Nutrient Block") {
         effect = GainLifeEffect(3)
     }
     triggeredAbility {
-        trigger = Triggers.PutIntoGraveyardFromBattlefield
+        trigger = Triggers.self.dies()
         effect = DrawCardsEffect(1)
     }
     metadata {
@@ -6331,6 +6317,7 @@ val OreplatePangolin = card("Oreplate Pangolin") {
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -6356,7 +6343,7 @@ val Ouroboroid = card("Ouroboroid") {
     power = 1
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.AddDynamicCounters(
@@ -6518,7 +6505,7 @@ val PinnacleKillShip = card("Pinnacle Kill-Ship") {
     typeLine = "Artifact — Spacecraft"
     oracleText = "When this Spacecraft enters, it deals 10 damage to up to one target creature.\nStation (Tap another creature you control: Put charge counters equal to its power on this Spacecraft. Station only as a sorcery. It's an artifact creature at 7+.)\n7+ | Flying"
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(optional = true, filter = TargetFilter.Creature))
         effect = DealDamageEffect(10, t)
     }
@@ -6773,7 +6760,7 @@ val QuantumRiddler = card("Quantum Riddler") {
     toughness = 6
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = DrawCardsEffect(1)
     }
     // STRUCTURE needs human wiring: If
@@ -6899,7 +6886,7 @@ val RaybladeTrooper = card("Rayblade Trooper") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
@@ -6964,7 +6951,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
@@ -6985,7 +6971,7 @@ val RemnantElemental = card("Remnant Elemental") {
     toughness = 4
     keywords(Keyword.REACH)
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(filter = GameObjectFilter.Land.youControl(), binding = TriggerBinding.ANY)
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = Effects.ModifyStats(2, 0, EffectTarget.Self)
     }
     metadata {
@@ -7120,7 +7106,7 @@ val RescueSkiff = card("Rescue Skiff") {
     typeLine = "Artifact — Spacecraft"
     oracleText = "When this Spacecraft enters, return target creature or enchantment card from your graveyard to the battlefield.\nStation (Tap another creature you control: Put charge counters equal to its power on this Spacecraft. Station only as a sorcery. It's an artifact creature at 10+.)\n10+ | Flying"
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target",
             TargetObject(
@@ -7374,6 +7360,7 @@ val SamisCuriosity = card("Sami's Curiosity") {
 
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
+import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -7397,7 +7384,7 @@ val SamiShipsEngineer = card("Sami, Ship's Engineer") {
     power = 2
     toughness = 4
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         triggerCondition = Conditions.YouControlAtLeast(2, GameObjectFilter.Creature.tapped())
         effect = CreateTokenEffect(
             power = 2,
@@ -7707,7 +7694,7 @@ val SeedshipBroodtender = card("Seedship Broodtender") {
     power = 2
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.mill(3)
     }
     activatedAbility {
@@ -7892,7 +7879,7 @@ val SinisterCryologist = card("Sinister Cryologist") {
     power = 2
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.ModifyStats(-3, 0, t)
     }
@@ -8123,7 +8110,7 @@ val SpecimenFreighter = card("Specimen Freighter") {
     typeLine = "Artifact — Spacecraft"
     oracleText = "When this Spacecraft enters, return up to two target non-Spacecraft creatures to their owners' hands.\nStation (Tap another creature you control: Put charge counters equal to its power on this Spacecraft. Station only as a sorcery. It's an artifact creature at 9+.)\n9+ | Flying\nWhenever this Spacecraft attacks, defending player mills four cards."
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(optional = true, count = 2, filter = TargetFilter.Creature))
         effect = ForEachTargetEffect(listOf(Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND)))
     }
@@ -8170,7 +8157,7 @@ val SquiresLightblade = card("Squire's Lightblade") {
     oracleText = "Flash\nWhen this Equipment enters, attach it to target creature you control. That creature gains first strike until end of turn.\nEquipped creature gets +1/+0.\nEquip {3}"
     keywords(Keyword.FLASH)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = Effects.Composite(
             Effects.AttachEquipment(t),
@@ -8222,7 +8209,7 @@ val StarbreachWhale = card("Starbreach Whale") {
     toughness = 5
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.surveil(2)
     }
     // STRUCTURE needs human wiring: Warp
@@ -8337,7 +8324,7 @@ val StarfighterPilot = card("Starfighter Pilot") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
+        trigger = Triggers.self.becomesTapped()
         effect = Patterns.Library.surveil(1)
     }
     metadata {
@@ -8397,9 +8384,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -8421,12 +8406,7 @@ val Starwinder = card("Starwinder") {
     power = 7
     toughness = 7
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            DamageType.Combat,
-            Recipient.AnyPlayer,
-            sourceFilter = GameObjectFilter.Creature.youControl(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dealsCombatDamage(Recipient.AnyPlayer)
         optional = true
         effect = DrawCardsEffect(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT))
     }
@@ -8585,7 +8565,7 @@ val SunsetSaboteur = card("Sunset Saboteur") {
     keywords(Keyword.MENACE)
     keywordAbility(KeywordAbility.wardDiscard())
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
@@ -8607,6 +8587,7 @@ val SunsetSaboteur = card("Sunset Saboteur") {
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -8633,7 +8614,7 @@ val SunstarChaplain = card("Sunstar Chaplain") {
     power = 3
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         triggerCondition = Conditions.YouControlAtLeast(2, GameObjectFilter.Creature.tapped())
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
@@ -8697,7 +8678,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
@@ -8716,7 +8696,7 @@ val SunstarLightsmith = card("Sunstar Lightsmith") {
     power = 3
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.NthSpellCast(2, Player.You)
+        trigger = Triggers.you.castsNth(2)
         effect = Effects.Composite(
             AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self),
             DrawCardsEffect(1)
@@ -8855,7 +8835,7 @@ val SusurianDirgecraft = card("Susurian Dirgecraft") {
     typeLine = "Artifact — Spacecraft"
     oracleText = "When this Spacecraft enters, each opponent sacrifices a nontoken creature of their choice.\nStation (Tap another creature you control: Put charge counters equal to its power on this Spacecraft. Station only as a sorcery. It's an artifact creature at 7+.)\n7+ | Flying"
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Sacrifice(
             filter = GameObjectFilter.Creature.nontoken(),
             target = EffectTarget.PlayerRef(Player.EachOpponent)
@@ -9091,7 +9071,7 @@ val SyrVondamTheLucent = card("Syr Vondam, the Lucent") {
     toughness = 4
     keywords(Keyword.DEATHTOUCH, Keyword.LIFELINK)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
             Effects.Composite(
@@ -9101,7 +9081,7 @@ val SyrVondamTheLucent = card("Syr Vondam, the Lucent") {
         )
     }
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
             Effects.Composite(
@@ -9542,11 +9522,11 @@ val Thawbringer = card("Thawbringer") {
     power = 4
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.surveil(1)
     }
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Patterns.Library.surveil(1)
     }
     metadata {
@@ -9702,7 +9682,7 @@ val TheSeriema = card("The Seriema") {
     typeLine = "Legendary Artifact — Spacecraft"
     oracleText = "When The Seriema enters, search your library for a legendary creature card, reveal it, put it into your hand, then shuffle.\nStation (Tap another creature you control: Put charge counters equal to its power on this Spacecraft. Station only as a sorcery. It's an artifact creature at 7+.)\n7+ | Flying\nOther tapped legendary creatures you control have indestructible."
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.searchLibrary(
             filter = GameObjectFilter.Creature.legendary(),
             destination = SearchDestination.HAND,
@@ -9727,6 +9707,7 @@ val TheSeriema = card("The Seriema") {
 package com.wingedsheep.mtg.sets.generated.demo.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -9775,7 +9756,7 @@ val ThrummingHivepool = card("Thrumming Hivepool") {
         )
     }
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.CreateToken(power = 1, toughness = 1, creatureTypes = setOf("Sliver"), count = 2)
     }
     metadata {
@@ -10049,7 +10030,7 @@ val UthrosScanship = card("Uthros Scanship") {
     typeLine = "Artifact — Spacecraft"
     oracleText = "When this Spacecraft enters, draw two cards, then discard a card.\nStation (Tap another creature you control: Put charge counters equal to its power on this Spacecraft. Station only as a sorcery. It's an artifact creature at 8+.)\n8+ | Flying"
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             DrawCardsEffect(2),
             Patterns.Hand.discardCards(1)
@@ -10220,7 +10201,7 @@ val VirusBeetle = card("Virus Beetle") {
     power = 1
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Hand.eachOpponentDiscards(1)
     }
     metadata {
@@ -10341,7 +10322,7 @@ val WarmakerGunship = card("Warmaker Gunship") {
     typeLine = "Artifact — Spacecraft"
     oracleText = "When this Spacecraft enters, it deals damage equal to the number of artifacts you control to target creature an opponent controls.\nStation (Tap another creature you control: Put charge counters equal to its power on this Spacecraft. Station only as a sorcery. It's an artifact creature at 6+.)\n6+ | Flying"
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = DealDamageEffect(DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Artifact), t)
     }
@@ -10462,7 +10443,7 @@ val WedgelightRammer = card("Wedgelight Rammer") {
     typeLine = "Artifact — Spacecraft"
     oracleText = "When this Spacecraft enters, create a 2/2 colorless Robot artifact creature token.\nStation (Tap another creature you control: Put charge counters equal to its power on this Spacecraft. Station only as a sorcery. It's an artifact creature at 9+.)\n9+ | Flying, first strike"
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(power = 2, toughness = 2, creatureTypes = setOf("Robot"), artifactToken = true)
     }
     station()
@@ -10521,7 +10502,7 @@ val WeftbladeEnhancer = card("Weftblade Enhancer") {
     power = 3
     toughness = 4
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(optional = true, count = 2, filter = TargetFilter.Creature))
         effect = ForEachTargetEffect(
             listOf(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
@@ -10549,7 +10530,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -10571,10 +10551,7 @@ val WeftstalkerArdent = card("Weftstalker Ardent") {
     power = 2
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.CreatureOrArtifact.youControl(),
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.CreatureOrArtifact.youControl()).enters()
         effect = DealDamageEffect(1, EffectTarget.PlayerRef(Player.EachOpponent))
     }
     // STRUCTURE needs human wiring: Warp
@@ -10653,7 +10630,7 @@ val WurmwallSweeper = card("Wurmwall Sweeper") {
     typeLine = "Artifact — Spacecraft"
     oracleText = "When this Spacecraft enters, surveil 2.\nStation (Tap another creature you control: Put charge counters equal to its power on this Spacecraft. Station only as a sorcery. It's an artifact creature at 4+.)\n4+ | Flying"
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.surveil(2)
     }
     station()

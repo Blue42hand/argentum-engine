@@ -28,7 +28,7 @@ val CommandBridge = card("Command Bridge") {
 
     // When this land enters, sacrifice it unless you tap an untapped permanent you control.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Tap(),
             suffer = SacrificeSelfEffect,

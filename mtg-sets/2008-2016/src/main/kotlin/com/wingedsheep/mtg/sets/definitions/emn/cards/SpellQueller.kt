@@ -53,14 +53,14 @@ val SpellQueller = card("Spell Queller") {
     keywords(Keyword.FLASH, Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target("target spell with mana value 4 or less", Targets.SpellWithManaValueAtMost(4))
         effect = Effects.ExileTargetSpell(linkToSource = true)
         description = "When this creature enters, exile target spell with mana value 4 or less."
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ForEachPlayer(
             players = Player.OwnersOfLinkedExile,
             Effects.Pipeline {

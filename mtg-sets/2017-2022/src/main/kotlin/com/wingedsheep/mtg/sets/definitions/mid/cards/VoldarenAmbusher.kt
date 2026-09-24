@@ -32,7 +32,7 @@ val VoldarenAmbusher = card("Voldaren Ambusher") {
         "up to one target creature or planeswalker, where X is the number of Vampires you control."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.OpponentLostLifeThisTurn
         val t = target(
             "up to one target creature or planeswalker",

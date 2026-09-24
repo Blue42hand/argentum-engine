@@ -31,7 +31,7 @@ val EquilibriumAdept = card("Equilibrium Adept") {
     oracleText = "When this creature enters, exile the top card of your library. Until the end of your next turn, you may play that card.\nFlurry — Whenever you cast your second spell each turn, this creature gains double strike until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val exiledCard = gather(CardSource.TopOfLibrary(1))
             exile(exiledCard)

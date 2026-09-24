@@ -45,7 +45,7 @@ val RecklessDetective = card("Reckless Detective") {
         "card. If you do, draw a card and this creature gets +2/+0 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val payoff: Effect = Effects.DrawCards(1) then
             Effects.ModifyStats(2, 0, EffectTarget.Self)
         effect = Effects.May(

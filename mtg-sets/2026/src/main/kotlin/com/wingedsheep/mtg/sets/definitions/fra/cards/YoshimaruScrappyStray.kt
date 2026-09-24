@@ -20,7 +20,7 @@ val YoshimaruScrappyStray = card("Yoshimaru, Scrappy Stray") {
         "{6}: Put a +1/+1 counter on target nonlegendary creature."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val ally = target(
             "another target creature you control",
             TargetCreature(filter = TargetFilter.OtherCreatureYouControl),

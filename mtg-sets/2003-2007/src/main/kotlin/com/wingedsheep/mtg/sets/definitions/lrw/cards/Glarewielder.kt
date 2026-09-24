@@ -37,7 +37,7 @@ val Glarewielder = card("Glarewielder") {
     evoke = "{1}{R}"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target("target", TargetCreature(optional = true, count = 2, filter = TargetFilter.Creature))
         effect = Effects.ForEachTarget(Effects.CantBlock(EffectTarget.ContextTarget(0)))
         description = "up to two target creatures can't block this turn."

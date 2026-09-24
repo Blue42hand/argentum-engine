@@ -50,7 +50,7 @@ val GearbaneOrangutan = card("Gearbane Orangutan") {
     keywords(Keyword.REACH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             mode("Destroy up to one target artifact") {
                 val artifact = target(

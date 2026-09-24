@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.effects.CopyExceptions
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Taskmaster, Mercenary Mimic — Marvel Super Heroes #232 (rare)
@@ -58,7 +59,7 @@ val TaskmasterMercenaryMimic = card("Taskmaster, Mercenary Mimic") {
         "legendary Human Mercenary Villain creature."
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         val copySource = target(
             "up to one target creature on the battlefield or creature card in a graveyard",
             TargetObject(

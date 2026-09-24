@@ -21,7 +21,7 @@ val TetherTechnician = card("Tether Technician") {
     // "you may discard a card. When you do, ..." — a reflexive trigger; the target is chosen
     // only once the discard has happened.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Effects.Discard(1),
             optional = true) {

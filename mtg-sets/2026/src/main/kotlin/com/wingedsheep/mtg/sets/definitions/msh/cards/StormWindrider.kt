@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.CantBeBlockedBy
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 
 /**
  * Storm, Windrider — Marvel Super Heroes #230 (rare)
@@ -36,7 +37,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    A flat `CantBlock` would also stop those fliers blocking a *third* player's attackers, which
  *    the card doesn't say.
  *  - **"those creatures gain flying"** is the engine-seeded trigger capture, the same channel a
- *    batched ETB payoff reads (Kambal, Profiteering Mayor): `Triggers.youCastSpellTargeting(filter)`
+ *    batched ETB payoff reads (Kambal, Profiteering Mayor): `Triggers.you.casts(requires = setOf(SpellCastPredicate.TargetsMatching(filter)))`
  *    records exactly the targets that matched *its own* filter into
  *    [IterationSpace.TRIGGER_CAPTURED_COLLECTION], so the clause that decides *whether* it triggers
  *    and the clause that decides *what it acts on* are one computation and can't drift. Because the
@@ -75,7 +76,7 @@ val StormWindrider = card("Storm, Windrider") {
     }
 
     triggeredAbility {
-        trigger = Triggers.youCastSpellTargeting(GameObjectFilter.Creature)
+        trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.TargetsMatching(GameObjectFilter.Creature)))
         effect = Effects.ForEachInCollection(
             collection = CollectionSlot.TriggerCaptured,
             effect = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity)

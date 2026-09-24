@@ -32,7 +32,7 @@ val SazhKatzroy = card("Sazh Katzroy") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter(
@@ -53,7 +53,7 @@ val SazhKatzroy = card("Sazh Katzroy") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Composite(
             Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),

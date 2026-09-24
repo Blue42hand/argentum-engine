@@ -47,7 +47,7 @@ val DaiLiAgents = card("Dai Li Agents") {
         "is the number of creatures you control with +1/+1 counters on them."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val firstLand = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
         val secondLand = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
         effect = Effects.Composite(
@@ -65,7 +65,7 @@ val DaiLiAgents = card("Dai Li Agents") {
     ).count()
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Composite(
             listOf(
                 Effects.LoseLife(xAmount, EffectTarget.PlayerRef(Player.EachOpponent)),

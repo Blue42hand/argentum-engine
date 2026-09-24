@@ -34,7 +34,7 @@ val FearOfImmobility = card("Fear of Immobility") {
         "untapped, remove one from it instead.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(optional = true))
         effect = Effects.Composite(
             Effects.Tap(t),

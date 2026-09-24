@@ -8,10 +8,10 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Thelon's Chant
@@ -34,7 +34,7 @@ val ThelonsChant = card("Thelon's Chant") {
         "to that player unless the player puts a -1/-1 counter on a creature they control."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Mana("{G}"),
             suffer = SacrificeSelfEffect,
@@ -43,10 +43,7 @@ val ThelonsChant = card("Thelon's Chant") {
     }
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Land.withSubtype(Subtype.SWAMP),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Land.withSubtype(Subtype.SWAMP)).enters()
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.PutCountersOnPermanent(
                 counterType = CounterType.MINUS_ONE_MINUS_ONE,

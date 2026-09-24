@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Innocent Traveler // Malicious Invader (Innistrad: Crimson Vow)
@@ -51,7 +52,7 @@ private val InnocentTravelerFront = card("Innocent Traveler") {
         "choice. If no one does, transform this creature."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.UnlessAnyPlayerPays(
             cost = Costs.pay.Sacrifice(GameObjectFilter.Creature, count = 1),
             effect = Effects.Transform(EffectTarget.Self),

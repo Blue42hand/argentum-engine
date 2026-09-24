@@ -20,7 +20,7 @@ val ZhalfirinVoid = card("Zhalfirin Void") {
     oracleText = "When Zhalfirin Void enters the battlefield, scry 1.\n{T}: Add {C}."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.scry(1)
     }
 

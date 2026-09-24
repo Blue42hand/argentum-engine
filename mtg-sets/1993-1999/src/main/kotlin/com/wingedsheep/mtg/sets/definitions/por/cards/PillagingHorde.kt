@@ -27,7 +27,7 @@ val PillagingHorde = card("Pillaging Horde") {
     power = 5
     toughness = 5
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.PayOrSuffer(cost = Costs.pay.Discard(random = true), suffer = SacrificeSelfEffect)
     }
     metadata {

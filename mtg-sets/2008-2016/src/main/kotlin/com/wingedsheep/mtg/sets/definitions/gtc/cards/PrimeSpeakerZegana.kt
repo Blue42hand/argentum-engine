@@ -45,7 +45,7 @@ val PrimeSpeakerZegana = card("Prime Speaker Zegana") {
     )
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(DynamicAmounts.sourcePower())
         description = "When Prime Speaker Zegana enters, draw cards equal to its power."
     }

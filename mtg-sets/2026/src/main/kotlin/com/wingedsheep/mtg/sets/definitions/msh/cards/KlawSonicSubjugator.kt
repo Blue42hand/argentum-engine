@@ -43,7 +43,7 @@ val KlawSonicSubjugator = card("Klaw, Sonic Subjugator") {
         "one of them. That player discards that card."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val player = target("target player", Targets.Player)
         effect = Effects.Pipeline {
             // 1. Gather the target player's hand.

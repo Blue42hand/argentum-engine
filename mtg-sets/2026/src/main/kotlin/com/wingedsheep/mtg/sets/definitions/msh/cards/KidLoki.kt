@@ -29,7 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    not what is on it now — and switches off at end-of-turn cleanup.
  *  - Kid Loki's own trigger feeds the static: the +1/+1 counter it puts on itself makes Kid Loki one of
  *    the creatures the first ability protects, since the static's filter includes the source.
- *  - The draw trigger is the shared [Triggers.NthCardDrawn] detector (n = 2), which fires exactly once
+ *  - The draw trigger is the shared `Triggers.<player>.drawsNth(n)` detector (n = 2), which fires exactly once
  *    per turn, including when a single multi-card draw crosses the threshold (CR 121.2).
  */
 val KidLoki = card("Kid Loki") {
@@ -55,7 +55,7 @@ val KidLoki = card("Kid Loki") {
     }
 
     triggeredAbility {
-        trigger = Triggers.NthCardDrawn(2)
+        trigger = Triggers.you.drawsNth(2)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever you draw your second card each turn, put a +1/+1 counter on Kid Loki."
     }

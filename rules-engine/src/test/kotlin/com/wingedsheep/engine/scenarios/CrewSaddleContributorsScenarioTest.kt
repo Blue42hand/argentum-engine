@@ -51,7 +51,7 @@ class CrewSaddleContributorsScenarioTest : FunSpec({
             "counter on target creature that saddled it this turn."
         keywordAbility(KeywordAbility.saddle(2))
         triggeredAbility {
-            trigger = Triggers.Attacks
+            trigger = Triggers.self.attacks()
             triggerRestriction = Conditions.SourceIsSaddled
             val saddler = target(
                 "target creature that saddled it this turn",
@@ -72,7 +72,7 @@ class CrewSaddleContributorsScenarioTest : FunSpec({
             "crewed it this turn.\nCrew 1"
         keywordAbility(KeywordAbility.crew(1))
         triggeredAbility {
-            trigger = Triggers.Attacks
+            trigger = Triggers.self.attacks()
             effect = Effects.DrawCards(DynamicAmounts.creaturesThatCrewedOrSaddledThisTurn())
         }
     }

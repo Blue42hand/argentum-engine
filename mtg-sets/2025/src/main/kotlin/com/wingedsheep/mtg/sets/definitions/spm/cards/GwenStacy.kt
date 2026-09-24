@@ -13,8 +13,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.YouControlSource
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
@@ -49,7 +47,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    permanent leaves, its `ControllerComponent` is stripped and [YouControlSource] fails; the flip
  *    to Ghost-Spider keeps the same object, so control — and the grant — survive.) Same idiom as
  *    Hama, the Bloodbender's "for as long as you control Hama".
- *  - Cast-from-exile trigger (back): [Triggers.youCastSpell] gated by
+ *  - Cast-from-exile trigger (back): `Triggers.you.casts(spell, requires)` gated by
  *    `SpellCastPredicate.CastFromZone(Zone.EXILE)` — the proven Quintorius Kand / Fire Lord Zuko
  *    idiom for "cast a spell from exile."
  *  - Play-a-land-from-exile trigger (back): a separate [ZoneChangeEvent] `EXILE → BATTLEFIELD`
@@ -78,7 +76,7 @@ private val GwenStacyFront = card("Gwen Stacy") {
     // When Gwen Stacy enters, exile the top card of your library. You may play that card for as
     // long as you control this creature.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val gwenExiled = gather(CardSource.TopOfLibrary(1))
             exile(gwenExiled)
@@ -127,23 +125,14 @@ private val GhostSpider = card("Ghost-Spider") {
 
     // Whenever you cast a spell from exile, put a +1/+1 counter on Ghost-Spider.
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            requires = setOf(SpellCastPredicate.CastFromZone(Zone.EXILE)),
-        )
+        trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.CastFromZone(Zone.EXILE)))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever you cast a spell from exile, put a +1/+1 counter on Ghost-Spider."
     }
 
     // Whenever you play a land from exile, put a +1/+1 counter on Ghost-Spider.
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = ZoneChangeEvent(
-                filter = GameObjectFilter.Land,
-                from = Zone.EXILE,
-                to = Zone.BATTLEFIELD,
-            ),
-            binding = TriggerBinding.ANY,
-        ).youControl()
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters(from = Zone.EXILE)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever you play a land from exile, put a +1/+1 counter on Ghost-Spider."
     }

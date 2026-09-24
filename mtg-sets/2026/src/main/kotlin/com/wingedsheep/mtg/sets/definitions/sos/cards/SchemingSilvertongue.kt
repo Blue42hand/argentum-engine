@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Scheming Silvertongue // Sign in Blood — Secrets of Strixhaven #99
@@ -40,7 +41,7 @@ val SchemingSilvertongue = card("Scheming Silvertongue") {
     keywords(Keyword.FLYING, Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.YourPostcombatMain
+        trigger = Triggers.you.beginningOf(Step.POSTCOMBAT_MAIN)
         interveningIf = Conditions.YouGainedLifeThisTurnAtLeast(2)
         effect = Effects.BecomePrepared(EffectTarget.Self)
     }

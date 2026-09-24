@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -29,10 +28,7 @@ val PactdollTerror = card("Pactdoll Terror") {
     power = 3
     toughness = 4
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Artifact.youControl(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Artifact.youControl()).enters()
         effect = Effects.Composite(
             Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
             Effects.GainLife(1)

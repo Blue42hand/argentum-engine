@@ -50,10 +50,7 @@ val BansheesBlade = card("Banshee's Blade") {
     }
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.Combat,
-            binding = TriggerBinding.ATTACHED,
-        )
+        trigger = Triggers.attached.dealsCombatDamage()
         effect = Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)
     }
 

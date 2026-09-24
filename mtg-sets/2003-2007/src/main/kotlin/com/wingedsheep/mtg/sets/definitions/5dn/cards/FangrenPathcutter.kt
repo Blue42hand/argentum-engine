@@ -29,7 +29,7 @@ val FangrenPathcutter = card("Fangren Pathcutter") {
     power = 4
     toughness = 6
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.attacking()),
             Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)

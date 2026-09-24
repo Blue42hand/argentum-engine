@@ -31,7 +31,7 @@ val ShireShirriff = card("Shire Shirriff") {
     // ETB: you may sacrifice a token. When you do, exile target creature an opponent controls
     // until this creature leaves the battlefield.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeOwn(filter = GameObjectFilter.Token),
             optional = true) {
@@ -45,7 +45,7 @@ val ShireShirriff = card("Shire Shirriff") {
 
     // When this creature leaves the battlefield, return the exiled card.
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

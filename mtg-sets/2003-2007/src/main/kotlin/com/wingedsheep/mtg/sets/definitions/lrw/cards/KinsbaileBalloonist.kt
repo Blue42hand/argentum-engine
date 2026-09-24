@@ -26,7 +26,7 @@ val KinsbaileBalloonist = card("Kinsbaile Balloonist") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         optional = true
         val t = target("target", Targets.Creature)
         effect = Effects.GrantKeyword(Keyword.FLYING, t)

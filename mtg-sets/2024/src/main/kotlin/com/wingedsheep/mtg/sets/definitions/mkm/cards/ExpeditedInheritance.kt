@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.events.Recipient
 
@@ -25,10 +24,7 @@ val ExpeditedInheritance = card("Expedited Inheritance") {
         "from the top of their library. They may play those cards until the end of their next turn."
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            recipient = Recipient.AnyCreature,
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a().dealsDamage(Recipient.AnyCreature)
         // Damage triggers bind the recipient as the triggering entity, so this makes the damaged
         // creature's controller own both the trigger and the ensuing may decision.
         controlledByTriggeringEntityController = true

@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
@@ -75,11 +74,7 @@ val GreatTrainHeist = card("Great Train Heist") {
                     val opponent = target("target opponent", Targets.Opponent)
                     additionalManaCost = "{R}"
                     effect = Effects.CreateDelayedTrigger(
-                        trigger = Triggers.dealsDamage(
-                            damageType = DamageType.Combat,
-                            recipient = Recipient.AnyPlayer,
-                            sourceFilter = GameObjectFilter.Creature.youControl(),
-                        ),
+                        trigger = Triggers.self.matching(GameObjectFilter.Creature.youControl()).dealsCombatDamage(Recipient.AnyPlayer),
                         watchedRecipient = opponent,
                         effect = Effects.CreateTreasure(1, tapped = true),
                     )

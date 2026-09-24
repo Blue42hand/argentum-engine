@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Luminarch Aspirant
@@ -26,7 +27,7 @@ val LuminarchAspirant = card("Luminarch Aspirant") {
 
     triggeredAbility {
         val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creatureYouControl)
     }
 

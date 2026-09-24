@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -26,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * you a Clue, until it has outgrown the rest of your board.
  *
  * The trigger is `ANY`-bound with a `Creature.youControl()` filter rather than
- * [Triggers.OtherCreatureEnters] — the printed text says "a creature you control", not "another",
+ * `Triggers.another(GameObjectFilter.Creature.youControl()).enters()` — the printed text says "a creature you control", not "another",
  * so the Rookie's own arrival does check itself. It never fires from that, because a creature's
  * power is never greater than its own.
  *
@@ -59,10 +58,7 @@ val SharpEyedRookie = card("Sharp-Eyed Rookie") {
     keywords(Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Creature.youControl(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).enters()
         interveningIf = Conditions.Any(
             Conditions.CompareAmounts(
                 DynamicAmounts.triggeringPower(),

@@ -29,7 +29,7 @@ val SoaringHope = card("Soaring Hope") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(3)
         description = "you gain 3 life."
     }

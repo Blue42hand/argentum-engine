@@ -55,7 +55,7 @@ val AbsolvingLammasu = card("Absolving Lammasu") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.suspected()),
             Effects.NoLongerSuspected(EffectTarget.IterationEntity)
@@ -64,7 +64,7 @@ val AbsolvingLammasu = card("Absolving Lammasu") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val suspect = target(
             "up to one target creature an opponent controls",
             TargetCreature(optional = true, filter = TargetFilter.CreatureOpponentControls)

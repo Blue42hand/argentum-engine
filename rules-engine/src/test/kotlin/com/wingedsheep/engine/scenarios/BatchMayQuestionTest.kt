@@ -18,6 +18,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Tests for feature B — batched may-question (backlog/stack-collapse-and-batch-decisions.md §B).
@@ -41,7 +42,7 @@ class BatchMayQuestionTest : FunSpec({
         oracleText = "Whenever another creature you control enters the battlefield, you may have " +
             "Batch Pinger deal 1 damage to any target."
         triggeredAbility {
-            trigger = Triggers.OtherCreatureEnters
+            trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
             val t = target("target", Targets.Any)
             effect = Effects.May(Effects.DealDamage(1, t))
         }

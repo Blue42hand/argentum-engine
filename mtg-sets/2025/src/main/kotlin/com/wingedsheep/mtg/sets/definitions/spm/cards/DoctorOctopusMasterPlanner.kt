@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -13,6 +12,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.SetMaximumHandSize
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Doctor Octopus, Master Planner
@@ -55,7 +55,7 @@ val DoctorOctopusMasterPlanner = card("Doctor Octopus, Master Planner") {
     // At the beginning of your end step, if you have fewer than eight cards in hand,
     // draw cards equal to the difference.
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.CardsInHandAtMost(7)
         effect = Effects.DrawCards(
             8 - DynamicAmounts.cardsInYourHand()

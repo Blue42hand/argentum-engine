@@ -43,7 +43,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  * the option to route the single card to your hand instead.
  *
  * Unlike [BubbleSmuggler]'s `disguiseFaceUpEffect`, this is a genuine **triggered** ability
- * ([Triggers.TurnedFaceUp], as on [EssenceOfAntiquity]): "When … is turned face up" uses the stack,
+ * (`Triggers.self.turnedFaceUp()`, as on [EssenceOfAntiquity]): "When … is turned face up" uses the stack,
  * so the flip resolves first and opponents do get a window before the search happens.
  */
 val FlourishingBloomKin = card("Flourishing Bloom-Kin") {
@@ -77,7 +77,7 @@ val FlourishingBloomKin = card("Flourishing Bloom-Kin") {
     disguise = "{4}{G}"
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         effect = Effects.Pipeline {
             val searchable = gather(
                 CardSource.FromZone(

@@ -23,13 +23,13 @@ val AdrenalineJockey = card("Adrenaline Jockey") {
         "damage to them.\nWhenever you activate an exhaust ability, put a +1/+1 counter on this creature."
 
     triggeredAbility {
-        trigger = Triggers.AnyPlayerCastsSpell
+        trigger = Triggers.anyPlayer.casts()
         interveningIf = Conditions.Not(Conditions.IsPlayersTurn(Player.TriggeringPlayer))
         effect = Effects.DealDamage(4, EffectTarget.PlayerRef(Player.TriggeringPlayer))
     }
 
     triggeredAbility {
-        trigger = Triggers.YouActivateExhaustAbility
+        trigger = Triggers.you.activatesAbility(exhaust = true)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

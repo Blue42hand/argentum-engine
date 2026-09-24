@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Belligerent of the Ball
@@ -37,7 +38,7 @@ val BelligerentOfTheBall = card("Belligerent of the Ball") {
         "control gets +1/+0 and gains menace until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         interveningIf = Conditions.Celebration
         val creature = target(
             "target creature you control",

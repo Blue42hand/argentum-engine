@@ -40,7 +40,7 @@ val PostmortemProfessor = card("Postmortem Professor") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Composite(
             Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
             Effects.GainLife(1),

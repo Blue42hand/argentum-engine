@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Madame Null, Power Broker
@@ -30,7 +31,7 @@ val MadameNullPowerBroker = card("Madame Null, Power Broker") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.OtherCreatureEnters
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
         // "its power" / "that many" — the entering creature's power, used for both the life
         // payment and the counters (Effects.PayDynamicLife is the dynamic pay-life cost).
         val enteringPower = DynamicAmounts.triggeringPower()

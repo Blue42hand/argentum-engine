@@ -18,7 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Infusion here is an intervening-"if" cast trigger (CR 603.4) — the copy-spell sibling of
  * Social Snub, but the copy is **mandatory** (not "you may") and gated on the Infusion condition
- * `Conditions.YouGainedLifeThisTurn`. `Triggers.WhenYouCastThisSpell()` fires from the stack while
+ * `Conditions.YouGainedLifeThisTurn`. `Triggers.self.isCast()` fires from the stack while
  * the spell is still on it; `Effects.CopyTargetSpell(TriggeringEntity)` copies the triggering spell
  * and offers new targets for the copy by default (a copy isn't cast, CR 707.10, so it doesn't
  * re-trigger Infusion). The main spell is the plain `Effects.ModifyStats(2, 4, …)` end-of-turn pump.
@@ -32,7 +32,7 @@ val LumaretsFavor = card("Lumaret's Favor") {
         "Target creature gets +2/+4 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.WhenYouCastThisSpell()
+        trigger = Triggers.self.isCast()
         triggerRestriction = Conditions.YouGainedLifeThisTurn
         effect = Effects.CopyTargetSpell(target = EffectTarget.TriggeringEntity)
         description = "Infusion — When you cast this spell, copy it if you gained life this turn. " +

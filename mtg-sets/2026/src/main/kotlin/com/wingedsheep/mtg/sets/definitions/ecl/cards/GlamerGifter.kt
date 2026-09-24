@@ -31,7 +31,7 @@ val GlamerGifter = card("Glamer Gifter") {
     keywords(Keyword.FLASH, Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature", TargetCreature(
             filter = TargetFilter.OtherCreature,
             optional = true

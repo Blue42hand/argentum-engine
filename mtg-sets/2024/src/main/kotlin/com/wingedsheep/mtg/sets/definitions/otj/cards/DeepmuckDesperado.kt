@@ -14,7 +14,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  * 2/4
  * Whenever you commit a crime, each opponent mills three cards. This ability triggers only once each turn.
  *
- * Crime trigger ([Triggers.YouCommitCrime]) capped with `oncePerTurn = true`. The mill is fanned out
+ * Crime trigger (`Triggers.you.commitsCrime()`) capped with `oncePerTurn = true`. The mill is fanned out
  * over [Player.EachOpponent] via [ForEachPlayerEffect] wrapping the standard mill pipeline.
  */
 val DeepmuckDesperado = card("Deepmuck Desperado") {
@@ -27,7 +27,7 @@ val DeepmuckDesperado = card("Deepmuck Desperado") {
         "(Targeting opponents, anything they control, and/or cards in their graveyards is a crime.)"
 
     triggeredAbility {
-        trigger = Triggers.YouCommitCrime
+        trigger = Triggers.you.commitsCrime()
         oncePerTurn = true
         effect = Effects.ForEachPlayer(
             players = Player.EachOpponent,

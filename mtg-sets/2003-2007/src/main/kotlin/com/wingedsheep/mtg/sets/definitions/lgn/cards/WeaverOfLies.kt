@@ -27,7 +27,7 @@ val WeaverOfLies = card("Weaver of Lies") {
     oracleText = "Morph {4}{U} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen this creature is turned face up, turn any number of target creatures with morph abilities other than this creature face down."
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val t = target("creatures with morph abilities other than this creature", TargetPermanent(
             unlimited = true,
             filter = TargetFilter(GameObjectFilter.Creature.withMorph().faceUp()).other()

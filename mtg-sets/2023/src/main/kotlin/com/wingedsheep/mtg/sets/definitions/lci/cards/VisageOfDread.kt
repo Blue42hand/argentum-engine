@@ -39,8 +39,8 @@ import com.wingedsheep.sdk.scripting.effects.Chooser
  *    and/or creature cards in your graveyard, in any mix.
  *  - "Whenever this creature enters or attacks" on the back face follows the repo's
  *    established idiom for that wording (Sentinel of the Nameless City, Queen's Bay
- *    Paladin): TWO triggered abilities — [Triggers.EntersBattlefield] and
- *    [Triggers.Attacks] — sharing the same `Effects.May(Patterns.Library.mill(2))`
+ *    Paladin): TWO triggered abilities — `Triggers.self.enters()` and
+ *    `Triggers.self.attacks()` — sharing the same `Effects.May(Patterns.Library.mill(2))`
  *    effect, which is functionally equivalent to a single or-trigger (there is no
  *    single enters-or-attacks TriggerSpec in the SDK).
  */
@@ -55,7 +55,7 @@ private val VisageOfDreadFront = card("Visage of Dread") {
     // ETB: target opponent reveals their hand; you choose an artifact or creature
     // card from it; that player discards that card.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val opponent = target("opponent", Targets.Opponent)
         effect = Effects.Pipeline {
             run(Effects.RevealHand(opponent))
@@ -100,12 +100,12 @@ private val DreadOsseosaur = card("Dread Osseosaur") {
     // "Whenever this creature enters or attacks" — two triggered abilities with the
     // same effect (the repo's established idiom for this wording).
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(Patterns.Library.mill(2))
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.May(Patterns.Library.mill(2))
     }
 

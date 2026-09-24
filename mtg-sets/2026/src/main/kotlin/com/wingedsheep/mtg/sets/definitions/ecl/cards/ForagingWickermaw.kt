@@ -30,7 +30,7 @@ val ForagingWickermaw = card("Foraging Wickermaw") {
         "Activate only once each turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.surveil(1)
     }
 

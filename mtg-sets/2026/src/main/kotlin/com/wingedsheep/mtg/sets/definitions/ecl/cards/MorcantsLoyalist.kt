@@ -41,7 +41,7 @@ val MorcantsLoyalist = card("Morcant's Loyalist") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val elfCard = target(
             "another target Elf card from your graveyard",
             TargetObject(

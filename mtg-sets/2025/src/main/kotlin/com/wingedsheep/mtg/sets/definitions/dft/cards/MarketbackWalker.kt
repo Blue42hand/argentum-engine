@@ -47,7 +47,7 @@ val MarketbackWalker = card("Marketback Walker") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.DrawCards(
             DynamicAmounts.lastKnownPlusOneCounters()
         )

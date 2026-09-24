@@ -30,9 +30,7 @@ val LecturingScornmage = card("Lecturing Scornmage") {
         "creature, put a +1/+1 counter on this creature."
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature)
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

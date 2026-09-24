@@ -53,7 +53,7 @@ val OdricBloodCursed = card("Odric, Blood-Cursed") {
         "each ability only once.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateBlood(
             COUNTED_KEYWORDS
                 .map<Keyword, DynamicAmount> { keyword ->

@@ -31,7 +31,7 @@ val LivingPhone = card("Living Phone") {
         "Put the rest on the bottom of your library in a random order."
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Patterns.Library.lookAtTopRevealMatchingToHand(
             count = 5,
             filter = GameObjectFilter.Creature.powerAtMost(2),

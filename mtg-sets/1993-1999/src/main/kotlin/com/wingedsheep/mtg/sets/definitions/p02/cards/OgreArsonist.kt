@@ -23,7 +23,7 @@ val OgreArsonist = card("Ogre Arsonist") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val land = target("target", Targets.Land)
         effect = Effects.Destroy(land)
     }

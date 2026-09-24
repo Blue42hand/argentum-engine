@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
+import com.wingedsheep.sdk.core.Step
 
 
 /**
@@ -24,7 +25,7 @@ val CountOnLuck = card("Count on Luck") {
     typeLine = "Enchantment"
     oracleText = "At the beginning of your upkeep, exile the top card of your library. You may play that card this turn."
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.Pipeline {
             val impulseExiled = gather(CardSource.TopOfLibrary(1))
             exile(impulseExiled)

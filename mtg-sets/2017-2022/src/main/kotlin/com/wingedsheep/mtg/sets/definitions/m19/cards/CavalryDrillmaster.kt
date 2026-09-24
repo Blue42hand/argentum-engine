@@ -27,7 +27,7 @@ val CavalryDrillmaster = card("Cavalry Drillmaster") {
     oracleText = "When this creature enters, target creature gets +2/+0 and gains first strike until end of turn. (It deals combat damage before creatures without first strike.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature", Targets.Creature)
         effect = Effects.ModifyStats(2, 0, creature)
             .then(Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature))

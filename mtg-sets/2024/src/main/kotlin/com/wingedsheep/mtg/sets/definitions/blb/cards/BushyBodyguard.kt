@@ -34,14 +34,14 @@ val BushyBodyguard = card("Bushy Bodyguard") {
 
     // Offspring ETB: create token copy when kicked
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = WasKicked
         effect = Effects.CreateTokenCopyOfSelf(overridePower = 1, overrideToughness = 1)
     }
 
     // When this creature enters, you may forage. If you do, put two +1/+1 counters on it.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             effect = Patterns.Mechanic.forage(
                 afterEffect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)

@@ -66,9 +66,7 @@ val NamorTheSubMariner = card("Namor the Sub-Mariner") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.Noncreature.coloredManaSymbolsAtLeast(Color.BLUE)
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature.coloredManaSymbolsAtLeast(Color.BLUE))
         effect = Effects.CreateToken(
             count = DynamicAmounts.coloredManaSymbolsOf(EffectTarget.TriggeringEntity, Color.BLUE),
             power = 1,

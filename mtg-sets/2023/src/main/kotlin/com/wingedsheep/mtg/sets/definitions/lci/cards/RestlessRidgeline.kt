@@ -68,7 +68,7 @@ val RestlessRidgeline = card("Restless Ridgeline") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val creature = target(
             "another target attacking creature",
             TargetOther(TargetCreature(filter = TargetFilter.AttackingCreature)),

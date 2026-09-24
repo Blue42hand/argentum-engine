@@ -32,7 +32,7 @@ val TolarianEmissary = card("Tolarian Emissary") {
     keywordAbility(KeywordAbility.kicker("{1}{W}"))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = WasKicked
         val t = target("enchantment", Targets.Enchantment)
         effect = Effects.Destroy(t)

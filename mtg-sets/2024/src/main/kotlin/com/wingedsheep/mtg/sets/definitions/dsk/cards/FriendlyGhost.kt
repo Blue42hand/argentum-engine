@@ -30,7 +30,7 @@ val FriendlyGhost = card("Friendly Ghost") {
     toughness = 4
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.ModifyStats(2, 4, t)
     }

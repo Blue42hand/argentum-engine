@@ -32,7 +32,7 @@ val LamplightPhoenix = card("Lamplight Phoenix") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         triggerZone = Zone.GRAVEYARD
         effect = Effects.MayPay(
             cost = Effects.Composite(

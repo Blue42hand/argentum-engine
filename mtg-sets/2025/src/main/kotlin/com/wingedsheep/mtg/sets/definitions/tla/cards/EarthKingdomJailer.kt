@@ -31,7 +31,7 @@ val EarthKingdomJailer = card("Earth Kingdom Jailer") {
     oracleText = "When this creature enters, exile up to one target artifact, creature, or enchantment an opponent controls with mana value 3 or greater until this creature leaves the battlefield."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "up to one target artifact, creature, or enchantment an opponent controls with mana value 3 or greater",
             TargetPermanent(
@@ -47,7 +47,7 @@ val EarthKingdomJailer = card("Earth Kingdom Jailer") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

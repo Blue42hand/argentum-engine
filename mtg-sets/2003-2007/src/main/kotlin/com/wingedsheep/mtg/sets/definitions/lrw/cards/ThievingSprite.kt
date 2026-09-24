@@ -49,7 +49,7 @@ val ThievingSprite = card("Thieving Sprite") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target("target player", Targets.Player)
         effect = Effects.Pipeline {
             val hand = gather(CardSource.FromZone(Zone.HAND, Player.TargetPlayer))

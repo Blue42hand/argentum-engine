@@ -36,7 +36,7 @@ val BewitchingLeechcraft = card("Bewitching Leechcraft") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Tap(EffectTarget.EnchantedCreature)
     }
 

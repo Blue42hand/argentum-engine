@@ -42,9 +42,7 @@ val FangornTreeShepherd = card("Fangorn, Tree Shepherd") {
 
     // Whenever one or more Treefolk you control attack, add twice that much {G}.
     triggeredAbility {
-        trigger = Triggers.YouAttackWithFilter(
-            GameObjectFilter.Creature.youControl().withSubtype("Treefolk")
-        )
+        trigger = Triggers.you.attacks(GameObjectFilter.Creature.youControl().withSubtype("Treefolk"))
         effect = Effects.AddDynamicMana(
             amount = DynamicAmounts.battlefield(
                 com.wingedsheep.sdk.scripting.references.Player.You,

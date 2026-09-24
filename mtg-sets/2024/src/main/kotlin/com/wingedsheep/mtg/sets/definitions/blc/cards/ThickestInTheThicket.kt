@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Thickest in the Thicket
@@ -32,7 +33,7 @@ val ThickestInTheThicket = card("Thickest in the Thicket") {
         "with the greatest power or tied for the greatest power."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature", Targets.Creature)
         effect = Effects.AddDynamicCounters(
             CounterType.PLUS_ONE_PLUS_ONE,
@@ -45,7 +46,7 @@ val ThickestInTheThicket = card("Thickest in the Thicket") {
     // ≡ you control a creature AND your max creature-power >= the global max creature-power.
     // The `ControlCreature` conjunct excludes the 0-vs-0 case when no creatures exist.
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         triggerRestriction = Conditions.All(
             Conditions.ControlCreature,
             Conditions.CompareAmounts(

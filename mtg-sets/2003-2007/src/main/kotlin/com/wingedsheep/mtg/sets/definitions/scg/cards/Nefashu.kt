@@ -24,7 +24,7 @@ val Nefashu = card("Nefashu") {
     oracleText = "Whenever Nefashu attacks, up to five target creatures each get -1/-1 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         target = Targets.UpToCreatures(5)
         effect = Effects.ForEachTarget(
             Effects.ModifyStats(

@@ -26,7 +26,7 @@ val BriarpackAlpha = card("Briarpack Alpha") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target creature", Targets.Creature)
         effect = Effects.ModifyStats(2, 2, creature)
     }

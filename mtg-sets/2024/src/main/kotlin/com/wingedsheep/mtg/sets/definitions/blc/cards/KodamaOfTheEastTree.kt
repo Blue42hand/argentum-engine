@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
@@ -51,10 +50,7 @@ val KodamaOfTheEastTree = card("Kodama of the East Tree") {
     keywords(Keyword.REACH)
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Any.youControl(),
-            binding = TriggerBinding.OTHER,
-        )
+        trigger = Triggers.another(GameObjectFilter.Any.youControl()).enters()
         // Anti-loop: the trigger ignores permanents that Kodama itself put onto the
         // battlefield. Set as an intervening-if (Rule 603.4) so the trigger never goes
         // on the stack for chained entries.

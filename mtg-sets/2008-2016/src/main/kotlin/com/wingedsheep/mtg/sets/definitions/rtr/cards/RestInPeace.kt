@@ -34,7 +34,7 @@ val RestInPeace = card("Rest in Peace") {
 
     // When this enchantment enters, exile all graveyards.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val allGraveyards = gather(
                 CardSource.FromZone(

@@ -35,7 +35,7 @@ val GlaringAegis = card("Glaring Aegis") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.CreatureOpponentControls))
         effect = Effects.Tap(t)
     }

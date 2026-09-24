@@ -32,7 +32,7 @@ val PegasusCourser = card("Pegasus Courser") {
         val creature = target("target creature", TargetCreature(
             filter = TargetFilter(GameObjectFilter.Creature.attacking(), excludeSelf = true)
         ))
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.GrantKeyword(Keyword.FLYING, creature)
     }
 

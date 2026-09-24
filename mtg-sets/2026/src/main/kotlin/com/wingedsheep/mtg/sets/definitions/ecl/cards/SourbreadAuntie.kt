@@ -40,7 +40,7 @@ val SourbreadAuntie = card("Sourbread Auntie") {
     )
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             effect = Effects.Pipeline {
                 val blightTargets = gather(CardSource.ControlledPermanents(Player.You, GameObjectFilter.Creature))

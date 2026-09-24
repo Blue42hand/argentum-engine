@@ -34,7 +34,7 @@ val BladewingTheRisen = card("Bladewing the Risen") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target("target", TargetObject(
             filter = TargetFilter(

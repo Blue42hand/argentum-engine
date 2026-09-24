@@ -9,10 +9,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -47,28 +44,14 @@ val SyrVondamSunstarExemplar = card("Syr Vondam, Sunstar Exemplar") {
 
     // Whenever another creature you control dies, put a +1/+1 counter on Syr Vondam and you gain 1 life.
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = ZoneChangeEvent(
-                filter = GameObjectFilter.Creature.youControl(),
-                from = Zone.BATTLEFIELD,
-                to = Zone.GRAVEYARD
-            ),
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl()).dies()
         effect = counterAndLife
         description = "Whenever another creature you control dies, put a +1/+1 counter on Syr Vondam and you gain 1 life."
     }
 
     // Whenever another creature you control is put into exile, put a +1/+1 counter on Syr Vondam and you gain 1 life.
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = ZoneChangeEvent(
-                filter = GameObjectFilter.Creature.youControl(),
-                from = Zone.BATTLEFIELD,
-                to = Zone.EXILE
-            ),
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl()).leaves(to = Zone.EXILE)
         effect = counterAndLife
         description = "Whenever another creature you control is put into exile, put a +1/+1 counter on Syr Vondam and you gain 1 life."
     }
@@ -82,7 +65,7 @@ val SyrVondamSunstarExemplar = card("Syr Vondam, Sunstar Exemplar") {
 
     // When Syr Vondam dies while its power is 4 or greater, destroy up to one target nonland permanent.
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         triggerRestriction = powerAtLeast4
         val permanent = target(
             "up to one target nonland permanent",
@@ -94,10 +77,7 @@ val SyrVondamSunstarExemplar = card("Syr Vondam, Sunstar Exemplar") {
 
     // When Syr Vondam is put into exile while its power is 4 or greater, destroy up to one target nonland permanent.
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = ZoneChangeEvent(from = Zone.BATTLEFIELD, to = Zone.EXILE),
-            binding = TriggerBinding.SELF
-        )
+        trigger = Triggers.self.leaves(to = Zone.EXILE)
         triggerRestriction = powerAtLeast4
         val permanent = target(
             "up to one target nonland permanent",

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 /**
  * Vigilante Justice
@@ -29,10 +28,7 @@ val VigilanteJustice = card("Vigilante Justice") {
 
     triggeredAbility {
         val anyTarget = target("any target", Targets.Any)
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Permanent.withSubtype("Human").youControl(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Permanent.withSubtype("Human").youControl()).enters()
         effect = Effects.DealDamage(1, anyTarget)
     }
 

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Iroh, Tea Master
@@ -61,7 +62,7 @@ val IrohTeaMaster = card("Iroh, Tea Master") {
 
     // When Iroh enters, create a Food token.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateFood()
     }
 
@@ -69,7 +70,7 @@ val IrohTeaMaster = card("Iroh, Tea Master") {
     // permanent you control. When you do, create a 1/1 white Ally creature token. Put a +1/+1
     // counter on that token for each permanent you own that your opponents control.
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val opponent = target("target opponent", Targets.Opponent)
         val permanent = target(
             "target permanent you control",

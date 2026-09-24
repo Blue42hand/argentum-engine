@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.NoMaximumHandSize
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Proft's Eidetic Memory — Murders at Karlov Manor #67
@@ -42,7 +43,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  * The tracker is a turn-scoped count, not a "since this entered" one, so the second ruling falls
  * out for free — draws made before the enchantment hit the battlefield are already in the tally.
  *
- * [Triggers.BeginCombat] is already scoped to `Step.BEGIN_COMBAT, Player.You`, so "on your turn"
+ * `Triggers.you.beginningOf(Step.BEGIN_COMBAT)` is already scoped to `Step.BEGIN_COMBAT, Player.You`, so "on your turn"
  * needs no extra condition.
  */
 val ProftsEideticMemory = card("Proft's Eidetic Memory") {
@@ -56,7 +57,7 @@ val ProftsEideticMemory = card("Proft's Eidetic Memory") {
         "you've drawn this turn minus one."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(1)
         description = "When Proft's Eidetic Memory enters, draw a card."
     }
@@ -66,7 +67,7 @@ val ProftsEideticMemory = card("Proft's Eidetic Memory") {
     }
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         interveningIf = Conditions.YouDrewCardsThisTurn(2)
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.AddDynamicCounters(

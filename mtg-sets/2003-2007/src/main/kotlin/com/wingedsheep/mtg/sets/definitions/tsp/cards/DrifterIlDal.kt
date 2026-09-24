@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Drifter il-Dal
@@ -32,7 +33,7 @@ val DrifterIlDal = card("Drifter il-Dal") {
     keywords(Keyword.SHADOW)
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.PayOrSuffer(cost = Costs.pay.Mana("{U}"), suffer = SacrificeSelfEffect)
     }
 

@@ -34,7 +34,7 @@ val ElrondMasterOfHealing = card("Elrond, Master of Healing") {
         "or ability an opponent controls, you may draw a card."
 
     triggeredAbility {
-        trigger = Triggers.WheneverYouScry
+        trigger = Triggers.you.scries()
         target(
             "up to X target creatures",
             TargetCreature(
@@ -48,9 +48,7 @@ val ElrondMasterOfHealing = card("Elrond, Master of Healing") {
     }
 
     triggeredAbility {
-        trigger = Triggers.CreatureYouControlBecomesTargetByOpponent(
-            GameObjectFilter.Creature.withCounter(CounterType.PLUS_ONE_PLUS_ONE)
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.withCounter(CounterType.PLUS_ONE_PLUS_ONE).youControl()).becomesTarget(byOpponent = true)
         effect = Effects.May(Effects.DrawCards(1))
     }
 

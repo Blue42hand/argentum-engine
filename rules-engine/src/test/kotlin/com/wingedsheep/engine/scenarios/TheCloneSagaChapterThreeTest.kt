@@ -14,10 +14,8 @@ import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.core.spec.style.FunSpec
@@ -45,12 +43,7 @@ class TheCloneSagaChapterThreeTest : FunSpec({
             effect = Effects.Composite(
                 Effects.ChooseCardName(storeAs = "clonedName"),
                 CreateDelayedTriggerEffect(
-                    trigger = Triggers.dealsDamage(
-                        damageType = DamageType.Combat,
-                        recipient = Recipient.AnyPlayer,
-                        sourceFilter = GameObjectFilter.Creature.namedFromVariable("clonedName"),
-                        binding = TriggerBinding.ANY,
-                    ),
+                    trigger = Triggers.a(GameObjectFilter.Creature.namedFromVariable("clonedName")).dealsCombatDamage(Recipient.AnyPlayer),
                     effect = Effects.DrawCards(1),
                     fireOnce = false,
                     expiry = DelayedTriggerExpiry.EndOfTurn,

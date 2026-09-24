@@ -25,7 +25,7 @@ val TerritorialHammerskull = card("Territorial Hammerskull") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val victim = target(
             "target",
             TargetObject(filter = TargetFilter(GameObjectFilter.Creature.opponentControls()))

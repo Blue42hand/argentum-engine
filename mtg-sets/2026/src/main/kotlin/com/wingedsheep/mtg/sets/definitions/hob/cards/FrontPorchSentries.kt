@@ -27,7 +27,7 @@ val FrontPorchSentries = card("Front Porch Sentries") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.ModifyStats(-1, -1, t)
     }

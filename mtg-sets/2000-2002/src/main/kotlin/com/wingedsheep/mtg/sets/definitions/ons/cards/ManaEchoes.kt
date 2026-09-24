@@ -7,10 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Triggers
-import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
@@ -27,7 +23,7 @@ val ManaEchoes = card("Mana Echoes") {
     oracleText = "Whenever a creature enters, you may add an amount of {C} equal to the number of creatures you control that share a creature type with it."
 
     triggeredAbility {
-        trigger = TriggerSpec(ZoneChangeEvent(filter = GameObjectFilter.Creature, to = Zone.BATTLEFIELD), TriggerBinding.OTHER)
+        trigger = Triggers.another(GameObjectFilter.Creature).enters()
         effect = Effects.May(
             Effects.AddColorlessMana(
                 DynamicAmounts.battlefield(

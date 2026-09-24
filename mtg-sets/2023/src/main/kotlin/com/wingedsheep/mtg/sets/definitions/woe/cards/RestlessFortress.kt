@@ -69,7 +69,7 @@ val RestlessFortress = card("Restless Fortress") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Composite(
             Effects.LoseLife(2, EffectTarget.PlayerRef(Player.DefendingPlayer)),
             Effects.GainLife(2, EffectTarget.Controller),

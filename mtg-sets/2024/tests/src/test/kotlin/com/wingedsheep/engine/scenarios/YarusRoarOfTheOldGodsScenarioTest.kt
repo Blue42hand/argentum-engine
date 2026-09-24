@@ -19,6 +19,7 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Yarus, Roar of the Old Gods — "Other creatures you control have haste. Whenever one or more
@@ -210,13 +211,8 @@ class YarusRoarOfTheOldGodsScenarioTest : FunSpec({
                 power = 1
                 toughness = 3
                 triggeredAbility {
-                    trigger = com.wingedsheep.sdk.scripting.TriggerSpec(
-                        com.wingedsheep.sdk.scripting.EventPattern.OneOrMoreDealCombatDamageToPlayerEvent(
-                            sourceFilter = com.wingedsheep.sdk.scripting.GameObjectFilter.Creature
-                                .named("Named Test Hitter")
-                        ),
-                        com.wingedsheep.sdk.scripting.TriggerBinding.ANY
-                    )
+                    trigger = Triggers.oneOrMore(com.wingedsheep.sdk.scripting.GameObjectFilter.Creature
+                                .named("Named Test Hitter")).dealCombatDamageToAPlayer()
                     effect = com.wingedsheep.sdk.dsl.Effects.DrawCards(1)
                     description = "Whenever one or more creatures named Named Test Hitter you " +
                         "control deal combat damage to a player, draw a card."

@@ -39,9 +39,7 @@ val SpiderVerse = card("Spider-Verse") {
     // Whenever you cast a spell from a non-hand zone, you may copy it (once each turn); a permanent
     // copy gains haste.
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            requires = setOf(SpellCastPredicate.CastFromZoneOtherThan(Zone.HAND))
-        )
+        trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.CastFromZoneOtherThan(Zone.HAND)))
         // CR 603.2h, and the ruling says both halves out loud: "Once you choose to copy a spell
         // with Spider-Verse's last ability, that ability won't trigger again for the duration of
         // the turn. Any instances of the ability already on the stack when you choose to copy a

@@ -16,7 +16,7 @@ import com.wingedsheep.engine.core.Outcome
  *   Whenever a player loses life, that player mills that many cards.
  *   When The Master of Lake-town dies, draw a card for each graveyard with seven or more cards.
  *
- * [com.wingedsheep.sdk.dsl.Triggers.AnyPlayerLosesLife] has no other card using it, so the first
+ * `Triggers.anyPlayer.losesLife()` has no other card using it, so the first
  * two tests pin down that it fires for *any* player and mills the player who lost the life rather
  * than the controller. The last two pin the "each graveyard" count, which reads every player's
  * graveyard including the controller's own.

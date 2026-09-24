@@ -6,14 +6,11 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
-import com.wingedsheep.sdk.scripting.EventPattern.SpellCastEvent
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Helga, Skittish Seer
@@ -39,13 +36,7 @@ val HelgaSkittishSeer = card("Helga, Skittish Seer") {
 
     // Triggered ability: whenever you cast a creature spell with MV 4+
     triggeredAbility {
-        trigger = TriggerSpec(
-            SpellCastEvent(
-                spellFilter = GameObjectFilter.Creature.manaValueAtLeast(4),
-                player = Player.You
-            ),
-            TriggerBinding.ANY
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.Creature.manaValueAtLeast(4))
         effect = Effects.Composite(
             listOf(
                 Effects.DrawCards(1),

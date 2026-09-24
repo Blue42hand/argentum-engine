@@ -48,7 +48,7 @@ val TheWondrousWasp = card("The Wondrous Wasp") {
     keywords(Keyword.FLASH, Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val victim = target(
             "up to one target creature",
             TargetCreature(optional = true, filter = TargetFilter.Creature)

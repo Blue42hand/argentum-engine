@@ -22,7 +22,7 @@ import com.wingedsheep.sdk.dsl.Patterns
  * untap each creature you control.
  *
  * The "when you next attack this turn" clause is a one-shot event-based delayed triggered
- * ability (`CreateDelayedTriggerEffect(trigger = Triggers.YouAttack, fireOnce = true)`): it
+ * ability (`CreateDelayedTriggerEffect(trigger = Triggers.you.attacks(), fireOnce = true)`): it
  * fires the first time you declare attackers this turn — refreshing your team for the bonus
  * combat — then removes itself, so a second attack the same turn (e.g. in yet another combat)
  * won't untap again. See item 15 of `backlog/tdm-engine-gaps.md`.
@@ -49,7 +49,7 @@ val AllOutAssault = card("All-Out Assault") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.IsYourMainPhase
         effect = Effects.Composite(
             listOf(
@@ -59,7 +59,7 @@ val AllOutAssault = card("All-Out Assault") {
                 Effects.AddMainPhase,
                 // "When you next attack this turn, untap each creature you control."
                 Effects.CreateDelayedTrigger(
-                    trigger = Triggers.YouAttack,
+                    trigger = Triggers.you.attacks(),
                     fireOnce = true,
                     effect = Patterns.Group.untapGroup(GroupFilter.AllCreaturesYouControl),
                     expiry = DelayedTriggerExpiry.EndOfTurn

@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Venat, Heart of Hydaelyn // Hydaelyn, the Mothercrystal
@@ -53,7 +54,7 @@ private val HydaelynTheMothercrystal = card("Hydaelyn, the Mothercrystal") {
     // target creature you control. Until your next turn, it gains indestructible. If that creature
     // is legendary, draw a card.
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val creature = target("creature", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
@@ -89,7 +90,7 @@ private val VenatHeartOfHydaelynFront = card("Venat, Heart of Hydaelyn") {
 
     // Whenever you cast a legendary spell, draw a card. This ability triggers only once each turn.
     triggeredAbility {
-        trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Any.legendary())
+        trigger = Triggers.you.casts(GameObjectFilter.Any.legendary())
         oncePerTurn = true
         effect = Effects.DrawCards(1)
     }

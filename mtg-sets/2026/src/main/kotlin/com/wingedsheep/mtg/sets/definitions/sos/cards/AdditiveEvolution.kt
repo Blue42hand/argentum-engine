@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Additive Evolution
@@ -26,7 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * three +1/+1 counters on that just-created token via `PipelineTarget(CREATED_TOKENS, 0)`. The
  * count is fixed (three), so a plain [Effects.AddCounters].
  *
- * The combat trigger uses [Triggers.BeginCombat] (already restricted to the controller's combat,
+ * The combat trigger uses `Triggers.you.beginningOf(Step.BEGIN_COMBAT)` (already restricted to the controller's combat,
  * "on your turn"): bind one target creature you control, add a +1/+1 counter to it, then grant it
  * vigilance until end of turn — both effects reference the same bound target.
  */
@@ -40,7 +41,7 @@ val AdditiveEvolution = card("Additive Evolution") {
         "control. It gains vigilance until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 0,
             toughness = 0,
@@ -59,7 +60,7 @@ val AdditiveEvolution = card("Additive Evolution") {
     }
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
             .then(Effects.GrantKeyword(Keyword.VIGILANCE, creature))

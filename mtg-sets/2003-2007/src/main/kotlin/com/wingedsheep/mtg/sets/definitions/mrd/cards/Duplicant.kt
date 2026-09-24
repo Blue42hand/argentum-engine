@@ -56,7 +56,7 @@ val Duplicant = card("Duplicant") {
 
     // "Imprint — When this creature enters, you may exile target nontoken creature."
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val exiled = target(
             "target nontoken creature",

@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Drake Hatcher
@@ -41,7 +42,7 @@ val DrakeHatcher = card("Drake Hatcher") {
 
     // Whenever this creature deals combat damage to a player, put that many incubation counters on it.
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.AddDynamicCounters(
             CounterType.INCUBATION,
             DynamicAmounts.triggerDamageAmount(),

@@ -24,7 +24,7 @@ val Willbender = card("Willbender") {
 
     triggeredAbility {
         val spellOrAbilityWithSingleTarget = target("target spell or ability with single target", Targets.SpellOrAbilityWithSingleTarget)
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         effect = Effects.ChangeTarget()
     }
 

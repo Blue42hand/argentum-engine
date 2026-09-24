@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -25,10 +24,7 @@ val TetsukoUmezawaPursuer = card("Tetsuko Umezawa, Pursuer") {
     prowess()
 
     triggeredAbility {
-        trigger = Triggers.blocks(
-            filter = GameObjectFilter.Creature.opponentControls().powerOrToughnessAtMost(1),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.opponentControls().powerOrToughnessAtMost(1)).blocks()
         effect = Effects.DealDamage(1, EffectTarget.ControllerOfTriggeringEntity)
         description = "Whenever a creature an opponent controls with power or toughness 1 or less blocks, Tetsuko Umezawa deals 1 damage to that creature's controller."
     }

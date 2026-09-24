@@ -26,7 +26,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  *  - The lord is `excludeSelf = true` on the [GroupFilter]: Thranduil is himself an Elf and the
  *    printed wording is "**Other** Elves", so he must not pump himself. Same shape as Mabel, Heir to
  *    Cragflame; see [ThranduilsCompany] for the sibling landfall wiring in this set.
- *  - **Landfall** is [Triggers.LandYouControlEnters] — every land entering under your control, not
+ *  - **Landfall** is `Triggers.a(GameObjectFilter.Land.youControl()).enters()` — every land entering under your control, not
  *    just the ones you play, so a land put onto the battlefield by another spell counts.
  *  - The Adventure is a mill → select → move pipeline over the *same* collection: the milled cards
  *    are already in the graveyard when the selection happens ("from among them" is a reference to
@@ -59,7 +59,7 @@ val ThranduilSindarinLiege = card("Thranduil, Sindarin Liege") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

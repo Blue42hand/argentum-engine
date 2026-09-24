@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Wojek Investigator — Murders at Karlov Manor #36
@@ -48,7 +49,7 @@ val WojekInvestigator = card("Wojek Investigator") {
     keywords(Keyword.FLYING, Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.Investigate(
             DynamicAmounts.countPlayersWith(
                 scope = Player.EachOpponent,

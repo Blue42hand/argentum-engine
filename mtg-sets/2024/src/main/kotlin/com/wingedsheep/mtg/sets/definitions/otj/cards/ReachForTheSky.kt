@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.ModifyStats
  * When this Aura is put into a graveyard from the battlefield, draw a card.
  *
  * Armadillo Cloak's aura shape (static [ModifyStats] + static [GrantKeyword]) with a flash keyword
- * and a self [Triggers.PutIntoGraveyardFromBattlefield] draw trigger (same event as Nutrient Block's
+ * and a self `Triggers.self.dies()` draw trigger (same event as Nutrient Block's
  * "put into a graveyard from the battlefield" replacement of a dies trigger for a non-creature).
  */
 val ReachForTheSky = card("Reach for the Sky") {
@@ -44,7 +44,7 @@ val ReachForTheSky = card("Reach for the Sky") {
     }
 
     triggeredAbility {
-        trigger = Triggers.PutIntoGraveyardFromBattlefield
+        trigger = Triggers.self.dies()
         effect = Effects.DrawCards(1)
     }
 

@@ -24,7 +24,7 @@ val SpringSplasher = card("Spring Splasher") {
     oracleText = "Whenever this creature attacks, target creature defending player controls gets -3/-0 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val creature = target(
             "creature defending player controls",
             Targets.CreatureOpponentControls

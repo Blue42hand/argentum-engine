@@ -44,7 +44,7 @@ val NurturingPixie = card("Nurturing Pixie") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "permanent",
             TargetPermanent(

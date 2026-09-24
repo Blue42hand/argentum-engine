@@ -45,7 +45,7 @@ val Benthicore = card("Benthicore") {
         "Tap two untapped Merfolk you control: Untap this creature. It gains shroud until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             count = 2,
             power = 1,

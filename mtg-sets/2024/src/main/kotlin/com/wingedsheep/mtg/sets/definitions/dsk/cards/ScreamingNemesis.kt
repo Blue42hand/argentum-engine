@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOther
 
@@ -34,7 +33,7 @@ val ScreamingNemesis = card("Screaming Nemesis") {
     // Whenever this creature is dealt damage, it deals that much damage to any other target.
     // If a player is dealt damage this way, they can't gain life for the rest of the game.
     triggeredAbility {
-        trigger = Triggers.TakesDamage
+        trigger = Triggers.self.isDealtDamage()
         val victim = target("any other target", TargetOther(AnyTarget()))
         effect = Effects.Composite(
             listOf(

@@ -26,7 +26,7 @@ val WanderguardSentry = card("Wanderguard Sentry") {
     power = 3
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetOpponent())
         effect = Effects.LookAtHand(t)
     }

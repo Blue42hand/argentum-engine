@@ -31,7 +31,7 @@ val RampagingMonument = card("Rampaging Monument") {
     keywords(Keyword.TRAMPLE)
     replacementEffect(EntersWithCounters(count = 3, selfOnly = true))
     triggeredAbility {
-        trigger = Triggers.youCastSpell(GameObjectFilter.Multicolored)
+        trigger = Triggers.you.casts(GameObjectFilter.Multicolored)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

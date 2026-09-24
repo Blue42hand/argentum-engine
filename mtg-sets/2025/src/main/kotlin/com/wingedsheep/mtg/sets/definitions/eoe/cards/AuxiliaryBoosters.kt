@@ -28,7 +28,7 @@ val AuxiliaryBoosters = card("Auxiliary Boosters") {
 
     // ETB: Create 2/2 Robot token and attach this Equipment to it
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,

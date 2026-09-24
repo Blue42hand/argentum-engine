@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Corpses of the Lost — {2}{B}
@@ -64,7 +65,7 @@ val CorpsesOfTheLost = card("Corpses of the Lost") {
 
     // ETB: create a 2/2 black Skeleton Pirate creature token.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,
@@ -76,7 +77,7 @@ val CorpsesOfTheLost = card("Corpses of the Lost") {
 
     // End-step descend trigger: you may pay 1 life; if you do, return this to hand.
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.YouDescendedThisTurn()
         effect = Effects.MayPay(
             cost = Effects.PayLife(1),

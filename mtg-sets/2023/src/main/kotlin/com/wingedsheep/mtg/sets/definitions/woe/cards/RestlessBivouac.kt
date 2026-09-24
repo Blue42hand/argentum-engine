@@ -70,7 +70,7 @@ val RestlessBivouac = card("Restless Bivouac") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
         description = "Whenever this land attacks, put a +1/+1 counter on target creature you control."

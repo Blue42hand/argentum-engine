@@ -36,8 +36,7 @@ val HuntersAxe = card("Hunter's Axe") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.attacks().event,
-                binding = Triggers.attacks().binding,
+                trigger = Triggers.self.attacks(),
                 effect = ModalEffect.chooseOne(
                     Mode.noTarget(Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self), "Trample"),
                     Mode.noTarget(Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.Self), "Deathtouch"),

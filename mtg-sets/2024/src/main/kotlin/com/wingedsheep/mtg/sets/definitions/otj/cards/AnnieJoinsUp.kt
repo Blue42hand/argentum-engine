@@ -32,7 +32,7 @@ val AnnieJoinsUp = card("Annie Joins Up") {
         "If a triggered ability of a legendary creature you control triggers, that ability triggers an additional time."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target creature or planeswalker an opponent controls",
             TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls()))

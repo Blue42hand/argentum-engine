@@ -63,13 +63,13 @@ val SinSpirasPunishment = card("Sin, Spira's Punishment") {
 
     // "Whenever Sin enters …"
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = sinExileAndCopyLoop()
     }
 
     // "… or attacks"
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = sinExileAndCopyLoop()
     }
 

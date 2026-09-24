@@ -7,11 +7,9 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern.DealsDamageEvent
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Kazarov, Sengir Pureblood
@@ -33,7 +31,7 @@ val KazarovSengirPureblood = card("Kazarov, Sengir Pureblood") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = TriggerSpec(DealsDamageEvent(recipient = Recipient.CreatureOpponentControls), TriggerBinding.ANY)
+        trigger = Triggers.a().dealsDamage(Recipient.CreatureOpponentControls)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

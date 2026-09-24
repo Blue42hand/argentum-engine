@@ -27,7 +27,7 @@ import io.kotest.matchers.shouldBe
 /**
  * Substrate tests for the "Whenever you scry" trigger (CR 701.22):
  * `Patterns.Library.scry(N)` ends by emitting [ScriedEvent], which drives
- * `Triggers.WheneverYouScry` and surfaces "the number of cards looked at" via
+ * `Triggers.you.scries()` and surfaces "the number of cards looked at" via
  * [ContextPropertyKey.TRIGGER_SCRY_COUNT].
  */
 class ScryTriggerScenarioTest : FunSpec({
@@ -50,7 +50,7 @@ class ScryTriggerScenarioTest : FunSpec({
         typeLine = "Creature — Bird"
         power = 1; toughness = 1
         triggeredAbility {
-            trigger = Triggers.WheneverYouScry
+            trigger = Triggers.you.scries()
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         }
     }
@@ -62,7 +62,7 @@ class ScryTriggerScenarioTest : FunSpec({
         typeLine = "Creature — Bird"
         power = 1; toughness = 1
         triggeredAbility {
-            trigger = Triggers.WheneverYouScry
+            trigger = Triggers.you.scries()
             effect = Effects.AddDynamicCounters(
                 CounterType.PLUS_ONE_PLUS_ONE,
                 DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_SCRY_COUNT),

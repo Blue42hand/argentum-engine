@@ -49,13 +49,13 @@ val DwalinWeaponmaster = card("Dwalin, Weaponmaster") {
     )
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = honeEachEquipment
         description = "Whenever Dwalin enters, put a hone counter on each Equipment you control."
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = honeEachEquipment
         description = "Whenever Dwalin attacks, put a hone counter on each Equipment you control."
     }

@@ -23,7 +23,7 @@ val RoboticsMastery = card("Robotics Mastery") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             count = 2,
             power = 1,

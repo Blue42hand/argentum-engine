@@ -24,7 +24,7 @@ val DawnOfHope = card("Dawn of Hope") {
         "{3}{W}: Create a 1/1 white Soldier creature token with lifelink."
 
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         effect = Effects.MayPay(ManaCost.parse("{2}"), Effects.DrawCards(1))
     }
     activatedAbility {

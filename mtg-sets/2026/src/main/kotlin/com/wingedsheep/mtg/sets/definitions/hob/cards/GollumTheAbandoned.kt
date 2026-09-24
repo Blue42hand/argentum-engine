@@ -51,7 +51,7 @@ val GollumTheAbandoned = card("Gollum the Abandoned") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val exiled = target(
             "card in an opponent's graveyard",
             TargetObject(

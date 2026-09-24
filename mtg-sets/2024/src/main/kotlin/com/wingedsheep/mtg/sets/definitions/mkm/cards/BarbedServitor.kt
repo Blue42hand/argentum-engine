@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Barbed Servitor — Murders at Karlov Manor #77
@@ -24,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * "That much life" reads the *damage event's* amount, not the Servitor's toughness — CR damage is
  * dealt in full even when it exceeds toughness, so a Lightning Bolt drains 3 off an indestructible
- * 1/1. That's [ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT] off [Triggers.TakesDamage], the same
+ * 1/1. That's [ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT] off `Triggers.self.isDealtDamage()`, the same
  * idiom Innocent Bystander uses for its "3 or more damage" gate — and it fires once per damage
  * *event*, so two blockers dealing 2 each queue two separate triggers of 2.
  *
@@ -47,13 +48,13 @@ val BarbedServitor = card("Barbed Servitor") {
     keywords(Keyword.INDESTRUCTIBLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Suspect(EffectTarget.Self)
         description = "When this creature enters, suspect it."
     }
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.Composite(
             Effects.DrawCards(1),
             Effects.LoseLife(1, EffectTarget.Controller),
@@ -63,7 +64,7 @@ val BarbedServitor = card("Barbed Servitor") {
     }
 
     triggeredAbility {
-        trigger = Triggers.TakesDamage
+        trigger = Triggers.self.isDealtDamage()
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.LoseLife(
             DynamicAmounts.triggerDamageAmount(),

@@ -24,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Modeled as:
  *  - `auraTarget = Targets.Creature` (Enchant creature).
- *  - ETB trigger ([Triggers.EntersBattlefield], SELF binding) taps the enchanted creature
+ *  - ETB trigger (`Triggers.self.enters()`, SELF binding) taps the enchanted creature
  *    ([Effects.Tap] on [EffectTarget.EnchantedCreature]).
  *  - "doesn't untap" is the [AbilityFlag.DOESNT_UNTAP] keyword granted to the enchanted creature
  *    via an unfiltered aura static (same shape as Frozen Solid). The untap step reads the flag.
@@ -45,7 +45,7 @@ val StayHiddenStaySilent = card("Stay Hidden, Stay Silent") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Tap(EffectTarget.EnchantedCreature)
         description = "When this Aura enters, tap enchanted creature."
     }

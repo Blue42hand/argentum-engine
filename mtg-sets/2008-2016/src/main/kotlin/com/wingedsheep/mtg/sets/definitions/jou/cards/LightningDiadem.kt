@@ -25,7 +25,7 @@ val LightningDiadem = card("Lightning Diadem") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val victim = target("any target", Targets.Any)
         effect = Effects.DealDamage(2, victim)
         description = "When this Aura enters, it deals 2 damage to any target."

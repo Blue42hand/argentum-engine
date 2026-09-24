@@ -24,12 +24,12 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  * Whenever you draw your second card each turn, each opponent loses 1 life and you gain 1 life.
  *
  * Implementation notes:
- *  - "enters or attacks" is two triggered abilities ([Triggers.EntersBattlefield] +
- *    [Triggers.Attacks]), each exiling an optional ("up to one") graveyard card.
+ *  - "enters or attacks" is two triggered abilities (`Triggers.self.enters()` +
+ *    `Triggers.self.attacks()`), each exiling an optional ("up to one") graveyard card.
  *  - "If a creature card is exiled this way" is a [Effects.If] gated on
  *    [Conditions.TargetIsCreatureCard], which reads the exiled card's printed type in exile —
  *    correctly false when no target was chosen.
- *  - "your second card each turn" is [Triggers.NthCardDrawn], draining each opponent for 1.
+ *  - "your second card each turn" is `Triggers.<player>.drawsNth(n)`, draining each opponent for 1.
  */
 val RavenEagle = card("Raven Eagle") {
     manaCost = "{2}{B}"
@@ -46,7 +46,7 @@ val RavenEagle = card("Raven Eagle") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val exiled = target(
             "card from a graveyard",
             TargetObject(optional = true, filter = TargetFilter.CardInGraveyard)
@@ -63,7 +63,7 @@ val RavenEagle = card("Raven Eagle") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val exiled = target(
             "card from a graveyard",
             TargetObject(optional = true, filter = TargetFilter.CardInGraveyard)
@@ -80,7 +80,7 @@ val RavenEagle = card("Raven Eagle") {
     }
 
     triggeredAbility {
-        trigger = Triggers.NthCardDrawn(2)
+        trigger = Triggers.you.drawsNth(2)
         effect = Effects.Composite(
             Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
             Effects.GainLife(1)

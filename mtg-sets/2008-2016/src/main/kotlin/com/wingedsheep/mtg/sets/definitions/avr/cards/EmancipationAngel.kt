@@ -34,7 +34,7 @@ val EmancipationAngel = card("Emancipation Angel") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val yourPermanents = gather(CardSource.BattlefieldMatching(filter = GameObjectFilter.Any.youControl()))
             val returned = chooseExactly(

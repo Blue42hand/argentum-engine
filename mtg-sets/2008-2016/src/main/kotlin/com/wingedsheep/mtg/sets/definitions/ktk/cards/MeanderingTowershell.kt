@@ -34,7 +34,7 @@ val MeanderingTowershell = card("Meandering Towershell") {
     keywords(Keyword.ISLANDWALK)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Composite(
             listOf(
                 Effects.Move(EffectTarget.Self, Zone.EXILE),

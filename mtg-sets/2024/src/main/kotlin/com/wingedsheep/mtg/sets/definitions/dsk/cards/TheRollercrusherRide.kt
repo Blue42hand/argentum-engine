@@ -62,7 +62,7 @@ val TheRollercrusherRide = card("The Rollercrusher Ride") {
 
     // When The Rollercrusher Ride enters, it deals X damage to each of up to X target creatures.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target(
             "up to X target creatures",
             TargetCreature(optional = true, dynamicMaxCount = DynamicAmounts.castX()),

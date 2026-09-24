@@ -22,7 +22,7 @@ val GaeasProtector = card("Gaea's Protector") {
     oracleText = "Gaea's Protector must be blocked if able."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.MustBeBlocked(EffectTarget.Self, allCreatures = false)
     }
 

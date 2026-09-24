@@ -32,7 +32,7 @@ val IvoryGiant = card("Ivory Giant") {
         "Suspend 5—{W} (Rather than cast this card from your hand, you may pay {W} and exile it with five time counters on it. At the beginning of your upkeep, remove a time counter. When the last is removed, you may cast it without paying its mana cost. It has haste.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Creature.notColor(Color.WHITE)),
             effect = Effects.Tap(EffectTarget.IterationEntity)

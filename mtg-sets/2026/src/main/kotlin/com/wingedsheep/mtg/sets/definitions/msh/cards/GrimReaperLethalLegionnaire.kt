@@ -41,7 +41,7 @@ val GrimReaperLethalLegionnaire = card("Grim Reaper, Lethal Legionnaire") {
         "it instead.)"
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ReflexiveTrigger(
             // "you may pay {3}{B}"
             action = Effects.PayMana("{3}{B}"),

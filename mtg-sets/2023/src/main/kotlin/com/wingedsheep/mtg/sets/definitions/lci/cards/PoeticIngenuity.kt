@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  * ability triggers only once each turn.
  *
  * Modeling notes:
- *  - The attack trigger is a once-per-combat group trigger ([Triggers.YouAttackWithFilter])
+ *  - The attack trigger is a once-per-combat group trigger (`Triggers.you.attacks(with)`)
  *    keyed on Dinosaurs you control — it fires once no matter how many Dinosaurs attack, not
  *    once per Dinosaur. "That many Treasure tokens" reads the number of attacking Dinosaurs
  *    at resolution via [DynamicAmount.AggregateBattlefield] over attacking Dinosaurs
@@ -45,7 +45,7 @@ val PoeticIngenuity = card("Poetic Ingenuity") {
 
     // Whenever one or more Dinosaurs you control attack, create that many Treasure tokens.
     triggeredAbility {
-        trigger = Triggers.YouAttackWithFilter(GameObjectFilter.Creature.withSubtype(Subtype.DINOSAUR))
+        trigger = Triggers.you.attacks(GameObjectFilter.Creature.withSubtype(Subtype.DINOSAUR))
         effect = Effects.CreateTreasure(
             count = DynamicAmounts.battlefield(
                 Player.You,
@@ -57,7 +57,7 @@ val PoeticIngenuity = card("Poetic Ingenuity") {
     // Whenever you cast an artifact spell, create a 3/1 red Dinosaur creature token.
     // This ability triggers only once each turn.
     triggeredAbility {
-        trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Artifact)
+        trigger = Triggers.you.casts(GameObjectFilter.Artifact)
         oncePerTurn = true
         effect = Effects.CreateToken(
             power = 3,

@@ -36,7 +36,7 @@ val HydraTroopers = card("HYDRA Troopers") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.If(
             condition = Conditions.CreatureCardsInGraveyardAtLeast(2),
             then = Effects.CreateToken(

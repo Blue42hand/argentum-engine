@@ -25,7 +25,7 @@ val VileDeacon = card("Vile Deacon") {
     oracleText = "Whenever Vile Deacon attacks, it gets +X/+X until end of turn, where X is the number of Clerics on the battlefield."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ModifyStats(
             power = DynamicAmounts.battlefield(Player.Each, GameObjectFilter.Permanent.withSubtype("Cleric")).count(),
             toughness = DynamicAmounts.battlefield(Player.Each, GameObjectFilter.Permanent.withSubtype("Cleric")).count(),

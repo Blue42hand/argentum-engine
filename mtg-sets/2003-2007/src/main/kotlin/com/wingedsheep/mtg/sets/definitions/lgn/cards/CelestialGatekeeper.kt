@@ -31,7 +31,7 @@ val CelestialGatekeeper = card("Celestial Gatekeeper") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         target = TargetObject(
             count = 2,
             optional = true,

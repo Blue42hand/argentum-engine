@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 
 /**
@@ -27,7 +26,7 @@ val LeoninElder = card("Leonin Elder") {
     power = 1
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(filter = GameObjectFilter.Artifact, binding = TriggerBinding.ANY)
+        trigger = Triggers.a(GameObjectFilter.Artifact).enters()
         optional = true
         effect = Effects.GainLife(1)
     }

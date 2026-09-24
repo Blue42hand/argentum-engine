@@ -58,7 +58,7 @@ val ColfenorsPlans = card("Colfenor's Plans") {
         "You can't cast more than one spell each turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val colfenorsPlansExiled = gather(CardSource.TopOfLibrary(7))
             move(

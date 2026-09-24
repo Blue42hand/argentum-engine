@@ -57,7 +57,7 @@ val AirtightAlibi = card("Airtight Alibi") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.Untap(EffectTarget.EnchantedCreature),
             Effects.GrantHexproof(EffectTarget.EnchantedCreature),

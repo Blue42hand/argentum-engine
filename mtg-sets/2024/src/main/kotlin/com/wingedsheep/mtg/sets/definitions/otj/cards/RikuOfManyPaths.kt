@@ -29,7 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * • Create a 1/1 blue Bird creature token with flying.
  *
  * Implementation:
- * - Trigger: `Triggers.youCastSpell(requires = setOf(SpellCastPredicate.IsModal))`
+ * - Trigger: `Triggers.you.casts(requires = setOf(SpellCastPredicate.IsModal))`
  *   — fires only when the cast spell had at least one chosen mode.
  * - X plumbing: the engine's [com.wingedsheep.engine.core.SpellCastEvent] now carries
  *   `chosenModesCount`, which becomes [DynamicAmount.ContextProperty] with key
@@ -51,9 +51,7 @@ val RikuOfManyPaths = card("Riku of Many Paths") {
         "• Create a 1/1 blue Bird creature token with flying."
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            requires = setOf(SpellCastPredicate.IsModal)
-        )
+        trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.IsModal))
         effect = ModalEffect.chooseUpToDynamic(
             dynamicMax = DynamicAmounts.modesChosenOnTriggeringSpell(),
             // Mode 1 — impulse-draw with extended window.

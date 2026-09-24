@@ -53,7 +53,7 @@ val GoblinShrine = card("Goblin Shrine") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.GOBLIN)),
             Effects.DealDamage(1, EffectTarget.IterationEntity),

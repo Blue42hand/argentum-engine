@@ -32,7 +32,7 @@ val OozePatrol = card("Ooze Patrol") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Patterns.Library.mill(2),
             Effects.AddDynamicCounters(

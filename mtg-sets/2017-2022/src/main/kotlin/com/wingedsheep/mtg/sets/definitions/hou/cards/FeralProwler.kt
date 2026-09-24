@@ -22,7 +22,7 @@ val FeralProwler = card("Feral Prowler") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.DrawCards(1)
         description = "When this creature dies, draw a card."
     }

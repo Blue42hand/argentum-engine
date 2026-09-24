@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
@@ -30,7 +29,7 @@ val PhyrexianReaper = card("Phyrexian Reaper") {
     oracleText = "Whenever this creature becomes blocked by a green creature, destroy that creature. It can't be regenerated."
 
     triggeredAbility {
-        trigger = Triggers.becomesBlocked(filter = Filters.GreenCreature, binding = TriggerBinding.SELF)
+        trigger = Triggers.self.matching(Filters.GreenCreature).becomesBlocked()
         effect = Effects.CantBeRegenerated(EffectTarget.TriggeringEntity) then
                 Effects.Move(EffectTarget.TriggeringEntity, Zone.GRAVEYARD, byDestruction = true)
     }

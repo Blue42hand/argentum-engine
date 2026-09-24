@@ -9,12 +9,10 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Salvation Swan
@@ -41,13 +39,7 @@ val SalvationSwan = card("Salvation Swan") {
 
     // Whenever this creature or another Bird you control enters
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = ZoneChangeEvent(
-                filter = GameObjectFilter.Creature.youControl().withSubtype(Subtype("Bird")),
-                to = Zone.BATTLEFIELD
-            ),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl().withSubtype(Subtype("Bird"))).enters()
 
         // Target up to one creature you control without flying
         val creature = target(

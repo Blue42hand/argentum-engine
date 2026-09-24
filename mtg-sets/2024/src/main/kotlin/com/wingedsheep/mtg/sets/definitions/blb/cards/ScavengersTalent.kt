@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Scavenger's Talent {B}
@@ -44,7 +45,7 @@ val ScavengersTalent = card("Scavenger's Talent") {
     // Level 1: Whenever one or more creatures you control die, create a Food token.
     // This ability triggers only once each turn.
     triggeredAbility {
-        trigger = Triggers.YourCreatureDies
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dies()
         oncePerTurn = true
         effect = Effects.CreateFood(1)
     }
@@ -53,7 +54,7 @@ val ScavengersTalent = card("Scavenger's Talent") {
     // Note: Uses batching trigger (fires once per batch, not per individual permanent)
     classLevel(2, "{1}{B}") {
         triggeredAbility {
-            trigger = Triggers.YouSacrificeOneOrMore()
+            trigger = Triggers.you.sacrifices(batch = true)
             val player = target("target player", Targets.Player)
             effect = Patterns.Library.mill(2, player)
         }
@@ -64,7 +65,7 @@ val ScavengersTalent = card("Scavenger's Talent") {
     // with a finality counter on it.
     classLevel(3, "{2}{B}") {
         triggeredAbility {
-            trigger = Triggers.YourEndStep
+            trigger = Triggers.you.beginningOf(Step.END)
             effect = Effects.MayPay(
                 cost = Effects.SacrificeOwn(
                     filter = GameObjectFilter.NonlandPermanent,

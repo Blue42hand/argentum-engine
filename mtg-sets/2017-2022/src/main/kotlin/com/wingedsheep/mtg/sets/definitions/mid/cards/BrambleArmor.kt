@@ -31,7 +31,7 @@ val BrambleArmor = card("Bramble Armor") {
         "Equip {4} ({4}: Attach to target creature you control. Equip only as a sorcery.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = Effects.AttachEquipment(t)
     }

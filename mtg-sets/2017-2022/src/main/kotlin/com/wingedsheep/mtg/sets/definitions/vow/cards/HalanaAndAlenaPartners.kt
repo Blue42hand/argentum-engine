@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 
 /**
@@ -33,7 +34,7 @@ val HalanaAndAlenaPartners = card("Halana and Alena, Partners") {
     toughness = 3
     keywords(Keyword.FIRST_STRIKE, Keyword.REACH)
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val t = target("target", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
         effect = Effects.Composite(
             Effects.AddDynamicCounters(

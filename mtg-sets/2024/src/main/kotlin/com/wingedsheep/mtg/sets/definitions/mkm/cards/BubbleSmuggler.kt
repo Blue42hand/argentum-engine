@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * **"As … is turned face up" is a replacement, not a trigger.** It applies as part of the special
  * action that flips the permanent, so it doesn't use the stack and can't be responded to: an
  * opponent holding a 4-damage burn spell never gets a window against the 2/1 body. That is the
- * whole difference between this and the `Triggers.TurnedFaceUp` shape used by [GraniteWitness] and
+ * whole difference between this and the `Triggers.self.turnedFaceUp()` shape used by [GraniteWitness] and
  * [ExitSpecialist] — modelling it as a triggered ability would hand the opponent a response window
  * the card doesn't give them.
  *

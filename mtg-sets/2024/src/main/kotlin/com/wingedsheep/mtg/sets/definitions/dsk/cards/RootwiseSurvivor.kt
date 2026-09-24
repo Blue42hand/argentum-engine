@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Rootwise Survivor
@@ -24,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  * Elemental creature in addition to its other types. It gains haste until your next turn.
  *
  * "Survival" is an ability word (no rules meaning) — modeled as a postcombat-main-phase
- * trigger ([Triggers.YourPostcombatMain]) with an intervening-if ([Conditions.SourceIsTapped],
+ * trigger (`Triggers.you.beginningOf(Step.POSTCOMBAT_MAIN)`) with an intervening-if ([Conditions.SourceIsTapped],
  * CR 603.4 — checked both when it would trigger and on resolution). The target is "up to one"
  * land you control (`optional = true`), so the ability still resolves with no target chosen.
  * The animation is permanent — the land stays a 0/0 Elemental creature (in addition to its
@@ -45,7 +46,7 @@ val RootwiseSurvivor = card("Rootwise Survivor") {
     keywords(Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.YourPostcombatMain
+        trigger = Triggers.you.beginningOf(Step.POSTCOMBAT_MAIN)
         interveningIf = Conditions.SourceIsTapped
         val land = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl(), optional = true))
         effect = Effects.Composite(

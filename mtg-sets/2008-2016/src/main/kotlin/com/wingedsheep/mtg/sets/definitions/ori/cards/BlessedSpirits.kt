@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Blessed Spirits
@@ -27,7 +28,7 @@ val BlessedSpirits = card("Blessed Spirits") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YouCastEnchantment
+        trigger = Triggers.you.casts(GameObjectFilter.Enchantment)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

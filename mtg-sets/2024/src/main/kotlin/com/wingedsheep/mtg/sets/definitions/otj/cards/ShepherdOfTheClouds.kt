@@ -42,7 +42,7 @@ val ShepherdOfTheClouds = card("Shepherd of the Clouds") {
     keywords(Keyword.FLYING, Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val card = target(
             "card",
             TargetObject(

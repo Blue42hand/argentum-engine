@@ -542,7 +542,7 @@ interface ObjectFilterBuilder<out Self> {
      *
      * Answers from the permanent's current tap count, so it is the half of that printed intervening
      * "if" that CR 603.4 re-checks at resolution; the trigger-time half rides on the tap event as
-     * `Triggers.becomesTapped(firstTimeEachTurn = true)`. `Conditions
+     * `Triggers.self.becomesTapped(firstTimeEachTurn = true)`. `Conditions
      * .TriggeringPermanentBecameTappedOnlyOnceThisTurn` is this predicate aimed at the triggering
      * permanent.
      */

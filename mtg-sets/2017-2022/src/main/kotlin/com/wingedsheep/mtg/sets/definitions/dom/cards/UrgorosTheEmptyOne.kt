@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Urgoros, the Empty One
@@ -29,7 +30,7 @@ val UrgorosTheEmptyOne = card("Urgoros, the Empty One") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.Pipeline {
             // Gather the damaged player's hand
             val hand = gather(CardSource.FromZone(Zone.HAND, Player.TriggeringPlayer))

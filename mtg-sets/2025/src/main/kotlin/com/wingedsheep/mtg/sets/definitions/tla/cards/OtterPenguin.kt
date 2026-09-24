@@ -26,7 +26,7 @@ val OtterPenguin = card("Otter-Penguin") {
         "until end of turn and can't be blocked this turn."
 
     triggeredAbility {
-        trigger = Triggers.NthCardDrawn(2)
+        trigger = Triggers.you.drawsNth(2)
         effect = Effects.Composite(listOf(
             Effects.ModifyStats(1, 2, EffectTarget.Self),
             Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, EffectTarget.Self)

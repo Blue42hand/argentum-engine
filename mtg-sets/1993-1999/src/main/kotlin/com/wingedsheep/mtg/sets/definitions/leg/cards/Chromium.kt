@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Chromium
@@ -34,7 +35,7 @@ val Chromium = card("Chromium") {
 
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.PayOrSuffer(cost = Costs.pay.Mana("{W}{U}{B}"), suffer = SacrificeSelfEffect)
     }
 

@@ -36,7 +36,7 @@ val SelflessSafewright = card("Selfless Safewright") {
     keywords(Keyword.FLASH, Keyword.CONVOKE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val chosenCreatureType = chooseOption(OptionType.CREATURE_TYPE)
             run(Effects.ForEachInGroup(

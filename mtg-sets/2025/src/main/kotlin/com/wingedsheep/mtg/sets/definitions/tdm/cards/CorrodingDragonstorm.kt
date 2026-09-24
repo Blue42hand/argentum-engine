@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -32,7 +31,7 @@ val CorrodingDragonstorm = card("Corroding Dragonstorm") {
         "When a Dragon you control enters, return this enchantment to its owner's hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent))
             .then(Effects.GainLife(2))
             .then(Patterns.Library.surveil(2))
@@ -41,10 +40,7 @@ val CorrodingDragonstorm = card("Corroding Dragonstorm") {
     }
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Creature.youControl().withSubtype(Subtype.DRAGON),
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl().withSubtype(Subtype.DRAGON)).enters()
         effect = Effects.ReturnToHand(EffectTarget.Self)
         description = "When a Dragon you control enters, return this enchantment to its owner's hand."
     }

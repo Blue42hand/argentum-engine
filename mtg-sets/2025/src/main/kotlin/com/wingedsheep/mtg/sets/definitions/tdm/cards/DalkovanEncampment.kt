@@ -27,7 +27,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  *
  * Modeled as a check-land ([EntersTapped] with an Exists-Swamp-or-Mountain unless condition,
  * mirroring Isolated Chapel) plus a {T}: Add {W} mana ability. The {2}{W},{T} ability installs
- * a [CreateDelayedTriggerEffect] on [Triggers.YouAttack] that lasts the rest of the turn
+ * a [CreateDelayedTriggerEffect] on `Triggers.you.attacks()` that lasts the rest of the turn
  * (default EndOfTurn expiry, fireOnce = false) — so each time you declare attackers this turn it
  * creates two tapped-and-attacking 1/1 red Warrior tokens that are sacrificed at the next end
  * step. The token shape and end-step sacrifice match the Mobilize wiring (CardBuilder.mobilize).
@@ -57,7 +57,7 @@ val DalkovanEncampment = card("Dalkovan Encampment") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{W}"), Costs.Tap)
         effect = Effects.CreateDelayedTrigger(
-            trigger = Triggers.YouAttack,
+            trigger = Triggers.you.attacks(),
             effect = Effects.CreateToken(
                 count = 2,
                 power = 1,

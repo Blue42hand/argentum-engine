@@ -15,7 +15,7 @@ val MemoryTrap = card("Memory Trap") {
     oracleText = "When this enchantment enters, exile target nonland permanent an opponent controls until this enchantment leaves the battlefield."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target("nonland permanent an opponent controls",
             TargetObject(filter = TargetFilter.NonlandPermanentOpponentControls))
         effect = Effects.MoveUntilSourceLeaves(permanent, Zone.EXILE)

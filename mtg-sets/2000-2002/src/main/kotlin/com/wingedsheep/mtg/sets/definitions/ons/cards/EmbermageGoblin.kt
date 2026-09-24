@@ -29,7 +29,7 @@ val EmbermageGoblin = card("Embermage Goblin") {
     oracleText = "When Embermage Goblin enters the battlefield, you may search your library for a card named Embermage Goblin, reveal it, and put it into your hand. If you do, shuffle your library.\n{T}: Embermage Goblin deals 1 damage to any target."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.Any.named("Embermage Goblin"),

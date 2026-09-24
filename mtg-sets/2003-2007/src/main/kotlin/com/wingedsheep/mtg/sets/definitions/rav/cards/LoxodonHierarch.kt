@@ -38,7 +38,7 @@ val LoxodonHierarch = card("Loxodon Hierarch") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(4)
     }
 

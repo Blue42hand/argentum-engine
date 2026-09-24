@@ -47,7 +47,7 @@ val OmegaHeartlessEvolution = card("Omega, Heartless Evolution") {
         "stun counter would become untapped, remove one from it instead.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "permanent",
             TargetPermanent(optional = true, filter = TargetFilter.NonlandPermanentOpponentControls)

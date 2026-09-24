@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
@@ -47,12 +46,7 @@ val TaiiWakeenPerfectShot = card("Taii Wakeen, Perfect Shot") {
         "this turn, it deals that much damage plus X instead."
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.NonCombat,
-            recipient = Recipient.AnyCreature,
-            sourceFilter = GameObjectFilter.Any.youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Any.youControl()).dealsDamage(Recipient.AnyCreature, damageType = DamageType.NonCombat)
         // Intervening-if: the damage dealt equals the recipient creature's toughness (LKI).
         triggerRestriction = Conditions.CompareAmounts(
             DynamicAmounts.triggerDamageAmount(),

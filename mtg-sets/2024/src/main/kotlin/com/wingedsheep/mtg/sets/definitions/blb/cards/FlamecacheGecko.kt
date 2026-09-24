@@ -26,7 +26,7 @@ val FlamecacheGecko = card("Flamecache Gecko") {
     oracleText = "When this creature enters, if an opponent lost life this turn, add {B}{R}.\n{1}{R}, Discard a card: Draw a card."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.OpponentLostLifeThisTurn
         effect = Effects.AddMana(Color.BLACK)
             .then(Effects.AddMana(Color.RED))

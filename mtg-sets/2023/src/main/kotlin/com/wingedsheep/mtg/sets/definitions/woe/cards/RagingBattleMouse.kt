@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.CostModification
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Raging Battle Mouse
@@ -56,7 +57,7 @@ val RagingBattleMouse = card("Raging Battle Mouse") {
     }
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         interveningIf = Conditions.Celebration
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.ModifyStats(power = 1, toughness = 1, target = creature)

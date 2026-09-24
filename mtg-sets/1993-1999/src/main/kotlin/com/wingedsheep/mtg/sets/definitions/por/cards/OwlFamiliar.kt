@@ -29,7 +29,7 @@ val OwlFamiliar = card("Owl Familiar") {
     toughness = 1
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.DrawCards(1),
             Patterns.Hand.discardCards(1)

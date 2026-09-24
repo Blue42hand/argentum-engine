@@ -21,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * When The Master of Lake-town dies, draw a card for each graveyard with seven or more cards in it.
  *
  * Modeling notes:
- *  - The mill trigger is [Triggers.AnyPlayerLosesLife], so it fires for *every* player including
+ *  - The mill trigger is `Triggers.anyPlayer.losesLife()`, so it fires for *every* player including
  *    its own controller, once per life-loss event. The amount rides on the triggering
  *    [com.wingedsheep.engine.core.LifeChangedEvent] via
  *    [ContextPropertyKey.TRIGGER_LIFE_LOST], and [Player.TriggeringPlayer] sends the mill at the
@@ -48,7 +48,7 @@ val TheMasterOfLakeTown = card("The Master of Lake-town") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.AnyPlayerLosesLife
+        trigger = Triggers.anyPlayer.losesLife()
         effect = Patterns.Library.mill(
             count = DynamicAmounts.triggerLifeLost(),
             target = EffectTarget.PlayerRef(Player.TriggeringPlayer)
@@ -57,7 +57,7 @@ val TheMasterOfLakeTown = card("The Master of Lake-town") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.DrawCards(
             DynamicAmounts.countPlayersWith(
                 scope = Player.Each,

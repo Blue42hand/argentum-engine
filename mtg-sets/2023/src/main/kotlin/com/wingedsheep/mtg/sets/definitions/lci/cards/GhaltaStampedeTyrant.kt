@@ -32,7 +32,7 @@ val GhaltaStampedeTyrant = card("Ghalta, Stampede Tyrant") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val ghaltaCandidates = gather(CardSource.FromZone(Zone.HAND, Player.You, GameObjectFilter.Creature))
             val ghaltaPutting = chooseAnyNumber(

@@ -31,7 +31,7 @@ val Eviscerator = card("Eviscerator") {
     toughness = 5
     keywordAbility(KeywordAbility.Protection(ProtectionScope.Color(Color.WHITE)))
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.LoseLife(5, EffectTarget.Controller)
     }
     metadata {

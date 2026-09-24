@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Entrails Feaster
@@ -28,7 +29,7 @@ val EntrailsFeaster = card("Entrails Feaster") {
     oracleText = "At the beginning of your upkeep, you may exile a creature card from a graveyard. If you do, put a +1/+1 counter on Entrails Feaster. If you don't, tap Entrails Feaster."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         optional = true
         val t = target("target", TargetObject(
             filter = TargetFilter.CreatureInGraveyard

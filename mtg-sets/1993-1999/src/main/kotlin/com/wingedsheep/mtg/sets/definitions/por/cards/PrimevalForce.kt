@@ -29,7 +29,7 @@ val PrimevalForce = card("Primeval Force") {
     power = 8
     toughness = 8
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Sacrifice(GameObjectFilter.Land.withSubtype(Subtype.FOREST), count = 3),
             suffer = SacrificeSelfEffect

@@ -42,7 +42,7 @@ val DwynenGiltLeafDaen = card("Dwynen, Gilt-Leaf Daen") {
         )
     }
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.GainLife(
             DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature.withSubtype("Elf")).count()
         )

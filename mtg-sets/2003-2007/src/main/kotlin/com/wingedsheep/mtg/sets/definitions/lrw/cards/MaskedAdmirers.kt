@@ -37,13 +37,13 @@ val MaskedAdmirers = card("Masked Admirers") {
         "from your graveyard to your hand."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(1)
         description = "draw a card."
     }
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(GameObjectFilter.Creature)
+        trigger = Triggers.you.casts(GameObjectFilter.Creature)
         triggerZone = Zone.GRAVEYARD
         effect = Effects.MayPay(
             cost = Effects.PayMana("{G}{G}"),

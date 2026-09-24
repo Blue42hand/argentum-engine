@@ -38,7 +38,7 @@ val CodieRavenousCodex = card("Codie, Ravenous Codex") {
         "prepare spells can become prepared.)"
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(requires = setOf(SpellCastPredicate.CastAsPrepareSpell))
+        trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.CastAsPrepareSpell))
         effect = Effects.CopyTargetSpell(EffectTarget.TriggeringEntity)
     }
 

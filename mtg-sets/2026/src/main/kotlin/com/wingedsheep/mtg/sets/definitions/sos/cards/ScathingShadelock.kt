@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Scathing Shadelock // Venomous Words — Secrets of Strixhaven #98
@@ -35,7 +36,7 @@ val ScathingShadelock = card("Scathing Shadelock") {
         "(While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)"
 
     triggeredAbility {
-        trigger = Triggers.FirstMainPhase
+        trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
         effect = Effects.BecomePrepared(EffectTarget.Self)
     }
 

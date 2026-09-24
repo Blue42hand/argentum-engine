@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.AttackPredicate
 
 
 /**
@@ -31,7 +32,7 @@ val AureliaTheWarleader = card("Aurelia, the Warleader") {
     toughness = 4
     keywords(Keyword.FLYING, Keyword.VIGILANCE, Keyword.HASTE)
     triggeredAbility {
-        trigger = Triggers.AttacksFirstTimeEachTurn
+        trigger = Triggers.self.attacks(setOf(AttackPredicate.FirstTimeEachTurn))
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),

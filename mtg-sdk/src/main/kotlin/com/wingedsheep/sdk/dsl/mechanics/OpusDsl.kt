@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetRequirement
 import com.wingedsheep.sdk.scripting.targets.withId
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /** "Opus" pays off at five or more mana spent on the triggering spell. */
 private const val OPUS_THRESHOLD = 5
@@ -91,7 +92,7 @@ class OpusBuilder {
         }
 
         val targets = namedTargets.map { it.second }
-        val trigger = Triggers.YouCastInstantOrSorcery
+        val trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         return TriggeredAbility.create(
             trigger = trigger.event,
             binding = trigger.binding,

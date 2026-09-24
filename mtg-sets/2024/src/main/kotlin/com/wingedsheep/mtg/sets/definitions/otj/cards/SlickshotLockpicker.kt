@@ -37,7 +37,7 @@ val SlickshotLockpicker = card("Slickshot Lockpicker") {
         val target = target("target", TargetObject(
             filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByYou()
         ))
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GrantFlashback(target = target)
         description = "When this creature enters, target instant or sorcery card in your graveyard " +
             "gains flashback until end of turn. The flashback cost is equal to its mana cost."

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.RepeatCondition
-import com.wingedsheep.sdk.scripting.references.Player
 
 /**
  * Cultivator Colossus — Innistrad: Crimson Vow #195
@@ -46,7 +45,7 @@ val CultivatorColossus = card("Cultivator Colossus") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.RepeatWhile(
             body = Effects.Composite(
                 // "you may put a land card from your hand onto the battlefield tapped"

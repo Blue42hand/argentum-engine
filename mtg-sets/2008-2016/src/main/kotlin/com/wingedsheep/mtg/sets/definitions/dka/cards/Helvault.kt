@@ -43,7 +43,7 @@ val Helvault = card("Helvault") {
     }
 
     triggeredAbility {
-        trigger = Triggers.PutIntoGraveyardFromBattlefield
+        trigger = Triggers.self.dies()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

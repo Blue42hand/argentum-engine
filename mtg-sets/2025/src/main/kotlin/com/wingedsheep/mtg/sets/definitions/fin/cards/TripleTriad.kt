@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Triple Triad — Final Fantasy #166
@@ -42,7 +43,7 @@ val TripleTriad = card("Triple Triad") {
         "card exiled this way with lesser mana value than it without paying their mana costs."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.Pipeline {
             // Your top card → "mine"
             val mine = gather(CardSource.TopOfLibrary(count = 1, player = Player.You))

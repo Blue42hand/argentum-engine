@@ -43,9 +43,7 @@ val TrophyHunter = card("Trophy Hunter") {
     }
 
     triggeredAbility {
-        trigger = Triggers.creatureDealtDamageByThisDies(
-            GameObjectFilter.Creature.withKeyword(Keyword.FLYING)
-        )
+        trigger = Triggers.self.damagedCreatureDies(GameObjectFilter.Creature.withKeyword(Keyword.FLYING))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

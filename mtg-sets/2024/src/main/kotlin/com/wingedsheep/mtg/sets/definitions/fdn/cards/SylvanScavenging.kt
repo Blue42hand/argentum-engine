@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 
 /**
@@ -33,7 +34,7 @@ val SylvanScavenging = card("Sylvan Scavenging") {
     typeLine = "Enchantment"
     oracleText = "At the beginning of your end step, choose one —\n• Put a +1/+1 counter on target creature you control.\n• Create a 3/3 green Raccoon creature token if you control a creature with power 4 or greater."
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = ModalEffect.chooseOne(
             mode("Put a +1/+1 counter on target creature you control") {
                 val creature = target(

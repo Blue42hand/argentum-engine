@@ -29,7 +29,7 @@ val NezumiLinkbreaker = card("Nezumi Linkbreaker") {
         "\"{T}: Target creature you control gets +1/+0 until end of turn. Activate only as a sorcery.\""
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

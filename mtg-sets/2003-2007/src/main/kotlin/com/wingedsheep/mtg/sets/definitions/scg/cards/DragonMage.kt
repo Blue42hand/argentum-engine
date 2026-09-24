@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Dragon Mage
@@ -28,7 +29,7 @@ val DragonMage = card("Dragon Mage") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.ForEachPlayer(
             players = Player.Each,
             Effects.Pipeline {

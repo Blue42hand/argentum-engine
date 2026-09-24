@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -11,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -29,7 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  *   two +1/+1 counters as the Cache enters the battlefield; no counterType parameter needed since
  *   the default is +1/+1.
  *
- * Ability 2 — The dies trigger uses [Triggers.leavesBattlefield] with a
+ * Ability 2 — The dies trigger uses `Triggers.<subject>.leaves(to, excludeTo, excludeSacrifice)` with a
  *   `GameObjectFilter.Creature.youControl().withCounter(CounterType.PLUS_ONE_PLUS_ONE)` filter
  *   (ANY binding, to = GRAVEYARD). The engine evaluates `withCounter` against last-known-information
  *   for zone-change triggers (TriggerMatcher.matchesStatePredicateForZoneChangeTrigger, CR 603.10),
@@ -54,11 +52,7 @@ val ExplorersCache = card("Explorer's Cache") {
     // Whenever a creature you control with a +1/+1 counter on it dies,
     // put a +1/+1 counter on this artifact.
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.youControl().withCounter(CounterType.PLUS_ONE_PLUS_ONE),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl().withCounter(CounterType.PLUS_ONE_PLUS_ONE)).dies()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever a creature you control with a +1/+1 counter on it dies, " +
             "put a +1/+1 counter on this artifact."

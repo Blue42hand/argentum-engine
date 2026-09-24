@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Good-Fortune Unicorn
@@ -14,7 +15,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * 2/2
  * Whenever another creature you control enters, put a +1/+1 counter on that creature.
  *
- * "Another" is [Triggers.OtherCreatureEnters] (OTHER binding), so the Unicorn's own entry never
+ * "Another" is `Triggers.another(GameObjectFilter.Creature.youControl()).enters()` (OTHER binding), so the Unicorn's own entry never
  * triggers it. "That creature" is [EffectTarget.TriggeringEntity] — the creature that entered,
  * not the Unicorn.
  */
@@ -26,7 +27,7 @@ val GoodFortuneUnicorn = card("Good-Fortune Unicorn") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.OtherCreatureEnters
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
         effect = Effects.AddCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 1,

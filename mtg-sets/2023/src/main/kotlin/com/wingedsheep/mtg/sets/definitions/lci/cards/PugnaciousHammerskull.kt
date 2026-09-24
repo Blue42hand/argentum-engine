@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * it. (If a permanent with a stun counter would become untapped, remove one from it instead.)
  *
  * Implementation notes:
- * - `Triggers.Attacks` fires per AttackEvent for the creature itself (SELF binding).
+ * - `Triggers.self.attacks()` fires per AttackEvent for the creature itself (SELF binding).
  * - The intervening-if (CR 603.4) is the negated, self-excluding control check
  *   `Conditions.YouControl(Creature Dinosaur, negate = true, excludeSelf = true)`:
  *   "you don't control another Dinosaur" — the Hammerskull itself is excluded from the search,
@@ -38,7 +38,7 @@ val PugnaciousHammerskull = card("Pugnacious Hammerskull") {
     oracleText = "Whenever this creature attacks while you don't control another Dinosaur, put a stun counter on it. (If a permanent with a stun counter would become untapped, remove one from it instead.)"
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         triggerRestriction = Conditions.YouControl(
             GameObjectFilter.Creature.withSubtype(Subtype.DINOSAUR),
             negate = true,

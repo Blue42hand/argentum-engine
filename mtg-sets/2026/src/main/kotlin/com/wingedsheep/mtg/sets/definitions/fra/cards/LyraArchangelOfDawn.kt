@@ -22,7 +22,7 @@ val LyraArchangelOfDawn = card("Lyra, Archangel of Dawn") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         // "each Angel you control" is a bare tribal noun, so it names permanents (not only
         // creatures), and it includes Lyra herself.
         effect = Effects.ForEachInGroup(

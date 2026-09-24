@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -25,7 +24,7 @@ val GuiltyConscience = card("Guilty Conscience") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(binding = TriggerBinding.ATTACHED)
+        trigger = Triggers.attached.dealsDamage()
         effect = Effects.DealDamage(
             amount = DynamicAmounts.triggerDamageAmount(),
             target = EffectTarget.EnchantedCreature,

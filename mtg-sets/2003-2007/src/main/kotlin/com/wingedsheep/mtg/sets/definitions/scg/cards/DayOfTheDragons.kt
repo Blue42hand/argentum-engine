@@ -29,7 +29,7 @@ val DayOfTheDragons = card("Day of the Dragons") {
 
     // ETB: Exile all creatures you control, create that many Dragon tokens
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val exiled = runStoringCollection { Effects.ExileGroupAndLink(GroupFilter.AllCreaturesYouControl, storeAs = it) }
             run(
@@ -48,7 +48,7 @@ val DayOfTheDragons = card("Day of the Dragons") {
 
     // LTB: Sacrifice all Dragons you control, return exiled cards
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.Sacrifice(
             filter = GameObjectFilter.Creature.withSubtype("Dragon"),
             count = 100,

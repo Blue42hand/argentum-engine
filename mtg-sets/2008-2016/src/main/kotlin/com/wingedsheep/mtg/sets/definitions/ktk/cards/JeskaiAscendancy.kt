@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Jeskai Ascendancy
@@ -23,7 +24,7 @@ val JeskaiAscendancy = card("Jeskai Ascendancy") {
     oracleText = "Whenever you cast a noncreature spell, creatures you control get +1/+1 until end of turn. Untap those creatures.\nWhenever you cast a noncreature spell, you may draw a card. If you do, discard a card."
 
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.Composite(
             listOf(
                 Effects.ForEachInGroup(
@@ -39,7 +40,7 @@ val JeskaiAscendancy = card("Jeskai Ascendancy") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.May(Patterns.Hand.loot())
     }
 

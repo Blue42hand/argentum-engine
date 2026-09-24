@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * The Infamous Cruelclaw
@@ -31,7 +32,7 @@ val TheInfamousCruelclaw = card("The Infamous Cruelclaw") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.Pipeline {
             // Exile from top until nonland
             val (nonland, allRevealed) = gatherUntilMatch(GameObjectFilter.Nonland)

@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Manifold Mouse
@@ -40,7 +41,7 @@ val ManifoldMouse = card("Manifold Mouse") {
 
     // Offspring ETB: create token copy when kicked
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = WasKicked
         effect = Effects.CreateTokenCopyOfSelf(overridePower = 1, overrideToughness = 1)
     }
@@ -51,7 +52,7 @@ val ManifoldMouse = card("Manifold Mouse") {
         val creature = target("target creature", TargetCreature(
             filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Mouse").youControl())
         ))
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
                 Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, creature, Duration.EndOfTurn),

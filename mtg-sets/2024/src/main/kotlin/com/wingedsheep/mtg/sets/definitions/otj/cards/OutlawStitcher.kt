@@ -45,7 +45,7 @@ val OutlawStitcher = card("Outlaw Stitcher") {
     keywordAbility(KeywordAbility.plot("{4}{U}"))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         // 2 counters per spell cast this turn other than the first: 2 * max(spellsCast - 1, 0).
         val otherThanFirst = DynamicAmounts.max(
             DynamicAmounts.spellsCastThisTurn() - 1,

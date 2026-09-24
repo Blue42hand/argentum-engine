@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -21,10 +20,7 @@ val LilianaTheFaultless = card("Liliana the Faultless") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.CreatureOrPlaneswalker.youControl(),
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.CreatureOrPlaneswalker.youControl()).enters()
         effect = Effects.GainLife(1)
         description = "Whenever another creature or planeswalker you control enters, you gain 1 life."
     }

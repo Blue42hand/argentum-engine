@@ -41,7 +41,7 @@ val TangleKelp = card("Tangle Kelp") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Tap(EffectTarget.EnchantedCreature)
         description = "When this Aura enters, tap enchanted creature."
     }

@@ -29,7 +29,7 @@ val RankAndFile = card("Rank and File") {
     power = 3
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withColor(Color.GREEN)),
             Effects.ModifyStats(-1, -1, EffectTarget.IterationEntity)

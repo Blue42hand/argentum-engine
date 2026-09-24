@@ -17,7 +17,7 @@ val SaheeliConsulOfOversight = card("Saheeli, Consul of Oversight") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.WheneverYouScryOrSurveil
+        trigger = Triggers.you.scriesOrSurveils()
         oncePerTurn = true
         effect = Effects.CreateToken(power = 1, toughness = 1, creatureTypes = setOf("Thopter"), artifactToken = true, keywords = setOf(Keyword.FLYING), imageUri = "https://cards.scryfall.io/normal/front/b/f/bfd6132f-c96b-4ce0-ac4d-c46356afc767.jpg?1789735223")
         description = "Whenever you scry or surveil, create a 1/1 colorless Thopter artifact creature token with flying. This ability triggers only once each turn."

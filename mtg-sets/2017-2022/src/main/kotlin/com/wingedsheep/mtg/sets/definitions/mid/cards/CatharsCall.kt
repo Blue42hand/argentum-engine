@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Cathar's Call
@@ -41,8 +42,7 @@ val CatharsCall = card("Cathar's Call") {
     staticAbility {
         ability = GrantTriggeredAbility(
             TriggeredAbility.create(
-                trigger = Triggers.YourEndStep.event,
-                binding = Triggers.YourEndStep.binding,
+                trigger = Triggers.you.beginningOf(Step.END),
                 effect = Effects.CreateToken(
                     power = 1,
                     toughness = 1,

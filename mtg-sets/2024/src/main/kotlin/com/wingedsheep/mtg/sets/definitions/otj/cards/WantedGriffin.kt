@@ -37,7 +37,7 @@ val WantedGriffin = card("Wanted Griffin") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

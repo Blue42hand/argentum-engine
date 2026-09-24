@@ -35,7 +35,7 @@ val VoraciousGreatshark = card("Voracious Greatshark") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target(
             "target artifact or creature spell",
             TargetSpell(filter = TargetFilter(GameObjectFilter.CreatureOrArtifact, zone = Zone.STACK))

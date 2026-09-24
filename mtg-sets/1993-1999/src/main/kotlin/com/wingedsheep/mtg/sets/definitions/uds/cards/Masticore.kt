@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.core.Step
 
 
 /**
@@ -32,7 +33,7 @@ val Masticore = card("Masticore") {
     power = 4
     toughness = 4
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.PayOrSuffer(cost = Costs.pay.Discard(), suffer = SacrificeSelfEffect)
     }
     activatedAbility {

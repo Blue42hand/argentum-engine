@@ -25,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Implementation notes:
  * - Ward is the parameterized [KeywordAbility.Ward] with a [WardCost.Mana] of `{1}`; flying and
  *   first strike are plain engine keywords.
- * - The attack trigger is the default SELF-bound [Triggers.attacks] and pumps the group with
+ * - The attack trigger is the default SELF-bound `Triggers.<subject>.attacks(requires)` and pumps the group with
  *   [Patterns.Group.modifyStatsForAll]. X is [EffectTarget.Self]'s toughness — inside the group
  *   loop the visited Hero is `EffectTarget.IterationEntity` while `Self` stays Captain America,
  *   so every other Hero gets the *same* +X/+X read off his (projected) toughness. `excludeSelf`
@@ -48,7 +48,7 @@ val CaptainAmericaWingsOfFreedom = card("Captain America, Wings of Freedom") {
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{1}")))
 
     triggeredAbility {
-        trigger = Triggers.attacks()
+        trigger = Triggers.self.attacks()
         val sourceToughness = DynamicAmounts.sourceToughness()
         effect = Patterns.Group.modifyStatsForAll(
             power = sourceToughness,

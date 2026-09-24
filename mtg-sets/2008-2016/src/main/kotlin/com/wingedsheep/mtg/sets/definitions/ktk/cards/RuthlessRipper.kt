@@ -31,7 +31,7 @@ val RuthlessRipper = card("Ruthless Ripper") {
     morphCost = Costs.pay.RevealCard(filter = GameObjectFilter.Any.withColor(Color.BLACK))
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val player = target("target player", Targets.Player)
         effect = Effects.LoseLife(2, player)
     }

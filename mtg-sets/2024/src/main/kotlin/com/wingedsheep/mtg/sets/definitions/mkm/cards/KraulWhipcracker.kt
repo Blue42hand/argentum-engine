@@ -32,7 +32,7 @@ val KraulWhipcracker = card("Kraul Whipcracker") {
     keywords(Keyword.REACH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "target token an opponent controls",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.Token.opponentControls()))

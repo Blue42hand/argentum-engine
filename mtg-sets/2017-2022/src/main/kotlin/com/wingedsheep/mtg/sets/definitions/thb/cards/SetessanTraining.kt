@@ -33,7 +33,7 @@ val SetessanTraining = card("Setessan Training") {
     auraTarget = Targets.CreatureYouControl
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(1)
     }
 

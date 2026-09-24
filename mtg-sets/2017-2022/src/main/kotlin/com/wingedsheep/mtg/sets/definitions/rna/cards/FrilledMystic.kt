@@ -27,7 +27,7 @@ val FrilledMystic = card("Frilled Mystic") {
 
     keywords(Keyword.FLASH)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         target("target", Targets.Spell)
         effect = Effects.CounterSpell()

@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Gandalf the Grey
@@ -44,7 +45,7 @@ val GandalfTheGrey = card("Gandalf the Grey") {
         "• Put Gandalf on top of its owner's library."
 
     triggeredAbility {
-        trigger = Triggers.YouCastInstantOrSorcery
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
         effect = ModalEffect.chooseOneNotYetChosen(
             // • You may tap or untap target permanent.
             mode("You may tap or untap target permanent") {

@@ -46,7 +46,7 @@ val RaubahnBullOfAlaMhigo = card("Raubahn, Bull of Ala Mhigo") {
     keywordAbility(KeywordAbility.wardLife(DynamicAmounts.sourcePower()))
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val equipment = target(
             "up to one target Equipment you control",
             TargetPermanent(

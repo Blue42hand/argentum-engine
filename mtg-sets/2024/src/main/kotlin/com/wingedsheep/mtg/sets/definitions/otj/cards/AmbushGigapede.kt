@@ -30,7 +30,7 @@ val AmbushGigapede = card("Ambush Gigapede") {
     toughness = 2
     keywords(Keyword.FLASH)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.ModifyStats(-2, -2, t)
     }

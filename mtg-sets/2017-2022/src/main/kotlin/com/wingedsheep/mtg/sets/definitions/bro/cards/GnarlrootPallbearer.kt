@@ -32,7 +32,7 @@ val GnarlrootPallbearer = card("Gnarlroot Pallbearer") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("target", Targets.Creature)
         effect = Effects.ModifyStats(
             DynamicAmounts.creatureCardsInYourGraveyard(),

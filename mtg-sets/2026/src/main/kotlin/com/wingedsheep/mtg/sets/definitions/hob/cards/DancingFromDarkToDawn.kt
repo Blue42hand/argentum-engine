@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Dancing from Dark to Dawn
@@ -20,13 +21,13 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * Landfall — Whenever a land you control enters, create a 2/2 green Bear creature token.
  *
  *  - **"that spell's mana value"** is [DynamicAmounts.triggeringManaValue] — the triggering entity of
- *    [Triggers.YouCastCreature] is the spell on the stack, so the amount is read at resolution off the
+ *    `Triggers.you.casts(GameObjectFilter.Creature)` is the spell on the stack, so the amount is read at resolution off the
  *    spell itself. It reads the spell's mana value on the stack, which for an X spell includes the
  *    chosen X (CR 202.3b), and cost reductions never change it.
  *  - The counters go on **target creature you control**, a different object from the spell that
  *    triggered the ability. The trigger goes on the stack above the creature spell and resolves first,
  *    so the creature being cast is not yet on the battlefield and can't be chosen.
- *  - **Landfall** is [Triggers.LandYouControlEnters] — any land, not just one played for the turn, and
+ *  - **Landfall** is `Triggers.a(GameObjectFilter.Land.youControl()).enters()` — any land, not just one played for the turn, and
  *    it fires for lands put onto the battlefield by other effects too.
  */
 val DancingFromDarkToDawn = card("Dancing from Dark to Dawn") {
@@ -38,7 +39,7 @@ val DancingFromDarkToDawn = card("Dancing from Dark to Dawn") {
         "Landfall — Whenever a land you control enters, create a 2/2 green Bear creature token."
 
     triggeredAbility {
-        trigger = Triggers.YouCastCreature
+        trigger = Triggers.you.casts(GameObjectFilter.Creature)
         val t = target(
             "target creature you control to get +1/+1 counters",
             TargetCreature(filter = TargetFilter.CreatureYouControl)
@@ -53,7 +54,7 @@ val DancingFromDarkToDawn = card("Dancing from Dark to Dawn") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,

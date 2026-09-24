@@ -25,7 +25,7 @@ val KeldonWarcaller = card("Keldon Warcaller") {
     oracleText = "Whenever Keldon Warcaller attacks, put a lore counter on target Saga you control."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val saga = target("Saga you control", TargetObject(
             filter = TargetFilter(GameObjectFilter.Enchantment.withSubtype("Saga").youControl())
         ))

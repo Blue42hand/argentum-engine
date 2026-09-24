@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Boarded Window
@@ -40,7 +41,7 @@ val BoardedWindow = card("Boarded Window") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EachEndStep
+        trigger = Triggers.anyPlayer.beginningOf(Step.END)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.damageReceivedThisTurn(Player.You),
             ComparisonOperator.GTE,

@@ -30,7 +30,7 @@ val DeftbladeElite = card("Deftblade Elite") {
 
     triggeredAbility {
         val creatureOpponentControls = target("target creature opponent controls", Targets.CreatureOpponentControls)
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         optional = true
         effect = Effects.Provoke(creatureOpponentControls)
     }

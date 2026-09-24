@@ -34,7 +34,7 @@ val CloudboundMoogle = card("Cloudbound Moogle") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("creature", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
     }

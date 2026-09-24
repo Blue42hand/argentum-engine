@@ -24,7 +24,7 @@ val RiptideSurvivor = card("Riptide Survivor") {
     oracleText = "Morph {1}{U}{U}\nWhen Riptide Survivor is turned face up, discard two cards, then draw three cards."
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         effect = Patterns.Hand.discardCards(2, EffectTarget.Controller)
             .then(Effects.DrawCards(3))
     }

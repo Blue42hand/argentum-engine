@@ -44,7 +44,7 @@ private val SmolderingWerewolfFront = card("Smoldering Werewolf") {
         "{4}{R}{R}: Transform this creature."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target("up to two target creatures", TargetCreature(count = 2, optional = true))
         effect = Effects.ForEachTarget(
             Effects.DealDamage(1, EffectTarget.ContextTarget(0))
@@ -87,7 +87,7 @@ private val EruptingDreadwolf = card("Erupting Dreadwolf") {
     oracleText = "Whenever this creature attacks, it deals 2 damage to any target."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val victim = target("any target", AnyTarget())
         effect = Effects.DealDamage(2, victim)
         description = "Whenever this creature attacks, it deals 2 damage to any target."

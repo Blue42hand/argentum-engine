@@ -40,7 +40,7 @@ val Pestermite = card("Pestermite") {
     keywords(Keyword.FLASH, Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target("target permanent", Targets.Permanent)
         effect = Effects.May(
             Effects.Modal(

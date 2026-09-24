@@ -41,7 +41,7 @@ val WebstrikeElite = card("Webstrike Elite") {
     keywordAbility(KeywordAbility.cycling("{X}{G}{G}"))
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         val t = target(
             "up to one target artifact or enchantment with mana value X",
             TargetPermanent(

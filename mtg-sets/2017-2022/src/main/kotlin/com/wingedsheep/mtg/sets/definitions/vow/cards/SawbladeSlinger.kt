@@ -38,7 +38,7 @@ val SawbladeSlinger = card("Sawblade Slinger") {
         "• This creature fights target Zombie an opponent controls."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Modal(
             modes = listOf(
                 mode("Destroy target artifact an opponent controls") {

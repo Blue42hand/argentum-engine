@@ -34,7 +34,7 @@ val BrunaTheFadingLight = card("Bruna, the Fading Light") {
     keywords(Keyword.FLYING, Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.WhenYouCastThisSpell()
+        trigger = Triggers.self.isCast()
         optional = true
         val creature = target(
             "target Angel or Human creature card in your graveyard",

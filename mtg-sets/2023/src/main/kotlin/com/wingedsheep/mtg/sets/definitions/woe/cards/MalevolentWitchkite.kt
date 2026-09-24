@@ -35,7 +35,7 @@ val MalevolentWitchkite = card("Malevolent Witchkite") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.SacrificeAnyNumber(
             filter = GameObjectFilter.Artifact.or(GameObjectFilter.Enchantment).or(
                 GameObjectFilter.Any.withCardPredicate(CardPredicate.IsToken)

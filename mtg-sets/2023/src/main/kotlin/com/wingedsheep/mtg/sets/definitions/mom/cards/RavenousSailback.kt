@@ -34,7 +34,7 @@ val RavenousSailback = card("Ravenous Sailback") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Modal(
             modes = listOf(
                 Mode.noTarget(

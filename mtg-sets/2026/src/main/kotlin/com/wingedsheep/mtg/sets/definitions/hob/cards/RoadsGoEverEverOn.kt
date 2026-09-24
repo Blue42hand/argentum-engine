@@ -68,7 +68,7 @@ val RoadsGoEverEverOn = card("Roads Go Ever, Ever On") {
             GameObjectFilter.Land.withSubtype("Plains"),
         ).count()
         effect = Effects.CreateDelayedTrigger(
-            trigger = Triggers.YouAttack,
+            trigger = Triggers.you.attacks(),
         ) {
             val creature = target(
                 "target creature",

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
@@ -63,7 +62,7 @@ private val AangDestinedSavior = card("Aang, Destined Savior") {
 
     // At the beginning of combat on your turn, earthbend 2.
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val t = target("target", TargetPermanent(
             filter = TargetFilter.Land.youControl()
         ))
@@ -97,7 +96,7 @@ private val AangAtTheCrossroadsFront = card("Aang, at the Crossroads") {
     // with mana value 4 or less from among them onto the battlefield. Put the rest on the bottom
     // of your library in a random order.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val looked = gather(CardSource.TopOfLibrary(5))
             val (chosen, rest) = chooseUpToSplit(
@@ -115,10 +114,7 @@ private val AangAtTheCrossroadsFront = card("Aang, at the Crossroads") {
     // When another creature you control leaves the battlefield, transform Aang at the beginning
     // of the next upkeep.
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.youControl(),
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl()).leaves()
         effect = Effects.CreateDelayedTrigger(
             step = Step.UPKEEP,
             effect = Effects.Transform(EffectTarget.Self)

@@ -20,7 +20,7 @@ val FlankingTroops = card("Flanking Troops") {
     oracleText = "Whenever this creature attacks, you may tap target creature."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         optional = true
         val creature = target("target", Targets.Creature)
         effect = Effects.Tap(creature)

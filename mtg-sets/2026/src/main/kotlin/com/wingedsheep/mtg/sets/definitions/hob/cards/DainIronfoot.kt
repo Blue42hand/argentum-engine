@@ -48,7 +48,7 @@ val DainIronfoot = card("Dáin Ironfoot") {
         "Whenever Dáin attacks, each equipped attacking creature gains double strike until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ReflexiveTrigger(
             action = Effects.CreatePredefinedToken("Axe"),
             optional = false,
@@ -68,7 +68,7 @@ val DainIronfoot = card("Dáin Ironfoot") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Patterns.Group.grantKeywordToAll(
             Keyword.DOUBLE_STRIKE,
             GroupFilter(GameObjectFilter.Creature.attacking().equipped())

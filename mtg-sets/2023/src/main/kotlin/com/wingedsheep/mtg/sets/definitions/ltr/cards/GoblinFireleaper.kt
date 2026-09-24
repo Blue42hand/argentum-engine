@@ -33,7 +33,7 @@ val GoblinFireleaper = card("Goblin Fireleaper") {
 
     // When this creature dies, it deals damage equal to its power to target creature an opponent controls.
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         val creature = target("target creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.DealDamage(DynamicAmounts.sourcePower(), creature)
     }

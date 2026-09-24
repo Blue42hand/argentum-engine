@@ -24,7 +24,7 @@ val CitanulDruid = card("Citanul Druid") {
     oracleText = "Whenever an opponent casts an artifact spell, put a +1/+1 counter on this creature."
 
     triggeredAbility {
-        trigger = Triggers.opponentCasts(GameObjectFilter.Artifact)
+        trigger = Triggers.anOpponent.casts(GameObjectFilter.Artifact)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

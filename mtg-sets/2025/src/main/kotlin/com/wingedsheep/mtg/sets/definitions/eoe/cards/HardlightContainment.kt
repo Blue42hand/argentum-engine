@@ -29,7 +29,7 @@ val HardlightContainment = card("Hardlight Containment") {
     auraTarget = TargetPermanent(filter = TargetFilter(GameObjectFilter.Artifact.youControl()))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "creature an opponent controls",
             TargetPermanent(filter = TargetFilter.CreatureOpponentControls)
@@ -38,7 +38,7 @@ val HardlightContainment = card("Hardlight Containment") {
     }
 
     triggeredAbility {
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.ReturnLinkedExileUnderOwnersControl()
     }
 

@@ -46,12 +46,12 @@ val ProvisionsMerchant = card("Provisions Merchant") {
         "get +1/+1 and gain trample until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateFood()
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.May(
             Effects.Sacrifice(
                 GameObjectFilter.Artifact.withSubtype("Food"),

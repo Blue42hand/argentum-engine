@@ -27,7 +27,7 @@ val PulsarSquadronAce = card("Pulsar Squadron Ace") {
     oracleText = "When this creature enters, look at the top five cards of your library. You may reveal a Spacecraft card from among them and put it into your hand. Put the rest on the bottom of your library in a random order. If you didn't put a card into your hand this way, put a +1/+1 counter on this creature."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             // 1. Look at the top five cards of your library
             val looked = gather(CardSource.TopOfLibrary(5))

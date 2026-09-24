@@ -28,7 +28,7 @@ val BalefulAmmit = card("Baleful Ammit") {
     keywords(Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", Targets.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, t)
     }

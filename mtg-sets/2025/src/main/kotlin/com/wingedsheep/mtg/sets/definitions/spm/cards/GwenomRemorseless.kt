@@ -43,7 +43,7 @@ val GwenomRemorseless = card("Gwenom, Remorseless") {
     keywords(Keyword.DEATHTOUCH, Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Composite(
             Effects.GrantStaticAbility(
                 ability = PlayFromTopWithAlternativeCost(

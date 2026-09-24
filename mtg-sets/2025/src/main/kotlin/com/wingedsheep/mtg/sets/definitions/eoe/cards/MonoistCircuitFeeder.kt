@@ -31,7 +31,7 @@ val MonoistCircuitFeeder = card("Monoist Circuit-Feeder") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
 
         val ally = target(
             "creature you control get +X/+0",

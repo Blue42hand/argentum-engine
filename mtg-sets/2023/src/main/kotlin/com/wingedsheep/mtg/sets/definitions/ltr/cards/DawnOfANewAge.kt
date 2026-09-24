@@ -9,8 +9,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Dawn of a New Age
@@ -53,7 +53,7 @@ val DawnOfANewAge = card("Dawn of a New Age") {
 
     // End step: remove → draw (gated on having a counter), then sac+gain4 if empty.
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.Composite(
             Effects.If(
                 condition = Conditions.SourceHasCounter(CounterType.HOPE),

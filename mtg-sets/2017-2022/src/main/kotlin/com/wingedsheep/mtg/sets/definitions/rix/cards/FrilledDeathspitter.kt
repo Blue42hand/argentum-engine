@@ -24,7 +24,7 @@ val FrilledDeathspitter = card("Frilled Deathspitter") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.TakesDamage
+        trigger = Triggers.self.isDealtDamage()
         val victim = target("target opponent or planeswalker", Targets.OpponentOrPlaneswalker)
         effect = Effects.DealDamage(2, victim)
         description = "Enrage — Whenever this creature is dealt damage, it deals 2 damage to " +

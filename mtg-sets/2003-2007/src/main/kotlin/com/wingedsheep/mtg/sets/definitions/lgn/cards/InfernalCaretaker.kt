@@ -26,7 +26,7 @@ val InfernalCaretaker = card("Infernal Caretaker") {
     oracleText = "Morph {3}{B} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen this creature is turned face up, return all Zombie cards from all graveyards to their owners' hands."
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         effect = Effects.ForEachPlayer(
             players = Player.Each,
             Effects.Pipeline {

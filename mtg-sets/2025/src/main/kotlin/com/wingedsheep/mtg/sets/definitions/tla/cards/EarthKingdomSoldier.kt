@@ -36,7 +36,7 @@ val EarthKingdomSoldier = card("Earth Kingdom Soldier") {
     keywords(Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target(
             "up to two target creatures you control",
             TargetCreature(

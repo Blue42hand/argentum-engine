@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.WardCost
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Cactusfolk Sureshot — Outlaws of Thunder Junction #199
@@ -39,7 +40,7 @@ val CactusfolkSureshot = card("Cactusfolk Sureshot") {
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = Patterns.Group.grantKeywordToAll(
             Keyword.TRAMPLE,
             Filters.Group.creaturesYouControl.powerAtLeast(4).other()

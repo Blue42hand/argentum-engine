@@ -31,7 +31,7 @@ val MeatLockerDrownedDiner = card("Meat Locker // Drowned Diner") {
         oracleText = "When you unlock this door, tap up to one target creature and put two stun counters on it."
 
         triggeredAbility {
-            trigger = Triggers.OnDoorUnlocked
+            trigger = Triggers.self.doorUnlocked()
             val t = target("up to one target creature", Targets.UpToCreatures(1))
             effect = Effects.Tap(t).then(Effects.AddCounters(CounterType.STUN, 2, t))
             description = "When you unlock this door, tap up to one target creature and put two stun counters on it."
@@ -44,7 +44,7 @@ val MeatLockerDrownedDiner = card("Meat Locker // Drowned Diner") {
         oracleText = "When you unlock this door, draw three cards, then discard a card."
 
         triggeredAbility {
-            trigger = Triggers.OnDoorUnlocked
+            trigger = Triggers.self.doorUnlocked()
             effect = Patterns.Hand.loot(draw = 3, discard = 1)
             description = "When you unlock this door, draw three cards, then discard a card."
         }

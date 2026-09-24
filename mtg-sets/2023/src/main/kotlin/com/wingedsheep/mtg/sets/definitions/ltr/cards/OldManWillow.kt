@@ -28,7 +28,7 @@ val OldManWillow = card("Old Man Willow") {
     dynamicStats(DynamicAmounts.landsYouControl())
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ReflexiveTrigger(
             // "you may sacrifice another creature or a token"
             action = Effects.SacrificeOwn(

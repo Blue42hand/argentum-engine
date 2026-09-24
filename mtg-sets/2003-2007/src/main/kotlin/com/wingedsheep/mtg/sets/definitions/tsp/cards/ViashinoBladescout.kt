@@ -28,7 +28,7 @@ val ViashinoBladescout = card("Viashino Bladescout") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", Targets.Creature)
         effect = Effects.GrantKeyword(Keyword.FIRST_STRIKE, t)
     }

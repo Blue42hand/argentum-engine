@@ -46,7 +46,7 @@ class GhostlyDancersScenarioTest : FunSpec({
             typeLine = "Enchantment — Room"
             oracleText = "At the beginning of your end step, draw a card."
             triggeredAbility {
-                trigger = Triggers.YourEndStep
+                trigger = Triggers.you.beginningOf(Step.END)
                 effect = Effects.DrawCards(1)
             }
         }

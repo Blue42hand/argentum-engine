@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Pyre Zombie
@@ -33,7 +34,7 @@ val PyreZombie = card("Pyre Zombie") {
         "{1}{R}{R}, Sacrifice this creature: It deals 2 damage to any target."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         triggerZone = Zone.GRAVEYARD
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}{B}{B}"),

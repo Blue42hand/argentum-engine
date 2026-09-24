@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -19,7 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * that creature's power.
  *
  * "Another creature" here means *any* creature, including an opponent's — so this is the bare
- * `Triggers.entersBattlefield(Creature, OTHER)` factory, not `Triggers.OtherCreatureEnters`,
+ * `Triggers.a(filter).enters()` factory, not `Triggers.another(GameObjectFilter.Creature.youControl()).enters()`,
  * which carries a "you control" clause the printed text doesn't have.
  */
 val HamletbackGoliath = card("Hamletback Goliath") {
@@ -32,10 +31,7 @@ val HamletbackGoliath = card("Hamletback Goliath") {
         "where X is that creature's power."
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Creature,
-            binding = TriggerBinding.OTHER
-        )
+        trigger = Triggers.another(GameObjectFilter.Creature).enters()
         optional = true
         effect = Effects.AddDynamicCounters(
             CounterType.PLUS_ONE_PLUS_ONE,

@@ -29,7 +29,7 @@ val MoldAdder = card("Mold Adder") {
     oracleText = "Whenever an opponent casts a blue or black spell, you may put a +1/+1 counter on this creature."
 
     triggeredAbility {
-        trigger = Triggers.opponentCasts(GameObjectFilter.Any.withAnyColor(Color.BLUE, Color.BLACK))
+        trigger = Triggers.anOpponent.casts(GameObjectFilter.Any.withAnyColor(Color.BLUE, Color.BLACK))
         effect = Effects.May(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         )

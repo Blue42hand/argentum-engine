@@ -5,13 +5,12 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Summon: Leviathan
@@ -80,13 +79,9 @@ val SummonLeviathan = card("Summon: Leviathan") {
  * watchers.
  */
 private fun seaCreatureAttackDraw(): Effect = Effects.CreateDelayedTrigger(
-    trigger = TriggerSpec(
-        event = EventPattern.AttackEvent(
-            filter = GameObjectFilter.Creature.withAnySubtype(
+    trigger = Triggers.self.matching(GameObjectFilter.Creature.withAnySubtype(
                 "Kraken", "Leviathan", "Merfolk", "Octopus", "Serpent",
-            ),
-        ),
-    ),
+            )).attacks(),
     fireOnce = false,
     expiry = DelayedTriggerExpiry.EndOfTurn,
     effect = Effects.DrawCards(1),

@@ -36,7 +36,7 @@ val SpiritcallEnthusiast = card("Spiritcall Enthusiast") {
 
     // Whenever one or more tokens you control enter, this creature becomes prepared.
     triggeredAbility {
-        trigger = Triggers.OneOrMorePermanentsEnter(GameObjectFilter.Token)
+        trigger = Triggers.oneOrMore(GameObjectFilter.Token).enter()
         effect = Effects.BecomePrepared(EffectTarget.Self)
     }
 

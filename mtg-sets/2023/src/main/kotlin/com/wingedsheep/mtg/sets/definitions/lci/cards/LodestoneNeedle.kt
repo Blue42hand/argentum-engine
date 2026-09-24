@@ -60,7 +60,7 @@ private val LodestoneNeedleFront = card("Lodestone Needle") {
     // When this artifact enters, tap up to one target artifact or creature
     // and put two stun counters on it.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "up to one target artifact or creature",
             TargetPermanent(

@@ -31,7 +31,7 @@ val ClockworkPercussionist = card("Clockwork Percussionist") {
     // Impulse-exile on death: exile the top card and grant permission to play it until the
     // end of your next turn (GatherCards(top 1) -> MoveCollection(EXILE) -> GrantMayPlayFromExile).
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.Pipeline {
             val impulseExiled = gather(CardSource.TopOfLibrary(1))
             exile(impulseExiled)

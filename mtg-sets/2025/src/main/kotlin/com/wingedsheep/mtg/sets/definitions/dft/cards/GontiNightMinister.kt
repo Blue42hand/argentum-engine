@@ -5,12 +5,10 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.effects.LookAudience
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.references.Player
@@ -66,9 +64,7 @@ val GontiNightMinister = card("Gonti, Night Minister") {
         "this way."
 
     triggeredAbility {
-        trigger = Triggers.anyPlayerCasts(
-            requires = setOf(SpellCastPredicate.NotOwnedByController),
-        )
+        trigger = Triggers.anyPlayer.casts(requires = setOf(SpellCastPredicate.NotOwnedByController))
         effect = Effects.CreateTreasure(
             controller = EffectTarget.PlayerRef(Player.TriggeringPlayer),
         )
@@ -77,12 +73,7 @@ val GontiNightMinister = card("Gonti, Night Minister") {
     }
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.Combat,
-            recipient = Recipient.Opponent,
-            sourceFilter = GameObjectFilter.Creature,
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature).dealsCombatDamage(Recipient.Opponent)
         effect = Effects.Pipeline {
             val stolenCard = gather(
                 CardSource.TopOfLibrary(

@@ -49,7 +49,7 @@ val DecadentDragon = card("Decadent Dragon") {
     keywords(Keyword.FLYING, Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.CreateTreasure()
         description = "Whenever this creature attacks, create a Treasure token."
     }

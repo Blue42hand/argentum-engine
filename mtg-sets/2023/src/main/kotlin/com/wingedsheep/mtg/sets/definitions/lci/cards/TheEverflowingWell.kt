@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetOther
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.core.Step
 
 /**
  * The Everflowing Well // The Myriad Pools (The Lost Caverns of Ixalan)
@@ -35,7 +36,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  *
  * Implementation:
  *  - ETB `mill 2, then draw 2` via [Patterns.Library.mill] + [Effects.DrawCards].
- *  - Descend 8 upkeep transform: [Triggers.YourUpkeep] with the
+ *  - Descend 8 upkeep transform: `Triggers.you.beginningOf(Step.UPKEEP)` with the
  *    [Conditions.CardsInGraveyardMatchingAtLeast]`(8, Permanent)` intervening-if (the god cycle's
  *    descend-8 idiom).
  *  - The Myriad Pools' cast trigger uses [SpellCastPredicate.PaidWithManaFromSource] (the mana-source
@@ -55,7 +56,7 @@ private val TheEverflowingWellFront = card("The Everflowing Well") {
         "into your graveyard from anywhere.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Patterns.Library.mill(2),
             Effects.DrawCards(2),
@@ -64,7 +65,7 @@ private val TheEverflowingWellFront = card("The Everflowing Well") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.CardsInGraveyardMatchingAtLeast(8, GameObjectFilter.Permanent)
         effect = Effects.Transform(EffectTarget.Self)
         description = "Descend 8 — At the beginning of your upkeep, if there are eight or more " +
@@ -95,10 +96,7 @@ private val TheMyriadPools = card("The Myriad Pools") {
     }
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.Permanent,
-            requires = setOf(SpellCastPredicate.PaidWithManaFromSource),
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.Permanent, requires = setOf(SpellCastPredicate.PaidWithManaFromSource))
         val t = target(
             "up to one other target permanent you control",
             TargetOther(

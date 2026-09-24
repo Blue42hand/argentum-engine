@@ -26,10 +26,11 @@ import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 
 /**
  * "Whenever you cast a spell that targets one or more [filter], **those** … " — the trigger-time
- * capture behind `Triggers.youCastSpellTargeting(filter)`.
+ * capture behind `Triggers.you.casts(requires = setOf(SpellCastPredicate.TargetsMatching(filter)))`.
  *
  * `TriggerDetector` records exactly the targets that satisfied the trigger's own
  * `SpellCastPredicate.TargetsMatching` gate into `TriggerContext.capturedEntityIds`, which the
@@ -80,7 +81,7 @@ class SpellCastTargetCaptureTest : FunSpec({
         power = 2
         toughness = 2
         triggeredAbility {
-            trigger = Triggers.youCastSpellTargeting(GameObjectFilter.Creature)
+            trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.TargetsMatching(GameObjectFilter.Creature)))
             effect = ForEachInCollectionEffect(
                 collection = IterationSpace.TRIGGER_CAPTURED_COLLECTION,
                 effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
@@ -97,7 +98,7 @@ class SpellCastTargetCaptureTest : FunSpec({
         power = 2
         toughness = 2
         triggeredAbility {
-            trigger = Triggers.youCastSpellTargeting(GameObjectFilter.Creature.youControl())
+            trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.TargetsMatching(GameObjectFilter.Creature.youControl())))
             effect = ForEachInCollectionEffect(
                 collection = IterationSpace.TRIGGER_CAPTURED_COLLECTION,
                 effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
@@ -129,7 +130,7 @@ class SpellCastTargetCaptureTest : FunSpec({
         power = 2
         toughness = 2
         triggeredAbility {
-            trigger = Triggers.youCastSpellTargeting(GameObjectFilter.Creature)
+            trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.TargetsMatching(GameObjectFilter.Creature)))
             effect = ForEachInCollectionEffect(
                 collection = IterationSpace.TRIGGER_CAPTURED_COLLECTION,
                 effect = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity)

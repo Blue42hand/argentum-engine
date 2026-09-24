@@ -23,7 +23,7 @@ val CorruptEunuchs = card("Corrupt Eunuchs") {
     oracleText = "When this creature enters, it deals 2 damage to target creature."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.DealDamage(2, t)
     }

@@ -32,10 +32,7 @@ val KapshoKitefins = card("Kapsho Kitefins") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Creature.youControl(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).enters()
         val t = target("target creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.Tap(t)
         description = "Whenever this creature or another creature you control enters, tap target creature an opponent controls."

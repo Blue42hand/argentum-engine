@@ -31,7 +31,7 @@ val SeedglaiveMentor = card("Seedglaive Mentor") {
 
     // Valiant: put a +1/+1 counter on it
     triggeredAbility {
-        trigger = Triggers.Valiant
+        trigger = Triggers.self.becomesTarget(byYou = true, firstTimeEachTurn = true)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

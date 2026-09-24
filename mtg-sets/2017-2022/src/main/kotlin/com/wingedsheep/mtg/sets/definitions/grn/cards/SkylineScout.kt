@@ -24,7 +24,7 @@ val SkylineScout = card("Skyline Scout") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.MayPay(
             ManaCost.parse("{1}{W}"),
             Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self)

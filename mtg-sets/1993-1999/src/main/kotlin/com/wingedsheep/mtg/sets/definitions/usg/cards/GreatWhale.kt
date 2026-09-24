@@ -27,7 +27,7 @@ val GreatWhale = card("Great Whale") {
     power = 5
     toughness = 5
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetPermanent(optional = true, count = 7, filter = TargetFilter.Land))
         effect = Effects.UntapEachTarget()
     }

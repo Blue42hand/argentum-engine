@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Breeding Pit
@@ -25,7 +26,7 @@ val BreedingPit = card("Breeding Pit") {
         "At the beginning of your end step, create a 0/1 black Thrull creature token."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Mana("{B}{B}"),
             suffer = SacrificeSelfEffect,
@@ -34,7 +35,7 @@ val BreedingPit = card("Breeding Pit") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.CreateToken(
             power = 0,
             toughness = 1,

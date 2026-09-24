@@ -7,14 +7,12 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * The Theorist, Jace Beleren
@@ -44,10 +42,7 @@ val TheTheoristJaceBeleren = card("The Theorist, Jace Beleren") {
         "the number of cards in your hand."
 
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = EventPattern.StepEvent(Step.DRAW, Player.EachOpponent),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.anOpponent.beginningOf(Step.DRAW)
         effect = Effects.DrawCards(1)
         description = "At the beginning of each opponent's draw step, you draw a card."
     }

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -35,7 +34,7 @@ val IllicitMasquerade = card("Illicit Masquerade") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreaturesYouControl,
             Effects.AddCounters(CounterType.IMPOSTOR, 1, EffectTarget.IterationEntity),
@@ -45,11 +44,7 @@ val IllicitMasquerade = card("Illicit Masquerade") {
     }
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.youControl().withCounter(CounterType.IMPOSTOR),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl().withCounter(CounterType.IMPOSTOR)).dies()
         val replacement = target(
             "up to one other target creature card from your graveyard",
             TargetObject(

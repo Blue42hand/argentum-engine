@@ -5,9 +5,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -33,12 +31,7 @@ val MoriaMarauder = card("Moria Marauder") {
     keywords(Keyword.DOUBLE_STRIKE)
 
     triggeredAbility {
-        trigger = Triggers.dealsDamage(
-            damageType = DamageType.Combat,
-            recipient = Recipient.AnyPlayer,
-            sourceFilter = GameObjectFilter.Creature.withAnySubtype("Goblin", "Orc").youControl(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.withAnySubtype("Goblin", "Orc").youControl()).dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.Pipeline {
             val exiledCard = gather(CardSource.TopOfLibrary(1))
             exile(exiledCard)

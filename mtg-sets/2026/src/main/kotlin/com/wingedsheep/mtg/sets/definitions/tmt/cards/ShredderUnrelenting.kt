@@ -34,12 +34,12 @@ val ShredderUnrelenting = card("Shredder, Unrelenting") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("another target creature you control", Targets.OtherCreatureYouControl)
         effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, t, duration = Duration.EndOfTurn)
     }
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val t = target("another target creature you control", Targets.OtherCreatureYouControl)
         effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, t, duration = Duration.EndOfTurn)
     }

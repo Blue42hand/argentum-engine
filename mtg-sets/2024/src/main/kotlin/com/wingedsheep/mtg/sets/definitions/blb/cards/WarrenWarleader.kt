@@ -40,14 +40,14 @@ val WarrenWarleader = card("Warren Warleader") {
 
     // Offspring ETB: create token copy when kicked
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = WasKicked
         effect = Effects.CreateTokenCopyOfSelf(overridePower = 1, overrideToughness = 1)
     }
 
     // Whenever you attack, choose one
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         effect = ModalEffect.chooseOne(
             // Create a 1/1 white Rabbit creature token that's tapped and attacking
             Mode.noTarget(

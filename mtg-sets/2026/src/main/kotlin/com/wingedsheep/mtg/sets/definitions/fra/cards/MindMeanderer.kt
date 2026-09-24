@@ -41,7 +41,7 @@ val MindMeanderer = card("Mind Meanderer") {
     }
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val foe = target(
             "up to one target creature an opponent controls",
             TargetCreature(optional = true, filter = TargetFilter.CreatureOpponentControls),

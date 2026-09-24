@@ -30,7 +30,7 @@ val PlagueDogs = card("Plague Dogs") {
     power = 3
     toughness = 3
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature),
             Effects.ModifyStats(-1, -1, EffectTarget.IterationEntity)

@@ -41,7 +41,7 @@ val MolderingGymWeightRoom = card("Moldering Gym // Weight Room") {
         oracleText = "When you unlock this door, search your library for a basic land card, put it onto the battlefield tapped, then shuffle."
 
         triggeredAbility {
-            trigger = Triggers.OnDoorUnlocked
+            trigger = Triggers.self.doorUnlocked()
             effect = Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.BasicLand,
                 destination = SearchDestination.BATTLEFIELD,
@@ -56,7 +56,7 @@ val MolderingGymWeightRoom = card("Moldering Gym // Weight Room") {
         oracleText = "When you unlock this door, manifest dread, then put three +1/+1 counters on that creature."
 
         triggeredAbility {
-            trigger = Triggers.OnDoorUnlocked
+            trigger = Triggers.self.doorUnlocked()
             effect = Effects.Pipeline {
                 run(Patterns.Library.manifestDread(markEntered = true))
                 val weightRoomManifested = gather(CardSource.EnteredViaThisResolution)

@@ -8,12 +8,10 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.increment
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Berta, Wise Extrapolator
@@ -41,13 +39,7 @@ val BertaWiseExtrapolator = card("Berta, Wise Extrapolator") {
 
     // Whenever one or more +1/+1 counters are put on Berta, add one mana of any color.
     triggeredAbility {
-        trigger = TriggerSpec(
-            EventPattern.CountersPlacedEvent(
-                counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                filter = GameObjectFilter.Any,
-            ),
-            TriggerBinding.SELF,
-        )
+        trigger = Triggers.self.getsCounters(CounterType.PLUS_ONE_PLUS_ONE)
         effect = Effects.AddManaOfChoice()
         description = "Whenever one or more +1/+1 counters are put on Berta, add one mana of any color."
     }

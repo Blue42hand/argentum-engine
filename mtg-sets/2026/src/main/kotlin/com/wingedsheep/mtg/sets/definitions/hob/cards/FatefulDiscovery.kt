@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 
 /**
@@ -24,10 +23,7 @@ val FatefulDiscovery = card("Fateful Discovery") {
     typeLine = "Enchantment"
     oracleText = "Whenever an artifact you control enters, draw a card."
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Artifact.youControl(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Artifact.youControl()).enters()
         effect = Effects.DrawCards(1)
     }
     metadata {

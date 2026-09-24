@@ -76,7 +76,7 @@ val AncientAdamantoise = card("Ancient Adamantoise") {
     )
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         triggerZone = Zone.GRAVEYARD
         effect = Effects.Composite(
             Effects.Exile(EffectTarget.Self),

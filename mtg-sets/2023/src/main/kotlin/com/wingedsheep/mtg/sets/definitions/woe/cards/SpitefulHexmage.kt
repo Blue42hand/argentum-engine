@@ -32,7 +32,7 @@ val SpitefulHexmage = card("Spiteful Hexmage") {
         "graveyard. Enchanted creature is 1/1.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.CreateRoleToken("Cursed Role", t)
     }

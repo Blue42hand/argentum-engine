@@ -30,7 +30,7 @@ val ExcavationElephant = card("Excavation Elephant") {
     keywordAbility(KeywordAbility.kicker("{1}{W}"))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = WasKicked
         val t = target("target", TargetObject(
             filter = TargetFilter.ArtifactInYourGraveyard

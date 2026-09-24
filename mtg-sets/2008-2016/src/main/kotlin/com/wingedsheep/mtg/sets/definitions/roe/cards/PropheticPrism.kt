@@ -25,7 +25,7 @@ val PropheticPrism = card("Prophetic Prism") {
     typeLine = "Artifact"
     oracleText = "When this artifact enters, draw a card.\n{1}, {T}: Add one mana of any color."
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(1)
     }
     activatedAbility {

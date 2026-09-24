@@ -26,7 +26,7 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
  *
  * "Enters or attacks" is the repo's established two-ability idiom (Sentinel of the Nameless
  * City, Queen's Bay Paladin, Visage of Dread): there is no single enters-or-attacks
- * `TriggerSpec`, so [Triggers.EntersBattlefield] and [Triggers.Attacks] share one
+ * `TriggerSpec`, so `Triggers.self.enters()` and `Triggers.self.attacks()` share one
  * [Effects.May]-wrapped search. The "you may" is a decline of the whole search (Quirion
  * Trailblazer), not a failure-to-find, so it wraps the pattern rather than living inside it.
  */
@@ -43,7 +43,7 @@ val LumberingWorldwagon = card("Lumbering Worldwagon") {
     dynamicPower(DynamicAmounts.landsYouControl())
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.BasicLand,
@@ -55,7 +55,7 @@ val LumberingWorldwagon = card("Lumbering Worldwagon") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.BasicLand,

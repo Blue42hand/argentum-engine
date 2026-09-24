@@ -27,7 +27,7 @@ val Ghoulraiser = card("Ghoulraiser") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val zombies = gather(
                 CardSource.FromZone(

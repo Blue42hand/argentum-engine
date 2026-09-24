@@ -25,7 +25,7 @@ val WayOfTheCryomancer = card("Way of the Cryomancer") {
         "Planeswalkers you control have \"[−3]: When you next cast an instant or sorcery spell this turn, copy that spell. You may choose new targets for the copy.\""
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Mechanic.empowerJace(5)
     }
 

@@ -23,7 +23,7 @@ val RuricTharBiomagus = card("Ruric Thar, Biomagus") {
     prowess()
 
     triggeredAbility {
-        trigger = Triggers.BecomesTargetByOpponent
+        trigger = Triggers.self.becomesTarget(byOpponent = true)
         effect = Effects.DrawCards(1)
         description = "Whenever Ruric Thar becomes the target of a spell or ability an opponent controls, draw a card."
     }

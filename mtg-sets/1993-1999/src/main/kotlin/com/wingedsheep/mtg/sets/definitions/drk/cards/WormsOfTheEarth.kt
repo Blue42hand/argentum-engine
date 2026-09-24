@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.PlayersCantPlayLands
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Worms of the Earth
@@ -47,7 +48,7 @@ val WormsOfTheEarth = card("Worms of the Earth") {
     staticAbility { ability = LandsCantEnterTheBattlefield }
 
     triggeredAbility {
-        trigger = Triggers.EachUpkeep
+        trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
         effect = Effects.ForEachPlayer(
             Player.ActivePlayerFirst,
             Effects.May(

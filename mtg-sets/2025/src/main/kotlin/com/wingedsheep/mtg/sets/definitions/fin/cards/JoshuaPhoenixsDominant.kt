@@ -111,7 +111,7 @@ private val JoshuaPhoenixsDominantFront = card("Joshua, Phoenix's Dominant") {
 
     // When Joshua enters, discard up to two cards, then draw that many cards.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Pipeline {
             val hand = gather(CardSource.FromZone(Zone.HAND, Player.You))
             val discarded = chooseUpTo(2, from = hand, prompt = "Discard up to two cards")

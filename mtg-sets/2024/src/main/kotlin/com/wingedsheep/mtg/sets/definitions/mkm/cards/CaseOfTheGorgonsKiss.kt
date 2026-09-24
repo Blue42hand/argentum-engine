@@ -58,7 +58,7 @@ val CaseOfTheGorgonsKiss = card("Case of the Gorgon's Kiss") {
             optional = true,
             filter = TargetFilter(GameObjectFilter.Creature.wasDealtDamageThisTurn())
         ))
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Destroy(creature)
     }
 

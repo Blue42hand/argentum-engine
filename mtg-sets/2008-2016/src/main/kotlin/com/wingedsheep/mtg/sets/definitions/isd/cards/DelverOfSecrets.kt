@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Delver of Secrets // Insectile Aberration (Innistrad #51)
@@ -47,7 +48,7 @@ private val DelverOfSecretsFront = card("Delver of Secrets") {
         "reveal that card. If an instant or sorcery card is revealed this way, transform this creature."
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.Pipeline {
             // Look at the top card of your library — gather only; it stays on top either way.
             val delverLooked = gather(CardSource.TopOfLibrary(1))

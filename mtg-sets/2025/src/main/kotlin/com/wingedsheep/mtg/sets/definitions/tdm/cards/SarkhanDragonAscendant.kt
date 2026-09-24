@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -23,7 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The ETB uses the resolution-time [Effects.Behold] effect ("you may behold a Dragon; if you do,
  * create a Treasure"). The second ability triggers on any Dragon you control entering
- * ([Triggers.entersBattlefield] filtered to `Dragon` creatures you control, binding ANY): it adds
+ * (`Triggers.a(filter).enters()` filtered to `Dragon` creatures you control, binding ANY): it adds
  * a +1/+1 counter to Sarkhan, then until end of turn makes him a Dragon in addition to his other
  * types ([AddCreatureTypeEffect] with [Duration.EndOfTurn]) and grants flying.
  */
@@ -39,7 +38,7 @@ val SarkhanDragonAscendant = card("Sarkhan, Dragon Ascendant") {
         "Sarkhan becomes a Dragon in addition to its other types and gains flying."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Behold(
             filter = GameObjectFilter.Any.withSubtype(Subtype.DRAGON),
             ifBeheld = Effects.CreateTreasure()
@@ -48,10 +47,7 @@ val SarkhanDragonAscendant = card("Sarkhan, Dragon Ascendant") {
     }
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Creature.youControl().withSubtype(Subtype.DRAGON),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl().withSubtype(Subtype.DRAGON)).enters()
         effect = Effects.Composite(listOf(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             Effects.AddCreatureType("Dragon", EffectTarget.Self, Duration.EndOfTurn),

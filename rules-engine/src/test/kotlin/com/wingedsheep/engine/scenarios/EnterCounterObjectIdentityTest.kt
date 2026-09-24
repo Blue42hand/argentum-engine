@@ -20,12 +20,13 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 class EnterCounterObjectIdentityTest : FunSpec({
     val observer = card("Identity Counter Observer") {
         manaCost = "{0}"; typeLine = "Creature — Human"; power = 1; toughness = 1
         triggeredAbility {
-            trigger = Triggers.countersPlacedOn()
+            trigger = Triggers.a(GameObjectFilter.Creature.youControl()).getsCounters(firstTimeEachTurn = true)
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.TriggeringEntity)
         }
     }

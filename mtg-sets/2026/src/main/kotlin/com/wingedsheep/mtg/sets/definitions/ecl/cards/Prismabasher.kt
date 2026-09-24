@@ -39,7 +39,7 @@ val Prismabasher = card("Prismabasher") {
     keywords(Keyword.TRAMPLE, Keyword.VIVID)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target(
             "up to X target creatures you control",
             TargetCreature(

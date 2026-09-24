@@ -4,16 +4,15 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.card
-import com.wingedsheep.sdk.scripting.EventPattern.AttackEvent
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Triggers
 
 /**
  * Raging Ravine
@@ -62,8 +61,7 @@ val RagingRavine = card("Raging Ravine") {
                 ),
                 Effects.GrantTriggeredAbility(
                     ability = TriggeredAbility.create(
-                        trigger = AttackEvent(),
-                        binding = TriggerBinding.SELF,
+                        trigger = Triggers.self.attacks(),
                         effect = Effects.AddCounters(
                             counterType = CounterType.PLUS_ONE_PLUS_ONE,
                             count = 1,

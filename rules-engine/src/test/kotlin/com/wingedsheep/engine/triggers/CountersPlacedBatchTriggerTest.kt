@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.references.Player
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
@@ -48,14 +47,7 @@ class CountersPlacedBatchTriggerTest : FunSpec({
         power = 0
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.countersPlacedOn(
-                filter = heroesYouControl,
-                counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                firstTimeEachTurn = false,
-                binding = TriggerBinding.OTHER,
-                placedBy = Player.You,
-                batch = true,
-            )
+            trigger = Triggers.another(heroesYouControl).getsCounters(CounterType.PLUS_ONE_PLUS_ONE, by = Player.You, batch = true)
             effect = Effects.DrawCards(1)
         }
     }
@@ -67,14 +59,7 @@ class CountersPlacedBatchTriggerTest : FunSpec({
         power = 0
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.countersPlacedOn(
-                filter = heroesYouControl,
-                counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                firstTimeEachTurn = false,
-                binding = TriggerBinding.OTHER,
-                placedBy = Player.You,
-                batch = false,
-            )
+            trigger = Triggers.another(heroesYouControl).getsCounters(CounterType.PLUS_ONE_PLUS_ONE, by = Player.You)
             effect = Effects.DrawCards(1)
         }
     }
@@ -87,14 +72,7 @@ class CountersPlacedBatchTriggerTest : FunSpec({
         power = 0
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.countersPlacedOn(
-                filter = heroesYouControl,
-                counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                firstTimeEachTurn = true,
-                binding = TriggerBinding.OTHER,
-                placedBy = Player.You,
-                batch = true,
-            )
+            trigger = Triggers.another(heroesYouControl).getsCounters(CounterType.PLUS_ONE_PLUS_ONE, by = Player.You, firstTimeEachTurn = true, batch = true)
             effect = Effects.DrawCards(1)
         }
     }
@@ -107,14 +85,7 @@ class CountersPlacedBatchTriggerTest : FunSpec({
         power = 0
         toughness = 1
         triggeredAbility {
-            trigger = Triggers.countersPlacedOn(
-                filter = heroesYouControl,
-                counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                firstTimeEachTurn = false,
-                binding = TriggerBinding.SELF,
-                placedBy = Player.You,
-                batch = true,
-            )
+            trigger = Triggers.self.matching(heroesYouControl).getsCounters(CounterType.PLUS_ONE_PLUS_ONE, by = Player.You, batch = true)
             effect = Effects.DrawCards(1)
         }
     }

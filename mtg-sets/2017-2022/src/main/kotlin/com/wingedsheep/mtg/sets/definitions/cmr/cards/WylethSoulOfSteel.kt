@@ -31,7 +31,7 @@ val WylethSoulOfSteel = card("Wyleth, Soul of Steel") {
     toughness = 2
     keywords(Keyword.TRAMPLE)
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.DrawCards(DynamicAmounts.battlefield(Player.You, GameObjectFilter.Any).count())
     }
     metadata {

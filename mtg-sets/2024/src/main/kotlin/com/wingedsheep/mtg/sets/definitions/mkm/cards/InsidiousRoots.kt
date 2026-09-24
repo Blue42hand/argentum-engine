@@ -35,7 +35,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * somehow a creature token falls out of the filter — it says "creature tokens you control", not
  * "other", so nothing excludes the source.
  *
- * The trigger is [Triggers.CardsLeaveYourGraveyard], the CR 603.2c batch shape [ChalkOutline] uses:
+ * The trigger is `Triggers.oneOrMore(filter).leaveYourGraveyard()`, the CR 603.2c batch shape [ChalkOutline] uses:
  * a mass reanimation, a flashback cast and a graveyard-exiling sweep each fire it exactly once no
  * matter how many creature cards moved or where they went — which is what the second printed ruling
  * says in as many words. The filter matches the *card*, so a creature card cast from the graveyard
@@ -69,7 +69,7 @@ val InsidiousRoots = card("Insidious Roots") {
     }
 
     triggeredAbility {
-        trigger = Triggers.CardsLeaveYourGraveyard(GameObjectFilter.Creature)
+        trigger = Triggers.oneOrMore(GameObjectFilter.Creature).leaveYourGraveyard()
         effect = Effects.Composite(
             Effects.CreateToken(
                 power = 0,

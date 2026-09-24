@@ -26,7 +26,7 @@ val WayOfTheWarlord = card("Way of the Warlord") {
         "Planeswalkers you control have \"[−4]: This planeswalker deals 2 damage to up to one target creature or planeswalker and 2 damage to target player.\""
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Mechanic.empowerJace(5)
     }
 

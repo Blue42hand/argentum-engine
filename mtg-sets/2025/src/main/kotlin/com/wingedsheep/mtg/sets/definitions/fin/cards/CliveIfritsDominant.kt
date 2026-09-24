@@ -85,7 +85,7 @@ private val CliveIfritsDominantFront = card("Clive, Ifrit's Dominant") {
 
     // When Clive enters, you may discard your hand, then draw cards equal to your devotion to red.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Effects.Composite(
                 Patterns.Hand.discardHand(),

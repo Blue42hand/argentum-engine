@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -33,7 +32,7 @@ val BlastingStation = card("Blasting Station") {
         effect = Effects.DealDamage(1, t)
     }
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(filter = GameObjectFilter.Creature, binding = TriggerBinding.ANY)
+        trigger = Triggers.a(GameObjectFilter.Creature).enters()
         optional = true
         effect = Effects.Untap(EffectTarget.Self)
     }

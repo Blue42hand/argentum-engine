@@ -29,7 +29,7 @@ val HarrierStrix = card("Harrier Strix") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target("permanent to tap", Targets.Permanent)
         effect = Effects.Tap(permanent)
     }

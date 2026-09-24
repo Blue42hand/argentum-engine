@@ -30,7 +30,7 @@ val RaveningWarg = card("Ravening Warg") {
     toughness = 2
     keywords(Keyword.DEATHTOUCH)
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         triggerRestriction = Conditions.YouControl(GameObjectFilter.Creature.powerAtLeast(4))
         effect = Effects.GainLife(2)
     }

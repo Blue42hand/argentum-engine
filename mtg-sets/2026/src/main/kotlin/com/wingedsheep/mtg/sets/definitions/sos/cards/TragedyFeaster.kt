@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Tragedy Feaster — Secrets of Strixhaven #102
@@ -40,7 +41,7 @@ val TragedyFeaster = card("Tragedy Feaster") {
     keywordAbility(KeywordAbility.wardDiscard())
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         triggerRestriction = Conditions.Not(Conditions.YouGainedLifeThisTurn)
         effect = Effects.SacrificeOwn(GameObjectFilter.Permanent)
         description = "Infusion — At the beginning of your end step, sacrifice a permanent unless " +

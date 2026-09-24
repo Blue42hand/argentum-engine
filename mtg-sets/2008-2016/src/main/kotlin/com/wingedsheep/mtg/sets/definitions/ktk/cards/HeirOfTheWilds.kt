@@ -31,7 +31,7 @@ val HeirOfTheWilds = card("Heir of the Wilds") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         interveningIf = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.powerAtLeast(4))
         effect = Effects.ModifyStats(1, 1, EffectTarget.Self)
     }

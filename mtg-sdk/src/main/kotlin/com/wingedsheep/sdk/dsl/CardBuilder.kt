@@ -310,7 +310,7 @@ class CardBuilder(private val name: String) {
     /**
      * Effect applied as part of the turn-face-up action for a disguise creature — the "As this
      * creature is turned face up, …" replacement clause (Bubble Smuggler). Sibling of
-     * [morphFaceUpEffect]; unlike a `Triggers.TurnedFaceUp` ability it doesn't use the stack.
+     * [morphFaceUpEffect]; unlike a `Triggers.self.turnedFaceUp()` ability it doesn't use the stack.
      */
     var disguiseFaceUpEffect: Effect? = null
 
@@ -449,8 +449,7 @@ class CardBuilder(private val name: String) {
         keywordSet.add(Keyword.PROWESS)
         triggeredAbilities.add(
             TriggeredAbility.create(
-                trigger = Triggers.YouCastNoncreature.event,
-                binding = Triggers.YouCastNoncreature.binding,
+                trigger = Triggers.you.casts(GameObjectFilter.Noncreature),
                 effect = ModifyStatsEffect(
                     powerModifier = 1,
                     toughnessModifier = 1,
@@ -478,8 +477,7 @@ class CardBuilder(private val name: String) {
         )
         triggeredAbilities.add(
             TriggeredAbility.create(
-                trigger = Triggers.BecomesBlocked.event,
-                binding = Triggers.BecomesBlocked.binding,
+                trigger = Triggers.self.becomesBlocked(),
                 effect = ModifyStatsEffect(
                     powerModifier = perBlockerBeyondFirst,
                     toughnessModifier = perBlockerBeyondFirst,
@@ -1573,9 +1571,9 @@ class TieredBuilder {
 class TriggeredAbilityBuilder {
     /**
      * The trigger specification. Assign a [TriggerSpec] from the [Triggers] facade
-     * (e.g., `trigger = Triggers.EntersBattlefield`).
+     * (e.g., `trigger = Triggers.self.enters()`).
      */
-    var trigger: TriggerSpec = Triggers.EntersBattlefield
+    var trigger: TriggerSpec = Triggers.self.enters()
 
     var effect: Effect? = null
     var target: TargetRequirement? = null

@@ -27,7 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  * the *targeting* restriction, not a resolution check, so a token is never a legal choice.
  *
  * "Is returned to its owner's hand" is a battlefield → hand zone change of a permanent you
- * control, i.e. [Triggers.leavesBattlefield] with `to = Zone.HAND`. The [TriggerBinding.OTHER]
+ * control, i.e. `Triggers.<subject>.leaves(to, excludeTo, excludeSacrifice)` with `to = Zone.HAND`. The [TriggerBinding.OTHER]
  * binding supplies the "another" — Justice bouncing itself never triggers it. Note the second
  * ability, unlike the first, is not restricted to nontoken permanents (bouncing a token does
  * trigger it, even though the token ceases to exist).
@@ -45,7 +45,7 @@ val JusticeVanceAstrovik = card("Justice, Vance Astrovik") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target(
             "up to one target nonland, nontoken permanent",
             TargetPermanent(
@@ -58,11 +58,7 @@ val JusticeVanceAstrovik = card("Justice, Vance Astrovik") {
     }
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.NonlandPermanent.youControl(),
-            to = Zone.HAND,
-            binding = TriggerBinding.OTHER,
-        )
+        trigger = Triggers.another(GameObjectFilter.NonlandPermanent.youControl()).leaves(to = Zone.HAND)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever another nonland permanent you control is returned to its owner's hand, put a +1/+1 counter on Justice."
     }

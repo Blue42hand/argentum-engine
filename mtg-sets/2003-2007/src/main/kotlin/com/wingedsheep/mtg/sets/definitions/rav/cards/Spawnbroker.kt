@@ -16,7 +16,7 @@ val Spawnbroker = card("Spawnbroker") {
     oracleText = "When this creature enters, you may exchange control of target creature you control and target creature with power less than or equal to that creature's power an opponent controls."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         description = "You may exchange control of the two targeted creatures."
         val yours = target("creature you control", Targets.CreatureYouControl)

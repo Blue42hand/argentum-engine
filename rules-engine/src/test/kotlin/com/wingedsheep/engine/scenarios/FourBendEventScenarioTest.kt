@@ -41,7 +41,7 @@ import io.kotest.matchers.shouldBe
  * Substrate tests for the four-bend event system (CR 701.65b Airbend / 701.66b Earthbend /
  * 701.67c Waterbend / 702.189b Firebending): each keyword action emits a [BendPerformedEvent] and
  * folds its [BendType] into the player's per-turn distinct-bend set ([BendsThisTurnComponent]).
- * That drives [Triggers.YouBend] ("Whenever you waterbend, earthbend, firebend, or airbend, …") and
+ * That drives `Triggers.you.bends(types)` ("Whenever you waterbend, earthbend, firebend, or airbend, …") and
  * [TurnTracker.DISTINCT_BENDS] ("if you've done all four this turn" — Avatar Aang).
  *
  * The core machinery is exercised through synthetic `Effects.EmitBend` spells (the exact effect the
@@ -66,7 +66,7 @@ class FourBendEventScenarioTest : FunSpec({
     val BendWatcher = card("Bend Watcher") {
         manaCost = "{0}"; typeLine = "Creature — Spirit"; power = 1; toughness = 1
         triggeredAbility {
-            trigger = Triggers.YouBend()
+            trigger = Triggers.you.bends()
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         }
     }
@@ -74,7 +74,7 @@ class FourBendEventScenarioTest : FunSpec({
     val EarthWatcher = card("Earth Watcher") {
         manaCost = "{0}"; typeLine = "Creature — Spirit"; power = 1; toughness = 1
         triggeredAbility {
-            trigger = Triggers.YouBend(setOf(BendType.EARTH))
+            trigger = Triggers.you.bends(setOf(BendType.EARTH))
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         }
     }
@@ -82,7 +82,7 @@ class FourBendEventScenarioTest : FunSpec({
     val AllFourWatcher = card("All Four Watcher") {
         manaCost = "{0}"; typeLine = "Creature — Spirit"; power = 1; toughness = 1
         triggeredAbility {
-            trigger = Triggers.YouBend()
+            trigger = Triggers.you.bends()
             effect = Effects.If(
                 condition = Conditions.CompareAmounts(
                     DynamicAmount.TurnTracking(Player.You, TurnTracker.DISTINCT_BENDS),
@@ -185,7 +185,7 @@ class FourBendEventScenarioTest : FunSpec({
         d.bends(me) shouldBe setOf(BendType.FIRE)
     }
 
-    test("Triggers.YouBend() fires once per bend, whatever the element") {
+    test("Triggers.you.bends() fires once per bend, whatever the element") {
         val d = createDriver(); d.initMirrorMatch(Deck.of("Mountain" to 40)); val me = d.activePlayer!!
         d.passPriorityUntil(Step.PRECOMBAT_MAIN)
         val watcher = d.putCreatureOnBattlefield(me, "Bend Watcher")

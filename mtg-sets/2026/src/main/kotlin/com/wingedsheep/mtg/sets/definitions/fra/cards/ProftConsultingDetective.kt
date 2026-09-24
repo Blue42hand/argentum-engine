@@ -17,7 +17,7 @@ val ProftConsultingDetective = card("Proft, Consulting Detective") {
     oracleText = "Whenever you scry or surveil, you may pay {2}. If you do, put a +1/+1 counter on Proft and draw a card. (Draw after you scry or surveil.)"
 
     triggeredAbility {
-        trigger = Triggers.WheneverYouScryOrSurveil
+        trigger = Triggers.you.scriesOrSurveils()
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}"),
             then = Effects.Composite(

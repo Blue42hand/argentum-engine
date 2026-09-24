@@ -38,7 +38,7 @@ val TobyBeastieBefriender = card("Toby, Beastie Befriender") {
     // co-blocker restriction; both filter on any creature, so any other declared attacker/blocker
     // satisfies the requirement.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             power = 4,
             toughness = 4,

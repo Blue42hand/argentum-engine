@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.sneak
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Karai, Future of the Foot
@@ -45,7 +46,7 @@ val KaraiFutureOfTheFoot = card("Karai, Future of the Foot") {
     sneak("{2}{W}{B}")
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         val creatureCard = target("target creature card in your graveyard", Targets.CreatureCardInYourGraveyard)
         effect = Effects.If(
             condition = Conditions.All(Conditions.SneakCostWasPaid, Conditions.SourceEnteredThisTurn),

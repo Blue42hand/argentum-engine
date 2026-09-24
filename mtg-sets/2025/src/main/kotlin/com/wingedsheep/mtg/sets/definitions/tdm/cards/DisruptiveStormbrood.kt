@@ -35,7 +35,7 @@ val DisruptiveStormbrood = card("Disruptive Stormbrood") {
 
     // ETB: destroy up to one target artifact or enchantment.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val artifactOrEnchantment = target(
             "up to one target artifact or enchantment",
             TargetPermanent(filter = TargetFilter.ArtifactOrEnchantment, count = 1, optional = true)

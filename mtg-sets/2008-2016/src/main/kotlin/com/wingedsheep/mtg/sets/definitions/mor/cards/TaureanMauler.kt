@@ -29,7 +29,7 @@ val TaureanMauler = card("Taurean Mauler") {
     keywords(Keyword.CHANGELING)
 
     triggeredAbility {
-        trigger = Triggers.OpponentCastsSpell
+        trigger = Triggers.anOpponent.casts()
         optional = true
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }

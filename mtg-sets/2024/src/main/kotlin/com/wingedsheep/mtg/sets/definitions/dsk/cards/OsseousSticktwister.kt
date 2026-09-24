@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Osseous Sticktwister
@@ -51,7 +52,7 @@ val OsseousSticktwister = card("Osseous Sticktwister") {
     keywords(Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         // Delirium intervening-if (CR 603.4): four or more card types in your graveyard.
         interveningIf = Conditions.Delirium()
         effect = Effects.ForEachPlayer(

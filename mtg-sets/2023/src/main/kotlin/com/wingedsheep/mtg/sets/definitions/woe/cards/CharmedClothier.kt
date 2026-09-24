@@ -36,7 +36,7 @@ val CharmedClothier = card("Charmed Clothier") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", Targets.OtherCreatureYouControl)
         effect = Effects.CreateRoleToken("Royal Role", t)
     }

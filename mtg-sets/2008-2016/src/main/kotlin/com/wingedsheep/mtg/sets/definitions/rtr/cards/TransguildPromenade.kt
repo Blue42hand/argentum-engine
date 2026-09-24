@@ -28,7 +28,7 @@ val TransguildPromenade = card("Transguild Promenade") {
     oracleText = "This land enters tapped.\nWhen this land enters, sacrifice it unless you pay {1}.\n{T}: Add one mana of any color."
     replacementEffect(EntersTapped())
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.PayOrSuffer(cost = Costs.pay.Mana("{1}"), suffer = SacrificeSelfEffect)
     }
     activatedAbility {

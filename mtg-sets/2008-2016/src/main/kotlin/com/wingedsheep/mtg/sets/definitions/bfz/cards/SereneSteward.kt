@@ -24,7 +24,7 @@ val SereneSteward = card("Serene Steward") {
     oracleText = "Whenever you gain life, you may pay {W}. If you do, put a +1/+1 counter on target creature."
 
     triggeredAbility {
-        trigger = Triggers.YouGainLife
+        trigger = Triggers.you.gainsLife()
         val creature = target("target creature", Targets.Creature)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{W}"),

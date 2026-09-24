@@ -39,13 +39,13 @@ val SteelburrChampion = card("Steelburr Champion") {
 
     // Offspring ETB: when this enters, if offspring was paid, create a 1/1 token copy
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.WasKicked
         effect = Effects.CreateTokenCopyOfSelf(overridePower = 1, overrideToughness = 1)
     }
 
     triggeredAbility {
-        trigger = Triggers.opponentCasts(GameObjectFilter.Noncreature)
+        trigger = Triggers.anOpponent.casts(GameObjectFilter.Noncreature)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

@@ -60,7 +60,7 @@ val EdgarMarkov = card("Edgar Markov") {
     keywords(Keyword.FIRST_STRIKE, Keyword.HASTE)
 
     triggeredAbility {
-        trigger = Triggers.YouCastSubtype(Subtype.VAMPIRE)
+        trigger = Triggers.you.casts(GameObjectFilter.Any.withSubtype(Subtype.VAMPIRE))
         triggerZones = setOf(Zone.BATTLEFIELD, Zone.COMMAND)
         interveningIf = Conditions.SourceInZone(Zone.BATTLEFIELD, Zone.COMMAND)
         effect = Effects.CreateToken(
@@ -74,7 +74,7 @@ val EdgarMarkov = card("Edgar Markov") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl().withSubtype(Subtype.VAMPIRE)),
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),

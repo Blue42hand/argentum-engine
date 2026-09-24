@@ -41,7 +41,7 @@ val HoardingDragon = card("Hoarding Dragon") {
 
     // ETB: may search library for an artifact card, exile it (linked to this), then shuffle.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         effect = Effects.Pipeline {
             val hoardSearchable = gather(
@@ -57,7 +57,7 @@ val HoardingDragon = card("Hoarding Dragon") {
 
     // Dies: may put the linked exiled card into its owner's hand.
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         optional = true
         effect = Effects.Pipeline {
             val hoardExiled = gather(CardSource.FromLinkedExile())

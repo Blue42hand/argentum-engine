@@ -32,7 +32,7 @@ val UnderfootUnderdogs = card("Underfoot Underdogs") {
         "{1}, {T}: Target creature you control with power 2 or less can't be blocked this turn."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateToken(
             count = 1,
             power = 1,

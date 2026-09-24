@@ -48,7 +48,7 @@ val HiveheartShaman = card("Hiveheart Shaman") {
     toughness = 5
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         optional = true
         effect = Patterns.Library.searchLibrary(
             filter = GameObjectFilter.BasicLand.notSharingLandTypeWithPermanentYouControl(GameObjectFilter.Land),

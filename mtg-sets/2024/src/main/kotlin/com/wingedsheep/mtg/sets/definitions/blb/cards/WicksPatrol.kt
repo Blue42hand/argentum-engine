@@ -30,7 +30,7 @@ val WicksPatrol = card("Wick's Patrol") {
     toughness = 3
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val greatestMV = DynamicAmounts.zone(Player.You, Zone.GRAVEYARD).maxManaValue()
         val negX = -greatestMV
         effect = Effects.ReflexiveTrigger(

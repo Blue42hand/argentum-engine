@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Clockwork Vorrac — Mirrodin #156
@@ -24,7 +25,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * - Base P/T is the printed 0/0; the four +1/+1 counters (CR 613.4c, layer 7d) make it a 4/4 on
  *   the battlefield, and it dies as a state-based action once the last counter is shed.
  * - The counter-shed line follows the same shape as its set-mate [ClockworkBeetle] and their
- *   Antiquities ancestor Clockwork Avian: a [Triggers.EachEndOfCombat] trigger with the
+ *   Antiquities ancestor Clockwork Avian: a `Triggers.anyPlayer.beginningOf(Step.END_COMBAT)` trigger with the
  *   intervening-if [Conditions.SourceAttackedOrBlockedThisCombat], which is observationally
  *   identical to the printed "set up a delayed trigger" wording — one counter shed per combat the
  *   Vorrac fought in, on any player's turn.
@@ -55,7 +56,7 @@ val ClockworkVorrac = card("Clockwork Vorrac") {
     )
 
     triggeredAbility {
-        trigger = Triggers.EachEndOfCombat
+        trigger = Triggers.anyPlayer.beginningOf(Step.END_COMBAT)
         triggerRestriction = Conditions.SourceAttackedOrBlockedThisCombat
         effect = Effects.RemoveCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever this creature attacks or blocks, remove a +1/+1 counter from it at end of combat."

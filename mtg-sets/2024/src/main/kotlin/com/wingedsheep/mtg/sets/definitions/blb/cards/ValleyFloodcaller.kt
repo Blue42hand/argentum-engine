@@ -53,7 +53,7 @@ val ValleyFloodcaller = card("Valley Floodcaller") {
     )
 
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.ForEachInGroup(
             filter = creatureFilter,
             effect = Effects.Composite(

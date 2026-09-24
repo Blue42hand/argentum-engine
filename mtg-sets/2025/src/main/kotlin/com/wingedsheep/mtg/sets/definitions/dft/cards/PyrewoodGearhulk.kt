@@ -31,7 +31,7 @@ val PyrewoodGearhulk = card("Pyrewood Gearhulk") {
     toughness = 7
     keywords(Keyword.VIGILANCE, Keyword.MENACE)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),

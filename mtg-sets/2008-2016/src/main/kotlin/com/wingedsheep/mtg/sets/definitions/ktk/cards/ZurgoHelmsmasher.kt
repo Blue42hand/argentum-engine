@@ -46,7 +46,7 @@ val ZurgoHelmsmasher = card("Zurgo Helmsmasher") {
     }
 
     triggeredAbility {
-        trigger = Triggers.CreatureDealtDamageByThisDies
+        trigger = Triggers.self.damagedCreatureDies()
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

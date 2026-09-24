@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.core.Step
 
 val ScorpionSeethingStriker = card("Scorpion, Seething Striker") {
     manaCost = "{3}{B}"
@@ -19,7 +20,7 @@ val ScorpionSeethingStriker = card("Scorpion, Seething Striker") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.CreatureDiedThisTurn
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.Connive(target = creature)

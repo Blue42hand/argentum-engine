@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Deepfathom Echo — {2}{G}{U}
@@ -17,7 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *  become a copy of another creature you control until end of turn."
  *
  * Implementation:
- *  - `trigger = Triggers.BeginCombat` fires at the start of combat on the controller's turn.
+ *  - `trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)` fires at the start of combat on the controller's turn.
  *  - No target is declared at the `triggeredAbility` level. The "another creature you control"
  *    is selected mid-resolution — inside the `Effects.May` — via `Effects.SelectTarget`. This
  *    ensures the explore always runs unconditionally, and target selection happens only if the
@@ -50,7 +51,7 @@ val DeepfathomEcho = card("Deepfathom Echo") {
         "put it into your graveyard.)"
 
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = Effects.Composite(listOf(
             // Step 1: This creature explores (unconditional). Reveals top library card; land → hand,
             // nonland → +1/+1 counter on this creature + optional graveyard put (CR 701.44).

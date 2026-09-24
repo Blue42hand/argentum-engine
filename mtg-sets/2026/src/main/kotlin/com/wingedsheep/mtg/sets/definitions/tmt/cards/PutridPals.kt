@@ -34,7 +34,7 @@ val PutridPals = card("Putrid Pals") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         triggerRestriction = Conditions.YouHadPermanentLeaveBattlefieldThisTurn
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         description = "Disappear — This creature enters with two +1/+1 counters on it if a permanent left the battlefield under your control this turn."

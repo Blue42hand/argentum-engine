@@ -28,13 +28,13 @@ val HeartfireHero = card("Heartfire Hero") {
 
     // Valiant — put a +1/+1 counter on it
     triggeredAbility {
-        trigger = Triggers.Valiant
+        trigger = Triggers.self.becomesTarget(byYou = true, firstTimeEachTurn = true)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
     // When this creature dies, deal damage equal to its power to each opponent
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.DealDamage(
             DynamicAmounts.sourcePower(),
             EffectTarget.PlayerRef(Player.EachOpponent)

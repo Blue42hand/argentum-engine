@@ -22,7 +22,7 @@ val Meteorite = card("Meteorite") {
     oracleText = "When this artifact enters, it deals 2 damage to any target.\n{T}: Add one mana of any color."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("any target", AnyTarget())
         effect = Effects.DealDamage(2, t)
     }

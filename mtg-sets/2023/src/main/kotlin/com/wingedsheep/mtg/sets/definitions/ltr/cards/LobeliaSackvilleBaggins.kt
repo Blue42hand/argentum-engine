@@ -45,7 +45,7 @@ val LobeliaSackvilleBaggins = card("Lobelia Sackville-Baggins") {
     keywords(Keyword.FLASH, Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val exileTarget = target(
             "creature card in an opponent's graveyard that was put there from the battlefield this turn",
             TargetObject(

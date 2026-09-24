@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Serah Farron // Crystallized Serah — Final Fantasy #240
@@ -93,7 +94,7 @@ private val SerahFarronFront = card("Serah Farron") {
     // At the beginning of combat on your turn, if you control two or more other legendary
     // creatures, you may transform Serah Farron.
     triggeredAbility {
-        trigger = Triggers.BeginCombat
+        trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.battlefield(
                 Player.You,

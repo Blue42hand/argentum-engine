@@ -26,9 +26,7 @@ val HarnesserOfStorms = card("Harnesser of Storms") {
     oracleText = "Whenever you cast a noncreature or Otter spell, you may exile the top card of your library. Until end of turn, you may play that card. This ability triggers only once each turn."
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.Noncreature or GameObjectFilter.Any.withSubtype(Subtype("Otter")),
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature or GameObjectFilter.Any.withSubtype(Subtype("Otter")))
         oncePerTurn = true
         effect = Effects.May(
             Effects.Pipeline {

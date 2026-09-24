@@ -30,7 +30,7 @@ val GraftSurgeon = card("Graft Surgeon") {
             optional = true,
             filter = TargetFilter(GameObjectFilter.Creature.youControl())
         ))
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.MoveAllLastKnownCounters(creature)
     }
 

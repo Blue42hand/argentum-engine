@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.events.Recipient
 
 /**
  * Initiate's Companion
@@ -25,7 +26,7 @@ val InitiatesCompanion = card("Initiate's Companion") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.DealsCombatDamageToPlayer
+        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         val permanent = target(
             "target creature or land",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrLand)),

@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardLayout
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Defiled Crypt // Cadaver Lab (DSK 91) — split-layout Room (CR 709.5).
@@ -21,7 +22,7 @@ import com.wingedsheep.sdk.model.Rarity
  * Cast each half separately; the cast face enters unlocked, the other locked. Pay the locked
  * face's printed mana cost as a sorcery-speed special action to unlock it (CR 709.5e).
  *
- * Defiled Crypt reuses the batching [Triggers.CardsLeaveYourGraveyard] leave-graveyard trigger
+ * Defiled Crypt reuses the batching `Triggers.oneOrMore(filter).leaveYourGraveyard()` leave-graveyard trigger
  * with `oncePerTurn = true` for "This ability triggers only once each turn" (the tracker is
  * cleared at end of turn). The token is an enchantment creature, modeled via
  * `enchantmentToken = true`. Cadaver Lab is a "when you unlock this door" trigger (CR 709.5h)
@@ -38,7 +39,7 @@ val DefiledCryptCadaverLab = card("Defiled Crypt // Cadaver Lab") {
             "enchantment creature token. This ability triggers only once each turn."
 
         triggeredAbility {
-            trigger = Triggers.CardsLeaveYourGraveyard()
+            trigger = Triggers.oneOrMore(GameObjectFilter.Any).leaveYourGraveyard()
             oncePerTurn = true
             effect = Effects.CreateToken(
                 power = 2,
@@ -57,7 +58,7 @@ val DefiledCryptCadaverLab = card("Defiled Crypt // Cadaver Lab") {
         oracleText = "When you unlock this door, return target creature card from your graveyard to your hand."
 
         triggeredAbility {
-            trigger = Triggers.OnDoorUnlocked
+            trigger = Triggers.self.doorUnlocked()
             val creatureCard = target(
                 "target creature card from your graveyard",
                 Targets.CreatureCardInYourGraveyard

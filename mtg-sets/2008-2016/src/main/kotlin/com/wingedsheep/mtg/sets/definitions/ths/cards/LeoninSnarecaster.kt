@@ -23,7 +23,7 @@ val LeoninSnarecaster = card("Leonin Snarecaster") {
     oracleText = "When this creature enters, you may tap target creature."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         optional = true
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Tap(t)

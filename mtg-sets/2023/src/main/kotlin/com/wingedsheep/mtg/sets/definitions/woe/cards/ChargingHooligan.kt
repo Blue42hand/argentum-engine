@@ -43,7 +43,7 @@ val ChargingHooligan = card("Charging Hooligan") {
         "attacking creature. If a Rat is attacking, this creature gains trample until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Composite(
             Effects.ModifyStats(
                 power = DynamicAmounts.battlefield(

@@ -20,7 +20,7 @@ val TributaryVaulter = card("Tributary Vaulter") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
+        trigger = Triggers.self.becomesTapped()
         val merfolk = target(
             "merfolk",
             TargetObject(filter = TargetFilter.OtherCreatureYouControl.withSubtype("Merfolk"))

@@ -43,12 +43,12 @@ val QueensBayPaladin = card("Queen's Bay Paladin") {
         "to its mana value. (If a creature with a finality counter on it would die, exile it instead.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         returnVampireRider()
     }
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         returnVampireRider()
     }
 

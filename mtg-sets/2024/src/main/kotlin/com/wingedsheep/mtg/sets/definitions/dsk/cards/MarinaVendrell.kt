@@ -42,7 +42,7 @@ val MarinaVendrell = card("Marina Vendrell") {
         "{T}: Lock or unlock a door of target Room you control. Activate only as a sorcery."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Patterns.Library.revealTopPutAllMatchingToHand(
             count = 7,
             filter = GameObjectFilter.Enchantment,

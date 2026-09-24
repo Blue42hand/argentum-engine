@@ -40,9 +40,7 @@ val TeoSpiritedGlider = card("Teo, Spirited Glider") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.YouAttackWithFilter(
-            GameObjectFilter.Creature.youControl().withKeyword(Keyword.FLYING)
-        )
+        trigger = Triggers.you.attacks(GameObjectFilter.Creature.youControl().withKeyword(Keyword.FLYING))
         effect = Effects.ConniveTargeting(Targets.CreatureYouControl)
     }
 

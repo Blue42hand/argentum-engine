@@ -40,7 +40,7 @@ val CombustionMan = card("Combustion Man") {
         "has Combustion Man deal damage to them equal to his power."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val permanent = target("target permanent", Targets.Permanent)
         effect = Effects.ChooseAction(
             choices = listOf(

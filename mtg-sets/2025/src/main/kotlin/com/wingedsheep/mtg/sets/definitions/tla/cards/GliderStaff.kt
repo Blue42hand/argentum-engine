@@ -31,7 +31,7 @@ val GliderStaff = card("Glider Staff") {
         "Equip {2}"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target("up to one target creature", Targets.UpToCreatures(1))
         effect = Effects.Airbend()
     }

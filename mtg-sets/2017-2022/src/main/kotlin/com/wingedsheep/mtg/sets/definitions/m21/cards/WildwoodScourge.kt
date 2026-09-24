@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -44,12 +43,7 @@ val WildwoodScourge = card("Wildwood Scourge") {
     )
 
     triggeredAbility {
-        trigger = Triggers.countersPlacedOn(
-            filter = GameObjectFilter.Creature.youControl().notSubtype(Subtype.HYDRA),
-            counterType = CounterType.PLUS_ONE_PLUS_ONE,
-            firstTimeEachTurn = false,
-            binding = TriggerBinding.OTHER,
-        )
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl().notSubtype(Subtype.HYDRA)).getsCounters(CounterType.PLUS_ONE_PLUS_ONE)
         effect = Effects.AddCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 1,

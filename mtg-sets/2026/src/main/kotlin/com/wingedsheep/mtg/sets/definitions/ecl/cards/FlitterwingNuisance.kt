@@ -9,9 +9,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
-import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 
 val FlitterwingNuisance = card("Flitterwing Nuisance") {
@@ -39,12 +37,7 @@ val FlitterwingNuisance = card("Flitterwing Nuisance") {
             Costs.RemoveCounterFromSelf(CounterType.MINUS_ONE_MINUS_ONE)
         )
         effect = Effects.CreateDelayedTrigger(
-            trigger = Triggers.dealsDamage(
-                damageType = DamageType.Combat,
-                recipient = Recipient.AnyPlayer,
-                sourceFilter = GameObjectFilter.Creature.youControl(),
-                binding = TriggerBinding.ANY,
-            ),
+            trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dealsCombatDamage(Recipient.AnyPlayer),
             effect = Effects.DrawCards(1),
             expiry = DelayedTriggerExpiry.EndOfTurn
         )

@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Commander's Authority
@@ -19,7 +20,7 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
  *
  * The Cathar's Call shape. The quoted ability is granted *to* the enchanted creature through
  * [GrantTriggeredAbility] (whose filter defaults to the attached creature), and the trigger is
- * installed with [Triggers.YourUpkeep]'s own event and binding passed through verbatim — ANY, not
+ * installed with `Triggers.you.beginningOf(Step.UPKEEP)`'s own event and binding passed through verbatim — ANY, not
  * ATTACHED. An ATTACHED-bound trigger is never indexed by the engine's trigger index, so keeping
  * the spec's binding is what makes the card do anything at all.
  *
@@ -40,8 +41,7 @@ val CommandersAuthority = card("Commander's Authority") {
     staticAbility {
         ability = GrantTriggeredAbility(
             TriggeredAbility.create(
-                trigger = Triggers.YourUpkeep.event,
-                binding = Triggers.YourUpkeep.binding,
+                trigger = Triggers.you.beginningOf(Step.UPKEEP),
                 effect = Effects.CreateToken(
                     power = 1,
                     toughness = 1,

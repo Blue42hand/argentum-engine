@@ -32,7 +32,7 @@ val AOrcishBowmasters = card("A-Orcish Bowmasters") {
     keywords(Keyword.FLASH)
 
     triggeredAbility {
-        trigger = Triggers.OpponentDrawsExceptFirstEachDrawStep
+        trigger = Triggers.anOpponent.draws(true)
         val t = target("target", AnyTarget())
         effect = Effects.Composite(
             Effects.DealDamage(1, t),

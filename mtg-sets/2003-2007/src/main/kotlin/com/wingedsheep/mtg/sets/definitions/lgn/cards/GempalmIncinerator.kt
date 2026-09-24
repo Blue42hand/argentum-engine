@@ -29,7 +29,7 @@ val GempalmIncinerator = card("Gempalm Incinerator") {
     keywordAbility(KeywordAbility.cycling("{1}{R}"))
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         val t = target("target", Targets.Creature)
         effect = Effects.May(
             Effects.DealDamage(

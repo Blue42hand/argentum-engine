@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 
 /**
@@ -27,7 +28,7 @@ val FirebrandArcher = card("Firebrand Archer") {
     power = 2
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent))
     }
     metadata {

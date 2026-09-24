@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -42,7 +41,7 @@ val DelifsCube = card("Delif's Cube") {
             TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.youControl()))
         )
         effect = Effects.CreateDelayedTrigger(
-            trigger = Triggers.AttacksAndIsntBlocked.copy(binding = TriggerBinding.ANY),
+            trigger = Triggers.a().attacksAndIsntBlocked(),
             watchedTarget = t,
             effect = Effects.Composite(
                 Effects.GrantKeyword(

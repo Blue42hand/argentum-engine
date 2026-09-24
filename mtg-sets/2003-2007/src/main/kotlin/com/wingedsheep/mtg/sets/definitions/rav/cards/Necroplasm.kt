@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Necroplasm
@@ -44,7 +45,7 @@ val Necroplasm = card("Necroplasm") {
 
     // "At the beginning of your upkeep, put a +1/+1 counter on this creature."
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "At the beginning of your upkeep, put a +1/+1 counter on this creature."
     }
@@ -52,7 +53,7 @@ val Necroplasm = card("Necroplasm") {
     // "At the beginning of your end step, destroy each creature with mana value equal to the
     //  number of +1/+1 counters on this creature."
     triggeredAbility {
-        trigger = Triggers.YourEndStep
+        trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.DestroyAll(
             GameObjectFilter.Creature.manaValueEqualsDynamic(
                 DynamicAmounts.countersOnSelf(CounterType.PLUS_ONE_PLUS_ONE)

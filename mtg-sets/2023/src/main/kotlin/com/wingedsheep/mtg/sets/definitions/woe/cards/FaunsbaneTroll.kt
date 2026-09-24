@@ -43,7 +43,7 @@ val FaunsbaneTroll = card("Faunsbane Troll") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.CreateRoleToken("Monster Role", EffectTarget.Self)
     }
 

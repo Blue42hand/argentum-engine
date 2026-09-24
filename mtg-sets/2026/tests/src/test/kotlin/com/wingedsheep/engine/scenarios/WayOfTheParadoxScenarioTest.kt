@@ -14,7 +14,7 @@ import io.kotest.matchers.shouldNotBe
  * Way of the Paradox (FRA #267) — "Whenever you activate a loyalty ability, you gain 1 life. You may
  * play an additional land this turn."
  *
- * Pins `Triggers.YouActivateLoyaltyAbility`: a loyalty ability fires it, a non-loyalty activated
+ * Pins `Triggers.you.activatesAbility(loyalty = true)`: a loyalty ability fires it, a non-loyalty activated
  * ability does not.
  */
 class WayOfTheParadoxScenarioTest : ScenarioTestBase() {

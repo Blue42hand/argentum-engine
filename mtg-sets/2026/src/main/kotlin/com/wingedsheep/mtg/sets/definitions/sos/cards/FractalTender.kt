@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Fractal Tender
@@ -41,7 +42,7 @@ val FractalTender = card("Fractal Tender") {
     increment()
 
     triggeredAbility {
-        trigger = Triggers.EachEndStep
+        trigger = Triggers.anyPlayer.beginningOf(Step.END)
         interveningIf = Conditions.SourceReceivedCounterThisTurn()
         // Create the 0/0 Fractal (publishing it to the CREATED_TOKENS pipeline collection), then put
         // three +1/+1 counters on that just-created token via PipelineTarget(CREATED_TOKENS, 0).

@@ -25,7 +25,7 @@ val TerohsFaithful = card("Teroh's Faithful") {
     power = 1
     toughness = 4
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(4)
     }
     metadata {

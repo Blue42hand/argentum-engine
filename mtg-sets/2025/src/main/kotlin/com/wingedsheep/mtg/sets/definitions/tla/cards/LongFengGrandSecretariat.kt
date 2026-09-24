@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  * Whenever another creature you control or a land you control is put into a graveyard from the
  * battlefield, put a +1/+1 counter on target creature you control.
  *
- * Modeled as a per-permanent [Triggers.leavesBattlefield] death trigger scoped to your battlefield:
+ * Modeled as a per-permanent `Triggers.<subject>.leaves(to, excludeTo, excludeSacrifice)` death trigger scoped to your battlefield:
  * filter [GameObjectFilter.CreatureOrLand] restricted to your control, destination
  * [Zone.GRAVEYARD], and [TriggerBinding.OTHER] for the "another" exclusion (Long Feng's own death
  * doesn't trigger). A board wipe fires it once per qualifying permanent. The counter goes on a
@@ -36,11 +36,7 @@ val LongFengGrandSecretariat = card("Long Feng, Grand Secretariat") {
         "graveyard from the battlefield, put a +1/+1 counter on target creature you control."
 
     triggeredAbility {
-        trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.CreatureOrLand.youControl(),
-            to = Zone.GRAVEYARD,
-            binding = TriggerBinding.OTHER,
-        )
+        trigger = Triggers.another(GameObjectFilter.CreatureOrLand.youControl()).dies()
         val target = target(
             "target creature you control",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.Creature.youControl()))

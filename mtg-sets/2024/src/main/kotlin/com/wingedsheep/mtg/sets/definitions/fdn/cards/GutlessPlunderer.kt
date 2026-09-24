@@ -38,7 +38,7 @@ val GutlessPlunderer = card("Gutless Plunderer") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.YouAttackedThisTurn
         effect = Effects.Pipeline {
             val gpLooked = gather(CardSource.TopOfLibrary(3), revealed = false)

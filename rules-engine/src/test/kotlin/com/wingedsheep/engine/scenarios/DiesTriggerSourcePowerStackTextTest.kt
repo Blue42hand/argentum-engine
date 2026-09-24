@@ -43,7 +43,7 @@ class DiesTriggerSourcePowerStackTextTest : FunSpec({
     val Fireleaper = card("LKI Fireleaper") {
         manaCost = "{0}"; typeLine = "Creature — Goblin"; power = 3; toughness = 3
         triggeredAbility {
-            trigger = Triggers.Dies
+            trigger = Triggers.self.dies()
             val tgt = target("any target", Targets.Any)
             effect = Effects.DealDamage(DynamicAmounts.sourcePower(), tgt)
         }

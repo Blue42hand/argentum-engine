@@ -15,7 +15,7 @@ val WanderwineDistracter = card("Wanderwine Distracter") {
     oracleText = "Whenever this creature becomes tapped, target creature an opponent controls gets -3/-0 until end of turn."
 
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
+        trigger = Triggers.self.becomesTapped()
         val victim = target("creature", Targets.CreatureOpponentControls)
         effect = Effects.ModifyStats(-3, 0, victim)
     }

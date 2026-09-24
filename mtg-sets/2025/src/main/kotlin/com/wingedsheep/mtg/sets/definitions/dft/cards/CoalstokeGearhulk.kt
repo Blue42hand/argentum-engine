@@ -51,7 +51,7 @@ val CoalstokeGearhulk = card("Coalstoke Gearhulk") {
     keywords(Keyword.MENACE, Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val reanimated = target(
             "target creature card with mana value 4 or less in a graveyard",
             TargetObject(filter = TargetFilter.CreatureInGraveyard.manaValueAtMost(4))

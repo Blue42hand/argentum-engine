@@ -33,13 +33,13 @@ val FelotharDawnOfTheAbzan = card("Felothar, Dawn of the Abzan") {
 
     // Whenever Felothar enters ...
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = felotharSacrificeEffect()
     }
 
     // ... or attacks
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = felotharSacrificeEffect()
     }
 

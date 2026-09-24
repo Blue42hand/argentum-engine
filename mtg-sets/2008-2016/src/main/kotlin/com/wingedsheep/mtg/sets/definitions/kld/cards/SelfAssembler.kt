@@ -25,7 +25,7 @@ val SelfAssembler = card("Self-Assembler") {
     oracleText = "When this creature enters, you may search your library for an Assembly-Worker creature card, reveal it, put it into your hand, then shuffle."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.May(
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.Creature.withSubtype("Assembly-Worker"),

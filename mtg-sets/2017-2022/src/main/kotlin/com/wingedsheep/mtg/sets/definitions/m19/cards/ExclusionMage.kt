@@ -28,7 +28,7 @@ val ExclusionMage = card("Exclusion Mage") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.Move(t, Zone.HAND)
     }

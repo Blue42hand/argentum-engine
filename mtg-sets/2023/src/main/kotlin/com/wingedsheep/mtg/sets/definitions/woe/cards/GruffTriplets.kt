@@ -50,7 +50,7 @@ val GruffTriplets = card("Gruff Triplets") {
     keywords(Keyword.TRAMPLE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.SourceMatches(GameObjectFilter.Any.nontoken())
         effect = Effects.CreateTokenCopyOfSelf(count = 2)
         description = "When this creature enters, if it isn't a token, create two tokens that " +
@@ -58,7 +58,7 @@ val GruffTriplets = card("Gruff Triplets") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Creature.youControl().named("Gruff Triplets")),
             effect = Effects.AddDynamicCounters(

@@ -45,7 +45,7 @@ val DyadrineSynthesisAmalgam = card("Dyadrine, Synthesis Amalgam") {
     // Whenever you attack, optionally remove a +1/+1 counter from each of two creatures
     // you control. If both removals happen, draw a card and create a 2/2 Robot token.
     triggeredAbility {
-        trigger = Triggers.YouAttack
+        trigger = Triggers.you.attacks()
         effect = Effects.May(
             effect = Effects.Pipeline {
                 val candidates = gather(

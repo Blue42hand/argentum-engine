@@ -24,10 +24,7 @@ val MikeyAndLeoChaosAndOrder = card("Mikey & Leo, Chaos & Order") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.countersPlacedOn(
-            filter = GameObjectFilter.Creature.youControl(),
-            firstTimeEachTurn = false,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl()).getsCounters()
         oncePerTurn = true
         effect = Effects.DrawCards(1)
     }

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
@@ -20,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  * Whenever you cast your first noncreature spell each turn, empower Jace 1.
  *
  * [Effects.PutOnTopOrBottomOfLibrary] asks the target's **owner** for the position (Diver Skaab).
- * The second ability is [Triggers.NthSpellCast] with a noncreature filter, which counts casts —
+ * The second ability is `Triggers.<player>.castsNth(n, spell)` with a noncreature filter, which counts casts —
  * a countered first noncreature spell still closes the window for the turn.
  */
 val PlanForAllOutcomes = card("Plan for All Outcomes") {
@@ -34,7 +33,7 @@ val PlanForAllOutcomes = card("Plan for All Outcomes") {
         "planeswalker token with \"[−1]: Surveil 1\" and \"[−3]: Draw a card.\")"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val permanent = target(
             "up to one other target nonland permanent",
             TargetPermanent(optional = true, filter = TargetFilter.NonlandPermanent.other())
@@ -43,7 +42,7 @@ val PlanForAllOutcomes = card("Plan for All Outcomes") {
     }
 
     triggeredAbility {
-        trigger = Triggers.NthSpellCast(1, Player.You, GameObjectFilter.Noncreature)
+        trigger = Triggers.you.castsNth(1, GameObjectFilter.Noncreature)
         effect = Patterns.Mechanic.empowerJace(1)
     }
 

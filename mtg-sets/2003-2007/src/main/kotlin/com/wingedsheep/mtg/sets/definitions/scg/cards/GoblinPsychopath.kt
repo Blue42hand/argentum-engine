@@ -24,14 +24,14 @@ val GoblinPsychopath = card("Goblin Psychopath") {
     oracleText = "Whenever Goblin Psychopath attacks or blocks, flip a coin. If you lose the flip, the next time it would deal combat damage this turn, it deals that damage to you instead."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.FlipCoin(
             lostEffect = Effects.RedirectCombatDamageToController(EffectTarget.Self)
         )
     }
 
     triggeredAbility {
-        trigger = Triggers.Blocks
+        trigger = Triggers.self.blocks()
         effect = Effects.FlipCoin(
             lostEffect = Effects.RedirectCombatDamageToController(EffectTarget.Self)
         )

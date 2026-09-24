@@ -25,7 +25,7 @@ val FateshaperAspirant = card("Fateshaper Aspirant") {
         "(Damage and effects that say \"destroy\" don't destroy it.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             // "Legendary card" is any card type — not narrowed to permanents or creatures.
             mode("Return target legendary card from your graveyard to your hand.") {

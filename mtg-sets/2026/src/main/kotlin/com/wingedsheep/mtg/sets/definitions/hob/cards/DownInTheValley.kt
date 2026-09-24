@@ -60,8 +60,7 @@ val DownInTheValley = card("Down in the Valley") {
     sagaChapter(2) {
         effect = Effects.GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.LandYouControlEnters.event,
-                binding = Triggers.LandYouControlEnters.binding,
+                trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters(),
                 effect = Effects.CreateToken(
                     power = 1,
                     toughness = 1,

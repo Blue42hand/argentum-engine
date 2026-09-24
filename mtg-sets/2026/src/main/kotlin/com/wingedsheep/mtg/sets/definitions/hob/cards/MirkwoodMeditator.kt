@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Mirkwood Meditator
@@ -29,7 +30,7 @@ val MirkwoodMeditator = card("Mirkwood Meditator") {
     toughness = 4
 
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = Effects.May(
             Effects.SetBasePowerAndToughness(power = 4, toughness = 2, target = EffectTarget.Self),
             descriptionOverride = "Have Mirkwood Meditator's base power and toughness become 4/2 until end of turn?"

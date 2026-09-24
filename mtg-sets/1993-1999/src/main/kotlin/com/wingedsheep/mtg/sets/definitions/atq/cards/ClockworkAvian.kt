@@ -56,7 +56,7 @@ val ClockworkAvian = card("Clockwork Avian") {
     ))
 
     triggeredAbility {
-        trigger = Triggers.EachEndOfCombat
+        trigger = Triggers.anyPlayer.beginningOf(Step.END_COMBAT)
         interveningIf = Conditions.SourceAttackedOrBlockedThisCombat
         effect = Effects.RemoveCounters(CounterType.PLUS_ONE_PLUS_ZERO, 1, EffectTarget.Self)
         description = "At end of combat, if this creature attacked or blocked this combat, remove a +1/+0 counter from it."

@@ -31,7 +31,7 @@ val MistRaven = card("Mist Raven") {
     toughness = 2
     keywords(Keyword.FLYING)
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Move(t, Zone.HAND)
     }

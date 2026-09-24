@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -60,10 +59,7 @@ val LastLightOfDurinsDay = card("Last Light of Durin's Day") {
         "reveal it, put it into your hand, then shuffle.)"
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Land.withSubtype(Subtype.MOUNTAIN).youControl(),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Land.withSubtype(Subtype.MOUNTAIN).youControl()).enters()
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.QUEST, 1, EffectTarget.Self),
             Effects.If(

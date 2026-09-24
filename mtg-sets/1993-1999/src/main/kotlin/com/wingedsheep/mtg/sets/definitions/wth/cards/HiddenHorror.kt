@@ -28,7 +28,7 @@ val HiddenHorror = card("Hidden Horror") {
     power = 4
     toughness = 4
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Discard(filter = GameObjectFilter.Creature),
             suffer = SacrificeSelfEffect

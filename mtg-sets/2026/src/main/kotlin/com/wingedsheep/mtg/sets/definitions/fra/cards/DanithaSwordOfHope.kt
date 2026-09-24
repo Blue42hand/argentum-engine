@@ -27,16 +27,14 @@ val DanithaSwordOfHope = card("Danitha, Sword of Hope") {
     keywords(Keyword.FIRST_STRIKE)
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            requires = setOf(
+        trigger = Triggers.you.casts(requires = setOf(
                 SpellCastPredicate.AnyOf(
                     listOf(
                         SpellCastPredicate.SpellMatches(GameObjectFilter.Any.withSubtype(Subtype.EQUIPMENT)),
                         SpellCastPredicate.TargetsMatching(GameObjectFilter.Creature.youControl()),
                     )
                 )
-            )
-        )
+            ))
         oncePerTurn = true
         effect = Effects.DrawCards(1)
     }

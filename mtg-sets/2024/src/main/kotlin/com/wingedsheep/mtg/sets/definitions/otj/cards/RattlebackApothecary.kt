@@ -21,11 +21,11 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * Whenever you commit a crime, target creature you control gains your choice of menace or lifelink
  * until end of turn.
  *
- * The crime trigger ([Triggers.YouCommitCrime]) targets a creature you control and offers a
+ * The crime trigger (`Triggers.you.commitsCrime()`) targets a creature you control and offers a
  * [ModalEffect.chooseOne] between two [GrantKeywordEffect]s — the same "your choice of keyword X or Y"
  * shape as Manifold Mouse. Each mode grants its keyword to the chosen creature (ContextTarget(0)) for
  * `Duration.EndOfTurn`. The crime-this-turn tracker is read at the engine's `CrimeDetector` emit site;
- * this card only consumes [Triggers.YouCommitCrime].
+ * this card only consumes `Triggers.you.commitsCrime()`.
  */
 val RattlebackApothecary = card("Rattleback Apothecary") {
     manaCost = "{2}{B}"
@@ -41,7 +41,7 @@ val RattlebackApothecary = card("Rattleback Apothecary") {
     keywords(Keyword.DEATHTOUCH)
 
     triggeredAbility {
-        trigger = Triggers.YouCommitCrime
+        trigger = Triggers.you.commitsCrime()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = ModalEffect.chooseOne(
             Mode.noTarget(Effects.GrantKeyword(Keyword.MENACE, t, Duration.EndOfTurn), "Menace"),

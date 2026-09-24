@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -31,15 +30,12 @@ val GideonTheOathless = card("Gideon the Oathless") {
     keywordAbility(KeywordAbility.wardDiscard())
 
     triggeredAbility {
-        trigger = Triggers.entersBattlefield(
-            filter = GameObjectFilter.Creature.opponentControls(),
-            binding = TriggerBinding.ANY,
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.opponentControls()).enters()
         effect = Effects.DealDamage(1, EffectTarget.ControllerOfTriggeringEntity)
     }
 
     triggeredAbility {
-        trigger = Triggers.OpponentActivatesLoyaltyAbility
+        trigger = Triggers.anOpponent.activatesAbility(loyalty = true)
         effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.TriggeringPlayer))
     }
 

@@ -35,7 +35,7 @@ val MirkwoodNurturer = card("Mirkwood Nurturer") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target(
             "other permanent you control",
             TargetPermanent(optional = true, filter = TargetFilter.PermanentYouControl.other())

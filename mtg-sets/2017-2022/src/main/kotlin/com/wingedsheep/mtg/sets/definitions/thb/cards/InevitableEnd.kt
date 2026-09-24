@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Inevitable End
@@ -20,12 +21,12 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
  * The quoted ability is *granted to the enchanted creature* ([GrantTriggeredAbility] over the default
  * attached-creature filter) rather than printed on the Aura, which is what makes the quoted "your"
  * mean the enchanted creature's controller: the engine indexes a granted trigger on the permanent it
- * was granted to, so [Triggers.YourUpkeep]'s `Player.You` reads that permanent's controller. Printing
+ * was granted to, so `Triggers.you.beginningOf(Step.UPKEEP)`'s `Player.You` reads that permanent's controller. Printing
  * an ordinary triggered ability on the Aura instead would make the Aura's controller sacrifice —
  * wrong for a card whose whole point is enchanting someone else's creature. Relic Bane is the same
  * shape, and its scenario test pins the attribution.
  *
- * The granted ability keeps [Triggers.YourUpkeep]'s own `ANY` binding; an `ATTACHED` binding would
+ * The granted ability keeps `Triggers.you.beginningOf(Step.UPKEEP)`'s own `ANY` binding; an `ATTACHED` binding would
  * drop it out of the trigger index entirely.
  *
  * The sacrifice is [Effects.SacrificeOwn], not `Effects.Sacrifice`: the printed clause is the bare
@@ -44,8 +45,7 @@ val InevitableEnd = card("Inevitable End") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.YourUpkeep.event,
-                binding = Triggers.YourUpkeep.binding,
+                trigger = Triggers.you.beginningOf(Step.UPKEEP),
                 effect = Effects.SacrificeOwn(GameObjectFilter.Creature)
             )
         )

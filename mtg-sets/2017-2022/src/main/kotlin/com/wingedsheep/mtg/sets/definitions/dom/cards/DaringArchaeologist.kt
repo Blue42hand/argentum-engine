@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Daring Archaeologist
@@ -27,7 +28,7 @@ val DaringArchaeologist = card("Daring Archaeologist") {
     oracleText = "When this creature enters, you may return target artifact card from your graveyard to your hand.\nWhenever you cast a historic spell, put a +1/+1 counter on this creature. (Artifacts, legendaries, and Sagas are historic.)"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetObject(
             filter = TargetFilter.ArtifactInYourGraveyard
         ))
@@ -43,7 +44,7 @@ val DaringArchaeologist = card("Daring Archaeologist") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YouCastHistoric
+        trigger = Triggers.you.casts(GameObjectFilter.Historic)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 

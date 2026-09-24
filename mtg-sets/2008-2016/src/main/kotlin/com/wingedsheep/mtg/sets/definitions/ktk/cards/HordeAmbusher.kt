@@ -28,14 +28,14 @@ val HordeAmbusher = card("Horde Ambusher") {
     oracleText = "Whenever Horde Ambusher blocks, it deals 1 damage to you.\nMorph—Reveal a red card in your hand. (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen Horde Ambusher is turned face up, target creature can't block this turn."
 
     triggeredAbility {
-        trigger = Triggers.Blocks
+        trigger = Triggers.self.blocks()
         effect = Effects.DealDamage(1, EffectTarget.Controller)
     }
 
     morphCost = Costs.pay.RevealCard(filter = GameObjectFilter.Any.withColor(Color.RED))
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         val creature = target("creature", Targets.Creature)
         effect = Effects.CantBlock(target = creature)
     }

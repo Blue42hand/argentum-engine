@@ -28,7 +28,7 @@ val CaparoctiSunborn = card("Caparocti Sunborn") {
     oracleText = "Whenever Caparocti Sunborn attacks, you may tap two untapped artifacts and/or creatures you control. If you do, discover 3."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val tapCost = Effects.Pipeline {
             val caparoctiTapPool = gather(
                 CardSource.ControlledPermanents(

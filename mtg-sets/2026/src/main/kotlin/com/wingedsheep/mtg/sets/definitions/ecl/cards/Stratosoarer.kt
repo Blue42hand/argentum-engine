@@ -31,7 +31,7 @@ val Stratosoarer = card("Stratosoarer") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target("creature", Targets.Creature)
         effect = Effects.GrantKeyword(Keyword.FLYING, creature)
     }

@@ -22,7 +22,7 @@ val AstralSlide = card("Astral Slide") {
     oracleText = "Whenever a player cycles a card, you may exile target creature. If you do, return that card to the battlefield under its owner's control at the beginning of the next end step."
 
     triggeredAbility {
-        trigger = Triggers.AnyPlayerCycles
+        trigger = Triggers.anyPlayer.cycles()
         val t = target("target", Targets.Creature)
         effect = Effects.May(Patterns.Exile.exileUntilEndStep(t))
     }

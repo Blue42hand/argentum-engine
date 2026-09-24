@@ -29,7 +29,7 @@ val PlantElemental = card("Plant Elemental") {
     power = 3
     toughness = 4
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Sacrifice(GameObjectFilter.Land.withSubtype(Subtype.FOREST)),
             suffer = SacrificeSelfEffect

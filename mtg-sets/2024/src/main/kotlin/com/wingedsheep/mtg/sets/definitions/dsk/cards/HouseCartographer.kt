@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardOrder
+import com.wingedsheep.sdk.core.Step
 
 /**
  * House Cartographer
@@ -18,7 +19,7 @@ import com.wingedsheep.sdk.scripting.effects.CardOrder
  * and the rest on the bottom of your library in a random order.
  *
  * "Survival" is an ability word (no rules meaning) — modeled as a postcombat-main-phase trigger
- * ([Triggers.YourPostcombatMain]) with an intervening-if ([Conditions.SourceIsTapped], CR 603.4 —
+ * (`Triggers.you.beginningOf(Step.POSTCOMBAT_MAIN)`) with an intervening-if ([Conditions.SourceIsTapped], CR 603.4 —
  * checked both when it would trigger and on resolution). The reveal-until-land body reuses the
  * Clifftop Lookout pipeline (GatherUntilMatch → Reveal → Filter → Move), but lands the found card
  * in hand rather than onto the battlefield.
@@ -32,7 +33,7 @@ val HouseCartographer = card("House Cartographer") {
     oracleText = "Survival — At the beginning of your second main phase, if this creature is tapped, reveal cards from the top of your library until you reveal a land card. Put that card into your hand and the rest on the bottom of your library in a random order."
 
     triggeredAbility {
-        trigger = Triggers.YourPostcombatMain
+        trigger = Triggers.you.beginningOf(Step.POSTCOMBAT_MAIN)
         interveningIf = Conditions.SourceIsTapped
         effect = Effects.Pipeline {
             val (revealedLand, allRevealed) = gatherUntilMatch(GameObjectFilter.Land)

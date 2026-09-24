@@ -26,7 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Landfall — Whenever a land you control enters, Choco gets +1/+0 until end of turn.
  *
  * Modeling notes:
- *  - The attack trigger is a once-per-combat group trigger ([Triggers.YouAttackWithFilter])
+ *  - The attack trigger is a once-per-combat group trigger (`Triggers.you.attacks(with)`)
  *    keyed on Birds you control — it fires once no matter how many Birds attack, not once
  *    per Bird.
  *  - "Look at that many cards" — the count is the number of attacking Birds you control,
@@ -52,7 +52,7 @@ val ChocoSeekerOfParadise = card("Choco, Seeker of Paradise") {
 
     // Whenever one or more Birds you control attack, look at that many cards...
     triggeredAbility {
-        trigger = Triggers.YouAttackWithFilter(GameObjectFilter.Creature.withSubtype(Subtype.BIRD))
+        trigger = Triggers.you.attacks(GameObjectFilter.Creature.withSubtype(Subtype.BIRD))
         effect = Effects.Pipeline {
             // Look at that many cards from the top of your library.
             val looked = gather(
@@ -91,7 +91,7 @@ val ChocoSeekerOfParadise = card("Choco, Seeker of Paradise") {
 
     // Landfall — Whenever a land you control enters, Choco gets +1/+0 until end of turn.
     triggeredAbility {
-        trigger = Triggers.LandYouControlEnters
+        trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = Effects.ModifyStats(1, 0, EffectTarget.Self)
         description = "Landfall — Whenever a land you control enters, Choco, Seeker of Paradise gets +1/+0 until end of turn."
     }

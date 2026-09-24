@@ -25,7 +25,7 @@ val MasterOfTheVeil = card("Master of the Veil") {
     oracleText = "Morph {2}{U} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its morph cost.)\nWhen this creature is turned face up, you may turn target creature with a morph ability face down."
 
     triggeredAbility {
-        trigger = Triggers.TurnedFaceUp
+        trigger = Triggers.self.turnedFaceUp()
         optional = true
         val t = target("creature with a morph ability", TargetPermanent(
             filter = TargetFilter(GameObjectFilter.Creature.withMorph().faceUp())

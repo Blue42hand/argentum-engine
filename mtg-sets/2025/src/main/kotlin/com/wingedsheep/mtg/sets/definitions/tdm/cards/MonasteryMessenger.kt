@@ -34,7 +34,7 @@ val MonasteryMessenger = card("Monastery Messenger") {
     keywords(Keyword.FLYING, Keyword.VIGILANCE)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val card = target(
             "noncreature, nonland card from your graveyard",
             TargetObject(

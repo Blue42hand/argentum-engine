@@ -39,7 +39,7 @@ val TravelersCloak = card("Traveler's Cloak") {
     replacementEffect(EntersWithChoice(ChoiceType.BASIC_LAND_TYPE))
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.DrawCards(1)
     }
 

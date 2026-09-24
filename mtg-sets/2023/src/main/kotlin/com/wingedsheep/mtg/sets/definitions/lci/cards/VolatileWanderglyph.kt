@@ -25,7 +25,7 @@ val VolatileWanderglyph = card("Volatile Wanderglyph") {
     power = 2
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
+        trigger = Triggers.self.becomesTapped()
         effect = Effects.May(effect = Effects.IfYouDo(action = Patterns.Hand.discardCards(1), then = Effects.DrawCards(1)))
     }
     metadata {

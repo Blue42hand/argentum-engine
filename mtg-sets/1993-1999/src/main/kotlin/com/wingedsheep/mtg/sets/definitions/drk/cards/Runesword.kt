@@ -58,7 +58,7 @@ val Runesword = card("Runesword") {
                 attackingCreature,
             ),
             Effects.CreateDelayedTrigger(
-                trigger = Triggers.LeavesBattlefield,
+                trigger = Triggers.self.leaves(),
                 watchedTarget = attackingCreature,
                 effect = SacrificeSelfEffect,
             ),

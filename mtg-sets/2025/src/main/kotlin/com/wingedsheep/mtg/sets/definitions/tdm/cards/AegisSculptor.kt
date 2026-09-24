@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Aegis Sculptor — Tarkir: Dragonstorm #35
@@ -44,7 +45,7 @@ val AegisSculptor = card("Aegis Sculptor") {
     keywordAbility(KeywordAbility.ward("{2}"))
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.May(
             Effects.IfYouDo(
                 action = Effects.Pipeline {

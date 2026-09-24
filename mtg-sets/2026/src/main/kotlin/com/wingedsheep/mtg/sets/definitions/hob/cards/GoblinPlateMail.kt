@@ -41,7 +41,7 @@ val GoblinPlateMail = card("Goblin Plate Mail") {
         "Equip {4}"
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.Composite(
             Effects.Amass(1, "Goblin"),
             Effects.AttachEquipment(EffectTarget.AmassedArmy),

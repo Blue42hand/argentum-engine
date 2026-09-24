@@ -33,7 +33,7 @@ val GiltLeafsEmbrace = card("Gilt-Leaf's Embrace") {
     auraTarget = Targets.Creature
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.EnchantedCreature)
             .then(Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.EnchantedCreature))
     }

@@ -28,7 +28,7 @@ val DubiousDelicacy = card("Dubious Delicacy") {
 
     // ETB: up to one target creature gets -3/-3 until end of turn
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val target = target("up to one target creature", Targets.Creature)
         
         effect = Effects.ModifyStats(-3, -3, target)

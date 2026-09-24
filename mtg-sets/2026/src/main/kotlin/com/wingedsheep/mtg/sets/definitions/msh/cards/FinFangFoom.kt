@@ -18,7 +18,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Whenever you cast an instant or sorcery spell that targets an artifact or land, copy that spell.
  * You may choose new targets for the copy. Put two +1/+1 counters on Fin Fang Foom.
  *
- * The trigger is [Triggers.youCastSpell] narrowed to [GameObjectFilter.InstantOrSorcery] with a
+ * The trigger is `Triggers.you.casts(spell, requires)` narrowed to [GameObjectFilter.InstantOrSorcery] with a
  * [SpellCastPredicate.TargetsMatching]`(ArtifactOrLand)` cast-time requirement — at least one of the
  * spell's chosen targets is an artifact or a land, of any controller (Leyline of Resonance's shape,
  * minus its single-target rider). The payoff composes the two existing effects: the standard
@@ -40,10 +40,7 @@ val FinFangFoom = card("Fin Fang Foom") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.youCastSpell(
-            spellFilter = GameObjectFilter.InstantOrSorcery,
-            requires = setOf(SpellCastPredicate.TargetsMatching(GameObjectFilter.ArtifactOrLand))
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery, requires = setOf(SpellCastPredicate.TargetsMatching(GameObjectFilter.ArtifactOrLand)))
         effect = Effects.Composite(
             Effects.CopyTargetSpell(target = EffectTarget.TriggeringEntity),
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)

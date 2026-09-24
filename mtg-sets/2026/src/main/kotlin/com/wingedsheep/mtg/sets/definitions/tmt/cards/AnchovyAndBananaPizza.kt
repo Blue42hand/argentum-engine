@@ -22,7 +22,7 @@ val AnchovyAndBananaPizza = card("Anchovy & Banana Pizza") {
     oracleText = "When this artifact enters, destroy target creature.\n{2}, {T}, Sacrifice this artifact: You gain 3 life."
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val target = target("target creature", TargetCreature())
         effect = Effects.Destroy(target)
     }

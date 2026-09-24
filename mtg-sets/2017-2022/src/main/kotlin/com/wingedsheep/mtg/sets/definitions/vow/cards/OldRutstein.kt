@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Old Rutstein — Innistrad: Crimson Vow #244
@@ -20,8 +21,8 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  * token.
  *
  * "When … enters and at the beginning of your upkeep" is one ability on two events — modeled as two
- * [triggeredAbility] blocks sharing one hoisted effect ([Triggers.EntersBattlefield] +
- * [Triggers.YourUpkeep], the Obsessive Pursuit idiom). The effect mills one card into the "milled"
+ * [triggeredAbility] blocks sharing one hoisted effect (`Triggers.self.enters()` +
+ * `Triggers.you.beginningOf(Step.UPKEEP)`, the Obsessive Pursuit idiom). The effect mills one card into the "milled"
  * collection ([Patterns.Library.mill]) and then branches on that card's type with three independent
  * [Effects.If] gates (Bonehoard Dracosaur shape). Because exactly one card is milled and the
  * three filters — land / creature / (noncreature ∧ nonland) — partition every card type, at most one
@@ -66,7 +67,7 @@ val OldRutstein = card("Old Rutstein") {
     )
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = millAndReact
         description = "When Old Rutstein enters, mill a card. If a land card is milled this way, " +
             "create a Treasure token. If a creature card is milled this way, create a 1/1 green " +
@@ -75,7 +76,7 @@ val OldRutstein = card("Old Rutstein") {
     }
 
     triggeredAbility {
-        trigger = Triggers.YourUpkeep
+        trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = millAndReact
         description = "At the beginning of your upkeep, mill a card. If a land card is milled this " +
             "way, create a Treasure token. If a creature card is milled this way, create a 1/1 " +

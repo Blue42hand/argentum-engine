@@ -39,7 +39,7 @@ val ElektraDaughterOfTheHand = card("Elektra, Daughter of the Hand") {
     sneak("{1}{B}{B}")
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val victim = target(
             "target creature an opponent controls with power 3 or less",
             TargetCreature(filter = TargetFilter.CreatureOpponentControls.powerAtMost(3)),

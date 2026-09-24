@@ -35,7 +35,7 @@ val TheNeutrinos = card("The Neutrinos") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.OtherCreatureEnters
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
         effect = Effects.ModifyStats(1, 0, EffectTarget.Self)
         description = "Alliance — Whenever another creature you control enters, The Neutrinos get +1/+0 until end of turn."
     }
@@ -43,7 +43,7 @@ val TheNeutrinos = card("The Neutrinos") {
     // Exile then return tapped and attacking (ZonePlacement.TappedAndAttacking) — adds
     // the returned creature to combat as a new attacker, like the Sneak / blink-attacking idiom.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val creature = target(
             "up to one target creature you own",
             TargetCreature(optional = true, filter = TargetFilter(GameObjectFilter.Creature.ownedByYou()))

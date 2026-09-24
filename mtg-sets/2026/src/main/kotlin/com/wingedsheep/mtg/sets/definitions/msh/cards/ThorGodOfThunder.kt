@@ -65,7 +65,7 @@ val ThorGodOfThunder = card("Thor, God of Thunder") {
     // "When Thor enters, exile target Equipment, instant, or sorcery card from your graveyard.
     //  Until the end of your next turn, you may play that card."
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         target(
             "target Equipment, instant, or sorcery card from your graveyard",
             TargetObject(
@@ -90,7 +90,7 @@ val ThorGodOfThunder = card("Thor, God of Thunder") {
     // "Whenever you cast a noncreature spell, Thor deals damage equal to that spell's mana value
     //  to any target."
     triggeredAbility {
-        trigger = Triggers.YouCastNoncreature
+        trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         val victim = target("any target", Targets.Any)
         effect = Effects.DealDamage(DynamicAmounts.triggeringManaValue(), victim)
         description = "Whenever you cast a noncreature spell, Thor deals damage equal to that " +

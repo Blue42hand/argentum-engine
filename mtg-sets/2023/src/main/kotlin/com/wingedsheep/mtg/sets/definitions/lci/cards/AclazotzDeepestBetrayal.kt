@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -41,7 +40,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    then makes each opponent discard via [Effects.EachOpponentDiscards]. The count is snapshotted
  *    before the discards (an opponent's own draw can't change another player's hand), so
  *    draw-before-discard is outcome-equivalent to the printed discard-then-draw order.
- *  - The Bat trigger fires per land an opponent discards ([Triggers.discards]`(EachOpponent, Land)`).
+ *  - The Bat trigger fires per land an opponent discards (`Triggers.<player>.discards(card, batch)``(EachOpponent, Land)`).
  *  - Dies-return uses the shared [Effects.ReturnSelfFromGraveyardTransformed]`(tapped = true)`.
  *  - Back land: `{T}: Add {B}` + a `{2}{B}, {T}` sorcery-speed [TransformEffect] gated on at least
  *    one player (any) having one or fewer cards in hand.
@@ -64,7 +63,7 @@ private val AclazotzDeepestBetrayalFront = card("Aclazotz, Deepest Betrayal") {
     keywords(Keyword.FLYING, Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Composite(
             // Draw for each opponent who can't discard (empty hand), snapshotted before the discards.
             Effects.DrawCards(
@@ -84,7 +83,7 @@ private val AclazotzDeepestBetrayalFront = card("Aclazotz, Deepest Betrayal") {
     }
 
     triggeredAbility {
-        trigger = Triggers.discards(player = Player.EachOpponent, cardFilter = GameObjectFilter.Land)
+        trigger = Triggers.anOpponent.discards(GameObjectFilter.Land)
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,
@@ -98,7 +97,7 @@ private val AclazotzDeepestBetrayalFront = card("Aclazotz, Deepest Betrayal") {
     }
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         effect = Effects.ReturnSelfFromGraveyardTransformed(tapped = true)
         description = "When Aclazotz dies, return it to the battlefield tapped and transformed " +
             "under its owner's control."

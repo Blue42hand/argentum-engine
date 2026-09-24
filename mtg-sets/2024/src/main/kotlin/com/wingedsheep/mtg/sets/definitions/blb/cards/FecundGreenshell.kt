@@ -10,9 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
@@ -58,13 +55,7 @@ val FecundGreenshell = card("Fecund Greenshell") {
     // ETB: whenever this or another creature you control with toughness greater than
     // its power enters, look at the top card, if land may put onto battlefield tapped, else hand
     triggeredAbility {
-        trigger = TriggerSpec(
-            event = ZoneChangeEvent(
-                filter = GameObjectFilter.Creature.youControl().toughnessGreaterThanPower(),
-                to = Zone.BATTLEFIELD
-            ),
-            binding = TriggerBinding.ANY
-        )
+        trigger = Triggers.a(GameObjectFilter.Creature.youControl().toughnessGreaterThanPower()).enters()
 
         effect = Effects.Pipeline {
             // Look at top 1 card

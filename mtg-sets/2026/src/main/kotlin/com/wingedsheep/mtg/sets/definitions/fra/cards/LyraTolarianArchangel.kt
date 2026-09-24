@@ -11,6 +11,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.events.Recipient
+import com.wingedsheep.sdk.core.Step
 
 /**
  * Lyra, Tolarian Archangel.
@@ -38,7 +40,7 @@ val LyraTolarianArchangel = card("Lyra, Tolarian Archangel") {
     keywords(Keyword.FLYING)
 
     triggeredAbility {
-        trigger = Triggers.EachEndStep
+        trigger = Triggers.anyPlayer.beginningOf(Step.END)
         interveningIf = Conditions.YouDrewCardsThisTurn(3)
         effect = Effects.CreateToken(
             power = 3,
@@ -54,8 +56,7 @@ val LyraTolarianArchangel = card("Lyra, Tolarian Archangel") {
         cost = Costs.Mana("{3}{U}{U}")
         effect = Effects.GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.DealsCombatDamageToPlayer.event,
-                binding = Triggers.DealsCombatDamageToPlayer.binding,
+                trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer),
                 effect = Effects.DrawCards(2)
             ),
             target = EffectTarget.Self,

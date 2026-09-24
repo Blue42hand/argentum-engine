@@ -23,7 +23,7 @@ val ResistanceSquad = card("Resistance Squad") {
     power = 3
     toughness = 2
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = Conditions.YouControl(
             filter = GameObjectFilter.Creature.withSubtype(Subtype.HUMAN),
             excludeSelf = true

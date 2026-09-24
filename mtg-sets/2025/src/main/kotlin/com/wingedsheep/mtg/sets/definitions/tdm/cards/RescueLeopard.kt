@@ -20,7 +20,7 @@ val RescueLeopard = card("Rescue Leopard") {
     oracleText = "Whenever this creature becomes tapped, you may discard a card. If you do, draw a card."
 
     triggeredAbility {
-        trigger = Triggers.BecomesTapped
+        trigger = Triggers.self.becomesTapped()
         effect = Effects.May(
             Effects.IfYouDo(
                 action = Effects.Discard(1),

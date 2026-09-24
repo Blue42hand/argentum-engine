@@ -39,7 +39,7 @@ val VeteranIceClimber = card("Veteran Ice Climber") {
     flags(AbilityFlag.CANT_BE_BLOCKED)
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         val upToOnePlayer = target("up to one target player", TargetPlayer(optional = true))
         effect = Patterns.Library.mill(DynamicAmounts.sourcePower(), upToOnePlayer)
         description = "Whenever this creature attacks, up to one target player mills cards equal to this creature's power."

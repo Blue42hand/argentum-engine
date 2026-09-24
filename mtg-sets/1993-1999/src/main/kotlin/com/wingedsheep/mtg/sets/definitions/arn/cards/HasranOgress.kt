@@ -24,7 +24,7 @@ val HasranOgress = card("Hasran Ogress") {
     oracleText = "Whenever this creature attacks, it deals 3 damage to you unless you pay {2}."
 
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.PayOrSuffer(
             cost = Costs.pay.Mana(ManaCost.parse("{2}")),
             suffer = Effects.DealDamage(3, EffectTarget.Controller),

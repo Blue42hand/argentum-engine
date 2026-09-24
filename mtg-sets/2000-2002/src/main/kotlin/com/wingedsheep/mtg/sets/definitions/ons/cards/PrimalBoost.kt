@@ -33,7 +33,7 @@ val PrimalBoost = card("Primal Boost") {
     keywordAbility(KeywordAbility.cycling("{2}{G}"))
 
     triggeredAbility {
-        trigger = Triggers.YouCycleThis
+        trigger = Triggers.self.isCycled()
         val t = target("target", Targets.Creature)
         effect = Effects.May(
             Effects.ModifyStats(

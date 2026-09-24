@@ -42,7 +42,7 @@ val DecimatorOfTheProvinces = card("Decimator of the Provinces") {
     emerge("{6}{G}{G}{G}")
 
     triggeredAbility {
-        trigger = Triggers.WhenYouCastThisSpell()
+        trigger = Triggers.self.isCast()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.Composite(

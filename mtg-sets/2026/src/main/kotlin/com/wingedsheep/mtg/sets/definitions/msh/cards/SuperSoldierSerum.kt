@@ -57,7 +57,7 @@ private fun equipmentYouControl(): TargetObject = TargetPermanent(
  * The combat ability is one printed ability with two trigger conditions, so it is modeled as two
  * granted triggered abilities — the Astrologian's Planisphere idiom: [GrantTriggeredAbility] over
  * [Filters.EnchantedCreature] installs the trigger *on the enchanted creature*, where
- * [Triggers.Attacks] and [Triggers.Blocks] both fire with SELF binding and "it"
+ * `Triggers.self.attacks()` and `Triggers.self.blocks()` both fire with SELF binding and "it"
  * ([EffectTarget.Self]) is the creature itself. "Any number of target Equipment you control" is a
  * `TargetPermanent(unlimited = true)` (minimum zero) fanned out with [ForEachTargetEffect] so each
  * chosen Equipment is attached independently by [Effects.AttachTargetEquipmentToCreature].
@@ -101,8 +101,7 @@ val SuperSoldierSerum = card("Super-Soldier Serum") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.Attacks.event,
-                binding = Triggers.Attacks.binding,
+                trigger = Triggers.self.attacks(),
                 effect = attachEquipmentToSelf,
                 targetRequirement = equipmentYouControl(),
                 descriptionOverride = "Whenever this creature attacks, attach any number of " +
@@ -116,8 +115,7 @@ val SuperSoldierSerum = card("Super-Soldier Serum") {
     staticAbility {
         ability = GrantTriggeredAbility(
             ability = TriggeredAbility.create(
-                trigger = Triggers.Blocks.event,
-                binding = Triggers.Blocks.binding,
+                trigger = Triggers.self.blocks(),
                 effect = attachEquipmentToSelf,
                 targetRequirement = equipmentYouControl(),
                 descriptionOverride = "Whenever this creature blocks, attach any number of " +

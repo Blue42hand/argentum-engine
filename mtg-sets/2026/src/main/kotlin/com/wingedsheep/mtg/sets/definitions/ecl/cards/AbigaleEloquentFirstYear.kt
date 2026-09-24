@@ -39,7 +39,7 @@ val AbigaleEloquentFirstYear = card("Abigale, Eloquent First-Year") {
     keywords(Keyword.FLYING, Keyword.FIRST_STRIKE, Keyword.LIFELINK)
 
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val creature = target(
             "up to one other target creature",
             TargetCreature(

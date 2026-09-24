@@ -36,7 +36,7 @@ val TwinmawStormbrood = card("Twinmaw Stormbrood") {
 
     // ETB: you gain 5 life.
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         effect = Effects.GainLife(5)
     }
 

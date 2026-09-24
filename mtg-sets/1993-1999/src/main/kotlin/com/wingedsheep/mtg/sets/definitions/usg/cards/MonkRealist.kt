@@ -28,7 +28,7 @@ val MonkRealist = card("Monk Realist") {
     power = 1
     toughness = 1
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("target", TargetPermanent(filter = TargetFilter.Enchantment))
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }

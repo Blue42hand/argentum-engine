@@ -29,7 +29,7 @@ val NettleGuard = card("Nettle Guard") {
 
     // Valiant: +0/+2 until end of turn
     triggeredAbility {
-        trigger = Triggers.Valiant
+        trigger = Triggers.self.becomesTarget(byYou = true, firstTimeEachTurn = true)
         effect = Effects.ModifyStats(0, 2, EffectTarget.Self)
     }
 

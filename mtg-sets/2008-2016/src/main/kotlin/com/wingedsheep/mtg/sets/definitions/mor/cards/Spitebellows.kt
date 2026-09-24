@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.model.Rarity
  *
  * Evoke is the first-class [card] field `evoke` (cf. Mulldrifter) — the engine supplies the
  * "sacrificed when it enters" trigger itself, so none is written here. The damage rider is a
- * [Triggers.LeavesBattlefield] trigger (not a dies trigger — it fires on exile and bounce too)
+ * `Triggers.self.leaves()` trigger (not a dies trigger — it fires on exile and bounce too)
  * over [Targets.Creature] with a fixed [Effects.DealDamage] of 6 on [EffectTarget.ContextTarget];
  * the source is left implicit, so the engine attributes the damage to this creature's last known
  * information, which is the only thing left of it by the time the ability resolves.
@@ -34,7 +34,7 @@ val Spitebellows = card("Spitebellows") {
 
     triggeredAbility {
         val creature = target("target creature", Targets.Creature)
-        trigger = Triggers.LeavesBattlefield
+        trigger = Triggers.self.leaves()
         effect = Effects.DealDamage(6, creature)
         description = "When this creature leaves the battlefield, it deals 6 damage to target creature."
     }

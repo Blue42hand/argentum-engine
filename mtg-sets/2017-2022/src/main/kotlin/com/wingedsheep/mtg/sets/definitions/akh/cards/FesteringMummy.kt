@@ -27,7 +27,7 @@ val FesteringMummy = card("Festering Mummy") {
     toughness = 1
 
     triggeredAbility {
-        trigger = Triggers.Dies
+        trigger = Triggers.self.dies()
         optional = true
         val t = target("target", Targets.Creature)
         effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, t)

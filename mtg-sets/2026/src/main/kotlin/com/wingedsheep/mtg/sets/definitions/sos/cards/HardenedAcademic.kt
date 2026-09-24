@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 
 /**
@@ -38,7 +39,7 @@ val HardenedAcademic = card("Hardened Academic") {
         effect = Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self)
     }
     triggeredAbility {
-        trigger = Triggers.CardsLeaveYourGraveyard()
+        trigger = Triggers.oneOrMore(GameObjectFilter.Any).leaveYourGraveyard()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }

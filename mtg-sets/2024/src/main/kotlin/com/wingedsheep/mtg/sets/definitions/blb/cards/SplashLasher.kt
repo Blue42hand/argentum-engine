@@ -36,14 +36,14 @@ val SplashLasher = card("Splash Lasher") {
 
     // Offspring ETB: create token copy when kicked
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         interveningIf = WasKicked
         effect = Effects.CreateTokenCopyOfSelf(overridePower = 1, overrideToughness = 1)
     }
 
     // ETB: tap up to one target creature and put a stun counter on it
     triggeredAbility {
-        trigger = Triggers.EntersBattlefield
+        trigger = Triggers.self.enters()
         val t = target("creature", Targets.UpToCreatures(1))
         effect = Effects.Tap(t)
             .then(Effects.AddCounters(CounterType.STUN, 1, t))

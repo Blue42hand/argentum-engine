@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Raphael, Most Attitude
@@ -32,7 +33,7 @@ val RaphaelMostAttitude = card("Raphael, Most Attitude") {
 
     // Alliance: exile the top card linked to Raphael (accumulates the impulse pile).
     triggeredAbility {
-        trigger = Triggers.OtherCreatureEnters
+        trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
         effect = Effects.May(
             Effects.Pipeline {
                 val raphaelTop = gather(CardSource.TopOfLibrary(1))
@@ -44,7 +45,7 @@ val RaphaelMostAttitude = card("Raphael, Most Attitude") {
 
     // Attack: grant permission to play any card exiled with Raphael until end of turn.
     triggeredAbility {
-        trigger = Triggers.Attacks
+        trigger = Triggers.self.attacks()
         effect = Effects.Pipeline {
             val raphaelExile = gather(CardSource.FromLinkedExile())
             run(Effects.GrantMayPlayFromExile(raphaelExile, MayPlayExpiry.EndOfTurn))

@@ -33,7 +33,7 @@ val Necrite = card("Necrite") {
     toughness = 2
 
     triggeredAbility {
-        trigger = Triggers.AttacksAndIsntBlocked
+        trigger = Triggers.self.attacksAndIsntBlocked()
         val t = target(
             "target creature defending player controls",
             TargetCreature(

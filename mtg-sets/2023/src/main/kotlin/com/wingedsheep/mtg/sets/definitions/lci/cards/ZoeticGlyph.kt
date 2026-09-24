@@ -37,7 +37,7 @@ val ZoeticGlyph = card("Zoetic Glyph") {
     }
 
     triggeredAbility {
-        trigger = Triggers.PutIntoGraveyardFromBattlefield
+        trigger = Triggers.self.dies()
         effect = Effects.Discover(3)
     }
 

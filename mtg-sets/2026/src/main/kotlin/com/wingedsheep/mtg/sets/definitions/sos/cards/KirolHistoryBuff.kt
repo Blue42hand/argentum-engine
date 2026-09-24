@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
  * Kirol, History Buff // Pack a Punch — Secrets of Strixhaven #198
@@ -23,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Prepare (Secrets of Strixhaven): Kirol does NOT enter prepared (no PREPARED keyword). He becomes
  * prepared only via his trigger — whenever one or more cards leave his controller's graveyard — through
- * [Effects.BecomePrepared] + the batched [Triggers.CardsLeaveYourGraveyard] trigger. Becoming prepared
+ * [Effects.BecomePrepared] + the batched `Triggers.oneOrMore(filter).leaveYourGraveyard()` trigger. Becoming prepared
  * creates a copy of "Pack a Punch" in exile that its controller may cast for {1}{R}{W}; casting that
  * copy unprepares him. A creature already prepared does not re-prepare, so the trigger is a no-op while
  * he is already prepared. Modeled via [CardLayout.PREPARE] + the `prepare(name) { }` DSL. Pack a Punch
@@ -40,7 +41,7 @@ val KirolHistoryBuff = card("Kirol, History Buff") {
 
     // Whenever one or more cards leave your graveyard, Kirol becomes prepared.
     triggeredAbility {
-        trigger = Triggers.CardsLeaveYourGraveyard()
+        trigger = Triggers.oneOrMore(GameObjectFilter.Any).leaveYourGraveyard()
         effect = Effects.BecomePrepared(EffectTarget.Self)
     }
 

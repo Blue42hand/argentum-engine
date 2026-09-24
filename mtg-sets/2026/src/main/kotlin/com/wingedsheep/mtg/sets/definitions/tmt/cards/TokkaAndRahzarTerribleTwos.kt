@@ -35,7 +35,7 @@ val TokkaAndRahzarTerribleTwos = card("Tokka & Rahzar, Terrible Twos") {
     keywords(Keyword.MENACE)
 
     triggeredAbility {
-        trigger = Triggers.AnyPlayerCastsSpell
+        trigger = Triggers.anyPlayer.casts()
         // "if the amount of mana spent to cast it was less than its mana value" — compares the
         // triggering spell's actual mana spent against its printed mana value.
         interveningIf = Conditions.CompareAmounts(
