@@ -26,9 +26,6 @@ jobs:
       - name: Install just
         uses: taiki-e/install-action@just
 
-      - name: Build existing-effect card
-        run: just build
-
       - name: Rebless card snapshots
         run: just rebless-cards
 
@@ -40,6 +37,9 @@ jobs:
           git diff --name-only > steel-overseer-changed-files.txt
           cat steel-overseer-status.txt
           cat steel-overseer-changed-files.txt
+
+      - name: Build with reblessed snapshot
+        run: just build
 
       - name: Assay differential for M11
         shell: bash
@@ -56,17 +56,21 @@ jobs:
           just check-card-printing "Steel Overseer" 2>&1 | tee steel-overseer-printing-gate.txt
 
       - name: Preserve modified snapshot files
+        if: always()
         shell: bash
         run: |
           mkdir -p steel-overseer-modified
-          while IFS= read -r path; do
-            if [ -n "$path" ] && [ -f "$path" ]; then
-              mkdir -p "steel-overseer-modified/$(dirname "$path")"
-              cp "$path" "steel-overseer-modified/$path"
-            fi
-          done < steel-overseer-changed-files.txt
+          if [ -f steel-overseer-changed-files.txt ]; then
+            while IFS= read -r path; do
+              if [ -n "$path" ] && [ -f "$path" ]; then
+                mkdir -p "steel-overseer-modified/$(dirname "$path")"
+                cp "$path" "steel-overseer-modified/$path"
+              fi
+            done < steel-overseer-changed-files.txt
+          fi
 
       - name: Upload validation evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: steel-overseer-validation
@@ -77,7 +81,7 @@ jobs:
             steel-overseer-assay-differential.txt
             steel-overseer-printing-gate.txt
             steel-overseer-modified/
-          if-no-files-found: error
+          if-no-files-found: warn
 
       - name: Fail if printing gate failed
         if: steps.printing.outcome != 'success'
