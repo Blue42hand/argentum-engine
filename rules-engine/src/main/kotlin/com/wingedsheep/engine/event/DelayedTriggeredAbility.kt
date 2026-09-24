@@ -90,5 +90,12 @@ data class DelayedTriggeredAbility(
      * [com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect.fireOnPlayer].
      */
     val fireOnPlayerId: EntityId? = null,
+    /**
+     * The creating pipeline's collections named by
+     * [com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect.carryCollections], frozen
+     * at creation and seeded into the pipeline the delayed ability's effect resolves in (CR 603.7c:
+     * "those cards" still means the objects the creating effect referred to).
+     */
+    val carriedCollections: Map<String, List<EntityId>> = emptyMap(),
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment()
 )

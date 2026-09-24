@@ -861,7 +861,16 @@ data class CreateDelayedTriggerEffect(
      *  - `PlayerRef(Player.TriggeringPlayer)` — on the triggering/damaged player's turn ("at
      *    the beginning of *their* next draw step"; Nafs Asp).
      */
-    val fireOnPlayer: EffectTarget? = null
+    val fireOnPlayer: EffectTarget? = null,
+    /**
+     * Names of the creating pipeline's stored collections the delayed ability remembers — "return
+     * **those cards**", "return **that card** … attached to **that creature**" (Flickerform). A
+     * delayed triggered ability still refers to the particular objects its creating effect named
+     * (CR 603.7c), but the creating pipeline is gone by the time it fires; each named collection's
+     * entity ids are copied onto the delayed trigger when it is created and seeded back into the
+     * pipeline its effect resolves in, under the same names. Empty by default: nothing is carried.
+     */
+    val carryCollections: List<String> = emptyList()
 ) : Effect {
     override val description: String = when {
         trigger != null -> "create a delayed trigger that fires on ${trigger.event::class.simpleName}"

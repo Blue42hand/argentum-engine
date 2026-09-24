@@ -160,7 +160,10 @@ class CreateDelayedTriggerExecutor : EffectExecutor<CreateDelayedTriggerEffect> 
             notBeforeTurn = notBeforeTurn,
             targetRequirement = effect.targetRequirement,
             additionalTargetRequirements = effect.additionalTargetRequirements,
-            fireOnPlayerId = fireOnPlayerId
+            fireOnPlayerId = fireOnPlayerId,
+            carriedCollections = effect.carryCollections.associateWith {
+                context.pipeline.storedCollections[it] ?: emptyList()
+            }
         )
 
         return EffectResult.success(stateWithRoutingId.addDelayedTrigger(delayedTrigger))
