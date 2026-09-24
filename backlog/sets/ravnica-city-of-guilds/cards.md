@@ -2,7 +2,7 @@
 
 **Set Size:** 291 cards
 **Release Date:** October 7, 2005
-**Implemented:** 275 / 291
+**Implemented:** 279 / 291
 | Section    | Total | Done |
 |------------|-------|------|
 | White      | 37    | 33   |
@@ -68,7 +68,7 @@
 - [ ] Dream Leash
 - [x] Drift of Phantasms
 - [x] Ethereal Usher
-- [ ] Eye of the Storm
+- [x] Eye of the Storm
 - [x] Flight of Fancy
 - [x] Flow of Ideas
 - [x] Followed Footsteps
@@ -128,7 +128,7 @@
 - [x] Sadistic Augermage
 - [x] Sewerdreg
 - [x] Shred Memory
-- [ ] Sins of the Past
+- [x] Sins of the Past
 - [x] Stinkweed Imp
 - [x] Strands of Undeath
 - [x] Thoughtpicker Witch
@@ -175,7 +175,7 @@
 - [x] Viashino Fangtail
 - [x] Viashino Slasher
 - [x] War-Torch Goblin
-- [ ] Warp World
+- [x] Warp World
 - [x] Wojek Embermage
 
 ### Green
@@ -269,7 +269,7 @@
 - [x] Selesnya Evangel
 - [x] Selesnya Guildmage
 - [x] Selesnya Sagittars
-- [ ] Shadow of Doubt
+- [x] Shadow of Doubt
 - [x] Shambling Shell
 - [x] Sisters of Stone Death
 - [x] Skyknight Legionnaire

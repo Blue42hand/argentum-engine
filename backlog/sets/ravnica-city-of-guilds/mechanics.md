@@ -256,13 +256,13 @@ These are source-backed leads, not claims that every card needs a new executor.
 | Concerted Effort | Propagation of actual protection and landwalk variants as well as ordinary keywords. |
 | Belltower Sphinx | Retain damage-source controller information for its self-damaged trigger. |
 | Auratouched Mage, Flickerform | Legal attachment search, owner-controlled Aura return, and source-left fallback. |
-| Eye of the Storm | Linked spell-card exile, copy choices controlled by the triggering caster, and repeated optional casts. |
+| ~~Eye of the Storm~~ | Done: `SpellCastPredicate.IsCard` + `Effects.ExileTriggeringSpell(linkToSource)`, then `ForEachPlayer(TriggeringPlayer)` over the linked pile, `CopyCollectionIntoCollection`, `CastAnyNumberFromCollectionWithoutPayingCost`. |
 | Spawnbroker | Existing ExchangeControl plus cross-target power filtering; prove both-target legality and exchange atomicity. |
-| Sins of the Past | Targeted graveyard casting permission with duration and exile replacement, without moving the card prematurely. |
+| ~~Sins of the Past~~ | Done: already composable. `GrantFreeCastTargetFromExile(exileAfterResolve = true)` on the graveyard card (the cast-from-zone path honours graveyard permissions; the permission expires at cleanup) plus `selfExile()`. |
 | Molten Sentry | Coin flip as an entry replacement with persistent stats and keyword. |
-| Warp World | Per-owner counts including tokens, simultaneous entry batches, enchantments entering afterward, and bottom ordering. |
+| ~~Warp World~~ | Done: `ForEachPlayerCollectingEffect` sorts each owner's reveal into shared piles, then two battlefield moves under owners' control; stranded Auras go to the bottom (CR 400.3 owner routing added to `MoveCollection`). Gap: an Aura may pick a non-Aura enchantment entering alongside it. |
 | Blood Funnel | Optional creature sacrifice and counter-on-nonpayment, composed with existing reduction and counter effects. |
-| Shadow of Doubt | Search prohibition in the shared library-search path. |
+| ~~Shadow of Doubt~~ | Done: `CantSearchLibraries` + `GatherCardsEffect.search`, set by every search primitive and the inline search cards. |
 | Szadek, Lord of Secrets | One damage replacement produces counters and mills the damaged player; independent replacements cannot both consume the same damage. |
 | Crown of Convergence | Continuously compare creature colors with the current top library card. |
 | Circu, Dimir Lobotomist | Name matching over the whole linked exile pile for casting restrictions. |
