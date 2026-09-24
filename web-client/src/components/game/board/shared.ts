@@ -133,8 +133,8 @@ export interface SlotSizedLayout {
   backSizes: ResponsiveSizes
   frontRowLines: number
   backRowLines: number
-  /** The solve traded the full-size between-rows divider for card size (see `dividerFor`). */
-  compactDivider: boolean
+  /** The solve traded the roomy row spacing for card size (see `SlotLayout.compact`). */
+  compact: boolean
 }
 
 /**
@@ -201,7 +201,7 @@ export function useSlotSizedResponsive(
         backSizes: base,
         frontRowLines: front.count > 0 ? 1 : 0,
         backRowLines: back.count > 0 ? 1 : 0,
-        compactDivider: false,
+        compact: false,
       }
     }
     const sizes = sizesForCardWidth(base, layout.cardWidth)
@@ -211,7 +211,7 @@ export function useSlotSizedResponsive(
       backSizes,
       frontRowLines: layout.frontLines,
       backRowLines: layout.backLines,
-      compactDivider: layout.compact,
+      compact: layout.compact,
     }
     // Keyed on the stats' numbers, not the objects, so an unrelated store
     // update that rebuilds equal stats doesn't produce a fresh sizes identity.

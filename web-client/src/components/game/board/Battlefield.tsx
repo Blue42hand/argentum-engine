@@ -5,7 +5,6 @@ import { useGameStore } from '@/store/gameStore.ts'
 import { useInteraction } from '@/hooks/useInteraction.ts'
 import { ResponsiveContext, PooledBattlefieldLayoutContext, useResponsiveContext, useSlotSizedResponsive, handleImageError, attachmentStackLayout } from './shared'
 import { useBoardGroups } from './useBoardGroups'
-import { isStackExpanded } from './rowStats'
 import { dividerFor, rowMinHeightFor } from './battlefieldLayout'
 import type { ResponsiveSizes } from '@/hooks/useResponsive'
 import { styles } from './styles'
@@ -73,7 +72,7 @@ export function Battlefield({ isOpponent, playerId, spectatorMode = false }: {
   // layout and size themselves from their own slot.
   const pooledLayout = useContext(PooledBattlefieldLayoutContext)
   const pooled = pooledLayout ? (isOpponent ? pooledLayout.opponent : pooledLayout.player) : null
-  const { sizes, backSizes, frontRowLines, backRowLines, compactDivider } = useSlotSizedResponsive(slotRef, stats, pooled)
+  const { sizes, backSizes, frontRowLines, backRowLines, compact } = useSlotSizedResponsive(slotRef, stats, pooled)
   return (
     <div
       ref={slotRef}
@@ -103,7 +102,7 @@ export function Battlefield({ isOpponent, playerId, spectatorMode = false }: {
           frontRowLines={frontRowLines}
           backRowLines={backRowLines}
           backSizes={backSizes}
-          compactDivider={compactDivider}
+          compact={compact}
         />
       </ResponsiveContext.Provider>
     </div>
@@ -120,7 +119,7 @@ function BattlefieldContent({
   frontRowLines,
   backRowLines,
   backSizes,
-  compactDivider,
+  compact,
 }: {
   isOpponent: boolean
   spectatorMode?: boolean
@@ -133,8 +132,8 @@ function BattlefieldContent({
   backRowLines: number
   /** Sizes for the back row — the context sizes unless BACK_ROW_SCALE renders lands smaller. */
   backSizes: ResponsiveSizes
-  /** Render the thin divider the solver budgeted for a crowded board (see `dividerFor`). */
-  compactDivider: boolean
+  /** Render the compact spacing the solver budgeted for a crowded board (see `SlotLayout.compact`). */
+  compact: boolean
 }) {
   const { attachmentsByCardId } = useBattlefieldCards()
   const responsive = useResponsiveContext()
@@ -157,7 +156,6 @@ function BattlefieldContent({
   // Used to highlight the folder tab when something inside the collapsed stack is actionable.
   const legalActions = useGameStore((state) => state.legalActions)
   const targetingState = useGameStore((state) => state.targetingState)
-  const expandedStacks = useGameStore((state) => state.expandedStackCardIds)
   const decisionSelectionState = useGameStore((state) => state.decisionSelectionState)
   const hasServerActivation = (cardId: EntityId): boolean => legalActions.some(
     ({ action }) => action.type === 'ActivateAbility' && action.sourceId === cardId,
@@ -394,8 +392,7 @@ function BattlefieldContent({
    * remainder (21 + 1 instead of 11 + 11). The cap fits a worst-case
    * tapped mix per line, so it can never force *more* lines than budgeted.
    * Skipped for grouped stacks (lands) — their footprint per item varies
-   * with stack size, so a count-based cap could wrap them an extra time. An
-   * ungrouped (⤢) stack renders as plain single cards, so it doesn't count.
+   * with stack size, so a count-based cap could wrap them an extra time.
    */
   const renderGridRow = (
     centerItems: readonly GroupedCard[],
@@ -409,11 +406,10 @@ function BattlefieldContent({
     const showDividerBetween = hasCenter && hasSide
     const balancedMaxWidth = (() => {
       if (lines <= 1) return undefined
-      if (centerItems.some((g) => g.count > 1 && !isStackExpanded(g, expandedStacks))) return undefined
-      const itemCount = centerItems.reduce((sum, g) => sum + g.count, 0)
-      const perLine = Math.ceil(itemCount / lines)
-      if (perLine >= itemCount) return undefined
-      const tapped = centerItems.reduce((sum, g) => sum + (g.card.isTapped ? g.count : 0), 0)
+      if (centerItems.some((g) => g.count > 1)) return undefined
+      const perLine = Math.ceil(centerItems.length / lines)
+      if (perLine >= centerItems.length) return undefined
+      const tapped = centerItems.reduce((sum, g) => sum + (g.card.isTapped ? 1 : 0), 0)
       const tappedPerLine = Math.min(tapped, perLine)
       const cw = rowSizes.battlefieldCardWidth
       // Mirrors the per-line width model in useSlotSizedResponsive: tapped
@@ -476,9 +472,9 @@ function BattlefieldContent({
       : <ResponsiveContext.Provider value={rowSizes}>{rowElement}</ResponsiveContext.Provider>
   }
 
-  // Scales with the card actually rendered, and collapses to a thin strip on a
-  // crowded board — exactly what the solver budgeted (see dividerFor).
-  const divider = dividerFor(responsive.battlefieldCardHeight, compactDivider)
+  // Scales with the card actually rendered, and collapses to a plain line gap on
+  // a crowded board — exactly what the solver budgeted (see dividerFor).
+  const divider = dividerFor(responsive.battlefieldCardHeight, compact)
   const renderDivider = () => showDivider ? (
     <div
       style={{
@@ -501,7 +497,7 @@ function BattlefieldContent({
   // An empty row reserves nothing (rowMinHeightFor) — it costs no line, so a
   // lands-only turn-1 board renders its lands at the full slot height.
   const rowMinHeight = (lines: number, rowSizes: ResponsiveSizes) =>
-    rowMinHeightFor(lines, rowSizes.battlefieldCardHeight, rowSizes.cardGap)
+    rowMinHeightFor(lines, rowSizes.battlefieldCardHeight, rowSizes.cardGap, compact)
   const frontRow = renderGridRow(
     groupedCreatures,
     groupedPlaneswalkers,
