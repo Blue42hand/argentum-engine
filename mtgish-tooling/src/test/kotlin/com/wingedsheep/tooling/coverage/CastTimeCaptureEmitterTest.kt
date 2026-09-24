@@ -39,8 +39,8 @@ class CastTimeCaptureEmitterTest : StringSpec({
         result.text shouldContain "withSubtype(${subtypeArg("Mount")})"
         result.text shouldContain "condition = Conditions.CapturedAtCast(\"controlledMount\")"
         // 4-damage then-branch, 2-damage else-branch, both on the one shared target.
-        result.text shouldContain "effect = DealDamageEffect(4, t)"
-        result.text shouldContain "elseEffect = DealDamageEffect(2, t)"
+        result.text shouldContain "then = DealDamageEffect(4, t)"
+        result.text shouldContain "otherwise = DealDamageEffect(2, t)"
         result.text shouldContain "TargetFilter.AttackingOrBlockingCreature"
     }
 })
