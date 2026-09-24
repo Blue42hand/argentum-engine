@@ -3358,8 +3358,9 @@ one-off pipeline belongs inline in the card file via `Effects.Pipeline { }` (§5
   - **Remembering the graveyard pile.** `surveil(count, storeGraveyardAs)` expands to the same
     `surveilPipeline(count, storeGraveyardAs)` (`SurveiledEvent` included) and stores the cards the
     graveyard move moved under `storeGraveyardAs`, for "if you put a card … into your
-    graveyard this way, …" (Enlightened Confidant: `MoveCollection(from = storeGraveyardAs, ToZone(HAND),
-    filter = Any.manaValueAtMostDynamic(lifeGainedThisTurn()))`).
+    graveyard this way, …". Cards bind the key as a pipeline handle — Enlightened Confidant:
+    `val kept = runStoringCollection { Patterns.Library.surveil(1, storeGraveyardAs = it) }` then
+    `move(kept, ToZone(HAND), filter = Any.manaValueAtMostDynamic(lifeGainedThisTurn()))`.
 - `mill(count)` — top N cards into graveyard.
 - `exileTop(count, target = Controller)` — top N cards of a player's library into exile (Malboro's
   "exiles the top three cards of their library"). Same Gather → Move pipeline as `mill`, destination
