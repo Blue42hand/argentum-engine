@@ -145,8 +145,8 @@
                             "effect": {
                                 "type": "PreventDamageShield",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target any"
                                 },
                                 "amount": {
                                     "type": "Fixed",
@@ -154,7 +154,10 @@
                                 }
                             },
                             "targetRequirements": [
-                                "AnyTarget"
+                                {
+                                    "type": "AnyTarget",
+                                    "id": "target any"
+                                }
                             ],
                             "description": "Prevent the next 2 damage that would be dealt to any target this turn"
                         }
@@ -2290,7 +2293,13 @@
                             "step": "END",
                             "effect": {
                                 "type": "FlipCoin",
-                                "lostEffect": "SacrificeTarget"
+                                "lostEffect": {
+                                    "type": "SacrificeTarget",
+                                    "target": {
+                                        "type": "BoundVariable",
+                                        "name": "target creature you control with toughness 2 or less"
+                                    }
+                                }
                             }
                         }
                     ]
@@ -3005,8 +3014,8 @@
                         "type": "FromZone",
                         "zone": "Hand",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target player"
                         }
                     },
                     "storeAs": "hand"
@@ -3030,8 +3039,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target player"
                         }
                     },
                     "moveType": "Discard"

@@ -1453,8 +1453,8 @@
                     "effect": {
                         "type": "Regenerate",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "targetRequirements": [
@@ -1462,7 +1462,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "permanent Sliver"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ]
                 },
@@ -3915,13 +3916,20 @@
                     "effect": {
                         "type": "Gated",
                         "gate": "Gate.MayDecide",
-                        "then": "Provoke"
+                        "then": {
+                            "type": "Provoke",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target creature opponent controls"
+                            }
+                        }
                     },
                     "targetRequirement": {
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature ctrl:opponent"
-                        }
+                        },
+                        "id": "target creature opponent controls"
                     }
                 },
                 "filter": {
@@ -4601,8 +4609,8 @@
                             "amount": 0
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "targetRequirements": [
@@ -4610,7 +4618,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature Sliver"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ]
                 },
@@ -5615,8 +5624,8 @@
                     "power": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         },
                         "numericProperty": "Power"
                     }

@@ -372,8 +372,8 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             },
                             "storeAs": "hand"
@@ -399,8 +399,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             },
                             "moveType": "Discard"

@@ -311,8 +311,8 @@
                                         {
                                             "type": "SharesColorWith",
                                             "entity": {
-                                                "type": "ContextTarget",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "target creature"
                                             }
                                         }
                                     ]
@@ -852,8 +852,8 @@
                         "amount": {
                             "type": "EntityProperty",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target attacking or blocking creature"
                             },
                             "numericProperty": "Power"
                         },
@@ -1562,8 +1562,8 @@
                                 {
                                     "type": "SharesColorWith",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target creature"
                                     }
                                 }
                             ]
@@ -2349,8 +2349,8 @@
                                     {
                                         "type": "SharesColorWith",
                                         "entity": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target creature"
                                         }
                                     }
                                 ]
@@ -2696,8 +2696,8 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "player"
                                 }
                             },
                             "storeAs": "hand"
@@ -2730,8 +2730,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "player"
                                 }
                             },
                             "moveType": "Discard"
@@ -3396,8 +3396,8 @@
                                     "type": "FromZone",
                                     "zone": "Hand",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target player"
                                     }
                                 },
                                 "storeAs": "hand"
@@ -3423,8 +3423,8 @@
                                     "type": "ToZone",
                                     "zone": "Graveyard",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target player"
                                     }
                                 },
                                 "moveType": "Discard"
@@ -4194,8 +4194,8 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 }
                             },
                             "storeAs": "hand"
@@ -4221,8 +4221,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 }
                             },
                             "moveType": "Discard"
@@ -5398,8 +5398,8 @@
                                     "amount": 1
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 },
                                 "isMill": true
                             },
@@ -5412,8 +5412,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 }
                             }
                         }
@@ -6208,13 +6208,16 @@
                             "amount": 1
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target any"
                         },
                         "damageSource": "Self"
                     },
                     "targetRequirements": [
-                        "AnyTarget"
+                        {
+                            "type": "AnyTarget",
+                            "id": "target any"
+                        }
                     ]
                 },
                 "target": "IterationEntity"
@@ -7162,8 +7165,8 @@
                             "amount": 10
                         },
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target player"
                         },
                         "isMill": true
                     },
@@ -7176,8 +7179,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target player"
                         }
                     }
                 }
@@ -8398,8 +8401,8 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target land"
                                     },
                                     "filter": {
                                         "cardPredicates": [
@@ -8920,8 +8923,8 @@
                                     {
                                         "type": "SharesColorWith",
                                         "entity": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target creature"
                                         }
                                     }
                                 ]
@@ -9050,8 +9053,8 @@
                                     "count": {
                                         "type": "EntityProperty",
                                         "entity": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target spell"
                                         },
                                         "numericProperty": "ManaValue"
                                     },
@@ -9487,8 +9490,8 @@
                                     {
                                         "type": "SharesColorWith",
                                         "entity": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target enchantment"
                                         }
                                     }
                                 ]
@@ -9927,8 +9930,8 @@
                                     "amount": 1
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 }
                             },
                             "storeAs": "gathered0"
@@ -9955,8 +9958,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 }
                             }
                         },
@@ -9967,8 +9970,8 @@
                                 "type": "ToZone",
                                 "zone": "Library",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 },
                                 "placement": "Top"
                             }
@@ -11059,8 +11062,8 @@
                         "type": "FromZone",
                         "zone": "Hand",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "player"
                         }
                     },
                     "storeAs": "gathered0",
@@ -11086,8 +11089,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "player"
                         }
                     },
                     "moveType": "Discard"
@@ -12134,8 +12137,8 @@
                                 "type": "TopOfLibrary",
                                 "count": "XValue",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 },
                                 "isMill": true
                             },
@@ -12148,8 +12151,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 }
                             }
                         }
@@ -12394,8 +12397,8 @@
                                     {
                                         "type": "SharesColorWith",
                                         "entity": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target creature"
                                         }
                                     }
                                 ]
@@ -14597,8 +14600,8 @@
                                     {
                                         "type": "PowerAtMostEntity",
                                         "reference": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "creature you control"
                                         }
                                     }
                                 ],
@@ -14936,8 +14939,8 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 }
                             },
                             "storeAs": "hand"
@@ -14963,8 +14966,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 }
                             },
                             "moveType": "Discard"
@@ -15377,8 +15380,8 @@
                                     {
                                         "type": "SharesColorWith",
                                         "entity": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target creature"
                                         }
                                     }
                                 ]
@@ -15968,8 +15971,8 @@
                                     "amount": 2
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             },
                             "storeAs": "gathered0"
@@ -15996,8 +15999,8 @@
                                 "type": "ToZone",
                                 "zone": "Exile",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             }
                         },
@@ -16008,8 +16011,8 @@
                                 "type": "ToZone",
                                 "zone": "Library",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 },
                                 "placement": "Top"
                             }
@@ -16932,8 +16935,8 @@
                                     "amount": 2
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 },
                                 "isMill": true
                             },
@@ -16946,8 +16949,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 }
                             }
                         }
@@ -17917,8 +17920,8 @@
                                             {
                                                 "type": "SharesColorWith",
                                                 "entity": {
-                                                    "type": "ContextTarget",
-                                                    "index": 0
+                                                    "type": "BoundVariable",
+                                                    "name": "target creature"
                                                 }
                                             }
                                         ]
@@ -18001,8 +18004,8 @@
                                             {
                                                 "type": "SharesColorWith",
                                                 "entity": {
-                                                    "type": "ContextTarget",
-                                                    "index": 0
+                                                    "type": "BoundVariable",
+                                                    "name": "target creature"
                                                 }
                                             }
                                         ]
@@ -18081,8 +18084,8 @@
                                     {
                                         "type": "SharesColorWith",
                                         "entity": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target creature"
                                         }
                                     }
                                 ]

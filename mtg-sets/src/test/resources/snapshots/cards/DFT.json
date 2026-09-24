@@ -553,8 +553,8 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "up to one target Mount or Vehicle you control"
                                     },
                                     "filter": "Mount"
                                 }
@@ -574,8 +574,8 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "up to one target Mount or Vehicle you control"
                                     },
                                     "filter": "Vehicle"
                                 }
@@ -797,8 +797,8 @@
                             "Library"
                         ],
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "opponent"
                         },
                         "filter": {
                             "cardPredicates": [
@@ -832,16 +832,16 @@
                         "type": "ToZone",
                         "zone": "Exile",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "opponent"
                         }
                     }
                 },
                 {
                     "type": "ShuffleLibrary",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "opponent"
                     }
                 }
             ]
@@ -3118,11 +3118,14 @@
                                 "amount": 3
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target any"
                             }
                         },
-                        "targetRequirement": "AnyTarget",
+                        "targetRequirement": {
+                            "type": "AnyTarget",
+                            "id": "target any"
+                        },
                         "descriptionOverride": "Whenever an artifact you control enters, this emblem deals 3 damage to any target."
                     },
                     "descriptionOverride": "Whenever an artifact you control enters, this emblem deals 3 damage to any target."
@@ -3530,8 +3533,8 @@
                             "filter": "creature|Vehicle"
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "targetRequirements": [
@@ -3539,7 +3542,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "description": "Deals X damage to target creature, where X is the number of creatures and/or Vehicles you control"
@@ -3548,8 +3552,8 @@
                     "effect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target artifact"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -3559,7 +3563,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "artifact"
-                            }
+                            },
+                            "id": "target artifact"
                         }
                     ],
                     "description": "Destroy target artifact"
@@ -6340,8 +6345,8 @@
                     "reflexiveEffect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target artifact"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -6351,7 +6356,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "artifact ctrl:opponent"
-                            }
+                            },
+                            "id": "target artifact"
                         }
                     ],
                     "descriptionOverride": "You may sacrifice a creature or Vehicle. When you do, destroy target artifact an opponent controls."
@@ -6409,8 +6415,8 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 },
                                 "filter": "instant|sorcery"
                             },
@@ -6436,8 +6442,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             },
                             "moveType": "Discard"
@@ -8130,8 +8136,8 @@
                 {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "creature or Vehicle"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -8600,8 +8606,8 @@
                         "type": "FromZone",
                         "zone": "Hand",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target"
                         }
                     },
                     "storeAs": "gathered1"
@@ -8627,8 +8633,8 @@
                         "type": "ToZone",
                         "zone": "Exile",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target"
                         }
                     }
                 }
@@ -11389,8 +11395,8 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 }
                             },
                             "storeAs": "gathered1"
@@ -11423,8 +11429,8 @@
                                             "type": "ToZone",
                                             "zone": "Graveyard",
                                             "player": {
-                                                "type": "ContextPlayer",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "target player"
                                             }
                                         },
                                         "moveType": "Discard"
@@ -12147,12 +12153,12 @@
                     "effect": {
                         "type": "Fight",
                         "target1": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature you control"
                         },
                         "target2": {
-                            "type": "ContextTarget",
-                            "index": 1
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
                         }
                     },
                     "targetRequirements": [
@@ -12160,13 +12166,15 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
-                            }
+                            },
+                            "id": "target creature you control"
                         },
                         {
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:opponent"
-                            }
+                            },
+                            "id": "target creature opponent controls"
                         }
                     ],
                     "description": "Target creature you control fights target creature an opponent controls"
@@ -12175,8 +12183,8 @@
                     "effect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target artifact"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -12186,7 +12194,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "artifact Vehicle"
-                            }
+                            },
+                            "id": "target artifact"
                         }
                     ],
                     "description": "Destroy target Vehicle"
@@ -12800,8 +12809,8 @@
                             "left": {
                                 "type": "EntityProperty",
                                 "entity": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "creature, planeswalker, or Vehicle"
                                 },
                                 "numericProperty": "ManaValue"
                             },
@@ -12816,8 +12825,8 @@
                     "then": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "creature, planeswalker, or Vehicle"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -14606,8 +14615,8 @@
             "amount": {
                 "type": "EntityProperty",
                 "entity": {
-                    "type": "ContextTarget",
-                    "index": 0
+                    "type": "BoundVariable",
+                    "name": "creature you control"
                 },
                 "numericProperty": "Power"
             },
@@ -17463,8 +17472,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target artifact card in your graveyard"
                             },
                             "filter": "permanent Vehicle"
                         }

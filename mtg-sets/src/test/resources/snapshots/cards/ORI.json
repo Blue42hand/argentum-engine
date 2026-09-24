@@ -948,8 +948,8 @@
                                             "amount": 4
                                         },
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target any"
                                         },
                                         "damageSource": "Self"
                                     },
@@ -963,7 +963,10 @@
                                 ]
                             },
                             "targetRequirements": [
-                                "AnyTarget"
+                                {
+                                    "type": "AnyTarget",
+                                    "id": "target any"
+                                }
                             ],
                             "description": "This enchantment deals 4 damage to any target and you gain 4 life"
                         },
@@ -977,8 +980,8 @@
                                             "type": "FromZone",
                                             "zone": "Hand",
                                             "player": {
-                                                "type": "ContextPlayer",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "target opponent"
                                             }
                                         },
                                         "storeAs": "hand"
@@ -1004,8 +1007,8 @@
                                             "type": "ToZone",
                                             "zone": "Graveyard",
                                             "player": {
-                                                "type": "ContextPlayer",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "target opponent"
                                             }
                                         },
                                         "moveType": "Discard"
@@ -1013,7 +1016,10 @@
                                 ]
                             },
                             "targetRequirements": [
-                                "TargetOpponent"
+                                {
+                                    "type": "TargetOpponent",
+                                    "id": "target opponent"
+                                }
                             ],
                             "description": "Target opponent discards two cards"
                         },

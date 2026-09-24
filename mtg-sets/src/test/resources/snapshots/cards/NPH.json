@@ -57,8 +57,8 @@
                             "effect": {
                                 "type": "TapUntap",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target permanent you control"
                                 },
                                 "tap": false
                             },
@@ -67,7 +67,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "permanent ctrl:you"
-                                    }
+                                    },
+                                    "id": "target permanent you control"
                                 }
                             ],
                             "description": "Untap target permanent you control."
@@ -76,8 +77,8 @@
                             "effect": {
                                 "type": "TapUntap",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target permanent opponent controls"
                                 }
                             },
                             "targetRequirements": [
@@ -85,7 +86,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "permanent ctrl:opponent"
-                                    }
+                                    },
+                                    "id": "target permanent opponent controls"
                                 }
                             ],
                             "description": "Tap target permanent an opponent controls."

@@ -4086,8 +4086,8 @@
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         },
                         "numericProperty": "Power"
                     },

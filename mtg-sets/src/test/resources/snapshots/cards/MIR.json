@@ -949,8 +949,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target permanent"
                             },
                             "filter": {
                                 "cardPredicates": [

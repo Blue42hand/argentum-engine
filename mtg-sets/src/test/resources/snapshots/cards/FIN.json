@@ -3125,8 +3125,8 @@
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "creature you control"
                         },
                         "numericProperty": "Power"
                     },
@@ -3146,8 +3146,8 @@
                 "amount": {
                     "type": "EntityProperty",
                     "entity": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "creature you control"
                     },
                     "numericProperty": "Power"
                 },
@@ -4344,8 +4344,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target artifact or enchantment"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -4355,7 +4355,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "artifact|enchantment"
-                                    }
+                                    },
+                                    "id": "target artifact or enchantment"
                                 }
                             ],
                             "description": "Destroy target artifact or enchantment"
@@ -5731,8 +5732,8 @@
                             "reflexiveEffect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target permanent"
                                 },
                                 "destination": "Hand"
                             },
@@ -5743,7 +5744,8 @@
                                         "baseFilter": "permanent own:you",
                                         "zone": "Graveyard",
                                         "excludeSelf": true
-                                    }
+                                    },
+                                    "id": "target permanent"
                                 }
                             ]
                         }
@@ -7275,8 +7277,8 @@
                                 "numericProperty": "Power"
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target up to creatures"
                             }
                         },
                         "targetRequirement": {
@@ -7284,7 +7286,8 @@
                             "optional": true,
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target up to creatures"
                         },
                         "descriptionOverride": "When this creature dies, put a number of +1/+1 counters equal to its power on up to one target creature."
                     },
@@ -8341,8 +8344,8 @@
                                 "amount": {
                                     "type": "EntityProperty",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target creature card from your graveyard"
                                     },
                                     "numericProperty": "Power"
                                 },
@@ -9825,8 +9828,8 @@
                                     "numerator": {
                                         "type": "AggregateZone",
                                         "player": {
-                                            "type": "ContextPlayer",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target opponent"
                                         },
                                         "zone": "Library"
                                     },
@@ -9837,8 +9840,8 @@
                                     "roundUp": false
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 },
                                 "isMill": true
                             },
@@ -9851,15 +9854,18 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             }
                         }
                     ]
                 },
                 "targetRequirements": [
-                    "TargetOpponent"
+                    {
+                        "type": "TargetOpponent",
+                        "id": "target opponent"
+                    }
                 ]
             }
         }
@@ -12875,8 +12881,8 @@
                         "amount": {
                             "type": "EntityProperty",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature you control"
                             },
                             "numericProperty": "Power"
                         },
@@ -13611,8 +13617,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature in your graveyard"
                                 },
                                 "destination": "Battlefield",
                                 "placement": "Tapped",
@@ -13624,7 +13630,8 @@
                                     "filter": {
                                         "baseFilter": "creature mv<=4 own:you",
                                         "zone": "Graveyard"
-                                    }
+                                    },
+                                    "id": "target creature in your graveyard"
                                 }
                             ],
                             "description": "Return target creature card with mana value 4 or less from your graveyard to the battlefield tapped"
@@ -13633,8 +13640,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 },
                                 "destination": "Exile"
                             },
@@ -13643,7 +13650,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature Skeleton|Spirit|Zombie"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Exile target Skeleton, Spirit, or Zombie"
@@ -13718,8 +13726,8 @@
                                     "type": "FromZone",
                                     "zone": "Hand",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target"
                                     }
                                 },
                                 "storeAs": "gathered1"
@@ -13747,8 +13755,8 @@
                                     "type": "ToZone",
                                     "zone": "Graveyard",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target"
                                     }
                                 },
                                 "moveType": "Discard"
@@ -14371,8 +14379,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -14389,7 +14397,8 @@
                                                 "WasDealtDamageThisTurn"
                                             ]
                                         }
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Destroy target creature that was dealt damage this turn"
@@ -16194,8 +16203,8 @@
                     "effect": {
                         "type": "TapUntap",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target attacking creature"
                         },
                         "tap": false
                     },
@@ -16203,7 +16212,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature attacking"
-                        }
+                        },
+                        "id": "target attacking creature"
                     }
                 }
             },
@@ -16805,8 +16815,8 @@
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "creature you control"
                         },
                         "numericProperty": "Power"
                     },
@@ -16824,8 +16834,8 @@
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "creature you control"
                         },
                         "numericProperty": "Power"
                     },
@@ -17070,8 +17080,8 @@
                                             "amount": 1
                                         },
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target opponent"
                                         }
                                     },
                                     {
@@ -17083,7 +17093,10 @@
                                     }
                                 ]
                             },
-                            "targetRequirement": "TargetOpponent",
+                            "targetRequirement": {
+                                "type": "TargetOpponent",
+                                "id": "target opponent"
+                            },
                             "descriptionOverride": "Whenever a creature dies, target opponent loses 1 life and you gain 1 life."
                         },
                         "descriptionOverride": "Whenever a creature dies, target opponent loses 1 life and you gain 1 life."
@@ -23261,16 +23274,16 @@
                         "powerModifier": {
                             "type": "EntityProperty",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature"
                             },
                             "numericProperty": "Power"
                         },
                         "toughnessModifier": {
                             "type": "EntityProperty",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature"
                             },
                             "numericProperty": "Toughness"
                         },
@@ -23299,8 +23312,8 @@
                             "amount": {
                                 "type": "EntityProperty",
                                 "entity": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 },
                                 "numericProperty": "Power"
                             },
@@ -23311,8 +23324,8 @@
                             "amount": {
                                 "type": "EntityProperty",
                                 "entity": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 },
                                 "numericProperty": "Toughness"
                             },
@@ -24451,8 +24464,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 1
+                                "type": "BoundVariable",
+                                "name": "an Equipment you control"
                             },
                             "filter": "artifact Equipment"
                         }
@@ -25018,8 +25031,8 @@
                                     "condition": {
                                         "type": "EntityMatches",
                                         "entity": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "creature"
                                         },
                                         "filter": {
                                             "cardPredicates": [
@@ -25187,8 +25200,8 @@
                             {
                                 "type": "SetBaseStats",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 },
                                 "power": {
                                     "type": "Fixed",
@@ -25219,8 +25232,8 @@
                                     "descriptionOverride": "When this creature dies, return it to the battlefield tapped under its owner's control."
                                 },
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 }
                             }
                         ]
@@ -25244,8 +25257,8 @@
                             {
                                 "type": "SetBaseStats",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 },
                                 "power": {
                                     "type": "Fixed",
@@ -25276,8 +25289,8 @@
                                     "descriptionOverride": "When this creature dies, return it to the battlefield tapped under its owner's control."
                                 },
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 }
                             }
                         ]
@@ -25301,8 +25314,8 @@
                             {
                                 "type": "SetBaseStats",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 },
                                 "power": {
                                     "type": "Fixed",
@@ -25333,8 +25346,8 @@
                                     "descriptionOverride": "When this creature dies, return it to the battlefield tapped under its owner's control."
                                 },
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 }
                             }
                         ]
@@ -26671,8 +26684,8 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "creature an opponent controls"
                                     },
                                     "filter": "creature"
                                 }

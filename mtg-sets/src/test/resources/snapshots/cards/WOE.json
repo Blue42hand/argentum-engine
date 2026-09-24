@@ -974,8 +974,8 @@
                                     "property": "MANA_VALUE"
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 }
                             },
                             "storeAs": "exiled_top"
@@ -987,8 +987,8 @@
                                 "type": "ToZone",
                                 "zone": "Exile",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 }
                             }
                         }
@@ -2832,8 +2832,8 @@
                             "amount": {
                                 "type": "EntityProperty",
                                 "entity": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 },
                                 "numericProperty": "Power"
                             },
@@ -3294,14 +3294,19 @@
                         {
                             "effect": {
                                 "type": "CreateRoleToken",
-                                "roleName": "Wicked Role"
+                                "roleName": "Wicked Role",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
+                                }
                             },
                             "targetRequirements": [
                                 {
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature ctrl:you"
-                                    }
+                                    },
+                                    "id": "target creature you control"
                                 }
                             ],
                             "description": "Create a Wicked Role token attached to target creature you control."
@@ -3663,8 +3668,8 @@
                                     "amount": 4
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 },
                                 "isMill": true
                             },
@@ -3677,8 +3682,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 }
                             }
                         }
@@ -3728,8 +3733,8 @@
                             "collectionName": "roleHost"
                         },
                         "target2": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
                         }
                     },
                     "reflexiveTargetRequirements": [
@@ -3738,7 +3743,8 @@
                             "optional": true,
                             "filter": {
                                 "baseFilter": "creature ctrl:opponent"
-                            }
+                            },
+                            "id": "target creature opponent controls"
                         }
                     ],
                     "descriptionOverride": "When you do, that creature fights up to one target creature you don't control."
@@ -3951,8 +3957,8 @@
                                     "amount": 2
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             },
                             "storeAs": "gathered0"
@@ -4558,8 +4564,8 @@
                         "type": "FromZone",
                         "zone": "Hand",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         }
                     },
                     "storeAs": "gathered1"
@@ -4587,8 +4593,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         }
                     },
                     "moveType": "Discard"
@@ -5063,8 +5069,8 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "opponent"
                                 }
                             },
                             "storeAs": "hand"
@@ -5090,8 +5096,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "opponent"
                                 }
                             },
                             "moveType": "Discard"
@@ -6050,18 +6056,18 @@
                         "amount": {
                             "type": "EntityProperty",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target first creature"
                             },
                             "numericProperty": "Power"
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 1
+                            "type": "BoundVariable",
+                            "name": "target second creature"
                         },
                         "damageSource": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target first creature"
                         }
                     },
                     "timing": "ThisTurnOnly",
@@ -6069,7 +6075,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature ctrl:you"
-                        }
+                        },
+                        "id": "target first creature"
                     },
                     "additionalTargetRequirements": [
                         {
@@ -6077,7 +6084,8 @@
                             "optional": true,
                             "filter": {
                                 "baseFilter": "creature ctrl:opponent"
-                            }
+                            },
+                            "id": "target second creature"
                         }
                     ]
                 }
@@ -6349,13 +6357,16 @@
                             }
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target any"
                         },
                         "damageSource": "Self"
                     },
                     "targetRequirements": [
-                        "AnyTarget"
+                        {
+                            "type": "AnyTarget",
+                            "id": "target any"
+                        }
                     ]
                 },
                 "filter": {
@@ -8807,8 +8818,8 @@
                     "reflexiveEffect": {
                         "type": "TapUntap",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "reflexiveTargetRequirements": [
@@ -8816,7 +8827,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:opponent"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ]
                 },
@@ -14786,8 +14798,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target targeted object"
                                 },
                                 "destination": "Hand"
                             },
@@ -14802,7 +14814,8 @@
                                             "controllerPredicate": "OwnedByYou"
                                         },
                                         "zone": "Exile"
-                                    }
+                                    },
+                                    "id": "target targeted object"
                                 }
                             ],
                             "description": "Return target card you own in exile that has an Adventure to your hand."
@@ -14811,8 +14824,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target targeted object"
                                 },
                                 "destination": "Library",
                                 "placement": "Bottom"
@@ -14828,7 +14841,8 @@
                                             "controllerPredicate": "OwnedByOpponent"
                                         },
                                         "zone": "Exile"
-                                    }
+                                    },
+                                    "id": "target targeted object"
                                 }
                             ],
                             "description": "Put target card you don't own in exile that has an Adventure on the bottom of its owner's library."
@@ -14843,8 +14857,8 @@
                                             "type": "FromZone",
                                             "zone": "Graveyard",
                                             "player": {
-                                                "type": "ContextPlayer",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "target player"
                                             }
                                         },
                                         "storeAs": "gathered0"
@@ -14856,15 +14870,18 @@
                                             "type": "ToZone",
                                             "zone": "Exile",
                                             "player": {
-                                                "type": "ContextPlayer",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "target player"
                                             }
                                         }
                                     }
                                 ]
                             },
                             "targetRequirements": [
-                                "TargetPlayer"
+                                {
+                                    "type": "TargetPlayer",
+                                    "id": "target player"
+                                }
                             ],
                             "description": "Exile target player's graveyard."
                         }
@@ -17085,8 +17102,8 @@
                                 "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target permanent"
                                 }
                             },
                             "reflexiveTargetRequirements": [
@@ -17094,7 +17111,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "permanent Faerie ctrl:you"
-                                    }
+                                    },
+                                    "id": "target permanent"
                                 }
                             ]
                         }
@@ -18689,8 +18707,8 @@
                                     "amount": 2
                                 },
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 },
                                 "damageSource": "Self"
                             },
@@ -18699,7 +18717,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "This artifact deals 2 damage to target creature"
@@ -18708,8 +18727,8 @@
                             "effect": {
                                 "type": "TapUntap",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             "targetRequirements": [
@@ -18717,7 +18736,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Tap target creature"
@@ -21481,8 +21501,8 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "enchantment you control that doesn't have the same name as another permanent you control"
                                     },
                                     "filter": "enchantment Aura"
                                 }

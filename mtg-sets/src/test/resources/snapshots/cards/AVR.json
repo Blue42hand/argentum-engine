@@ -246,8 +246,8 @@
                         "type": "FromZone",
                         "zone": "Hand",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         },
                         "filter": "mv>=4"
                     },
@@ -273,8 +273,8 @@
                         "type": "ToZone",
                         "zone": "Exile",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         }
                     }
                 }
@@ -2091,8 +2091,8 @@
                                     "effect": {
                                         "type": "TapUntap",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target permanent"
                                         }
                                     }
                                 },
@@ -2100,8 +2100,8 @@
                                     "effect": {
                                         "type": "TapUntap",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target permanent"
                                         },
                                         "tap": false
                                     }
@@ -2114,7 +2114,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "permanent"
-                        }
+                        },
+                        "id": "target permanent"
                     }
                 }
             }
@@ -3175,8 +3176,8 @@
                     "effect": {
                         "type": "CantBlockTargetCreatures",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "targetRequirements": [
@@ -3184,7 +3185,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ]
                 }
@@ -4143,8 +4145,8 @@
                                     "amount": 5
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 },
                                 "isMill": true
                             },
@@ -4157,8 +4159,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             }
                         }
@@ -4495,8 +4497,8 @@
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target"
                         },
                         "numericProperty": "Toughness"
                     }

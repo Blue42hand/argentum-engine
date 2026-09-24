@@ -1422,8 +1422,8 @@
                             "type": "Fight",
                             "target1": "Self",
                             "target2": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target grothama"
                             }
                         }
                     },
@@ -1431,7 +1431,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature name:Grothama, All-Devouring"
-                        }
+                        },
+                        "id": "target grothama"
                     }
                 },
                 "filter": {
@@ -2128,8 +2129,8 @@
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "creature"
                         },
                         "numericProperty": "Power"
                     },

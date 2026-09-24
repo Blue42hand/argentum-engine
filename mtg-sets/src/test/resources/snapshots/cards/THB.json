@@ -1231,8 +1231,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target artifact"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -1242,7 +1242,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "artifact"
-                                    }
+                                    },
+                                    "id": "target artifact"
                                 }
                             ],
                             "description": "Destroy target artifact."
@@ -2323,8 +2324,8 @@
                                     "amount": 2
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 },
                                 "isMill": true
                             },
@@ -2337,8 +2338,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             }
                         }

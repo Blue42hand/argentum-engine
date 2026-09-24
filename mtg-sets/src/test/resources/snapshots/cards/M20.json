@@ -339,8 +339,8 @@
                                 "amount": 4
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "any target"
                             }
                         },
                         {
@@ -350,8 +350,8 @@
                                 "amount": 3
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 1
+                                "type": "BoundVariable",
+                                "name": "up to two other targets[0]"
                             }
                         },
                         {
@@ -361,8 +361,8 @@
                                 "amount": 3
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 2
+                                "type": "BoundVariable",
+                                "name": "up to two other targets[1]"
                             }
                         }
                     ]
@@ -1179,8 +1179,8 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "creature you control"
                                     },
                                     "filter": "creature Vampire"
                                 }
@@ -1249,8 +1249,8 @@
                                     "amount": 3
                                 },
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target any"
                                 }
                             },
                             {
@@ -1263,7 +1263,10 @@
                         ]
                     },
                     "reflexiveTargetRequirements": [
-                        "AnyTarget"
+                        {
+                            "type": "AnyTarget",
+                            "id": "target any"
+                        }
                     ],
                     "descriptionOverride": "You may sacrifice a Vampire. When you do, Sorin deals 3 damage to any target and you gain 3 life."
                 },

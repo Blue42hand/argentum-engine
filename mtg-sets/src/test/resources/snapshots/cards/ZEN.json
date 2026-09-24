@@ -380,13 +380,16 @@
                             "amount": 2
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target any"
                         },
                         "damageSource": "GrantingSource"
                     },
                     "targetRequirements": [
-                        "AnyTarget"
+                        {
+                            "type": "AnyTarget",
+                            "id": "target any"
+                        }
                     ],
                     "descriptionOverride": "{T}, Sacrifice Blazing Torch: Blazing Torch deals 2 damage to any target."
                 }
@@ -3007,8 +3010,8 @@
                                         "type": "FromZone",
                                         "zone": "Hand",
                                         "player": {
-                                            "type": "ContextPlayer",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target"
                                         }
                                     },
                                     "storeAs": "hand"
@@ -3034,8 +3037,8 @@
                                         "type": "ToZone",
                                         "zone": "Graveyard",
                                         "player": {
-                                            "type": "ContextPlayer",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target"
                                         }
                                     },
                                     "moveType": "Discard"

@@ -790,12 +790,15 @@
                                         "numericProperty": "Power"
                                     },
                                     "target": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target any"
                                     }
                                 },
                                 "targetRequirements": [
-                                    "AnyTarget"
+                                    {
+                                        "type": "AnyTarget",
+                                        "id": "target any"
+                                    }
                                 ],
                                 "descriptionOverride": "{T}: This creature deals damage equal to its power to any target."
                             }
@@ -1971,8 +1974,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "creature you control"
                             },
                             "filter": "Spirit"
                         }
@@ -3671,8 +3674,8 @@
                     "numericProperty": "Power"
                 },
                 "target": {
-                    "type": "ContextTarget",
-                    "index": 0
+                    "type": "BoundVariable",
+                    "name": "creature you don't control"
                 },
                 "damageSource": "IterationEntity"
             }
@@ -4842,8 +4845,8 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             },
                             "storeAs": "hand"
@@ -4869,8 +4872,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             },
                             "moveType": "Discard"
@@ -6972,8 +6975,8 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             },
                             "storeAs": "hand"
@@ -6999,8 +7002,8 @@
                                 "type": "ToZone",
                                 "zone": "Exile",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             }
                         }
@@ -7065,8 +7068,8 @@
                                             "amount": 3
                                         },
                                         "player": {
-                                            "type": "ContextPlayer",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target"
                                         },
                                         "isMill": true
                                     },
@@ -7079,8 +7082,8 @@
                                         "type": "ToZone",
                                         "zone": "Graveyard",
                                         "player": {
-                                            "type": "ContextPlayer",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target"
                                         }
                                     }
                                 }

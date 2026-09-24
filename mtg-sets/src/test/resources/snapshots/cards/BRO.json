@@ -1626,8 +1626,8 @@
                             "source": {
                                 "type": "ControlledPermanents",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "opponent"
                                 }
                             },
                             "storeAs": "gathered0"
@@ -1654,8 +1654,8 @@
                                 "type": "ToZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "opponent"
                                 }
                             }
                         },
@@ -1664,8 +1664,8 @@
                             "source": {
                                 "type": "ControlledPermanents",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "opponent"
                                 },
                                 "filter": "nonland permanent"
                             },
@@ -1678,8 +1678,8 @@
                                 "type": "ToZone",
                                 "zone": "Library",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "opponent"
                                 },
                                 "placement": "Shuffled"
                             }

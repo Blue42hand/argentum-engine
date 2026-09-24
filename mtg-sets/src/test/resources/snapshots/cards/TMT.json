@@ -812,8 +812,8 @@
                             {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target artifact card in your graveyard"
                                 },
                                 "destination": "Battlefield",
                                 "fromZone": "Graveyard"
@@ -827,8 +827,8 @@
                                         "condition": {
                                             "type": "EntityMatches",
                                             "entity": {
-                                                "type": "ContextTarget",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "target artifact card in your graveyard"
                                             },
                                             "filter": "creature"
                                         }
@@ -837,8 +837,8 @@
                                 "then": {
                                     "type": "BecomeCreature",
                                     "target": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target artifact card in your graveyard"
                                     },
                                     "power": {
                                         "type": "Fixed",
@@ -866,7 +866,7 @@
                                 "baseFilter": "artifact own:you",
                                 "zone": "Graveyard"
                             },
-                            "id": "target"
+                            "id": "target artifact card in your graveyard"
                         }
                     ],
                     "description": "Return target artifact card in your graveyard to the battlefield. If it isn't an artifact creature card, it's a 3/3 Robot artifact creature with flying"
@@ -2072,8 +2072,8 @@
                                             "condition": {
                                                 "type": "EntityMatches",
                                                 "entity": {
-                                                    "type": "ContextTarget",
-                                                    "index": 0
+                                                    "type": "BoundVariable",
+                                                    "name": "target"
                                                 },
                                                 "filter": "creature"
                                             }
@@ -2411,8 +2411,8 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target artifact you control"
                                     },
                                     "filter": "noncreature"
                                 }
@@ -2420,8 +2420,8 @@
                             "then": {
                                 "type": "BecomeCreature",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target artifact you control"
                                 },
                                 "power": {
                                     "type": "Fixed",
@@ -3330,8 +3330,8 @@
                             "amount": 4
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         },
                         "damageSource": "Self"
                     },
@@ -3340,7 +3340,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ]
                 },
@@ -4495,8 +4496,8 @@
                             "numerator": {
                                 "type": "Count",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 },
                                 "zone": "Library"
                             },
@@ -4506,8 +4507,8 @@
                             }
                         },
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         },
                         "isMill": true
                     },
@@ -4520,8 +4521,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         }
                     }
                 }
@@ -5178,8 +5179,8 @@
                     "reflexiveEffect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target artifact or enchantment"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -5189,7 +5190,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "artifact|enchantment ctrl:triggering-player"
-                            }
+                            },
+                            "id": "target artifact or enchantment"
                         }
                     ],
                     "descriptionOverride": "You may remove a counter from Leatherhead. When you do, destroy target artifact or enchantment that player controls."
@@ -8189,8 +8191,8 @@
                     "reflexiveEffect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature card in your graveyard"
                         },
                         "destination": "Library",
                         "placement": "Top"
@@ -8201,7 +8203,8 @@
                             "filter": {
                                 "baseFilter": "creature own:you",
                                 "zone": "Graveyard"
-                            }
+                            },
+                            "id": "target creature card in your graveyard"
                         }
                     ]
                 },
@@ -8378,8 +8381,8 @@
                                     "condition": {
                                         "type": "EntityMatches",
                                         "entity": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target"
                                         },
                                         "filter": "creature"
                                     }
@@ -9352,7 +9355,13 @@
                         }
                     ]
                 },
-                "effect": "ReturnSameNamedFromGraveyard",
+                "effect": {
+                    "type": "ReturnSameNamedFromGraveyard",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature card in your graveyard"
+                    }
+                },
                 "targetRequirements": [
                     {
                         "type": "TargetObject",
@@ -10333,8 +10342,8 @@
                                     "type": "FromZone",
                                     "zone": "Hand",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target player"
                                     }
                                 },
                                 "storeAs": "hand"
@@ -10360,8 +10369,8 @@
                                     "type": "ToZone",
                                     "zone": "Graveyard",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target player"
                                     }
                                 },
                                 "moveType": "Discard"
@@ -10449,8 +10458,8 @@
                 "condition": {
                     "type": "EntityMatches",
                     "entity": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature or enchantment"
                     },
                     "filter": "enchantment"
                 }
@@ -11419,8 +11428,8 @@
                             "left": {
                                 "type": "EntityProperty",
                                 "entity": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "artifact or creature"
                                 },
                                 "numericProperty": "ManaValue"
                             },
@@ -11569,8 +11578,8 @@
             "amount": {
                 "type": "EntityProperty",
                 "entity": {
-                    "type": "ContextTarget",
-                    "index": 0
+                    "type": "BoundVariable",
+                    "name": "creature you control"
                 },
                 "numericProperty": "Power"
             },
@@ -11798,8 +11807,8 @@
                     "reflexiveEffect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         },
                         "destination": "Hand"
                     },
@@ -11809,7 +11818,8 @@
                             "filter": {
                                 "baseFilter": "creature own:you",
                                 "zone": "Graveyard"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ]
                 }
@@ -12668,8 +12678,8 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target creature that crewed it this turn"
                                     },
                                     "filter": {
                                         "cardPredicates": [

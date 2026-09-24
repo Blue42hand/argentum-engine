@@ -1439,8 +1439,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target targeted object"
                                 },
                                 "destination": "Library",
                                 "placement": "Bottom"
@@ -1455,7 +1455,8 @@
                                             ]
                                         },
                                         "zone": "Exile"
-                                    }
+                                    },
+                                    "id": "target targeted object"
                                 }
                             ],
                             "description": "Put target exiled card with warp on the bottom of its owner's library"
@@ -2619,8 +2620,8 @@
                 "condition": {
                     "type": "EntityMatches",
                     "entity": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "creature"
                     },
                     "filter": "creature kw:flying"
                 },
@@ -2629,8 +2630,8 @@
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "creature"
                         },
                         "numericProperty": "Power"
                     },
@@ -2639,8 +2640,8 @@
                 "ifFalse": {
                     "type": "EntityProperty",
                     "entity": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "creature"
                     },
                     "numericProperty": "Power"
                 }
@@ -3243,8 +3244,8 @@
                             "left": {
                                 "type": "EntityProperty",
                                 "entity": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 },
                                 "numericProperty": "Power"
                             },
@@ -3305,8 +3306,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target nonland permanent"
                             },
                             "filter": "permanent attacking"
                         }
@@ -3451,8 +3452,8 @@
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "creature you control"
                         },
                         "numericProperty": "Power"
                     },
@@ -3846,8 +3847,8 @@
                             "left": {
                                 "type": "EntityProperty",
                                 "entity": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 },
                                 "numericProperty": {
                                     "type": "CounterCount",
@@ -5111,8 +5112,8 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "up to one other target creature"
                                     },
                                     "filter": {
                                         "cardPredicates": [
@@ -5783,8 +5784,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature you control"
                             },
                             "filter": {
                                 "cardPredicates": [
@@ -9284,8 +9285,8 @@
                         {
                             "type": "TapUntap",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target artifact or creature an opponent controls"
                             }
                         },
                         {
@@ -9293,8 +9294,8 @@
                             "counterType": "STUN",
                             "count": 1,
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target artifact or creature an opponent controls"
                             }
                         }
                     ]
@@ -9857,8 +9858,8 @@
                     "powerModifier": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature you control"
                         },
                         "numericProperty": "Power"
                     },
@@ -9867,8 +9868,8 @@
                         "amount": 0
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature you control"
                     }
                 },
                 "targetRequirement": {
@@ -12266,8 +12267,8 @@
                         "type": "GrantKeyword",
                         "keyword": "INDESTRUCTIBLE",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target artifact"
                         }
                     },
                     "targetRequirements": [
@@ -12275,7 +12276,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "artifact|creature"
-                            }
+                            },
+                            "id": "target artifact"
                         }
                     ],
                     "description": "Target artifact or creature gains indestructible until end of turn"
@@ -12288,8 +12290,8 @@
                             "amount": 2
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target tapped creature"
                         }
                     },
                     "targetRequirements": [
@@ -12297,7 +12299,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature tapped"
-                            }
+                            },
+                            "id": "target tapped creature"
                         }
                     ],
                     "description": "Reroute Systems deals 2 damage to target tapped creature"
@@ -13453,8 +13456,8 @@
                             "left": {
                                 "type": "EntityProperty",
                                 "entity": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target artifact or enchantment"
                                 },
                                 "numericProperty": "ManaValue"
                             },
@@ -13526,8 +13529,8 @@
                                 "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             {
@@ -13544,7 +13547,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ]
                 }
@@ -14206,8 +14210,8 @@
                         "type": "TopOfLibrary",
                         "count": "YourLifeTotal",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "player"
                         },
                         "isMill": true
                     },
@@ -14220,8 +14224,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "player"
                         }
                     }
                 }
@@ -16317,8 +16321,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target artifact or creature"
                             },
                             "filter": "Spacecraft"
                         }
@@ -16576,8 +16580,8 @@
                         "type": "FromZone",
                         "zone": "Hand",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         }
                     },
                     "storeAs": "gathered1"
@@ -16605,8 +16609,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         }
                     },
                     "moveType": "Discard"
@@ -17003,8 +17007,8 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "artifact or creature"
                                     },
                                     "filter": "artifact creature"
                                 }
@@ -17103,8 +17107,8 @@
                                     "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 3,
                                     "target": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target artifact"
                                     }
                                 },
                                 {
@@ -17114,8 +17118,8 @@
                                         "condition": {
                                             "type": "EntityMatches",
                                             "entity": {
-                                                "type": "ContextTarget",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "target artifact"
                                             },
                                             "filter": "noncreature"
                                         }
@@ -17123,8 +17127,8 @@
                                     "then": {
                                         "type": "BecomeCreature",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target artifact"
                                         },
                                         "power": {
                                             "type": "Fixed",
@@ -17146,7 +17150,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "artifact ctrl:you"
-                            }
+                            },
+                            "id": "target artifact"
                         }
                     },
                     "descriptionOverride": "At the beginning of combat on your turn, put three +1/+1 counters on target artifact you control. If it's not a creature, it becomes a 0/0 Robot artifact creature."
@@ -17368,12 +17373,15 @@
                     "effect": {
                         "type": "HijackNextTurn",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         }
                     },
                     "targetRequirements": [
-                        "TargetOpponent"
+                        {
+                            "type": "TargetOpponent",
+                            "id": "target opponent"
+                        }
                     ],
                     "timing": "SorcerySpeed",
                     "descriptionOverride": "{15}, Exile The Dominion Bracelet: You control target opponent during their next turn. This ability costs {X} less to activate, where X is this creature's power.",
@@ -18060,8 +18068,8 @@
                     "left": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target spell"
                         },
                         "numericProperty": "ManaSpent"
                     },
@@ -18069,8 +18077,8 @@
                     "right": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target spell"
                         },
                         "numericProperty": "ManaValue"
                     }

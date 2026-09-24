@@ -858,8 +858,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target artifact"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -869,7 +869,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "artifact"
-                                    }
+                                    },
+                                    "id": "target artifact"
                                 }
                             ],
                             "description": "Destroy target artifact"
@@ -878,8 +879,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target enchantment"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -889,7 +890,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "enchantment"
-                                    }
+                                    },
+                                    "id": "target enchantment"
                                 }
                             ],
                             "description": "Destroy target enchantment"
@@ -898,8 +900,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target card in graveyard"
                                 },
                                 "destination": "Exile"
                             },
@@ -909,7 +911,8 @@
                                     "filter": {
                                         "baseFilter": {},
                                         "zone": "Graveyard"
-                                    }
+                                    },
+                                    "id": "target card in graveyard"
                                 }
                             ],
                             "description": "Exile target card from a graveyard"

@@ -4738,8 +4738,8 @@
                 {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 1
+                        "type": "BoundVariable",
+                        "name": "up to one target instant or sorcery card from a graveyard"
                     },
                     "destination": "Exile"
                 },

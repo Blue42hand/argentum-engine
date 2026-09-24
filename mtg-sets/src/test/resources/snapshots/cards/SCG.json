@@ -794,8 +794,8 @@
                             "amount": 3
                         },
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target player"
                         },
                         "isMill": true
                     },
@@ -808,8 +808,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target player"
                         }
                     }
                 }
@@ -989,8 +989,8 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 }
                             },
                             "storeAs": "gathered0"
@@ -1024,8 +1024,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 }
                             },
                             "moveType": "Discard"
@@ -2442,8 +2442,8 @@
                     "left": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target spell"
                         },
                         "numericProperty": "ManaValue"
                     },
@@ -3607,8 +3607,8 @@
             "amount": {
                 "type": "TurnTracking",
                 "player": {
-                    "type": "ContextPlayer",
-                    "index": 0
+                    "type": "BoundVariable",
+                    "name": "target"
                 },
                 "tracker": "DAMAGE_RECEIVED"
             },
@@ -7404,8 +7404,8 @@
                         "type": "FromZone",
                         "zone": "Hand",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target"
                         }
                     },
                     "storeAs": "hand"
@@ -7431,8 +7431,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target"
                         }
                     },
                     "moveType": "Discard"

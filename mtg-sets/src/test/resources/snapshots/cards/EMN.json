@@ -582,8 +582,8 @@
                 "condition": {
                     "type": "EntityMatches",
                     "entity": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "creature card from your graveyard"
                     },
                     "filter": "creature Zombie"
                 }
@@ -737,8 +737,8 @@
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "t1"
                         },
                         "numericProperty": "Power"
                     },
@@ -809,8 +809,8 @@
                                     "type": "FromZone",
                                     "zone": "Hand",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "reveal opponent"
                                     }
                                 },
                                 "storeAs": "gathered1"
@@ -838,8 +838,8 @@
                                     "type": "ToZone",
                                     "zone": "Graveyard",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "reveal opponent"
                                     }
                                 },
                                 "moveType": "Discard"
@@ -975,8 +975,8 @@
                                             "type": "FromZone",
                                             "zone": "Hand",
                                             "player": {
-                                                "type": "ContextPlayer",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "wheel player"
                                             }
                                         },
                                         "storeAs": "discardedHand"
@@ -988,8 +988,8 @@
                                             "type": "ToZone",
                                             "zone": "Graveyard",
                                             "player": {
-                                                "type": "ContextPlayer",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "wheel player"
                                             }
                                         },
                                         "moveType": "Discard"
@@ -1419,8 +1419,8 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             },
                             "storeAs": "gathered1"
@@ -1464,8 +1464,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             },
                             "moveType": "Discard"
@@ -1477,8 +1477,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             },
                             "moveType": "Discard"
@@ -4100,8 +4100,8 @@
                         {
                             "type": "CreateTokenCopyOfTarget",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature card from your graveyard"
                             },
                             "overridePower": 1,
                             "overrideToughness": 1,
@@ -4125,16 +4125,16 @@
                             "dynamicPower": {
                                 "type": "EntityProperty",
                                 "entity": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature card from your graveyard"
                                 },
                                 "numericProperty": "Power"
                             },
                             "dynamicToughness": {
                                 "type": "EntityProperty",
                                 "entity": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature card from your graveyard"
                                 },
                                 "numericProperty": "Toughness"
                             }

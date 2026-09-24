@@ -462,8 +462,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target artifact or enchantment"
                                 },
                                 "destination": "Hand"
                             },
@@ -473,7 +473,8 @@
                                     "filter": {
                                         "baseFilter": "artifact|enchantment own:you",
                                         "zone": "Graveyard"
-                                    }
+                                    },
+                                    "id": "target artifact or enchantment"
                                 }
                             ],
                             "description": "Return target artifact or enchantment card from your graveyard to your hand"

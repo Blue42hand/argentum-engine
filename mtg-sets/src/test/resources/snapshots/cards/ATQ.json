@@ -24,8 +24,8 @@
                 "effect": {
                     "type": "PreventDamageShield",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "any target"
                     },
                     "amount": {
                         "type": "Fixed",
@@ -132,8 +132,8 @@
                 "effect": {
                     "type": "PreventDamageShield",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target artifact creature"
                     },
                     "amount": {
                         "type": "Fixed",
@@ -1240,8 +1240,8 @@
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target artifact"
                         },
                         "numericProperty": "ManaValue"
                     },
@@ -2330,8 +2330,8 @@
                                     "amount": 2
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 },
                                 "isMill": true
                             },
@@ -2344,8 +2344,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 }
                             }
                         }
@@ -3122,8 +3122,8 @@
                         {
                             "type": "PreventDamageShield",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "any target"
                             },
                             "amount": {
                                 "type": "Fixed",

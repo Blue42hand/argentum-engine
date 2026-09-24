@@ -350,8 +350,8 @@
                     "reflexiveEffect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target permanent"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -361,7 +361,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "permanent Room"
-                            }
+                            },
+                            "id": "target permanent"
                         }
                     ]
                 }
@@ -959,8 +960,8 @@
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "creature you control"
                         },
                         "numericProperty": "Power"
                     },
@@ -1060,8 +1061,8 @@
                             {
                                 "type": "MarkExileOnDeath",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             {
@@ -1071,8 +1072,8 @@
                                     "amount": 5
                                 },
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             }
                         ]
@@ -1082,7 +1083,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "description": "Sacrifice a creature or enchantment — deal 5 damage to target creature",
@@ -1103,8 +1105,8 @@
                             {
                                 "type": "MarkExileOnDeath",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             {
@@ -1114,8 +1116,8 @@
                                     "amount": 5
                                 },
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             }
                         ]
@@ -1125,7 +1127,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "description": "Pay {2} — deal 5 damage to target creature",
@@ -1319,13 +1322,16 @@
                             "amount": 2
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target any"
                         },
                         "damageSource": "Self"
                     },
                     "reflexiveTargetRequirements": [
-                        "AnyTarget"
+                        {
+                            "type": "AnyTarget",
+                            "id": "target any"
+                        }
                     ],
                     "descriptionOverride": "You may sacrifice another creature or enchantment. When you do, this creature deals 2 damage to any target."
                 },
@@ -1435,8 +1441,8 @@
                     "effect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target"
                         },
                         "destination": "Exile"
                     },
@@ -1455,8 +1461,8 @@
                     "effect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target"
                         },
                         "destination": "Exile"
                     },
@@ -2645,8 +2651,8 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 }
                             },
                             "storeAs": "gathered1"
@@ -2674,8 +2680,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 }
                             },
                             "moveType": "Discard"
@@ -5665,8 +5671,8 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target"
                                     },
                                     "filter": "creature ctrl:opponent"
                                 }
@@ -7015,7 +7021,13 @@
                             "description": "Return an enchantment card from your graveyard to your hand"
                         },
                         {
-                            "effect": "UnlockDoor",
+                            "effect": {
+                                "type": "UnlockDoor",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target targeted object"
+                                }
+                            },
                             "targetRequirements": [
                                 {
                                     "type": "TargetObject",
@@ -7033,7 +7045,8 @@
                                             ],
                                             "controllerPredicate": "ControlledByYou"
                                         }
-                                    }
+                                    },
+                                    "id": "target targeted object"
                                 }
                             ],
                             "description": "Unlock a locked door of a Room you control"
@@ -9116,8 +9129,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target artifact"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -9127,7 +9140,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "artifact"
-                                    }
+                                    },
+                                    "id": "target artifact"
                                 }
                             ],
                             "description": "Destroy target artifact"
@@ -9136,8 +9150,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target enchantment"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -9147,7 +9161,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "enchantment"
-                                    }
+                                    },
+                                    "id": "target enchantment"
                                 }
                             ],
                             "description": "Destroy target enchantment"
@@ -9811,11 +9826,23 @@
                     "type": "Modal",
                     "modes": [
                         {
-                            "effect": "LockDoor",
+                            "effect": {
+                                "type": "LockDoor",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target Room"
+                                }
+                            },
                             "description": "Lock a door"
                         },
                         {
-                            "effect": "UnlockDoor",
+                            "effect": {
+                                "type": "UnlockDoor",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target Room"
+                                }
+                            },
                             "description": "Unlock a door"
                         }
                     ],
@@ -10844,11 +10871,23 @@
                     "type": "Modal",
                     "modes": [
                         {
-                            "effect": "LockDoor",
+                            "effect": {
+                                "type": "LockDoor",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target Room"
+                                }
+                            },
                             "description": "Lock a door"
                         },
                         {
-                            "effect": "UnlockDoor",
+                            "effect": {
+                                "type": "UnlockDoor",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target Room"
+                                }
+                            },
                             "description": "Unlock a door"
                         }
                     ],
@@ -12085,8 +12124,8 @@
                                 {
                                     "type": "MoveToZone",
                                     "target": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target nonlegendary creature you control"
                                     },
                                     "destination": "Exile"
                                 },
@@ -12096,8 +12135,8 @@
                                     "effect": {
                                         "type": "MoveToZone",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target nonlegendary creature you control"
                                         },
                                         "destination": "Battlefield"
                                     }
@@ -12106,6 +12145,10 @@
                         },
                         {
                             "type": "EachPermanentBecomesCopyOfTarget",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target nonlegendary creature you control"
+                            },
                             "filter": {
                                 "baseFilter": "name:Shard ctrl:you"
                             },
@@ -13219,8 +13262,8 @@
                         "amount": 4
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "any target"
                     },
                     "damageSource": "Self"
                 },
@@ -13240,8 +13283,8 @@
                         "amount": 4
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "any target"
                     },
                     "damageSource": "Self"
                 },
@@ -15828,8 +15871,8 @@
                                     "amount": 2
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 },
                                 "isMill": true
                             },
@@ -15842,8 +15885,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             }
                         }
@@ -15871,8 +15914,8 @@
                                     "amount": 2
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 },
                                 "isMill": true
                             },
@@ -15885,8 +15928,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             }
                         }
@@ -16410,6 +16453,10 @@
                         {
                             "effect": {
                                 "type": "EachPermanentBecomesCopyOfTarget",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "target other creature you control"
+                                },
                                 "affected": "Self"
                             },
                             "targetRequirements": [
@@ -16418,7 +16465,8 @@
                                     "filter": {
                                         "baseFilter": "creature ctrl:you",
                                         "excludeSelf": true
-                                    }
+                                    },
+                                    "id": "target other creature you control"
                                 }
                             ],
                             "description": "This creature becomes a copy of another target creature you control"
@@ -19838,8 +19886,8 @@
                     "effect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target artifact"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -19849,7 +19897,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "artifact"
-                            }
+                            },
+                            "id": "target artifact"
                         }
                     ],
                     "description": "Destroy target artifact"
@@ -19918,8 +19967,8 @@
                 {
                     "type": "MoveToZone",
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -21224,8 +21273,8 @@
                         "amount": {
                             "type": "EntityProperty",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature you control"
                             },
                             "numericProperty": "Power"
                         },

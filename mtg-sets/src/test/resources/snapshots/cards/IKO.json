@@ -935,8 +935,8 @@
                     "effect": {
                         "type": "TapUntap",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "targetRequirements": [
@@ -944,7 +944,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ]
                 },
@@ -1484,8 +1485,8 @@
                     "effect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target enchantment"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -1495,7 +1496,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "enchantment"
-                            }
+                            },
+                            "id": "target enchantment"
                         }
                     ],
                     "description": "Destroy target enchantment."
@@ -1506,8 +1508,8 @@
                         "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "targetRequirements": [
@@ -1515,7 +1517,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "description": "Put a +1/+1 counter on target creature."

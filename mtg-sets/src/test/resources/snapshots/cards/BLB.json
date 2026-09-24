@@ -520,8 +520,8 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "artifact, creature, or planeswalker an opponent controls"
                                     },
                                     "filter": "creature"
                                 }
@@ -1352,8 +1352,8 @@
                             "amount": 2
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "targetRequirements": [
@@ -1361,7 +1361,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "description": "Don't promise a gift — deal 2 damage to target creature"
@@ -1392,8 +1393,8 @@
                                             "amount": 2
                                         },
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target creature"
                                         }
                                     },
                                     {
@@ -1414,7 +1415,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "description": "Promise a gift — opponent creates a Treasure token, deal 2 damage to target creature and 3 damage to its controller"
@@ -3288,8 +3290,8 @@
                     "effect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature card in your graveyard"
                         },
                         "destination": "Battlefield",
                         "fromZone": "Graveyard"
@@ -3300,7 +3302,8 @@
                             "filter": {
                                 "baseFilter": "creature own:you",
                                 "zone": "Graveyard"
-                            }
+                            },
+                            "id": "target creature card in your graveyard"
                         }
                     ],
                     "description": "Don't promise a gift — return target creature card from your graveyard to the battlefield"
@@ -3330,8 +3333,8 @@
                                     {
                                         "type": "MoveToZone",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target creature in your graveyard"
                                         },
                                         "destination": "Battlefield",
                                         "fromZone": "Graveyard"
@@ -3343,8 +3346,8 @@
                                             "condition": {
                                                 "type": "EntityMatches",
                                                 "entity": {
-                                                    "type": "ContextTarget",
-                                                    "index": 0
+                                                    "type": "BoundVariable",
+                                                    "name": "target creature in your graveyard"
                                                 },
                                                 "filter": {
                                                     "cardPredicates": [
@@ -3357,8 +3360,8 @@
                                         "then": {
                                             "type": "CreateTokenCopyOfTarget",
                                             "target": {
-                                                "type": "ContextTarget",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "target creature in your graveyard"
                                             },
                                             "overridePower": 1,
                                             "overrideToughness": 1
@@ -3375,7 +3378,8 @@
                             "filter": {
                                 "baseFilter": "creature own:you",
                                 "zone": "Graveyard"
-                            }
+                            },
+                            "id": "target creature in your graveyard"
                         }
                     ],
                     "description": "Promise a gift — opponent draws a card, return target creature card from your graveyard to the battlefield, then if it isn't legendary create a 1/1 token copy"
@@ -3544,12 +3548,15 @@
                             ]
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         }
                     },
                     "targetRequirements": [
-                        "TargetOpponent"
+                        {
+                            "type": "TargetOpponent",
+                            "id": "target opponent"
+                        }
                     ],
                     "description": "Don't promise a gift — target opponent sacrifices a creature with the greatest power"
                 },
@@ -3586,15 +3593,15 @@
                                             ]
                                         },
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target opponent"
                                         }
                                     },
                                     {
                                         "type": "MoveToZone",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 1
+                                            "type": "BoundVariable",
+                                            "name": "target creature card in your graveyard"
                                         },
                                         "destination": "Hand"
                                     },
@@ -3604,13 +3611,17 @@
                         ]
                     },
                     "targetRequirements": [
-                        "TargetOpponent",
+                        {
+                            "type": "TargetOpponent",
+                            "id": "target opponent"
+                        },
                         {
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature own:you",
                                 "zone": "Graveyard"
-                            }
+                            },
+                            "id": "target creature card in your graveyard"
                         }
                     ],
                     "description": "Promise a gift — opponent draws a card, target opponent sacrifices a creature with the greatest power, return target creature card from your graveyard to your hand"
@@ -3842,15 +3853,21 @@
                             {
                                 "type": "Composite",
                                 "effects": [
-                                    "RevealHand",
+                                    {
+                                        "type": "RevealHand",
+                                        "target": {
+                                            "type": "BoundVariable",
+                                            "name": "target opponent"
+                                        }
+                                    },
                                     {
                                         "type": "GatherCards",
                                         "source": {
                                             "type": "FromZone",
                                             "zone": "Hand",
                                             "player": {
-                                                "type": "ContextPlayer",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "target opponent"
                                             },
                                             "filter": "nonland"
                                         },
@@ -3876,8 +3893,8 @@
                                             "type": "ToZone",
                                             "zone": "Exile",
                                             "player": {
-                                                "type": "ContextPlayer",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "target opponent"
                                             }
                                         }
                                     }
@@ -3886,7 +3903,10 @@
                         ]
                     },
                     "targetRequirements": [
-                        "TargetOpponent"
+                        {
+                            "type": "TargetOpponent",
+                            "id": "target opponent"
+                        }
                     ],
                     "description": "Don't promise a gift — exile a nonland card from target opponent's hand"
                 },
@@ -3908,22 +3928,28 @@
                                             "amount": 1
                                         },
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target opponent"
                                         }
                                     },
                                     {
                                         "type": "Composite",
                                         "effects": [
-                                            "RevealHand",
+                                            {
+                                                "type": "RevealHand",
+                                                "target": {
+                                                    "type": "BoundVariable",
+                                                    "name": "target opponent"
+                                                }
+                                            },
                                             {
                                                 "type": "GatherCards",
                                                 "source": {
                                                     "type": "FromZone",
                                                     "zone": "Hand",
                                                     "player": {
-                                                        "type": "ContextPlayer",
-                                                        "index": 0
+                                                        "type": "BoundVariable",
+                                                        "name": "target opponent"
                                                     },
                                                     "filter": "nonland"
                                                 },
@@ -3949,8 +3975,8 @@
                                                     "type": "ToZone",
                                                     "zone": "Exile",
                                                     "player": {
-                                                        "type": "ContextPlayer",
-                                                        "index": 0
+                                                        "type": "BoundVariable",
+                                                        "name": "target opponent"
                                                     }
                                                 }
                                             }
@@ -3968,7 +3994,10 @@
                         ]
                     },
                     "targetRequirements": [
-                        "TargetOpponent"
+                        {
+                            "type": "TargetOpponent",
+                            "id": "target opponent"
+                        }
                     ],
                     "description": "Promise a gift — an opponent draws a card, then exile a nonland card from target opponent's hand (you may cast it from exile)"
                 }
@@ -4019,8 +4048,8 @@
                             "amount": 2
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature you control"
                         }
                     },
                     "targetRequirements": [
@@ -4028,7 +4057,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
-                            }
+                            },
+                            "id": "target creature you control"
                         }
                     ],
                     "description": "Don't promise a gift — target creature you control gets +2/+2 until end of turn"
@@ -4063,16 +4093,16 @@
                                             "amount": 2
                                         },
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target creature you control"
                                         }
                                     },
                                     {
                                         "type": "GrantKeyword",
                                         "keyword": "INDESTRUCTIBLE",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target creature you control"
                                         }
                                     },
                                     "GiftGiven"
@@ -4085,7 +4115,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
-                            }
+                            },
+                            "id": "target creature you control"
                         }
                     ],
                     "description": "Promise a gift — opponent creates a Food token, target creature you control gets +2/+2 and gains indestructible until end of turn"
@@ -4206,8 +4237,8 @@
                     "reflexiveEffect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target permanent"
                         },
                         "destination": "Hand"
                     },
@@ -4217,7 +4248,8 @@
                             "filter": {
                                 "baseFilter": "permanent own:you",
                                 "zone": "Graveyard"
-                            }
+                            },
+                            "id": "target permanent"
                         }
                     ],
                     "hint": "Exile three cards from your graveyard or sacrifice a Food"
@@ -4985,8 +5017,8 @@
                                     "amount": -1
                                 },
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature opponent controls"
                                 }
                             },
                             "targetRequirements": [
@@ -4994,7 +5026,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature ctrl:opponent"
-                                    }
+                                    },
+                                    "id": "target creature opponent controls"
                                 }
                             ],
                             "description": "Target creature an opponent controls gets -1/-1 until end of turn"
@@ -5003,8 +5036,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -5022,7 +5055,8 @@
                                             ],
                                             "controllerPredicate": "ControlledByOpponent"
                                         }
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Destroy target creature an opponent controls that was dealt damage this turn"
@@ -5217,8 +5251,8 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "creature"
                                     },
                                     "filter": "creature ctrl:you"
                                 }
@@ -5297,8 +5331,8 @@
                                     "left": {
                                         "type": "EntityProperty",
                                         "entity": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "creature an opponent controls"
                                         },
                                         "numericProperty": "Power"
                                     },
@@ -5483,8 +5517,8 @@
                                     "type": "FromZone",
                                     "zone": "Battlefield",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target opponent"
                                     },
                                     "filter": "enchantment"
                                 },
@@ -5511,8 +5545,8 @@
                                     "type": "ToZone",
                                     "zone": "Exile",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target opponent"
                                     }
                                 }
                             }
@@ -6252,14 +6286,17 @@
                     "effect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature or planeswalker"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
                     },
                     "targetRequirements": [
-                        "TargetCreatureOrPlaneswalker"
+                        {
+                            "type": "TargetCreatureOrPlaneswalker",
+                            "id": "target creature or planeswalker"
+                        }
                     ],
                     "description": "Pay {B} — destroy target creature or planeswalker",
                     "additionalManaCost": "{B}",
@@ -6269,14 +6306,17 @@
                     "effect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature or planeswalker"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
                     },
                     "targetRequirements": [
-                        "TargetCreatureOrPlaneswalker"
+                        {
+                            "type": "TargetCreatureOrPlaneswalker",
+                            "id": "target creature or planeswalker"
+                        }
                     ],
                     "description": "Forage — destroy target creature or planeswalker",
                     "additionalCosts": [
@@ -7724,8 +7764,8 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "creature you control"
                                     },
                                     "filter": "token"
                                 }
@@ -8546,8 +8586,8 @@
                                 "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 }
                             },
                             "targetRequirements": [
@@ -8555,7 +8595,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature ctrl:you"
-                                    }
+                                    },
+                                    "id": "target creature you control"
                                 }
                             ],
                             "description": "Put a +1/+1 counter on target creature you control"
@@ -8565,8 +8606,8 @@
                                 "type": "Fight",
                                 "target1": "Self",
                                 "target2": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             "targetRequirements": [
@@ -8574,7 +8615,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature token"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "This creature fights target creature token"
@@ -8583,8 +8625,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target artifact or enchantment"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -8594,7 +8636,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "artifact|enchantment"
-                                    }
+                                    },
+                                    "id": "target artifact or enchantment"
                                 }
                             ],
                             "description": "Destroy target artifact or enchantment"
@@ -8949,8 +8992,8 @@
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "creature you control"
                         },
                         "numericProperty": "Power"
                     },
@@ -9236,8 +9279,8 @@
                     "effect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
                         },
                         "destination": "Hand"
                     },
@@ -9246,7 +9289,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:opponent"
-                            }
+                            },
+                            "id": "target creature opponent controls"
                         }
                     ],
                     "description": "Don't promise a gift — return target creature an opponent controls to its owner's hand"
@@ -9282,8 +9326,8 @@
                                     {
                                         "type": "MoveToZone",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target nonland permanent opponent controls"
                                         },
                                         "destination": "Hand"
                                     },
@@ -9297,7 +9341,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "nonland permanent ctrl:opponent"
-                            }
+                            },
+                            "id": "target nonland permanent opponent controls"
                         }
                     ],
                     "description": "Promise a gift — opponent creates a tapped 1/1 blue Fish token, then return target nonland permanent an opponent controls to its owner's hand"
@@ -10636,16 +10681,16 @@
                                         {
                                             "type": "MoveToZone",
                                             "target": {
-                                                "type": "ContextTarget",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "creature you control"
                                             },
                                             "destination": "Exile"
                                         },
                                         {
                                             "type": "MoveToZone",
                                             "target": {
-                                                "type": "ContextTarget",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "creature you control"
                                             },
                                             "destination": "Battlefield"
                                         }
@@ -10660,8 +10705,8 @@
                                 }
                             },
                             "watchedTarget": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "creature you control"
                             }
                         }
                     ]
@@ -10801,12 +10846,12 @@
                     "effect": {
                         "type": "Fight",
                         "target1": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature you control"
                         },
                         "target2": {
-                            "type": "ContextTarget",
-                            "index": 1
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
                         }
                     },
                     "targetRequirements": [
@@ -10814,13 +10859,15 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
-                            }
+                            },
+                            "id": "target creature you control"
                         },
                         {
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:opponent"
-                            }
+                            },
+                            "id": "target creature opponent controls"
                         }
                     ],
                     "description": "Don't promise a gift — target creature you control fights target creature you don't control"
@@ -10858,19 +10905,19 @@
                                         "counterType": "PLUS_ONE_PLUS_ONE",
                                         "count": 1,
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target creature you control"
                                         }
                                     },
                                     {
                                         "type": "Fight",
                                         "target1": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target creature you control"
                                         },
                                         "target2": {
-                                            "type": "ContextTarget",
-                                            "index": 1
+                                            "type": "BoundVariable",
+                                            "name": "target creature opponent controls"
                                         }
                                     },
                                     "GiftGiven"
@@ -10883,13 +10930,15 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
-                            }
+                            },
+                            "id": "target creature you control"
                         },
                         {
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:opponent"
-                            }
+                            },
+                            "id": "target creature opponent controls"
                         }
                     ],
                     "description": "Promise a gift — opponent creates a tapped 1/1 blue Fish token, +1/+1 counter on your creature, then fight"
@@ -11699,13 +11748,14 @@
                             "amount": 3
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target player"
                         }
                     },
                     "targetRequirements": [
                         {
                             "type": "TargetPlayer",
+                            "id": "target player",
                             "descriptionOverride": "target player to draw three cards"
                         }
                     ],
@@ -11746,15 +11796,15 @@
                                             "amount": 3
                                         },
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target player"
                                         }
                                     },
                                     {
                                         "type": "TapUntap",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 1
+                                            "type": "BoundVariable",
+                                            "name": "target creature opponent controls"
                                         }
                                     },
                                     {
@@ -11762,8 +11812,8 @@
                                         "counterType": "STUN",
                                         "count": 1,
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 1
+                                            "type": "BoundVariable",
+                                            "name": "target creature opponent controls"
                                         }
                                     },
                                     "GiftGiven"
@@ -11774,13 +11824,15 @@
                     "targetRequirements": [
                         {
                             "type": "TargetPlayer",
+                            "id": "target player",
                             "descriptionOverride": "target player to draw three cards"
                         },
                         {
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:opponent"
-                            }
+                            },
+                            "id": "target creature opponent controls"
                         }
                     ],
                     "description": "Promise a gift — opponent creates a tapped 1/1 blue Fish token, target player draws three cards, tap target creature an opponent controls and put a stun counter on it"
@@ -12578,8 +12630,8 @@
                             {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -12599,7 +12651,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "description": "Don't promise a gift — destroy target creature, you lose 2 life"
@@ -12626,8 +12679,8 @@
                                     {
                                         "type": "MoveToZone",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target creature"
                                         },
                                         "destination": "Graveyard",
                                         "byDestruction": true
@@ -12642,7 +12695,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "description": "Promise a gift — opponent creates a Food token, then destroy target creature"
@@ -12978,8 +13032,8 @@
                             {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target nontoken creature"
                                 },
                                 "destination": "Exile"
                             },
@@ -12992,8 +13046,8 @@
                                         {
                                             "type": "MoveToZone",
                                             "target": {
-                                                "type": "ContextTarget",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "target nontoken creature"
                                             },
                                             "destination": "Battlefield"
                                         },
@@ -13002,8 +13056,8 @@
                                             "counterType": "PLUS_ONE_PLUS_ONE",
                                             "count": 1,
                                             "target": {
-                                                "type": "ContextTarget",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "target nontoken creature"
                                             }
                                         }
                                     ]
@@ -13016,7 +13070,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature nontoken"
-                            }
+                            },
+                            "id": "target nontoken creature"
                         }
                     ],
                     "description": "Don't promise a gift — exile target nontoken creature, return it at the next end step with a +1/+1 counter"
@@ -13052,8 +13107,8 @@
                                     {
                                         "type": "MoveToZone",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target nontoken creature"
                                         },
                                         "destination": "Exile"
                                     },
@@ -13067,7 +13122,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature nontoken"
-                            }
+                            },
+                            "id": "target nontoken creature"
                         }
                     ],
                     "description": "Promise a gift — opponent creates a tapped 1/1 blue Fish token, then exile target nontoken creature permanently"
@@ -13159,8 +13215,8 @@
                     "effect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature with keyword"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -13170,7 +13226,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature kw:flying"
-                            }
+                            },
+                            "id": "target creature with keyword"
                         }
                     ],
                     "description": "Destroy target creature with flying"
@@ -13179,8 +13236,8 @@
                     "effect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target enchantment"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -13190,7 +13247,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "enchantment"
-                            }
+                            },
+                            "id": "target enchantment"
                         }
                     ],
                     "description": "Destroy target enchantment"
@@ -13355,8 +13413,8 @@
                     "effect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target permanent"
                         },
                         "destination": "Hand"
                     },
@@ -13366,7 +13424,8 @@
                             "filter": {
                                 "baseFilter": "permanent own:you",
                                 "zone": "Graveyard"
-                            }
+                            },
+                            "id": "target permanent"
                         }
                     ],
                     "description": "Return target permanent card from your graveyard to your hand"
@@ -13396,16 +13455,16 @@
                                     {
                                         "type": "MoveToZone",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target permanents[0]"
                                         },
                                         "destination": "Hand"
                                     },
                                     {
                                         "type": "MoveToZone",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 1
+                                            "type": "BoundVariable",
+                                            "name": "target permanents[1]"
                                         },
                                         "destination": "Hand"
                                     },
@@ -13421,7 +13480,8 @@
                             "filter": {
                                 "baseFilter": "permanent own:you",
                                 "zone": "Graveyard"
-                            }
+                            },
+                            "id": "target permanents"
                         }
                     ],
                     "description": "Gift a card — return two target permanent cards from your graveyard to your hand"
@@ -13787,8 +13847,8 @@
                 "amount": {
                     "type": "EntityProperty",
                     "entity": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "creature you control"
                     },
                     "numericProperty": "Power"
                 },
@@ -14023,8 +14083,8 @@
                         "type": "FromZone",
                         "zone": "Hand",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         }
                     },
                     "storeAs": "hand"
@@ -14050,8 +14110,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         }
                     },
                     "moveType": "Discard"
@@ -14191,8 +14251,8 @@
             "amount": {
                 "type": "EntityProperty",
                 "entity": {
-                    "type": "ContextTarget",
-                    "index": 0
+                    "type": "BoundVariable",
+                    "name": "creature you control"
                 },
                 "numericProperty": "Power"
             },
@@ -14263,8 +14323,8 @@
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "creature you control"
                         },
                         "numericProperty": "Power"
                     },
@@ -14660,8 +14720,8 @@
                                     "left": {
                                         "type": "EntityProperty",
                                         "entity": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "creature"
                                         },
                                         "numericProperty": "Power"
                                     },
@@ -15261,8 +15321,8 @@
                         "type": "FromZone",
                         "zone": "Hand",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "opponent"
                         }
                     },
                     "storeAs": "hand"
@@ -15288,8 +15348,8 @@
                         "type": "ToZone",
                         "zone": "Exile",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "opponent"
                         }
                     }
                 },
@@ -15495,12 +15555,15 @@
                             "amount": 2
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target player"
                         }
                     },
                     "targetRequirements": [
-                        "TargetPlayer"
+                        {
+                            "type": "TargetPlayer",
+                            "id": "target player"
+                        }
                     ],
                     "description": "Don't promise a gift — target player draws two cards"
                 },
@@ -15539,8 +15602,8 @@
                                             "amount": 2
                                         },
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target player"
                                         }
                                     },
                                     {
@@ -15554,8 +15617,8 @@
                                             "amount": 0
                                         },
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 1
+                                            "type": "BoundVariable",
+                                            "name": "target creature you control"
                                         }
                                     },
                                     "GiftGiven"
@@ -15564,12 +15627,16 @@
                         ]
                     },
                     "targetRequirements": [
-                        "TargetPlayer",
+                        {
+                            "type": "TargetPlayer",
+                            "id": "target player"
+                        },
                         {
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
-                            }
+                            },
+                            "id": "target creature you control"
                         }
                     ],
                     "description": "Promise a gift — opponent creates a tapped 1/1 blue Fish token, target player draws two cards, target creature you control gets +2/+0 until end of turn"
@@ -15712,8 +15779,8 @@
                                             "amount": 2
                                         },
                                         "player": {
-                                            "type": "ContextPlayer",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target player"
                                         },
                                         "isMill": true
                                     },
@@ -15726,8 +15793,8 @@
                                         "type": "ToZone",
                                         "zone": "Graveyard",
                                         "player": {
-                                            "type": "ContextPlayer",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target player"
                                         }
                                     }
                                 }
@@ -16269,8 +16336,8 @@
                                     "amount": 2
                                 },
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             "targetRequirement": {
@@ -16278,7 +16345,8 @@
                                 "optional": true,
                                 "filter": {
                                     "baseFilter": "creature"
-                                }
+                                },
+                                "id": "target creature"
                             }
                         },
                         "duration": "UntilYourNextTurn"
@@ -17314,8 +17382,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "creature you control"
                             },
                             "filter": "Bird|Frog|Otter|Rat"
                         }
@@ -19319,8 +19387,8 @@
                                             "type": "FromZone",
                                             "zone": "Hand",
                                             "player": {
-                                                "type": "ContextPlayer",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "target opponent"
                                             }
                                         },
                                         "storeAs": "hand"
@@ -19346,8 +19414,8 @@
                                             "type": "ToZone",
                                             "zone": "Graveyard",
                                             "player": {
-                                                "type": "ContextPlayer",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "target opponent"
                                             }
                                         },
                                         "moveType": "Discard"
@@ -19618,8 +19686,8 @@
                             "left": {
                                 "type": "TurnTracking",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "opponent"
                                 },
                                 "tracker": "LIFE_LOST"
                             },
@@ -19646,8 +19714,8 @@
                                     "type": "FromZone",
                                     "zone": "Hand",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "opponent"
                                     },
                                     "filter": "nonland"
                                 },
@@ -19673,8 +19741,8 @@
                                     "type": "ToZone",
                                     "zone": "Graveyard",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "opponent"
                                     }
                                 },
                                 "moveType": "Discard"
@@ -19690,8 +19758,8 @@
                                     "type": "FromZone",
                                     "zone": "Hand",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "opponent"
                                     }
                                 },
                                 "storeAs": "hand"
@@ -19717,8 +19785,8 @@
                                     "type": "ToZone",
                                     "zone": "Graveyard",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "opponent"
                                     }
                                 },
                                 "moveType": "Discard"
@@ -20663,8 +20731,8 @@
                                         "type": "GrantKeyword",
                                         "keyword": "FIRST_STRIKE",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target creature you control"
                                         }
                                     },
                                     "GiftGiven"
@@ -20677,7 +20745,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
-                            }
+                            },
+                            "id": "target creature you control"
                         }
                     ],
                     "description": "Promise a gift — opponent creates a Food token, creatures you control get +2/+0 and target creature you control gains first strike until end of turn"
@@ -21525,8 +21594,8 @@
                     "effect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target artifact or enchantment"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -21536,7 +21605,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "artifact|enchantment"
-                            }
+                            },
+                            "id": "target artifact or enchantment"
                         }
                     ],
                     "description": "Don't promise a gift — destroy target artifact or enchantment"
@@ -21566,8 +21636,8 @@
                                     {
                                         "type": "MoveToZone",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target first artifact or enchantment"
                                         },
                                         "destination": "Graveyard",
                                         "byDestruction": true
@@ -21575,8 +21645,8 @@
                                     {
                                         "type": "MoveToZone",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 1
+                                            "type": "BoundVariable",
+                                            "name": "target second artifact or enchantment"
                                         },
                                         "destination": "Graveyard",
                                         "byDestruction": true
@@ -21591,13 +21661,15 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "artifact|enchantment"
-                            }
+                            },
+                            "id": "target first artifact or enchantment"
                         },
                         {
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "artifact|enchantment"
-                            }
+                            },
+                            "id": "target second artifact or enchantment"
                         }
                     ],
                     "description": "Promise a gift — an opponent draws a card, then destroy two target artifacts and/or enchantments"
@@ -21925,8 +21997,8 @@
                             "multiplier": -1
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
                         }
                     },
                     "reflexiveTargetRequirements": [
@@ -21934,7 +22006,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:opponent"
-                            }
+                            },
+                            "id": "target creature opponent controls"
                         }
                     ]
                 }
@@ -22161,8 +22234,8 @@
                                             "amount": 1
                                         },
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target any"
                                         }
                                     },
                                     {
@@ -22188,7 +22261,10 @@
                         ]
                     },
                     "targetRequirements": [
-                        "AnyTarget"
+                        {
+                            "type": "AnyTarget",
+                            "id": "target any"
+                        }
                     ],
                     "description": "Promise a gift — an opponent draws a card, then deal 1 damage to any target and 2 damage to each creature"
                 }
@@ -22478,8 +22554,8 @@
                                 {
                                     "type": "MoveToZone",
                                     "target": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target nonland permanent"
                                     },
                                     "destination": "Battlefield",
                                     "fromZone": "Graveyard"
@@ -22489,8 +22565,8 @@
                                     "counterType": "FINALITY",
                                     "count": 1,
                                     "target": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target nonland permanent"
                                     }
                                 }
                             ]
@@ -22501,7 +22577,8 @@
                                 "filter": {
                                     "baseFilter": "nonland permanent mv<=3 own:you",
                                     "zone": "Graveyard"
-                                }
+                                },
+                                "id": "target nonland permanent"
                             }
                         ],
                         "descriptionOverride": "return target nonland permanent card with mana value 3 or less from your graveyard to the battlefield with a finality counter on it"
@@ -22542,8 +22619,8 @@
                                 {
                                     "type": "MoveToZone",
                                     "target": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target nonland permanent"
                                     },
                                     "destination": "Battlefield",
                                     "fromZone": "Graveyard"
@@ -22553,8 +22630,8 @@
                                     "counterType": "FINALITY",
                                     "count": 1,
                                     "target": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target nonland permanent"
                                     }
                                 }
                             ]
@@ -22565,7 +22642,8 @@
                                 "filter": {
                                     "baseFilter": "nonland permanent mv<=3 own:you",
                                     "zone": "Graveyard"
-                                }
+                                },
+                                "id": "target nonland permanent"
                             }
                         ],
                         "descriptionOverride": "return target nonland permanent card with mana value 3 or less from your graveyard to the battlefield with a finality counter on it"

@@ -3387,8 +3387,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target enchantment"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -3412,7 +3412,8 @@
                                                 }
                                             ]
                                         }
-                                    }
+                                    },
+                                    "id": "target enchantment"
                                 }
                             ],
                             "description": "Destroy target Aura attached to a land"
@@ -3421,8 +3422,8 @@
                             "effect": {
                                 "type": "RemoveDamageShield",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target land"
                                 }
                             },
                             "targetRequirements": [
@@ -3430,7 +3431,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "land"
-                                    }
+                                    },
+                                    "id": "target land"
                                 }
                             ],
                             "description": "The next time target land would be destroyed this turn, remove all damage marked on it instead"

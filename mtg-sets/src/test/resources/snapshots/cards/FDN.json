@@ -307,8 +307,8 @@
                                 "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 2,
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             "targetRequirements": [
@@ -316,7 +316,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature ctrl:you"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Put two +1/+1 counters on target creature you control"
@@ -1217,8 +1218,8 @@
             "powerModifier": {
                 "type": "EntityProperty",
                 "entity": {
-                    "type": "ContextTarget",
-                    "index": 0
+                    "type": "BoundVariable",
+                    "name": "creature"
                 },
                 "numericProperty": "Power"
             },
@@ -2302,8 +2303,8 @@
             "type": "GrantKeyword",
             "keyword": "INDESTRUCTIBLE",
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target creature you control"
             }
         },
         "targetRequirements": [
@@ -2311,7 +2312,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature ctrl:you"
-                }
+                },
+                "id": "target creature you control"
             }
         ],
         "kickerTargetRequirements": [
@@ -3273,8 +3275,8 @@
             "reflexiveEffect": {
                 "type": "TapUntap",
                 "target": {
-                    "type": "ContextTarget",
-                    "index": 0
+                    "type": "BoundVariable",
+                    "name": "target creature opponent controls"
                 }
             },
             "reflexiveTargetRequirements": [
@@ -3282,7 +3284,8 @@
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
-                    }
+                    },
+                    "id": "target creature opponent controls"
                 }
             ]
         }
@@ -3322,8 +3325,8 @@
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target"
                         },
                         "numericProperty": "ManaValue"
                     },
@@ -3434,8 +3437,8 @@
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "t1"
                         },
                         "numericProperty": "Power"
                     },
@@ -3978,8 +3981,8 @@
                     "count": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "creature"
                         },
                         "numericProperty": "ExcessMarkedDamage"
                     },
@@ -5811,8 +5814,8 @@
                                     {
                                         "type": "MoveToZone",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target other creature you control"
                                         },
                                         "destination": "Exile"
                                     },
@@ -5822,8 +5825,8 @@
                                         "effect": {
                                             "type": "MoveToZone",
                                             "target": {
-                                                "type": "ContextTarget",
-                                                "index": 0
+                                                "type": "BoundVariable",
+                                                "name": "target other creature you control"
                                             },
                                             "destination": "Battlefield"
                                         }
@@ -5836,7 +5839,8 @@
                                     "filter": {
                                         "baseFilter": "creature ctrl:you",
                                         "excludeSelf": true
-                                    }
+                                    },
+                                    "id": "target other creature you control"
                                 }
                             ],
                             "description": "Exile another target creature you control. Return that card to the battlefield under its owner's control at the beginning of the next end step"
@@ -7513,8 +7517,8 @@
                                     "type": "FromZone",
                                     "zone": "Hand",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target"
                                     }
                                 },
                                 "storeAs": "hand"
@@ -7540,8 +7544,8 @@
                                     "type": "ToZone",
                                     "zone": "Graveyard",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target"
                                     }
                                 },
                                 "moveType": "Discard"
@@ -8685,8 +8689,8 @@
                                 "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             "targetRequirements": [
@@ -8694,7 +8698,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature ctrl:you"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Put a +1/+1 counter on target creature you control"

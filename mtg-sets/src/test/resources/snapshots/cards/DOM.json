@@ -390,8 +390,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "creature you control"
                             },
                             "filter": {
                                 "cardPredicates": [
@@ -718,8 +718,8 @@
                             "left": {
                                 "type": "EntityProperty",
                                 "entity": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "creature"
                                 },
                                 "numericProperty": "Power"
                             },
@@ -1186,8 +1186,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target"
                             },
                             "filter": {
                                 "cardPredicates": [
@@ -3021,8 +3021,8 @@
                                     "amount": 2
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 },
                                 "isMill": true
                             },
@@ -3035,8 +3035,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             }
                         }
@@ -3083,8 +3083,8 @@
                         "type": "FromZone",
                         "zone": "Hand",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target"
                         }
                     },
                     "storeAs": "gathered1"
@@ -3110,8 +3110,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target"
                         }
                     },
                     "moveType": "Discard"
@@ -3803,8 +3803,8 @@
                 "amount": 5
             },
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target creature"
             }
         },
         "targetRequirements": [
@@ -3812,7 +3812,8 @@
                 "type": "TargetObject",
                 "filter": {
                     "baseFilter": "creature"
-                }
+                },
+                "id": "target creature"
             }
         ],
         "kickerTargetRequirements": [
@@ -5675,8 +5676,8 @@
                                     "amount": 4
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 },
                                 "isMill": true
                             },
@@ -5689,8 +5690,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             }
                         }
@@ -11039,13 +11040,16 @@
                             }
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target player or planeswalker"
                         },
                         "damageSource": "Self"
                     },
                     "targetRequirements": [
-                        "TargetPlayerOrPlaneswalker"
+                        {
+                            "type": "TargetPlayerOrPlaneswalker",
+                            "id": "target player or planeswalker"
+                        }
                     ]
                 }
             }
@@ -11702,8 +11706,8 @@
                         "effect": {
                             "type": "MoveToZone",
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target permanent opponent controls"
                             },
                             "destination": "Exile"
                         },
@@ -11711,7 +11715,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "permanent ctrl:opponent"
-                            }
+                            },
+                            "id": "target permanent opponent controls"
                         }
                     },
                     "descriptionOverride": "Whenever you draw a card, exile target permanent an opponent controls."
@@ -13131,8 +13136,8 @@
                         "numerator": {
                             "type": "StartingLifeTotal",
                             "player": {
-                                "type": "ContextPlayer",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "player"
                             }
                         },
                         "denominator": {
@@ -14340,8 +14345,8 @@
                                     "amount": 3
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 },
                                 "isMill": true
                             },
@@ -14354,8 +14359,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target"
                                 }
                             }
                         }

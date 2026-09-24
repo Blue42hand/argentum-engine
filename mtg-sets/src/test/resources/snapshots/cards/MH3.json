@@ -427,8 +427,8 @@
                                 "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 2,
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target attacking creature"
                                 }
                             },
                             {
@@ -436,16 +436,16 @@
                                 "counterType": "FLYING",
                                 "count": 1,
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target attacking creature"
                                 }
                             },
                             {
                                 "type": "AddCreatureType",
                                 "subtype": "Angel",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target attacking creature"
                                 }
                             }
                         ]
@@ -455,7 +455,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature attacking"
-                            }
+                            },
+                            "id": "target attacking creature"
                         }
                     ],
                     "descriptionOverride": "You may pay {E}{E}{E}. When you do, put two +1/+1 counters and a flying counter on target attacking creature. It becomes an Angel in addition to its other types."

@@ -218,8 +218,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "up to one other target creature"
                             },
                             "filter": "creature ctrl:you"
                         }
@@ -233,8 +233,8 @@
                                 "amount": {
                                     "type": "EntityProperty",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "up to one other target creature"
                                     },
                                     "numericProperty": "Power"
                                 }
@@ -284,8 +284,8 @@
                                 "amount": {
                                     "type": "EntityProperty",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "up to one other target creature"
                                     },
                                     "numericProperty": "Power"
                                 }
@@ -783,8 +783,8 @@
                                 "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target permanent you control"
                                 }
                             },
                             "targetRequirements": [
@@ -792,7 +792,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "permanent Wolf ctrl:you"
-                                    }
+                                    },
+                                    "id": "target permanent you control"
                                 }
                             ],
                             "description": "Put a +1/+1 counter on target Wolf you control"
@@ -1734,8 +1735,8 @@
                                     "variableName": "bolgSacrificedPower"
                                 },
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             {
@@ -1749,8 +1750,8 @@
                                     "amount": {
                                         "type": "EntityProperty",
                                         "entity": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target creature"
                                         },
                                         "numericProperty": "ExcessMarkedDamage"
                                     },
@@ -1765,7 +1766,8 @@
                             "filter": {
                                 "baseFilter": "creature",
                                 "excludeSelf": true
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "descriptionOverride": "You may sacrifice another creature. When you do, Bolg deals damage equal to that creature's power to another target creature. If excess damage was dealt this way, amass Goblins X, where X is that excess damage."
@@ -3102,8 +3104,8 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent to strip a card from"
                                 }
                             },
                             "storeAs": "gathered1"
@@ -3131,8 +3133,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent to strip a card from"
                                 }
                             },
                             "moveType": "Discard"
@@ -3690,8 +3692,8 @@
                             "collectionName": "createdTokens"
                         },
                         "creatureTarget": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature you control"
                         }
                     },
                     "reflexiveTargetRequirements": [
@@ -3699,7 +3701,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
-                            }
+                            },
+                            "id": "target creature you control"
                         }
                     ],
                     "descriptionOverride": "Create a colorless Equipment artifact token named Axe with \"Equipped creature gets +1/+0\" and equip {2}. When you do, attach it to target creature you control."
@@ -4222,8 +4225,8 @@
                             "effect": {
                                 "type": "TapUntap",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             "targetRequirements": [
@@ -4231,7 +4234,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature ctrl:opponent"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Tap target creature an opponent controls"
@@ -4240,8 +4244,8 @@
                             "effect": {
                                 "type": "TapUntap",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 },
                                 "tap": false
                             },
@@ -4250,7 +4254,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature ctrl:you"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Untap target creature you control"
@@ -5449,8 +5454,8 @@
                                 "amount": 1
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "two target players[0]"
                             }
                         },
                         {
@@ -5460,8 +5465,8 @@
                                 "amount": 1
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 1
+                                "type": "BoundVariable",
+                                "name": "two target players[1]"
                             }
                         }
                     ]
@@ -5620,8 +5625,8 @@
                                     "controllerPredicate": {
                                         "type": "ControlledByReferencedPlayer",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target"
                                         }
                                     }
                                 }
@@ -7665,8 +7670,8 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target"
                                     },
                                     "filter": "creature Bear"
                                 }
@@ -7926,8 +7931,8 @@
                                     "amount": 3
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "player"
                                 },
                                 "isMill": true
                             },
@@ -7940,8 +7945,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "player"
                                 }
                             }
                         }
@@ -9477,8 +9482,8 @@
             "amount": {
                 "type": "EntityProperty",
                 "entity": {
-                    "type": "ContextTarget",
-                    "index": 0
+                    "type": "BoundVariable",
+                    "name": "t1"
                 },
                 "numericProperty": "Power"
             },
@@ -10262,8 +10267,8 @@
                             "filter": "land Plains"
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "trigger": {
@@ -10274,7 +10279,8 @@
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature ctrl:you"
-                        }
+                        },
+                        "id": "target creature"
                     }
                 }
             }
@@ -10947,8 +10953,8 @@
                     "left": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target spell"
                         },
                         "numericProperty": "ManaValue"
                     },
@@ -11688,8 +11694,8 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "any target"
                                     },
                                     "filter": "Dragon"
                                 }
@@ -11697,8 +11703,8 @@
                             "then": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "any target"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -13074,8 +13080,8 @@
                                             "numericProperty": "Power"
                                         },
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target creature"
                                         },
                                         "damageSource": "IterationEntity"
                                     }
@@ -13086,7 +13092,8 @@
                                         "optional": true,
                                         "filter": {
                                             "baseFilter": "creature"
-                                        }
+                                        },
+                                        "id": "target creature"
                                     }
                                 ],
                                 "descriptionOverride": "Attach the chosen Equipment to that creature. When one or more Equipment become attached to it this way, it deals damage equal to its power to up to one target creature."
@@ -13220,8 +13227,8 @@
                 "condition": {
                     "type": "EntityMatches",
                     "entity": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target spell"
                     },
                     "filter": "permanent"
                 }
@@ -14253,8 +14260,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature you control"
                             },
                             "filter": "creature Dwarf"
                         }

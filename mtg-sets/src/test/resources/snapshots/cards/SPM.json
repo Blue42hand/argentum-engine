@@ -922,8 +922,8 @@
                                     "amount": 9
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             },
                             "storeAs": "gathered0"
@@ -950,8 +950,8 @@
                                 "type": "ToZone",
                                 "zone": "Exile",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             },
                             "faceDown": "HIDDEN"
@@ -963,8 +963,8 @@
                                 "type": "ToZone",
                                 "zone": "Library",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 },
                                 "placement": "Bottom"
                             },
@@ -1593,8 +1593,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 },
                                 "destination": "Hand"
                             },
@@ -1604,7 +1604,8 @@
                                     "filter": {
                                         "baseFilter": "creature mv<=2 own:you",
                                         "zone": "Graveyard"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Investigative Journalism — Return target creature card with mana value 2 or less from your graveyard to your hand."
@@ -1650,8 +1651,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target card in graveyard"
                                 },
                                 "destination": "Hand"
                             },
@@ -1661,7 +1662,8 @@
                                     "filter": {
                                         "baseFilter": "mv>=4 own:you",
                                         "zone": "Graveyard"
-                                    }
+                                    },
+                                    "id": "target card in graveyard"
                                 }
                             ],
                             "description": "Repair — Return target card with mana value 4 or greater from your graveyard to your hand."
@@ -1670,8 +1672,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target artifact"
                                 },
                                 "destination": "Exile"
                             },
@@ -1680,7 +1682,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "artifact|enchantment"
-                                    }
+                                    },
+                                    "id": "target artifact"
                                 }
                             ],
                             "description": "Impound — Exile target artifact or enchantment."
@@ -2522,8 +2525,8 @@
                             "effect": {
                                 "type": "TapUntap",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             "targetRequirements": [
@@ -2531,7 +2534,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Heckle — Tap target creature."
@@ -2540,8 +2544,8 @@
                             "effect": {
                                 "type": "TapUntap",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 },
                                 "tap": false
                             },
@@ -2550,7 +2554,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Hero Worship — Untap target creature."
@@ -2685,8 +2690,8 @@
                             "filter": "creature"
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "targetRequirements": [
@@ -2694,7 +2699,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "timing": "SorcerySpeed"
@@ -4022,16 +4028,16 @@
                                 {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "creature you control"
                                     },
                                     "filter": "creature ctrl:you"
                                 },
                                 {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 1
+                                        "type": "BoundVariable",
+                                        "name": "creature an opponent controls"
                                     },
                                     "filter": "creature ctrl:opponent"
                                 }
@@ -4245,8 +4251,8 @@
                             "property": "POWER"
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "reflexiveTargetRequirements": [
@@ -4254,7 +4260,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "descriptionOverride": "Mill five cards. When you do, this Saga deals damage equal to the greatest power among creature cards in your graveyard to target creature."
@@ -6409,8 +6416,8 @@
                                     "amount": 1
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "players[0]"
                                 }
                             },
                             "storeAs": "gathered0"
@@ -6428,8 +6435,8 @@
                                     "amount": 1
                                 },
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 1
+                                    "type": "BoundVariable",
+                                    "name": "players[1]"
                                 }
                             },
                             "storeAs": "gathered2"
@@ -6445,8 +6452,8 @@
                                 "collectionName": "gathered2"
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "players[0]"
                             }
                         },
                         {
@@ -6456,8 +6463,8 @@
                                 "collectionName": "gathered0"
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 1
+                                "type": "BoundVariable",
+                                "name": "players[1]"
                             }
                         },
                         {
@@ -6467,8 +6474,8 @@
                                 "type": "ToZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "players[0]"
                                 }
                             }
                         },
@@ -6479,8 +6486,8 @@
                                 "type": "ToZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 1
+                                    "type": "BoundVariable",
+                                    "name": "players[1]"
                                 }
                             }
                         }
@@ -6541,8 +6548,8 @@
                         "type": "GrantKeyword",
                         "keyword": "CANT_BE_BLOCKED",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "reflexiveTargetRequirements": [
@@ -6551,7 +6558,8 @@
                             "filter": {
                                 "baseFilter": "creature attacking",
                                 "excludeSelf": true
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ]
                 }
@@ -8561,16 +8569,16 @@
                                     "Citizen"
                                 ],
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 },
                                 "duration": "EndOfTurn"
                             },
                             {
                                 "type": "SetBaseStats",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 },
                                 "power": {
                                     "type": "Fixed",
@@ -8586,8 +8594,8 @@
                                 "type": "GrantKeyword",
                                 "keyword": "HEXPROOF",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 }
                             }
                         ]
@@ -8597,7 +8605,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
-                            }
+                            },
+                            "id": "target creature you control"
                         }
                     ],
                     "description": "Conceal — Until end of turn, target creature you control becomes a Citizen with base power and toughness 1/1 and gains hexproof."
@@ -8612,16 +8621,16 @@
                                     "Hero"
                                 ],
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 },
                                 "duration": "EndOfTurn"
                             },
                             {
                                 "type": "SetBaseStats",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 },
                                 "power": {
                                     "type": "Fixed",
@@ -8637,16 +8646,16 @@
                                 "type": "GrantKeyword",
                                 "keyword": "FLYING",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 }
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "VIGILANCE",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature you control"
                                 }
                             }
                         ]
@@ -8656,7 +8665,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
-                            }
+                            },
+                            "id": "target creature you control"
                         }
                     ],
                     "description": "Reveal — Until end of turn, target creature you control becomes a Hero with base power and toughness 3/4 and gains flying and vigilance."
@@ -8987,8 +8997,8 @@
                     "reflexiveEffect": {
                         "type": "CantBlockTargetCreatures",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         }
                     },
                     "reflexiveTargetRequirements": [
@@ -8996,7 +9006,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ]
                 }
@@ -12149,8 +12160,8 @@
                             "numericProperty": "Power"
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "creature an opponent controls"
                         },
                         "damageSource": "IterationEntity"
                     }
@@ -12764,8 +12775,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature"
                             },
                             "filter": "creature Spider"
                         }
@@ -13044,8 +13055,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 1
+                                "type": "BoundVariable",
+                                "name": "up to one target creature you control"
                             },
                             "filter": "creature"
                         }
@@ -13886,15 +13897,16 @@
                     "effect": {
                         "type": "TapUntap",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature opponent controls"
                         }
                     },
                     "targetRequirement": {
                         "type": "TargetObject",
                         "filter": {
                             "baseFilter": "creature ctrl:opponent"
-                        }
+                        },
+                        "id": "target creature opponent controls"
                     }
                 }
             }
@@ -14101,8 +14113,8 @@
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         },
                         "numericProperty": "Power"
                     },
@@ -14122,8 +14134,8 @@
                         "condition": {
                             "type": "EntityMatches",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature"
                             },
                             "filter": "creature attacking"
                         }

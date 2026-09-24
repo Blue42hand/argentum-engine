@@ -51,8 +51,8 @@
             "type": "DrawCards",
             "count": "XValue",
             "target": {
-                "type": "ContextTarget",
-                "index": 0
+                "type": "BoundVariable",
+                "name": "target player"
             }
         },
         "targetRequirements": [

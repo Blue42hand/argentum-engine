@@ -2808,16 +2808,16 @@
                                             "amount": 0
                                         },
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target creature"
                                         }
                                     },
                                     {
                                         "type": "GrantKeyword",
                                         "keyword": "DEATHTOUCH",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target creature"
                                         }
                                     }
                                 ]
@@ -2827,7 +2827,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Target creature gets +1/+0 and gains deathtouch until end of turn"
@@ -2905,8 +2906,8 @@
                                     "amount": 0
                                 },
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             "targetRequirements": [
@@ -2914,7 +2915,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Target creature gets +2/+0 until end of turn"
@@ -2923,8 +2925,8 @@
                             "effect": {
                                 "type": "CantBlockTargetCreatures",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             "targetRequirements": [
@@ -2932,7 +2934,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Target creature can't block this turn"

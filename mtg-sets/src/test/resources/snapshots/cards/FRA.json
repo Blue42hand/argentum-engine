@@ -499,8 +499,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target nonland permanent"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -519,7 +519,8 @@
                                                 }
                                             ]
                                         }
-                                    }
+                                    },
+                                    "id": "target nonland permanent"
                                 }
                             ],
                             "description": "Destroy target noncreature, nonland permanent."
@@ -1298,8 +1299,8 @@
                     "source": {
                         "type": "ControlledPermanents",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         },
                         "filter": "creature|planeswalker"
                     },
@@ -1401,8 +1402,8 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target artifact or enchantment"
                                     },
                                     "filter": {
                                         "cardPredicates": [
@@ -1960,12 +1961,15 @@
                                     "amount": 4
                                 },
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature or planeswalker"
                                 }
                             },
                             "targetRequirements": [
-                                "TargetCreatureOrPlaneswalker"
+                                {
+                                    "type": "TargetCreatureOrPlaneswalker",
+                                    "id": "target creature or planeswalker"
+                                }
                             ],
                             "description": "This creature deals 4 damage to target creature or planeswalker."
                         },
@@ -2858,8 +2862,8 @@
                             "effect": {
                                 "type": "TapUntap",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             "targetRequirements": [
@@ -2867,7 +2871,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Tap target creature."
@@ -2876,8 +2881,8 @@
                             "effect": {
                                 "type": "TapUntap",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 },
                                 "tap": false
                             },
@@ -2886,7 +2891,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Untap target creature."
@@ -3733,8 +3739,8 @@
                             "effect": {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target card in graveyard"
                                 },
                                 "destination": "Hand"
                             },
@@ -3749,7 +3755,8 @@
                                             "controllerPredicate": "OwnedByYou"
                                         },
                                         "zone": "Graveyard"
-                                    }
+                                    },
+                                    "id": "target card in graveyard"
                                 }
                             ],
                             "description": "Return target legendary card from your graveyard to your hand."
@@ -3763,24 +3770,24 @@
                                         "counterType": "PLUS_ONE_PLUS_ONE",
                                         "count": 1,
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target creature"
                                         }
                                     },
                                     {
                                         "type": "GrantKeyword",
                                         "keyword": "VIGILANCE",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target creature"
                                         }
                                     },
                                     {
                                         "type": "GrantKeyword",
                                         "keyword": "INDESTRUCTIBLE",
                                         "target": {
-                                            "type": "ContextTarget",
-                                            "index": 0
+                                            "type": "BoundVariable",
+                                            "name": "target creature"
                                         }
                                     }
                                 ]
@@ -3790,7 +3797,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Put a +1/+1 counter on target creature. It gains vigilance and indestructible until end of turn."
@@ -4024,12 +4032,15 @@
                             "amount": 5
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature or planeswalker"
                         }
                     },
                     "targetRequirements": [
-                        "TargetCreatureOrPlaneswalker"
+                        {
+                            "type": "TargetCreatureOrPlaneswalker",
+                            "id": "target creature or planeswalker"
+                        }
                     ],
                     "description": "Deal 5 damage to target creature or planeswalker."
                 }
@@ -8575,8 +8586,8 @@
                     "reflexiveEffect": {
                         "type": "MoveToZone",
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target land"
                         },
                         "destination": "Battlefield",
                         "placement": "Tapped"
@@ -8587,7 +8598,8 @@
                             "filter": {
                                 "baseFilter": "land own:you",
                                 "zone": "Graveyard"
-                            }
+                            },
+                            "id": "target land"
                         }
                     ]
                 }
@@ -8851,8 +8863,8 @@
                     "condition": {
                         "type": "EntityMatches",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature"
                         },
                         "filter": "creature attacking"
                     }
@@ -10952,8 +10964,8 @@
                         "type": "FromZone",
                         "zone": "Hand",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         }
                     },
                     "storeAs": "gathered1"
@@ -10981,8 +10993,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         }
                     },
                     "moveType": "Discard"
@@ -11559,8 +11571,8 @@
                         "type": "FromZone",
                         "zone": "Hand",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         }
                     },
                     "storeAs": "gathered2"
@@ -11588,8 +11600,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         }
                     },
                     "moveType": "Discard"
@@ -11698,8 +11710,8 @@
                             {
                                 "type": "MoveToZone",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -11718,7 +11730,8 @@
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature tou>=4"
-                            }
+                            },
+                            "id": "target creature"
                         }
                     ],
                     "description": "Destroy target creature with toughness 4 or greater. You gain 1 life."
@@ -12124,12 +12137,15 @@
                             "amount": 2
                         },
                         "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target any"
                         }
                     },
                     "reflexiveTargetRequirements": [
-                        "AnyTarget"
+                        {
+                            "type": "AnyTarget",
+                            "id": "target any"
+                        }
                     ]
                 }
             }
@@ -12332,8 +12348,8 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "permanent you control"
                                     },
                                     "filter": "creature"
                                 }
@@ -12355,8 +12371,8 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "permanent you control"
                                     },
                                     "filter": "planeswalker"
                                 }
@@ -12436,8 +12452,8 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "permanent you control"
                                     },
                                     "filter": "creature"
                                 }
@@ -12459,8 +12475,8 @@
                                 "condition": {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "permanent you control"
                                     },
                                     "filter": "planeswalker"
                                 }
@@ -14006,8 +14022,8 @@
                 "condition": {
                     "type": "EntityMatches",
                     "entity": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target creature or planeswalker"
                     },
                     "filter": "mv<=3"
                 }
@@ -16331,8 +16347,8 @@
                                     "amount": 0
                                 },
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             "targetRequirements": [
@@ -16340,7 +16356,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Target creature gets -X/-0 until end of turn, where X is the number of cards in your graveyard."

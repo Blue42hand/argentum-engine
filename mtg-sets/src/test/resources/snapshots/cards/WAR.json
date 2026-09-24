@@ -1052,16 +1052,16 @@
                                 {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "creature you control"
                                     },
                                     "filter": "creature ctrl:you"
                                 },
                                 {
                                     "type": "EntityMatches",
                                     "entity": {
-                                        "type": "ContextTarget",
-                                        "index": 1
+                                        "type": "BoundVariable",
+                                        "name": "creature you don't control"
                                     },
                                     "filter": "creature ctrl:opponent"
                                 }

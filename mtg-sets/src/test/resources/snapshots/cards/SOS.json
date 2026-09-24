@@ -656,8 +656,8 @@
                         "type": "FromZone",
                         "zone": "Hand",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target player"
                         }
                     },
                     "storeAs": "hand"
@@ -680,8 +680,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target player"
                         }
                     },
                     "moveType": "Discard"
@@ -731,8 +731,8 @@
                         "count": {
                             "type": "EntityProperty",
                             "entity": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target creature"
                             },
                             "numericProperty": "ExcessMarkedDamage"
                         }
@@ -1407,8 +1407,8 @@
                             "effect": {
                                 "type": "BecomePrepared",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             "targetRequirements": [
@@ -1416,7 +1416,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Target creature becomes prepared"
@@ -1425,8 +1426,8 @@
                             "effect": {
                                 "type": "Unprepare",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             "targetRequirements": [
@@ -1434,7 +1435,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Target creature becomes unprepared"
@@ -1855,8 +1857,8 @@
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target creature you control"
                         },
                         "numericProperty": "Power"
                     },
@@ -4661,8 +4663,8 @@
                         "type": "BattlefieldMatching",
                         "filter": "creature|planeswalker",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         }
                     },
                     "storeAs": "gathered0"
@@ -5178,8 +5180,8 @@
                                         "amount": 10
                                     },
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "player"
                                     },
                                     "isMill": true
                                 },
@@ -5192,8 +5194,8 @@
                                     "type": "ToZone",
                                     "zone": "Graveyard",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "player"
                                     }
                                 }
                             }
@@ -5211,8 +5213,8 @@
                                         "amount": 3
                                     },
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "player"
                                     },
                                     "isMill": true
                                 },
@@ -5225,8 +5227,8 @@
                                     "type": "ToZone",
                                     "zone": "Graveyard",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "player"
                                     }
                                 }
                             }
@@ -6708,8 +6710,8 @@
                             "amount": {
                                 "type": "EntityProperty",
                                 "entity": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature card in graveyard"
                                 },
                                 "numericProperty": "ManaValue"
                             },
@@ -7311,8 +7313,8 @@
                         "amount": 2
                     },
                     "target": {
-                        "type": "ContextTarget",
-                        "index": 0
+                        "type": "BoundVariable",
+                        "name": "target player"
                     }
                 },
                 {
@@ -9259,8 +9261,8 @@
                             "amount": {
                                 "type": "EntityProperty",
                                 "entity": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target spell"
                                 },
                                 "numericProperty": "ManaSpent"
                             }
@@ -9615,8 +9617,8 @@
                         "type": "FromZone",
                         "zone": "Hand",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "player"
                         }
                     },
                     "storeAs": "gathered0"
@@ -9642,8 +9644,8 @@
                         "type": "ToZone",
                         "zone": "Graveyard",
                         "player": {
-                            "type": "ContextPlayer",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "player"
                         }
                     },
                     "moveType": "Discard",
@@ -12318,11 +12320,14 @@
                                 "key": "TRIGGER_LIFE_GAINED"
                             },
                             "target": {
-                                "type": "ContextTarget",
-                                "index": 0
+                                "type": "BoundVariable",
+                                "name": "target opponent"
                             }
                         },
-                        "targetRequirement": "TargetOpponent"
+                        "targetRequirement": {
+                            "type": "TargetOpponent",
+                            "id": "target opponent"
+                        }
                     },
                     "descriptionOverride": "Whenever you gain life, target opponent loses that much life."
                 },
@@ -13294,15 +13299,21 @@
                 {
                     "type": "Composite",
                     "effects": [
-                        "RevealHand",
+                        {
+                            "type": "RevealHand",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target opponent"
+                            }
+                        },
                         {
                             "type": "GatherCards",
                             "source": {
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             },
                             "storeAs": "gathered1"
@@ -13330,8 +13341,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             },
                             "moveType": "Discard"
@@ -15596,8 +15607,8 @@
                                     "type": "FromZone",
                                     "zone": "Hand",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target player"
                                     }
                                 },
                                 "storeAs": "gathered0"
@@ -15617,8 +15628,8 @@
                                     "type": "ToZone",
                                     "zone": "Graveyard",
                                     "player": {
-                                        "type": "ContextPlayer",
-                                        "index": 0
+                                        "type": "BoundVariable",
+                                        "name": "target player"
                                     }
                                 },
                                 "moveType": "Discard"
@@ -15630,8 +15641,8 @@
                                     "variableName": "selected1_count"
                                 },
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target player"
                                 }
                             }
                         ]

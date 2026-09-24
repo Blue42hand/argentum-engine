@@ -546,13 +546,16 @@
                         "type": "CreatePredefinedToken",
                         "tokenType": "Treasure",
                         "controller": {
-                            "type": "ContextTarget",
-                            "index": 0
+                            "type": "BoundVariable",
+                            "name": "target opponent"
                         },
                         "tapped": true
                     },
                     "reflexiveTargetRequirements": [
-                        "TargetOpponent"
+                        {
+                            "type": "TargetOpponent",
+                            "id": "target opponent"
+                        }
                     ]
                 }
             },
@@ -903,8 +906,8 @@
                                 "type": "FromZone",
                                 "zone": "Hand",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             },
                             "storeAs": "hand"
@@ -930,8 +933,8 @@
                                 "type": "ToZone",
                                 "zone": "Graveyard",
                                 "player": {
-                                    "type": "ContextPlayer",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target opponent"
                                 }
                             },
                             "moveType": "Discard"
@@ -1170,8 +1173,8 @@
                             "effect": {
                                 "type": "TapUntap",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target land"
                                 },
                                 "tap": false
                             },
@@ -1180,7 +1183,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "land"
-                                    }
+                                    },
+                                    "id": "target land"
                                 }
                             ],
                             "description": "Untap target land"
@@ -1189,8 +1193,8 @@
                             "effect": {
                                 "type": "CantBlockTargetCreatures",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target creature"
                                 }
                             },
                             "targetRequirements": [
@@ -1198,7 +1202,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "creature"
-                                    }
+                                    },
+                                    "id": "target creature"
                                 }
                             ],
                             "description": "Target creature can't block this turn"
@@ -1587,8 +1592,8 @@
                             "effect": {
                                 "type": "CreateTokenCopyOfTarget",
                                 "target": {
-                                    "type": "ContextTarget",
-                                    "index": 0
+                                    "type": "BoundVariable",
+                                    "name": "target artifact"
                                 }
                             },
                             "targetRequirements": [
@@ -1596,7 +1601,8 @@
                                     "type": "TargetObject",
                                     "filter": {
                                         "baseFilter": "artifact token ctrl:you"
-                                    }
+                                    },
+                                    "id": "target artifact"
                                 }
                             ],
                             "description": "Create a token that's a copy of target artifact token you control"
