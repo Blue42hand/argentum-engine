@@ -12784,6 +12784,24 @@ The priority groups are (CR 616.1a–f):
   are declared outside the static-ability builder), so it takes `restrictions = listOf(Conditions.SourceIsSolved)`
   instead — Case of the Pilfered Proof's "Solved — If one or more tokens would be created under your
   control, those tokens plus a Clue token are created instead".
+- `ReplaceTokenCreationWithToken(token, appliesTo)` — "if one or more [filtered] tokens would be created
+  under your control, **that many** [other token] are created instead" (Draconic Visitor: `token =
+  Effects.CreateToken(5, 5, setOf(RED), setOf("Dragon"), setOf(FLYING))`, `appliesTo =
+  TokenCreationEvent(You, GameObjectFilter.Artifact)`). `token` must be built with `Effects.CreateToken`
+  (a `CreateTokenEffect`; enforced at construction). The whole matching batch is swapped one-for-one; the
+  substitute's own `count` / `controller` / `tapped` / `attacking` are ignored ("that many", under the
+  player the replaced tokens were for), and the replaced effect's riders (enters tapped, sacrifice at end
+  step, CREATED_TOKENS follow-ups now point at the substitutes) don't follow — they belonged to tokens that
+  are never created. `tokenFilter` is matched against the would-be token's characteristics before it
+  exists (`TokenCreationReplacementHelper.findTokenSubstitution` probes a scratch entity), so it sees an
+  artifact creature token's type line, a Treasure's, or a token copy's copiable values *plus* its copy
+  exceptions (Molten Duplication's "except it's an artifact"). Read by the three token executors that read
+  the other token replacements — `CreateTokenExecutor` (after count doublers), `CreatePredefinedTokenExecutor`
+  and `CreateTokenCopyOfTargetExecutor` (after the Mirrormind-style attached-copy offer); the substitutes are
+  created without a second doubler pass and without re-checking this family, so they can't loop. Printed
+  or granted (`ActiveReplacements`). Not yet ordered against `CreateAdditionalToken` by the affected
+  player (CR 616.1): the substitution runs first and `CreateAdditionalToken` then judges only the
+  substitutes, so Worldwalker Helm adds no Map for a Treasure that became a Dragon.
 - `EntersAsCopy(optional, copyFilter, copyFromZone, filterByTotalManaSpent, additionalSubtypes, additionalKeywords, nameOverride, powerOverride, toughnessOverride, exileCopiedCard, tappedIfCopied, additionalCounters)` —
   "enter as a copy of …". As the permanent enters, the controller picks an object matching
   `copyFilter` and the permanent enters as a copy (Rule 707 copiable values), with any overrides
