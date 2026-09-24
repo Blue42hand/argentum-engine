@@ -81,7 +81,7 @@ class SummoningSicknessGateEnforcementTest : FunSpec({
             // the enumerators and the mana solver.
             "com/wingedsheep/engine/mechanics/ActivationRestrictionKernel.kt",
             // The client's "summoning sick" badge, which reports attack-readiness.
-            "com/wingedsheep/engine/view/ClientStateTransformer.kt",
+            "com/wingedsheep/engine/view/projection/CardProjector.kt",
         )
 
         private data class DirectRead(
