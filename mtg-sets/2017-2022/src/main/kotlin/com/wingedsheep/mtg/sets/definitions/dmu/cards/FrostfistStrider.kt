@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Frostfist Strider
@@ -27,7 +28,7 @@ val FrostfistStrider = card("Frostfist Strider") {
     toughness = 4
 
     keywords(Keyword.WARD)
-    keywordAbility(KeywordAbility.ward("{2}"))
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     // A stun counter replaces the permanent's next untap, so the tap sticks for a turn cycle.
     triggeredAbility {

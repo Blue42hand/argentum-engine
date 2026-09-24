@@ -164,7 +164,14 @@ data class TargetRequirementInfo(
      * different card type it has ("up to one target nonland card of each card type", Uldaros
      * Theorix). Enforced in [DecisionValidators.validateTargets].
      */
-    val onePerCardType: Boolean = false
+    val onePerCardType: Boolean = false,
+    /**
+     * When true, a target for this requirement must differ from every target chosen for an
+     * earlier requirement of the same decision — "another target" wording (`TargetOther`).
+     * False by default: separate instances of the word "target" may pick the same object
+     * (Seeds of Strength), so the client must not strip earlier picks from this pool unless set.
+     */
+    val mustDifferFromEarlier: Boolean = false
 )
 
 /**

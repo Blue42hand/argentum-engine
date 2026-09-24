@@ -273,7 +273,8 @@ class CopyTargetSpellExecutor(
         val targetReqInfos = targetRequirements.mapIndexed { index, req ->
             TargetRequirementInfo(
                 index = index,
-                description = req.description
+                description = req.description,
+                mustDifferFromEarlier = req is com.wingedsheep.sdk.scripting.targets.TargetOther
             )
         }
 

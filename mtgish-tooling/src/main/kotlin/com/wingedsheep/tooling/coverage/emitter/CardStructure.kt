@@ -3347,13 +3347,6 @@ private fun castTriggerDsl(scope: CastScope, category: String, targetsMatching: 
 }
 
 /**
- * "Ward—<cost>" (CR 702.21) -> `keywordAbility(KeywordAbility.ward(...) / wardDiscard() / wardLife(N)
- * / wardSacrifice(filter))`. The rule's `args` is the ward cost; only the cost shapes the SDK exposes
- * render exactly — mana (`Ward {N}`), discard-a-card, pay-N-life, and sacrifice-a-<filter>. Any other
- * cost (compound `And`, dynamic life, sacrifice-N) declines -> SCAFFOLD rather than approximating the
- * ward cost. Forum Necroscribe ("Ward—Discard a card") + the broad Ward {N} / Ward—Pay N life corpus.
- */
-/**
  * Typecycling (CR 702.29) — the subtype/land-type cycling variants ("Forestcycling {2}",
  * "Slivercycling {3}", …). The IR is `[Cards IsLandType|IsCreatureType <Subtype>, Cost PayMana
  * {cost}]`. Renders `keywordAbility(KeywordAbility.typecycling("<Subtype>", ManaCost.parse("{cost}")))`,
@@ -3388,60 +3381,21 @@ internal fun EmitCtx.typecyclingLine(rule: JsonObject): List<Stmt>? {
     )
 }
 
+/**
+ * "Ward—<cost>" (CR 702.21) -> `keywordAbility(KeywordAbility.Ward(WardCost.<cost>))`. The rule's `args`
+ * is the ward cost, rendered by [wardCostExpr]; any cost shape it can't render faithfully declines ->
+ * SCAFFOLD rather than approximating the ward cost.
+ */
 internal fun EmitCtx.wardKeywordLine(rule: JsonObject): List<Stmt>? {
     val cost = rule["args"] as? JsonObject ?: return null
-    val ability: Dsl = when (cost.strField("_Cost")) {
-        // Pure-mana Ward keeps the existing `KeywordAbility.Ward(WardCost.Mana("{x}"))` rendering so the
-        // large mana-Ward corpus golden stays byte-identical.
-        "PayMana" -> {
-            val mana = renderMana(cost.field("args"))
-            if (mana.isEmpty()) return null
-            call("KeywordAbility.Ward", arg(call("WardCost.Mana", arg("\"$mana\""))))
-        }
-        "DiscardACard" -> call("KeywordAbility.wardDiscard")
-        "DiscardACardAtRandom" -> call("KeywordAbility.wardDiscard", arg("random", "true"))
-        "PayLife" -> {
-            // A fixed integer life cost renders to wardLife(N). A dynamic life cost renders to
-            // wardLife(<DynamicAmount>) only for the source-power shape it recognizes — Raubahn,
-            // Bull of Ala Mhigo's "Ward—Pay life equal to ~'s power" maps PowerOfPermanent(ThisPermanent)
-            // to DynamicAmounts.sourcePower(). Any other dynamic shape (X, another permanent's power)
-            // still declines -> SCAFFOLD rather than emit an inexact cost.
-            val n = (cost["args"].asInt()) ?: ((cost["args"] as? JsonObject)?.get("args").asInt())
-            if (n != null) {
-                call("KeywordAbility.wardLife", arg("$n"))
-            } else {
-                val dynamic = dynamicAmountExpr(amountNode(cost.field("args"))) ?: return null
-                call("KeywordAbility.wardLife", arg(dynamic))
-            }
-        }
-        "SacrificeAPermanent" -> {
-            val filter = gameObjectFilterDsl(cost.field("args")) ?: return null
-            call("KeywordAbility.wardSacrifice", arg(Lit(filter)))
-        }
-        // "Ward—<cost> or <cost>" (Titania, Rugged Rumbler) — the OR disjunction, WardCost.Choice.
-        // Every leg must render to a faithful WardCost or the whole line declines -> SCAFFOLD,
-        // rather than emitting a ward that silently drops one of its options.
-        "Or" -> {
-            val legs = (cost["args"] as? JsonArray) ?: return null
-            if (legs.size < 2) return null
-            val rendered = legs.map { leg ->
-                (leg as? JsonObject)?.let { wardCostExpr(it) } ?: return null
-            }
-            Call("KeywordAbility.wardChoice", rendered.map { arg(it) })
-        }
-        else -> return null  // compound / dynamic ward costs -> SCAFFOLD
-    }
+    val ability = call("KeywordAbility.Ward", arg(wardCostExpr(cost) ?: return null))
     return listOf(Eval(call("keywordAbility", arg(ability))))
 }
 
 /**
- * Render one ward cost node as a `WardCost.*` value expression — the leg-level counterpart of
- * [wardKeywordLine], which renders a whole ward line as a named `KeywordAbility.ward*` facade.
- * Only shapes with a faithful [com.wingedsheep.sdk.scripting.effects.WardCost] variant render;
- * anything else returns null so the caller declines to SCAFFOLD.
- *
- * Not used for the top-level single-cost cases: those keep their facade rendering so the large
- * existing ward corpus golden stays byte-identical.
+ * Render one ward cost node as a `WardCost.*` value expression. Only shapes with a faithful
+ * [com.wingedsheep.sdk.scripting.effects.WardCost] variant render; anything else returns null so the
+ * caller declines to SCAFFOLD.
  */
 private fun EmitCtx.wardCostExpr(cost: JsonObject): Dsl? = when (cost.strField("_Cost")) {
     "PayMana" -> {
@@ -3451,12 +3405,32 @@ private fun EmitCtx.wardCostExpr(cost: JsonObject): Dsl? = when (cost.strField("
     "DiscardACard" -> call("WardCost.Discard")
     "DiscardACardAtRandom" -> call("WardCost.Discard", arg("random", "true"))
     "PayLife" -> {
+        // A fixed integer life cost renders to WardCost.Life(N). A dynamic life cost renders to
+        // WardCost.DynamicLife(<DynamicAmount>) only for the source-power shape it recognizes —
+        // Raubahn, Bull of Ala Mhigo's "Ward—Pay life equal to ~'s power" maps
+        // PowerOfPermanent(ThisPermanent) to DynamicAmounts.sourcePower(). Any other dynamic shape
+        // (X, another permanent's power) still declines -> SCAFFOLD rather than emit an inexact cost.
         val n = (cost["args"].asInt()) ?: ((cost["args"] as? JsonObject)?.get("args").asInt())
-        if (n == null) null else call("WardCost.Life", arg("$n"))
+        if (n != null) {
+            call("WardCost.Life", arg("$n"))
+        } else {
+            dynamicAmountExpr(amountNode(cost.field("args")))?.let { call("WardCost.DynamicLife", arg(it)) }
+        }
     }
     "SacrificeAPermanent" -> gameObjectFilterDsl(cost.field("args"))
         ?.let { call("WardCost.Sacrifice", arg(Lit(it))) }
-    else -> null
+    // "Ward—<cost> or <cost>" (Titania, Rugged Rumbler) — the OR disjunction, WardCost.Choice.
+    // Every leg must render to a faithful WardCost or the whole line declines -> SCAFFOLD,
+    // rather than emitting a ward that silently drops one of its options. Legs don't nest.
+    "Or" -> {
+        val legs = cost["args"] as? JsonArray
+        val rendered = legs?.takeIf { it.size >= 2 }?.map { leg ->
+            (leg as? JsonObject)?.takeIf { it.strField("_Cost") != "Or" }?.let { wardCostExpr(it) }
+        }
+        if (rendered == null || rendered.any { it == null }) null
+        else call("WardCost.Choice", arg(Call("listOf", rendered.map { arg(it!!) })))
+    }
+    else -> null  // compound / other ward costs -> SCAFFOLD
 }
 
 /** Impending N—[cost] (CR 702.176) -> the `impending(n, cost)` CardBuilder helper. The rule's args are

@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Saruman of Many Colors — The Lord of the Rings: Tales of Middle-earth #223
@@ -25,7 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  * may cast the copy without paying its mana cost.
  *
  * Composed from existing primitives:
- *  - **Ward—Discard a filtered card** via [KeywordAbility.wardDiscard] now carrying a
+ *  - **Ward—Discard a filtered card** via [WardCost.Discard] now carrying a
  *    [GameObjectFilter] (enchantment OR instant OR sorcery card). The ward executor only counts
  *    matching hand cards toward the can-pay check and offers only matching cards for discard.
  *  - **Second-spell trigger** via `Triggers.<player>.castsNth(n, spell)` (n = 2, you).
@@ -59,7 +60,7 @@ val SarumanOfManyColors = card("Saruman of Many Colors") {
         GameObjectFilter.Enchantment or GameObjectFilter.Instant or GameObjectFilter.Sorcery
 
     // Ward—Discard an enchantment, instant, or sorcery card.
-    keywordAbility(KeywordAbility.wardDiscard(filter = enchantmentInstantSorcery))
+    keywordAbility(KeywordAbility.Ward(WardCost.Discard(filter = enchantmentInstantSorcery)))
 
     // Whenever you cast your second spell each turn, each opponent mills two cards.
     // When one or more cards are milled this way, exile target enchantment/instant/sorcery card

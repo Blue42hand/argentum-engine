@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.LookAtTopOfLibrary
 import com.wingedsheep.sdk.scripting.PlayLandsAndCastFilteredFromTopOfLibrary
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Mikey & Don, Party Planners
@@ -34,7 +35,7 @@ val MikeyAndDonPartyPlanners = card("Mikey & Don, Party Planners") {
     toughness = 3
 
     keywords(Keyword.WARD)
-    keywordAbility(KeywordAbility.ward("{2}"))
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     staticAbility { ability = LookAtTopOfLibrary }
     staticAbility {

@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Storm of Saruman
@@ -24,7 +25,7 @@ val StormOfSaruman = card("Storm of Saruman") {
         "Whenever you cast your second spell each turn, copy it, except the copy isn't legendary. " +
         "You may choose new targets for the copy. (A copy of a permanent spell becomes a token.)"
 
-    keywordAbility(KeywordAbility.ward("{3}"))
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{3}")))
 
     triggeredAbility {
         trigger = Triggers.you.castsNth(2)

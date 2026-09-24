@@ -30,7 +30,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Modeling:
  * - Deathtouch is an intrinsic keyword; "ward {2}" is the parameterized ward keyword ability
- *   ([KeywordAbility.ward]).
+ *   ([WardCost.Mana]).
  * - The Spider anthem is two `other Spiders you control` static grants: [GrantKeyword] (deathtouch)
  *   and [GrantWard] (`{2}`), filtered by [GroupFilter.AllCreaturesYouControl] `.withSubtype("Spider").other()`.
  * - The death-tracking ability uses the observer form of the dealt-damage-by-source-dies trigger
@@ -54,7 +54,7 @@ val ShelobChildOfUngoliant = card("Shelob, Child of Ungoliant") {
         "Sacrifice this token: You gain 3 life,\" and it loses all other card types."
 
     keywords(Keyword.DEATHTOUCH)
-    keywordAbility(KeywordAbility.ward("{2}"))
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     // "Other Spiders you control have deathtouch and ward {2}."
     val otherSpiders = GroupFilter.AllCreaturesYouControl.withSubtype("Spider").other()

@@ -31,6 +31,7 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import java.util.Locale
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * The differential's own behaviour, on hand-built pairs. The corpus run lives in
@@ -258,7 +259,7 @@ class DifferentialTest : StringSpec({
                     "Punk Frogs",
                     "Ward {3}",
                     keywords = setOf(Keyword.WARD),
-                    keywordAbilities = listOf(KeywordAbility.ward("{3}")),
+                    keywordAbilities = listOf(KeywordAbility.Ward(WardCost.Mana("{3}"))),
                 )
             ),
             index(card),

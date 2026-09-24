@@ -818,7 +818,7 @@ class CardLinterTest : DescribeSpec({
 
         it("accepts a creature's own printed ward, which is the correct fix") {
             val card = beast(CardScript()).copy(
-                keywordAbilities = listOf(KeywordAbility.ward("{2}")),
+                keywordAbilities = listOf(KeywordAbility.Ward(WardCost.Mana("{2}"))),
             )
             findings(card).shouldBeEmpty()
         }

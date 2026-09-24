@@ -233,7 +233,7 @@ export interface AttachmentStackLayout {
   /** Peeking attachments in render order; index 0 peeks furthest out from behind the host. */
   attachments: AttachmentStackBox[]
   host: AttachmentStackBox
-  /** Left edge of the upright card column — the folder tab and click-catcher align to it. */
+  /** Left edge of the upright card column — the count pill and click-catcher align to it. */
   columnLeft: number
 }
 

@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Forum Necroscribe
@@ -35,7 +36,7 @@ val ForumNecroscribe = card("Forum Necroscribe") {
         "Repartee — Whenever you cast an instant or sorcery spell that targets a creature, " +
         "return target creature card from your graveyard to the battlefield."
 
-    keywordAbility(KeywordAbility.wardDiscard())
+    keywordAbility(KeywordAbility.Ward(WardCost.Discard()))
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature))

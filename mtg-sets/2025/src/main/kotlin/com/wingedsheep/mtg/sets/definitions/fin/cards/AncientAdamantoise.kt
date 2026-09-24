@@ -13,6 +13,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.RedirectDamage
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Ancient Adamantoise
@@ -52,7 +53,7 @@ val AncientAdamantoise = card("Ancient Adamantoise") {
         "When this creature dies, exile it and create ten tapped Treasure tokens."
 
     keywords(Keyword.VIGILANCE, Keyword.WARD)
-    keywordAbility(KeywordAbility.ward("{3}"))
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{3}")))
 
     staticAbility {
         ability = DamagePersistsThroughCleanup

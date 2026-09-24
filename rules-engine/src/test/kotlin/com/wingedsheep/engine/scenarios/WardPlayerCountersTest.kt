@@ -48,7 +48,7 @@ class WardPlayerCountersTest : FunSpec({
         power = 2
         toughness = 2
         keywords(Keyword.WARD)
-        keywordAbility(KeywordAbility.wardPlayerCounters(CounterType.POISON, 5))
+        keywordAbility(KeywordAbility.Ward(WardCost.PlayerCounters(CounterType.POISON, 5)))
     }
 
     // "Ward—{1}, Get one poison counter" — the counter cost as one part of an AND.
@@ -59,10 +59,10 @@ class WardPlayerCountersTest : FunSpec({
         toughness = 2
         keywords(Keyword.WARD)
         keywordAbility(
-            KeywordAbility.wardComposite(
+            KeywordAbility.Ward(WardCost.Composite(listOf(
                 WardCost.Mana("{1}"),
                 WardCost.PlayerCounters(CounterType.POISON, 1),
-            )
+            )))
         )
     }
 
@@ -253,9 +253,9 @@ class WardPlayerCountersTest : FunSpec({
     }
 
     test("the printed wording renders as oracle text") {
-        KeywordAbility.wardPlayerCounters(CounterType.POISON, 5).description shouldBe
+        KeywordAbility.Ward(WardCost.PlayerCounters(CounterType.POISON, 5)).description shouldBe
             "Ward—Get five poison counters"
-        KeywordAbility.wardPlayerCounters(CounterType.POISON, 1).description shouldBe
+        KeywordAbility.Ward(WardCost.PlayerCounters(CounterType.POISON, 1)).description shouldBe
             "Ward—Get a poison counter"
     }
 

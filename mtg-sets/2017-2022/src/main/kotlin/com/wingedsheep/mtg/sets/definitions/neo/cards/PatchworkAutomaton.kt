@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Patchwork Automaton — Kamigawa: Neon Dynasty #254 (canonical printing)
@@ -29,7 +30,7 @@ val PatchworkAutomaton = card("Patchwork Automaton") {
         "opponent controls, counter it unless that player pays {2}.)\n" +
         "Whenever you cast an artifact spell, put a +1/+1 counter on this creature."
 
-    keywordAbility(KeywordAbility.ward("{2}"))
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Artifact)

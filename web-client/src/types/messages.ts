@@ -441,6 +441,12 @@ export interface TargetRequirementInfo {
    * Already resolved to a concrete number server-side.
    */
   readonly totalManaValueAtMost?: number | null
+  /**
+   * True for "another target" wording: a pick here must differ from every target chosen for an
+   * earlier requirement. Absent/false lets separate "target" instances choose the same object
+   * (Seeds of Strength), so earlier picks stay in this requirement's pool.
+   */
+  readonly mustDifferFromEarlier?: boolean
 }
 
 /**
@@ -828,6 +834,12 @@ export interface LegalActionTargetInfo {
    * selectable targets to the X chosen at cast time.
    */
   readonly xConstrainsCount?: boolean
+  /**
+   * True for "another target" wording: a pick here must differ from every target chosen for an
+   * earlier requirement. Absent/false lets separate "target" instances choose the same object
+   * (Seeds of Strength), so earlier picks stay in this requirement's pool.
+   */
+  readonly mustDifferFromEarlier?: boolean
 }
 
 /**

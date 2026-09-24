@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Zul Ashur, Lich Lord
@@ -23,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  * {T}: You may cast target Zombie creature card from your graveyard this turn.
  *
  * Implementation:
- * - Ward is the printed [KeywordAbility.wardLife] (counter unless the targeting opponent pays 2 life).
+ * - Ward is the printed [WardCost.Life] (counter unless the targeting opponent pays 2 life).
  * - The activated ability gathers the chosen Zombie-creature card ([CardSource.ChosenTargets]) and
  *   grants a may-play-from-graveyard permission ([GrantMayPlayFromExileEffect]) that expires at end
  *   of turn. The card is not moved out of the graveyard — the cast enumerator already honours a
@@ -42,7 +43,7 @@ val ZulAshurLichLord = card("Zul Ashur, Lich Lord") {
         "ability an opponent controls, counter it unless that player pays 2 life.)\n" +
         "{T}: You may cast target Zombie creature card from your graveyard this turn."
 
-    keywordAbility(KeywordAbility.wardLife(2))
+    keywordAbility(KeywordAbility.Ward(WardCost.Life(2)))
 
     activatedAbility {
         cost = Costs.Tap

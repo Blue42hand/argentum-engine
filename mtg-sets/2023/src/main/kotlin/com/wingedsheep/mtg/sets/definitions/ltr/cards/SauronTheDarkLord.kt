@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Sauron, the Dark Lord — The Lord of the Rings: Tales of Middle-earth #224
@@ -21,7 +22,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Whenever the Ring tempts you, you may discard your hand. If you do, draw four cards.
  *
  * All four pieces compose existing primitives:
- *  - Ward—sacrifice via [KeywordAbility.wardSacrifice] over a "legendary artifact or legendary
+ *  - Ward—sacrifice via [WardCost.Sacrifice] over a "legendary artifact or legendary
  *    creature" filter (legendary supertype + (artifact OR creature)).
  *  - Opponent-cast amass via `Triggers.anOpponent.casts()` + [Effects.Amass].
  *  - Army-damage Ring-tempt via the generic `Triggers.<subject>.dealsDamage(to, damageType, requireExcess, batch, requires)` factory bound ANY with a
@@ -41,9 +42,9 @@ val SauronTheDarkLord = card("Sauron, the Dark Lord") {
         "Whenever the Ring tempts you, you may discard your hand. If you do, draw four cards."
 
     keywordAbility(
-        KeywordAbility.wardSacrifice(
+        KeywordAbility.Ward(WardCost.Sacrifice(
             GameObjectFilter.Artifact.legendary() or GameObjectFilter.Creature.legendary()
-        )
+        ))
     )
 
     // Whenever an opponent casts a spell, amass Orcs 1.

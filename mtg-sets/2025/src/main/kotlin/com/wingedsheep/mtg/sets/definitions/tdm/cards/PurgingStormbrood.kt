@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Purging Stormbrood // Absorb Essence — Tarkir: Dragonstorm #213
@@ -34,7 +35,7 @@ val PurgingStormbrood = card("Purging Stormbrood") {
         "When this creature enters, remove all counters from up to one target creature."
 
     keywords(Keyword.FLYING)
-    keywordAbility(KeywordAbility.wardLife(2))
+    keywordAbility(KeywordAbility.Ward(WardCost.Life(2)))
 
     // ETB: remove all counters from up to one target creature.
     triggeredAbility {

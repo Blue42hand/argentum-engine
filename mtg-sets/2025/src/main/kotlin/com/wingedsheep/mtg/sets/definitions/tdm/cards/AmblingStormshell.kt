@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.KeywordAbility
+import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
@@ -18,9 +19,9 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  * Whenever this creature attacks, put three stun counters on it and draw three cards.
  * Whenever you cast a Turtle spell, untap this creature.
  *
- * Composed entirely from existing primitives: [KeywordAbility.ward] for the ward cost,
+ * Composed entirely from existing primitives: [WardCost.Mana] for the ward cost,
  * [Effects.AddCounters] + [Effects.DrawCards] on the attack trigger, and an untap-self
- * effect keyed to the `Triggers.you.casts(GameObjectFilter.Any.withSubtype(subtype))` Turtle-spell trigger. The three stun
+ * effect keyed to the `Triggers.you.casts(…Turtle…)` Turtle-spell trigger. The three stun
  * counters keep the shell tapped after attacking (CR 122.1c stun-counter replacement);
  * casting a Turtle spell untaps it so it can attack again.
  */
@@ -35,7 +36,7 @@ val AmblingStormshell = card("Ambling Stormshell") {
         "(If a permanent with a stun counter would become untapped, remove one from it instead.)\n" +
         "Whenever you cast a Turtle spell, untap this creature."
 
-    keywordAbility(KeywordAbility.ward("{2}"))
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     triggeredAbility {
         trigger = Triggers.self.attacks()

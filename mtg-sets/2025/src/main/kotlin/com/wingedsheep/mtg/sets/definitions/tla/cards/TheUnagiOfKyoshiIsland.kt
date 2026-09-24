@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * The Unagi of Kyoshi Island
@@ -20,7 +21,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  * Whenever an opponent draws their second card each turn, you draw two cards.
  *
  * Ward—Waterbend is the existing Ward keyword whose mana payment routes through the shared
- * waterbend tap-to-help machinery — [KeywordAbility.wardWaterbend] produces
+ * waterbend tap-to-help machinery — [WardCost.Mana] produces
  * `WardCost.Mana("{4}", waterbend = true)`, and the ward payment decision lets the paying player
  * tap their untapped artifacts/creatures (each paying {1}) before paying the remainder with mana.
  * The draw payoff reuses the `Triggers.<player>.drawsNth(n)` facade scoped to [Player.EachOpponent]
@@ -39,7 +40,7 @@ val TheUnagiOfKyoshiIsland = card("The Unagi of Kyoshi Island") {
     toughness = 5
 
     keywords(Keyword.FLASH)
-    keywordAbility(KeywordAbility.wardWaterbend("{4}"))
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{4}", waterbend = true)))
 
     triggeredAbility {
         trigger = Triggers.anOpponent.drawsNth(2)

@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Horned Loch-Whale // Lagoon Breach
@@ -45,7 +46,7 @@ val HornedLochWhale = card("Horned Loch-Whale") {
     toughness = 6
 
     keywords(Keyword.FLASH)
-    keywordAbility(KeywordAbility.ward("{2}"))
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     replacementEffect(EntersTapped(unlessCondition = Conditions.IsYourTurn))
 

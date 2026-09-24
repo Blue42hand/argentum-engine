@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Cosmic Cube — Marvel Super Heroes #245 (mythic)
@@ -53,7 +54,7 @@ val CosmicCube = card("Cosmic Cube") {
         "creatures you control without paying its mana cost. Put the rest on the bottom of your " +
         "library in a random order."
 
-    keywordAbility(KeywordAbility.ward("{2}"))
+    keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
 
     triggeredAbility {
         trigger = Triggers.you.attacks()

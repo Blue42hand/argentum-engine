@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * The Serpent Society — Marvel Super Heroes #226 (rare)
@@ -20,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Whenever another creature you control with deathtouch dies, each opponent sacrifices a nontoken
  * creature of their choice.
  *
- * The ward is [KeywordAbility.wardPlayerCounters] — counters placed on the *paying* player
+ * The ward is [WardCost.PlayerCounters] — counters placed on the *paying* player
  * (CR 122.1). It is the one ward cost with no affordability gate: an opponent can always get five
  * poison counters, so the ward never counters for inability, it only asks. Half of a ten-poison
  * loss (CR 122.1f) is a steep but always-available price, which is the card's whole point.
@@ -48,7 +49,7 @@ val TheSerpentSociety = card("The Serpent Society") {
         "nontoken creature of their choice."
 
     keywords(Keyword.DEATHTOUCH)
-    keywordAbility(KeywordAbility.wardPlayerCounters(CounterType.POISON, 5))
+    keywordAbility(KeywordAbility.Ward(WardCost.PlayerCounters(CounterType.POISON, 5)))
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.youControl().withKeyword(Keyword.DEATHTOUCH)).dies()

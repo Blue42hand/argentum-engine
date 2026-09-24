@@ -202,6 +202,18 @@ object DecisionValidators {
             if (selectedIds.size != selectedIds.toSet().size) {
                 return "The same target can't be chosen more than once for requirement $reqIndex"
             }
+
+            // Separate requirements are separate "target" words, so they may share a pick (Seeds
+            // of Strength) — except an "another target" requirement, which must avoid every
+            // earlier requirement's picks.
+            if (decision.targetRequirements.first { it.index == reqIndex }.mustDifferFromEarlier) {
+                val earlier = response.selectedTargets
+                    .filterKeys { it < reqIndex }
+                    .values.flatten().toSet()
+                if (selectedIds.any { it in earlier }) {
+                    return "Target for requirement $reqIndex must differ from the other chosen targets"
+                }
+            }
         }
 
         // Every *declared* requirement is then checked against the group that answered it, so the

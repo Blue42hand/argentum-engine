@@ -160,7 +160,8 @@ class StormCopyEffectExecutor(
             val targetReqInfos = effect.spellTargetRequirements.mapIndexed { index, req ->
                 TargetRequirementInfo(
                     index = index,
-                    description = req.description
+                    description = req.description,
+                    mustDifferFromEarlier = req is com.wingedsheep.sdk.scripting.targets.TargetOther
                 )
             }
 
@@ -272,7 +273,8 @@ class StormCopyEffectExecutor(
                         targetRequirements = reqs.mapIndexed { index, req ->
                             TargetRequirementInfo(
                                 index = index,
-                                description = req.description
+                                description = req.description,
+                                mustDifferFromEarlier = req is com.wingedsheep.sdk.scripting.targets.TargetOther
                             )
                         },
                         legalTargets = legalTargetsMap

@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
+import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
  * Emrakul, the Exigent Doom (Reality Fracture #1) — {10} Legendary Creature — Eldrazi 12/12.
@@ -56,7 +57,7 @@ val EmrakulTheExigentDoom = card("Emrakul, the Exigent Doom") {
 
     keywords(Keyword.FLYING, Keyword.TRAMPLE)
 
-    keywordAbility(KeywordAbility.wardSacrifice(GameObjectFilter.Permanent, count = 3))
+    keywordAbility(KeywordAbility.Ward(WardCost.Sacrifice(GameObjectFilter.Permanent, count = 3)))
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}"), Costs.ExileSelf)
