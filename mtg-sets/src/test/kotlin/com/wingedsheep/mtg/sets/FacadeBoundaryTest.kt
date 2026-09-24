@@ -29,6 +29,62 @@ class FacadeBoundaryTest : FunSpec({
             "Conditions.EntityMatches(...) (or Conditions.SourceMatches/TargetMatchesFilter/…)",
     )
 
+    /**
+     * Raw pipeline steps thread their data through string keys, so a typo or a read of a
+     * collection nobody wrote only surfaces at runtime (or in `CardLinter`). Cards write pipelines
+     * with `Effects.Pipeline { }`, whose steps return typed handles; the raw steps stay
+     * SDK-internal (the `Patterns.*` helpers, the engine, JSON-loaded cards).
+     */
+    val pipelineSteps = listOf(
+        "GatherCardsEffect", "SelectFromCollectionEffect", "MoveCollectionEffect", "FilterCollectionEffect",
+        "RevealCollectionEffect", "ConditionalOnCollectionEffect", "GatherUntilMatchEffect",
+        "GatherSubtypesEffect", "ChoosePileEffect", "CaptureControllersEffect", "ForEachCapturedControllerEffect",
+        "StoreCardNameEffect", "StoreNumberEffect", "SelectTargetEffect", "ChooseOptionEffect",
+        "ChooseOnePerCategoryEffect", "NoteCreatureTypeEffect", "PairWithSourceEffect",
+        "CopyCardIntoCollectionEffect", "CopyCollectionIntoCollectionEffect",
+    ).map { Regex("""(?<![\w.])$it\s*\(""") to "Effects.Pipeline { … } (the typed step verbs)" } + listOf(
+        Regex("""\b(storeAs|storeSelected|storeRemainder|storeMatching|storeNonMatching|storeMatch|storeRevealed|storeChosenAs|storeOtherAs|storeMovedAs|collectionName|storeDestroyedAs|storeExiledAs)\s*=\s*"""") to
+            "a handle from Effects.Pipeline { } (or runStoringCollection { key -> … } for a non-step writer)",
+        Regex("""VariableReference\(\s*"\w*_count"\s*\)""") to "CollectionSlot.count",
+        Regex("""\.key\b(?!\s*=)""") to "the handle itself or a typed accessor (count, asSource, asTarget, controllerOf)",
+    )
+
+    /**
+     * Cards that must still spell a pipeline key, each with the reason. Keep this short; a new
+     * entry needs a reason a reviewer would accept.
+     */
+    val pipelineAllowlist: Map<String, String> = mapOf(
+        "rav/cards/Flickerform.kt" to
+            "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
+        "dsk/cards/MonstrousEmergence.kt" to
+            "the cost's ChooseEntity storeAs is read by the spell effect — a cost is not inside any pipeline",
+        "eoe/cards/CloseEncounter.kt" to
+            "the cost's ChooseEntity storeAs is read by the spell effect — a cost is not inside any pipeline",
+    )
+
+    test("card definitions write pipelines with Effects.Pipeline, not raw string-keyed steps") {
+        val violations = mutableListOf<String>()
+
+        SetSourceRoots.definitionFiles().forEach { path ->
+            val rel = SetSourceRoots.relativize(path)
+            if (pipelineAllowlist.keys.any { rel.toString().endsWith(it) }) return@forEach
+            stripCommentsAndImports(path.readText()).forEachIndexed { idx, line ->
+                for ((regex, hint) in pipelineSteps) {
+                    if (regex.containsMatchIn(line)) {
+                        violations += "$rel:${idx + 1}  →  use $hint instead of `${regex.find(line)!!.value}`"
+                    }
+                }
+            }
+        }
+
+        withClue(
+            "Card definitions must write pipelines through Effects.Pipeline { } (typed handles, no string keys).\n" +
+                violations.joinToString("\n")
+        ) {
+            violations shouldBe emptyList()
+        }
+    }
+
     test("card definitions construct effects/costs via the Effects/Costs facades, not raw types") {
         val violations = mutableListOf<String>()
 
