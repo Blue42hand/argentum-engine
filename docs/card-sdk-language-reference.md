@@ -2382,6 +2382,13 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 
 ### Stack manipulation
 
+- `Effects.ChainCopy(action, target, offerTo, copyTarget, copyCost?)` (`ChainCopyEffect`) — "[action].
+  Then [offerTo] may [copyCost] to copy this spell and may choose a new target for that copy"
+  (Onslaught's Chain of X cycle). `offerTo` is a `CopyRecipient` (`TARGET_CONTROLLER`,
+  `TARGET_PLAYER`, `AFFECTED_PLAYER` — the target player, or the target permanent's controller);
+  `copyTarget` is the copy's target requirement, normally the same requirement the spell declared.
+  Prompts name the spell from its card, so the effect never repeats the card name.
+
 - `CounterEffect(target, condition?, destination?)` — counter a spell/ability; optionally send elsewhere. `CounterDestination.Exile(grantFreeCast?)`: `grantFreeCast` lets the counter's *controller* recast the exiled card for free (Kheru Spellsnatcher). (For "exile it; its owner may recast it" wording that is **not** a counter — e.g. airbending a spell — use `ExileTargetSpell(fixedAlternativeManaCost = …)` below, which bypasses can't-be-countered.) `CounterDestination.Hand` (facade `Effects.CounterSpellToHand()`) is Remand's "put it into its owner's hand instead of into that player's graveyard" — still a real counter, so an uncounterable spell is untouched and "whenever a spell is countered" triggers still fire; `ReturnSpellToOwnersHand` is the non-counter sibling.
   - `target = CounterTarget.Spell` / `Ability` / `SpellOrAbility` — `SpellOrAbility` dispatches at resolution by inspecting whether the stack entity has a `SpellOnStackComponent`. Used by Teferi's Response.
   - `condition = CounterCondition.UnlessPaysMana(cost, onPaid?)` / `UnlessPaysDynamic(amount, onPaid?)` — "unless its controller pays …" with an optional `onPaid: Effect` rider that fires **only** when the spell's controller pays (Divert Disaster's "If they do, you create a Lander token"). The rider executes with the counter's controller as `controllerId`, so "you" in the rider resolves to the caster of the counter. The rider does not fire when the spell is countered. Facade: `Effects.CounterUnlessPays(cost, onPaid)` / `Effects.CounterUnlessDynamicPays(amount, exileOnCounter, onPaid)`.

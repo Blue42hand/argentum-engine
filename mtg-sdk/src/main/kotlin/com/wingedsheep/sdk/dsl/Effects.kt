@@ -1,6 +1,8 @@
 package com.wingedsheep.sdk.dsl
 
 import com.wingedsheep.sdk.core.AbilityFlag
+import com.wingedsheep.sdk.scripting.effects.CopyRecipient
+import com.wingedsheep.sdk.scripting.effects.ChainCopyEffect
 import com.wingedsheep.sdk.core.BendType
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Color
@@ -5719,99 +5721,28 @@ object Effects {
     // =========================================================================
 
     /**
-     * Destroy target permanent, then its controller may copy this spell.
-     * Used for Chain of Acid.
+     * "[action]. Then [offerTo] may [copyCost] to copy this spell and may choose a new target for
+     * that copy." — Onslaught's Chain of X cycle. The copy offered is a real copy of the resolving
+     * spell (it chains again), targeted by [copyTarget].
+     *
+     * ```kotlin
+     * val permanent = TargetPermanent(filter = TargetFilter.NoncreaturePermanent)
+     * val t = target("target noncreature permanent", permanent)
+     * effect = Effects.ChainCopy(Effects.Destroy(t), t, CopyRecipient.TARGET_CONTROLLER, copyTarget = permanent)
+     * ```
      */
-    fun DestroyAndChainCopy(
+    fun ChainCopy(
+        action: Effect,
         target: EffectTarget,
-        targetFilter: com.wingedsheep.sdk.scripting.filters.unified.TargetFilter,
-        spellName: String
-    ): Effect = com.wingedsheep.sdk.scripting.effects.ChainCopyEffect(
-        action = Destroy(target),
+        offerTo: CopyRecipient,
+        copyTarget: TargetRequirement,
+        copyCost: PayCost? = null
+    ): Effect = ChainCopyEffect(
+        action = action,
         target = target,
-        targetFilter = targetFilter,
-        copyRecipient = com.wingedsheep.sdk.scripting.effects.CopyRecipient.TARGET_CONTROLLER,
-        copyTargetRequirement = com.wingedsheep.sdk.scripting.targets.TargetObject(filter = targetFilter),
-        spellName = spellName
-    )
-
-    /**
-     * Bounce target permanent, then its controller may sacrifice a land to copy.
-     * Used for Chain of Vapor.
-     */
-    fun BounceAndChainCopy(
-        target: EffectTarget,
-        targetFilter: com.wingedsheep.sdk.scripting.filters.unified.TargetFilter,
-        spellName: String
-    ): Effect = com.wingedsheep.sdk.scripting.effects.ChainCopyEffect(
-        action = ReturnToHand(target),
-        target = target,
-        targetFilter = targetFilter,
-        copyRecipient = com.wingedsheep.sdk.scripting.effects.CopyRecipient.TARGET_CONTROLLER,
-        copyCost = com.wingedsheep.sdk.scripting.costs.PayCost.Atom(
-            com.wingedsheep.sdk.scripting.costs.CostAtom.Sacrifice(
-                filter = com.wingedsheep.sdk.scripting.GameObjectFilter.Land
-            )
-        ),
-        copyTargetRequirement = com.wingedsheep.sdk.scripting.targets.TargetObject(filter = targetFilter),
-        spellName = spellName
-    )
-
-    /**
-     * Deal damage to any target, then that player may discard a card to copy.
-     * Used for Chain of Plasma.
-     */
-    fun DamageAndChainCopy(
-        amount: Int,
-        target: EffectTarget,
-        spellName: String
-    ): Effect = com.wingedsheep.sdk.scripting.effects.ChainCopyEffect(
-        action = DealDamage(amount, target),
-        target = target,
-        copyRecipient = com.wingedsheep.sdk.scripting.effects.CopyRecipient.AFFECTED_PLAYER,
-        copyCost = com.wingedsheep.sdk.scripting.costs.PayCost.Atom(
-            com.wingedsheep.sdk.scripting.costs.CostAtom.Discard()
-        ),
-        copyTargetRequirement = com.wingedsheep.sdk.scripting.targets.AnyTarget(),
-        spellName = spellName
-    )
-
-    /**
-     * Target player discards cards, then may copy and choose a new target.
-     * Used for Chain of Smog.
-     */
-    fun DiscardAndChainCopy(
-        count: Int,
-        target: EffectTarget,
-        spellName: String
-    ): Effect = com.wingedsheep.sdk.scripting.effects.ChainCopyEffect(
-        action = HandPatterns.discardCards(count, target),
-        target = target,
-        copyRecipient = com.wingedsheep.sdk.scripting.effects.CopyRecipient.TARGET_PLAYER,
-        copyTargetRequirement = com.wingedsheep.sdk.scripting.targets.TargetPlayer(),
-        spellName = spellName
-    )
-
-    /**
-     * Prevent all damage target creature would deal, then its controller may sacrifice a land to copy.
-     * Used for Chain of Silence.
-     */
-    fun PreventDamageAndChainCopy(
-        target: EffectTarget,
-        targetFilter: com.wingedsheep.sdk.scripting.filters.unified.TargetFilter,
-        spellName: String
-    ): Effect = com.wingedsheep.sdk.scripting.effects.ChainCopyEffect(
-        action = PreventAllDamageDealtBy(target),
-        target = target,
-        targetFilter = targetFilter,
-        copyRecipient = com.wingedsheep.sdk.scripting.effects.CopyRecipient.TARGET_CONTROLLER,
-        copyCost = com.wingedsheep.sdk.scripting.costs.PayCost.Atom(
-            com.wingedsheep.sdk.scripting.costs.CostAtom.Sacrifice(
-                filter = com.wingedsheep.sdk.scripting.GameObjectFilter.Land
-            )
-        ),
-        copyTargetRequirement = com.wingedsheep.sdk.scripting.targets.TargetObject(filter = targetFilter),
-        spellName = spellName
+        copyRecipient = offerTo,
+        copyCost = copyCost,
+        copyTargetRequirement = copyTarget
     )
 
     // =========================================================================

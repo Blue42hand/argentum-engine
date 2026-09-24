@@ -84,7 +84,7 @@ class ChainSpellContinuationResumer(
                 }
                 presentCostSelection(
                     state, controllerId, effect, continuation.sourceId, candidates,
-                    "Choose a ${atom.filter.description} to sacrifice for the copy of ${effect.spellName}",
+                    "Choose a ${atom.filter.description} to sacrifice for the copy of ${spellNameOf(state, continuation.sourceId)}",
                     useTargetingUI = true
                 )
             }
@@ -96,7 +96,7 @@ class ChainSpellContinuationResumer(
                 }
                 presentCostSelection(
                     state, controllerId, effect, continuation.sourceId, hand,
-                    "Choose a card to discard for ${effect.spellName}",
+                    "Choose a card to discard for ${spellNameOf(state, continuation.sourceId)}",
                     useTargetingUI = false
                 )
             }
@@ -205,10 +205,10 @@ class ChainSpellContinuationResumer(
         val ability = TriggeredAbilityOnStackComponent(
             sourceId = sourceId,
             objectReferences = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(captured = true, origin = state.objectRef(sourceId), source = state.objectRef(sourceId)),
-            sourceName = effect.spellName,
+            sourceName = spellNameOf(state, continuation.sourceId),
             controllerId = continuation.copyControllerId,
             effect = copyEffect,
-            description = "Copy of ${effect.spellName}",
+            description = "Copy of ${spellNameOf(state, continuation.sourceId)}",
             chosenModes = sourceSpell?.chosenModes ?: emptyList(),
             modeTargetRequirements = sourceSpell?.modeTargetRequirements ?: emptyMap()
         )
@@ -228,6 +228,10 @@ class ChainSpellContinuationResumer(
     // =========================================================================
     // Shared helpers
     // =========================================================================
+
+    /** The chain spell's printed name, read off its card — a copy keeps it, so it survives resolution. */
+    private fun spellNameOf(state: GameState, sourceId: EntityId?): String =
+        sourceId?.let { state.getEntity(it)?.get<CardComponent>()?.name } ?: "this spell"
 
     private fun offerChainCopy(
         state: GameState,
@@ -253,9 +257,9 @@ class ChainSpellContinuationResumer(
 
         val copyCost = effect.copyCost
         val prompt = if (copyCost == null) {
-            "Copy ${effect.spellName} and choose a new target?"
+            "Copy ${spellNameOf(state, sourceId)} and choose a new target?"
         } else {
-            "${copyCost.description.replaceFirstChar { it.uppercase() }} to copy ${effect.spellName}?"
+            "${copyCost.description.replaceFirstChar { it.uppercase() }} to copy ${spellNameOf(state, sourceId)}?"
         }
 
         val (yesText, noText) = if (copyCost == null) {
@@ -270,7 +274,7 @@ class ChainSpellContinuationResumer(
             prompt = prompt,
             context = DecisionContext(
                 sourceId = sourceId,
-                sourceName = effect.spellName,
+                sourceName = spellNameOf(state, sourceId),
                 phase = DecisionPhase.RESOLUTION
             ),
             yesText = yesText,
@@ -305,7 +309,7 @@ class ChainSpellContinuationResumer(
             prompt = prompt,
             context = DecisionContext(
                 sourceId = sourceId,
-                sourceName = effect.spellName,
+                sourceName = spellNameOf(state, sourceId),
                 phase = DecisionPhase.RESOLUTION
             ),
             options = options,
@@ -347,10 +351,10 @@ class ChainSpellContinuationResumer(
         val question = { decisionId: String -> SelectCardsDecision(
             id = decisionId,
             playerId = controllerId,
-            prompt = "Choose a target for the copy of ${effect.spellName}",
+            prompt = "Choose a target for the copy of ${spellNameOf(state, sourceId)}",
             context = DecisionContext(
                 sourceId = sourceId,
-                sourceName = effect.spellName,
+                sourceName = spellNameOf(state, sourceId),
                 phase = DecisionPhase.RESOLUTION
             ),
             options = legalTargets,
