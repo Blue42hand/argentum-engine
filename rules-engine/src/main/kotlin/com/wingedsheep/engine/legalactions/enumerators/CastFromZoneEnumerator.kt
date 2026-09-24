@@ -138,7 +138,7 @@ class CastFromZoneEnumerator : ActionEnumerator {
 
             val targetReqs = buildList {
                 addAll(cardDef.script.targetRequirements)
-                cardDef.script.auraTarget?.let { add(it) }
+                cardDef.script.castAuraTarget?.let { add(it) }
             }
 
             val manaCostString = effectiveCost.toString()
@@ -299,7 +299,7 @@ class CastFromZoneEnumerator : ActionEnumerator {
                     if (canAfford) {
                         val targetReqs = buildList {
                             addAll(topCardDef?.script?.targetRequirements ?: emptyList())
-                            topCardDef?.script?.auraTarget?.let { add(it) }
+                            topCardDef?.script?.castAuraTarget?.let { add(it) }
                         }
 
                         val manaCostString = if (freeCastFromTop) "0" else topEffectiveCost.toString()
@@ -589,7 +589,7 @@ class CastFromZoneEnumerator : ActionEnumerator {
                     if (hasCorrectTiming && meetsRestrictions && canAfford && canPayAdditionalCost) {
                         val targetReqs = buildList {
                             addAll(effectiveScript?.targetRequirements ?: emptyList())
-                            effectiveScript?.auraTarget?.let { add(it) }
+                            effectiveScript?.castAuraTarget?.let { add(it) }
                         }
 
                         if (targetReqs.isNotEmpty()) {
@@ -705,7 +705,7 @@ class CastFromZoneEnumerator : ActionEnumerator {
                     if (freeCastFromExile) {
                         val freeTargetReqs = buildList {
                             addAll(effectiveScript?.targetRequirements ?: emptyList())
-                            effectiveScript?.auraTarget?.let { add(it) }
+                            effectiveScript?.castAuraTarget?.let { add(it) }
                         }
                         if (freeTargetReqs.isNotEmpty()) {
                             val freeTargetInfos = context.targetUtils.buildTargetInfos(state, playerId, freeTargetReqs)
@@ -908,7 +908,7 @@ class CastFromZoneEnumerator : ActionEnumerator {
                     if (fullyAffordable) {
                         val targetReqs = buildList {
                             addAll(exiledCardDef?.script?.targetRequirements ?: emptyList())
-                            exiledCardDef?.script?.auraTarget?.let { add(it) }
+                            exiledCardDef?.script?.castAuraTarget?.let { add(it) }
                         }
                         if (targetReqs.isNotEmpty()) {
                             val targetInfos = context.targetUtils.buildTargetInfos(state, playerId, targetReqs)
@@ -1090,7 +1090,7 @@ class CastFromZoneEnumerator : ActionEnumerator {
                     if (hasCorrectTiming && meetsRestrictions && canAfford && canPayZoneAdditionalCost) {
                         val targetReqs = buildList {
                             addAll(cardDef.script.targetRequirements)
-                            cardDef.script.auraTarget?.let { add(it) }
+                            cardDef.script.castAuraTarget?.let { add(it) }
                         }
 
                         if (targetReqs.isNotEmpty()) {
@@ -1205,7 +1205,7 @@ class CastFromZoneEnumerator : ActionEnumerator {
                 if (hasCorrectTiming && meetsRestrictions && canAfford) {
                     val targetReqs = buildList {
                         addAll(cardDef.script.targetRequirements)
-                        cardDef.script.auraTarget?.let { add(it) }
+                        cardDef.script.castAuraTarget?.let { add(it) }
                     }
 
                     if (targetReqs.isNotEmpty()) {
@@ -1352,7 +1352,7 @@ class CastFromZoneEnumerator : ActionEnumerator {
 
             val targetReqs = buildList {
                 addAll(cardDef.script.targetRequirements)
-                cardDef.script.auraTarget?.let { add(it) }
+                cardDef.script.castAuraTarget?.let { add(it) }
             }
 
             val autoTapPreview = if (context.skipAutoTapPreview) null else {
@@ -1483,7 +1483,7 @@ class CastFromZoneEnumerator : ActionEnumerator {
 
             val targetReqs = buildList {
                 addAll(cardDef.script.targetRequirements)
-                cardDef.script.auraTarget?.let { add(it) }
+                cardDef.script.castAuraTarget?.let { add(it) }
             }
 
             val autoTapPreview = if (context.skipAutoTapPreview) null else {
@@ -1621,7 +1621,7 @@ class CastFromZoneEnumerator : ActionEnumerator {
 
             val targetReqs = buildList {
                 addAll(backFace.script.targetRequirements)
-                backFace.script.auraTarget?.let { add(it) }
+                backFace.script.castAuraTarget?.let { add(it) }
             }
 
             val autoTapPreview = if (context.skipAutoTapPreview) null else {
@@ -1753,7 +1753,7 @@ class CastFromZoneEnumerator : ActionEnumerator {
 
             val targetReqs = buildList {
                 addAll(cardDef.script.targetRequirements)
-                cardDef.script.auraTarget?.let { add(it) }
+                cardDef.script.castAuraTarget?.let { add(it) }
             }
 
             if (targetReqs.isNotEmpty()) {
@@ -1929,7 +1929,7 @@ class CastFromZoneEnumerator : ActionEnumerator {
 
             val targetReqs = buildList {
                 addAll(cardDef.script.targetRequirements)
-                cardDef.script.auraTarget?.let { add(it) }
+                cardDef.script.castAuraTarget?.let { add(it) }
             }
 
             val autoTapPreview = if (context.skipAutoTapPreview) null else {
@@ -2088,7 +2088,7 @@ class CastFromZoneEnumerator : ActionEnumerator {
 
             val targetReqs = buildList {
                 addAll(cardDef.script.targetRequirements)
-                cardDef.script.auraTarget?.let { add(it) }
+                cardDef.script.castAuraTarget?.let { add(it) }
             }
 
             val autoTapPreview = if (context.skipAutoTapPreview) null else {
@@ -2209,7 +2209,7 @@ class CastFromZoneEnumerator : ActionEnumerator {
             if (affordable) {
                 val targetReqs = buildList {
                     addAll(cardDef.script.targetRequirements)
-                    cardDef.script.auraTarget?.let { add(it) }
+                    cardDef.script.castAuraTarget?.let { add(it) }
                 }
 
                 if (targetReqs.isNotEmpty()) {
@@ -2423,7 +2423,7 @@ class CastFromZoneEnumerator : ActionEnumerator {
 
                 val targetReqs = buildList {
                     addAll(cardDef.script.targetRequirements)
-                    cardDef.script.auraTarget?.let { add(it) }
+                    cardDef.script.castAuraTarget?.let { add(it) }
                 }
 
                 val autoTapPreview = if (context.skipAutoTapPreview) null else {
@@ -2620,7 +2620,7 @@ class CastFromZoneEnumerator : ActionEnumerator {
                 }
                 val targetReqs = buildList {
                     addAll(kickerBaseReqs)
-                    cardDef.script.auraTarget?.let { add(it) }
+                    cardDef.script.castAuraTarget?.let { add(it) }
                 }
 
                 val kickLabel = when {

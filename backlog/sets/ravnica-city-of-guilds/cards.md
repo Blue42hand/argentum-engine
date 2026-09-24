@@ -2,7 +2,7 @@
 
 **Set Size:** 291 cards
 **Release Date:** October 7, 2005
-**Implemented:** 276 / 291
+**Implemented:** 277 / 291
 | Section    | Total | Done |
 |------------|-------|------|
 | White      | 37    | 33   |
@@ -65,7 +65,7 @@
 - [x] Copy Enchantment
 - [x] Dizzy Spell
 - [x] Drake Familiar
-- [ ] Dream Leash
+- [x] Dream Leash
 - [x] Drift of Phantasms
 - [x] Ethereal Usher
 - [ ] Eye of the Storm

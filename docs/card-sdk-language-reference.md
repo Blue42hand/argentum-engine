@@ -107,6 +107,12 @@ section; do not let SDK additions land without a corresponding doc update.
   every type the Aura's *own* effects can turn its host into, exactly as the printed card does — Imprisoned
   in the Moon makes its host a land and so enchants "creature, land, or planeswalker"; an Aura that turns a
   creature into a land while enchanting only `Targets.Creature` would destroy itself on resolution.
+- `auraCastTarget: TargetRequirement?` — a narrower requirement the Aura *spell's* target must meet
+  only while it is cast (Dream Leash: "You can't choose an untapped permanent as this spell's target as
+  you cast it" → `TargetPermanent(filter = TargetFilter.Permanent.tapped())`). Legal-action enumeration
+  and cast validation read `CardScript.castAuraTarget` (`auraCastTarget ?: auraTarget`); the stack
+  captures the plain `auraTarget`, so resolution (CR 608.2b), the enchant SBA, and an Aura put onto the
+  battlefield without being cast never see the narrowing.
 - `morph: String?` — morph mana cost (cast face-down).
 - `morphCost: PayCost?` — non-mana morph cost.
 - `morphFaceUpEffect: Effect?` — effect that fires when this morph turns face up.
