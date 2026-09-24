@@ -425,6 +425,7 @@ export enum AbilityFlag {
   CANT_BECOME_SUSPECTED = 'CANT_BECOME_SUSPECTED',
   ASSIGNS_COMBAT_DAMAGE_AS_TOUGHNESS = 'ASSIGNS_COMBAT_DAMAGE_AS_TOUGHNESS',
   ASSIGNS_NO_COMBAT_DAMAGE = 'ASSIGNS_NO_COMBAT_DAMAGE',
+  ASSIGNS_COMBAT_DAMAGE_AS_ABSOLUTE_POWER = 'ASSIGNS_COMBAT_DAMAGE_AS_ABSOLUTE_POWER',
   MAY_ACTIVATE_ABILITIES_AS_THOUGH_HASTY = 'MAY_ACTIVATE_ABILITIES_AS_THOUGH_HASTY',
 }
 
@@ -440,6 +441,7 @@ export const AbilityFlagDisplayNames: Record<AbilityFlag, string> = {
   [AbilityFlag.CANT_BECOME_SUSPECTED]: "Can't become suspected",
   [AbilityFlag.ASSIGNS_COMBAT_DAMAGE_AS_TOUGHNESS]: 'Assigns combat damage equal to its toughness rather than its power',
   [AbilityFlag.ASSIGNS_NO_COMBAT_DAMAGE]: 'Assigns no combat damage this turn',
+  [AbilityFlag.ASSIGNS_COMBAT_DAMAGE_AS_ABSOLUTE_POWER]: 'Assigns combat damage as though its power were positive',
   // Granted by Shang-Chi / Thousand-Year Elixir to a whole board of creatures at once, so it must be
   // named here or every creature you control shows the raw enum identifier in its preview panel.
   // Deliberately not in `displayableKeywords` — a battlefield icon on every creature is noise.

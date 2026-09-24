@@ -7114,6 +7114,15 @@ staticAbility {
   first strike, trample and ordered-blocker assignment alike, and an attacker reduced to 0 this way is
   dropped from the manual damage-assignment decision entirely rather than being asked to divide nothing.
   Always granted with a duration — every card that prints it says "this turn".
+- `flags(AbilityFlag.ASSIGNS_COMBAT_DAMAGE_AS_ABSOLUTE_POWER)` — "if this creature's power is negative, it
+  assigns combat damage as though its power were positive" (Loot, the Anomaly). CR 510.1a has a creature
+  with 0 or less power assign no combat damage; with the flag a negative power is read as its absolute value
+  **for the assignment only** — the power characteristic stays negative for everything else (P/T reads,
+  "power N or less" filters, fight damage, which is not combat damage). Read at the same chokepoint,
+  `CombatDamageUtils.getAssignedCombatDamage`, after the toughness-substitution check (which still compares
+  the real, negative power). A projected flag, so "loses all abilities" removes it; grantable with
+  `GrantKeyword`. Printed negative base power itself is legal data: `CreatureStats` accepts a negative
+  fixed power (CR 107.1b), so `power = -2` in `card { }` is a -2/4.
 - `GrantKeyword(AbilityFlag.MAY_ACTIVATE_ABILITIES_AS_THOUGH_HASTY.name, filter)` — "you may activate
   abilities of [filter] as though those creatures had haste" (Thousand-Year Elixir, Shang-Chi, Master of
   Kung Fu). CR 302.6 gates a creature's `{T}`/`{Q}` activated abilities *and* its ability to attack on the
