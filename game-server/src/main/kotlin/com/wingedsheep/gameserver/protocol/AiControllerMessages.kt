@@ -21,6 +21,19 @@ data class SetLobbyAiController(
 ) : ClientMessage
 
 /**
+ * Host-only controller selection for the single AI seat in a Quick Game lobby.
+ *
+ * This is the in-lobby twin of [ClientMessage.CreateQuickGameLobby.aiControllerSpec]. A null spec
+ * returns the seat to the server-wide default. Provider-owned deck presets are applied atomically
+ * with the controller selection; unavailable explicit selections fail closed before mutation.
+ */
+@Serializable
+@SerialName("setQuickGameAiController")
+data class SetQuickGameAiController(
+    val spec: AiControllerSpec? = null,
+) : ClientMessage
+
+/**
  * Ask for the controllers this server can currently offer to an AI seat.
  *
  * Supplying [lobbyId] also asks for the authoritative current selection of every AI seat in that
