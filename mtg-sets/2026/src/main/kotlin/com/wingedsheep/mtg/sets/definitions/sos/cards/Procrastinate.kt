@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -30,7 +30,7 @@ val Procrastinate = card("Procrastinate") {
         effect = Effects.Tap(creature)
             .then(
                 Effects.AddDynamicCounters(
-                    Counters.STUN,
+                    CounterType.STUN,
                     DynamicAmount.Multiply(DynamicAmount.XValue, 2),
                     creature
                 )

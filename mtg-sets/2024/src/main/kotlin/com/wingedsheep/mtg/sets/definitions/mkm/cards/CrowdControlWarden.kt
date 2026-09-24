@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -59,7 +59,7 @@ val CrowdControlWarden = card("Crowd-Control Warden") {
     disguise = "{3}{G/W}{G/W}"
     // Turning face up: the Warden IS on the battlefield, so it must be excluded from its own count.
     disguiseFaceUpEffect = Effects.AddDynamicCounters(
-        Counters.PLUS_ONE_PLUS_ONE,
+        CounterType.PLUS_ONE_PLUS_ONE,
         DynamicAmount.AggregateBattlefield(
             Player.You,
             GameObjectFilter.Creature,

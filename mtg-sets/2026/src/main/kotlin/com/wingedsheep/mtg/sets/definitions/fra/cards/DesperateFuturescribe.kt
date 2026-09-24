@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -31,7 +31,7 @@ val DesperateFuturescribe = card("Desperate Futurescribe") {
         val creature = target("another target creature you control", Targets.OtherCreatureYouControl)
         effect = Effects.If(
             condition = Conditions.ScriedOrSurveiledThisTurn,
-            then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature),
+            then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
             otherwise = Effects.ModifyStats(1, 1, creature),
         )
     }

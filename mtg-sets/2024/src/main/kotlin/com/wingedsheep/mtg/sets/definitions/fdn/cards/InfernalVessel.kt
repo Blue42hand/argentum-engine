@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
@@ -50,7 +50,7 @@ val InfernalVessel = card("Infernal Vessel") {
                 destination = Zone.BATTLEFIELD,
                 fromZone = Zone.GRAVEYARD
             ),
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self),
             Effects.AddCreatureType(Subtype.DEMON.value, EffectTarget.Self, Duration.Permanent)
         )
         description = "When this creature dies, if it wasn't a Demon, return it to the battlefield " +

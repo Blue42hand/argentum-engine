@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -99,7 +99,7 @@ val AshiokWickedManipulator = card("Ashiok, Wicked Manipulator") {
                     trigger = Triggers.BeginCombat.event,
                     binding = Triggers.BeginCombat.binding,
                     interveningIf = Conditions.CardsPutIntoExileThisTurn(),
-                    effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                    effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                     descriptionOverride = "At the beginning of combat on your turn, if a card was " +
                         "put into exile this turn, put a +1/+1 counter on this token.",
                 ),

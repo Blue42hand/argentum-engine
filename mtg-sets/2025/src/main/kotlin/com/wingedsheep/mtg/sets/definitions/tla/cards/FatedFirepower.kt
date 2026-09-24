@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.ModifyDamageAmount
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
 import com.wingedsheep.sdk.scripting.events.SourceFilter
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -24,7 +23,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * controls, it deals that much damage plus an amount of damage equal to the number of
  * fire counters on this enchantment instead.
  *
- * Reuses the existing [Counters.FIRE] named counter (introduced for War Balloon). The
+ * Reuses the existing [CounterType.FIRE] named counter (introduced for War Balloon). The
  * "enters with X fire counters" clause mirrors Riptide Replicator's
  * [EntersWithDynamicCounters] with `count = DynamicAmount.XValue` for a noncreature
  * permanent. The outgoing-damage amplification is a [ModifyDamageAmount] whose
@@ -48,7 +47,7 @@ val FatedFirepower = card("Fated Firepower") {
     // This enchantment enters with X fire counters on it.
     replacementEffect(
         EntersWithDynamicCounters(
-            counterType = CounterTypeFilter.Named(Counters.FIRE),
+            counterType = CounterType.FIRE,
             count = DynamicAmount.XValue
         )
     )
@@ -57,7 +56,7 @@ val FatedFirepower = card("Fated Firepower") {
     // number of fire counters on this enchantment to an opponent or their permanents.
     replacementEffect(
         ModifyDamageAmount(
-            dynamicModifier = DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.FIRE)),
+            dynamicModifier = DynamicAmounts.countersOnSelf(CounterType.FIRE),
             appliesTo = EventPattern.DamageEvent(
                 source = SourceFilter.YouControl,
                 recipient = RecipientFilter.OpponentOrPermanentTheyControl

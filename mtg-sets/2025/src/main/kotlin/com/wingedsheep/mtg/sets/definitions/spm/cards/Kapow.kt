@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -24,7 +24,7 @@ val Kapow = card("Kapow!") {
     spell {
         val yourCreature = target("creature you control", Targets.CreatureYouControl)
         val theirCreature = target("creature an opponent controls", Targets.CreatureOpponentControls)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, yourCreature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, yourCreature)
             .then(
                 Effects.If(
                     condition = Conditions.All(

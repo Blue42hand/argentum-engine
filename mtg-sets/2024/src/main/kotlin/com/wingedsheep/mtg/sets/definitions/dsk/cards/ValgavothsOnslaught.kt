@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
@@ -58,7 +58,7 @@ val ValgavothsOnslaught = card("Valgavoth's Onslaught") {
                 ),
                 Effects.AddCountersToCollection(
                     collectionName = "valgavothManifested",
-                    counterType = Counters.PLUS_ONE_PLUS_ONE,
+                    counterType = CounterType.PLUS_ONE_PLUS_ONE,
                     amount = DynamicAmount.XValue
                 )
             )

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -56,7 +56,7 @@ val HelgaSkittishSeer = card("Helga, Skittish Seer") {
                 DrawCardsEffect(1),
                 GainLifeEffect(1),
                 AddCountersEffect(
-                    counterType = Counters.PLUS_ONE_PLUS_ONE,
+                    counterType = CounterType.PLUS_ONE_PLUS_ONE,
                     count = 1,
                     target = EffectTarget.Self
                 )

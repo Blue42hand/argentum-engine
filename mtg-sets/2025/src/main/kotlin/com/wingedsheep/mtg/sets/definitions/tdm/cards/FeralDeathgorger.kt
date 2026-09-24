@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -67,7 +67,7 @@ val FeralDeathgorger = card("Feral Deathgorger") {
             "(Then shuffle this card into its owner's library.)"
         spell {
             val creature = target("creature", Targets.UpToCreatures(1))
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
                 .then(Effects.DrawCards(1))
         }
     }

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -147,7 +147,7 @@ private fun returnDeadCreatureUnderYourControl() = Effects.Composite(
         controllerOverride = EffectTarget.Controller
     ),
     AddCountersEffect(
-        counterType = Counters.FINALITY,
+        counterType = CounterType.FINALITY,
         count = 1,
         target = EffectTarget.TriggeringEntity
     )

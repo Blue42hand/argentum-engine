@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
@@ -49,7 +49,7 @@ val LeavesFromTheVine = card("Leaves from the Vine") {
         )
         effect = ForEachTargetEffect(
             effects = listOf(
-                AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
+                AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
             )
         )
     }

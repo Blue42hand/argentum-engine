@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -49,7 +49,7 @@ val WedgelightRammer = card("Wedgelight Rammer") {
     station()
 
     // Station threshold: 9+ charge counters on this Spacecraft
-    val charge9 = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 9)
+    val charge9 = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 9)
 
     // Conditional type change: artifact creature at 9+ charge counters
     staticAbility {

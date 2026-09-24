@@ -33,7 +33,7 @@ import com.wingedsheep.engine.core.Outcome
  * "Whenever a creature card is put into your graveyard from anywhere, remove an omen counter from
  *  this artifact. Then if it has no omen counters on it, transform it."
  *
- * Covers the new [com.wingedsheep.sdk.core.Counters.OMEN] countdown counter, the per-card (not
+ * Covers the new [com.wingedsheep.sdk.core.CounterType.OMEN] countdown counter, the per-card (not
  * batching) graveyard trigger, and the transform once the last counter is gone — plus the two
  * ways the countdown must *not* run: a dying creature token isn't a card, and a second trigger
  * resolving after the board has already turned over must not turn it back (CR 701.28f).

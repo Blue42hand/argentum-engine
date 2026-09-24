@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eld.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
@@ -57,7 +57,7 @@ val WildbornPreserver = card("Wildborn Preserver") {
                 action = Effects.Composite(emptyList()),
                 optional = false,
                 reflexiveEffect = Effects.AddDynamicCounters(
-                    counterType = Counters.PLUS_ONE_PLUS_ONE,
+                    counterType = CounterType.PLUS_ONE_PLUS_ONE,
                     amount = DynamicAmount.XValue,
                     target = EffectTarget.Self,
                 ),

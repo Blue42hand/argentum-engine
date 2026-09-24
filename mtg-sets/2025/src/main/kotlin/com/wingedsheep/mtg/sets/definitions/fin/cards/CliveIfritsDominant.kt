@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -55,7 +56,7 @@ private val IfritWardenOfInferno = card("Ifrit, Warden of Inferno") {
     val brimstone = Effects.Composite(
         Effects.AddMana(Color.RED, 4),
         Effects.If(
-            condition = Conditions.SourceCounterCountAtLeast("LORE", 3),
+            condition = Conditions.SourceCounterCountAtLeast(CounterType.LORE, 3),
             then = Effects.ExileAndReturnTransformed(EffectTarget.Self, ReturnFace.FRONT),
         ),
     )

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -31,7 +31,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Ability 2 mirrors Terrasymbiosis ("you put one or more +1/+1 counters on a creature you control,
  * you may draw that many cards. Do this only once each turn.") but pays off with life and is not
  * restricted to creatures you control — the oracle reads "a creature" (any creature). It fires on a
- * `Triggers.countersPlacedOn` for `Counters.PLUS_ONE_PLUS_ONE` over any creature with
+ * `Triggers.countersPlacedOn` for `CounterType.PLUS_ONE_PLUS_ONE` over any creature with
  * `placedBy = Player.You` — the recipient filter is unrestricted, so the "you put" scope comes from
  * the placer selector (CR 122.6a), not from a "you control" recipient filter; a counter placed by
  * an opponent doesn't fire it. Gains `TRIGGER_COUNTERS_PLACED_AMOUNT` ("that much") life, wrapped in
@@ -61,7 +61,7 @@ val EarthKingdomGeneral = card("Earth Kingdom General") {
     triggeredAbility {
         trigger = Triggers.countersPlacedOn(
             filter = GameObjectFilter.Creature,
-            counterType = Counters.PLUS_ONE_PLUS_ONE,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             firstTimeEachTurn = false,
             binding = TriggerBinding.ANY,
             placedBy = Player.You,

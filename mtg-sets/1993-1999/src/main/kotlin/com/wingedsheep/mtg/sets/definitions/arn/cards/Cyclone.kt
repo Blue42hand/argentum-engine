@@ -1,14 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.arn.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -22,7 +21,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * damage equal to the number of wind counters on it to each creature and each player.
  *
  * Composition:
- *  - Each upkeep adds a wind counter (passive [Counters.WIND]), then the pay-or-sacrifice is an
+ *  - Each upkeep adds a wind counter (passive [CounterType.WIND]), then the pay-or-sacrifice is an
  *    `Effects.MayPay` (Gate.MayPay): pay {G} per wind counter (a colored dynamic mana cost via
  *    `Effects.PayDynamicMana(..., color = GREEN)`) → deal damage; decline → sacrifice.
  *  - Both the cost amount and the damage scale off `DynamicAmounts.countersOnSelf(WIND)`, evaluated
@@ -41,7 +40,7 @@ val Cyclone = card("Cyclone") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
 
-        val windCount = DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.WIND))
+        val windCount = DynamicAmounts.countersOnSelf(CounterType.WIND)
 
         val dealDamageToAll = Effects.Composite(
             Effects.ForEachInGroup(
@@ -52,7 +51,7 @@ val Cyclone = card("Cyclone") {
         )
 
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.WIND, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.WIND, 1, EffectTarget.Self),
             Effects.MayPay(
                 cost = Effects.PayDynamicMana(windCount, color = Color.GREEN),
                 then = dealDamageToAll,

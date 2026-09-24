@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -47,7 +47,7 @@ val AntiVenomHorrifyingHealer = card("Anti-Venom, Horrifying Healer") {
     // If damage would be dealt to Anti-Venom, prevent it and put that many +1/+1 counters on him.
     replacementEffect(
         ReplaceDamageWithCounters(
-            counterType = Counters.PLUS_ONE_PLUS_ONE,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             appliesTo = EventPattern.DamageEvent(recipient = RecipientFilter.Self)
         )
     )

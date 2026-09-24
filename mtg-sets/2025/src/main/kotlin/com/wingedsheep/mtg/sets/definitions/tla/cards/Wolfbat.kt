@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
@@ -28,7 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *  - "your second card each turn" is [Triggers.NthCardDrawn] (n = 2, Player.You).
  *  - "you may pay {B}. If you do, ..." is a [Effects.MayPay]; the payoff returns this card from
  *    the graveyard to the battlefield ([EffectTarget.Self]) and stamps a finality counter on it
- *    via [AddCountersEffect] / [Counters.FINALITY] (death replacement handled engine-side).
+ *    via [AddCountersEffect] / [CounterType.FINALITY] (death replacement handled engine-side).
  */
 val Wolfbat = card("Wolfbat") {
     manaCost = "{2}{B}"
@@ -50,7 +50,7 @@ val Wolfbat = card("Wolfbat") {
             cost = ManaCost.parse("{B}"),
             then = Effects.Composite(
                 Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
-                AddCountersEffect(counterType = Counters.FINALITY, count = 1, target = EffectTarget.Self),
+                AddCountersEffect(counterType = CounterType.FINALITY, count = 1, target = EffectTarget.Self),
             ),
         )
         description = "Whenever you draw your second card each turn, you may pay {B}. If you do, " +

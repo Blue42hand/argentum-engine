@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -38,7 +38,7 @@ val FallOfGilGalad = card("Fall of Gil-galad") {
 
     sagaChapter(2) {
         val creature = target("creature you control", Targets.CreatureYouControl)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, creature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature)
     }
 
     sagaChapter(3) {

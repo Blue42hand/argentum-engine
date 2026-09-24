@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -58,8 +58,8 @@ val SanctuaryWall = card("Sanctuary Wall") {
             Effects.Tap(creature),
             Effects.May(
                 Effects.Composite(
-                    Effects.AddCounters(Counters.STUN, 1, creature),
-                    Effects.AddCounters(Counters.STUN, 1, EffectTarget.Self)
+                    Effects.AddCounters(CounterType.STUN, 1, creature),
+                    Effects.AddCounters(CounterType.STUN, 1, EffectTarget.Self)
                 ),
                 descriptionOverride = "Put a stun counter on it? (Sanctuary Wall also gets one.)"
             )

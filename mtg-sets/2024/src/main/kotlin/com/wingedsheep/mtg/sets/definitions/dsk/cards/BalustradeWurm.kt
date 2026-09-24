@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
@@ -45,7 +45,7 @@ val BalustradeWurm = card("Balustrade Wurm") {
         restrictions = listOf(ActivationRestriction.OnlyIfCondition(Conditions.Delirium()))
         effect = Effects.Composite(
             Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
-            AddCountersEffect(counterType = Counters.FINALITY, count = 1, target = EffectTarget.Self)
+            AddCountersEffect(counterType = CounterType.FINALITY, count = 1, target = EffectTarget.Self)
         )
     }
 

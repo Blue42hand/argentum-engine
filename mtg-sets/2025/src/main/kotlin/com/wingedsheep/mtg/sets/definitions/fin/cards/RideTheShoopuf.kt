@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -37,7 +37,7 @@ val RideTheShoopuf = card("Ride the Shoopuf") {
     triggeredAbility {
         trigger = Triggers.LandYouControlEnters
         val t = target("target creature you control", TargetCreature(filter = TargetFilter.CreatureYouControl))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
         description = "Landfall — Whenever a land you control enters, put a +1/+1 counter on target creature you control."
     }
 

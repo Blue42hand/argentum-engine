@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -67,7 +67,7 @@ val AgathasSoulCauldron = card("Agatha's Soul Cauldron") {
         ability = HasAllActivatedAbilitiesOfCards(
             donors = DonorCards.LINKED_EXILE,
             cardFilter = Filters.Creature,
-            receivedBy = GroupFilter.AllCreaturesYouControl.withCounter(Counters.PLUS_ONE_PLUS_ONE)
+            receivedBy = GroupFilter.AllCreaturesYouControl.withCounter(CounterType.PLUS_ONE_PLUS_ONE)
         )
     }
 
@@ -86,7 +86,7 @@ val AgathasSoulCauldron = card("Agatha's Soul Cauldron") {
                 then = Effects.Composite(
                     Effects.SelectTarget(Targets.CreatureYouControl, storeAs = "cauldronCounterTarget"),
                     Effects.AddCounters(
-                        Counters.PLUS_ONE_PLUS_ONE,
+                        CounterType.PLUS_ONE_PLUS_ONE,
                         1,
                         EffectTarget.PipelineTarget("cauldronCounterTarget", 0)
                     )

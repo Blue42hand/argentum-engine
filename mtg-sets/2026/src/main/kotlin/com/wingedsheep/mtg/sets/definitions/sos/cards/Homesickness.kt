@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -46,7 +46,7 @@ val Homesickness = card("Homesickness") {
                     Effects.If(
                         condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature),
                         then = Effects.Tap(EffectTarget.ContextTarget(0))
-                            .then(AddCountersEffect(Counters.STUN, 1, EffectTarget.ContextTarget(0))),
+                            .then(AddCountersEffect(CounterType.STUN, 1, EffectTarget.ContextTarget(0))),
                     )
                 )
             )

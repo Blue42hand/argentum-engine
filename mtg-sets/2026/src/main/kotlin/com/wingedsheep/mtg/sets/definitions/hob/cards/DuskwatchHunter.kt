@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.hob.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -39,7 +40,7 @@ val DuskwatchHunter = card("Duskwatch Hunter") {
     triggeredAbility {
         val creature = target("target creature", TargetCreature())
         trigger = Triggers.EntersBattlefield
-        effect = Effects.AddCounters("+1/+1", 1, creature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }
 
     metadata {

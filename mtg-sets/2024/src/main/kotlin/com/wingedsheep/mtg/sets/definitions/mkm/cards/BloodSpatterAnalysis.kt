@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -49,7 +49,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  * second ruling below calls out by name.
  *
  * The bloodstain counter is a passive storage counter with no inherent rule
- * ([Counters.BLOODSTAIN]) — the card's own trigger both writes and reads it.
+ * ([CounterType.BLOODSTAIN]) — the card's own trigger both writes and reads it.
  */
 val BloodSpatterAnalysis = card("Blood Spatter Analysis") {
     manaCost = "{B}{R}"
@@ -75,10 +75,10 @@ val BloodSpatterAnalysis = card("Blood Spatter Analysis") {
     triggeredAbility {
         trigger = Triggers.OneOrMoreCreaturesDie()
         effect = Patterns.Library.mill(1)
-            .then(Effects.AddCounters(Counters.BLOODSTAIN, 1, EffectTarget.Self))
+            .then(Effects.AddCounters(CounterType.BLOODSTAIN, 1, EffectTarget.Self))
             .then(
                 Effects.If(
-                    condition = Conditions.SourceCounterCountAtLeast(Counters.BLOODSTAIN, 5),
+                    condition = Conditions.SourceCounterCountAtLeast(CounterType.BLOODSTAIN, 5),
                     then = ReflexiveTriggerEffect(
                         action = Effects.SacrificeTarget(EffectTarget.Self),
                         optional = false,

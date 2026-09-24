@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 
 /**
  * Warrior's Blades — Reality Fracture #163
@@ -44,7 +44,7 @@ val WarriorsBlades = card("Warrior's Blades") {
 
     equipAbility(
         "{3}",
-        genericCostReduction = DynamicAmounts.countersOnTarget(CounterTypeFilter.PlusOnePlusOne)
+        genericCostReduction = DynamicAmounts.countersOnTarget(CounterType.PLUS_ONE_PLUS_ONE)
     )
 
     metadata {

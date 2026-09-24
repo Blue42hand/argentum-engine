@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -80,7 +80,7 @@ val SymbioteSpiderMan = card("Symbiote Spider-Man") {
         cost = Costs.Composite(Costs.Mana("{2}{U/B}"), Costs.ExileSelf)
         val creature = target("target", TargetCreature(filter = TargetFilter.CreatureYouControl))
         effect = Effects.Composite(
-            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = creature),
+            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = creature),
             GrantTriggeredAbilityEffect(
                 ability = symbioteCombatDamageTrigger(),
                 target = creature,

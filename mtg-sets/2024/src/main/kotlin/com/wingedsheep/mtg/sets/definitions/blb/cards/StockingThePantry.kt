@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -34,17 +34,17 @@ val StockingThePantry = card("Stocking the Pantry") {
         // too. Found by the differential gate.
         trigger = Triggers.countersPlacedOn(
             filter = GameObjectFilter.Creature.youControl(),
-            counterType = Counters.PLUS_ONE_PLUS_ONE,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             firstTimeEachTurn = false,
             placedBy = Player.You,
         )
-        effect = Effects.AddCounters(Counters.SUPPLY, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.SUPPLY, 1, EffectTarget.Self)
     }
 
     activatedAbility {
         cost = Costs.Composite(
             Costs.Mana("{2}"),
-            Costs.RemoveCounterFromSelf(Counters.SUPPLY)
+            Costs.RemoveCounterFromSelf(CounterType.SUPPLY)
         )
         effect = Effects.DrawCards(1)
     }

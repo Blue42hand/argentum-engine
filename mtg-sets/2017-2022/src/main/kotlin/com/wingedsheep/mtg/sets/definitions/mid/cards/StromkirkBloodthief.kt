@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mid.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -41,7 +41,7 @@ val StromkirkBloodthief = card("Stromkirk Bloodthief") {
             // reading the Assay differential settled across the corpus.
             TargetObject(filter = TargetFilter(GameObjectFilter.Permanent.withSubtype(Subtype.VAMPIRE).youControl()))
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, vampire)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, vampire)
     }
 
     metadata {

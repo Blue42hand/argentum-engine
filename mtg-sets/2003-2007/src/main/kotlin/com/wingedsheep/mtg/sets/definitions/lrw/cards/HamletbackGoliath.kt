@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -40,7 +40,7 @@ val HamletbackGoliath = card("Hamletback Goliath") {
         )
         optional = true
         effect = Effects.AddDynamicCounters(
-            Counters.PLUS_ONE_PLUS_ONE,
+            CounterType.PLUS_ONE_PLUS_ONE,
             DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.Power),
             EffectTarget.Self
         )

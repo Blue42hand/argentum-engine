@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.iko.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -12,7 +12,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
  * Instant
  * Target creature gets +1/+0 until end of turn. Put a first strike counter on it.
  *
- * The pump expires, the counter doesn't: [Counters.FIRST_STRIKE] is a keyword counter, so the
+ * The pump expires, the counter doesn't: [CounterType.FIRST_STRIKE] is a keyword counter, so the
  * creature keeps first strike for as long as the counter sits on it. Both halves read the same
  * named target so "it" is the creature that was targeted.
  */
@@ -26,7 +26,7 @@ val HeightenedReflexes = card("Heightened Reflexes") {
         val creature = target("target", TargetCreature())
         effect = Effects.Composite(
             Effects.ModifyStats(1, 0, creature),
-            Effects.AddCounters(Counters.FIRST_STRIKE, 1, creature)
+            Effects.AddCounters(CounterType.FIRST_STRIKE, 1, creature)
         )
     }
 

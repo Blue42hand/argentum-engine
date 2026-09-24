@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ori.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -33,7 +33,7 @@ val ManagorgerHydra = card("Managorger Hydra") {
 
     triggeredAbility {
         trigger = Triggers.AnyPlayerCastsSpell
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever a player casts a spell, put a +1/+1 counter on this creature."
     }
 

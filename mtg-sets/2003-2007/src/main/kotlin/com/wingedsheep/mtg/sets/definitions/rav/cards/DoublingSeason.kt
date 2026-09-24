@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.DoubleCounterPlacement
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.MultiplyTokenCreation
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
 
 /**
@@ -36,7 +35,7 @@ val DoublingSeason = card("Doubling Season") {
         DoubleCounterPlacement(
             placedByYou = false,
             appliesTo = EventPattern.CounterPlacementEvent(
-                counterType = CounterTypeFilter.Any,
+                counterType = null,
                 recipient = RecipientFilter.PermanentYouControl,
             ),
         )

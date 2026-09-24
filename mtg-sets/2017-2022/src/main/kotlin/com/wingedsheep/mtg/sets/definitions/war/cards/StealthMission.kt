@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.war.cards
 
 import com.wingedsheep.sdk.core.AbilityFlag
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -28,7 +28,7 @@ val StealthMission = card("Stealth Mission") {
     spell {
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, creature),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature),
             Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature)
         )
     }

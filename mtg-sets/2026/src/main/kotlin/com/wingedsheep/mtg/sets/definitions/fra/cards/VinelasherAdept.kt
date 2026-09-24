@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -22,7 +22,7 @@ val VinelasherAdept = card("Vinelasher Adept") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val creature = target("creature", Targets.Creature)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 3, creature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, creature)
     }
 
     metadata {

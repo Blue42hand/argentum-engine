@@ -4,7 +4,7 @@
 
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
@@ -36,7 +36,7 @@ val OozePatrol = card("Ooze Patrol") {
         effect = Effects.Composite(
             Patterns.Library.mill(2),
             Effects.AddDynamicCounters(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = DynamicAmount.Count(Player.You, Zone.GRAVEYARD, GameObjectFilter.CreatureOrArtifact),
                 target = EffectTarget.Self
             )

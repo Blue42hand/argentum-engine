@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -46,7 +46,7 @@ val KavaronMemorialWorld = card("Kavaron, Memorial World") {
     // Station activated ability: tap another creature → add charge counters equal to its power
     station()
 
-    val charge12 = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 12)
+    val charge12 = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 12)
 
     activatedAbility {
         cost = Costs.Composite(

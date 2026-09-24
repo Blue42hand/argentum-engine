@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mid.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -50,7 +50,7 @@ val DuelForDominance = card("Duel for Dominance") {
                 operator = ComparisonOperator.GTE,
                 right = DynamicAmount.Fixed(3),
             ),
-            then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, mine),
+            then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, mine),
         ).then(Effects.Fight(mine, theirs))
     }
 

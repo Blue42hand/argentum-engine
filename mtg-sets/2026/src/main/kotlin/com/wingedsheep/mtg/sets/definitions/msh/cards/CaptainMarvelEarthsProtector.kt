@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -24,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * two-mana indestructible 6/5. Waiting until you untap does not work: that is a new turn, she did
  * not enter during it, and the ability costs the printed `{5}{W}{W}`.
  *
- * The indestructible counter is [Counters.INDESTRUCTIBLE], a keyword counter (CR 122.1d) rather
+ * The indestructible counter is [CounterType.INDESTRUCTIBLE], a keyword counter (CR 122.1d) rather
  * than a granted static ability: it rides on the permanent, so it survives losing abilities and
  * is copied by anything that copies counters.
  */
@@ -46,8 +46,8 @@ val CaptainMarvelEarthsProtector = card("Captain Marvel, Earth's Protector") {
         isPowerUp = true
         cost = Costs.Mana("{5}{W}{W}")
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            Effects.AddCounters(Counters.INDESTRUCTIBLE, 1, EffectTarget.Self)
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.INDESTRUCTIBLE, 1, EffectTarget.Self)
         )
     }
 

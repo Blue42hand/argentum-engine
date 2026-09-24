@@ -6,7 +6,6 @@ import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.engine.view.ClientStateTransformer
 import com.wingedsheep.mtg.sets.definitions.dsk.cards.PossessedGoat
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
@@ -42,7 +41,7 @@ class PossessedGoatScenarioTest : FunSpec({
             val target = target("target creature", Targets.Creature)
             effect = CompositeEffect(
                 listOf(
-                    Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 3, target),
+                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, target),
                     Effects.AddColor(Color.BLACK, target, Duration.Permanent),
                     Effects.AddCreatureType("Demon", target, Duration.Permanent),
                 )

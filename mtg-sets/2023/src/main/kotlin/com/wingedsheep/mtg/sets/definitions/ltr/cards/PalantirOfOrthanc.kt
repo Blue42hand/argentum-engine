@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -38,11 +37,11 @@ val PalantirOfOrthanc = card("Palantír of Orthanc") {
         trigger = Triggers.YourEndStep
         val opponent = target("target opponent", Targets.Opponent)
 
-        val influenceCount = DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.INFLUENCE))
+        val influenceCount = DynamicAmounts.countersOnSelf(CounterType.INFLUENCE)
 
         effect = Effects.Composite(
             listOf(
-                Effects.AddCounters(Counters.INFLUENCE, 1, EffectTarget.Self),
+                Effects.AddCounters(CounterType.INFLUENCE, 1, EffectTarget.Self),
                 Patterns.Library.scry(2),
                 Effects.May(
                     effect = Effects.DrawCards(1, EffectTarget.Controller),

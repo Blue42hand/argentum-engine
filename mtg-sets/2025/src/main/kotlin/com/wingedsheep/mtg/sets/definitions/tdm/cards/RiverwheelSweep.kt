@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -45,7 +45,7 @@ val RiverwheelSweep = card("Riverwheel Sweep") {
     spell {
         val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Tap(creature)
-            .then(Effects.AddCounters(Counters.STUN, 3, creature))
+            .then(Effects.AddCounters(CounterType.STUN, 3, creature))
             .then(
                 Effects.Composite(
                     listOf(

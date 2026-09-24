@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
@@ -47,7 +47,7 @@ val HopefulInitiate = card("Hopeful Initiate") {
     activatedAbility {
         cost = Costs.Composite(
             Costs.Mana("{2}{W}"),
-            Costs.RemoveCounters(2, Counters.PLUS_ONE_PLUS_ONE, Filters.Creature),
+            Costs.RemoveCounters(2, CounterType.PLUS_ONE_PLUS_ONE, Filters.Creature),
         )
         val victim = target("target artifact or enchantment", Targets.ArtifactOrEnchantment)
         effect = Effects.Destroy(victim)

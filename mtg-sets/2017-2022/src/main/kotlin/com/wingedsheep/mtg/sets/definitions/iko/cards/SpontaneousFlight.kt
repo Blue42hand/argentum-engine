@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.iko.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -26,7 +26,7 @@ val SpontaneousFlight = card("Spontaneous Flight") {
         val t = target("target", Targets.Creature)
         effect = Effects.Composite(
             Effects.ModifyStats(2, 2, t),
-            Effects.AddCounters(Counters.FLYING, 1, t)
+            Effects.AddCounters(CounterType.FLYING, 1, t)
         )
     }
 

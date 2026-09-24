@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -41,7 +41,7 @@ val PinnacleKillShip = card("Pinnacle Kill-Ship") {
     station()
 
     // 7+ charge counters: becomes artifact creature and gains flying
-    val charge7 = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 7)
+    val charge7 = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 7)
 
     staticAbility {
         condition = charge7

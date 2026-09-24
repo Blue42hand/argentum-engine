@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -45,7 +46,7 @@ val Kitnap = card("Kitnap") {
             .then(
                 Effects.If(
                     condition = Conditions.Not(Conditions.GiftWasPromised),
-                    then = Effects.AddCounters("STUN", 3, EffectTarget.EnchantedCreature)
+                    then = Effects.AddCounters(CounterType.STUN, 3, EffectTarget.EnchantedCreature)
                 )
             )
     }

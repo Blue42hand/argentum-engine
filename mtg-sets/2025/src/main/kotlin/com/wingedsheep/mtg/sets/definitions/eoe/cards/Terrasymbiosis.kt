@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -17,7 +17,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Whenever you put one or more +1/+1 counters on a creature you control, you may draw
  * that many cards. Do this only once each turn.
  *
- * Implementation: a `CountersPlacedEvent` for `Counters.PLUS_ONE_PLUS_ONE` filtered to
+ * Implementation: a `CountersPlacedEvent` for `CounterType.PLUS_ONE_PLUS_ONE` filtered to
  * creatures you control and scoped to `placedBy = Player.You` (the printed "**you** put"),
  * which exposes the placed count via `TRIGGER_COUNTERS_PLACED_AMOUNT`. The "may"
  * is a `Effects.May` wrapping the draw — a bare `optional = true` flag on a no-target
@@ -43,7 +43,7 @@ val Terrasymbiosis = card("Terrasymbiosis") {
         // too. Same fix as Stocking the Pantry, which the differential caught.
         trigger = Triggers.countersPlacedOn(
             filter = GameObjectFilter.Creature.youControl(),
-            counterType = Counters.PLUS_ONE_PLUS_ONE,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             firstTimeEachTurn = false,
             placedBy = Player.You,
         )

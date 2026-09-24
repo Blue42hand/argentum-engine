@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -41,7 +41,7 @@ val BubbleSmuggler = card("Bubble Smuggler") {
     toughness = 1
 
     disguise = "{5}{U}"
-    disguiseFaceUpEffect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 4, EffectTarget.Self)
+    disguiseFaceUpEffect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 4, EffectTarget.Self)
 
     metadata {
         rarity = Rarity.COMMON

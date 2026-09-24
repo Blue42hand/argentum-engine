@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.decayed
@@ -27,7 +27,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * sorcery-speed ability ([com.wingedsheep.sdk.dsl.CardBuilder.renew]) whose {X} clamps the
  * number of targets ([TargetCreature.dynamicMaxCount] = [DynamicAmount.XValue], the
  * Builder's Bane / Icy Blast pattern). [ForEachTargetEffect] puts one decayed counter
- * ([Counters.DECAYED]) on each chosen creature — the counter grants Decayed to *any* creature
+ * ([CounterType.DECAYED]) on each chosen creature — the counter grants Decayed to *any* creature
  * (CR 702.147a), realized by the engine off the counter.
  */
 val RotCurseRakshasa = card("Rot-Curse Rakshasa") {
@@ -48,7 +48,7 @@ val RotCurseRakshasa = card("Rot-Curse Rakshasa") {
         target("creatures", TargetCreature(dynamicMaxCount = DynamicAmount.XValue))
         effect = ForEachTargetEffect(
             listOf(
-                AddCountersEffect(Counters.DECAYED, 1, EffectTarget.ContextTarget(0))
+                AddCountersEffect(CounterType.DECAYED, 1, EffectTarget.ContextTarget(0))
             )
         )
         description = "Put a decayed counter on each of X target creatures."

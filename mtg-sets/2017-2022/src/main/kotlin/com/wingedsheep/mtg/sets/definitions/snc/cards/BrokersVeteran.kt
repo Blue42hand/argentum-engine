@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.snc.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -29,7 +29,7 @@ val BrokersVeteran = card("Brokers Veteran") {
     triggeredAbility {
         trigger = Triggers.Dies
         val t = target("target", Targets.CreatureYouControl)
-        effect = Effects.AddCounters(Counters.SHIELD, 1, t)
+        effect = Effects.AddCounters(CounterType.SHIELD, 1, t)
     }
 
     metadata {

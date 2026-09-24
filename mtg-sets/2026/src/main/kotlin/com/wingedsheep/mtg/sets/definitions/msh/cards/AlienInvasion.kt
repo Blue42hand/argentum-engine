@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.MustAttack
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -30,7 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    collection (the Zanarkand / Emil idiom), so "put a +1/+1 counter on **it**" lands on this
  *    combat's Alien and nothing else.
  *  - Order matters and is exactly the printed order: the +1/+1 counters are sized by
- *    [DynamicAmounts.countersOnSelf]`(`[Counters.INVASION]`)` read *before* the increment, so the
+ *    [DynamicAmounts.countersOnSelf]`(`[CounterType.INVASION]`)` read *before* the increment, so the
  *    first Alien is a 1/1, the second a 2/2, and so on.
  */
 val AlienInvasion = card("Alien Invasion") {
@@ -55,10 +54,10 @@ val AlienInvasion = card("Alien Invasion") {
             ),
             Effects.AddCountersToCollection(
                 CREATED_TOKENS,
-                Counters.PLUS_ONE_PLUS_ONE,
-                DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.INVASION)),
+                CounterType.PLUS_ONE_PLUS_ONE,
+                DynamicAmounts.countersOnSelf(CounterType.INVASION),
             ),
-            Effects.AddCounters(Counters.INVASION, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.INVASION, 1, EffectTarget.Self),
         )
         description = "At the beginning of combat on your turn, create a 1/1 red Alien creature " +
             "token with haste and \"This token attacks each combat if able.\" Put a +1/+1 counter " +

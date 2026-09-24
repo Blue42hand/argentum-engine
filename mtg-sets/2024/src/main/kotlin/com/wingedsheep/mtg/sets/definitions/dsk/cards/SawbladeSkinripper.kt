@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
@@ -41,7 +41,7 @@ val SawbladeSkinripper = card("Sawblade Skinripper") {
             Costs.Mana("{2}"),
             Costs.SacrificeAnother(GameObjectFilter.CreatureOrEnchantment),
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
     // Intervening-if on the per-player "permanents sacrificed this turn" counter. "That much"

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.stx.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
@@ -54,7 +54,7 @@ val FirstDayOfClass = card("First Day of Class") {
             fireOnce = false,
             expiry = DelayedTriggerExpiry.EndOfTurn,
             effect = Effects.AddCounters(
-                Counters.PLUS_ONE_PLUS_ONE,
+                CounterType.PLUS_ONE_PLUS_ONE,
                 1,
                 EffectTarget.TriggeringEntity
             ) then Effects.GrantKeyword(Keyword.HASTE, EffectTarget.TriggeringEntity)

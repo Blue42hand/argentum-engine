@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -35,7 +35,7 @@ val AnafenzaTheForemost = card("Anafenza, the Foremost") {
             "another target tapped creature you control",
             TargetCreature(filter = TargetFilter.TappedCreature.youControl().other())
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, tappedCreature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, tappedCreature)
     }
 
     // Exile nontoken creature cards owned by opponents that would go to graveyard

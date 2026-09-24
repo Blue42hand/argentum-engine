@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -70,7 +70,7 @@ val ProftsEideticMemory = card("Proft's Eidetic Memory") {
         interveningIf = Conditions.YouDrewCardsThisTurn(2)
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.AddDynamicCounters(
-            Counters.PLUS_ONE_PLUS_ONE,
+            CounterType.PLUS_ONE_PLUS_ONE,
             DynamicAmount.Subtract(
                 DynamicAmount.TurnTracking(Player.You, TurnTracker.CARDS_DRAWN),
                 DynamicAmount.Fixed(1),

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -84,7 +84,7 @@ private val VincentValentineFront = card("Vincent Valentine") {
             binding = TriggerBinding.ANY
         )
         effect = Effects.AddDynamicCounters(
-            Counters.PLUS_ONE_PLUS_ONE,
+            CounterType.PLUS_ONE_PLUS_ONE,
             DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.Power),
             EffectTarget.Self
         )

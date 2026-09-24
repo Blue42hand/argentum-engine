@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -23,9 +23,9 @@ val IncrementalGrowth = card("Incremental Growth") {
         val first = target("first creature", TargetCreature())
         val second = target("second creature", TargetCreature())
         val third = target("third creature", TargetCreature())
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, first)
-            .then(Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, second))
-            .then(Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 3, third))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, first)
+            .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, second))
+            .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, third))
     }
 
     metadata {

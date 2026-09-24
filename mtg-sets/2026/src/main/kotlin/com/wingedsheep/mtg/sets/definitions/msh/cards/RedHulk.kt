@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOther
@@ -31,7 +30,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetOther
  *    the reflexive ability's damage is counted *after* the new counter is on, so a first hit on an
  *    otherwise-uncountered Red Hulk deals 1.
  *  - The damage amount is [DynamicAmounts.countersOnSelf] over
- *    [CounterTypeFilter.PlusOnePlusOne] read at resolution (CR 608.2), not a snapshot, so counters
+ *    [CounterType.PLUS_ONE_PLUS_ONE] read at resolution (CR 608.2), not a snapshot, so counters
  *    added in response are included.
  *  - "any other target" is [TargetOther] wrapping [AnyTarget] — the Screaming Nemesis idiom; Red
  *    Hulk can't ping himself into an infinite Enrage loop.
@@ -52,12 +51,12 @@ val RedHulk = card("Red Hulk") {
         trigger = Triggers.TakesDamage
         effect = ReflexiveTriggerEffect(
             // "put a +1/+1 counter on him"
-            action = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            action = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             optional = false,
             // "When you do, he deals damage equal to the number of +1/+1 counters on him to any
             //  other target."
             reflexiveEffect = Effects.DealDamage(
-                amount = DynamicAmounts.countersOnSelf(CounterTypeFilter.PlusOnePlusOne),
+                amount = DynamicAmounts.countersOnSelf(CounterType.PLUS_ONE_PLUS_ONE),
                 target = EffectTarget.ContextTarget(0),
                 damageSource = EffectTarget.Self,
             ),

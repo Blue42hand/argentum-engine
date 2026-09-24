@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -42,7 +42,7 @@ val SyrVondamSunstarExemplar = card("Syr Vondam, Sunstar Exemplar") {
     // Shared effect for ability 1: +1/+1 counter on self + gain 1 life
     val counterAndLife = Effects.Composite(
         listOf(
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             Effects.GainLife(1)
         )
     )

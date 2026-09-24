@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Whenever one or more counters are put on a creature you control, if it's the first time
  * counters have been put on that creature this turn, put a +1/+1 counter on that creature.
  *
- * Uses [Triggers.countersPlacedOn] — fires on counters of any type ([Counters.ANY]) put on a
+ * Uses [Triggers.countersPlacedOn] — fires on counters of any type (a null `counterType`) put on a
  * creature you control, gated by the engine's per-creature "first counters this turn" flag.
  * The reward goes on the triggering creature via [EffectTarget.TriggeringEntity]. The +1/+1
  * counter Stalwart itself adds is *not* the first counter of the turn for that creature (the
@@ -38,7 +38,7 @@ val StalwartSuccessor = card("Stalwart Successor") {
 
     triggeredAbility {
         trigger = Triggers.countersPlacedOn()
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.TriggeringEntity)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.TriggeringEntity)
         description = "Whenever one or more counters are put on a creature you control, if it's " +
             "the first time counters have been put on that creature this turn, put a +1/+1 " +
             "counter on that creature."

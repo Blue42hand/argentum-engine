@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -56,7 +56,7 @@ val SlimeAgainstHumanity = card("Slime Against Humanity") {
             imageUri = "https://cards.scryfall.io/normal/front/5/4/54b37032-9660-4dfb-9629-c4e8eddc43b0.jpg?1783912608",
         ).then(
             Effects.AddDynamicCounters(
-                Counters.PLUS_ONE_PLUS_ONE,
+                CounterType.PLUS_ONE_PLUS_ONE,
                 counterCount,
                 EffectTarget.PipelineTarget(CREATED_TOKENS, 0),
             ),

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.j22.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
@@ -44,7 +44,7 @@ val IngeniousLeonin = card("Ingenious Leonin") {
         )
         effect = Effects.Composite(
             listOf(
-                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, t),
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t),
                 Effects.If(
                     condition = Conditions.TargetMatchesFilter(
                         GameObjectFilter.Creature.withSubtype("Cat"),

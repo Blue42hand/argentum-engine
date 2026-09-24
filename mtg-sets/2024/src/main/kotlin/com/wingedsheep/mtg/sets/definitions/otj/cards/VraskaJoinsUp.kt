@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -40,7 +40,7 @@ val VraskaJoinsUp = card("Vraska Joins Up") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
-            effect = AddCountersEffect(Counters.DEATHTOUCH, 1, EffectTarget.Self)
+            effect = AddCountersEffect(CounterType.DEATHTOUCH, 1, EffectTarget.Self)
         )
     }
 

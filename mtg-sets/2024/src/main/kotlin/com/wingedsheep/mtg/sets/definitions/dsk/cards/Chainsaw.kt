@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -49,11 +48,11 @@ val Chainsaw = card("Chainsaw") {
 
     triggeredAbility {
         trigger = Triggers.OneOrMoreCreaturesDie()
-        effect = Effects.AddCounters(Counters.REV, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.REV, 1, EffectTarget.Self)
     }
 
     staticAbility {
-        val revCount = DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.REV))
+        val revCount = DynamicAmounts.countersOnSelf(CounterType.REV)
         ability = GrantDynamicStatsEffect(
             filter = Filters.EquippedCreature,
             powerBonus = revCount,

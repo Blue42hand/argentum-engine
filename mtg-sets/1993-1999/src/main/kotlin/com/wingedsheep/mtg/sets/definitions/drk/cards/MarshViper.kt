@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.drk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -32,7 +32,7 @@ val MarshViper = card("Marsh Viper") {
     triggeredAbility {
         trigger = Triggers.dealsDamage(recipient = RecipientFilter.AnyPlayer)
         effect = Effects.AddCounters(
-            counterType = Counters.POISON,
+            counterType = CounterType.POISON,
             count = 2,
             target = EffectTarget.PlayerRef(Player.TriggeringPlayer),
         )

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.bfz.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -28,7 +28,7 @@ val SereneSteward = card("Serene Steward") {
         val creature = target("target creature", Targets.Creature)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{W}"),
-            then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature),
+            then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
         )
     }
 

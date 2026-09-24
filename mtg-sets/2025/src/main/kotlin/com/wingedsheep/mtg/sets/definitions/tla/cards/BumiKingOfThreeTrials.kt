@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -69,7 +69,7 @@ val BumiKingOfThreeTrials = card("Bumi, King of Three Trials") {
             ),
             // Mode 1 — three +1/+1 counters on Bumi.
             Mode.noTarget(
-                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 3, EffectTarget.Self),
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, EffectTarget.Self),
                 description = "Put three +1/+1 counters on Bumi."
             ),
             // Mode 2 — target player scries 3.

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantWard
 import com.wingedsheep.sdk.scripting.effects.WardCost
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
@@ -44,7 +43,7 @@ val InnkeepersTalent = card("Innkeeper's Talent") {
     triggeredAbility {
         trigger = Triggers.BeginCombat
         val creature = target("creature you control", Targets.CreatureYouControl)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }
 
     // Level 2: Permanents you control with counters on them have ward {1}
@@ -63,7 +62,7 @@ val InnkeepersTalent = card("Innkeeper's Talent") {
             DoubleCounterPlacement(
                 placedByYou = true,
                 appliesTo = EventPattern.CounterPlacementEvent(
-                    counterType = CounterTypeFilter.Any,
+                    counterType = null,
                     recipient = RecipientFilter.Any
                 )
             )

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.card
@@ -46,7 +46,7 @@ val CrashingWave = card("Crashing Wave") {
             Effects.TapEachTarget(),
             Effects.DistributeCountersAmongFiltered(
                 totalCounters = 3,
-                counterType = Counters.STUN,
+                counterType = CounterType.STUN,
                 filter = Filters.Creature.tapped().opponentControls(),
                 minPerTarget = 0,
             ),

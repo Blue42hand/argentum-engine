@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -67,7 +67,7 @@ val MagmaPummeler = card("Magma Pummeler") {
 
     triggeredAbility {
         trigger = Triggers.countersRemovedFrom(
-            counterType = Counters.PLUS_ONE_PLUS_ONE,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             byDamagePrevention = true,
             binding = TriggerBinding.SELF
         )

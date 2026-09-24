@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
@@ -49,7 +49,7 @@ val SnaremasterSprite = card("Snaremaster Sprite") {
         )
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}"),
-            then = Effects.Tap(t) then Effects.AddCounters(Counters.STUN, 1, t)
+            then = Effects.Tap(t) then Effects.AddCounters(CounterType.STUN, 1, t)
         )
     }
 

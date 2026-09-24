@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -40,7 +40,7 @@ val SuccumbToTheCold = card("Succumb to the Cold") {
             listOf(
                 Effects.Tap(EffectTarget.ContextTarget(0)),
                 AddCountersEffect(
-                    counterType = Counters.STUN,
+                    counterType = CounterType.STUN,
                     count = 1,
                     target = EffectTarget.ContextTarget(0)
                 )

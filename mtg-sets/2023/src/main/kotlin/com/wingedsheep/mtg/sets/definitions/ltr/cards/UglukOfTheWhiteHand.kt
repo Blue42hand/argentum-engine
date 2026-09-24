@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -40,7 +40,7 @@ val UglukOfTheWhiteHand = card("Uglúk of the White Hand") {
             to = Zone.GRAVEYARD,
             binding = TriggerBinding.OTHER
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever another creature you control dies, put a +1/+1 counter on Uglúk."
     }
 
@@ -51,7 +51,7 @@ val UglukOfTheWhiteHand = card("Uglúk of the White Hand") {
             to = Zone.GRAVEYARD,
             binding = TriggerBinding.OTHER
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         description = "If that creature was a Goblin or Orc, put two +1/+1 counters on Uglúk instead."
     }
 

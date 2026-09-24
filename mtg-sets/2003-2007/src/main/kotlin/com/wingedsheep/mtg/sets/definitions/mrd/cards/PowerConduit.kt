@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -43,12 +43,12 @@ val PowerConduit = card("Power Conduit") {
         )
         effect = ModalEffect.chooseOne(
             Mode.withTarget(
-                Effects.AddCounters(Counters.CHARGE, 1, EffectTarget.ContextTarget(0)),
+                Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.ContextTarget(0)),
                 Targets.Artifact,
                 "Put a charge counter on target artifact"
             ),
             Mode.withTarget(
-                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)),
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)),
                 Targets.Creature,
                 "Put a +1/+1 counter on target creature"
             )

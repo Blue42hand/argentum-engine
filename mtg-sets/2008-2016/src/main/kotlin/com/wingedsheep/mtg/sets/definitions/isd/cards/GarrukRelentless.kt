@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.isd.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -80,7 +80,7 @@ private val GarrukRelentlessFront = card("Garruk Relentless") {
         "0: Create a 2/2 green Wolf creature token."
 
     stateTriggeredAbility {
-        condition = Conditions.SourceCounterCountAtMost(Counters.LOYALTY, 2)
+        condition = Conditions.SourceCounterCountAtMost(CounterType.LOYALTY, 2)
         effect = TransformEffect(EffectTarget.Self)
         description = "When Garruk has two or fewer loyalty counters on him, transform him."
     }

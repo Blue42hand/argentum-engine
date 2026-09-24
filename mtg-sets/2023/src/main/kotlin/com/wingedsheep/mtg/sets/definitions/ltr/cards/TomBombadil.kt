@@ -17,7 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -56,7 +56,7 @@ val TomBombadil = card("Tom Bombadil") {
     // Four or more lore counters among Sagas you control (CR 714 lore counters).
     val fourLoreAmongYourSagas = Conditions.CounterKindAmongYouControlAtLeast(
         count = 4,
-        counterType = CounterTypeFilter.Named("lore"),
+        counterType = CounterType.LORE,
         filter = GameObjectFilter.Enchantment.withSubtype("Saga").youControl()
     )
 

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.hob.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
@@ -24,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Dwalin is the card that forces hone counters to be a property of the *counter* rather than an
  * ability printed on the Equipment: he hands a counter to **every** Equipment you control, most of
  * which have never heard of hone, and CR 122.1j still gives each of their equipped creatures +1/+0.
- * See [Counters.HONE] — the bonus is synthesized in `StateProjector`, so nothing is needed here
+ * See [CounterType.HONE] — the bonus is synthesized in `StateProjector`, so nothing is needed here
  * beyond placing the counters.
  *
  * "Enters or attacks" is one printed ability but two engine triggers; the project models that split
@@ -46,7 +46,7 @@ val DwalinWeaponmaster = card("Dwalin, Weaponmaster") {
 
     val honeEachEquipment = Effects.ForEachInGroup(
         GroupFilter(GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()),
-        AddCountersEffect(Counters.HONE, 1, EffectTarget.Self),
+        AddCountersEffect(CounterType.HONE, 1, EffectTarget.Self),
     )
 
     triggeredAbility {

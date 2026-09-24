@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mbs.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -30,7 +30,7 @@ val BlackSunsZenith = card("Black Sun's Zenith") {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreatures,
             effect = Effects.AddDynamicCounters(
-                counterType = Counters.MINUS_ONE_MINUS_ONE,
+                counterType = CounterType.MINUS_ONE_MINUS_ONE,
                 amount = DynamicAmount.XValue,
                 target = EffectTarget.Self,
             ),

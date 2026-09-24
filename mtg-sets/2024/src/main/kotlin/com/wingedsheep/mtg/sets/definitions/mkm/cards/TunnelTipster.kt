@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -48,7 +48,7 @@ val TunnelTipster = card("Tunnel Tipster") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.PermanentEnteredFaceDownThisTurn
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "At the beginning of your end step, if a face-down creature entered the " +
             "battlefield under your control this turn, put a +1/+1 counter on this creature."
     }

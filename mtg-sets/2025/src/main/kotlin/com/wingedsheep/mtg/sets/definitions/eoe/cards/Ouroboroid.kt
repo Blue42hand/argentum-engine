@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -34,7 +35,7 @@ val Ouroboroid = card("Ouroboroid") {
             Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreaturesYouControl,
                 effect = Effects.AddDynamicCounters(
-                    counterType = "+1/+1",
+                    counterType = CounterType.PLUS_ONE_PLUS_ONE,
                     amount = DynamicAmount.VariableReference("ouroboroid_power"),
                     target = EffectTarget.Self
                 )

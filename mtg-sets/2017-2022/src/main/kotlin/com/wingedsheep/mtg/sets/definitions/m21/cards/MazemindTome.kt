@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.m21.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
@@ -39,17 +39,17 @@ val MazemindTome = card("Mazemind Tome") {
         "When there are four or more page counters on this artifact, exile it. If you do, you gain 4 life."
 
     activatedAbility {
-        cost = Costs.Composite(Costs.Tap, Costs.PutCounterOnSelf(Counters.PAGE))
+        cost = Costs.Composite(Costs.Tap, Costs.PutCounterOnSelf(CounterType.PAGE))
         effect = Patterns.Library.scry(1)
     }
 
     activatedAbility {
-        cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap, Costs.PutCounterOnSelf(Counters.PAGE))
+        cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap, Costs.PutCounterOnSelf(CounterType.PAGE))
         effect = Effects.DrawCards(1)
     }
 
     stateTriggeredAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.PAGE, 4)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.PAGE, 4)
         effect = Effects.IfYouDo(
             action = Effects.Move(
                 target = EffectTarget.Self,

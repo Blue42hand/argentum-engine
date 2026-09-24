@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -46,7 +46,7 @@ val AntiquitiesOnTheLoose = card("Antiquities on the Loose") {
             condition = Conditions.Not(Conditions.WasCastFromHand),
             then = Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.youControl().withSubtype("Spirit")),
-                effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             )
         )
     }

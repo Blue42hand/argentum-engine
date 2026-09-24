@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tmp.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -30,10 +30,10 @@ val SpikeDrone = card("Spike Drone") {
     activatedAbility {
         cost = Costs.Composite(
             Costs.Mana("{2}"),
-            Costs.RemoveCounterFromSelf(Counters.PLUS_ONE_PLUS_ONE, 1)
+            Costs.RemoveCounterFromSelf(CounterType.PLUS_ONE_PLUS_ONE, 1)
         )
         val t = target("target", Targets.Creature)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, t)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
     }
 
     metadata {

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -52,7 +52,7 @@ val TheMillenniumCalendar = card("The Millennium Calendar") {
     triggeredAbility {
         trigger = Triggers.OneOrMoreBecomeUntapped(GameObjectFilter.Permanent.youControl())
         effect = Effects.AddDynamicCounters(
-            Counters.TIME,
+            CounterType.TIME,
             DynamicAmount.DistinctEntitiesInCollections(
                 listOf(IterationSpace.TRIGGER_CAPTURED_COLLECTION)
             ),
@@ -63,13 +63,13 @@ val TheMillenniumCalendar = card("The Millennium Calendar") {
     // {2}, {T}: Double the number of time counters on The Millennium Calendar.
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
-        effect = Effects.DoubleCounters(Counters.TIME, EffectTarget.Self)
+        effect = Effects.DoubleCounters(CounterType.TIME, EffectTarget.Self)
         description = "Double the number of time counters on The Millennium Calendar."
     }
 
     // When there are 1,000 or more time counters on ~, sacrifice it and each opponent loses 1,000 life.
     stateTriggeredAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.TIME, 1000)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.TIME, 1000)
         effect = Effects.Composite(
             Effects.SacrificeTarget(EffectTarget.Self),
             Effects.LoseLife(1000, EffectTarget.PlayerRef(Player.EachOpponent))

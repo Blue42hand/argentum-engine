@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -28,7 +28,7 @@ val SpectacularTactics = card("Spectacular Tactics") {
             mode("Put a +1/+1 counter on target creature you control. It gains hexproof until end of turn") {
                 val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
                 effect = Effects.Composite(
-                    AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t),
+                    AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
                     Effects.GrantKeyword(Keyword.HEXPROOF, t)
                 )
             }

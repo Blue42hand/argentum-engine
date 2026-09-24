@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.hob.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
@@ -74,7 +74,7 @@ val BeornTheFierce = card("Beorn the Fierce") {
         effect = Effects.Composite(
             ForEachTargetEffect(
                 listOf(
-                    Effects.AddCounters(Counters.TRAMPLE, 1, EffectTarget.ContextTarget(0)),
+                    Effects.AddCounters(CounterType.TRAMPLE, 1, EffectTarget.ContextTarget(0)),
                     Effects.AddSubtype(
                         Subtype.BEAR.value,
                         EffectTarget.ContextTarget(0),

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -61,7 +61,7 @@ private val MilesMoralesFront = card("Miles Morales") {
         trigger = Triggers.EntersBattlefield
         target = Targets.UpToCreatures(2)
         effect = ForEachTargetEffect(
-            listOf(Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
+            listOf(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
         )
         description = "When Miles Morales enters, put a +1/+1 counter on each of up to two target creatures."
     }
@@ -103,7 +103,7 @@ private val UltimateSpiderMan = card("Ultimate Spider-Man") {
     activatedAbility {
         cost = Costs.Mana("{2}")
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             Effects.GrantHexproof(EffectTarget.Self, Duration.EndOfTurn),
             Effects.ChangeColor(EffectTarget.Self, emptySet(), Duration.EndOfTurn)
         )

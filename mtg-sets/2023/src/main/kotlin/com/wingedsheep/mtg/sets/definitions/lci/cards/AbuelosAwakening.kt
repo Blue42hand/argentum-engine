@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
@@ -71,7 +71,7 @@ val AbuelosAwakening = card("Abuelo's Awakening") {
                 )
             )
             .then(Effects.AddSubtype("Spirit", target = t, duration = Duration.Permanent))
-            .then(Effects.AddDynamicCounters(Counters.PLUS_ONE_PLUS_ONE, DynamicAmount.XValue, t))
+            .then(Effects.AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE, DynamicAmount.XValue, t))
     }
 
     metadata {

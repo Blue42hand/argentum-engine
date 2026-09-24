@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -55,7 +55,7 @@ val GarnetPrincessOfAlexandria = card("Garnet, Princess of Alexandria") {
                 GatherCardsEffect(
                     source = CardSource.ControlledPermanents(
                         player = Player.You,
-                        filter = GameObjectFilter.Enchantment.withSubtype("Saga").withCounter(Counters.LORE)
+                        filter = GameObjectFilter.Enchantment.withSubtype("Saga").withCounter(CounterType.LORE)
                     ),
                     storeAs = "garnetSagas"
                 ),
@@ -74,11 +74,11 @@ val GarnetPrincessOfAlexandria = card("Garnet, Princess of Alexandria") {
                 // Remove one lore counter from each chosen Saga.
                 ForEachInCollectionEffect(
                     collection = "garnetChosen",
-                    effect = Effects.RemoveCounters(Counters.LORE, 1, EffectTarget.Self)
+                    effect = Effects.RemoveCounters(CounterType.LORE, 1, EffectTarget.Self)
                 ),
                 // Put a +1/+1 counter on Garnet for each lore counter removed this way.
                 Effects.AddDynamicCounters(
-                    Counters.PLUS_ONE_PLUS_ONE,
+                    CounterType.PLUS_ONE_PLUS_ONE,
                     DynamicAmount.DistinctEntitiesInCollections(listOf("garnetChosen")),
                     EffectTarget.Self
                 )

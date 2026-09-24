@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -71,16 +71,16 @@ val EarthbenderAscension = card("Earthbender Ascension") {
     triggeredAbility {
         trigger = Triggers.LandYouControlEnters
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.QUEST, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.QUEST, 1, EffectTarget.Self),
             Effects.If(
-                condition = Conditions.SourceCounterCountAtLeast(Counters.QUEST, 4),
+                condition = Conditions.SourceCounterCountAtLeast(CounterType.QUEST, 4),
                 then = Effects.Composite(
                     SelectTargetEffect(
                         requirement = TargetObject(filter = TargetFilter.CreatureYouControl),
                         storeAs = "boostedCreature"
                     ),
                     Effects.AddCounters(
-                        Counters.PLUS_ONE_PLUS_ONE,
+                        CounterType.PLUS_ONE_PLUS_ONE,
                         1,
                         EffectTarget.PipelineTarget("boostedCreature")
                     ),

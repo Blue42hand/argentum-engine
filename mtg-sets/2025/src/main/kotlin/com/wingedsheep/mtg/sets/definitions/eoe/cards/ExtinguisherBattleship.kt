@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -53,7 +53,7 @@ val ExtinguisherBattleship = card("Extinguisher Battleship") {
     station()
 
     // Station threshold: 5+ charge counters
-    val charge5 = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 5)
+    val charge5 = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 5)
 
     staticAbility {
         condition = charge5

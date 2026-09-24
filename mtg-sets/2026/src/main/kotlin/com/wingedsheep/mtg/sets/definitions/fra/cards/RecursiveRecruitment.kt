@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -38,7 +38,7 @@ val RecursiveRecruitment = card("Recursive Recruitment") {
                 condition = Conditions.WasCastFromGraveyard,
                 then = Effects.AddCountersToCollection(
                     CREATED_TOKENS,
-                    Counters.PLUS_ONE_PLUS_ONE,
+                    CounterType.PLUS_ONE_PLUS_ONE,
                     DynamicAmount.Divide(
                         DynamicAmounts.cardsInYourGraveyard(),
                         DynamicAmount.Fixed(3),

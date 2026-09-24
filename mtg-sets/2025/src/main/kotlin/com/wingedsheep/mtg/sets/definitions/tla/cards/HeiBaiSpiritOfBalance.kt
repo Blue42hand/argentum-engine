@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -51,7 +51,7 @@ val HeiBaiSpiritOfBalance = card("Hei Bai, Spirit of Balance") {
         )
         effect = Effects.May(
             Effects.SacrificeTarget(sacrificeTarget)
-                then Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
+                then Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         )
         description = "Whenever Hei Bai enters, you may sacrifice another creature or artifact. " +
             "If you do, put two +1/+1 counters on Hei Bai."
@@ -70,7 +70,7 @@ val HeiBaiSpiritOfBalance = card("Hei Bai, Spirit of Balance") {
         )
         effect = Effects.May(
             Effects.SacrificeTarget(sacrificeTarget)
-                then Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
+                then Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         )
         description = "Whenever Hei Bai attacks, you may sacrifice another creature or artifact. " +
             "If you do, put two +1/+1 counters on Hei Bai."

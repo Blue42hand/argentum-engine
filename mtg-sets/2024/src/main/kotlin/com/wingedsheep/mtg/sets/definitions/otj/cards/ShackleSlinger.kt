@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -39,7 +39,7 @@ val ShackleSlinger = card("Shackle Slinger") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.If(
             condition = Conditions.TargetIsTapped(),
-            then = AddCountersEffect(counterType = Counters.STUN, count = 1, target = t),
+            then = AddCountersEffect(counterType = CounterType.STUN, count = 1, target = t),
             otherwise = Effects.Tap(t),
         )
     }

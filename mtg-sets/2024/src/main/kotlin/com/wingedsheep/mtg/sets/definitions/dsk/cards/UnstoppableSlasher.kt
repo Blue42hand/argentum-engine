@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -44,7 +44,7 @@ val UnstoppableSlasher = card("Unstoppable Slasher") {
             ),
             then = Effects.Composite(listOf(
                 Effects.PutOntoBattlefield(EffectTarget.Self, tapped = true),
-                Effects.AddCounters(Counters.STUN, 2, EffectTarget.Self)
+                Effects.AddCounters(CounterType.STUN, 2, EffectTarget.Self)
             ))
         )
         description = "When this creature dies, if it had no counters on it, return it to the battlefield tapped under its owner's control with two stun counters on it."

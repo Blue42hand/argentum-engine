@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
@@ -36,7 +36,7 @@ val AvatarOfBurgeoningEchoes = card("Avatar of Burgeoning Echoes") {
             ability = grantedLoyaltyAbility(-10) {
                 val creature = target("target creature", Targets.Creature)
                 effect = Effects.AddDynamicCounters(
-                    Counters.PLUS_ONE_PLUS_ONE,
+                    CounterType.PLUS_ONE_PLUS_ONE,
                     DynamicAmounts.landsYouControl(),
                     creature
                 )

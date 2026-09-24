@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.rav.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -40,7 +40,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * but getting the Boiler off the battlefield does, because there is then nothing to sacrifice and
  * [Effects.IfYouDo] gates the wipe on the sacrifice actually happening.
  *
- * The plague counter ([Counters.PLAGUE]) is a passive storage counter with no inherent rule.
+ * The plague counter ([CounterType.PLAGUE]) is a passive storage counter with no inherent rule.
  *
  * One deliberate simplification: with no plague counters on the Boiler, the "remove" mode is still
  * offered and simply does nothing, where the printed card would not let you choose it. Nothing
@@ -57,7 +57,7 @@ val PlagueBoiler = card("Plague Boiler") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = Effects.AddCounters(Counters.PLAGUE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLAGUE, 1, EffectTarget.Self)
         description = "At the beginning of your upkeep, put a plague counter on this artifact."
     }
 
@@ -65,11 +65,11 @@ val PlagueBoiler = card("Plague Boiler") {
         cost = Costs.Mana("{1}{B}{G}")
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
-                Effects.AddCounters(Counters.PLAGUE, 1, EffectTarget.Self),
+                Effects.AddCounters(CounterType.PLAGUE, 1, EffectTarget.Self),
                 "Put a plague counter on this artifact"
             ),
             Mode.noTarget(
-                RemoveCountersEffect(Counters.PLAGUE, 1, EffectTarget.Self),
+                RemoveCountersEffect(CounterType.PLAGUE, 1, EffectTarget.Self),
                 "Remove a plague counter from this artifact"
             )
         )
@@ -78,7 +78,7 @@ val PlagueBoiler = card("Plague Boiler") {
     }
 
     stateTriggeredAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.PLAGUE, 3)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.PLAGUE, 3)
         effect = Effects.IfYouDo(
             action = Effects.SacrificeTarget(EffectTarget.Self),
             then = Effects.DestroyAll(GameObjectFilter.NonlandPermanent),

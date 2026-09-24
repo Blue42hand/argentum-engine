@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -17,7 +17,7 @@ import com.wingedsheep.sdk.scripting.conditions.IsYourTurn
  *
  * The stun counter is gated on [IsYourTurn] via [Effects.If] — a synchronous
  * resolution-time test, no pause. Stun is engine-wired (CR 122.1d) through `untapOrConsumeStun`,
- * so `Effects.AddCounters(Counters.STUN, ...)` is all that's needed. `ContextTarget(0)` (the
+ * so `Effects.AddCounters(CounterType.STUN, ...)` is all that's needed. `ContextTarget(0)` (the
  * default for the single-target effects) is the tapped creature.
  */
 val RapierWit = card("Rapier Wit") {
@@ -34,7 +34,7 @@ val RapierWit = card("Rapier Wit") {
             Effects.Tap(t),
             Effects.If(
                 condition = IsYourTurn,
-                then = Effects.AddCounters(Counters.STUN, 1, t),
+                then = Effects.AddCounters(CounterType.STUN, 1, t),
             ),
             Effects.DrawCards(1),
         )

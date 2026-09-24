@@ -109,7 +109,7 @@ private val EsperOriginsFront = card("Esper Origins") {
         )
         // If cast from a graveyard, this resolution puts the card onto the battlefield transformed
         // (as Summon: Esper Maduin) with a finality counter, instead of going to the graveyard.
-        returnTransformedFromGraveyard(CounterType.FINALITY)
+        returnTransformedFromGraveyard(listOf(CounterType.FINALITY))
     }
 
     keywordAbility(KeywordAbility.flashback("{3}{G}"))

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.TriggeredAbilityBuilder
@@ -82,7 +82,7 @@ private fun TriggeredAbilityBuilder.returnVampireRider() {
     )
     effect = Effects.Composite(
         Effects.Move(returned, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
-        AddCountersEffect(counterType = Counters.FINALITY, count = 1, target = returned),
+        AddCountersEffect(counterType = CounterType.FINALITY, count = 1, target = returned),
         Effects.LoseLife(
             DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.ManaValue),
             EffectTarget.Controller,

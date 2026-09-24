@@ -17,7 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.GrantFreeCastTargetFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -45,7 +45,7 @@ val WishingWell = card("Wishing Well") {
         effect = Effects.Composite(
             listOf(
                 // Put a coin counter on this artifact
-                AddCountersEffect("coin", 1, EffectTarget.Self),
+                AddCountersEffect(CounterType.COIN, 1, EffectTarget.Self),
                 // Gather all instant/sorcery from your graveyard
                 GatherCardsEffect(
                     source = CardSource.FromZone(
@@ -59,7 +59,7 @@ val WishingWell = card("Wishing Well") {
                 FilterCollectionEffect(
                     from = "graveyardSpells",
                     filter = CollectionFilter.ManaValueEquals(
-                        DynamicAmounts.countersOnSelf(CounterTypeFilter.Named("coin"))
+                        DynamicAmounts.countersOnSelf(CounterType.COIN)
                     ),
                     storeMatching = "matchingSpells"
                 ),

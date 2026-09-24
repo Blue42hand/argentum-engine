@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -21,7 +21,7 @@ val BlightRot = card("Blight Rot") {
 
     spell {
         val creature = target("target creature", Targets.Creature)
-        effect = Effects.AddCounters(Counters.MINUS_ONE_MINUS_ONE, 4, creature)
+        effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 4, creature)
     }
 
     metadata {

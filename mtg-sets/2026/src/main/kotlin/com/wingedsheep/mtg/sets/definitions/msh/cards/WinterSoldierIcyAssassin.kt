@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
@@ -38,7 +38,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *    is attached or falls off.
  *  - **The graveyard reanimation** is the Uchbenbak shape — a graveyard-zone activated ability
  *    (`activateFromZone = Zone.GRAVEYARD`) that moves this card GRAVEYARD → BATTLEFIELD and then
- *    drops a [Counters.FINALITY] counter on it; the "exile it instead of dying" replacement is the
+ *    drops a [CounterType.FINALITY] counter on it; the "exile it instead of dying" replacement is the
  *    engine-wide behavior of that counter. No sorcery-speed restriction is printed, so none is
  *    modelled.
  *
@@ -77,7 +77,7 @@ val WinterSoldierIcyAssassin = card("Winter Soldier, Icy Assassin") {
         activateFromZone = Zone.GRAVEYARD
         effect = Effects.Composite(
             Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
-            AddCountersEffect(counterType = Counters.FINALITY, count = 1, target = EffectTarget.Self),
+            AddCountersEffect(counterType = CounterType.FINALITY, count = 1, target = EffectTarget.Self),
             Effects.May(
                 effect = Effects.Composite(
                     SelectTargetEffect(

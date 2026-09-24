@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -34,14 +34,14 @@ val RaybladeTrooper = card("Rayblade Trooper") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val target = target("target creature you control", Targets.CreatureYouControl)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, target)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target)
         description = "When this creature enters, put a +1/+1 counter on target creature you control."
     }
 
     triggeredAbility {
         trigger = Triggers.leavesBattlefield(
             filter = GameObjectFilter.Creature.youControl().nontoken()
-                .withCounter(Counters.PLUS_ONE_PLUS_ONE),
+                .withCounter(CounterType.PLUS_ONE_PLUS_ONE),
             to = Zone.GRAVEYARD,
             binding = TriggerBinding.ANY,
         )

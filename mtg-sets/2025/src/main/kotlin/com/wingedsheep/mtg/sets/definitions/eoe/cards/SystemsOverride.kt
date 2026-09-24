@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -36,10 +36,10 @@ val SystemsOverride = card("Systems Override") {
                     condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.withSubtype("Spacecraft")),
                     then = Effects.Composite(
                         listOf(
-                            AddCountersEffect(Counters.CHARGE, 10, target),
+                            AddCountersEffect(CounterType.CHARGE, 10, target),
                             CreateDelayedTriggerEffect(
                                 step = Step.END,
-                                effect = Effects.RemoveCounters(Counters.CHARGE, 10, target)
+                                effect = Effects.RemoveCounters(CounterType.CHARGE, 10, target)
                             )
                         )
                     )

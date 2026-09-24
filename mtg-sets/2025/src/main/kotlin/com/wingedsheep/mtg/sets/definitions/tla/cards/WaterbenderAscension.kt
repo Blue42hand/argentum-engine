@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
 import com.wingedsheep.sdk.core.AbilityFlag
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -53,9 +53,9 @@ val WaterbenderAscension = card("Waterbender Ascension") {
             binding = TriggerBinding.ANY,
         )
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.QUEST, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.QUEST, 1, EffectTarget.Self),
             Effects.If(
-                condition = Conditions.SourceCounterCountAtLeast(Counters.QUEST, 4),
+                condition = Conditions.SourceCounterCountAtLeast(CounterType.QUEST, 4),
                 then = Effects.DrawCards(1)
             )
         )

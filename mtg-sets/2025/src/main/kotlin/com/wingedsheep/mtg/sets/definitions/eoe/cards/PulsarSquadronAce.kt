@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -67,7 +67,7 @@ val PulsarSquadronAce = card("Pulsar Squadron Ace") {
                 ConditionalOnCollectionEffect(
                     collection = "kept",
                     ifNotEmpty = Effects.Composite(listOf()), // If cards were kept, do nothing
-                    ifEmpty = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) // If no cards kept, add counter
+                    ifEmpty = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) // If no cards kept, add counter
                 ),
                 MoveCollectionEffect(
                     from = "kept",

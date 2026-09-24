@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -51,7 +51,7 @@ val WelcomeToSweettooth = card("Welcome to Sweettooth") {
     sagaChapter(3) {
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.AddDynamicCounters(
-            Counters.PLUS_ONE_PLUS_ONE,
+            CounterType.PLUS_ONE_PLUS_ONE,
             DynamicAmount.Add(
                 DynamicAmount.Fixed(1),
                 DynamicAmounts.battlefield(

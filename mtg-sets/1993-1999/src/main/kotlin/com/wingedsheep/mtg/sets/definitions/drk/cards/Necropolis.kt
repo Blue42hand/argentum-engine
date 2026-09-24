@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.drk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -46,7 +46,7 @@ val Necropolis = card("Necropolis") {
         effect = Effects.Composite(
             GatherCardsEffect(source = CardSource.ExiledAsCost, storeAs = "necropolisFuel"),
             Effects.AddDynamicCounters(
-                Counters.PLUS_ZERO_PLUS_ONE,
+                CounterType.PLUS_ZERO_PLUS_ONE,
                 DynamicAmount.ManaValueSumOfCollection("necropolisFuel"),
                 EffectTarget.Self,
             ),

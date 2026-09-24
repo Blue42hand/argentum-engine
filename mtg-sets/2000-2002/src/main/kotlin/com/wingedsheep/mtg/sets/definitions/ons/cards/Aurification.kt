@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -41,15 +41,15 @@ val Aurification = card("Aurification") {
             DealsDamageEvent(recipient = RecipientFilter.You, sourceFilter = GameObjectFilter.Creature),
             TriggerBinding.ANY
         )
-        effect = AddCountersEffect(Counters.GOLD, 1, EffectTarget.TriggeringEntity)
+        effect = AddCountersEffect(CounterType.GOLD, 1, EffectTarget.TriggeringEntity)
     }
 
-    staticAbility { ability = AddCreatureTypeByCounter("Wall", Counters.GOLD) }
-    staticAbility { ability = GrantKeywordByCounter(Keyword.DEFENDER, Counters.GOLD) }
+    staticAbility { ability = AddCreatureTypeByCounter("Wall", CounterType.GOLD) }
+    staticAbility { ability = GrantKeywordByCounter(Keyword.DEFENDER, CounterType.GOLD) }
 
     triggeredAbility {
         trigger = Triggers.LeavesBattlefield
-        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures, RemoveCountersEffect(Counters.GOLD, Int.MAX_VALUE, EffectTarget.Self))
+        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures, RemoveCountersEffect(CounterType.GOLD, Int.MAX_VALUE, EffectTarget.Self))
     }
 
     metadata {

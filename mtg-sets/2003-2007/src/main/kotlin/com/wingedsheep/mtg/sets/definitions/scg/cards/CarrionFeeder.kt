@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -33,7 +33,7 @@ val CarrionFeeder = card("Carrion Feeder") {
     activatedAbility {
         cost = Costs.Sacrifice(GameObjectFilter.Creature)
         effect = AddCountersEffect(
-            counterType = Counters.PLUS_ONE_PLUS_ONE,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 1,
             target = EffectTarget.Self
         )

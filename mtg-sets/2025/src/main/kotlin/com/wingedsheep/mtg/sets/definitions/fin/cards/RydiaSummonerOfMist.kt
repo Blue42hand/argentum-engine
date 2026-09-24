@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
@@ -34,7 +34,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  * threads into the target filter via `manaValueEqualsX()`, so only a Saga whose mana value is
  * exactly X is a legal target. It then mirrors Rakdos Joins Up's "return target ... with
  * counters" idiom — a captured target handle moved GRAVEYARD → BATTLEFIELD, then the
- * [Counters.FINALITY] counter and haste are applied to that same returned permanent. The
+ * [CounterType.FINALITY] counter and haste are applied to that same returned permanent. The
  * finality counter's exile-instead-of-die replacement is handled by the engine.
  */
 val RydiaSummonerOfMist = card("Rydia, Summoner of Mist") {
@@ -71,7 +71,7 @@ val RydiaSummonerOfMist = card("Rydia, Summoner of Mist") {
             ),
         )
         effect = Effects.Move(saga, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
-            .then(AddCountersEffect(Counters.FINALITY, 1, saga))
+            .then(AddCountersEffect(CounterType.FINALITY, 1, saga))
             .then(Effects.GrantKeyword(Keyword.HASTE, saga, Duration.EndOfTurn))
         timing = TimingRule.SorcerySpeed
         description = "Summon — {X}, {T}: Return target Saga card with mana value X from your graveyard to " +

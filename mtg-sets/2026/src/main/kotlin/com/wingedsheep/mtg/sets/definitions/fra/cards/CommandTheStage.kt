@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
@@ -45,7 +45,7 @@ val CommandTheStage = card("Command the Stage") {
                 creatureTypes = setOf("Wizard", "Soldier"),
                 imageUri = "https://cards.scryfall.io/normal/front/8/f/8f4534d8-2783-484f-8ebf-a47b1cc4c6df.jpg?1789734318"
             ),
-            AddCountersToCollectionEffect("otherWizardTokens", Counters.PLUS_ONE_PLUS_ONE, 1)
+            AddCountersToCollectionEffect("otherWizardTokens", CounterType.PLUS_ONE_PLUS_ONE, 1)
         )
     }
 

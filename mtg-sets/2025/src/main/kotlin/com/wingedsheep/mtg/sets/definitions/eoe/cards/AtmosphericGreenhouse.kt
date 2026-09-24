@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -36,7 +36,7 @@ val AtmosphericGreenhouse = card("Atmospheric Greenhouse") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
-            effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         )
     }
 
@@ -45,18 +45,18 @@ val AtmosphericGreenhouse = card("Atmospheric Greenhouse") {
 
     // Conditional type change: artifact creature at 8+ charge counters
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 8)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 8)
         ability = GrantCardType("CREATURE", GroupFilter.source())
     }
 
     // Conditional keywords: flying and trample at 8+ charge counters
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 8)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 8)
         ability = GrantKeyword(Keyword.FLYING.name, GroupFilter.source())
     }
 
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 8)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 8)
         ability = GrantKeyword(Keyword.TRAMPLE.name, GroupFilter.source())
     }
 

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -48,7 +48,7 @@ val WanShiTongLibrarian = card("Wan Shi Tong, Librarian") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Composite(
-            Effects.AddDynamicCounters(Counters.PLUS_ONE_PLUS_ONE, DynamicAmount.XValue, EffectTarget.Self),
+            Effects.AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE, DynamicAmount.XValue, EffectTarget.Self),
             Effects.DrawCards(
                 DynamicAmount.Divide(DynamicAmount.XValue, DynamicAmount.Fixed(2), roundUp = false),
             ),
@@ -59,7 +59,7 @@ val WanShiTongLibrarian = card("Wan Shi Tong, Librarian") {
     triggeredAbility {
         trigger = Triggers.WheneverAnOpponentSearchesTheirLibrary
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             Effects.DrawCards(1),
         )
         description = "Put a +1/+1 counter on Wan Shi Tong and draw a card."

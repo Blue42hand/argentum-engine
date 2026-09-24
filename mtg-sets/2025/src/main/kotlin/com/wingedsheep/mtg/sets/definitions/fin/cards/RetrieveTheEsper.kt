@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -42,7 +42,7 @@ val RetrieveTheEsper = card("Retrieve the Esper") {
             ),
             Effects.If(
                 condition = Conditions.WasCastFromGraveyard,
-                then = Effects.AddCountersToCollection(CREATED_TOKENS, Counters.PLUS_ONE_PLUS_ONE, 2),
+                then = Effects.AddCountersToCollection(CREATED_TOKENS, CounterType.PLUS_ONE_PLUS_ONE, 2),
             ),
         )
     }

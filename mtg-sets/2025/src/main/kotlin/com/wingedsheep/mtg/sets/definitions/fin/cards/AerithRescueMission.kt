@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -78,7 +78,7 @@ val AerithRescueMission = card("Aerith Rescue Mission") {
                         prompt = "Put a stun counter on one of the tapped creatures",
                         useTargetingUI = true,
                     ),
-                    AddCountersToCollectionEffect("aerithStunned", Counters.STUN, 1),
+                    AddCountersToCollectionEffect("aerithStunned", CounterType.STUN, 1),
                 )
             }
         }

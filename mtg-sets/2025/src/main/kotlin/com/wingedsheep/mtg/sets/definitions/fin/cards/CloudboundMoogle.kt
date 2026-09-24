@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Triggers
@@ -36,7 +36,7 @@ val CloudboundMoogle = card("Cloudbound Moogle") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val t = target("creature", TargetCreature(filter = TargetFilter.Creature))
-        effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, t)
+        effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
     }
 
     keywordAbility(KeywordAbility.typecycling("Plains", ManaCost.parse("{2}")))

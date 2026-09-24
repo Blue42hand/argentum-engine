@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fem.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -33,11 +33,11 @@ val DwarvenArmorer = card("Dwarven Armorer") {
         cost = Costs.Composite(Costs.Mana("{R}"), Costs.Tap, Costs.DiscardCard)
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
-                AddCountersEffect(Counters.PLUS_ZERO_PLUS_ONE, 1, creature),
+                AddCountersEffect(CounterType.PLUS_ZERO_PLUS_ONE, 1, creature),
                 "Put a +0/+1 counter on it"
             ),
             Mode.noTarget(
-                AddCountersEffect(Counters.PLUS_ONE_PLUS_ZERO, 1, creature),
+                AddCountersEffect(CounterType.PLUS_ONE_PLUS_ZERO, 1, creature),
                 "Put a +1/+0 counter on it"
             ),
             countsAsModalSpell = false

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
@@ -44,8 +44,8 @@ val EntropicBattlecruiser = card("Entropic Battlecruiser") {
 
     station()
 
-    val atLeast1Charge = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 1)
-    val atLeast8Charge = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 8)
+    val atLeast1Charge = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 1)
+    val atLeast8Charge = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 8)
 
     triggeredAbility {
         trigger = Triggers.AnyOpponentDiscards

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -18,7 +18,6 @@ import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -58,7 +57,7 @@ val MalcolmAlluringScoundrel = card("Malcolm, Alluring Scoundrel") {
         effect = Effects.Composite(
             listOf(
                 // Put a chorus counter on Malcolm.
-                Effects.AddCounters(Counters.CHORUS, 1, EffectTarget.Self),
+                Effects.AddCounters(CounterType.CHORUS, 1, EffectTarget.Self),
                 // Draw a card.
                 Effects.DrawCards(1, EffectTarget.Controller),
                 // Discard a card: gather hand → select one → move to graveyard.
@@ -82,7 +81,7 @@ val MalcolmAlluringScoundrel = card("Malcolm, Alluring Scoundrel") {
                 // text — we just grant the permission on the graveyard card.
                 Effects.If(
                     condition = Compare(
-                        DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.CHORUS)),
+                        DynamicAmounts.countersOnSelf(CounterType.CHORUS),
                         ComparisonOperator.GTE,
                         DynamicAmount.Fixed(4)
                     ),

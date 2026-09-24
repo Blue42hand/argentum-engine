@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.zen.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -38,7 +38,7 @@ val ScuteMob = card("Scute Mob") {
             ComparisonOperator.GTE,
             DynamicAmount.Fixed(5),
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 4, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 4, EffectTarget.Self)
     }
 
     metadata {

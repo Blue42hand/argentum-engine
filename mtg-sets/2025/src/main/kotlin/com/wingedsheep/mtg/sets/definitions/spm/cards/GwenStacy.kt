@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
@@ -143,7 +143,7 @@ private val GhostSpider = card("Ghost-Spider") {
         trigger = Triggers.youCastSpell(
             requires = setOf(SpellCastPredicate.CastFromZone(Zone.EXILE)),
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever you cast a spell from exile, put a +1/+1 counter on Ghost-Spider."
     }
 
@@ -157,14 +157,14 @@ private val GhostSpider = card("Ghost-Spider") {
             ),
             binding = TriggerBinding.ANY,
         ).youControl()
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever you play a land from exile, put a +1/+1 counter on Ghost-Spider."
     }
 
     // Remove two counters from Ghost-Spider: Exile the top card of your library. You may play that
     // card this turn.
     activatedAbility {
-        cost = Costs.RemoveCounterFromSelf(Counters.PLUS_ONE_PLUS_ONE, count = 2)
+        cost = Costs.RemoveCounterFromSelf(CounterType.PLUS_ONE_PLUS_ONE, count = 2)
         effect = Patterns.Exile.impulse(count = 1, expiry = MayPlayExpiry.EndOfTurn)
         description = "Exile the top card of your library. You may play that card this turn."
     }

@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -43,7 +43,7 @@ val BertaWiseExtrapolator = card("Berta, Wise Extrapolator") {
     triggeredAbility {
         trigger = TriggerSpec(
             EventPattern.CountersPlacedEvent(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 filter = GameObjectFilter.Any,
             ),
             TriggerBinding.SELF,
@@ -64,7 +64,7 @@ val BertaWiseExtrapolator = card("Berta, Wise Extrapolator") {
                 imageUri = "https://cards.scryfall.io/normal/front/d/e/de564776-9d88-4533-8717-842eecdd0594.jpg?1775828279",
             ),
             Effects.AddDynamicCounters(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = DynamicAmount.XValue,
                 target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0),
             ),

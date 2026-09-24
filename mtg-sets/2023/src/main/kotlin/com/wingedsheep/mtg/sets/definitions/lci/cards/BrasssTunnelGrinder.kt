@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -38,7 +38,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Implementation:
  *  - ETB loots via [Patterns.Hand.discardAnyNumber] (stores the discard count under `discarded`),
  *    then draws `discarded_count + 1` ([DynamicAmount.Add] of the stored count and one).
- *  - End-step [Conditions.YouDescendedThisTurn] intervening-if adds a [Counters.BORE] passive
+ *  - End-step [Conditions.YouDescendedThisTurn] intervening-if adds a [CounterType.BORE] passive
  *    counter; a resolution-time [Effects.If] on [Conditions.SourceCounterCountAtLeast]`(bore,
  *    3)` removes three and flips it (Grasping Shadows' dread idiom).
  *  - Tecutlan's cast trigger uses [SpellCastPredicate.PaidWithManaFromSource] — the mana-source
@@ -76,11 +76,11 @@ private val BrasssTunnelGrinderFront = card("Brass's Tunnel-Grinder") {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.YouDescendedThisTurn()
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.BORE, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.BORE, 1, EffectTarget.Self),
             Effects.If(
-                condition = Conditions.SourceCounterCountAtLeast(Counters.BORE, 3),
+                condition = Conditions.SourceCounterCountAtLeast(CounterType.BORE, 3),
                 then = Effects.Composite(
-                    Effects.RemoveCounters(Counters.BORE, 3, EffectTarget.Self),
+                    Effects.RemoveCounters(CounterType.BORE, 3, EffectTarget.Self),
                     TransformEffect(EffectTarget.Self),
                 ),
             ),

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blc.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -36,7 +36,7 @@ val ThickestInTheThicket = card("Thickest in the Thicket") {
         trigger = Triggers.EntersBattlefield
         val creature = target("creature", Targets.Creature)
         effect = Effects.AddDynamicCounters(
-            Counters.PLUS_ONE_PLUS_ONE,
+            CounterType.PLUS_ONE_PLUS_ONE,
             DynamicAmounts.targetPower(0),
             creature
         )

@@ -6,7 +6,6 @@ import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.mtg.sets.definitions.eoe.cards.Terrasymbiosis
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -38,7 +37,7 @@ class TerrasymbiosisTest : FunSpec({
         oracleText = "Put two +1/+1 counters on target creature you control."
         spell {
             val target = target("target creature you control", Targets.CreatureYouControl)
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, target)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, target)
         }
     }
 

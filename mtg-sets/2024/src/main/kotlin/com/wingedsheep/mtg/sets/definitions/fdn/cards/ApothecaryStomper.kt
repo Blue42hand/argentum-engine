@@ -4,7 +4,7 @@
 
 package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -41,7 +41,7 @@ val ApothecaryStomper = card("Apothecary Stomper") {
         effect = ModalEffect.chooseOne(
             Mode.withTarget(
                 AddCountersEffect(
-                    counterType = Counters.PLUS_ONE_PLUS_ONE,
+                    counterType = CounterType.PLUS_ONE_PLUS_ONE,
                     count = 2,
                     target = EffectTarget.ContextTarget(0)
                 ),

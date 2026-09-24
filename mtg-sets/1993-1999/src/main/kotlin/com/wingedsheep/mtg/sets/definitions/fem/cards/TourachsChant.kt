@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fem.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -50,7 +50,7 @@ val TourachsChant = card("Tourach's Chant") {
         )
         effect = PayOrSufferEffect(
             cost = Costs.pay.PutCountersOnPermanent(
-                counterType = Counters.MINUS_ONE_MINUS_ONE,
+                counterType = CounterType.MINUS_ONE_MINUS_ONE,
                 filter = GameObjectFilter.Creature,
             ),
             suffer = Effects.DealDamage(3, EffectTarget.PlayerRef(Player.TriggeringPlayer)),

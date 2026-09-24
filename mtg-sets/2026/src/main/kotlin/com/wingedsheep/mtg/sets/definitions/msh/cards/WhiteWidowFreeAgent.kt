@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -47,7 +47,7 @@ val WhiteWidowFreeAgent = card("White Widow, Free Agent") {
                 effect = ForEachTargetEffect(
                     listOf(
                         Effects.AddCounters(
-                            Counters.PLUS_ONE_PLUS_ONE,
+                            CounterType.PLUS_ONE_PLUS_ONE,
                             1,
                             EffectTarget.ContextTarget(0),
                         )

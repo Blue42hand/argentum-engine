@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -30,7 +29,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * The counter total is a *snapshot* taken on entry (CR 614.1c) — later creatures of the chosen type
  * do not add counters. The anthem, by contrast, is a live static ability sized by
- * [Counters.FELLOWSHIP] currently on the Banner, so removing counters shrinks it.
+ * [CounterType.FELLOWSHIP] currently on the Banner, so removing counters shrinks it.
  */
 val BannerOfKinship = card("Banner of Kinship") {
     manaCost = "{5}"
@@ -44,7 +43,7 @@ val BannerOfKinship = card("Banner of Kinship") {
 
     replacementEffect(
         EntersWithDynamicCounters(
-            counterType = CounterTypeFilter.Named(Counters.FELLOWSHIP),
+            counterType = CounterType.FELLOWSHIP,
             count = DynamicAmount.AggregateBattlefield(
                 Player.You,
                 GameObjectFilter.Creature.withChosenSubtype()
@@ -53,7 +52,7 @@ val BannerOfKinship = card("Banner of Kinship") {
     )
 
     staticAbility {
-        val fellowship = DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.FELLOWSHIP))
+        val fellowship = DynamicAmounts.countersOnSelf(CounterType.FELLOWSHIP)
         ability = GrantDynamicStatsEffect(
             filter = GroupFilter.ChosenSubtypeCreatures().youControl(),
             powerBonus = fellowship,

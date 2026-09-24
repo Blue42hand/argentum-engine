@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -42,7 +42,7 @@ val ThrowFromTheSaddle = card("Throw from the Saddle") {
             condition = Conditions.TargetMatchesFilter(
                 GameObjectFilter.Creature.withSubtype(Subtype("Mount")), targetIndex = 0
             ),
-            then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, mine),
+            then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, mine),
             otherwise = Effects.ModifyStats(1, 1, mine)
         )
 

@@ -4,7 +4,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -48,7 +48,7 @@ val SampleCollector = card("Sample Collector") {
             action = Effects.CollectEvidence(3),
             optional = true,
             reflexiveEffect = Effects.AddCounters(
-                Counters.PLUS_ONE_PLUS_ONE, 1, com.wingedsheep.sdk.scripting.targets.EffectTarget.ContextTarget(0)
+                CounterType.PLUS_ONE_PLUS_ONE, 1, com.wingedsheep.sdk.scripting.targets.EffectTarget.ContextTarget(0)
             ),
             reflexiveTargetRequirements = listOf(
                 TargetCreature(filter = TargetFilter.Creature.youControl())

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -44,7 +44,7 @@ val BushyBodyguard = card("Bushy Bodyguard") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.May(
             effect = Patterns.Mechanic.forage(
-                afterEffect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
+                afterEffect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
             ),
             descriptionOverride = "You may forage",
             hint = "Exile three cards from your graveyard or sacrifice a Food"

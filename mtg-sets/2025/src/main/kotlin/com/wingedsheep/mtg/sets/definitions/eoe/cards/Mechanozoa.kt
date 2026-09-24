@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -34,7 +34,7 @@ val Mechanozoa = card("Mechanozoa") {
         effect = Effects.Composite(
             listOf(
                 Effects.Tap(EffectTarget.ContextTarget(0)),
-                Effects.AddCounters(Counters.STUN, 1, EffectTarget.ContextTarget(0))
+                Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(0))
             )
         )
     }

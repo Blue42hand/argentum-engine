@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -39,7 +39,7 @@ val ForgeArmor = card("Forge Armor") {
     spell {
         val creature = target("target creature", Targets.Creature)
         effect = Effects.AddDynamicCounters(
-            counterType = Counters.PLUS_ONE_PLUS_ONE,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             amount = DynamicAmount.EntityProperty(
                 EntityReference.Sacrificed(0),
                 EntityNumericProperty.ManaValue

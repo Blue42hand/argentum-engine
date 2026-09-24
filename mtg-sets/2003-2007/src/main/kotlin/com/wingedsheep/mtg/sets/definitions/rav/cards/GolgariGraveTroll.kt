@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.rav.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -56,7 +56,7 @@ val GolgariGraveTroll = card("Golgari Grave-Troll") {
     activatedAbility {
         cost = Costs.Composite(
             Costs.Mana("{1}"),
-            Costs.RemoveCounterFromSelf(Counters.PLUS_ONE_PLUS_ONE, 1)
+            Costs.RemoveCounterFromSelf(CounterType.PLUS_ONE_PLUS_ONE, 1)
         )
         effect = Effects.Regenerate(EffectTarget.Self)
         description = "{1}, Remove a +1/+1 counter from this creature: Regenerate this creature."

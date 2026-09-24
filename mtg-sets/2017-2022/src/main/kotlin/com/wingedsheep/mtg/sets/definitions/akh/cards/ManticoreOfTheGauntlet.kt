@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.akh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -30,7 +30,7 @@ val ManticoreOfTheGauntlet = card("Manticore of the Gauntlet") {
         val creature = target("target", Targets.CreatureYouControl)
         val damaged = target("target 1", Targets.OpponentOrPlaneswalker)
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.MINUS_ONE_MINUS_ONE, 1, creature),
+            Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, creature),
             Effects.DealDamage(3, damaged),
         )
     }

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -78,7 +78,7 @@ val SharpEyedRookie = card("Sharp-Eyed Rookie") {
                 DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Toughness)
             )
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             .then(Effects.Investigate())
         description = "Whenever a creature you control enters, if its power is greater than this " +
             "creature's power or its toughness is greater than this creature's toughness, put a " +

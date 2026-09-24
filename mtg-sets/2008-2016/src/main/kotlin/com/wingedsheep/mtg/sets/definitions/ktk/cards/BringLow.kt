@@ -5,7 +5,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -25,7 +25,7 @@ val BringLow = card("Bring Low") {
         val creature = target("target creature", Targets.Creature)
         effect = Effects.DealDamage(
             amount = DynamicAmount.Conditional(
-                condition = Conditions.TargetHasCounter(CounterTypeFilter.PlusOnePlusOne),
+                condition = Conditions.TargetHasCounter(CounterType.PLUS_ONE_PLUS_ONE),
                 ifTrue = DynamicAmount.Fixed(5),
                 ifFalse = DynamicAmount.Fixed(3)
             ),

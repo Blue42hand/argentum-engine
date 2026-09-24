@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -40,7 +40,7 @@ val StarportSecurity = card("Starport Security") {
             condition = Exists(
                 player = Player.You,
                 zone = Zone.BATTLEFIELD,
-                filter = GameObjectFilter.Creature.youControl().withCounter(Counters.PLUS_ONE_PLUS_ONE)
+                filter = GameObjectFilter.Creature.youControl().withCounter(CounterType.PLUS_ONE_PLUS_ONE)
             ),
             ifTrue = DynamicAmount.Fixed(2),
             ifFalse = DynamicAmount.Fixed(0)

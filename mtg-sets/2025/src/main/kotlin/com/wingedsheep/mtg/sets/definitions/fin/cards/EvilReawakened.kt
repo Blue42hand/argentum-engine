@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -25,7 +25,7 @@ val EvilReawakened = card("Evil Reawakened") {
         val t = target("target", TargetObject(filter = TargetFilter.CreatureInYourGraveyard))
         // Return it to the battlefield, then put two additional +1/+1 counters on it.
         effect = Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
-            .then(AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 2, t))
+            .then(AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 2, t))
     }
     metadata {
         rarity = Rarity.UNCOMMON

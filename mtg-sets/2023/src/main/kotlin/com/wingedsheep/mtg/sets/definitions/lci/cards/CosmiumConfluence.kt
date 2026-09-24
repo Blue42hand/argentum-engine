@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
@@ -56,7 +56,7 @@ val CosmiumConfluence = card("Cosmium Confluence") {
                     "a Cave you control",
                     TargetPermanent(filter = TargetFilter.Land.withSubtype("Cave").youControl())
                 )
-                effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 3, cave) then
+                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, cave) then
                     Effects.BecomeCreature(
                         target = cave,
                         power = 0,

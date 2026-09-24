@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -48,7 +48,7 @@ val MakeshiftMannequin = card("Makeshift Mannequin") {
     spell {
         val creature = target("target creature card from your graveyard", Targets.CreatureCardInYourGraveyard)
         effect = Effects.PutOntoBattlefieldFromGraveyard(creature)
-            .then(AddCountersEffect(Counters.MANNEQUIN, 1, creature))
+            .then(AddCountersEffect(CounterType.MANNEQUIN, 1, creature))
             .then(
                 GrantTriggeredAbilityEffect(
                     ability = TriggeredAbility.create(
@@ -59,7 +59,7 @@ val MakeshiftMannequin = card("Makeshift Mannequin") {
                             "or ability, sacrifice it."
                     ),
                     target = creature,
-                    duration = Duration.WhileAffectedHasCounter(Counters.MANNEQUIN)
+                    duration = Duration.WhileAffectedHasCounter(CounterType.MANNEQUIN)
                 )
             )
     }

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.iko.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -21,7 +21,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
  *
  * The cycling payoff is a separate triggered ability from cycling itself (CR 702.29b): it goes on
  * the stack from the discard and resolves with the Rex already in the graveyard. A trample counter
- * is a keyword counter (CR 122.1b / 613.1f) — [Counters.TRAMPLE] is wired through the projector's
+ * is a keyword counter (CR 122.1b / 613.1f) — [CounterType.TRAMPLE] is wired through the projector's
  * keyword-counter map, so the creature has trample for as long as the counter is on it, unlike the
  * end-of-turn grant a "gains trample" clause would give.
  */
@@ -42,7 +42,7 @@ val TitanothRex = card("Titanoth Rex") {
     triggeredAbility {
         trigger = Triggers.YouCycleThis
         val t = target("target", Targets.CreatureYouControl)
-        effect = Effects.AddCounters(Counters.TRAMPLE, 1, t)
+        effect = Effects.AddCounters(CounterType.TRAMPLE, 1, t)
     }
 
     metadata {

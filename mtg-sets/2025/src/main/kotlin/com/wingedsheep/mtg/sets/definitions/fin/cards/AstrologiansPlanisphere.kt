@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Triggers
@@ -48,7 +48,7 @@ val AstrologiansPlanisphere = card("Astrologian's Planisphere") {
             ability = TriggeredAbility.create(
                 trigger = Triggers.YouCastNoncreature.event,
                 binding = Triggers.YouCastNoncreature.binding,
-                effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             ),
             filter = Filters.EquippedCreature
         )
@@ -58,7 +58,7 @@ val AstrologiansPlanisphere = card("Astrologian's Planisphere") {
             ability = TriggeredAbility.create(
                 trigger = Triggers.NthCardDrawn(3).event,
                 binding = Triggers.NthCardDrawn(3).binding,
-                effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             ),
             filter = Filters.EquippedCreature
         )

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -45,7 +45,7 @@ val TheAetherspark = card("The Aetherspark") {
         )
         triggerRestriction = Conditions.IsYourTurn
         effect = Effects.AddDynamicCounters(
-            Counters.LOYALTY,
+            CounterType.LOYALTY,
             DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
             EffectTarget.Self,
         )
@@ -59,7 +59,7 @@ val TheAetherspark = card("The Aetherspark") {
             TargetCreature(optional = true, filter = TargetFilter.CreatureYouControl),
         )
         effect = Effects.AttachEquipment(creature) then
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }
 
     loyaltyAbility(-5) {

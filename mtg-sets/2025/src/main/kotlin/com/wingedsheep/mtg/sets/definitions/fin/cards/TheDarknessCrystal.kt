@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -84,7 +84,7 @@ val TheDarknessCrystal = card("The Darkness Crystal") {
             placement = ZonePlacement.Tapped,
             controllerOverride = EffectTarget.Controller,
             fromZone = Zone.EXILE,
-        ).then(AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 2, t))
+        ).then(AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 2, t))
     }
 
     metadata {

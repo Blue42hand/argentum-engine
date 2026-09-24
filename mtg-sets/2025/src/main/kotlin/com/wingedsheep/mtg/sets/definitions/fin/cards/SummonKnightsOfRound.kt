@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -56,7 +56,7 @@ val SummonKnightsOfRound = card("Summon: Knights of Round") {
             filter = GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
             effect = Effects.Composite(
                 Effects.ModifyStats(2, 2, EffectTarget.Self),
-                Effects.AddCounters(Counters.INDESTRUCTIBLE, 1, EffectTarget.Self),
+                Effects.AddCounters(CounterType.INDESTRUCTIBLE, 1, EffectTarget.Self),
             ),
         )
     }

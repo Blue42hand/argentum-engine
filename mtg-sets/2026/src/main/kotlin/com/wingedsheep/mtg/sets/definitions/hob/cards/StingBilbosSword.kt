@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.hob.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -25,7 +25,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Equip {3}
  *
  * The hone counters carry the whole payoff: CR 122.1j gives the equipped creature +1/+0 per hone
- * counter on the Equipment, so Sting needs no `ModifyStats` of its own — see [Counters.HONE]. That
+ * counter on the Equipment, so Sting needs no `ModifyStats` of its own — see [CounterType.HONE]. That
  * also means the counters are *sticky*: they are counted when the ETB resolves and stay at that
  * number afterwards, so a later board wipe on the opponent's side doesn't shrink Sting.
  *
@@ -58,7 +58,7 @@ val StingBilbosSword = card("Sting, Bilbo's Sword") {
             TargetCreature(optional = true, filter = TargetFilter.CreatureYouControl),
         )
         effect = Effects.AddDynamicCounters(
-            Counters.HONE,
+            CounterType.HONE,
             DynamicAmount.AggregateBattlefield(Player.TargetOpponent, GameObjectFilter.Creature),
             EffectTarget.Self,
         ).then(Effects.AttachEquipment(creature))

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -55,7 +55,7 @@ val HaphazardBombardment = card("Haphazard Bombardment") {
                 prompt = "Choose four nonenchantment permanents you don't control",
                 useTargetingUI = true
             ),
-            Effects.AddCountersToCollection("chosen", Counters.AIM)
+            Effects.AddCountersToCollection("chosen", CounterType.AIM)
         ))
     }
 
@@ -65,7 +65,7 @@ val HaphazardBombardment = card("Haphazard Bombardment") {
         interveningIf = Compare(
             left = DynamicAmount.AggregateBattlefield(
                 player = Player.EachOpponent,
-                filter = GameObjectFilter.Any.withCounter(Counters.AIM),
+                filter = GameObjectFilter.Any.withCounter(CounterType.AIM),
                 aggregation = Aggregation.COUNT
             ),
             operator = ComparisonOperator.GTE,
@@ -74,7 +74,7 @@ val HaphazardBombardment = card("Haphazard Bombardment") {
         effect = Effects.Composite(listOf(
             GatherCardsEffect(
                 source = CardSource.BattlefieldMatching(
-                    filter = GameObjectFilter.Any.withCounter(Counters.AIM).opponentControls()
+                    filter = GameObjectFilter.Any.withCounter(CounterType.AIM).opponentControls()
                 ),
                 storeAs = "aim_permanents"
             ),

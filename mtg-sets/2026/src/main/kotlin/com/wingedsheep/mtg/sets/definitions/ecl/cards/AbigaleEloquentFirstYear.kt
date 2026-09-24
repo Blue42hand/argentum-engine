@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -50,9 +50,9 @@ val AbigaleEloquentFirstYear = card("Abigale, Eloquent First-Year") {
         )
         effect = Effects.Composite(
             RemoveAllAbilitiesEffect(creature, Duration.Permanent),
-            Effects.AddCounters(Counters.FLYING, 1, creature),
-            Effects.AddCounters(Counters.FIRST_STRIKE, 1, creature),
-            Effects.AddCounters(Counters.LIFELINK, 1, creature),
+            Effects.AddCounters(CounterType.FLYING, 1, creature),
+            Effects.AddCounters(CounterType.FIRST_STRIKE, 1, creature),
+            Effects.AddCounters(CounterType.LIFELINK, 1, creature),
         )
     }
 

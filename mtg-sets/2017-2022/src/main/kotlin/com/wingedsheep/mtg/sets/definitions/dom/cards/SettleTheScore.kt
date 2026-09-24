@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -35,7 +35,7 @@ val SettleTheScore = card("Settle the Score") {
                 ),
                 storeAs = "chosenPW"
             ))
-            .then(Effects.AddCountersToCollection("chosenPW", Counters.LOYALTY, 2))
+            .then(Effects.AddCountersToCollection("chosenPW", CounterType.LOYALTY, 2))
     }
 
     metadata {

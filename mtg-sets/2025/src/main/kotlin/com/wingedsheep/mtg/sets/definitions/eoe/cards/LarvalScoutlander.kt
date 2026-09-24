@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -67,13 +67,13 @@ val LarvalScoutlander = card("Larval Scoutlander") {
 
     // Conditional type change: artifact creature at 7+ charge counters
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 7)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 7)
         ability = GrantCardType("CREATURE", GroupFilter.source())
     }
 
     // Conditional keyword: flying at 7+ charge counters
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 7)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 7)
         ability = GrantKeyword(Keyword.FLYING.name, GroupFilter.source())
     }
 

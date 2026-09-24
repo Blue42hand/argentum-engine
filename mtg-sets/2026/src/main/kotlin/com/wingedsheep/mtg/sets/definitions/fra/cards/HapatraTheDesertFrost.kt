@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -44,7 +44,7 @@ val HapatraTheDesertFrost = card("Hapatra, the Desert Frost") {
         effect = ForEachTargetEffect(
             listOf(
                 Effects.Tap(EffectTarget.ContextTarget(0)),
-                Effects.AddCounters(Counters.STUN, 1, EffectTarget.ContextTarget(0))
+                Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(0))
             )
         )
         description = "When Hapatra enters, for each opponent, tap up to one target creature that player " +

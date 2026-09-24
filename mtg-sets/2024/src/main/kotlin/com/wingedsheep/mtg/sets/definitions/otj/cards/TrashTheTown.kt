@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -46,7 +47,7 @@ val TrashTheTown = card("Trash the Town") {
         effect = ModalEffect(
             modes = listOf(
                 Mode(
-                    effect = Effects.AddCounters("+1/+1", 2, EffectTarget.ContextTarget(0)),
+                    effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.ContextTarget(0)),
                     targetRequirements = listOf(Targets.Creature),
                     description = "+ {2} — Put two +1/+1 counters on target creature.",
                     additionalManaCost = "{2}"

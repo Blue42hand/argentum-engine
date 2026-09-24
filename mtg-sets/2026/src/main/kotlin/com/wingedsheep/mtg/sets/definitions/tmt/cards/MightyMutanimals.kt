@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -41,7 +41,7 @@ val MightyMutanimals = card("Mighty Mutanimals") {
     triggeredAbility {
         trigger = Triggers.OtherCreatureEnters
         val creature = target("target creature you control", Targets.CreatureYouControl)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
         description = "Alliance — Whenever another creature you control enters, put a +1/+1 counter on target creature you control."
     }
 

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -29,7 +29,7 @@ val DrillTooDeep = card("Drill Too Deep") {
         modal(chooseCount = 1) {
             mode("Put five charge counters on target Spacecraft or Planet you control") {
                 val t = target("target planet or spacecraft", TargetPermanent(filter = TargetFilter(GameObjectFilter.Permanent.withSubtype("Planet") or GameObjectFilter.Permanent.withSubtype("Spacecraft"))))
-                effect = AddCountersEffect(Counters.CHARGE, 5, t)
+                effect = AddCountersEffect(CounterType.CHARGE, 5, t)
             }
             
             mode("Destroy target artifact") {

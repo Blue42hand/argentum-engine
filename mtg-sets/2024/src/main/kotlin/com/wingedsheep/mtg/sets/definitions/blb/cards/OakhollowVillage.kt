@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
@@ -69,7 +69,7 @@ val OakhollowVillage = card("Oakhollow Village") {
                 ),
                 storeAs = "creatures"
             ),
-            AddCountersToCollectionEffect("creatures", Counters.PLUS_ONE_PLUS_ONE, 1)
+            AddCountersToCollectionEffect("creatures", CounterType.PLUS_ONE_PLUS_ONE, 1)
         ))
     }
 

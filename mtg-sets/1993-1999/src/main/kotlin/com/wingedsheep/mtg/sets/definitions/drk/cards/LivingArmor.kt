@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.drk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -32,7 +32,7 @@ val LivingArmor = card("Living Armor") {
         val creature = target("target creature", Targets.Creature)
         cost = Costs.Composite(Costs.Tap, Costs.SacrificeSelf)
         effect = Effects.AddDynamicCounters(
-            Counters.PLUS_ZERO_PLUS_ONE,
+            CounterType.PLUS_ZERO_PLUS_ONE,
             DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.ManaValue),
             creature,
         )

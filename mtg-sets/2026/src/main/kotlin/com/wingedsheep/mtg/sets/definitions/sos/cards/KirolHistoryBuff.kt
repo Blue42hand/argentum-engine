@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
@@ -53,7 +53,7 @@ val KirolHistoryBuff = card("Kirol, History Buff") {
             val creature = target("target creature", Targets.Creature)
             effect = Effects.Composite(
                 Patterns.Library.mill(1),
-                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, creature),
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature),
                 Effects.GrantKeyword(Keyword.TRAMPLE, creature, Duration.EndOfTurn),
             )
         }

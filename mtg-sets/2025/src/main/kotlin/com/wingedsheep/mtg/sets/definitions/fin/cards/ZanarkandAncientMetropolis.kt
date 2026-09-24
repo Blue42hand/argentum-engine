@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -60,7 +60,7 @@ val ZanarkandAncientMetropolis = card("Zanarkand, Ancient Metropolis") {
                 ),
                 Effects.AddCountersToCollection(
                     CREATED_TOKENS,
-                    Counters.PLUS_ONE_PLUS_ONE,
+                    CounterType.PLUS_ONE_PLUS_ONE,
                     DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Land)
                 )
             )

@@ -1,12 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
@@ -37,9 +36,9 @@ val SavantiRomeroTimesExile = card("Savanti Romero, Time's Exile") {
         trigger = Triggers.BeginCombat
         val counterAmount = DynamicAmount.EntityProperty(
             EntityReference.Source,
-            EntityNumericProperty.CounterCount(CounterTypeFilter.Any)
+            EntityNumericProperty.CounterCount(null)
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             .then(Effects.DrawCards(counterAmount))
             .then(Effects.LoseLife(counterAmount, EffectTarget.Controller))
     }

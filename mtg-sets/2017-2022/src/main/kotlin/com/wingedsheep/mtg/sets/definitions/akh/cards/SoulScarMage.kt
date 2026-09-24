@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.akh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.DamageCounterRecipient
@@ -58,7 +58,7 @@ val SoulScarMage = card("Soul-Scar Mage") {
 
     replacementEffect(
         ReplaceDamageWithCounters(
-            counterType = Counters.MINUS_ONE_MINUS_ONE,
+            counterType = CounterType.MINUS_ONE_MINUS_ONE,
             appliesTo = EventPattern.DamageEvent(
                 recipient = RecipientFilter.CreatureOpponentControls,
                 source = SourceFilter.YouControl,

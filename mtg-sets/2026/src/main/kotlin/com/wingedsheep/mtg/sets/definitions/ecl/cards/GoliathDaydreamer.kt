@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -50,7 +50,7 @@ val GoliathDaydreamer = card("Goliath Daydreamer") {
         )
         effect = MarkSpellExileWithCountersEffect(
             target = EffectTarget.TriggeringEntity,
-            counterType = Counters.DREAM,
+            counterType = CounterType.DREAM,
             count = 1
         )
     }
@@ -68,7 +68,7 @@ val GoliathDaydreamer = card("Goliath Daydreamer") {
                     source = CardSource.FromZone(
                         zone = Zone.EXILE,
                         player = Player.You,
-                        filter = GameObjectFilter.Nonland.withCounter(Counters.DREAM)
+                        filter = GameObjectFilter.Nonland.withCounter(CounterType.DREAM)
                     ),
                     storeAs = "dreamPool"
                 ),

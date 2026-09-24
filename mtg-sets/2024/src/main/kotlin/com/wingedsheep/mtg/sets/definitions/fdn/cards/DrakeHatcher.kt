@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -22,7 +22,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Whenever this creature deals combat damage to a player, put that many incubation counters on it.
  * Remove three incubation counters from this creature: Create a 2/2 blue Drake creature token with flying.
  *
- * "Incubation" counters here are a card-specific resource counter ([Counters.INCUBATION]) — no
+ * "Incubation" counters here are a card-specific resource counter ([CounterType.INCUBATION]) — no
  * inherent rule; the combat-damage trigger accumulates them ("that many" = the damage just dealt,
  * read via [ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT]) and the activated ability spends three to
  * hatch a Drake. NOT MTG's Incubate/incubator-token mechanic.
@@ -44,7 +44,7 @@ val DrakeHatcher = card("Drake Hatcher") {
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
         effect = Effects.AddDynamicCounters(
-            Counters.INCUBATION,
+            CounterType.INCUBATION,
             DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
             EffectTarget.Self
         )
@@ -52,7 +52,7 @@ val DrakeHatcher = card("Drake Hatcher") {
 
     // Remove three incubation counters from this creature: Create a 2/2 blue Drake creature token with flying.
     activatedAbility {
-        cost = Costs.RemoveCounterFromSelf(Counters.INCUBATION, 3)
+        cost = Costs.RemoveCounterFromSelf(CounterType.INCUBATION, 3)
         effect = Effects.CreateToken(
             power = 2,
             toughness = 2,

@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 
 /**
  * Peter Parker's Camera (Marvel's Spider-Man, #171)
@@ -20,13 +19,13 @@ import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
  *
  * Implementation (fully built from composable primitives — no card-specific engine code):
  *  - Enters-with-counters: [EntersWithCounters] replacement (`selfOnly = true`,
- *    `CounterTypeFilter.Named(Counters.FILM)`, count 3) — applied as the Camera enters, so it works
+ *    `CounterType.FILM`, count 3) — applied as the Camera enters, so it works
  *    on cast entry and any other battlefield entry (same shape as Braided Net / Wishclaw Talisman).
- *    `Counters.FILM` / `CounterType.FILM` are a new passive "uses left" named counter (same pattern
+ *    `CounterType.FILM` / `CounterType.FILM` are a new passive "uses left" named counter (same pattern
  *    as `net` / `wish` / `ingenuity`), so the three counters bound how many times the copy ability
  *    can be used before the Camera sits inert.
  *  - Copy ability: cost `Costs.Composite(Costs.Mana("{2}"), Costs.Tap,
- *    Costs.RemoveCounterFromSelf(Counters.FILM, 1))` — "{2}, {T}, Remove a film counter". The target
+ *    Costs.RemoveCounterFromSelf(CounterType.FILM, 1))` — "{2}, {T}, Remove a film counter". The target
  *    is [Targets.ActivatedOrTriggeredAbilityYouControl] (an activated or triggered ability you
  *    control on the stack; mana abilities never use the stack, so they're excluded automatically),
  *    and [Effects.CopyTargetSpellOrAbility] dispatches on the chosen object and copies its
@@ -45,7 +44,7 @@ val PeterParkersCamera = card("Peter Parker's Camera") {
     // This artifact enters with three film counters on it.
     replacementEffect(
         EntersWithCounters(
-            counterType = CounterTypeFilter.Named(Counters.FILM),
+            counterType = CounterType.FILM,
             count = 3,
             selfOnly = true
         )
@@ -57,7 +56,7 @@ val PeterParkersCamera = card("Peter Parker's Camera") {
         cost = Costs.Composite(
             Costs.Mana("{2}"),
             Costs.Tap,
-            Costs.RemoveCounterFromSelf(Counters.FILM, 1)
+            Costs.RemoveCounterFromSelf(CounterType.FILM, 1)
         )
         val copied = target(
             "activated or triggered ability you control",

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -45,7 +45,7 @@ val RakdosJoinsUp = card("Rakdos Joins Up") {
             TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
         )
         effect = Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
-            .then(AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 2, t))
+            .then(AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 2, t))
     }
 
     triggeredAbility {

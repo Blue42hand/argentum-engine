@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Filters
@@ -42,7 +42,7 @@ val VadmirNewBlood = card("Vadmir, New Blood") {
         trigger = Triggers.YouCommitCrime
         oncePerTurn = true
         effect = AddCountersEffect(
-            counterType = Counters.PLUS_ONE_PLUS_ONE,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 1,
             target = EffectTarget.Self
         )
@@ -53,14 +53,14 @@ val VadmirNewBlood = card("Vadmir, New Blood") {
     staticAbility {
         ability = ConditionalStaticAbility(
             ability = GrantKeyword(Keyword.MENACE, Filters.Self),
-            condition = Conditions.SourceCounterCountAtLeast(Counters.PLUS_ONE_PLUS_ONE, 4)
+            condition = Conditions.SourceCounterCountAtLeast(CounterType.PLUS_ONE_PLUS_ONE, 4)
         )
     }
 
     staticAbility {
         ability = ConditionalStaticAbility(
             ability = GrantKeyword(Keyword.LIFELINK, Filters.Self),
-            condition = Conditions.SourceCounterCountAtLeast(Counters.PLUS_ONE_PLUS_ONE, 4)
+            condition = Conditions.SourceCounterCountAtLeast(CounterType.PLUS_ONE_PLUS_ONE, 4)
         )
     }
 

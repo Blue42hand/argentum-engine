@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -39,7 +38,7 @@ val AltarOfShadows = card("Altar of Shadows") {
         trigger = Triggers.FirstMainPhase
         effect = Effects.AddMana(
             Color.BLACK,
-            DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.CHARGE))
+            DynamicAmounts.countersOnSelf(CounterType.CHARGE)
         )
     }
 
@@ -48,7 +47,7 @@ val AltarOfShadows = card("Altar of Shadows") {
         val creature = target("creature", Targets.Creature)
         effect = Effects.Composite(
             Effects.Destroy(creature),
-            Effects.AddCounters(Counters.CHARGE, 1, EffectTarget.Self)
+            Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)
         )
         description = "{7}, {T}: Destroy target creature. Then put a charge counter on this artifact."
     }

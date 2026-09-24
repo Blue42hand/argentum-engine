@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -28,7 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Then you may sacrifice it. If you do, exile the top X cards of your library, where X is the
  * number of skewer counters on this creature. You may play those cards this turn.
  *
- * Skewer counters are a plain tally ([Counters.SKEWER]) — no keyword, no rule of their own — so the
+ * Skewer counters are a plain tally ([CounterType.SKEWER]) — no keyword, no rule of their own — so the
  * only interesting part is the ordering inside the trigger.
  *
  * X is "the number of skewer counters on this creature", read *after* the new counter goes on but
@@ -63,12 +62,12 @@ val RotisserieElemental = card("Rotisserie Elemental") {
 
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = Effects.AddCounters(Counters.SKEWER, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.SKEWER, 1, EffectTarget.Self)
             .then(
                 Effects.May(
                     GatherCardsEffect(
                         source = CardSource.TopOfLibrary(
-                            DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.SKEWER))
+                            DynamicAmounts.countersOnSelf(CounterType.SKEWER)
                         ),
                         storeAs = "skeweredCards"
                     )

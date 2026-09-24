@@ -4,7 +4,7 @@
 
 package com.wingedsheep.mtg.sets.definitions.khm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Triggers
@@ -37,7 +37,7 @@ val YouthfulValkyrie = card("Youthful Valkyrie") {
             filter = GameObjectFilter.Permanent.withSubtype(Subtype.ANGEL).youControl(),
             binding = TriggerBinding.OTHER
         )
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.UNCOMMON

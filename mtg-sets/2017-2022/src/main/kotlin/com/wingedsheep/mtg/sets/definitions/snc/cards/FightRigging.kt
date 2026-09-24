@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.snc.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -93,7 +93,7 @@ val FightRigging = card("Fight Rigging") {
         val t = target("target", Targets.CreatureYouControl)
         effect = Effects.Composite(
             listOf(
-                AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t),
+                AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
                 Effects.If(
                     condition = Conditions.YouControlAtLeast(1, GameObjectFilter.Creature.powerAtLeast(7)),
                     then = Effects.May(

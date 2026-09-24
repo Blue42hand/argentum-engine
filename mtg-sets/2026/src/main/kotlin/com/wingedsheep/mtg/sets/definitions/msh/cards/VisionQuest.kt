@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
@@ -88,7 +88,7 @@ val VisionQuest = card("Vision Quest") {
                 ),
                 AddCountersToCollectionEffect(
                     collectionName = "visionQuestCreature",
-                    counterType = Counters.PLUS_ONE_PLUS_ONE,
+                    counterType = CounterType.PLUS_ONE_PLUS_ONE,
                     amount = DynamicAmount.XValue
                 ),
                 Effects.If(

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -42,7 +41,7 @@ val BansheesBlade = card("Banshee's Blade") {
         "Equip {2}"
 
     staticAbility {
-        val chargeCounters = DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.CHARGE))
+        val chargeCounters = DynamicAmounts.countersOnSelf(CounterType.CHARGE)
         ability = GrantDynamicStatsEffect(
             filter = GroupFilter.attachedCreature(),
             powerBonus = chargeCounters,
@@ -55,7 +54,7 @@ val BansheesBlade = card("Banshee's Blade") {
             damageType = DamageType.Combat,
             binding = TriggerBinding.ATTACHED,
         )
-        effect = AddCountersEffect(Counters.CHARGE, 1, EffectTarget.Self)
+        effect = AddCountersEffect(CounterType.CHARGE, 1, EffectTarget.Self)
     }
 
     equipAbility("{2}")

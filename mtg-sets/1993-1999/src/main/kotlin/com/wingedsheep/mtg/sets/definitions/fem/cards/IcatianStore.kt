@@ -2,7 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.fem.cards
 
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -42,14 +42,14 @@ val IcatianStore = card("Icatian Store") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         interveningIf = Conditions.SourceIsTapped
-        effect = Effects.AddCounters(Counters.STORAGE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.STORAGE, 1, EffectTarget.Self)
         description = "At the beginning of your upkeep, if this land is tapped, put a storage counter on it."
     }
 
     activatedAbility {
         cost = Costs.Composite(
             Costs.Tap,
-            Costs.RemoveXCounters(counterType = Counters.STORAGE, self = true),
+            Costs.RemoveXCounters(counterType = CounterType.STORAGE, self = true),
         )
         manaAbility = true
         effect = Effects.AddMana(Color.WHITE, DynamicAmount.XValue)

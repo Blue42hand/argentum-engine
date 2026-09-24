@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -41,7 +40,7 @@ val LostIsleCalling = card("Lost Isle Calling") {
 
     triggeredAbility {
         trigger = Triggers.WheneverYouScry
-        effect = Effects.AddCounters(Counters.VERSE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.VERSE, 1, EffectTarget.Self)
     }
 
     activatedAbility {
@@ -50,11 +49,11 @@ val LostIsleCalling = card("Lost Isle Calling") {
         effect = Effects.Composite(
             listOf(
                 Effects.DrawCards(
-                    DynamicAmounts.lastKnownSourceCounters(CounterTypeFilter.Named(Counters.VERSE))
+                    DynamicAmounts.lastKnownSourceCounters(CounterType.VERSE)
                 ),
                 Effects.If(
                     condition = Compare(
-                        DynamicAmounts.lastKnownSourceCounters(CounterTypeFilter.Named(Counters.VERSE)),
+                        DynamicAmounts.lastKnownSourceCounters(CounterType.VERSE),
                         ComparisonOperator.GTE,
                         DynamicAmount.Fixed(7)
                     ),

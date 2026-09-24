@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -84,7 +84,7 @@ val SeasonOfTheBurrow = card("Season of the Burrow") {
                         storeAs = "returnTarget"
                     )
                         .then(Effects.PutOntoBattlefield(EffectTarget.PipelineTarget("returnTarget")))
-                        .then(Effects.AddCounters(Counters.INDESTRUCTIBLE, 1, EffectTarget.PipelineTarget("returnTarget"))),
+                        .then(Effects.AddCounters(CounterType.INDESTRUCTIBLE, 1, EffectTarget.PipelineTarget("returnTarget"))),
                     description = "Return target permanent card with mana value 3 or less from your graveyard to the battlefield with an indestructible counter on it"
                 )
             )

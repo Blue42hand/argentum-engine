@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -20,10 +20,8 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * {2}{W}, Remove four hoofprint counters from this enchantment: Create a 4/4 white Elemental
  * creature token with flying. Activate only during your turn.
  *
- * `hoofprint` is a new passive counter type — no inherent rule, purely this card's own tally — so
- * it needs its `CounterType` enum entry alongside the `Counters` constant. Without the enum entry
- * every counter read silently falls back to counting **+1/+1** counters (`resolveCounterType`
- * catches the `valueOf` failure and defaults), which fails open rather than loudly.
+ * `hoofprint` is a passive counter type — no inherent rule, purely this card's own tally — named by
+ * [CounterType.HOOFPRINT].
  *
  * Two details the wording forces:
  *
@@ -51,7 +49,7 @@ val HoofprintsOfTheStag = card("Hoofprints of the Stag") {
         trigger = Triggers.YouDraw
         effect = Effects.May(
             AddCountersEffect(
-                counterType = Counters.HOOFPRINT,
+                counterType = CounterType.HOOFPRINT,
                 count = 1,
                 target = EffectTarget.Self
             )
@@ -62,7 +60,7 @@ val HoofprintsOfTheStag = card("Hoofprints of the Stag") {
     activatedAbility {
         cost = Costs.Composite(
             Costs.Mana("{2}{W}"),
-            Costs.RemoveCounterFromSelf(Counters.HOOFPRINT, 4)
+            Costs.RemoveCounterFromSelf(CounterType.HOOFPRINT, 4)
         )
         restrictions = listOf(ActivationRestriction.OnlyDuringYourTurn)
         effect = Effects.CreateToken(

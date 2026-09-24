@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
@@ -42,7 +42,7 @@ val WildHypothesis = card("Wild Hypothesis") {
         )
             .then(
                 Effects.AddDynamicCounters(
-                    Counters.PLUS_ONE_PLUS_ONE,
+                    CounterType.PLUS_ONE_PLUS_ONE,
                     DynamicAmount.XValue,
                     EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
                 )

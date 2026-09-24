@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.big.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -59,7 +59,7 @@ val SandstormSalvager = card("Sandstorm Salvager") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 filter = creatureTokensYouControl,
-                effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             ),
             Effects.ForEachInGroup(
                 filter = creatureTokensYouControl,

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -35,14 +35,14 @@ val DrixFatemaker = card("Drix Fatemaker") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val t = target("target creature", Targets.Creature)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, t)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
         description = "When this creature enters, put a +1/+1 counter on target creature."
     }
 
     staticAbility {
         ability = GrantKeyword(
             Keyword.TRAMPLE,
-            GroupFilter(GameObjectFilter.Creature.youControl().withCounter(Counters.PLUS_ONE_PLUS_ONE))
+            GroupFilter(GameObjectFilter.Creature.youControl().withCounter(CounterType.PLUS_ONE_PLUS_ONE))
         )
     }
 

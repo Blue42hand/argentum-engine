@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.inv.cards
 
 import com.wingedsheep.sdk.core.AbilityFlag
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -44,14 +44,14 @@ val TemporalDistortion = card("Temporal Distortion") {
             binding = TriggerBinding.ANY,
             filter = GameObjectFilter.CreatureOrLand
         )
-        effect = Effects.AddCounters(Counters.HOURGLASS, 1, EffectTarget.TriggeringEntity)
+        effect = Effects.AddCounters(CounterType.HOURGLASS, 1, EffectTarget.TriggeringEntity)
     }
 
     // Each permanent with an hourglass counter on it doesn't untap during its controller's untap step.
     staticAbility {
         ability = GrantKeyword(
             AbilityFlag.DOESNT_UNTAP.name,
-            GroupFilter(GameObjectFilter.Permanent.withCounter(Counters.HOURGLASS))
+            GroupFilter(GameObjectFilter.Permanent.withCounter(CounterType.HOURGLASS))
         )
     }
 
@@ -61,7 +61,7 @@ val TemporalDistortion = card("Temporal Distortion") {
         trigger = Triggers.EachUpkeep
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Permanent.controlledByActivePlayer()),
-            RemoveCountersEffect(Counters.HOURGLASS, Int.MAX_VALUE, EffectTarget.Self)
+            RemoveCountersEffect(CounterType.HOURGLASS, Int.MAX_VALUE, EffectTarget.Self)
         )
     }
 

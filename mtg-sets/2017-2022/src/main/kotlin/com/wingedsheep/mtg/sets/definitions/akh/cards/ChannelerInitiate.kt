@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.akh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -33,12 +33,12 @@ val ChannelerInitiate = card("Channeler Initiate") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val creature = target("target creature you control", Targets.CreatureYouControl)
-        effect = Effects.AddCounters(Counters.MINUS_ONE_MINUS_ONE, 3, creature)
+        effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 3, creature)
         description = "When this creature enters, put three -1/-1 counters on target creature you control."
     }
 
     activatedAbility {
-        cost = Costs.Composite(Costs.Tap, Costs.RemoveCounterFromSelf(Counters.MINUS_ONE_MINUS_ONE))
+        cost = Costs.Composite(Costs.Tap, Costs.RemoveCounterFromSelf(CounterType.MINUS_ONE_MINUS_ONE))
         effect = Effects.AddManaOfChoice()
         manaAbility = true
         description = "{T}, Remove a -1/-1 counter from this creature: Add one mana of any color."

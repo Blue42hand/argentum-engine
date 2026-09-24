@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
@@ -58,7 +58,7 @@ val SpecimenFreighter = card("Specimen Freighter") {
     station()
 
     // Station threshold: 9+ charge counters
-    val charge9 = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 9)
+    val charge9 = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 9)
 
     // 9+ charge counters: becomes artifact creature
     staticAbility {

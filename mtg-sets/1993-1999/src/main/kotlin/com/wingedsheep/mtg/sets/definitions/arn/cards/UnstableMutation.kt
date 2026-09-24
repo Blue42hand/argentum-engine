@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.arn.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
@@ -35,7 +35,7 @@ val UnstableMutation = card("Unstable Mutation") {
 
     triggeredAbility {
         trigger = Triggers.phase(Step.UPKEEP, Player.You, binding = TriggerBinding.ATTACHED)
-        effect = Effects.AddCounters(Counters.MINUS_ONE_MINUS_ONE, 1, EffectTarget.EnchantedCreature)
+        effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, EffectTarget.EnchantedCreature)
     }
 
     metadata {

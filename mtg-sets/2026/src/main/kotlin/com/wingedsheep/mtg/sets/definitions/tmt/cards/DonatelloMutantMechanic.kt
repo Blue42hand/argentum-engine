@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
@@ -43,7 +43,7 @@ val DonatelloMutantMechanic = card("Donatello, Mutant Mechanic") {
         )
         cost = Costs.Tap
         timing = TimingRule.SorcerySpeed
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 3, art)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, art)
             .then(
                 Effects.If(
                     condition = Conditions.TargetMatchesFilter(GameObjectFilter.Noncreature),

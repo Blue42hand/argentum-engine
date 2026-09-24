@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -77,7 +77,7 @@ private fun blightedBlackthornEffect(): Effect = Effects.May(
                 useTargetingUI = true,
                 alwaysPrompt = true
             ),
-            AddCountersToCollectionEffect("blighted", Counters.MINUS_ONE_MINUS_ONE, 2),
+            AddCountersToCollectionEffect("blighted", CounterType.MINUS_ONE_MINUS_ONE, 2),
             ConditionalOnCollectionEffect(
                 collection = "blighted",
                 ifNotEmpty = Effects.DrawCards(1) then Effects.LoseLife(1)

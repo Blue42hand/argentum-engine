@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.m20.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -53,7 +53,7 @@ val SorinImperiousBloodlord = card("Sorin, Imperious Bloodlord") {
             .then(
                 Effects.If(
                     condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype("Vampire")),
-                    then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, t),
+                    then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t),
                 )
             )
     }

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dmu.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -35,7 +35,7 @@ val FrostfistStrider = card("Frostfist Strider") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.Composite(
             Effects.Tap(t),
-            Effects.AddCounters(Counters.STUN, 1, t)
+            Effects.AddCounters(CounterType.STUN, 1, t)
         )
     }
 

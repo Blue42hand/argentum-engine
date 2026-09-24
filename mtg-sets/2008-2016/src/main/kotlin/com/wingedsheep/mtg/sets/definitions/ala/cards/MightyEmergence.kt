@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ala.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -32,7 +33,7 @@ val MightyEmergence = card("Mighty Emergence") {
             binding = TriggerBinding.ANY
         )
         optional = true
-        effect = Effects.AddCounters("+1/+1", 2, EffectTarget.TriggeringEntity)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.TriggeringEntity)
     }
 
     metadata {

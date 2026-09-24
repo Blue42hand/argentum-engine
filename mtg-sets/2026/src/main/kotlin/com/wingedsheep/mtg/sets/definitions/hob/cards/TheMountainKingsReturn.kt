@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.hob.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
@@ -71,7 +71,7 @@ val TheMountainKingsReturn = card("The Mountain-king's Return") {
             "up to one target creature",
             TargetCreature(count = 1, optional = true)
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, boosted)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, boosted)
     }
 
     metadata {

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.stx.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
@@ -41,7 +41,7 @@ val SparringRegimen = card("Sparring Regimen") {
     triggeredAbility {
         trigger = Triggers.YouAttack
         val attacker = target("target attacking creature", Targets.AttackingCreature)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, attacker) then
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, attacker) then
             Effects.Untap(attacker)
     }
 

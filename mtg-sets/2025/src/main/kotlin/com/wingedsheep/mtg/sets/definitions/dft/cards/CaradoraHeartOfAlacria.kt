@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyCounterPlacement
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
 
 /**
@@ -66,7 +66,7 @@ val CaradoraHeartOfAlacria = card("Caradora, Heart of Alacria") {
         ModifyCounterPlacement(
             modifier = 1,
             appliesTo = EventPattern.CounterPlacementEvent(
-                counterType = CounterTypeFilter.PlusOnePlusOne,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 recipient = RecipientFilter.Matching(CreatureOrVehicleYouControl)
             )
         )

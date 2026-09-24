@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -38,11 +38,11 @@ val CursedRecording = card("Cursed Recording") {
     triggeredAbility {
         trigger = Triggers.YouCastInstantOrSorcery
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.TIME, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.TIME, 1, EffectTarget.Self),
             Effects.If(
-                condition = Conditions.SourceCounterCountAtLeast(Counters.TIME, 7),
+                condition = Conditions.SourceCounterCountAtLeast(CounterType.TIME, 7),
                 then = Effects.Composite(
-                    Effects.RemoveCounters(Counters.TIME, 7, EffectTarget.Self),
+                    Effects.RemoveCounters(CounterType.TIME, 7, EffectTarget.Self),
                     Effects.DealDamage(20, EffectTarget.Controller, damageSource = EffectTarget.Self),
                 ),
             ),

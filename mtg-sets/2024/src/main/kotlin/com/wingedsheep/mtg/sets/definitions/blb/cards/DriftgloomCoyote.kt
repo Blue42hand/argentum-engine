@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -44,7 +44,7 @@ val DriftgloomCoyote = card("Driftgloom Coyote") {
         // Check power condition first (while creature is still on battlefield), then exile
         effect = Effects.If(
             condition = Conditions.TargetPowerAtMost(DynamicAmount.Fixed(2)),
-            then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         ).then(Effects.ExileUntilLeaves(creature))
     }
 

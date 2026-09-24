@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -48,7 +48,7 @@ val DailyBugleReporters = card("Daily Bugle Reporters") {
         effect = ModalEffect.chooseOne(
             Mode.withTarget(
                 effect = ForEachTargetEffect(
-                    listOf(Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
+                    listOf(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
                 ),
                 target = TargetCreature(count = 2, optional = true),
                 description = "Puff Piece — Put a +1/+1 counter on each of up to two target creatures."

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
@@ -48,7 +48,7 @@ val CrossbonesMaliciousMercenary = card("Crossbones, Malicious Mercenary") {
         )
         oncePerTurn = true
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent)),
         )
         description = "Whenever another Villain you control enters, put a +1/+1 counter on " +
