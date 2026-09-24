@@ -506,7 +506,9 @@ class MoveCollectionExecutor(
                     remainingAuras = auraCards.drop(1),
                     sourceId = context.sourceId,
                     sourceName = context.sourceId?.let { newState.getEntity(it)?.get<CardComponent>()?.name },
-                    underOwnersControl = underOwnersControl
+                    underOwnersControl = underOwnersControl,
+                    // The whole batch enters simultaneously: none of it can host these Auras.
+                    excludedHosts = cards
                 )
             }
         }
@@ -531,7 +533,8 @@ class MoveCollectionExecutor(
         remainingAuras: List<EntityId>,
         sourceId: EntityId?,
         sourceName: String?,
-        underOwnersControl: Boolean = false
+        underOwnersControl: Boolean = false,
+        excludedHosts: List<EntityId> = emptyList()
     ): EffectResult {
         val cardComponent = state.getEntity(auraId)?.get<CardComponent>()
         val cardDef = cardComponent?.let { cardRegistry.getCard(it.cardDefinitionId) }
@@ -540,7 +543,8 @@ class MoveCollectionExecutor(
         if (auraTarget == null) {
             // No aura target defined — skip this aura (leave in current zone)
             return continueAuraProcessingOrFinish(
-                state, events, remainingAuras, controllerId, destPlayerId, sourceId, sourceName
+                state, events, remainingAuras, controllerId, destPlayerId, sourceId, sourceName,
+                underOwnersControl, excludedHosts
             )
         }
 
@@ -550,12 +554,13 @@ class MoveCollectionExecutor(
             controllerId = controllerId,
             sourceId = auraId,
             ignoreTargetingRestrictions = true
-        )
+        ).filter { it !in excludedHosts }
 
         if (legalTargets.isEmpty()) {
             // No legal targets — Aura stays in current zone per Rule 303.4g
             return continueAuraProcessingOrFinish(
-                state, events, remainingAuras, controllerId, destPlayerId, sourceId, sourceName, underOwnersControl
+                state, events, remainingAuras, controllerId, destPlayerId, sourceId, sourceName,
+                underOwnersControl, excludedHosts
             )
         }
 
@@ -586,7 +591,8 @@ class MoveCollectionExecutor(
             remainingAuras = remainingAuras,
             sourceId = sourceId,
             sourceName = sourceName,
-            underOwnersControl = underOwnersControl
+            underOwnersControl = underOwnersControl,
+            excludedHosts = excludedHosts
         )
 
         return EffectResult.from(state.suspendForDecision(decision, continuation, emptyList()))
@@ -603,7 +609,8 @@ class MoveCollectionExecutor(
         destPlayerId: EntityId,
         sourceId: EntityId?,
         sourceName: String?,
-        underOwnersControl: Boolean = false
+        underOwnersControl: Boolean = false,
+        excludedHosts: List<EntityId> = emptyList()
     ): EffectResult {
         if (remainingAuras.isNotEmpty()) {
             val nextAuraId = remainingAuras.first()
@@ -620,7 +627,8 @@ class MoveCollectionExecutor(
                 remainingAuras = remainingAuras.drop(1),
                 sourceId = sourceId,
                 sourceName = sourceName,
-                underOwnersControl = underOwnersControl
+                underOwnersControl = underOwnersControl,
+                excludedHosts = excludedHosts
             )
         }
         return EffectResult.success(state, events)
@@ -745,7 +753,11 @@ class MoveCollectionExecutor(
         }
 
         for (cardId in cards) {
-            val ownerId = newState.getEntity(cardId)?.get<OwnerComponent>()?.playerId ?: destPlayerId
+            // Ownership lives on OwnerComponent once a card has been minted into a zone, but a
+            // card that has only ever been library content carries it on CardComponent.
+            val ownerId = newState.getEntity(cardId)?.get<OwnerComponent>()?.playerId
+                ?: newState.getEntity(cardId)?.get<CardComponent>()?.ownerId
+                ?: destPlayerId
 
             // For MoveType.Destroy, check indestructible and regeneration before moving
             if (moveType == MoveType.Destroy) {
@@ -786,7 +798,10 @@ class MoveCollectionExecutor(
                 (moveType == MoveType.Sacrifice || moveType == MoveType.Destroy) && destZone == Zone.GRAVEYARD -> ownerId
                 destZone == Zone.HAND && fromZone == Zone.BATTLEFIELD -> ownerId
                 destZone == Zone.EXILE && fromZone == Zone.BATTLEFIELD -> ownerId
-                destZone == Zone.LIBRARY && fromZone == Zone.BATTLEFIELD -> ownerId
+                // CR 400.3: a card bound for a library always goes to its *owner's* library,
+                // whatever zone it leaves — so a mixed-owner collection moved from libraries or
+                // hands (Warp World's stranded Auras) lands in each owner's own library.
+                destZone == Zone.LIBRARY -> ownerId
                 underOwnersControl && destZone == Zone.BATTLEFIELD -> ownerId
                 else -> destPlayerId
             }

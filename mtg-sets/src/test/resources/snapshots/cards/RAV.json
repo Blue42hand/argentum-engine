@@ -1202,7 +1202,8 @@
                                 "zone": "Library",
                                 "filter": "mv=5"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -1895,7 +1896,8 @@
                             ]
                         }
                     },
-                    "storeAs": "searchable"
+                    "storeAs": "searchable",
+                    "search": true
                 },
                 {
                     "type": "SelectFromCollection",
@@ -2104,7 +2106,8 @@
                                     "zone": "Library",
                                     "filter": "basicland"
                                 },
-                                "storeAs": "searchable"
+                                "storeAs": "searchable",
+                                "search": true
                             },
                             {
                                 "type": "SelectFromCollection",
@@ -2405,7 +2408,8 @@
                                 "zone": "Library",
                                 "filter": "mv=4"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -3137,7 +3141,8 @@
                         "zone": "Library",
                         "filter": "creature"
                     },
-                    "storeAs": "searchable"
+                    "storeAs": "searchable",
+                    "search": true
                 },
                 {
                     "type": "SelectFromCollection",
@@ -4125,7 +4130,8 @@
                                 "zone": "Library",
                                 "filter": "mv=4"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -4205,7 +4211,8 @@
                                 "zone": "Library",
                                 "filter": "mv=2"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -4337,7 +4344,8 @@
                                 "zone": "Library",
                                 "filter": "mv=3"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -4605,7 +4613,8 @@
                                 "zone": "Library",
                                 "filter": "mv=1"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -4868,7 +4877,8 @@
                                 "zone": "Library",
                                 "filter": "mv=3"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -5386,7 +5396,8 @@
                                 "zone": "Library",
                                 "filter": "mv=6"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -5485,6 +5496,85 @@
     ]
 }
 
+// Eye of the Storm
+{
+    "name": "Eye of the Storm",
+    "manaCost": "{5}{U}{U}",
+    "typeLine": "Enchantment",
+    "oracleText": "Whenever a player casts an instant or sorcery card, exile it. Then that player copies each instant or sorcery card exiled with this enchantment. For each copy, the player may cast the copy without paying its mana cost.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            {
+                                "type": "Or",
+                                "predicates": [
+                                    "IsInstant",
+                                    "IsSorcery"
+                                ]
+                            }
+                        ]
+                    },
+                    "player": "Each",
+                    "requires": [
+                        "SpellIsCard"
+                    ]
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "ExileTargetSpell",
+                            "linkToSource": true,
+                            "spell": "CounterTargetSource.TriggeringEntity"
+                        },
+                        {
+                            "type": "ForEach",
+                            "space": {
+                                "type": "IterationSpace.Players",
+                                "players": "TriggeringPlayer"
+                            },
+                            "body": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": "FromLinkedExile",
+                                        "storeAs": "eyeExiled"
+                                    },
+                                    {
+                                        "type": "CopyCollectionIntoCollection",
+                                        "from": "eyeExiled",
+                                        "storeAs": "eyeCopies"
+                                    },
+                                    {
+                                        "type": "CastAnyNumberFromCollectionWithoutPayingCost",
+                                        "from": "eyeCopies"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "48",
+        "rarity": "RARE",
+        "artist": "Hideaki Takamura",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/9/49967eb9-5020-4f0a-8775-5114f6d96d75.jpg?1783943687"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Faith's Fetters
 {
     "name": "Faith's Fetters",
@@ -5580,7 +5670,8 @@
                         "zone": "Library",
                         "filter": "land Plains|Island|Swamp|Mountain"
                     },
-                    "storeAs": "searchable"
+                    "storeAs": "searchable",
+                    "search": true
                 },
                 {
                     "type": "SelectFromCollection",
@@ -7714,7 +7805,8 @@
                                 "zone": "Library",
                                 "filter": "mv=9"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -10132,7 +10224,8 @@
                                 "zone": "Library",
                                 "filter": "mv=2"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -10405,7 +10498,8 @@
                                 "zone": "Library",
                                 "filter": "mv=6"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -11074,7 +11168,8 @@
                                 "zone": "Library",
                                 "filter": "land Plains|Island|Swamp|Mountain|Forest"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -11169,7 +11264,8 @@
                                 "zone": "Library",
                                 "filter": "mv=3"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -13437,6 +13533,46 @@
     ]
 }
 
+// Shadow of Doubt
+{
+    "name": "Shadow of Doubt",
+    "manaCost": "{U/B}{U/B}",
+    "typeLine": "Instant",
+    "oracleText": "({U/B} can be paid with either {U} or {B}.)\nPlayers can't search libraries this turn.\nDraw a card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "CantSearchLibraries",
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "Each"
+                    }
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "253",
+        "rarity": "RARE",
+        "artist": "Greg Staples",
+        "flavorText": "\"Your ignorance is my bliss.\"\n—Szadek",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/d/7dbd0e3c-b26d-4080-b7cf-1c64fce09668.jpg?1783943602"
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK"
+    ]
+}
+
 // Shambling Shell
 {
     "name": "Shambling Shell",
@@ -13551,7 +13687,8 @@
                                 "zone": "Library",
                                 "filter": "mv=2"
                             },
-                            "storeAs": "searchable"
+                            "storeAs": "searchable",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -13616,6 +13753,39 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Sins of the Past
+{
+    "name": "Sins of the Past",
+    "manaCost": "{4}{B}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Until end of turn, you may cast target instant or sorcery card from your graveyard without paying its mana cost. If that spell would be put into your graveyard, exile it instead. Exile Sins of the Past.",
+    "script": {
+        "spellEffect": {
+            "type": "GrantFreeCastTargetFromExile",
+            "exileAfterResolve": true
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "instant|sorcery own:you",
+                    "zone": "Graveyard"
+                }
+            }
+        ],
+        "selfExileOnResolve": true
+    },
+    "metadata": {
+        "collectorNumber": "106",
+        "rarity": "RARE",
+        "artist": "Jeremy Jarvis",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/c/5c518792-a50f-40b1-b6fb-674432093b6a.jpg?1783943661"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -15261,7 +15431,8 @@
                         "zone": "Library",
                         "filter": "enchantment Aura"
                     },
-                    "storeAs": "searchable"
+                    "storeAs": "searchable",
+                    "search": true
                 },
                 {
                     "type": "SelectFromCollection",
@@ -16752,6 +16923,174 @@
         "artist": "Alex Horley-Orlandelli",
         "flavorText": "\"In a town shaped by the subtle machinations and political intrigue of its guilds, it's reassuring to see a goblin waving his torch and screaming about some nonsense or other.\"\n—Agrus Kos",
         "imageUri": "https://cards.scryfall.io/normal/front/2/5/259469b3-1212-4030-97ae-a84f132798d4.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Warp World
+{
+    "name": "Warp World",
+    "manaCost": "{5}{R}{R}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Each player shuffles all permanents they own into their library, then reveals that many cards from the top of their library. Each player puts all artifact, creature, and land cards revealed this way onto the battlefield, then does the same for enchantment cards, then puts all cards revealed this way that weren't put onto the battlefield on the bottom of their library.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "Each"
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "BattlefieldMatching",
+                                    "filter": "own:you"
+                                },
+                                "storeAs": "owned"
+                            },
+                            {
+                                "type": "FilterCollection",
+                                "from": "owned",
+                                "filter": {
+                                    "type": "MatchesFilter",
+                                    "filter": "token"
+                                },
+                                "storeMatching": "ownedTokens",
+                                "storeNonMatching": "ownedCards"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "ownedCards",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Library",
+                                    "placement": "Shuffled"
+                                }
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "ownedTokens",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Library",
+                                    "placement": "Bottom"
+                                }
+                            },
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "TopOfLibrary",
+                                    "count": {
+                                        "type": "VariableReference",
+                                        "variableName": "owned_count"
+                                    }
+                                },
+                                "storeAs": "revealed",
+                                "revealed": true
+                            },
+                            {
+                                "type": "FilterCollection",
+                                "from": "revealed",
+                                "filter": {
+                                    "type": "MatchesFilter",
+                                    "filter": "nontoken"
+                                },
+                                "storeMatching": "revealedCards"
+                            },
+                            {
+                                "type": "FilterCollection",
+                                "from": "revealedCards",
+                                "filter": {
+                                    "type": "MatchesFilter",
+                                    "filter": "artifact|creature|land"
+                                },
+                                "storeMatching": "acl",
+                                "storeNonMatching": "notAcl"
+                            },
+                            {
+                                "type": "FilterCollection",
+                                "from": "notAcl",
+                                "filter": {
+                                    "type": "MatchesFilter",
+                                    "filter": "enchantment"
+                                },
+                                "storeMatching": "enchantments",
+                                "storeNonMatching": "rest"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "rest",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Library",
+                                    "placement": "Bottom"
+                                },
+                                "order": "ControllerChooses"
+                            }
+                        ]
+                    },
+                    "collectCollections": {
+                        "acl": "warpAcl",
+                        "enchantments": "warpEnchantments"
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "warpAcl",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Battlefield"
+                    },
+                    "underOwnersControl": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "warpEnchantments",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Battlefield"
+                    },
+                    "underOwnersControl": true
+                },
+                {
+                    "type": "FilterCollection",
+                    "from": "warpEnchantments",
+                    "filter": {
+                        "type": "MatchesFilter",
+                        "filter": {
+                            "statePredicates": [
+                                "IsOnBattlefield"
+                            ]
+                        }
+                    },
+                    "storeMatching": "warpEnchantmentsEntered",
+                    "storeNonMatching": "warpStranded"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "warpStranded",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "placement": "Bottom"
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "150",
+        "rarity": "RARE",
+        "artist": "Ron Spencer",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/d/fdbf743a-6e28-47c4-acfe-1c5d42f80eee.jpg?1783943644"
     },
     "colorIdentityOverride": [
         "RED"

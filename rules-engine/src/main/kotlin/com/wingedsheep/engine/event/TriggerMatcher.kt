@@ -1898,6 +1898,16 @@ class TriggerMatcher(
         is SpellCastPredicate.PaidWithManaFromSubtype -> predicate.subtype in event.spentManaSubtypes
         is SpellCastPredicate.PaidWithManaFromSource -> sourceId in event.spentManaSourceIds
         SpellCastPredicate.IsModal -> event.chosenModesCount > 0
+        // "casts an instant or sorcery *card*": a cast copy of a card (CR 707.12) is a stack-style
+        // copy — `CopyOfComponent` with no pre-copy snapshot — or a prepare-spell copy; neither
+        // is a card (CR 707.10a sweeps them out of every non-stack zone for that reason).
+        SpellCastPredicate.IsCard -> {
+            val spell = state.getEntity(event.spellEntityId)
+            spell != null &&
+                spell.get<com.wingedsheep.engine.state.components.identity.CopyOfComponent>()
+                    ?.let { it.originalCardComponent == null } != true &&
+                !spell.has<com.wingedsheep.engine.state.components.battlefield.PreparedSpellCopyComponent>()
+        }
         SpellCastPredicate.HasXInCost ->
             state.getEntity(event.spellEntityId)?.get<CardComponent>()?.manaCost?.hasX == true
         SpellCastPredicate.TargetsSource -> castTargetEntities(event, state).contains(sourceId)

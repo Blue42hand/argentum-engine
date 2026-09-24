@@ -842,6 +842,11 @@ enum class CardOrder {
  * @property lookAudience For a non-public library look (`revealed = false`), who privately sees
  *   the cards. Defaults to [LookAudience.Controller] (Scry / Surveil / look-at-top-N). Ignored
  *   when [revealed] is `true` (a public reveal shows everyone) or for non-library sources.
+ * @property search This gather *is* a search of a library (CR 701.23) — the "search your library
+ *   for …" step, not a bulk move of a whole library (Jace, the Mind Sculptor's −12) or a look at
+ *   its top. A gather is the only place a search can be told apart from those, so the flag rides
+ *   here: when the searching player (the effect's controller) can't search libraries
+ *   ([CantSearchLibrariesEffect]), library cards are left out of the gathered collection.
  */
 @SerialName("GatherCards")
 @Serializable
@@ -850,6 +855,7 @@ data class GatherCardsEffect(
     val storeAs: String,
     val revealed: Boolean = false,
     val lookAudience: LookAudience = LookAudience.Controller,
+    val search: Boolean = false,
 ) : Effect {
     override val description: String = buildString {
         if (revealed) append("Reveal ") else append("Look at ")

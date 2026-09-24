@@ -869,6 +869,20 @@ data class CantCastSpellsComponent(
 ) : Component
 
 /**
+ * Component indicating that a player can't search libraries — applied by
+ * [com.wingedsheep.sdk.scripting.effects.CantSearchLibrariesEffect] (Shadow of Doubt: "Players
+ * can't search libraries this turn"). Sibling of [CantCastSpellsComponent].
+ *
+ * Read by `GatherCardsExecutor` for a gather marked `search = true` (the searcher finds no
+ * library cards) and by `EmitLibrarySearchedEventExecutor` (no search took place, so no
+ * "whenever a player searches their library" event).
+ */
+@Serializable
+data class CantSearchLibrariesComponent(
+    val removeOn: PlayerEffectRemoval = PlayerEffectRemoval.EndOfTurn
+) : Component
+
+/**
  * Component indicating that a player can't gain life. Conferred directly on the player by
  * [com.wingedsheep.sdk.scripting.effects.LockLifeGainEffect] (Screaming Nemesis), so the lock is
  * independent of any source permanent — distinct from the

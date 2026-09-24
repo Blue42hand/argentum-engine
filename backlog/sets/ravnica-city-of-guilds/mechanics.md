@@ -254,13 +254,9 @@ These are source-backed leads, not claims that every card needs a new executor.
 | Dream Leash | Casting-only tapped target restriction, independent from resolution legality. |
 | Belltower Sphinx | Retain damage-source controller information for its self-damaged trigger. |
 | Auratouched Mage, Flickerform | Legal attachment search, owner-controlled Aura return, and source-left fallback. |
-| Eye of the Storm | Linked spell-card exile, copy choices controlled by the triggering caster, and repeated optional casts. |
 | Spawnbroker | Existing ExchangeControl plus cross-target power filtering; prove both-target legality and exchange atomicity. |
-| Sins of the Past | Targeted graveyard casting permission with duration and exile replacement, without moving the card prematurely. |
 | Molten Sentry | Coin flip as an entry replacement with persistent stats and keyword. |
-| Warp World | Per-owner counts including tokens, simultaneous entry batches, enchantments entering afterward, and bottom ordering. |
 | Blood Funnel | Optional creature sacrifice and counter-on-nonpayment, composed with existing reduction and counter effects. |
-| Shadow of Doubt | Search prohibition in the shared library-search path. |
 | Crown of Convergence | Continuously compare creature colors with the current top library card. |
 | Circu, Dimir Lobotomist | Name matching over the whole linked exile pile for casting restrictions. |
 | Spectral Searchlight | Non-targeting player choice followed by that player's color choice, preserving mana-ability resolution. |

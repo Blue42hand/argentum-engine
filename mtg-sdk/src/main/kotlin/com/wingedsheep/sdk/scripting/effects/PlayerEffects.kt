@@ -469,6 +469,29 @@ data class CantCastSpellsEffect(
 }
 
 /**
+ * The [target] player(s) can't search libraries for the specified [duration] — "Players can't
+ * search libraries this turn" (Shadow of Doubt).
+ *
+ * Enforced where a search happens: a [GatherCardsEffect] marked `search = true` whose searching
+ * player (the effect's controller) carries the restriction finds no library cards, and the
+ * search's [EmitLibrarySearchedEventEffect] tail emits nothing because no search took place.
+ * The rest of the instruction still runs — a "search …, then shuffle" still shuffles (the card's
+ * second ruling). Looking at or revealing the top of a library is not a search and is untouched.
+ *
+ * @param target The player(s) who can't search — `PlayerRef(Player.Each)` for "players".
+ * @param duration How long the restriction lasts (default: this turn).
+ */
+@SerialName("CantSearchLibraries")
+@Serializable
+data class CantSearchLibrariesEffect(
+    val target: EffectTarget,
+    val duration: Duration = Duration.EndOfTurn
+) : Effect {
+    override val description: String =
+        "${target.description.replaceFirstChar { it.uppercase() }} can't search libraries ${duration.description}"
+}
+
+/**
  * Target player can't play cards from their hand for the specified [duration].
  *
  * Restricts both casting spells and playing lands, but only from the **hand** zone —

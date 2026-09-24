@@ -74,6 +74,7 @@ import com.wingedsheep.sdk.scripting.effects.SuspectEffect
 import com.wingedsheep.sdk.scripting.effects.CantBlockGroupEffect
 import com.wingedsheep.sdk.scripting.effects.CantActivateLoyaltyAbilitiesEffect
 import com.wingedsheep.sdk.scripting.effects.CantCastSpellsEffect
+import com.wingedsheep.sdk.scripting.effects.CantSearchLibrariesEffect
 import com.wingedsheep.sdk.scripting.effects.CantCastSpellsFromNonHandZonesEffect
 import com.wingedsheep.sdk.scripting.effects.CantPlayCardsFromHandEffect
 import com.wingedsheep.sdk.scripting.effects.PreventLandPlaysThisTurnEffect
@@ -3750,6 +3751,19 @@ object Effects {
         )
 
     /**
+     * Exile the spell that fired this trigger — "whenever a player casts an instant or sorcery
+     * card, exile it" (Eye of the Storm). Not a counter, like [ExileTargetSpell]: the spell still
+     * fails to resolve because it left the stack, but nothing is targeted and no "countered"
+     * trigger fires. [linkToSource] = true records the card in the source's linked-exile pile
+     * (`CardSource.FromLinkedExile()`). A no-op when the spell already left the stack.
+     */
+    fun ExileTriggeringSpell(linkToSource: Boolean = false): Effect =
+        ExileTargetSpellEffect(
+            linkToSource = linkToSource,
+            spell = com.wingedsheep.sdk.scripting.effects.CounterTargetSource.TriggeringEntity
+        )
+
+    /**
      * Counter target spell unless its controller pays a mana cost.
      * "Counter target spell unless its controller pays {cost}."
      *
@@ -4375,6 +4389,14 @@ object Effects {
      */
     fun CantCastSpells(target: EffectTarget, duration: Duration = Duration.EndOfTurn): Effect =
         CantCastSpellsEffect(target, duration)
+
+    /**
+     * Target player(s) can't search libraries for the duration (default: this turn). Pass
+     * `EffectTarget.PlayerRef(Player.Each)` for "Players can't search libraries this turn"
+     * (Shadow of Doubt). Blocks gathers marked `search = true`; see [CantSearchLibrariesEffect].
+     */
+    fun CantSearchLibraries(target: EffectTarget, duration: Duration = Duration.EndOfTurn): Effect =
+        CantSearchLibrariesEffect(target, duration)
 
     /**
      * Target player can't play cards from their hand for the duration (default: until your

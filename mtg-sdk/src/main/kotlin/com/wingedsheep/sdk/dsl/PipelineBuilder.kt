@@ -174,9 +174,14 @@ class PipelineBuilder private constructor(private val shared: Shared) {
     val triggerCaptured: CollectionSlot get() = CollectionSlot(IterationSpace.TRIGGER_CAPTURED_COLLECTION)
 
     /** Gather cards from [source] into a new collection ([GatherCardsEffect]). */
-    fun gather(source: CardSource, revealed: Boolean = false, name: String? = null): CollectionSlot {
+    fun gather(
+        source: CardSource,
+        revealed: Boolean = false,
+        name: String? = null,
+        search: Boolean = false
+    ): CollectionSlot {
         val slot = CollectionSlot(slotKey("gathered", nextIndex(), name))
-        steps += GatherCardsEffect(source = source, storeAs = slot.key, revealed = revealed)
+        steps += GatherCardsEffect(source = source, storeAs = slot.key, revealed = revealed, search = search)
         return slot
     }
 

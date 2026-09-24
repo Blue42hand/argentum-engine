@@ -638,6 +638,19 @@ sealed interface SpellCastPredicate {
     }
 
     /**
+     * The spell cast is a **card**, not a copy — "whenever a player casts an instant or sorcery
+     * *card*" (Eye of the Storm). Casting a copy of a card (CR 707.12 — the "copy it, then you may
+     * cast the copy" pattern) is still casting a spell and still fires "casts a spell" triggers,
+     * but a copy of a card is not a card, so it never satisfies this. Without it a payoff that
+     * casts copies of what it saw would re-trigger itself on every copy it casts.
+     */
+    @SerialName("SpellIsCard")
+    @Serializable
+    data object IsCard : SpellCastPredicate {
+        override val description = "card"
+    }
+
+    /**
      * The spell itself matches [filter] — the same test as
      * [com.wingedsheep.sdk.scripting.EventPattern.SpellCastEvent.spellFilter], as a predicate so it
      * can sit inside [AnyOf]: "an Equipment spell **or** a spell that targets a creature you

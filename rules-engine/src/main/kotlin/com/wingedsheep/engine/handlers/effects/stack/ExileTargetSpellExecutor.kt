@@ -9,6 +9,7 @@ import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.sdk.core.BendType
+import com.wingedsheep.sdk.scripting.effects.CounterTargetSource
 import com.wingedsheep.sdk.scripting.effects.ExileTargetSpellEffect
 import kotlin.reflect.KClass
 import com.wingedsheep.engine.core.Outcome
@@ -38,9 +39,10 @@ class ExileTargetSpellExecutor(
         effect: ExileTargetSpellEffect,
         context: EffectContext
     ): EffectResult {
-        val target = context.targets.firstOrNull() as? ChosenTarget.Spell
-            ?: return EffectResult.success(state)
-        val spellId = target.spellEntityId
+        val spellId = when (effect.spell) {
+            CounterTargetSource.Chosen -> (context.targets.firstOrNull() as? ChosenTarget.Spell)?.spellEntityId
+            CounterTargetSource.TriggeringEntity -> context.triggeringEntityId
+        } ?: return EffectResult.success(state)
         if (spellId !in state.stack) return EffectResult.success(state)
 
         val resolver = StackResolver(cardRegistry = cardRegistry)

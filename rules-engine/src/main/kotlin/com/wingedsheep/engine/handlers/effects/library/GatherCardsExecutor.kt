@@ -13,6 +13,7 @@ import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.OwnerComponent
+import com.wingedsheep.engine.state.components.player.CantSearchLibrariesComponent
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.effects.CardSource
@@ -330,7 +331,17 @@ class GatherCardsExecutor : EffectExecutor<GatherCardsEffect> {
             }
         }
 
-        val cards = gathered
+        // A search the searcher is forbidden to make finds nothing in any library (Shadow of
+        // Doubt). Only the library half is dropped: "search your graveyard and/or library" still
+        // finds graveyard cards. The rest of the instruction (move nothing, shuffle) still runs.
+        val cards = if (effect.search &&
+            state.getEntity(context.controllerId)?.has<CantSearchLibrariesComponent>() == true
+        ) {
+            val libraries = state.turnOrder.flatMap { state.getZone(ZoneKey(it, Zone.LIBRARY)) }.toSet()
+            gathered.filter { it !in libraries }
+        } else {
+            gathered
+        }
 
         if (cards.isEmpty()) {
             return EffectResult.success(state).copy(
