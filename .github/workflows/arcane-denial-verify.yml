@@ -32,7 +32,12 @@ jobs:
       - name: Canonical printing — Scryfall
         run: python3 scripts/check-card-printing.py "Arcane Denial"
 
+      - name: Dump Scryfall printing evidence
+        if: failure()
+        run: cat ~/.cache/scryfall/printings/arcane-denial.json
+
       - name: Verify snapshot stays clean
+        if: success()
         run: |
           ./gradlew :mtg-sets:test --tests "*CardDefinitionSnapshotTest"
           git diff --exit-code
