@@ -2435,7 +2435,8 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   destination only) puts every **Aura** in the collection onto the battlefield attached to that
   permanent with no enchant choice — "put that Aura card onto the battlefield attached to it"
   (Auratouched Mage), "return the other cards … attached to that creature" (Flickerform). An Aura the
-  host can't legally enchant, or every Aura when the host isn't on the battlefield, stays where it is
+  host can't legally enchant (enchant restriction or protection from its color), or every Aura when
+  the host isn't on the battlefield, stays where it is
   (CR 303.4g); non-Aura cards move normally. `markEnteredViaSourceAbility = true` stamps each
   card that lands on the battlefield with `EnteredViaAbilityComponent(this source)` so a later
   `GatherCards(CardSource.EnteredViaThisResolution)` can re-collect them from live battlefield state.
@@ -4510,7 +4511,8 @@ This is the player-arm prerequisite for the planned composable mixed `TargetUnio
 - `.couldEnchant(ref)` (`CardPredicate.CouldEnchant`) — an Aura card whose printed enchant restriction
   (`auraTarget`) the referenced permanent satisfies — "search your library for an Aura card that could
   enchant it" (Auratouched Mage: `Enchantment.withSubtype("Aura").couldEnchant(EntityReference.Source)`).
-  Only the enchant filter is read (the same reading as the enchant SBA, `EnchantRestriction`), never
+  Reads the enchant filter and protection from the Aura's colors (CR 702.16c) — the same reading as the
+  enchant SBA (`EnchantRestriction.couldAttach`), never
   targeting legality; "you" in the restriction is the evaluating controller. Non-Auras never match.
   Known gap: a host that has left the battlefield is judged by its current card, not last-known info.
 - `.powerEqualsX()` — **projected power exactly equal** to the X chosen for the source spell/ability — the power

@@ -3,6 +3,7 @@ package com.wingedsheep.engine.scenarios
 import com.wingedsheep.engine.core.SelectCardsDecision
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
+import com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
@@ -64,6 +65,46 @@ class AuratouchedMageScenarioTest : ScenarioTestBase() {
                     game.librarySize(1) shouldBe 2
                     game.handSize(1) shouldBe 0
                 }
+            }
+
+            test("an Aura of a color the Mage has protection from could not enchant it") {
+                val game = scenario()
+                    .withPlayers("Alice", "Bob")
+                    .withCardInHand(1, "Auratouched Mage")
+                    .withLandsOnBattlefield(1, "Plains", 6)
+                    .withCardOnBattlefield(1, "Grizzly Bears")
+                    .withCardAttachedTo(1, "White Ward", "Grizzly Bears")
+                    .withCardInLibrary(1, "Holy Strength")
+                    .withCardInLibrary(1, "Unholy Strength")
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+                val unholy = game.findCardsInLibrary(1, "Unholy Strength").single()
+
+                game.castSpell(1, "Auratouched Mage").error shouldBe null
+                game.passPriority()
+                game.passPriority()
+                val mage = game.findPermanent("Auratouched Mage")!!
+                withClue("the enters trigger is waiting on the stack") { game.state.stack.size shouldBe 1 }
+
+                // Move White Ward ("enchanted creature has protection from white") onto the Mage.
+                val ward = game.findPermanent("White Ward")!!
+                val bears = game.findPermanent("Grizzly Bears")!!
+                game.state = game.state
+                    .updateEntity(ward) { it.with(AttachedToComponent(mage)) }
+                    .updateEntity(bears) { it.without<AttachmentsComponent>() }
+                    .updateEntity(mage) { it.with(AttachmentsComponent(listOf(ward))) }
+
+                game.resolveStack()
+                val decision = game.getPendingDecision()
+                decision.shouldBeInstanceOf<SelectCardsDecision>()
+                withClue("white Holy Strength couldn't enchant a pro-white Mage (CR 702.16c)") {
+                    decision.options shouldBe listOf(unholy)
+                }
+                game.selectCards(listOf(unholy)).error shouldBe null
+                game.resolveStack()
+                val aura = game.findPermanent("Unholy Strength")!!
+                game.state.getEntity(aura)!!.get<AttachedToComponent>()!!.targetId shouldBe mage
             }
 
             test("finding nothing is legal") {

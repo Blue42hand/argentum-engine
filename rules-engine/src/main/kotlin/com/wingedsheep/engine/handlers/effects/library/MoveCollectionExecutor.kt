@@ -160,10 +160,12 @@ class MoveCollectionExecutor(
                 val controllerId = if (effect.underOwnersControl) {
                     container.get<OwnerComponent>()?.playerId ?: card.ownerId ?: defaultControllerId
                 } else defaultControllerId
-                val requirement = cardRegistry.getCard(card.cardDefinitionId)?.script?.auraTarget ?: continue
-                val legal = com.wingedsheep.engine.handlers.predicates.EnchantRestriction.hostSatisfies(
-                    newState, newState.projectedState, predicateEvaluator, requirement, hostId, controllerId, auraId
-                ) == true
+                // Enchant restriction and protection (CR 702.16c) together: an Aura that couldn't stay
+                // attached never attaches, so it stays in its current zone (CR 303.4g).
+                val legal = com.wingedsheep.engine.handlers.predicates.EnchantRestriction.couldAttach(
+                    newState, newState.projectedState, predicateEvaluator, cardRegistry,
+                    auraId, card, hostId, controllerId
+                )
                 if (!legal || hostId !in newState.getBattlefield()) continue
                 val (afterMove, moveEvents) = moveAuraToBattlefield(newState, auraId, hostId, controllerId)
                 newState = afterMove

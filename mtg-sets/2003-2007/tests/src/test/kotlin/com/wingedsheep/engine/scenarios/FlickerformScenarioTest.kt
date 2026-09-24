@@ -139,6 +139,51 @@ class FlickerformScenarioTest : ScenarioTestBase() {
                 }
             }
 
+            test("an Aura of a color the returned creature has protection from stays exiled") {
+                // White Knight has protection from black. Its Flickerform (white) is legal; a black
+                // Aura exiled "this way" can't be attached to it on the way back (CR 702.16c), so it
+                // must stay in exile (CR 303.4g) rather than attach and then be graveyarded.
+                val game = scenario()
+                    .withPlayers("Alice", "Bob")
+                    .withCardOnBattlefield(1, "White Knight")
+                    .withCardAttachedTo(1, "Flickerform", "White Knight")
+                    .withCardInExile(1, "Unholy Strength")
+                    .withLandsOnBattlefield(1, "Plains", 4)
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+                val flickerform = game.findPermanent("Flickerform")!!
+                val unholy = game.state.getZone(
+                    com.wingedsheep.engine.state.ZoneKey(game.player1Id, com.wingedsheep.sdk.core.Zone.EXILE)
+                ).single()
+                game.execute(ActivateAbility(playerId = game.player1Id, sourceId = flickerform, abilityId = abilityId))
+                    .error shouldBe null
+                game.resolveStack()
+
+                // A black Aura can't legally be on a pro-black creature on the battlefield, so stand
+                // one in for "the other cards exiled this way" by adding it to the carried pile.
+                game.state = game.state.copy(delayedTriggers = game.state.delayedTriggers.map { d ->
+                    val auras = d.carriedCollections["flickerAuras"] ?: return@map d
+                    d.copy(carriedCollections = d.carriedCollections + ("flickerAuras" to auras +
+                        com.wingedsheep.engine.handlers.CapturedObjectBinding(unholy, game.state.objectRef(unholy))))
+                })
+
+                game.passUntilPhase(Phase.ENDING, Step.END)
+                game.resolveStack()
+                game.checkStateBasedActions()
+
+                val knight = game.findPermanent("White Knight")!!
+                withClue("Flickerform (white) returns attached to the pro-black Knight") {
+                    game.state.getEntity(game.findPermanent("Flickerform")!!)!!
+                        .get<AttachedToComponent>()!!.targetId shouldBe knight
+                }
+                withClue("the black Aura stays in exile instead of attaching and being graveyarded") {
+                    game.isInExile(1, "Unholy Strength") shouldBe true
+                    game.isInGraveyard(1, "Unholy Strength") shouldBe false
+                    game.isOnBattlefield("Unholy Strength") shouldBe false
+                }
+            }
+
             test("the creature doesn't come back until the end step") {
                 val game = scenario()
                     .withPlayers("Alice", "Bob")

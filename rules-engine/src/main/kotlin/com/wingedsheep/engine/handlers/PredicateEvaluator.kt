@@ -887,13 +887,12 @@ class PredicateEvaluator {
             is CardPredicate.CouldEnchant -> {
                 if (!card.typeLine.isAura) return false
                 val hostId = resolveEntityReference(state, predicate.reference, context, projected) ?: return false
-                val requirement = com.wingedsheep.engine.handlers.effects.ZoneTransitionService.cardRegistryOrNull()
-                    ?.getCard(card.cardDefinitionId)?.script?.auraTarget ?: return false
-                com.wingedsheep.engine.handlers.predicates.EnchantRestriction.hostSatisfies(
-                    state, projected, this, requirement, hostId,
-                    controllerId = context?.controllerId ?: return false,
-                    auraId = entityId
-                ) == true
+                val registry = com.wingedsheep.engine.handlers.effects.ZoneTransitionService.cardRegistryOrNull()
+                    ?: return false
+                com.wingedsheep.engine.handlers.predicates.EnchantRestriction.couldAttach(
+                    state, projected, this, registry, entityId, card, hostId,
+                    controllerId = context?.controllerId ?: return false
+                )
             }
 
             is CardPredicate.PowerAtMostEntity -> {
