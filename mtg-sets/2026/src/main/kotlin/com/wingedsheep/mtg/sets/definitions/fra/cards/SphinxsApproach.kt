@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.references.Player
@@ -22,7 +20,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  * battlefield, then shuffle.
  * A deck can have any number of cards named Sphinx's Approach.
  *
- * - The optional payment is all-or-nothing: a `MayEffect` over a `Gate.DoAction` whose success bar
+ * - The optional payment is all-or-nothing: an `Effects.May` over a `Gate.DoAction` whose success bar
  *   is four graveyard cards actually exiled (`CollectionNonEmpty(min = 4)`). With fewer than four
  *   other copies in the graveyard the option isn't a legal choice (CR 608.2d), so the gated-effect
  *   executor skips the prompt entirely and the spell goes to the graveyard as usual.
@@ -46,8 +44,8 @@ val SphinxsApproach = card("Sphinx's Approach") {
         effect = Effects.Composite(
             listOf(
                 Effects.DrawCards(2),
-                MayEffect(
-                    effect = IfYouDoEffect(
+                Effects.May(
+                    effect = Effects.IfYouDo(
                         action = Effects.Pipeline {
                             val approaches = gather(
                                 CardSource.FromZone(
@@ -65,7 +63,7 @@ val SphinxsApproach = card("Sphinx's Approach") {
                             exile(four)
                             exile(gather(CardSource.Self))
                         },
-                        ifYouDo = Patterns.Library.searchLibrary(
+                        then = Patterns.Library.searchLibrary(
                             filter = GameObjectFilter.Creature.withSubtype("Sphinx"),
                             destination = SearchDestination.BATTLEFIELD
                         ),

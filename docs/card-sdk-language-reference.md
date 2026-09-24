@@ -3334,7 +3334,7 @@ one-off pipeline belongs inline in the card file via `Effects.Pipeline { }` (§5
   `spell { selfExile(); effect = Patterns.Sideboard.wish(Filters.Sorcery) }`.
   A wish whose pick is split between players is composed inline rather than through the recipe —
   **Extrapolate the Impossible** ("you may reveal exactly two cards you own with different names from outside
-  the game. An opponent chooses one of them. You put that card into your hand"): `MayEffect(IfYouDo(Pipeline {
+  the game. An opponent chooses one of them. You put that card into your hand"): `May(IfYouDo(Pipeline {
   gather(FromZone(SIDEBOARD, You)) → chooseExactly(2, restrictions = [OnePerCardName]) → reveal },
   Pipeline { gather(FromVariable(revealed)) → chooseExactly(1, chooser = Opponent) → toHand },
   CollectionNonEmpty(revealed, min = 2)))`.
@@ -3832,7 +3832,7 @@ effect = Effects.Pipeline {
 - `CardSource.Self` — the ability's own source card, in whatever zone it currently sits. For a spell that is the
   resolving spell itself, on the stack: exiling it mid-resolution ("you may exile this spell and …") is
   `exile(gather(CardSource.Self))`, and CR 608.2n's final "put it into its owner's graveyard" then finds nothing
-  on the stack to move. **Sphinx's Approach**: `MayEffect(IfYouDo(Pipeline { four = chooseExactly(4, gather(graveyard
+  on the stack to move. **Sphinx's Approach**: `May(IfYouDo(Pipeline { four = chooseExactly(4, gather(graveyard
   named "Sphinx's Approach")); exile(four); exile(gather(CardSource.Self)) }, searchLibrary(Sphinx → BATTLEFIELD),
   CollectionNonEmpty(four, min = 4)))` — unlike `spell { selfExile() }`, the exile only happens on the "yes" branch.
 - `CardSource.TriggeringEntity` — the entity that fired the trigger (`EffectContext.triggeringEntityId`),

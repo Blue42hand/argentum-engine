@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.IfYouDoEffect
-import com.wingedsheep.sdk.scripting.effects.MayEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionRestriction
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.references.Player
@@ -24,7 +22,7 @@ private const val REVEALED = "extrapolateRevealed"
  * "Outside the game" is the owner's private `Zone.SIDEBOARD` (the wish model — see
  * `Patterns.Sideboard.wish`): an explicit sideboard in constructed, `pool − maindeck` in Limited.
  *
- * - "You may reveal **exactly two** … with different names" is all-or-nothing: a `MayEffect` over a
+ * - "You may reveal **exactly two** … with different names" is all-or-nothing: an `Effects.May` over a
  *   `Gate.DoAction` whose bar is two revealed cards (`CollectionNonEmpty(min = 2)`), with the pick
  *   constrained by [SelectionRestriction.OnePerCardName]. When the sideboard doesn't hold two
  *   differently named cards the option can't be taken (CR 608.2d), so the gated-effect executor
@@ -41,8 +39,8 @@ val ExtrapolateTheImpossible = card("Extrapolate the Impossible") {
         "An opponent chooses one of them. You put that card into your hand."
 
     spell {
-        effect = MayEffect(
-            effect = IfYouDoEffect(
+        effect = Effects.May(
+            effect = Effects.IfYouDo(
                 action = Effects.Pipeline {
                     val outside = gather(CardSource.FromZone(Zone.SIDEBOARD, Player.You))
                     val two = chooseExactly(
@@ -54,7 +52,7 @@ val ExtrapolateTheImpossible = card("Extrapolate the Impossible") {
                     )
                     reveal(two, fromZone = Zone.SIDEBOARD)
                 },
-                ifYouDo = Effects.Pipeline {
+                then = Effects.Pipeline {
                     val revealed = gather(CardSource.FromVariable(REVEALED))
                     val chosen = chooseExactly(
                         count = 1,
