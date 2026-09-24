@@ -2,7 +2,7 @@
 
 **Set Size:** 285 cards
 **Release Date:** October 2, 2026
-**Implemented:** 228 / 285
+**Implemented:** 243 / 285
 | Section    | Total | Done |
 |------------|-------|------|
 | Extras     | 285   | 78   |
@@ -18,7 +18,7 @@
 - [x] Academic Ascent
 - [x] Aerid Konstrari
 - [x] Afterthought Sentry
-- [ ] Ajani Resolute
+- [x] Ajani Resolute
 - [ ] Ajani Unrelenting
 - [x] Ajani's Anguish
 - [x] Apex Witchstalker
@@ -42,12 +42,12 @@
 - [x] Cast Away Doubt
 - [x] Chandra's Emberling
 - [ ] Chandra, Chill of Compliance
-- [ ] Chandra, Torch of Defiance
+- [x] Chandra, Torch of Defiance
 - [x] Charge the Sanctum
 - [ ] Clash of Elements
 - [ ] Codie, Ravenous Codex
 - [x] Command the Stage
-- [ ] Compel Brutality
+- [x] Compel Brutality
 - [ ] Countersculpt
 - [x] Craftwork Crusher
 - [x] Craterclaw Colossus
@@ -71,7 +71,7 @@
 - [x] Emergency Phytomedic
 - [ ] Emrakul, the Exigent Doom
 - [ ] Enlightened Confidant
-- [ ] Entrust the Spark
+- [x] Entrust the Spark
 - [x] Essence Burn
 - [x] Extended Absence
 - [ ] Extrapolate the Impossible
@@ -84,17 +84,17 @@
 - [ ] Fblthp, Impossibly Lost
 - [ ] Fblthp, Knows the Way
 - [x] Ferocity of the Hunt
-- [ ] Flickering Hound
-- [ ] Flourishing Grapple
+- [x] Flickering Hound
+- [x] Flourishing Grapple
 - [x] Forest
 - [x] Formidable Commons
 - [x] Frostbite Pyromental
 - [x] Fulminous Forte
 - [x] Gallia, Tragic Host
 - [x] Gallia, the Merrymaker
-- [ ] Gardenize
+- [x] Gardenize
 - [ ] Garruk, Curse Breaker
-- [ ] Garruk, Veiled Butcher
+- [x] Garruk, Veiled Butcher
 - [x] Geist of Saint Thalia
 - [x] Generous Revival
 - [x] Germinate Recruits
@@ -108,19 +108,19 @@
 - [x] Guiding Hydra
 - [ ] Hall of Echoes
 - [x] Hallway Heckler
-- [ ] Hapatra, the Desert Fang
+- [x] Hapatra, the Desert Fang
 - [x] Hapatra, the Desert Frost
 - [x] Haunted Ridge
 - [x] Heartstring Puller
 - [ ] Heartwood Crafter
 - [x] Hexhaven Battalion
-- [ ] Hexhaven Dueling Arena
+- [x] Hexhaven Dueling Arena
 - [ ] Hexhaven Invigorator
 - [x] Hungering Puppetbeast
 - [x] Hunter's Axe
 - [x] Icy Reception
 - [ ] Identity Echo
-- [ ] Infinite Coursework
+- [x] Infinite Coursework
 - [x] Ingris Stingerquill
 - [x] Innovative Commons
 - [ ] Inspired Tethermage
@@ -147,7 +147,7 @@
 - [x] Liliana the Repentant
 - [x] Living Library
 - [ ] Loot, the Anomaly
-- [ ] Loot, the Nexus
+- [x] Loot, the Nexus
 - [x] Loyal Tutor
 - [x] Lyra, Archangel of Dawn
 - [x] Lyra, Tolarian Archangel
@@ -233,7 +233,7 @@
 - [x] Swamp
 - [x] Tam's Resistance
 - [ ] Tam, the Possibility
-- [ ] Tarmogoyf
+- [x] Tarmogoyf
 - [x] Tenured Tethermage
 - [x] Terminal Criticism
 - [x] Tether Technician
@@ -244,7 +244,7 @@
 - [x] Teyo, Lightshield Expert
 - [x] Thalia, the Survivor
 - [x] The Echoverse Fulcrum
-- [ ] The Theorist, Jace Beleren
+- [x] The Theorist, Jace Beleren
 - [x] Theoretical Necromancer
 - [x] Theorist's Proxy
 - [ ] Theorist's Sanctum
@@ -274,7 +274,7 @@
 - [ ] Violent Echoes
 - [x] Void Extrapolator
 - [x] Vraska's Final Mercy
-- [ ] Vraska, Soul of Stone
+- [x] Vraska, Soul of Stone
 - [x] Vraska, the Cutting Glare
 - [x] Warrior's Blades
 - [x] Way of the Cryomancer
