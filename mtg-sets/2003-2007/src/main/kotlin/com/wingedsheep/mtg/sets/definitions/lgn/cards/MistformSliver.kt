@@ -31,7 +31,7 @@ val MistformSliver = card("Mistform Sliver") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Mana("{1}"),
                 effect = Effects.BecomeCreatureType(
                     target = EffectTarget.Self

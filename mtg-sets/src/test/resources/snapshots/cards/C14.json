@@ -14,7 +14,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jazal Goldmane:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -69,7 +69,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Myriad Landscape:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -82,7 +82,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Myriad Landscape:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -159,7 +159,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Unstable Obelisk:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -172,7 +172,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Unstable Obelisk:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [

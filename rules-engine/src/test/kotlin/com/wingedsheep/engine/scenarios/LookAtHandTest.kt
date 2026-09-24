@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.model.Deck
+import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.effects.LookAtTargetHandEffect
 import com.wingedsheep.sdk.scripting.EventPattern
@@ -50,6 +51,7 @@ class LookAtHandTest : FunSpec({
         creatureStats = com.wingedsheep.sdk.model.CreatureStats(1, 1),
         script = CardScript.creature(
             TriggeredAbility.create(
+                id = AbilityId("LookAtHandTest_1"),
                 trigger = EventPattern.ZoneChangeEvent(to = Zone.BATTLEFIELD),
                 binding = TriggerBinding.SELF,
                 effect = LookAtTargetHandEffect(EffectTarget.ContextTarget(0)),

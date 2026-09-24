@@ -16,6 +16,7 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.model.CreatureStats
 import com.wingedsheep.sdk.model.Deck
+import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
@@ -67,6 +68,7 @@ class PayOrSufferRoutedChoiceTest : FunSpec({
         creatureStats = CreatureStats(2, 2),
         script = CardScript.creature(
             TriggeredAbility.create(
+                id = AbilityId("PayOrSufferRoutedChoiceTest_1"),
                 trigger = EventPattern.ZoneChangeEvent(to = Zone.BATTLEFIELD),
                 binding = TriggerBinding.SELF,
                 effect = PayOrSufferEffect(

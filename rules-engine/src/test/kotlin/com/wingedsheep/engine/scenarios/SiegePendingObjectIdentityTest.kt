@@ -21,6 +21,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.Gate
 import com.wingedsheep.sdk.scripting.effects.GatedEffect
@@ -95,7 +96,7 @@ class SiegePendingObjectIdentityTest : FunSpec({
                 val original = d.state.objectRef(siege)!!
                 val refs = ObjectReferenceEnvironment(captured = true, origin = original, source = original)
                 var state = d.state.updateEntity(siege) { it.with(CountersComponent()) }
-                val trigger = PendingTrigger(TriggeredAbility(id = com.wingedsheep.sdk.scripting.AbilityId.generate(), trigger = Triggers.EntersBattlefield.event,
+                val trigger = PendingTrigger(TriggeredAbility(id = com.wingedsheep.sdk.scripting.AbilityId("SiegePendingObjectIdentityTest_1"), trigger = Triggers.EntersBattlefield.event,
                     effect = Effects.GainLife(1)), siege, siegeCard.name,
                     objectReferences = refs, controllerId = d.player1, triggerContext = TriggerContext())
                 val stackId = EntityId.generate()

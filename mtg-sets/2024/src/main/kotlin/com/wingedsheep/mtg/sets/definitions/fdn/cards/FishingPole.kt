@@ -53,7 +53,7 @@ val FishingPole = card("Fishing Pole") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Composite(
                     Costs.Mana("{1}"),
                     Costs.Tap,

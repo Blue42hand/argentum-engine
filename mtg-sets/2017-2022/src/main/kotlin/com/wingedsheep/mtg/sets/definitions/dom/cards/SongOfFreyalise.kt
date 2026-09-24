@@ -37,7 +37,7 @@ val SongOfFreyalise = card("Song of Freyalise") {
 
     val manaAbility = Effects.GrantActivatedAbilityToGroup(
         ability = ActivatedAbility(
-            id = AbilityId.generate(),
+            id = AbilityId.next(),
             cost = AbilityCost.Tap,
             effect = Effects.AddAnyColorMana(1),
             isManaAbility = true,

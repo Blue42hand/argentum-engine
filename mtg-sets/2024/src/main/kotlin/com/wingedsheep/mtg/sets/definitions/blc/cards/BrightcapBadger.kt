@@ -41,7 +41,7 @@ val BrightcapBadger = card("Brightcap Badger") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Tap,
                 effect = Effects.AddMana(Color.GREEN),
                 isManaAbility = true,

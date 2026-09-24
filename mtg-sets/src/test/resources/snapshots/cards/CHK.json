@@ -11,7 +11,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Akki Avalanchers:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -64,7 +64,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Akki Coalflinger:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -120,7 +120,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Akki Rockspeaker:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -156,7 +156,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Azami, Lady of Scrolls:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -199,7 +199,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ben-Ben, Akki Hermit:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "DealDamage",
@@ -309,7 +309,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blood Rites:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -672,7 +672,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cursed Ronin:1",
                 "trigger": "BlockEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -689,7 +689,7 @@
                 "descriptionOverride": "Bushido 1"
             },
             {
-                "id": "ability_2",
+                "id": "Cursed Ronin:2",
                 "trigger": "BecomesBlockedEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -708,7 +708,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_3",
+                "id": "Cursed Ronin:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -919,7 +919,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Devoted Retainer:1",
                 "trigger": "BlockEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -936,7 +936,7 @@
                 "descriptionOverride": "Bushido 1"
             },
             {
-                "id": "ability_2",
+                "id": "Devoted Retainer:2",
                 "trigger": "BecomesBlockedEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -978,7 +978,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Earthshaker:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -1107,7 +1107,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Eiganjo Castle:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1117,7 +1117,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Eiganjo Castle:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1243,7 +1243,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Field of Reality:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1417,7 +1417,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Guardian of Solitude:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -1478,7 +1478,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hair-Strung Koto:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1551,7 +1551,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hana Kami:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1611,7 +1611,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hearth Kami:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1765,7 +1765,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Horizon Seed:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -1888,7 +1888,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Innocence Kami:2",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -1919,7 +1919,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Innocence Kami:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1994,7 +1994,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jade Idol:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -2055,7 +2055,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Journeyer's Kite:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2187,7 +2187,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kabuto Moth:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "ModifyStats",
@@ -2240,7 +2240,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kami of Ancient Law:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "MoveToZone",
@@ -2287,7 +2287,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kami of Fire's Roar:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -2371,7 +2371,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kami of Twisted Reflection:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "MoveToZone",
@@ -2417,7 +2417,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kami of the Hunt:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -2481,7 +2481,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kami of the Waning Moon:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -2557,7 +2557,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kitsune Blademaster:1",
                 "trigger": "BlockEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -2574,7 +2574,7 @@
                 "descriptionOverride": "Bushido 1"
             },
             {
-                "id": "ability_2",
+                "id": "Kitsune Blademaster:2",
                 "trigger": "BecomesBlockedEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -2616,7 +2616,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kitsune Diviner:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "TapUntap",
@@ -2807,7 +2807,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Konda, Lord of Eiganjo:1",
                 "trigger": "BlockEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -2824,7 +2824,7 @@
                 "descriptionOverride": "Bushido 5"
             },
             {
-                "id": "ability_2",
+                "id": "Konda, Lord of Eiganjo:2",
                 "trigger": "BecomesBlockedEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -2866,7 +2866,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kuro, Pitlord:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -2887,7 +2887,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Kuro, Pitlord:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3050,7 +3050,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Marrow-Gnawer:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3120,7 +3120,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Meloku the Clouded Mirror:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3180,7 +3180,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Midnight Covenant:1",
                     "cost": {
                         "type": "CostAtomWrapper",
                         "atom": {
@@ -3230,7 +3230,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Minamo, School at Water's Edge:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3240,7 +3240,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Minamo, School at Water's Edge:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3339,7 +3339,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mothrider Samurai:1",
                 "trigger": "BlockEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -3356,7 +3356,7 @@
                 "descriptionOverride": "Bushido 1"
             },
             {
-                "id": "ability_2",
+                "id": "Mothrider Samurai:2",
                 "trigger": "BecomesBlockedEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -3398,7 +3398,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Myojin of Night's Reach:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3528,7 +3528,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Nagao, Bound by Honor:1",
                 "trigger": "BlockEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -3545,7 +3545,7 @@
                 "descriptionOverride": "Bushido 1"
             },
             {
-                "id": "ability_2",
+                "id": "Nagao, Bound by Honor:2",
                 "trigger": "BecomesBlockedEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -3562,7 +3562,7 @@
                 "descriptionOverride": "Bushido 1"
             },
             {
-                "id": "ability_3",
+                "id": "Nagao, Bound by Honor:3",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ForEach",
@@ -3613,7 +3613,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Nezumi Bone-Reader:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3751,7 +3751,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Nezumi Ronin:1",
                 "trigger": "BlockEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -3768,7 +3768,7 @@
                 "descriptionOverride": "Bushido 1"
             },
             {
-                "id": "ability_2",
+                "id": "Nezumi Ronin:2",
                 "trigger": "BecomesBlockedEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -3836,7 +3836,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "No-Dachi:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3910,7 +3910,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Numai Outcast:1",
                 "trigger": "BlockEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -3927,7 +3927,7 @@
                 "descriptionOverride": "Bushido 2"
             },
             {
-                "id": "ability_2",
+                "id": "Numai Outcast:2",
                 "trigger": "BecomesBlockedEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -3946,7 +3946,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_3",
+                "id": "Numai Outcast:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3995,7 +3995,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Okina, Temple to the Grandfathers:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -4005,7 +4005,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Okina, Temple to the Grandfathers:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4079,7 +4079,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Orbweaver Kumo:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -4154,7 +4154,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ore Gorger:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -4234,7 +4234,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Orochi Leafcaller:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4272,7 +4272,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Orochi Sustainer:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -4591,7 +4591,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ronin Houndmaster:1",
                 "trigger": "BlockEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -4608,7 +4608,7 @@
                 "descriptionOverride": "Bushido 1"
             },
             {
-                "id": "ability_2",
+                "id": "Ronin Houndmaster:2",
                 "trigger": "BecomesBlockedEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -4653,7 +4653,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ryusei, the Falling Star:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -4723,7 +4723,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Sachi, Daughter of Seshiro:1",
                     "cost": "CostTap",
                     "effect": {
                         "type": "AddMana",
@@ -4767,7 +4767,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sakura-Tribe Elder:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "Composite",
@@ -4844,7 +4844,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Samurai Enforcers:1",
                 "trigger": "BlockEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -4861,7 +4861,7 @@
                 "descriptionOverride": "Bushido 2"
             },
             {
-                "id": "ability_2",
+                "id": "Samurai Enforcers:2",
                 "trigger": "BecomesBlockedEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -4900,7 +4900,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sensei's Divining Top:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4936,7 +4936,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Sensei's Divining Top:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -4992,7 +4992,7 @@
             {
                 "type": "GrantTriggeredAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Seshiro the Anointed:1",
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
@@ -5040,7 +5040,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shinka, the Bloodsoaked Keep:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -5050,7 +5050,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Shinka, the Bloodsoaked Keep:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5110,7 +5110,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shizo, Death's Storehouse:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -5120,7 +5120,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Shizo, Death's Storehouse:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5187,7 +5187,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sire of the Storm:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -5277,7 +5277,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Soratami Cloudskater:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5374,7 +5374,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Soratami Mirror-Guard:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5440,7 +5440,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Soratami Rainshaper:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5514,7 +5514,7 @@
             {
                 "type": "GrantTriggeredAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Sosuke, Son of Seshiro:1",
                     "trigger": {
                         "type": "DealsDamageEvent",
                         "damageType": "DamageCombat",
@@ -5564,7 +5564,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Soul of Magma:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -5772,7 +5772,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Teller of Tales:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -5904,7 +5904,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "The Unspeakable:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -6275,7 +6275,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Untaidake, the Cloud Keeper:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [

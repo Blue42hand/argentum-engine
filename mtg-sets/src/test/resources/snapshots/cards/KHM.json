@@ -88,7 +88,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Axgard Cavalry:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "GrantKeyword",
@@ -130,7 +130,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Barkchannel Pathway:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -149,7 +149,7 @@
         "script": {
             "activatedAbilities": [
                 {
-                    "id": "ability_2",
+                    "id": "Tidechannel Pathway:1",
                     "cost": "CostTap",
                     "effect": {
                         "type": "AddMana",
@@ -264,7 +264,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Beskir Shieldmate:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -305,7 +305,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blightstep Pathway:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -324,7 +324,7 @@
         "script": {
             "activatedAbilities": [
                 {
-                    "id": "ability_2",
+                    "id": "Searstep Pathway:1",
                     "cost": "CostTap",
                     "effect": {
                         "type": "AddMana",
@@ -397,7 +397,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Brinebarrow Intruder:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -451,7 +451,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Canopy Tactician:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -502,7 +502,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Clarion Spirit:1",
                 "trigger": {
                     "type": "NthSpellCastEvent",
                     "nthSpell": 2,
@@ -547,7 +547,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Darkbore Pathway:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -566,7 +566,7 @@
         "script": {
             "activatedAbilities": [
                 {
-                    "id": "ability_2",
+                    "id": "Slitherbore Pathway:1",
                     "cost": "CostTap",
                     "effect": {
                         "type": "AddMana",
@@ -698,7 +698,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dogged Pursuit:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -814,7 +814,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Doomskar Oracle:1",
                 "trigger": {
                     "type": "NthSpellCastEvent",
                     "nthSpell": 2,
@@ -864,7 +864,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Doomskar Titan:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -971,7 +971,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elderfang Disciple:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1044,7 +1044,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elderleaf Mentor:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1125,7 +1125,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elvish Warmaster:1",
                 "trigger": {
                     "type": "PermanentsEnteredEvent",
                     "filter": "permanent Elf ctrl:you",
@@ -1149,7 +1149,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Elvish Warmaster:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1225,7 +1225,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Esika's Chariot:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1248,7 +1248,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Esika's Chariot:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "CreateTokenCopyOfTarget",
@@ -1328,7 +1328,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Firja, Judge of Valor:1",
                 "trigger": {
                     "type": "NthSpellCastEvent",
                     "nthSpell": 2,
@@ -1444,7 +1444,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fynn, the Fangbearer:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -1494,7 +1494,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gates of Istfell:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1504,7 +1504,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Gates of Istfell:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1612,7 +1612,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gnottvold Slumbermound:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1622,7 +1622,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Gnottvold Slumbermound:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1733,7 +1733,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goldvein Pick:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
@@ -1751,7 +1751,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Goldvein Pick:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1832,7 +1832,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Guardian Gladewalker:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1876,7 +1876,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hengegate Pathway:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -1895,7 +1895,7 @@
         "script": {
             "activatedAbilities": [
                 {
-                    "id": "ability_2",
+                    "id": "Mistgate Pathway:1",
                     "cost": "CostTap",
                     "effect": {
                         "type": "AddMana",
@@ -1990,7 +1990,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Immersturm Predator:1",
                 "trigger": "TapEvent",
                 "effect": {
                     "type": "Composite",
@@ -2024,7 +2024,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Immersturm Predator:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2126,7 +2126,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jaspera Sentinel:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2171,7 +2171,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Karfell Kennel-Master:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2312,7 +2312,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Littjara Glade-Warden:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2381,7 +2381,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Maja, Bretagard Protector:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "land ctrl:you",
@@ -2496,7 +2496,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mistwalker:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2561,7 +2561,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ravenous Lindwurm:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2632,7 +2632,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sarulf's Packmate:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2789,7 +2789,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shepherd of the Cosmos:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2834,7 +2834,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Skemfar Elderhall:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -2844,7 +2844,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Skemfar Elderhall:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3167,7 +3167,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Surtland Frostpyre:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -3177,7 +3177,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Surtland Frostpyre:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3279,7 +3279,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vault Robber:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3587,7 +3587,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Youthful Valkyrie:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Angel ctrl:you",

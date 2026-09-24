@@ -22,7 +22,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Arcbound Condor:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -55,7 +55,7 @@
                 "descriptionOverride": "When this creature dies, you may put its +1/+1 counters on target artifact creature."
             },
             {
-                "id": "ability_2",
+                "id": "Arcbound Condor:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "artifact ctrl:you",
@@ -121,7 +121,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Arena of Glory:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -131,7 +131,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Arena of Glory:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -267,7 +267,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Furnace Hellkite:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -382,7 +382,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Guide of Souls:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature ctrl:you",
@@ -409,7 +409,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Guide of Souls:2",
                 "trigger": "YouAttackEvent",
                 "binding": "ANY",
                 "effect": {
@@ -578,7 +578,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Nightshade Dryad:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -591,7 +591,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Nightshade Dryad:2",
                 "cost": "CostTap",
                 "effect": "AddManaOfChoice",
                 "timing": "ManaAbility",
@@ -639,7 +639,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Nulldrifter:1",
                 "trigger": "CastThisSpellEvent",
                 "effect": {
                     "type": "DrawCards",
@@ -651,7 +651,7 @@
                 "descriptionOverride": "When you cast this spell, draw two cards."
             },
             {
-                "id": "ability_2",
+                "id": "Nulldrifter:2",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ForceSacrifice",
@@ -712,7 +712,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ocelot Pride:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END"
@@ -824,7 +824,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sarpadian Simulacrum:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -886,7 +886,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Serum Visionary:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -937,7 +937,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sneaky Snacker:1",
                 "trigger": {
                     "type": "NthCardDrawnEvent",
                     "nthCard": 3
@@ -1089,7 +1089,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ugin's Labyrinth:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1144,7 +1144,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Ugin's Labyrinth:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -1172,7 +1172,7 @@
                 "descriptionOverride": "{T}: Add {C}. If a card is exiled with this land, add {C}{C} instead."
             },
             {
-                "id": "ability_3",
+                "id": "Ugin's Labyrinth:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -1224,7 +1224,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Warren Soultrader:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [

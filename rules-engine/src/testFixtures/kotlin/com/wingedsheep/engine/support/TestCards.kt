@@ -98,6 +98,7 @@ object TestCards {
         oracleText = "When this creature dies, you gain 3 life.",
         script = CardScript.creature(
             TriggeredAbility.create(
+                id = AbilityId("TestCards_1"),
                 trigger = EventPattern.ZoneChangeEvent(from = Zone.BATTLEFIELD, to = Zone.GRAVEYARD),
                 binding = TriggerBinding.SELF,
                 effect = GainLifeEffect(3)

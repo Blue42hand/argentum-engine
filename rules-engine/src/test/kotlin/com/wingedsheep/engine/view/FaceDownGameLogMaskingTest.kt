@@ -304,7 +304,7 @@ class FaceDownGameLogMaskingTest : FunSpec({
             container.with(container.get<CardComponent>()!!.copy(imageUri = hiddenImage))
         })
         val ability = ActivatedAbility(
-            id = AbilityId.generate(),
+            id = AbilityId("FaceDownGameLogMaskingTest_1"),
             cost = Costs.Tap,
             targetRequirements = listOf(AnyTarget()),
             effect = Effects.DealDamage(DynamicAmounts.sourcePower(), EffectTarget.ContextTarget(0)),

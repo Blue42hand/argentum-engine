@@ -31,7 +31,7 @@ val ClotSliver = card("Clot Sliver") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Mana("{2}"),
                 effect = Effects.Regenerate(EffectTarget.Self)
             ),

@@ -36,7 +36,7 @@ val MidnightCovenant = card("Midnight Covenant") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Mana("{B}"),
                 effect = Effects.ModifyStats(1, 1, EffectTarget.Self)
             )

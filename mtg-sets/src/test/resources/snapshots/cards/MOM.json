@@ -80,7 +80,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Akki Scrapchomper:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -261,7 +261,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Astral Wingspan:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -326,7 +326,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Chrome Host Seedshark:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -789,7 +789,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Furtive Analyst:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -918,7 +918,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Interdisciplinary Mascot:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1004,7 +1004,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Invasion of Innistrad:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1043,7 +1043,7 @@
         "script": {
             "triggeredAbilities": [
                 {
-                    "id": "ability_2",
+                    "id": "Deluge of the Dead:1",
                     "trigger": {
                         "type": "ZoneChangeEvent",
                         "to": "Battlefield"
@@ -1068,7 +1068,7 @@
             ],
             "activatedAbilities": [
                 {
-                    "id": "ability_3",
+                    "id": "Deluge of the Dead:2",
                     "cost": {
                         "type": "CostAtomWrapper",
                         "atom": {
@@ -1187,7 +1187,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Iridescent Blademaster:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1261,7 +1261,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Knight of the New Coalition:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1305,7 +1305,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kor Halberd:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1405,7 +1405,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Nezumi Informant:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1543,7 +1543,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Preening Champion:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1623,7 +1623,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ramosian Greatsword:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1694,7 +1694,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ravenous Sailback:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1765,7 +1765,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Referee Squad:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1839,7 +1839,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ruins Recluse:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1981,7 +1981,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Urn of Godfire:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1994,7 +1994,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Urn of Godfire:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2052,7 +2052,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wary Thespian:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2063,7 +2063,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Wary Thespian:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -2184,7 +2184,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Zhalfirin Lancer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Knight ctrl:you",

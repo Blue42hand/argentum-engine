@@ -1,4 +1,4 @@
-package com.wingedsheep.sdk.serialization
+package com.wingedsheep.sdk.tooling
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec

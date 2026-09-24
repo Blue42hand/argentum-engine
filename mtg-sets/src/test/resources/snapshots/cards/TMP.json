@@ -14,7 +14,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Advance Scout:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -63,7 +63,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Altar of Dementia:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -133,7 +133,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ancient Tomb:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -186,7 +186,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Armor Sliver:1",
                     "cost": {
                         "type": "CostAtomWrapper",
                         "atom": {
@@ -238,7 +238,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Auratog:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -289,7 +289,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Avenging Angel:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -334,7 +334,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Barbed Sliver:1",
                     "cost": {
                         "type": "CostAtomWrapper",
                         "atom": {
@@ -436,7 +436,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blood Pet:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "AddMana",
@@ -513,7 +513,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Bottle Gnomes:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "GainLife",
@@ -544,7 +544,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Caldera Lake:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -557,7 +557,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Caldera Lake:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -583,7 +583,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Caldera Lake:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -665,7 +665,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Canyon Drake:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -812,7 +812,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Clergy en-Vec:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "PreventDamageShield",
@@ -860,7 +860,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Clot Sliver:1",
                     "cost": {
                         "type": "CostAtomWrapper",
                         "atom": {
@@ -906,7 +906,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cloudchaser Eagle:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -979,7 +979,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Commander Greven il-Vec:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1016,7 +1016,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Darkling Stalker:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1030,7 +1030,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Darkling Stalker:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1073,7 +1073,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dauthi Embrace:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1192,7 +1192,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dauthi Mercenary:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1370,7 +1370,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Earthcraft:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1465,7 +1465,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elite Javelineer:1",
                 "trigger": "BlockEvent",
                 "effect": {
                     "type": "DealDamage",
@@ -1560,7 +1560,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Emmessi Tome:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1647,7 +1647,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Energizer:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1689,7 +1689,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fevered Convulsions:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1771,7 +1771,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Firefly:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1815,7 +1815,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Flickering Ward:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1876,7 +1876,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Flowstone Giant:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1927,7 +1927,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Flowstone Wyvern:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1971,7 +1971,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fool's Tome:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2025,7 +2025,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Frog Tongue:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -2079,7 +2079,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fylamarid:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2200,7 +2200,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gerrard's Battle Cry:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2253,7 +2253,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ghost Town:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -2266,7 +2266,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Ghost Town:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2310,7 +2310,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Giant Crab:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2346,7 +2346,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goblin Bombardment:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2526,7 +2526,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Heartwood Giant:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2723,7 +2723,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jinxed Idol:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -2741,7 +2741,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Jinxed Idol:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2789,7 +2789,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Krakilin:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2891,7 +2891,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Lotus Petal:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2947,7 +2947,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Manakin:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -2983,7 +2983,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Manta Riders:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3022,7 +3022,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Marsh Lurker:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3062,7 +3062,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Master Decoy:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3122,7 +3122,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mawcor:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "DealDamage",
@@ -3165,7 +3165,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Maze of Shadows:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -3178,7 +3178,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Maze of Shadows:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -3289,7 +3289,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Mindwhip Sliver:1",
                     "cost": {
                         "type": "CostComposite",
                         "costs": [
@@ -3380,7 +3380,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mirri's Guile:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -3446,7 +3446,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Mnemonic Sliver:1",
                     "cost": {
                         "type": "CostComposite",
                         "costs": [
@@ -3499,7 +3499,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mogg Fanatic:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "DealDamage",
@@ -3546,7 +3546,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mogg Raider:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3634,7 +3634,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Orim's Prayer:1",
                 "trigger": "CreaturesAttackYouEvent",
                 "binding": "ANY",
                 "effect": {
@@ -3679,7 +3679,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Orim, Samite Healer:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "PreventDamageShield",
@@ -3777,7 +3777,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Patchwork Gnomes:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": "AtomDiscard"
@@ -3860,7 +3860,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Pegasus Refuge:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4001,7 +4001,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Pine Barrens:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -4014,7 +4014,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Pine Barrens:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -4040,7 +4040,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Pine Barrens:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -4098,7 +4098,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Pit Imp:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4183,7 +4183,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ranger en-Vec:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4228,7 +4228,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rathi Dragon:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -4395,7 +4395,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rootwalla:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4445,7 +4445,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rootwater Diver:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4500,7 +4500,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rootwater Hunter:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "DealDamage",
@@ -4595,7 +4595,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Safeguard:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4652,7 +4652,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sandstone Warrior:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4788,7 +4788,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Screeching Harpy:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4862,7 +4862,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Seeker of Skybreak:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "TapUntap",
@@ -4908,7 +4908,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Servant of Volrath:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -5009,7 +5009,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Skyshroud Elf:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddMana",
@@ -5019,7 +5019,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Skyshroud Elf:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -5035,7 +5035,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_3",
+                "id": "Skyshroud Elf:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -5078,7 +5078,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Skyshroud Ranger:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Gated",
@@ -5146,7 +5146,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Skyshroud Troll:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -5188,7 +5188,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Skyshroud Vampire:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -5240,7 +5240,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Soltari Crusader:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -5288,7 +5288,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Soltari Emissary:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -5423,7 +5423,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Soltari Trooper:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -5464,7 +5464,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Souldrinker:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -5506,7 +5506,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spike Drone:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -5621,7 +5621,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Squee's Toy:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "PreventDamageShield",
@@ -5664,7 +5664,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Stalking Stones:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -5677,7 +5677,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Stalking Stones:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -5739,7 +5739,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Staunch Defenders:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -5775,7 +5775,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Storm Front:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -5906,7 +5906,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Telethopter:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -5948,7 +5948,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thalakos Seer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -6046,7 +6046,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tradewind Rider:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -6127,7 +6127,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Verdant Force:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP",
@@ -6208,7 +6208,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Warmth:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -6253,7 +6253,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wasteland:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -6266,7 +6266,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Wasteland:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -6329,7 +6329,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wind Dancer:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "GrantKeyword",

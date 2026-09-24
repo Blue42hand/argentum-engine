@@ -1,4 +1,4 @@
-package com.wingedsheep.sdk.serialization
+package com.wingedsheep.sdk.tooling
 
 import com.wingedsheep.sdk.core.*
 import com.wingedsheep.sdk.dsl.Costs
@@ -40,6 +40,7 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
+import com.wingedsheep.sdk.serialization.CardSerialization
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain

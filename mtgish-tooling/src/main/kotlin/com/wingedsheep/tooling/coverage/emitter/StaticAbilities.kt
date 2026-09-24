@@ -328,7 +328,7 @@ private fun EmitCtx.selfDynamicStatsBlock(rule: JsonObject): List<Stmt>? {
 
 /**
  * An `Activated` / `ActivatedWithModifiers` rule granted to a group ("All Slivers have '{cost}: …'") ->
- * an `ActivatedAbility(id = AbilityId.generate(), cost = …, [timing = …], effect = …, [targetRequirement
+ * an `ActivatedAbility(id = AbilityId.next(), cost = …, [timing = …], effect = …, [targetRequirement
  * = …])` constructor expression for wrapping in `GrantActivatedAbility`. Reuses the same cost / target /
  * effect recovery as the card-body [activatedBlock], but in expression form: a chosen target becomes
  * `targetRequirement = <node>` and the effect references `EffectTarget.ContextTarget(0)` (the granted
@@ -350,7 +350,7 @@ internal fun EmitCtx.grantedActivatedAbilityExpr(rule: JsonObject): Dsl? {
     val timing = grantedActivationTiming(rule) ?: return null
 
     val args = mutableListOf(
-        arg("id", "AbilityId.generate()"),
+        arg("id", "AbilityId.next()"),
         arg("cost", cost),
     )
     args.add(arg("effect", effect))

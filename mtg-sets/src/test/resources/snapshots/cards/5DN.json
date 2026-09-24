@@ -14,7 +14,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Advanced Hoverguard:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -54,7 +54,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Anodet Lurker:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -131,7 +131,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Auriok Champion:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature",
@@ -173,7 +173,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blasting Station:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "creature",
@@ -193,7 +193,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Blasting Station:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -249,7 +249,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blind Creeper:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "player": "Each"
@@ -344,7 +344,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cackling Imp:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "LoseLife",
@@ -439,7 +439,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Composite Golem:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "Composite",
@@ -503,7 +503,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cosmic Larva:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -552,7 +552,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Desecration Elemental:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "player": "Each"
@@ -654,7 +654,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ebon Drake:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "player": "Each"
@@ -696,7 +696,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Eternal Witness:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -749,7 +749,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fangren Pathcutter:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ForEach",
@@ -962,7 +962,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Furnace Whelp:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1006,7 +1006,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goblin Cannon:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1066,7 +1066,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hoverguard Sweepers:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1205,7 +1205,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Joiner Adept:1",
                     "cost": "CostTap",
                     "effect": "AddManaOfChoice",
                     "timing": "ManaAbility",
@@ -1238,7 +1238,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Krark-Clan Ironworks:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1332,7 +1332,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Loxodon Anchorite:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "PreventDamageShield",
@@ -1381,7 +1381,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Loxodon Stalwart:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1724,7 +1724,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Spark Elemental:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END",
@@ -1755,7 +1755,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Staff of Domination:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1770,7 +1770,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Staff of Domination:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1793,7 +1793,7 @@
                 }
             },
             {
-                "id": "ability_3",
+                "id": "Staff of Domination:3",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1826,7 +1826,7 @@
                 ]
             },
             {
-                "id": "ability_4",
+                "id": "Staff of Domination:4",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1858,7 +1858,7 @@
                 ]
             },
             {
-                "id": "ability_5",
+                "id": "Staff of Domination:5",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2001,7 +2001,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thermal Navigator:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2039,7 +2039,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thought Courier:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -2115,7 +2115,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tyrranax:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2200,7 +2200,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Viridian Scout:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2264,7 +2264,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Vulshok Sorcerer:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "DealDamage",
@@ -2306,7 +2306,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Wayfarer's Bauble:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [

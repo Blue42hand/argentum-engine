@@ -82,7 +82,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Oreskos Explorer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -148,7 +148,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thought Vessel:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",

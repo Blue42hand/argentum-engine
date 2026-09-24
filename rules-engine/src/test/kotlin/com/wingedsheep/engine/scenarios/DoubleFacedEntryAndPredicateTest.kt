@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AbilityCost
+import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -65,6 +66,7 @@ class DoubleFacedEntryAndPredicateTest : ScenarioTestBase() {
             oracleText = "{T}: Transform this land.",
             script = CardScript.permanent(
                 ActivatedAbility(
+                    id = AbilityId("DoubleFacedEntryAndPredicateTest_1"),
                     cost = AbilityCost.Tap,
                     effect = TransformEffect(EffectTarget.Self)
                 )

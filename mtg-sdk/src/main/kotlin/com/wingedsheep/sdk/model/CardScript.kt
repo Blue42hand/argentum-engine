@@ -75,7 +75,7 @@ data class ReturnTransformedFromGraveyard(
  * CardScript(
  *     activatedAbilities = listOf(
  *         ActivatedAbility(
- *             id = AbilityId.generate(),
+ *             id = AbilityId.next(),
  *             cost = AbilityCost.Tap,
  *             effect = AddColorlessManaEffect(2),
  *             isManaAbility = true

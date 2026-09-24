@@ -2,6 +2,7 @@ package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.Outcome
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.legalactions.EnumerationMode
 import com.wingedsheep.engine.legalactions.LegalActionEnumerator
 import com.wingedsheep.engine.mechanics.mana.CostCalculator
@@ -133,7 +134,7 @@ class OmnipresenceScenarioTest : FunSpec({
         driver.putCreatureOnBattlefield(opponent, "Grizzly Bears")
         driver.putCreatureOnBattlefield(opponent, "Grizzly Bears")
 
-        val calculator = CostCalculator(driver.cardRegistry)
+        val calculator = CostCalculator(driver.cardRegistry, PredicateEvaluator(driver.cardRegistry))
         val bearsDef = driver.cardRegistry.requireCard("Grizzly Bears")
         calculator.hasFreeCastPermission(driver.state, player, bearsDef, Zone.HAND) shouldBe true
         calculator.hasFreeCastPermission(driver.state, player, bearsDef, Zone.EXILE) shouldBe false

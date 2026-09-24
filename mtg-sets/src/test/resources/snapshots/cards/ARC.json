@@ -48,7 +48,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Reassembling Skeleton:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {

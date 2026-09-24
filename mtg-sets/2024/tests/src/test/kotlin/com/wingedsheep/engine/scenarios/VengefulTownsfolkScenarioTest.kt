@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
+import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
@@ -51,6 +52,7 @@ class VengefulTownsfolkScenarioTest : ScenarioTestBase() {
         oracleText = "Whenever one or more other creatures you control die, you gain 2 life.",
         script = CardScript.creature(
             TriggeredAbility.create(
+                id = AbilityId("VengefulTownsfolkScenarioTest_1"),
                 trigger = EventPattern.CreaturesYouControlDiedEvent(excludeSelf = true),
                 binding = TriggerBinding.ANY,
                 effect = GainLifeEffect(2)

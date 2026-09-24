@@ -7,7 +7,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Azorius Chancery:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -31,7 +31,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Azorius Chancery:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -192,7 +192,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Indrik Stomphowler:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -320,7 +320,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rakdos Carnarium:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -344,7 +344,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Rakdos Carnarium:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -393,7 +393,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Simic Growth Chamber:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -417,7 +417,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Simic Growth Chamber:2",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -466,7 +466,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Simic Signet:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -554,7 +554,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Trygon Predator:1",
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",

@@ -1,4 +1,4 @@
-package com.wingedsheep.sdk.serialization
+package com.wingedsheep.sdk.tooling
 
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.ManaCost
@@ -10,7 +10,9 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.model.CreatureStats
+import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.EventPattern
+import com.wingedsheep.sdk.scripting.GiftKind
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
@@ -25,6 +27,8 @@ import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.gift
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -176,6 +180,7 @@ class CardValidatorTest : DescribeSpec({
                 script = CardScript(
                     triggeredAbilities = listOf(
                         TriggeredAbility.create(
+                            id = AbilityId("CardValidatorTest_1"),
                             trigger = EventPattern.ZoneChangeEvent(to = Zone.BATTLEFIELD),
                             effect = DealDamageEffect(DynamicAmount.Fixed(1), EffectTarget.ContextTarget(2)),
                             targetRequirement = AnyTarget(),
@@ -200,6 +205,7 @@ class CardValidatorTest : DescribeSpec({
                 script = CardScript(
                     triggeredAbilities = listOf(
                         TriggeredAbility.create(
+                            id = AbilityId("CardValidatorTest_2"),
                             trigger = EventPattern.ZoneChangeEvent(to = Zone.BATTLEFIELD),
                             effect = DealDamageEffect(DynamicAmount.Fixed(1), EffectTarget.ContextTarget(0)),
                         ),
@@ -408,6 +414,7 @@ class CardValidatorTest : DescribeSpec({
                 script = CardScript(
                     triggeredAbilities = listOf(
                         TriggeredAbility.create(
+                            id = AbilityId("CardValidatorTest_3"),
                             trigger = EventPattern.ZoneChangeEvent(to = Zone.BATTLEFIELD),
                             effect = ModalEffect.chooseOne(
                                 Mode.noTarget(
@@ -501,6 +508,29 @@ class CardValidatorTest : DescribeSpec({
             errors.any { it is CardValidationError.AuraMissingTarget } shouldBe true
             errors.any { it is CardValidationError.EquipmentMissingSubtype } shouldBe true
             errors.any { it is CardValidationError.InvalidTargetIndex } shouldBe true
+        }
+    }
+
+    describe("gift is permanent-only") {
+
+        it("is rejected on an instant, which has no enters trigger to fire (CR 702.174b)") {
+            val instant = card("Test Gift Instant") {
+                typeLine = "Instant"
+                gift(GiftKind.CARD)
+            }
+            val errors = CardValidator.validate(instant)
+                .filterIsInstance<CardValidationError.GiftKeywordOnNonPermanent>()
+            errors shouldHaveSize 1
+            errors.single().message shouldContain "giftSpell"
+        }
+
+        it("accepts a permanent") {
+            CardValidator.validate(
+                card("Test Gift Enchantment") {
+                    typeLine = "Enchantment"
+                    gift(GiftKind.FOOD)
+                }
+            ).filterIsInstance<CardValidationError.GiftKeywordOnNonPermanent>() shouldHaveSize 0
         }
     }
 })

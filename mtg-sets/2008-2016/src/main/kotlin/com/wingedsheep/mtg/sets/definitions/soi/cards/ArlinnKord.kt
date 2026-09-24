@@ -19,14 +19,14 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 private const val ARLINN_EMBLEM = "Creatures you control have haste and '{T}: This creature deals damage equal to its power to any target.'"
 
-private val arlinnEmblemAbility = grantedActivatedAbility {
-    cost = Costs.Tap
-    val anyTarget = target("target any", AnyTarget())
-    effect = Effects.DealDamage(DynamicAmounts.sourcePower(), anyTarget)
-    description = "{T}: This creature deals damage equal to its power to any target."
-}
-
 private val ArlinnEmbracedByTheMoon = card("Arlinn, Embraced by the Moon") {
+    val arlinnEmblemAbility = grantedActivatedAbility {
+        cost = Costs.Tap
+        val anyTarget = target("target any", AnyTarget())
+        effect = Effects.DealDamage(DynamicAmounts.sourcePower(), anyTarget)
+        description = "{T}: This creature deals damage equal to its power to any target."
+    }
+
     manaCost = ""
     colorIdentity = "RG"
     typeLine = "Legendary Planeswalker — Arlinn"

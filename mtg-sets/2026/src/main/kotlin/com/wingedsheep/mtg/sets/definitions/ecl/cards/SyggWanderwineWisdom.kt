@@ -41,12 +41,6 @@ private val drawOnCombatDamageSpec = Triggers.dealsDamage(
     recipient = Recipient.AnyPlayerOrPlaneswalker,
 )
 
-private val drawOnCombatDamage = TriggeredAbility.create(
-    trigger = drawOnCombatDamageSpec.event,
-    binding = drawOnCombatDamageSpec.binding,
-    effect = Effects.DrawCards(1)
-)
-
 // Protection from each color until your next turn — compose five keyword grants so each
 // color is independently tracked by the floating-effect cleanup system.
 private fun protectionFromEachColor(target: EffectTarget): Effect = Effects.Composite(
@@ -92,6 +86,12 @@ private val SyggWanderbrineShield = card("Sygg, Wanderbrine Shield") {
 }
 
 private val SyggWanderwineWisdomFront = card("Sygg, Wanderwine Wisdom") {
+    val drawOnCombatDamage = TriggeredAbility.create(
+        trigger = drawOnCombatDamageSpec.event,
+        binding = drawOnCombatDamageSpec.binding,
+        effect = Effects.DrawCards(1)
+    )
+
     manaCost = "{1}{U}"
     typeLine = "Legendary Creature — Merfolk Wizard"
     power = 2

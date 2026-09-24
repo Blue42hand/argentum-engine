@@ -7,7 +7,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Amulet of Kroog:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -65,7 +65,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Argivian Archaeologist:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -127,7 +127,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Argivian Blacksmith:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "PreventDamageShield",
@@ -276,7 +276,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Armageddon Clock:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -291,7 +291,7 @@
                 "descriptionOverride": "At the beginning of your upkeep, put a doom counter on this artifact."
             },
             {
-                "id": "ability_2",
+                "id": "Armageddon Clock:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "DRAW"
@@ -317,7 +317,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_3",
+                "id": "Armageddon Clock:3",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -392,7 +392,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Artifact Possession:1",
                 "trigger": "TapEvent",
                 "binding": "ATTACHED",
                 "effect": {
@@ -405,7 +405,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Artifact Possession:2",
                 "trigger": {
                     "type": "AbilityActivatedEvent",
                     "player": "Each",
@@ -515,7 +515,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ashnod's Altar:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -558,7 +558,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ashnod's Battle Gear:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -624,7 +624,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ashnod's Transmogrant:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -691,7 +691,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Atog:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -739,7 +739,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Battering Ram:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "BEGIN_COMBAT"
@@ -754,7 +754,7 @@
                 "descriptionOverride": "At the beginning of combat on your turn, this creature gains banding until end of combat."
             },
             {
-                "id": "ability_2",
+                "id": "Battering Ram:2",
                 "trigger": {
                     "type": "BecomesBlockedEvent",
                     "filter": "creature Wall"
@@ -792,7 +792,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Candelabra of Tawnos:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -852,7 +852,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Circle of Protection: Artifacts:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -901,7 +901,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Citanul Druid:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -947,7 +947,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Clay Statue:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -988,7 +988,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Clockwork Avian:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "END_COMBAT",
@@ -1029,7 +1029,7 @@
         ],
         "activatedAbilities": [
             {
-                "id": "ability_2",
+                "id": "Clockwork Avian:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1118,7 +1118,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Colossus of Sardia:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1167,7 +1167,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Coral Helm:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1489,7 +1489,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dragon Engine:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1535,7 +1535,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Dwarven Weaponsmith:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1605,7 +1605,7 @@
             {
                 "type": "GrantTriggeredAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Energy Flux:1",
                     "trigger": {
                         "type": "StepEvent",
                         "step": "UPKEEP"
@@ -1653,7 +1653,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Feldon's Cane:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1746,7 +1746,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gate to Phyrexia:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1814,7 +1814,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goblin Artisans:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "FlipCoin",
@@ -1874,7 +1874,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Golgothian Sylex:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1947,7 +1947,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Grapeshot Catapult:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "DealDamage",
@@ -1991,7 +1991,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Haunting Wind:1",
                 "trigger": {
                     "type": "TapEvent",
                     "filter": "artifact"
@@ -2007,7 +2007,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Haunting Wind:2",
                 "trigger": {
                     "type": "AbilityActivatedEvent",
                     "player": "Each",
@@ -2096,7 +2096,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Ivory Tower:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -2144,7 +2144,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Jalum Tome:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2304,7 +2304,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Millstone:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2381,7 +2381,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mishra's Factory:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -2394,7 +2394,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Mishra's Factory:2",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2422,7 +2422,7 @@
                 "descriptionOverride": "{1}: This land becomes a 2/2 Assembly-Worker artifact creature until end of turn. It's still a land."
             },
             {
-                "id": "ability_3",
+                "id": "Mishra's Factory:3",
                 "cost": "CostTap",
                 "effect": {
                     "type": "ModifyStats",
@@ -2478,7 +2478,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mishra's War Machine:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -2534,7 +2534,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Mishra's Workshop:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -2573,7 +2573,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Obelisk of Undoing:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2643,7 +2643,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Onulet:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -2683,7 +2683,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Orcish Mechanics:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2768,7 +2768,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Phyrexian Gremlins:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Composite",
@@ -2867,7 +2867,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Powerleech:1",
                 "trigger": {
                     "type": "TapEvent",
                     "filter": "artifact ctrl:opponent"
@@ -2882,7 +2882,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Powerleech:2",
                 "trigger": {
                     "type": "AbilityActivatedEvent",
                     "player": "EachOpponent",
@@ -2926,7 +2926,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Priest of Yawgmoth:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3108,7 +3108,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rakalite:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3240,7 +3240,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rocket Launcher:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3311,7 +3311,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Sage of Lat-Nam:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3359,7 +3359,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Shapeshifter:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -3467,7 +3467,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Staff of Zegon:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3528,7 +3528,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Strip Mine:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddColorlessMana",
@@ -3541,7 +3541,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "ability_2",
+                "id": "Strip Mine:2",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3595,7 +3595,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Su-Chi:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield",
@@ -3632,7 +3632,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tablet of Epityr:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "artifact ctrl:you",
@@ -3682,7 +3682,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tawnos's Coffin:2",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -3690,14 +3690,14 @@
                 "effect": "ReturnNotedExileTappedWithAuras"
             },
             {
-                "id": "ability_2",
+                "id": "Tawnos's Coffin:3",
                 "trigger": "UntapEvent",
                 "effect": "ReturnNotedExileTappedWithAuras"
             }
         ],
         "activatedAbilities": [
             {
-                "id": "ability_3",
+                "id": "Tawnos's Coffin:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3750,7 +3750,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tawnos's Wand:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3807,7 +3807,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tawnos's Weaponry:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3880,7 +3880,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tetravus:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -3919,7 +3919,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Tetravus:2",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"
@@ -3999,7 +3999,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "The Rack:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP",
@@ -4055,7 +4055,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Titania's Song:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "from": "Battlefield"
@@ -4336,7 +4336,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Triskelion:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -4397,7 +4397,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Urza's Avenger:1",
                 "cost": "CostFree",
                 "effect": {
                     "type": "Modal",
@@ -4529,7 +4529,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Urza's Chalice:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -4580,7 +4580,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Urza's Mine:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Gated",
@@ -4644,7 +4644,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Urza's Miter:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "artifact ctrl:you",
@@ -4692,7 +4692,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Urza's Power Plant:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Gated",
@@ -4756,7 +4756,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Urza's Tower:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "Gated",
@@ -4878,7 +4878,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Xenic Poltergeist:1",
                 "cost": "CostTap",
                 "effect": {
                     "type": "BecomeCreature",
@@ -4959,7 +4959,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Yawgmoth Demon:1",
                 "trigger": {
                     "type": "StepEvent",
                     "step": "UPKEEP"

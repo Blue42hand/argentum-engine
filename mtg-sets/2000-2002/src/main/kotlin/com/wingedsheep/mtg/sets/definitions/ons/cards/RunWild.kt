@@ -30,7 +30,7 @@ val RunWild = card("Run Wild") {
             target = t
         ) then Effects.GrantActivatedAbility(
             ability = ActivatedAbility(
-                id = AbilityId.generate(),
+                id = AbilityId.next(),
                 cost = Costs.Mana(ManaCost.parse("{G}")),
                 effect = Effects.Regenerate(EffectTarget.Self)
             ),

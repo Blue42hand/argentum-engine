@@ -1,4 +1,4 @@
-package com.wingedsheep.sdk.serialization
+package com.wingedsheep.sdk.tooling
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.ManaCost
@@ -128,10 +128,12 @@ class CardLinterTest : DescribeSpec({
                 script = CardScript(
                     triggeredAbilities = listOf(
                         TriggeredAbility.create(
+                            id = AbilityId("CardLinterTest_1"),
                             trigger = EventPattern.ZoneChangeEvent(to = Zone.BATTLEFIELD),
                             effect = gather("stash"),
                         ),
                         TriggeredAbility.create(
+                            id = AbilityId("CardLinterTest_2"),
                             trigger = EventPattern.ZoneChangeEvent(
                                 from = Zone.BATTLEFIELD,
                                 to = Zone.GRAVEYARD,
@@ -213,6 +215,7 @@ class CardLinterTest : DescribeSpec({
                 CardScript(
                     spellEffect = GrantTriggeredAbilityEffect(
                         ability = TriggeredAbility.create(
+                            id = AbilityId("CardLinterTest_3"),
                             trigger = EventPattern.ZoneChangeEvent(to = Zone.GRAVEYARD),
                             effect = DealDamageEffect(
                                 DynamicAmount.Fixed(1),
@@ -360,7 +363,7 @@ class CardLinterTest : DescribeSpec({
                 CardScript(
                     triggeredAbilities = listOf(
                         TriggeredAbility(
-                            id = AbilityId.generate(),
+                            id = AbilityId("CardLinterTest_5"),
                             trigger = EventPattern.CastThisSpellEvent,
                             effect = DealDamageEffect(DynamicAmount.Fixed(1), EffectTarget.ContextTarget(0)),
                             targetRequirement = AnyTarget(chooser = TargetChooser.Opponent),
@@ -378,6 +381,7 @@ class CardLinterTest : DescribeSpec({
                 CardScript(
                     activatedAbilities = listOf(
                         ActivatedAbility(
+                            id = AbilityId("CardLinterTest_4"),
                             cost = AbilityCost.Tap,
                             effect = DealDamageEffect(DynamicAmount.Fixed(1), EffectTarget.ContextTarget(0)),
                             targetRequirements = listOf(
@@ -401,7 +405,7 @@ class CardLinterTest : DescribeSpec({
                 CardScript(
                     triggeredAbilities = listOf(
                         TriggeredAbility(
-                            id = AbilityId.generate(),
+                            id = AbilityId("CardLinterTest_6"),
                             trigger = EventPattern.CastThisSpellEvent,
                             effect = DealDamageEffect(DynamicAmount.Fixed(1), EffectTarget.ContextTarget(0)),
                             targetRequirement = TargetObject(
@@ -507,7 +511,7 @@ class CardLinterTest : DescribeSpec({
             cost: AbilityCost = AbilityCost.Tap,
             isManaAbility: Boolean,
         ) = ActivatedAbility(
-            id = AbilityId.generate(),
+            id = AbilityId("CardLinterTest_7"),
             cost = cost,
             effect = effect,
             isManaAbility = isManaAbility,
@@ -710,7 +714,7 @@ class CardLinterTest : DescribeSpec({
             val found = misflagged(
                 rock(
                     ActivatedAbility(
-                        id = AbilityId.generate(),
+                        id = AbilityId("CardLinterTest_8"),
                         cost = AbilityCost.Tap,
                         effect = addGreen,
                         isManaAbility = true,
@@ -726,7 +730,7 @@ class CardLinterTest : DescribeSpec({
             val found = misflagged(
                 rock(
                     ActivatedAbility(
-                        id = AbilityId.generate(),
+                        id = AbilityId("CardLinterTest_9"),
                         cost = AbilityCost.Tap,
                         effect = addGreen,
                         targetRequirements = listOf(AnyTarget()),
@@ -839,7 +843,7 @@ class CardLinterTest : DescribeSpec({
                 script = CardScript(
                     triggeredAbilities = listOf(
                         TriggeredAbility(
-                            id = AbilityId.generate(),
+                            id = AbilityId("CardLinterTest_10"),
                             trigger = EventPattern.CastThisSpellEvent,
                             effect = BecomeArtifactEffect(
                                 target = EffectTarget.Self,

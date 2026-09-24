@@ -63,7 +63,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Apothecary Initiate:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -273,7 +273,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blight Sickle:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -338,7 +338,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Blistering Dieflyn:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -520,7 +520,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cinderbones:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -623,7 +623,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Cultbrand Cinder:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -672,7 +672,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Deep-Slumber Titan:1",
                 "trigger": "DamageReceivedEvent",
                 "effect": {
                     "type": "TapUntap",
@@ -744,7 +744,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Elvish Hexhunter:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -801,7 +801,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Emberstrike Duo:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -828,7 +828,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Emberstrike Duo:2",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -905,7 +905,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Farhaven Elf:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1013,7 +1013,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Foxfire Oak:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1057,7 +1057,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Fulminator Mage:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "MoveToZone",
@@ -1296,7 +1296,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gnarled Effigy:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1356,7 +1356,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Goldenglow Moth:1",
                 "trigger": "BlockEvent",
                 "effect": {
                     "type": "Gated",
@@ -1416,7 +1416,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Gravelgill Duo:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -1443,7 +1443,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Gravelgill Duo:2",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -1484,7 +1484,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Heap Doll:1",
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "MoveToZone",
@@ -1604,7 +1604,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Hungry Spriggan:1",
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "ModifyStats",
@@ -1667,7 +1667,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kitchen Finks:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -1741,7 +1741,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Kithkin Shielddare:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1824,7 +1824,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Loch Korrigan:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -1915,7 +1915,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Merrow Grimeblotter:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -1979,7 +1979,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Merrow Wavebreakers:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2023,7 +2023,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Morselhoarder:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2101,7 +2101,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Nurturer Initiate:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -2258,7 +2258,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Parapet Watchers:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2305,7 +2305,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Pili-Pala:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2374,7 +2374,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Pyre Charger:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2534,7 +2534,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Reaper King:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "filter": "permanent Scarecrow ctrl:you",
@@ -2628,7 +2628,7 @@
             {
                 "type": "GrantActivatedAbility",
                 "ability": {
-                    "id": "ability_1",
+                    "id": "Resplendent Mentor:1",
                     "cost": "CostTap",
                     "effect": {
                         "type": "GainLife",
@@ -2662,7 +2662,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Revelsong Horn:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -2765,7 +2765,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Rune-Cervin Rider:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -2831,7 +2831,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Safehold Duo:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -2858,7 +2858,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Safehold Duo:2",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -2920,7 +2920,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Safehold Sentry:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3047,7 +3047,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Seedcradle Witch:1",
                 "cost": {
                     "type": "CostAtomWrapper",
                     "atom": {
@@ -3141,7 +3141,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Silkbind Faerie:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -3196,7 +3196,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Smolder Initiate:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -3260,7 +3260,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Somnomancer:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
@@ -3378,7 +3378,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Tattermunge Duo:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -3405,7 +3405,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Tattermunge Duo:2",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -3446,7 +3446,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Thistledown Duo:1",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -3473,7 +3473,7 @@
                 }
             },
             {
-                "id": "ability_2",
+                "id": "Thistledown Duo:2",
                 "trigger": {
                     "type": "SpellCastEvent",
                     "spellFilter": {
@@ -3641,7 +3641,7 @@
     "script": {
         "activatedAbilities": [
             {
-                "id": "ability_1",
+                "id": "Trip Noose:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -4000,7 +4000,7 @@
     "script": {
         "triggeredAbilities": [
             {
-                "id": "ability_1",
+                "id": "Woodfall Primus:1",
                 "trigger": {
                     "type": "ZoneChangeEvent",
                     "to": "Battlefield"
