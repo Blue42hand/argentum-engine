@@ -182,6 +182,7 @@ class CostPaymentContinuationResumer(
         }
         val inner = continuation.inner
         val floated = ManaPaymentWindow.floatSelectedMana(
+            services.zones,
             state, inner.payerId, continuation.manaCost, response, continuation.availableSources, services
         )
         if (!floated.paid) return declined(floated.state, inner, checkForMore)

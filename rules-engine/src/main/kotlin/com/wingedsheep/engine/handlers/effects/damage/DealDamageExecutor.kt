@@ -6,6 +6,7 @@ import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.handlers.effects.DamageUtils.dealDamageToTarget
+import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -17,6 +18,7 @@ import kotlin.reflect.KClass
  * multi-player targets (e.g., PlayerRef(Player.Each), PlayerRef(Player.EachOpponent)).
  */
 class DealDamageExecutor(
+    private val zones: ZoneTransitionService,
     private val amountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator()
 ) : EffectExecutor<DealDamageEffect> {
 
@@ -62,7 +64,7 @@ class DealDamageExecutor(
             var newState = readyState
             val events = mutableListOf<EngineGameEvent>()
             for (recipientId in recipients) {
-                val result = dealDamageToTarget(newState, recipientId, amount, sourceId, effect.cantBePrevented)
+                val result = dealDamageToTarget(zones, newState, recipientId, amount, sourceId, effect.cantBePrevented)
                 newState = result.newState
                 events.addAll(result.events)
             }
@@ -86,7 +88,7 @@ class DealDamageExecutor(
             var newState = readyState
             val events = mutableListOf<EngineGameEvent>()
             for (playerId in playerIds) {
-                val result = dealDamageToTarget(newState, playerId, amount, sourceId, effect.cantBePrevented)
+                val result = dealDamageToTarget(zones, newState, playerId, amount, sourceId, effect.cantBePrevented)
                 newState = result.newState
                 events.addAll(result.events)
             }
@@ -107,6 +109,7 @@ class DealDamageExecutor(
         if (pause != null) return pause
 
         return dealDamageToTarget(
+            zones,
             readyState, targetId, amount, sourceId, effect.cantBePrevented,
             excessToController = effect.excessToController
         )

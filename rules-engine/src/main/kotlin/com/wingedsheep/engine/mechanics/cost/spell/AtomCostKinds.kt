@@ -206,7 +206,7 @@ internal object DiscardCostKind : SpellCostKind<CostAtom.Discard> {
         ledger.discardedAsCostCards.addAll(discardedCards)
         // Through the shared discard path so a card-intrinsic discard replacement (madness,
         // CR 702.35a) applies to a card discarded as an additional cost of casting a spell.
-        val discardResult = ZoneTransitionService.discardCards(ledger.state, ledger.playerId, discardedCards)
+        val discardResult = ledger.zones.discardCards(ledger.state, ledger.playerId, discardedCards)
         ledger.state = discardResult.state
         ledger.events.addAll(discardResult.events)
         return null
@@ -224,7 +224,7 @@ internal object DiscardHandCostKind : SpellCostKind<CostAtom.DiscardHand> {
         val hand = ledger.state.getZone(ZoneKey(ledger.playerId, Zone.HAND)).toList()
         if (hand.isNotEmpty()) {
             ledger.discardedAsCostCards.addAll(hand)
-            val discardResult = ZoneTransitionService.discardCards(ledger.state, ledger.playerId, hand)
+            val discardResult = ledger.zones.discardCards(ledger.state, ledger.playerId, hand)
             ledger.state = discardResult.state
             ledger.events.addAll(discardResult.events)
         }
@@ -394,6 +394,7 @@ internal object CollectEvidenceCostKind : SpellCostKind<CostAtom.CollectEvidence
 
     override fun pay(ledger: SpellCostLedger, cost: CostAtom.CollectEvidence): String? {
         val collected = CollectEvidenceResolver.collect(
+            ledger.zones,
             state = ledger.state,
             playerId = ledger.playerId,
             // Priced from the same targets validate read, so the payment can't drift from the
@@ -578,7 +579,7 @@ internal object ReturnToHandCostKind : SpellCostKind<CostAtom.ReturnToHand> {
     // ZoneTransitionService.moveToZone handles attached auras/equipment and tokens ceasing to exist.
     override fun pay(ledger: SpellCostLedger, cost: CostAtom.ReturnToHand): String? {
         for (permId in ledger.payment.bouncedPermanents) {
-            val tr = ZoneTransitionService.moveToZone(ledger.state, permId, Zone.HAND)
+            val tr = ledger.zones.moveToZone(ledger.state, permId, Zone.HAND)
             ledger.state = tr.state
             ledger.events.addAll(tr.events)
         }
@@ -678,7 +679,7 @@ internal object VariablePermanentsCostKind : SpellCostKind<CostAtom.VariablePerm
                 }
             }
             PermanentCostAction.EXILE -> for (permId in chosen) {
-                val tr = ZoneTransitionService.moveToZone(ledger.state, permId, Zone.EXILE)
+                val tr = ledger.zones.moveToZone(ledger.state, permId, Zone.EXILE)
                 ledger.state = tr.state
                 ledger.events.addAll(tr.events)
             }

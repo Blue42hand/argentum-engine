@@ -3,6 +3,7 @@ package com.wingedsheep.engine.handlers.effects.stack
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
+import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.handlers.effects.bend.BendEvents
 import com.wingedsheep.engine.mechanics.stack.StackResolver
 import com.wingedsheep.engine.registry.CardRegistry
@@ -29,6 +30,7 @@ import com.wingedsheep.engine.core.Outcome
  * silently rather than erroring.
  */
 class ExileTargetSpellExecutor(
+    private val zones: ZoneTransitionService,
     private val cardRegistry: CardRegistry
 ) : EffectExecutor<ExileTargetSpellEffect> {
 
@@ -45,7 +47,7 @@ class ExileTargetSpellExecutor(
         } ?: return EffectResult.success(state)
         if (spellId !in state.stack) return EffectResult.success(state)
 
-        val resolver = StackResolver(cardRegistry = cardRegistry)
+        val resolver = StackResolver(zones, cardRegistry = cardRegistry)
         val exiled = EffectResult.from(
             resolver.exileSpell(
                 state,

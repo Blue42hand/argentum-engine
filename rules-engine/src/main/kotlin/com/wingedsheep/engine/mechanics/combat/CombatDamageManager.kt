@@ -5,6 +5,7 @@ import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
 import com.wingedsheep.engine.handlers.effects.DamageUtils
+import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.handlers.effects.damage.OptionalDamageRedirect
 import com.wingedsheep.engine.mechanics.battle.Battles
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
@@ -51,6 +52,7 @@ import com.wingedsheep.sdk.scripting.effects.RedirectScope
  * - Damage prevention choice (CR 615.7)
  */
 internal class CombatDamageManager(
+    private val zones: ZoneTransitionService,
     private val cardRegistry: CardRegistry,
     private val damageCalculator: DamageCalculator,
 ) {
@@ -882,6 +884,7 @@ internal class CombatDamageManager(
         val isBattle = !isPlayer && !isPlaneswalker && projected.isBattle(assignment.targetId)
 
         val amplifiedAmount = DamageUtils.applyStaticDamageAmplification(
+            zones.cardRegistry,
             state, assignment.targetId, assignment.amount, assignment.sourceId, isCombatDamage = true
         )
 
@@ -932,6 +935,7 @@ internal class CombatDamageManager(
             // Credit what would actually have been dealt — after the same static amplification
             // (Furnace of Rath and friends) the apply phase would have run — not the raw power.
             val prevented = DamageUtils.applyStaticDamageAmplification(
+                zones.cardRegistry,
                 state, assignment.targetId, assignment.amount, assignment.sourceId, isCombatDamage = true
             )
             if (gainsLife && prevented > 0) {
@@ -1043,7 +1047,7 @@ internal class CombatDamageManager(
         var newState = state
 
         // Replace with counters (Force Bubble)
-        val counterResult = DamageUtils.applyReplaceDamageWithCounters(newState, targetId, amplifiedAmount, sourceId, isCombatDamage = true)
+        val counterResult = DamageUtils.applyReplaceDamageWithCounters(zones, newState, targetId, amplifiedAmount, sourceId, isCombatDamage = true)
         if (counterResult != null) {
             newState = counterResult.state
             events.addAll(counterResult.events)
@@ -1052,7 +1056,7 @@ internal class CombatDamageManager(
 
         // Replace combat damage to an opponent → prevent + each opponent mills that many
         // (The Mindskinner: an unblockable attacker's combat damage routes through here).
-        val millResult = DamageUtils.applyReplaceDamageWithMill(newState, targetId, amplifiedAmount, sourceId)
+        val millResult = DamageUtils.applyReplaceDamageWithMill(zones, newState, targetId, amplifiedAmount, sourceId)
         if (millResult != null) {
             newState = millResult.state
             events.addAll(millResult.events)
@@ -1286,7 +1290,7 @@ internal class CombatDamageManager(
         // Damage-to-counters self-replacement (Anti-Venom): "if damage would be dealt to <this
         // creature>, prevent it and put that many +1/+1 counters on him." Replaces the damage
         // entirely (CR 615) — checked before redirection and final marking.
-        val counterResult = DamageUtils.applyReplaceDamageWithCounters(newState, targetId, effectiveAmount, sourceId, isCombatDamage = true)
+        val counterResult = DamageUtils.applyReplaceDamageWithCounters(zones, newState, targetId, effectiveAmount, sourceId, isCombatDamage = true)
         if (counterResult != null) {
             newState = counterResult.state
             events.addAll(counterResult.events)
@@ -1628,7 +1632,7 @@ internal class CombatDamageManager(
                 val defenderId = attackingComponent.defenderId
                 if (!isProtectedFromAttackingCreatureDamage(state, defenderId) &&
                     !isCombatDamagePreventedByGroupFilter(state, attackerId, projected)) {
-                    val amplified = DamageUtils.applyStaticDamageAmplification(state, defenderId, attackerPower, attackerId, isCombatDamage = true)
+                    val amplified = DamageUtils.applyStaticDamageAmplification(zones.cardRegistry, state, defenderId, attackerPower, attackerId, isCombatDamage = true)
                     incomingDamage.getOrPut(defenderId) { mutableMapOf() }
                         .merge(attackerId, amplified) { a, b -> a + b }
                 }
@@ -1645,7 +1649,7 @@ internal class CombatDamageManager(
                     val targetContainer = state.getEntity(targetId)
                     val isPlayer = targetContainer?.get<LifeTotalComponent>() != null &&
                         targetContainer.get<CardComponent>() == null
-                    val amplified = DamageUtils.applyStaticDamageAmplification(state, targetId, damage, attackerId, isCombatDamage = true)
+                    val amplified = DamageUtils.applyStaticDamageAmplification(zones.cardRegistry, state, targetId, damage, attackerId, isCombatDamage = true)
                     if (isPlayer) {
                         incomingDamage.getOrPut(targetId) { mutableMapOf() }
                             .merge(attackerId, amplified) { a, b -> a + b }

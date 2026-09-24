@@ -173,6 +173,8 @@ class SpellCostLedger(
     /** The cast card's definition name, when it has one — the source named by collect evidence. */
     val cardDefinitionName: String?,
     val cardRegistry: CardRegistry,
+    /** Moves the cards the costs discard, sacrifice, exile or bounce. */
+    val zones: ZoneTransitionService,
     /**
      * The costs the caster's declared optional ability (kicker, teamwork, …) contributed, reduced
      * the same way as the full list — what names a tap's cause for "tapped to pay a teamwork cost".
@@ -217,7 +219,7 @@ class SpellCostLedger(
         val permName = state.getEntity(permId)?.get<CardComponent>()?.name
         val tracked = ZoneTransitionService.trackPermanentSacrifice(state, listOf(permId), playerId)
         events.add(PermanentsSacrificedEvent(playerId, listOf(permId), listOfNotNull(permName)))
-        val transition = ZoneTransitionService.moveToZone(tracked, permId, Zone.GRAVEYARD)
+        val transition = zones.moveToZone(tracked, permId, Zone.GRAVEYARD)
         events.addAll(transition.events)
         state = transition.state
     }

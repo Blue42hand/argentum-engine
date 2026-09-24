@@ -363,6 +363,7 @@ class CostPaymentService(private val services: EngineServices) {
             is CostAtom.CollectEvidence ->
                 when (
                     val result = com.wingedsheep.engine.handlers.costs.CollectEvidenceResolver.collect(
+                        services.zones,
                         state, payerId,
                         com.wingedsheep.engine.handlers.costs.CostAtomAmounts
                             .evaluate(state, atom.amount),
@@ -404,7 +405,7 @@ class CostPaymentService(private val services: EngineServices) {
     /** Put each chosen hand card on top of its owner's library in turn — the last chosen ends on top. */
     private fun putSelectedOnLibrary(state: GameState, cardIds: List<EntityId>): CostPaymentExecution {
         if (cardIds.isEmpty()) return CostPaymentExecution(state, emptyList(), success = false)
-        val result = ZoneTransitionService.moveToZoneBatch(
+        val result = services.zones.moveToZoneBatch(
             state, cardIds, Zone.LIBRARY,
             com.wingedsheep.engine.handlers.effects.ZoneEntryOptions(
                 libraryPlacement = com.wingedsheep.engine.handlers.effects.LibraryPlacement.Top
@@ -571,7 +572,7 @@ class CostPaymentService(private val services: EngineServices) {
     }
 
     private fun payLife(state: GameState, payerId: EntityId, amount: Int): CostPaymentExecution {
-        val (newState, events) = LifePaymentService.pay(state, payerId, amount)
+        val (newState, events) = LifePaymentService.pay(services.zones, state, payerId, amount)
             ?: return CostPaymentExecution(state, emptyList(), success = false)
         return CostPaymentExecution(newState, events, success = true)
     }
@@ -579,7 +580,7 @@ class CostPaymentService(private val services: EngineServices) {
     private fun discardSelected(state: GameState, payerId: EntityId, selected: List<EntityId>): CostPaymentExecution {
         // Through the shared discard path, so a card-intrinsic discard replacement (madness,
         // CR 702.35a) applies to a card discarded to pay a cost just as it does anywhere else.
-        val result = ZoneTransitionService.discardCards(state, payerId, selected)
+        val result = services.zones.discardCards(state, payerId, selected)
         return CostPaymentExecution(result.state, result.events, success = true)
     }
 
@@ -590,7 +591,7 @@ class CostPaymentService(private val services: EngineServices) {
     private fun discardHand(state: GameState, payerId: EntityId): CostPaymentExecution {
         val hand = state.getZone(ZoneKey(payerId, Zone.HAND)).toList()
         if (hand.isEmpty()) return CostPaymentExecution(state, emptyList(), success = true)
-        val result = ZoneTransitionService.discardCards(state, payerId, hand)
+        val result = services.zones.discardCards(state, payerId, hand)
         return CostPaymentExecution(result.state, result.events, success = true)
     }
 
@@ -604,7 +605,7 @@ class CostPaymentService(private val services: EngineServices) {
 
         val (shuffled, stateAfterShuffle) = state.nextRandom { shuffle(valid) }
         val toDiscard = shuffled.take(count)
-        val result = ZoneTransitionService.discardCards(stateAfterShuffle, payerId, toDiscard)
+        val result = services.zones.discardCards(stateAfterShuffle, payerId, toDiscard)
         return CostPaymentExecution(result.state, result.events, success = true)
     }
 
@@ -617,7 +618,7 @@ class CostPaymentService(private val services: EngineServices) {
     private fun millTop(state: GameState, payerId: EntityId, count: Int): CostPaymentExecution {
         val effectiveCount = MillAmountModifier.apply(state, payerId, count)
         val milled = state.getZone(ZoneKey(payerId, Zone.LIBRARY)).take(effectiveCount)
-        val result = ZoneTransitionService.moveToZoneBatch(state, milled, Zone.GRAVEYARD)
+        val result = services.zones.moveToZoneBatch(state, milled, Zone.GRAVEYARD)
         return CostPaymentExecution(result.state, result.events, success = true)
     }
 
@@ -630,7 +631,7 @@ class CostPaymentService(private val services: EngineServices) {
      */
     private fun exileTop(state: GameState, payerId: EntityId, count: Int): CostPaymentExecution {
         val exiled = state.getZone(ZoneKey(payerId, Zone.LIBRARY)).take(count)
-        val result = ZoneTransitionService.moveToZoneBatch(state, exiled, Zone.EXILE)
+        val result = services.zones.moveToZoneBatch(state, exiled, Zone.EXILE)
         return CostPaymentExecution(result.state, result.events, success = true)
     }
 
@@ -668,7 +669,7 @@ class CostPaymentService(private val services: EngineServices) {
             newState = ZoneTransitionService.trackPermanentSacrifice(newState, selected, payerId)
         }
         for (permanentId in selected) {
-            val transition = ZoneTransitionService.moveToZone(newState, permanentId, Zone.GRAVEYARD)
+            val transition = services.zones.moveToZone(newState, permanentId, Zone.GRAVEYARD)
             newState = transition.state
             events.addAll(transition.events)
         }
@@ -679,7 +680,7 @@ class CostPaymentService(private val services: EngineServices) {
         var newState = state
         val events = mutableListOf<GameEvent>()
         for (permanentId in selected) {
-            val result = ZoneMovementUtils.movePermanentToZone(newState, permanentId, Zone.HAND)
+            val result = ZoneMovementUtils.movePermanentToZone(services.zones, newState, permanentId, Zone.HAND)
             if (result.error != null) return CostPaymentExecution(state, emptyList(), success = false)
             newState = result.state
             events.addAll(result.events)
