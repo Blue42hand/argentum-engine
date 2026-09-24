@@ -13,7 +13,7 @@ val SteelOverseerReprint = Printing(
     collectorNumber = "267",
     scryfallId = "3f1b0b1f-a152-4bc8-923c-1b3a7f151295",
     artist = "Chris Rahn",
-    imageUri = "https://cards.scryfall.io/normal/front/3/f/3f1b0b1f-a152-4bc8-923c-1b3a7f151295.jpg",
+    imageUri = "https://cards.scryfall.io/normal/front/3/f/3f1b0b1f-a152-4bc8-923c-1b3a7f151295.jpg?1783927502",
     releaseDate = "2021-04-23",
     rarity = Rarity.RARE,
 )
