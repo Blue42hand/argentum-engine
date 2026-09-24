@@ -28,7 +28,7 @@ val SeismicRupture = card("Seismic Rupture") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING)),
-            DealDamageEffect(2, EffectTarget.Self)
+            DealDamageEffect(2, EffectTarget.IterationEntity)
         )
     }
     metadata {

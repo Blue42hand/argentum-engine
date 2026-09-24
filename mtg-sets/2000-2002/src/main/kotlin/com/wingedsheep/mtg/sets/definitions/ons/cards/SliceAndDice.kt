@@ -24,14 +24,14 @@ val SliceAndDice = card("Slice and Dice") {
     oracleText = "Slice and Dice deals 4 damage to each creature.\nCycling {2}{R}\nWhen you cycle Slice and Dice, you may have it deal 1 damage to each creature."
 
     spell {
-        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures, DealDamageEffect(4, EffectTarget.Self))
+        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures, DealDamageEffect(4, EffectTarget.IterationEntity))
     }
 
     keywordAbility(KeywordAbility.cycling("{2}{R}"))
 
     triggeredAbility {
         trigger = Triggers.YouCycleThis
-        effect = Effects.May(Effects.ForEachInGroup(GroupFilter.AllCreatures, DealDamageEffect(1, EffectTarget.Self)))
+        effect = Effects.May(Effects.ForEachInGroup(GroupFilter.AllCreatures, DealDamageEffect(1, EffectTarget.IterationEntity)))
     }
 
     metadata {

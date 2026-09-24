@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Giantfall
@@ -30,7 +29,7 @@ val Giantfall = card("Giantfall") {
         effect = ModalEffect.chooseOne(
             Mode(
                 effect = Effects.DealDamage(
-                    amount = DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.Power),
+                    amount = DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.Power),
                     target = EffectTarget.ContextTarget(1),
                     damageSource = EffectTarget.ContextTarget(0)
                 ),

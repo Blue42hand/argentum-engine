@@ -29,7 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * +3/+0. "Another" excludes Zhao sacrificing itself; when Zhao is sacrificed alongside other
  * permanents it still reacts to those others, pumping only the creatures you control that remain.
  * The team pump is a [Effects.ForEachInGroup] over [GroupFilter.AllCreaturesYouControl] applying a
- * +1/+0 [ModifyStatsEffect] to each ([EffectTarget.Self] = current iteration creature) until end of
+ * +1/+0 [ModifyStatsEffect] to each ([EffectTarget.IterationEntity] = current iteration creature) until end of
  * turn.
  */
 val ZhaoRuthlessAdmiral = card("Zhao, Ruthless Admiral") {
@@ -51,7 +51,7 @@ val ZhaoRuthlessAdmiral = card("Zhao, Ruthless Admiral") {
             effect = ModifyStatsEffect(
                 powerModifier = 1,
                 toughnessModifier = 0,
-                target = EffectTarget.Self,
+                target = EffectTarget.IterationEntity,
                 duration = Duration.EndOfTurn
             )
         )

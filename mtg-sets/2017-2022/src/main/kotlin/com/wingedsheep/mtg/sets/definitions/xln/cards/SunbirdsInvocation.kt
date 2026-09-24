@@ -20,7 +20,7 @@ import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
 
 
@@ -63,7 +63,7 @@ val SunbirdsInvocation = card("Sunbird's Invocation") {
             requires = setOf(SpellCastPredicate.CastFromZone(Zone.HAND)),
         )
         val triggeringSpellManaValue = DynamicAmount.EntityProperty(
-            EntityReference.Triggering,
+            EffectTarget.TriggeringEntity,
             EntityNumericProperty.ManaValue,
         )
         effect = Effects.Composite(
@@ -81,7 +81,7 @@ val SunbirdsInvocation = card("Sunbird's Invocation") {
                     selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
                     chooser = Chooser.Controller,
                     filter = GameObjectFilter.Nonland
-                        .manaValueAtMostEntity(EntityReference.Triggering),
+                        .manaValueAtMostEntity(EffectTarget.TriggeringEntity),
                     storeSelected = "chosen",
                     storeRemainder = "toBottom",
                     showAllCards = true,

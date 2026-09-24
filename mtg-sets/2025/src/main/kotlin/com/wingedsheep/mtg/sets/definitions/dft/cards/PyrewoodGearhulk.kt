@@ -36,9 +36,9 @@ val PyrewoodGearhulk = card("Pyrewood Gearhulk") {
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
                 Effects.Composite(
-                    Effects.ModifyStats(2, 2, EffectTarget.Self),
-                    Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.Self),
-                    Effects.GrantKeyword(Keyword.MENACE, EffectTarget.Self)
+                    Effects.ModifyStats(2, 2, EffectTarget.IterationEntity),
+                    Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.IterationEntity),
+                    Effects.GrantKeyword(Keyword.MENACE, EffectTarget.IterationEntity)
                 )
             ),
             Effects.DamageCantBePreventedThisTurn()

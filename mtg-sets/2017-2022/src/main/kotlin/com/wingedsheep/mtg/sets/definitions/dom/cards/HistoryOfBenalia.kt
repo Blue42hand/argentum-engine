@@ -57,7 +57,7 @@ val HistoryOfBenalia = card("History of Benalia") {
             effect = ModifyStatsEffect(
                 DynamicAmount.Fixed(2),
                 DynamicAmount.Fixed(1),
-                EffectTarget.Self
+                EffectTarget.IterationEntity
             )
         )
     }

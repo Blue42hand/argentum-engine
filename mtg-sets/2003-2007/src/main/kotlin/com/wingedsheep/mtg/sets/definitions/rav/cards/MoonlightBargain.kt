@@ -47,8 +47,8 @@ val MoonlightBargain = card("Moonlight Bargain") {
                     collection = looked.key,
                     effect = Effects.MayPay(
                         cost = PayLifeEffect(2),
-                        then = Effects.Move(EffectTarget.Self, Zone.HAND, fromZone = Zone.LIBRARY),
-                        otherwise = Effects.Move(EffectTarget.Self, Zone.GRAVEYARD, fromZone = Zone.LIBRARY),
+                        then = Effects.Move(EffectTarget.IterationEntity, Zone.HAND, fromZone = Zone.LIBRARY),
+                        otherwise = Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, fromZone = Zone.LIBRARY),
                         descriptionOverride = "Pay 2 life to put this card into your hand? " +
                             "If you don't, it goes to your graveyard.",
                     ),

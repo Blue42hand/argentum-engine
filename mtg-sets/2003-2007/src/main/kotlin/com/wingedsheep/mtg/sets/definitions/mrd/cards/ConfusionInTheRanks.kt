@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetChooser
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Confusion in the Ranks — Mirrodin #87 (canonical printing)
@@ -33,7 +32,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *   larger one: with Confusion out, a permanent entering under player A can be swapped with one
  *   under B or C, and never with another of A's own.
  * - "Shares a card type with it" is the new [com.wingedsheep.sdk.scripting.predicates.CardPredicate]
- *   `SharesCardTypeWith` over [EntityReference.Triggering]. Both sides read projected types, so an
+ *   `SharesCardTypeWith` over [EffectTarget.TriggeringEntity]. Both sides read projected types, so an
  *   animated artifact land that enters can be swapped for a creature. Card types only — two
  *   *legendary* permanents don't share a card type by being legendary.
  * - **It triggers on itself.** Confusion in the Ranks is an enchantment, so its own arrival meets
@@ -72,7 +71,7 @@ val ConfusionInTheRanks = card("Confusion in the Ranks") {
                                 )
                             )
                         )
-                        .sharingCardTypeWith(EntityReference.Triggering)
+                        .sharingCardTypeWith(EffectTarget.TriggeringEntity)
                 ),
                 chooser = TargetChooser.ControllerOfTriggeringEntity
             )

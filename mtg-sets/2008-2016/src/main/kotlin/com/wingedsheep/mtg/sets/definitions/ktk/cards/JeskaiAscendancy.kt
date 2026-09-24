@@ -30,11 +30,11 @@ val JeskaiAscendancy = card("Jeskai Ascendancy") {
             listOf(
                 Effects.ForEachInGroup(
                     GroupFilter.AllCreaturesYouControl,
-                    ModifyStatsEffect(1, 1, EffectTarget.Self)
+                    ModifyStatsEffect(1, 1, EffectTarget.IterationEntity)
                 ),
                 Effects.ForEachInGroup(
                     GroupFilter.AllCreaturesYouControl,
-                    TapUntapEffect(EffectTarget.Self, tap = false)
+                    TapUntapEffect(EffectTarget.IterationEntity, tap = false)
                 )
             )
         )

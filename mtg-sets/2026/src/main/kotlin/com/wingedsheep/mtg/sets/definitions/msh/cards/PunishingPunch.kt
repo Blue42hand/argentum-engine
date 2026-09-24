@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Punishing Punch (MSH #180) — {2}{G} Instant
@@ -53,7 +53,7 @@ val PunishingPunch = card("Punishing Punch") {
         val theirCreature = target("target creature an opponent controls", Targets.CreatureOpponentControls)
         effect = DealDamageEffect(
             amount = DynamicAmount.Multiply(
-                DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.Power),
+                DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.Power),
                 2,
             ),
             target = theirCreature,

@@ -34,11 +34,11 @@ val AgrusKosWojekVeteran = card("Agrus Kos, Wojek Veteran") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withColor(Color.RED).attacking()),
-                Effects.ModifyStats(2, 0, EffectTarget.Self)
+                Effects.ModifyStats(2, 0, EffectTarget.IterationEntity)
             ),
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withColor(Color.WHITE).attacking()),
-                Effects.ModifyStats(0, 2, EffectTarget.Self)
+                Effects.ModifyStats(0, 2, EffectTarget.IterationEntity)
             )
         )
     }
@@ -403,7 +403,7 @@ val Blockbuster = card("Blockbuster") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.tapped()),
-                DealDamageEffect(3, EffectTarget.Self)
+                DealDamageEffect(3, EffectTarget.IterationEntity)
             ),
             ForEachPlayerEffect(Player.Each, listOf(DealDamageEffect(3, EffectTarget.Controller)))
         )
@@ -3535,8 +3535,8 @@ val FlameKinZealot = card("Flame-Kin Zealot") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.Composite(
-                Effects.ModifyStats(1, 1, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self)
+                Effects.ModifyStats(1, 1, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
             )
         )
     }
@@ -4886,7 +4886,7 @@ val HammerfistGiant = card("Hammerfist Giant") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING)),
-                DealDamageEffect(4, EffectTarget.Self)
+                DealDamageEffect(4, EffectTarget.IterationEntity)
             ),
             ForEachPlayerEffect(Player.Each, listOf(DealDamageEffect(4, EffectTarget.Controller)))
         )
@@ -7377,7 +7377,10 @@ val RainOfEmbers = card("Rain of Embers") {
     oracleText = "Rain of Embers deals 1 damage to each creature and each player."
     spell {
         effect = Effects.Composite(
-            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(1, EffectTarget.Self)),
+            Effects.ForEachInGroup(
+                GroupFilter(GameObjectFilter.Creature),
+                DealDamageEffect(1, EffectTarget.IterationEntity)
+            ),
             ForEachPlayerEffect(Player.Each, listOf(DealDamageEffect(1, EffectTarget.Controller)))
         )
     }
@@ -8281,7 +8284,7 @@ val SelesnyaGuildmage = card("Selesnya Guildmage") {
         cost = Costs.Mana("{3}{W}")
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.ModifyStats(1, 1, EffectTarget.Self)
+            Effects.ModifyStats(1, 1, EffectTarget.IterationEntity)
         )
     }
     metadata {

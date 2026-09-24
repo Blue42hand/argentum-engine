@@ -44,7 +44,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * no token, which `EdgarMarkovScenarioTest` pins down.
  *
  * The attack trigger reuses the Cathars' Crusade idiom: [Effects.ForEachInGroup] over the Vampires
- * you control, with the inner counter aimed at [EffectTarget.Self] (the iterated member).
+ * you control, with the inner counter aimed at [EffectTarget.IterationEntity] (the iterated member).
  */
 val EdgarMarkov = card("Edgar Markov") {
     manaCost = "{3}{R}{W}{B}"
@@ -77,7 +77,7 @@ val EdgarMarkov = card("Edgar Markov") {
         trigger = Triggers.Attacks
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl().withSubtype(Subtype.VAMPIRE)),
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
         )
         description = "Whenever Edgar attacks, put a +1/+1 counter on each Vampire you control."
     }

@@ -47,7 +47,7 @@ val FlameFusillade = card("Flame Fusillade") {
                     ),
                     targetRequirements = listOf(AnyTarget())
                 ),
-                target = EffectTarget.Self,
+                target = EffectTarget.IterationEntity,
                 duration = Duration.EndOfTurn
             )
         )

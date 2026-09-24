@@ -47,7 +47,7 @@ val WarOfTheLastAlliance = card("War of the Last Alliance") {
     sagaChapter(3) {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
-            effect = GrantKeywordEffect(Keyword.DOUBLE_STRIKE.name, EffectTarget.Self, Duration.EndOfTurn)
+            effect = GrantKeywordEffect(Keyword.DOUBLE_STRIKE.name, EffectTarget.IterationEntity, Duration.EndOfTurn)
         ).then(Effects.TheRingTemptsYou())
     }
 

@@ -42,11 +42,11 @@ val SynchronizedCharge = card("Synchronized Charge") {
             Effects.DistributeCountersAmongTargets(totalCounters = 2),
             Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.youControl().withAnyCounter()),
-                effect = GrantKeywordEffect(Keyword.VIGILANCE, EffectTarget.Self)
+                effect = GrantKeywordEffect(Keyword.VIGILANCE, EffectTarget.IterationEntity)
             ),
             Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.youControl().withAnyCounter()),
-                effect = GrantKeywordEffect(Keyword.TRAMPLE, EffectTarget.Self)
+                effect = GrantKeywordEffect(Keyword.TRAMPLE, EffectTarget.IterationEntity)
             )
         ))
     }

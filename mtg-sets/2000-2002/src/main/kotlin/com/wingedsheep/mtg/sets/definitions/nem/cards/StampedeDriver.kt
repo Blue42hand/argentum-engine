@@ -33,8 +33,8 @@ val StampedeDriver = card("Stampede Driver") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.Composite(
-                Effects.ModifyStats(1, 1, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self)
+                Effects.ModifyStats(1, 1, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
             )
         )
     }

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Ramos, Dragon Engine — Commander 2017 #55.
@@ -33,7 +32,7 @@ val RamosDragonEngine = card("Ramos, Dragon Engine") {
         trigger = Triggers.YouCastSpell
         effect = Effects.AddDynamicCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
-            amount = DynamicAmounts.colorCountOf(EntityReference.Triggering),
+            amount = DynamicAmounts.colorCountOf(EffectTarget.TriggeringEntity),
             target = EffectTarget.Self
         )
     }

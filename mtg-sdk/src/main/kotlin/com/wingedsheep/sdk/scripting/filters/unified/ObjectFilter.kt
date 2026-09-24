@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.text.TextReplaceable
 import com.wingedsheep.sdk.scripting.text.TextReplacer
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityReference
 import kotlinx.serialization.Serializable
 
 /**
@@ -463,17 +462,17 @@ data class GameObjectFilter(
     )
 
     /** Mana value at most that of a referenced entity (triggering, source, etc.) */
-    fun manaValueAtMostEntity(reference: EntityReference) = copy(
+    fun manaValueAtMostEntity(reference: EffectTarget.SingleEntity) = copy(
         cardPredicates = cardPredicates + CardPredicate.ManaValueAtMostEntity(reference)
     )
 
     /** Mana value at most the mana actually spent to cast a referenced entity (source, etc.) */
-    fun manaValueAtMostEntityManaSpent(reference: EntityReference) = copy(
+    fun manaValueAtMostEntityManaSpent(reference: EffectTarget.SingleEntity) = copy(
         cardPredicates = cardPredicates + CardPredicate.ManaValueAtMostEntityManaSpent(reference)
     )
 
     /** Mana value at most the number of colors of mana spent to cast a referenced entity (Converge). */
-    fun manaValueAtMostColorsSpent(reference: EntityReference) = copy(
+    fun manaValueAtMostColorsSpent(reference: EffectTarget.SingleEntity) = copy(
         cardPredicates = cardPredicates + CardPredicate.ManaValueAtMostColorsSpent(reference)
     )
 
@@ -550,21 +549,21 @@ data class GameObjectFilter(
     )
 
     /** Power strictly greater than the projected power of a referenced entity (source, triggering, etc.) */
-    fun powerGreaterThanEntity(reference: EntityReference) = copy(
+    fun powerGreaterThanEntity(reference: EffectTarget.SingleEntity) = copy(
         cardPredicates = cardPredicates + CardPredicate.PowerGreaterThanEntity(reference)
     )
 
     /** Power less than or equal to the projected power of a referenced entity (source, triggering, etc.) */
-    fun powerLessThanEntity(reference: EntityReference) = copy(
+    fun powerLessThanEntity(reference: EffectTarget.SingleEntity) = copy(
         cardPredicates = cardPredicates + CardPredicate.PowerLessThanEntity(reference)
     )
 
     /** An Aura card whose enchant restriction the referenced permanent satisfies (Auratouched Mage). */
-    fun couldEnchant(reference: EntityReference) = copy(
+    fun couldEnchant(reference: EffectTarget.SingleEntity) = copy(
         cardPredicates = cardPredicates + CardPredicate.CouldEnchant(reference)
     )
 
-    fun powerAtMostEntity(reference: EntityReference) = copy(
+    fun powerAtMostEntity(reference: EffectTarget.SingleEntity) = copy(
         cardPredicates = cardPredicates + CardPredicate.PowerAtMostEntity(reference)
     )
 
@@ -692,7 +691,7 @@ data class GameObjectFilter(
     )
 
     /** Must share a creature type with the referenced entity */
-    fun sharingCreatureTypeWith(entity: EntityReference) = copy(
+    fun sharingCreatureTypeWith(entity: EffectTarget.SingleEntity) = copy(
         cardPredicates = cardPredicates + CardPredicate.SharesCreatureTypeWith(entity)
     )
 
@@ -705,7 +704,7 @@ data class GameObjectFilter(
     /**
      * Must share a card type with **any** card exiled with the filtering ability's source — "shares
      * a card type with a card exiled with this creature" (Cemetery Illuminator). The pile-wide form
-     * of [sharingCardTypeWith]`(EntityReference.LinkedExiledCard())`; see
+     * of [sharingCardTypeWith]`(EffectTarget.LinkedExiledCard())`; see
      * [CardPredicate.SharesCardTypeWithLinkedExile].
      */
     fun sharingCardTypeWithLinkedExile() = copy(
@@ -721,12 +720,12 @@ data class GameObjectFilter(
         cardPredicates = cardPredicates + CardPredicate.SharesNameWithLinkedExile
     )
 
-    fun sharingCardTypeWith(entity: EntityReference) = copy(
+    fun sharingCardTypeWith(entity: EffectTarget.SingleEntity) = copy(
         cardPredicates = cardPredicates + CardPredicate.SharesCardTypeWith(entity)
     )
 
     /** Must share a color with the referenced entity */
-    fun sharingColorWith(entity: EntityReference) = copy(
+    fun sharingColorWith(entity: EffectTarget.SingleEntity) = copy(
         cardPredicates = cardPredicates + CardPredicate.SharesColorWith(entity)
     )
 
@@ -735,12 +734,12 @@ data class GameObjectFilter(
      * name as the exiled card"). The entity-referencing counterpart of
      * [sharingNameWithPermanentYouControl].
      */
-    fun sharingNameWith(entity: EntityReference) = copy(
+    fun sharingNameWith(entity: EffectTarget.SingleEntity) = copy(
         cardPredicates = cardPredicates + CardPredicate.SharesNameWith(entity)
     )
 
     /** Must have the same mana value as the referenced entity */
-    fun sharingManaValueWith(entity: EntityReference) = copy(
+    fun sharingManaValueWith(entity: EffectTarget.SingleEntity) = copy(
         cardPredicates = cardPredicates + CardPredicate.SharesManaValueWith(entity)
     )
 
@@ -1348,7 +1347,7 @@ data class GameObjectFilter(
      * Must have blocked, or been blocked by, the creature [reference] names this turn — "all
      * creatures that blocked or were blocked by it this turn" (Gaze of the Gorgon).
      */
-    fun blockedOrWasBlockedByThisTurn(reference: com.wingedsheep.sdk.scripting.values.EntityReference) = copy(
+    fun blockedOrWasBlockedByThisTurn(reference: com.wingedsheep.sdk.scripting.targets.EffectTarget.SingleEntity) = copy(
         statePredicates = statePredicates + StatePredicate.BlockedOrWasBlockedByEntityThisTurn(reference)
     )
 

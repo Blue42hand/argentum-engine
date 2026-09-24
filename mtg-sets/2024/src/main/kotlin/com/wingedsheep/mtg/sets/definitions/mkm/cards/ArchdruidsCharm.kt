@@ -17,7 +17,7 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Archdruid's Charm — Murders at Karlov Manor #151
@@ -48,7 +48,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * their own library, so only the opponents need to be shown it.
  *
  * **Mode 2** is [BiteDownOnCrime]'s shape exactly: two targets in one mode, and the damage reads
- * `EntityProperty(Target(0), Power)` with `damageSource = yours`, so the +1/+1 counter placed by
+ * `EntityProperty(ContextTarget(0), Power)` with `damageSource = yours`, so the +1/+1 counter placed by
  * the first half is already on the creature when the power is read. Per the printed rulings, if the
  * opposing creature has become an illegal target by resolution the counter is still placed; if
  * *your* creature is gone, neither half happens. Both fall out of ordinary per-target legality
@@ -115,7 +115,7 @@ val ArchdruidsCharm = card("Archdruid's Charm") {
                     Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, yours),
                     Effects.DealDamage(
                         amount = DynamicAmount.EntityProperty(
-                            EntityReference.Target(0),
+                            EffectTarget.ContextTarget(0),
                             EntityNumericProperty.Power,
                         ),
                         target = theirs,

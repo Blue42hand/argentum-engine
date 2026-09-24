@@ -563,7 +563,7 @@ data class RemoveFromCombatEffect(
  *
  * Used within ForEachInGroupEffect pipelines to mark groups of creatures.
  *
- * @property target The creature to mark (typically EffectTarget.Self within ForEachInGroup)
+ * @property target The creature to mark (typically EffectTarget.IterationEntity within ForEachInGroup)
  */
 @SerialName("MarkMustAttackThisTurn")
 @Serializable

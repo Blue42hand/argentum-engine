@@ -33,7 +33,7 @@ val BloodfireDwarf = card("Bloodfire Dwarf") {
         cost = Costs.Composite(Costs.Mana("{R}"), Costs.SacrificeSelf)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING)),
-            DealDamageEffect(1, EffectTarget.Self)
+            DealDamageEffect(1, EffectTarget.IterationEntity)
         )
     }
     metadata {

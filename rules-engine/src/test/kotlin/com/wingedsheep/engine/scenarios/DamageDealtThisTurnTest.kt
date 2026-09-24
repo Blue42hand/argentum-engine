@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
@@ -28,7 +28,7 @@ class DamageDealtThisTurnTest : FunSpec({
     }
     fun GameTestDriver.dealt(source: EntityId): Int = DynamicAmountEvaluator().evaluate(
         state,
-        DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.DamageDealtThisTurn),
+        DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.DamageDealtThisTurn),
         EffectContext(sourceId = source, controllerId = player1)
     )
 

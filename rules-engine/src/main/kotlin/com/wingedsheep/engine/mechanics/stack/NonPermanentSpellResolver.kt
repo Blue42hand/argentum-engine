@@ -216,7 +216,7 @@ internal class NonPermanentSpellResolver(
             controllerId = spellComponent.casterId,
             targets = mainTargets,
             // Position-preserving view (null in slots dropped by 608.2b) so positional
-            // references — ContextTarget(n), EntityReference.Target(n), ContextPlayer(n) —
+            // references — ContextTarget(n), ContextPlayer(n) —
             // resolve by ORIGINAL slot and don't shift onto a later still-valid target.
             alignedTargets = mainAlignedTargets,
             // A pay-X-life additional cost (AdditionalCost.PayXLife, e.g. Vicious Rivalry) feeds

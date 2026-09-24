@@ -38,7 +38,7 @@ val UnswervingSloth = card("Unswerving Sloth") {
             Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self),
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
-                Effects.Untap(EffectTarget.Self)
+                Effects.Untap(EffectTarget.IterationEntity)
             )
         )
     }

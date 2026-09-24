@@ -30,7 +30,7 @@ val CrashThrough = card("Crash Through") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
-                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self)
+                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
             ),
             DrawCardsEffect(1)
         )

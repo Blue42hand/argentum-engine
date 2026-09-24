@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Ancient Cornucopia
@@ -35,7 +35,7 @@ val AncientCornucopia = card("Ancient Cornucopia") {
         // use unspent, so a later colored spell still offers it.
         effectOncePerTurn = true
         // "you may gain 1 life for each of that spell's colors" — resolution-time yes/no.
-        effect = Effects.May(Effects.GainLife(DynamicAmounts.colorCountOf(EntityReference.Triggering)))
+        effect = Effects.May(Effects.GainLife(DynamicAmounts.colorCountOf(EffectTarget.TriggeringEntity)))
     }
 
     // {T}: Add one mana of any color.

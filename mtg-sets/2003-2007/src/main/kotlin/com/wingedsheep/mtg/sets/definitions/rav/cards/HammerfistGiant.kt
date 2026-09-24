@@ -36,7 +36,7 @@ val HammerfistGiant = card("Hammerfist Giant") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING)),
-                DealDamageEffect(4, EffectTarget.Self)
+                DealDamageEffect(4, EffectTarget.IterationEntity)
             ),
             ForEachPlayerEffect(Player.Each, listOf(DealDamageEffect(4, EffectTarget.Controller)))
         )

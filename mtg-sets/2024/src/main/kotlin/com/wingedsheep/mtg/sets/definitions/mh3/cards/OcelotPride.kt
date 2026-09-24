@@ -75,7 +75,7 @@ val OcelotPride = card("Ocelot Pride") {
                 condition = Conditions.YouHaveCitysBlessing,
                 then = Effects.ForEachInGroup(
                     filter = GroupFilter(GameObjectFilter.Token.youControl().enteredThisTurn()),
-                    effect = Effects.CreateTokenCopyOfTarget(target = EffectTarget.Self)
+                    effect = Effects.CreateTokenCopyOfTarget(target = EffectTarget.IterationEntity)
                 )
             )
         )

@@ -45,7 +45,7 @@ val VojaJawsOfTheConclave = card("Voja, Jaws of the Conclave") {
                 amount = DynamicAmounts
                     .battlefield(Player.You, GameObjectFilter.Creature.withSubtype(Subtype.ELF))
                     .count(),
-                target = EffectTarget.Self,
+                target = EffectTarget.IterationEntity,
             ),
         ) then Effects.DrawCards(
             DynamicAmounts

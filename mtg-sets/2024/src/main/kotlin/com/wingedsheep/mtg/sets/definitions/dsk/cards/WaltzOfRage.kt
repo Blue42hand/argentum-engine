@@ -32,7 +32,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Two clauses:
  *  - The chosen creature deals damage equal to its power to each OTHER creature: a
  *    [ForEachInGroupEffect] over [GroupFilter.AllCreatures] with `.otherThanTarget()` (excludes the
- *    chosen creature), each iterated creature ([EffectTarget.Self]) taking [DynamicAmounts.targetPower]
+ *    chosen creature), each iterated creature ([EffectTarget.IterationEntity]) taking [DynamicAmounts.targetPower]
  *    damage *from the chosen creature itself* (`damageSource = ContextTarget(0)` — so combat keywords
  *    like deathtouch / lifelink on the chosen creature apply, and "dealt damage by" triggers see the
  *    correct source).
@@ -58,7 +58,7 @@ val WaltzOfRage = card("Waltz of Rage") {
                 filter = GroupFilter(GameObjectFilter.Creature).otherThanTarget(),
                 effect = DealDamageEffect(
                     amount = DynamicAmounts.targetPower(0),
-                    target = EffectTarget.Self,
+                    target = EffectTarget.IterationEntity,
                     damageSource = chosen
                 )
             ),

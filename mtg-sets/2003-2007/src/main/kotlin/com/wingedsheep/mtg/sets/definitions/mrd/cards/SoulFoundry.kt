@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Soul Foundry
@@ -64,7 +63,7 @@ val SoulFoundry = card("Soul Foundry") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{X}"), Costs.Tap)
         xDefinedAs = DynamicAmount.EntityProperty(
-            EntityReference.LinkedExiledCard(),
+            EffectTarget.LinkedExiledCard(),
             EntityNumericProperty.ManaValue
         )
         // No `description` override on the ability itself: the generated label carries the

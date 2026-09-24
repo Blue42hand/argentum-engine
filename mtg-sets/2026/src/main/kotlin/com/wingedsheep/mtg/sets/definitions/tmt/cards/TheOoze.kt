@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * The Ooze
@@ -34,7 +34,7 @@ val TheOoze = card("The Ooze") {
         )
         effect = Effects.CreateMutagenToken(
             DynamicAmount.EntityProperty(
-                EntityReference.Triggering,
+                EffectTarget.TriggeringEntity,
                 EntityNumericProperty.CounterCount(CounterType.PLUS_ONE_PLUS_ONE)
             )
         )

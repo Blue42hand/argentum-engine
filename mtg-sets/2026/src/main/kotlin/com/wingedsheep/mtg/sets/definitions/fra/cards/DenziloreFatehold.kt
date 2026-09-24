@@ -23,7 +23,7 @@ val DenziloreFatehold = card("Denzilore Fatehold") {
         trigger = Triggers.WheneverYouScryOrSurveil
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreaturesYouControl,
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
         )
     }
 

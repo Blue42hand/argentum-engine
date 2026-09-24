@@ -29,7 +29,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    destination growth. That makes "If you don't" fire for a decline *and* for an empty hand —
  *    exactly the card's wording, which keys off the put, not off a yes/no answer.
  *  - Chapter III's "each creature you control" is [Effects.ForEachInGroup] over a
- *    [GroupFilter], counters applied to `EffectTarget.Self` per iterated creature
+ *    [GroupFilter], counters applied to `EffectTarget.IterationEntity` per iterated creature
  *    (Cathars' Crusade's shape) — not a target.
  */
 val OriginOfTheAvengers = card("Origin of the Avengers") {
@@ -61,7 +61,7 @@ val OriginOfTheAvengers = card("Origin of the Avengers") {
     sagaChapter(3) {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
         )
     }
 

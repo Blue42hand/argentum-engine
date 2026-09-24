@@ -24,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The chosen creature deals damage equal to its power to each OTHER creature: a
  * [Effects.ForEachInGroup] over every creature except the chosen one
- * (`GroupFilter(...).otherThanTarget()`), each iterated creature ([EffectTarget.Self]) taking
+ * (`GroupFilter(...).otherThanTarget()`), each iterated creature ([EffectTarget.IterationEntity]) taking
  * [DynamicAmounts.targetPower] damage *from the chosen creature itself* (`damageSource = chosen`),
  * so its combat keywords and "dealt damage by" triggers see the correct source. The graveyard-cast
  * rider is a [Effects.If] gated on [Conditions.WasCastFromGraveyard] — true when the
@@ -45,7 +45,7 @@ val NibelheimAflame = card("Nibelheim Aflame") {
                 filter = GroupFilter(GameObjectFilter.Creature).otherThanTarget(),
                 effect = DealDamageEffect(
                     amount = DynamicAmounts.targetPower(0),
-                    target = EffectTarget.Self,
+                    target = EffectTarget.IterationEntity,
                     damageSource = chosen,
                 ),
             ),

@@ -57,14 +57,14 @@ val SeasonOfGathering = card("Season of Gathering") {
                         Mode.noTarget(
                             Effects.ForEachInGroup(
                                 filter = GroupFilter(GameObjectFilter.Artifact),
-                                effect = Effects.Destroy(EffectTarget.Self)
+                                effect = Effects.Destroy(EffectTarget.IterationEntity)
                             ),
                             "Destroy all artifacts"
                         ),
                         Mode.noTarget(
                             Effects.ForEachInGroup(
                                 filter = GroupFilter(GameObjectFilter.Enchantment),
-                                effect = Effects.Destroy(EffectTarget.Self)
+                                effect = Effects.Destroy(EffectTarget.IterationEntity)
                             ),
                             "Destroy all enchantments"
                         )

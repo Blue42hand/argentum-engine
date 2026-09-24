@@ -32,7 +32,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *    is read at resolution via [DynamicAmount.XValue].
  *  - "Creatures you control have base power and toughness X/X until end of turn" is an
  *    [Effects.ForEachInGroup] over [GroupFilter.AllCreaturesYouControl] running a
- *    [Effects.SetBasePowerAndToughness] (Layer 7b set values) on each member ([EffectTarget.Self]
+ *    [Effects.SetBasePowerAndToughness] (Layer 7b set values) on each member ([EffectTarget.IterationEntity]
  *    binds to the current iteration creature). The group is snapshotted at resolution, so newly
  *    minted Allies created earlier in the turn are included.
  *  - "Activate only during your turn" → [ActivationRestriction.OnlyDuringYourTurn].
@@ -74,7 +74,7 @@ val KataraWaterTribesHope = card("Katara, Water Tribe's Hope") {
             Effects.SetBasePowerAndToughness(
                 power = DynamicAmount.XValue,
                 toughness = DynamicAmount.XValue,
-                target = EffectTarget.Self,
+                target = EffectTarget.IterationEntity,
                 duration = Duration.EndOfTurn
             )
         )

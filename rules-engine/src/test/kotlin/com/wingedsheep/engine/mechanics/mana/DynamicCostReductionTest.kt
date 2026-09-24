@@ -22,7 +22,7 @@ import io.kotest.matchers.shouldBe
 /**
  * Engine tests for [CostReductionSource.Dynamic] — "spells you cast cost {X} less to cast, where X
  * is `<DynamicAmount>`", evaluated with the permanent that carries the modifier as the amount's
- * `EntityReference.Source`.
+ * `EffectTarget.Self`.
  *
  * Named for the primitive rather than a card because the point of the shape is that the amount is
  * read from the permanent carrying the modifier, not aggregated over a board. The cases below are

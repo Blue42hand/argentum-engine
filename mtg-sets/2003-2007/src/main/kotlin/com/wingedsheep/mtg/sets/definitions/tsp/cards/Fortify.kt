@@ -28,13 +28,13 @@ val Fortify = card("Fortify") {
             mode("Creatures you control get +2/+0 until end of turn") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.youControl()),
-                    ModifyStatsEffect(2, 0, EffectTarget.Self),
+                    ModifyStatsEffect(2, 0, EffectTarget.IterationEntity),
                 )
             }
             mode("Creatures you control get +0/+2 until end of turn") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.youControl()),
-                    ModifyStatsEffect(0, 2, EffectTarget.Self),
+                    ModifyStatsEffect(0, 2, EffectTarget.IterationEntity),
                 )
             }
         }

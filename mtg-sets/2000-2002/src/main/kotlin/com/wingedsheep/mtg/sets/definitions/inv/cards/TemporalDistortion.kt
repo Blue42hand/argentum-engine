@@ -61,7 +61,7 @@ val TemporalDistortion = card("Temporal Distortion") {
         trigger = Triggers.EachUpkeep
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Permanent.controlledByActivePlayer()),
-            RemoveCountersEffect(CounterType.HOURGLASS, Int.MAX_VALUE, EffectTarget.Self)
+            RemoveCountersEffect(CounterType.HOURGLASS, Int.MAX_VALUE, EffectTarget.IterationEntity)
         )
     }
 

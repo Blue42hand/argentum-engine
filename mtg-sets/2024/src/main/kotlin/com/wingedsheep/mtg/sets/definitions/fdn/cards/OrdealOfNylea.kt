@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Ordeal of Nylea
@@ -44,13 +43,13 @@ val OrdealOfNylea = card("Ordeal of Nylea") {
     // Then if it has three or more +1/+1 counters on it, sacrifice this Aura.
     triggeredAbility {
         trigger = Triggers.attacks(binding = TriggerBinding.ATTACHED)
-        // EntityReference.Triggering resolves to the enchanted (attacking) creature here —
+        // EffectTarget.TriggeringEntity resolves to the enchanted (attacking) creature here —
         // AttachmentTriggerDetector sets triggeringEntityId to the attached entity.
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.EnchantedCreature) then
             Effects.If(
                 condition = Compare(
                     left = DynamicAmount.EntityProperty(
-                        entity = EntityReference.Triggering,
+                        entity = EffectTarget.TriggeringEntity,
                         numericProperty = EntityNumericProperty.CounterCount(CounterType.PLUS_ONE_PLUS_ONE)
                     ),
                     operator = ComparisonOperator.GTE,

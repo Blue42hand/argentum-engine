@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Soul Separator
@@ -55,10 +54,10 @@ val SoulSeparator = card("Soul Separator") {
             ),
             Effects.CreateDynamicToken(
                 dynamicPower = DynamicAmount.EntityProperty(
-                    EntityReference.Target(0), EntityNumericProperty.Power
+                    EffectTarget.ContextTarget(0), EntityNumericProperty.Power
                 ),
                 dynamicToughness = DynamicAmount.EntityProperty(
-                    EntityReference.Target(0), EntityNumericProperty.Toughness
+                    EffectTarget.ContextTarget(0), EntityNumericProperty.Toughness
                 ),
                 colors = setOf(Color.BLACK),
                 creatureTypes = setOf("Zombie")

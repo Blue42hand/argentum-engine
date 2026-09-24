@@ -49,7 +49,7 @@ val SanguineEvangelist = card("Sanguine Evangelist") {
                 baseFilter = GameObjectFilter.Creature.attacking(),
                 excludeSelf = true,
             ),
-            Effects.ModifyStats(1, 0, EffectTarget.Self),
+            Effects.ModifyStats(1, 0, EffectTarget.IterationEntity),
         )
     }
 

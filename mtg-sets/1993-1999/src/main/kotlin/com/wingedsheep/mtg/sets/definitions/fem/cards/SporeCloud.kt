@@ -41,7 +41,7 @@ val SporeCloud = card("Spore Cloud") {
                 ),
                 effect = GrantKeywordEffect(
                     AbilityFlag.DOESNT_UNTAP.name,
-                    EffectTarget.Self,
+                    EffectTarget.IterationEntity,
                     Duration.UntilAfterAffectedControllersNextUntap,
                 )
             )

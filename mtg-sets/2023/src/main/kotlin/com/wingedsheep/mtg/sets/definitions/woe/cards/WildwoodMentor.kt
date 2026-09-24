@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Wildwood Mentor
@@ -30,7 +29,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * Role tokens all feed it).
  *
  * The attack trigger's +X/+X reads Wildwood Mentor's power *as the ability resolves* via
- * [EntityReference.Source] — which is after the counter triggers from the same combat have already
+ * [EffectTarget.Self] — which is after the counter triggers from the same combat have already
  * resolved, and after any pump in response. It resolves to a fixed +X/+X modification at that
  * moment, so it does not re-scale if the Mentor grows or dies later in the turn. `.other()` on the
  * target filter is the printed "another": the Mentor can't pump itself, and with no other attacker
@@ -62,7 +61,7 @@ val WildwoodMentor = card("Wildwood Mentor") {
             TargetCreature(filter = TargetFilter.Creature.attacking().other())
         )
         val sourcePower = DynamicAmount.EntityProperty(
-            EntityReference.Source,
+            EffectTarget.Self,
             EntityNumericProperty.Power
         )
         effect = Effects.ModifyStats(power = sourcePower, toughness = sourcePower, target = ally)

@@ -119,7 +119,7 @@ private val UltimateSpiderMan = card("Ultimate Spider-Man") {
                 GameObjectFilter.Creature.youControl().withSubtype("Spider") or
                     GameObjectFilter.Creature.youControl().legendary()
             ),
-            Effects.DoubleAllCounters(EffectTarget.Self)
+            Effects.DoubleAllCounters(EffectTarget.IterationEntity)
         )
         description = "Whenever you attack, double the number of each kind of counter on each Spider and legendary creature you control."
     }

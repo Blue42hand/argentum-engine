@@ -173,9 +173,9 @@ private val GarrukTheVeilCursed = card("Garruk, the Veil-Cursed") {
                 Effects.ModifyStats(
                     DynamicAmounts.creatureCardsInYourGraveyard(),
                     DynamicAmounts.creatureCardsInYourGraveyard(),
-                    EffectTarget.Self,
+                    EffectTarget.IterationEntity,
                 ),
-                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self),
+                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity),
             ),
         )
         description = "Creatures you control gain trample and get +X/+X until end of turn, where X " +

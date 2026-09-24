@@ -34,7 +34,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    target means an illegal target by resolution fizzles the ability (CR 608.2c).
  *  - **Any number** — a resolution-time `chooseAnyNumber` (0..all) over the Equipment you control,
  *    then [ForEachInCollectionEffect] runs [Effects.AttachTargetEquipmentToCreature] once per
- *    chosen Equipment — `EffectTarget.Self` binds to each iterated Equipment, `ContextTarget(0)`
+ *    chosen Equipment — `EffectTarget.IterationEntity` binds to each iterated Equipment, `ContextTarget(0)`
  *    to the target creature. The attach executor detaches each Equipment from its current host
  *    first, so re-attaching an already-equipped Equipment is correct.
  *
@@ -78,7 +78,7 @@ val BeatrixLoyalGeneral = card("Beatrix, Loyal General") {
                     ForEachInCollectionEffect(
                         collection = chosen.key,
                         effect = Effects.AttachTargetEquipmentToCreature(
-                            equipmentTarget = EffectTarget.Self,
+                            equipmentTarget = EffectTarget.IterationEntity,
                             creatureTarget = creature
                         )
                     )

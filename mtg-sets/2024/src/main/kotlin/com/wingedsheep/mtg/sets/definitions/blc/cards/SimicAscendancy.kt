@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Simic Ascendancy
@@ -55,7 +54,7 @@ val SimicAscendancy = card("Simic Ascendancy") {
         trigger = Triggers.YourUpkeep
         interveningIf = Compare(
             DynamicAmount.EntityProperty(
-                EntityReference.Source,
+                EffectTarget.Self,
                 EntityNumericProperty.CounterCount(CounterType.GROWTH)
             ),
             ComparisonOperator.GTE,

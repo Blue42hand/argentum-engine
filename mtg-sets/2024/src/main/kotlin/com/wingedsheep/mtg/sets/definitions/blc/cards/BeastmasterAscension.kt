@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Beastmaster Ascension
@@ -51,7 +50,7 @@ val BeastmasterAscension = card("Beastmaster Ascension") {
             ),
             condition = Compare(
                 DynamicAmount.EntityProperty(
-                    EntityReference.Source,
+                    EffectTarget.Self,
                     EntityNumericProperty.CounterCount(CounterType.QUEST)
                 ),
                 ComparisonOperator.GTE,

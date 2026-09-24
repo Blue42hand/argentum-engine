@@ -27,8 +27,8 @@ val NowForWrathNowForRuin = card("Now for Wrath, Now for Ruin!") {
     spell {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
-            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-                .then(GrantKeywordEffect(Keyword.VIGILANCE.name, EffectTarget.Self, Duration.EndOfTurn))
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
+                .then(GrantKeywordEffect(Keyword.VIGILANCE.name, EffectTarget.IterationEntity, Duration.EndOfTurn))
         ).then(Effects.TheRingTemptsYou())
     }
 

@@ -29,7 +29,7 @@ val IrohsDemonstration = card("Iroh's Demonstration") {
             mode("Iroh's Demonstration deals 1 damage to each creature your opponents control.") {
                 effect = Effects.ForEachInGroup(
                     filter = GroupFilter.AllCreaturesOpponentsControl,
-                    effect = DealDamageEffect(1, EffectTarget.Self),
+                    effect = DealDamageEffect(1, EffectTarget.IterationEntity),
                 )
             }
             mode("Iroh's Demonstration deals 4 damage to target creature.") {

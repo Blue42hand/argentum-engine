@@ -63,7 +63,6 @@ import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * The steps a spell performs — the pipeline family, and the rules that produce a `CardScript`
@@ -1997,7 +1996,7 @@ object Steps {
 
     /**
      * The mass effects, which the SDK spells as one iteration over a `GroupFilter` with the
-     * per-member effect written against [EffectTarget.Self].
+     * per-member effect written against [EffectTarget.IterationEntity].
      *
      * One shape, four surfaces, because English gives the same model four templates and the
      * difference between them is the *noun phrase*, not the verb: a bare plural subject ("Creatures
@@ -2017,7 +2016,7 @@ object Steps {
         member: (EffectTarget) -> Effect,
     ): Phrase<CardScript> {
         fun scriptFor(filter: GameObjectFilter) = CardScript(
-            spellEffect = Effects.ForEachInGroup(GroupFilter(filter), member(EffectTarget.Self)),
+            spellEffect = Effects.ForEachInGroup(GroupFilter(filter), member(EffectTarget.IterationEntity)),
         )
         return phrase(template, name = name) {
             slot("filter", if (plural) Filters.plural else Filters.filter)
@@ -2047,7 +2046,7 @@ object Steps {
         canonicalForm: Boolean = true,
     ): Phrase<CardScript> {
         fun scriptFor(value: V, filter: GameObjectFilter) = CardScript(
-            spellEffect = Effects.ForEachInGroup(GroupFilter(filter), member(value, EffectTarget.Self)),
+            spellEffect = Effects.ForEachInGroup(GroupFilter(filter), member(value, EffectTarget.IterationEntity)),
         )
         val rule = phrase<CardScript>(template, name = name) {
             // This shape carries durational and non-durational sentences alike — "{filter} get {v}
@@ -2093,8 +2092,8 @@ object Steps {
             spellEffect = Effects.ForEachInGroup(
                 GroupFilter(filter),
                 Effects.Composite(
-                    listOf(Effects.ModifyStats(modifiers.first, modifiers.second, EffectTarget.Self)) +
-                        keywords.map { Effects.GrantKeyword(it, EffectTarget.Self) }
+                    listOf(Effects.ModifyStats(modifiers.first, modifiers.second, EffectTarget.IterationEntity)) +
+                        keywords.map { Effects.GrantKeyword(it, EffectTarget.IterationEntity) }
                 ),
             )
         )
@@ -2132,7 +2131,7 @@ object Steps {
         fun scriptFor(filter: GameObjectFilter) = CardScript(
             spellEffect = Effects.ForEachInGroup(
                 GroupFilter(filter, excludeSelf = true),
-                member(EffectTarget.Self),
+                member(EffectTarget.IterationEntity),
             ),
         )
         return phrase(template, name = name) {
@@ -2157,7 +2156,7 @@ object Steps {
     /**
      * "Destroy all creatures." — the sweep, through [Effects.DestroyAll] rather than an iteration.
      *
-     * Not `ForEachInGroup(filter, Destroy(Self))`, which is the same sentence's other SDK spelling
+     * Not `ForEachInGroup(filter, Destroy(IterationEntity))`, which is the same sentence's other SDK spelling
      * and the one this rule used to build. `DestroyAll` lowers to the gather-then-move pipeline, and
      * the difference is not cosmetic: the gather reads the battlefield through *projected* state, so
      * a filter that names a characteristic a continuous effect can change ("nonland permanents with
@@ -2351,7 +2350,7 @@ object Steps {
         fun scriptFor(value: DynamicAmount, filter: GameObjectFilter) = CardScript(
             spellEffect = Effects.Composite(
                 listOf(
-                    Effects.ForEachInGroup(GroupFilter(filter), Effects.DealDamage(value, EffectTarget.Self)),
+                    Effects.ForEachInGroup(GroupFilter(filter), Effects.DealDamage(value, EffectTarget.IterationEntity)),
                     Effects.ForEachPlayer(
                         Player.Each,
                         listOf(Effects.DealDamage(value, EffectTarget.Controller)),
@@ -2586,7 +2585,7 @@ object Steps {
      */
     private fun lifeByProperty(
         possessive: Phrase<Unit>,
-        reference: EntityReference,
+        reference: EffectTarget.SingleEntity,
         tag: String,
     ): List<Phrase<CardScript>> {
         val characteristic = Amounts.propertyOf(possessive, reference, tag)
@@ -2606,7 +2605,7 @@ object Steps {
 
     /** "…equal to **~'s** power." — the source, which every position but a filtered trigger reads. */
     private val sourceLifeByProperty: List<Phrase<CardScript>> =
-        lifeByProperty(Primitives.selfPossessive, EntityReference.Source, "the source")
+        lifeByProperty(Primitives.selfPossessive, EffectTarget.Self, "the source")
 
     /**
      * "…equal to **its** mana value." after a clause has chosen something — what [Continuations]'
@@ -2616,7 +2615,7 @@ object Steps {
      * carry both this reading and [sourceLifeByProperty]'s.
      */
     private val targetLifeByProperty: List<Phrase<CardScript>> =
-        lifeByProperty(Primitives.targetPossessive, EntityReference.Target(), "the chosen object")
+        lifeByProperty(Primitives.targetPossessive, EffectTarget.ContextTarget(0), "the chosen object")
 
     /**
      * The filtered-trigger reading: the name still means the source, the pronoun means the object
@@ -2624,8 +2623,8 @@ object Steps {
      * [SelfSteps.triggering] offers its two.
      */
     private val triggeringLifeByProperty: List<Phrase<CardScript>> =
-        lifeByProperty(Primitives.selfNamedPossessive, EntityReference.Source, "the named source") +
-            lifeByProperty(Primitives.itsPronoun, EntityReference.Triggering, "the triggering permanent")
+        lifeByProperty(Primitives.selfNamedPossessive, EffectTarget.Self, "the named source") +
+            lifeByProperty(Primitives.itsPronoun, EffectTarget.TriggeringEntity, "the triggering permanent")
 
     private val nonAnaphoric: List<Phrase<CardScript>> =
         listOf(
@@ -2906,14 +2905,14 @@ object Steps {
         if (refersWithoutDeclaring && declarers != 1) return null
         // **A characteristic read off "the target" needs the target to *be* an object.**
         //
-        // `EntityReference.Target(0)` is an ordinal into the line's requirements, so unlike the
+        // `EffectTarget.ContextTarget(0)` is an ordinal into the line's requirements, so unlike the
         // pronoun it is invisible to [Slots.references] and the guard above never sees it. Two ways
         // it goes wrong, and the second is the one the differential caught. A line that declares no
         // target at all leaves the reference dangling. And a line that declares a *player* — "Target
         // opponent sacrifices a creature of their choice. You gain life equal to that creature's
         // toughness." (Tribute to Hunger) — reads the opponent's toughness, because the noun the
         // possessive names is the creature they sacrificed and the SDK spells that
-        // `EntityReference.Sacrificed`. Both round-trip byte-perfectly while meaning a different
+        // `EffectTarget.SacrificedAsCost`. Both round-trip byte-perfectly while meaning a different
         // object, which is the class of bug this module's fail-closed rule exists for.
         //
         // The list is an allow-list rather than a list of the player requirements, so a requirement

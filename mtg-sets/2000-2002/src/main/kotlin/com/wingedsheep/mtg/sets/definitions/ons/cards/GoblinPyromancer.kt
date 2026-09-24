@@ -28,7 +28,7 @@ val GoblinPyromancer = card("Goblin Pyromancer") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.allCreaturesWithSubtype("Goblin"),
-            effect = ModifyStatsEffect(3, 0, EffectTarget.Self)
+            effect = ModifyStatsEffect(3, 0, EffectTarget.IterationEntity)
         )
     }
 
@@ -36,7 +36,7 @@ val GoblinPyromancer = card("Goblin Pyromancer") {
         trigger = Triggers.EachEndStep
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.allCreaturesWithSubtype("Goblin"),
-            effect = Effects.Move(EffectTarget.Self, Zone.GRAVEYARD, byDestruction = true)
+            effect = Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, byDestruction = true)
         )
     }
 

@@ -62,7 +62,7 @@ val CreepyPuppeteer = card("Creepy Puppeteer") {
                 baseFilter = GameObjectFilter.Creature.youControl().attackedThisCombat(),
                 excludeSelf = true,
             ),
-            Effects.SetBasePowerAndToughness(4, 3, EffectTarget.Self, Duration.EndOfTurn),
+            Effects.SetBasePowerAndToughness(4, 3, EffectTarget.IterationEntity, Duration.EndOfTurn),
         )
         description = "Whenever this creature attacks, if you attacked with exactly one other " +
             "creature this combat, you may have that creature's base power and toughness become " +

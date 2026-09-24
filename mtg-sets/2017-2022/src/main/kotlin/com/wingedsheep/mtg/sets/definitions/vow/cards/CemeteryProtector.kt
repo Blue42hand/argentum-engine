@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Cemetery Protector
@@ -66,7 +66,7 @@ val CemeteryProtector = card("Cemetery Protector") {
     triggeredAbility {
         trigger = Triggers.youPlayLand()
         interveningIf = Conditions.TriggeringSpellMatches(
-            GameObjectFilter.Any.sharingCardTypeWith(EntityReference.LinkedExiledCard())
+            GameObjectFilter.Any.sharingCardTypeWith(EffectTarget.LinkedExiledCard())
         )
         effect = humanToken()
         description = "Whenever you play a land, if it shares a card type with the exiled card, " +
@@ -77,7 +77,7 @@ val CemeteryProtector = card("Cemetery Protector") {
     triggeredAbility {
         trigger = Triggers.YouCastSpell
         interveningIf = Conditions.TriggeringSpellMatches(
-            GameObjectFilter.Any.sharingCardTypeWith(EntityReference.LinkedExiledCard())
+            GameObjectFilter.Any.sharingCardTypeWith(EffectTarget.LinkedExiledCard())
         )
         effect = humanToken()
         description = "Whenever you cast a spell, if it shares a card type with the exiled card, " +

@@ -45,7 +45,7 @@ val KillingWave = card("Killing Wave") {
                     effect = Effects.MayPay(
                         cost = PayDynamicLifeEffect(DynamicAmount.XValue),
                         then = Effects.Composite(emptyList()),
-                        otherwise = Effects.SacrificeTarget(EffectTarget.Self),
+                        otherwise = Effects.SacrificeTarget(EffectTarget.IterationEntity),
                         // The gate labels its own "yes" button with the computed cost ("Pay 2
                         // life") and its "no" with "Don't pay", so the prompt only has to state
                         // the stakes. *Which* creature each of the N identical prompts covers is

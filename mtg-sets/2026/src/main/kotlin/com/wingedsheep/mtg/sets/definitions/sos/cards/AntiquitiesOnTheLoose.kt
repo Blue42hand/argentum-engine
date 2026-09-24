@@ -46,7 +46,7 @@ val AntiquitiesOnTheLoose = card("Antiquities on the Loose") {
             condition = Conditions.Not(Conditions.WasCastFromHand),
             then = Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.youControl().withSubtype("Spirit")),
-                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
             )
         )
     }

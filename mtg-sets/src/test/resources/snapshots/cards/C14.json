@@ -42,7 +42,7 @@
                             "player": "Each",
                             "filter": "creature attacking"
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }

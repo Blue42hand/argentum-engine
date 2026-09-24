@@ -653,13 +653,13 @@ sealed interface StatePredicate {
      * made before the spell was cast and keeps matching after the referenced creature has left the
      * battlefield (the card's own ruling). A reference that resolves to nothing matches nothing.
      *
-     * In a delayed trigger, [EntityReference.Triggering] names the trigger's watched entity — a
+     * In a delayed trigger, [EffectTarget.TriggeringEntity] names the trigger's watched entity — a
      * step-based `CreateDelayedTriggerEffect` exposes its baked `watchedTarget` that way.
      */
     @SerialName("BlockedOrWasBlockedByEntityThisTurn")
     @Serializable
     data class BlockedOrWasBlockedByEntityThisTurn(
-        val reference: com.wingedsheep.sdk.scripting.values.EntityReference
+        val reference: com.wingedsheep.sdk.scripting.targets.EffectTarget.SingleEntity
     ) : History {
         override val description: String = "that blocked or was blocked by ${reference.description} this turn"
     }

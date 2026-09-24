@@ -27,7 +27,7 @@ val VolcanicFallout = card("Volcanic Fallout") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreatures,
-            DealDamageEffect(2, EffectTarget.Self),
+            DealDamageEffect(2, EffectTarget.IterationEntity),
         ).then(
             Effects.ForEachPlayer(
                 Player.Each,

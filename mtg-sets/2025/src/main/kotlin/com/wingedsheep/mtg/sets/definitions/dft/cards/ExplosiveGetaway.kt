@@ -35,7 +35,7 @@ val ExplosiveGetaway = card("Explosive Getaway") {
         effect = Effects.Composite(
             Effects.Exile(t),
             CreateDelayedTriggerEffect(step = Step.END, effect = Effects.Move(t, Zone.BATTLEFIELD)),
-            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(4, EffectTarget.Self))
+            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(4, EffectTarget.IterationEntity))
         )
     }
     metadata {

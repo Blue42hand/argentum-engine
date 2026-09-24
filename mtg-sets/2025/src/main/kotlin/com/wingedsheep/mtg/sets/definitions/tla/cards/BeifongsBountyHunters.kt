@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Beifong's Bounty Hunters
@@ -28,7 +28,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * graveyard from the battlefield (ANY binding). The "nonland" restriction keeps
  * earthbent lands — which are creatures but still lands — from re-triggering when
  * they die. X reads the dying creature's power via last-known information
- * (`EntityReference.Triggering`). Earthbend is a keyword *action* composed from
+ * (`EffectTarget.TriggeringEntity`). Earthbend is a keyword *action* composed from
  * existing primitives via [Effects.Earthbend] (animate land + haste + counters +
  * return-tapped self-triggers), targeting a land you control.
  */
@@ -50,7 +50,7 @@ val BeifongsBountyHunters = card("Beifong's Bounty Hunters") {
         )
         val land = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
         effect = Effects.Earthbend(
-            DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.Power),
+            DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.Power),
             land,
         )
         description = "Whenever a nonland creature you control dies, earthbend X, where X is that creature's power."

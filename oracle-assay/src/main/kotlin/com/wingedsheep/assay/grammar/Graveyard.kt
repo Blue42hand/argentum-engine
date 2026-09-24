@@ -396,7 +396,7 @@ object Graveyard {
      *
      * CR 607 makes this ability *linked* to a later one that says "the exiled card", and the SDK
      * carries that fact twice — on the move (`MoveCollectionEffect.linkToSource`) and on the read
-     * (`EntityReference.LinkedExiledCard`). Only the read is printed. So this rule builds the plain
+     * (`EffectTarget.LinkedExiledCard`). Only the read is printed. So this rule builds the plain
      * move and [CardFragment.deriveExileLinkage] sets the flag when some other line on the same
      * card turns out to read the pile, which is this module's "a value the SDK carries twice is
      * derived, not spelled" applied one scope out: the deriving evidence is on a different line, so

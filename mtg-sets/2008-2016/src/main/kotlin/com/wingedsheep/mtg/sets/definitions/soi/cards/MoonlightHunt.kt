@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Moonlight Hunt
@@ -22,8 +21,8 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * A one-sided gang-up: [Effects.ForEachInGroup] walks the Wolves and Werewolves you control at
  * resolution — an untargeted group, so a pack member entering or leaving between cast and
  * resolution is simply included or not — and each one deals damage *itself*
- * (`damageSource = EffectTarget.Self`, the iterated permanent) equal to its own power, read
- * per-iteration via [EntityReference.IterationEntity] so lords and pump are picked up individually.
+ * (`damageSource = EffectTarget.IterationEntity`, the iterated permanent) equal to its own power, read
+ * per-iteration via [EffectTarget.IterationEntity] so lords and pump are picked up individually.
  *
  * Two details the wording forces:
  * - The damage sources matter, not just the total: deathtouch, lifelink, and "damage dealt by a
@@ -49,11 +48,11 @@ val MoonlightHunt = card("Moonlight Hunt") {
             ),
             effect = Effects.DealDamage(
                 amount = DynamicAmount.EntityProperty(
-                    EntityReference.IterationEntity,
+                    EffectTarget.IterationEntity,
                     EntityNumericProperty.Power,
                 ),
                 target = EffectTarget.ContextTarget(0),
-                damageSource = EffectTarget.Self,
+                damageSource = EffectTarget.IterationEntity,
             ),
         )
     }

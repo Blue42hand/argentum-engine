@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 val Brightflame = card("Brightflame") {
     manaCost = "{X}{R}{R}{W}{W}"
@@ -21,19 +20,19 @@ val Brightflame = card("Brightflame") {
     spell {
         val victim = target("target creature", Targets.Creature)
         val damageDealt = DynamicAmount.EntityProperty(
-            EntityReference.Source, EntityNumericProperty.DamageDealtThisTurn
+            EffectTarget.Self, EntityNumericProperty.DamageDealtThisTurn
         )
         effect = Effects.Pipeline {
             val before = storeNumber(damageDealt)
             // Fix the radiance group before any damage or damage replacements happen.
             val others = gather(CardSource.BattlefieldMatching(
-                filter = GameObjectFilter.Creature.sharingColorWith(EntityReference.Target(0)),
+                filter = GameObjectFilter.Creature.sharingColorWith(EffectTarget.ContextTarget(0)),
                 excludeChosenTargets = true
             ))
             run(Effects.DealDamage(DynamicAmount.XValue, victim))
             run(ForEachInCollectionEffect(
                 collection = others.key,
-                effect = Effects.DealDamage(DynamicAmount.XValue, EffectTarget.Self)
+                effect = Effects.DealDamage(DynamicAmount.XValue, EffectTarget.IterationEntity)
             ))
             run(Effects.GainLife(DynamicAmount.Subtract(damageDealt, before.amount)))
         }

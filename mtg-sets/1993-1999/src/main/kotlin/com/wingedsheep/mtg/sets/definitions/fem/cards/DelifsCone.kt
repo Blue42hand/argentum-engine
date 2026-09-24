@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Delif's Cone
@@ -52,7 +51,7 @@ val DelifsCone = card("Delif's Cone") {
                 Effects.Composite(
                     Effects.GainLife(
                         DynamicAmount.EntityProperty(
-                            EntityReference.Triggering,
+                            EffectTarget.TriggeringEntity,
                             EntityNumericProperty.Power
                         )
                     ),

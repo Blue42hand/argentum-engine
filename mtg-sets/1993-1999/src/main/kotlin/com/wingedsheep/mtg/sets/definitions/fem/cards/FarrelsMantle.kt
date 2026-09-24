@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Farrel's Mantle
@@ -52,7 +51,7 @@ val FarrelsMantle = card("Farrel's Mantle") {
                 Effects.DealDamage(
                     DynamicAmount.Add(
                         DynamicAmount.EntityProperty(
-                            EntityReference.EnchantedCreature,
+                            EffectTarget.EnchantedCreature,
                             EntityNumericProperty.Power
                         ),
                         DynamicAmount.Fixed(2)

@@ -14,8 +14,8 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * Put X -1/-1 counters on each creature. Shuffle Black Sun's Zenith into its owner's library.
  *
- * Darkness Descends' shape (`ForEachInGroup` over `GroupFilter.AllCreatures`, `EffectTarget.Self`
- * rebound to each creature in turn) with the fixed count swapped for the dynamic one. Counters
+ * Darkness Descends' shape (`ForEachInGroup` over `GroupFilter.AllCreatures`, `EffectTarget.IterationEntity`
+ * bound to each creature in turn) with the fixed count swapped for the dynamic one. Counters
  * rather than a -X/-X effect is the whole point of the card: they stick past end of turn, and a
  * creature reduced to 0 toughness dies to state-based actions.
  */
@@ -32,7 +32,7 @@ val BlackSunsZenith = card("Black Sun's Zenith") {
             effect = Effects.AddDynamicCounters(
                 counterType = CounterType.MINUS_ONE_MINUS_ONE,
                 amount = DynamicAmount.XValue,
-                target = EffectTarget.Self,
+                target = EffectTarget.IterationEntity,
             ),
         )
         selfShuffleIntoLibrary()

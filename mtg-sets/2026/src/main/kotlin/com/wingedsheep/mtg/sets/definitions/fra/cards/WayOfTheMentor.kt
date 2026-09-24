@@ -26,7 +26,7 @@ val WayOfTheMentor = card("Way of the Mentor") {
         trigger = Triggers.YouGainLife
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Planeswalker.youControl()),
-            Effects.AddCounters(CounterType.LOYALTY, 1, EffectTarget.Self)
+            Effects.AddCounters(CounterType.LOYALTY, 1, EffectTarget.IterationEntity)
         )
     }
 

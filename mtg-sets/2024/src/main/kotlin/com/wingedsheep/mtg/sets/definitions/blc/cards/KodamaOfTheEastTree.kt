@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -72,7 +72,7 @@ val KodamaOfTheEastTree = card("Kodama of the East Tree") {
                     source = CardSource.FromZone(
                         zone = Zone.HAND,
                         player = Player.You,
-                        filter = GameObjectFilter.Permanent.manaValueAtMostEntity(EntityReference.Triggering)
+                        filter = GameObjectFilter.Permanent.manaValueAtMostEntity(EffectTarget.TriggeringEntity)
                     ),
                     storeAs = "kodama_candidates"
                 ),

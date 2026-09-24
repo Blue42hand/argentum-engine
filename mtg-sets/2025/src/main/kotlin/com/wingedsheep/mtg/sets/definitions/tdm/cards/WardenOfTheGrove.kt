@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Warden of the Grove — Tarkir: Dragonstorm #166
@@ -28,7 +27,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *
  * The second ability endures the *entering* creature ([EffectTarget.TriggeringEntity]),
  * not Warden itself, with N read dynamically as the number of counters on Warden
- * ([DynamicAmount.EntityProperty] of [EntityReference.Source]).
+ * ([DynamicAmount.EntityProperty] of [EffectTarget.Self]).
  */
 val WardenOfTheGrove = card("Warden of the Grove") {
     manaCost = "{2}{G}"
@@ -59,7 +58,7 @@ val WardenOfTheGrove = card("Warden of the Grove") {
         )
         effect = Effects.Endure(
             amount = DynamicAmount.EntityProperty(
-                EntityReference.Source,
+                EffectTarget.Self,
                 EntityNumericProperty.CounterCount(null)
             ),
             target = EffectTarget.TriggeringEntity

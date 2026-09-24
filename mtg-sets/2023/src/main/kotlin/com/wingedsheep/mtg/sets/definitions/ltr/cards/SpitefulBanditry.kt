@@ -30,7 +30,7 @@ val SpitefulBanditry = card("Spiteful Banditry") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreatures,
-            effect = DealDamageEffect(DynamicAmount.XValue, EffectTarget.Self)
+            effect = DealDamageEffect(DynamicAmount.XValue, EffectTarget.IterationEntity)
         )
     }
 

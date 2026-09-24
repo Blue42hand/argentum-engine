@@ -40,7 +40,7 @@ val OrosTheAvenger = card("Oros, the Avenger") {
             cost = PayManaCostEffect(ManaCost.parse("{2}{W}")),
             then = Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.notColor(Color.WHITE)),
-                Effects.DealDamage(3, EffectTarget.Self)
+                Effects.DealDamage(3, EffectTarget.IterationEntity)
             )
         )
     }

@@ -76,8 +76,8 @@ val TsabosDecree = card("Tsabo's Decree") {
                     ),
                     effect = Effects.Composite(
                         listOf(
-                            CantBeRegeneratedEffect(EffectTarget.Self),
-                            Effects.Move(EffectTarget.Self, Zone.GRAVEYARD, byDestruction = true),
+                            CantBeRegeneratedEffect(EffectTarget.IterationEntity),
+                            Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, byDestruction = true),
                         ),
                     ),
                 ),

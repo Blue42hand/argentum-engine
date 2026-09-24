@@ -62,7 +62,7 @@ val RavenousRobots = card("Ravenous Robots") {
                         CardPredicate.IsToken
                 ).youControl()
             ),
-            effect = GrantKeywordEffect(Keyword.HASTE, EffectTarget.Self, Duration.EndOfTurn)
+            effect = GrantKeywordEffect(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn)
         )
     }
 

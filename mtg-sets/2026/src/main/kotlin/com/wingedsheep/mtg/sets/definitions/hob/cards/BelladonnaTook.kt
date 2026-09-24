@@ -67,7 +67,7 @@ val BelladonnaTook = card("Belladonna Took") {
                     condition = Conditions.SourceAbilityResolvedNTimes(3),
                     then = Effects.ForEachInGroup(
                         GroupFilter(GameObjectFilter.Creature.youControl()),
-                        AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                        AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
                     ),
                 )
             )

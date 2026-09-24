@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Grave Researcher // Reanimate — Secrets of Strixhaven #85
@@ -68,7 +67,7 @@ val GraveResearcher = card("Grave Researcher") {
                 Effects.Move(creatureCardInGraveyard, Zone.BATTLEFIELD),
                 Effects.LoseLife(
                     DynamicAmount.EntityProperty(
-                        EntityReference.Target(0),
+                        EffectTarget.ContextTarget(0),
                         EntityNumericProperty.ManaValue,
                     ),
                     EffectTarget.Controller,

@@ -33,7 +33,7 @@ val DayOfBlackSun = card("Day of Black Sun") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.manaValueAtMostX()),
-                effect = Effects.RemoveAllAbilities(EffectTarget.Self, Duration.EndOfTurn),
+                effect = Effects.RemoveAllAbilities(EffectTarget.IterationEntity, Duration.EndOfTurn),
             ),
             Effects.DestroyAll(GameObjectFilter.Creature.manaValueAtMostX()),
         )

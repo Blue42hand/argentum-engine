@@ -29,7 +29,7 @@ val GiltLeafAmbush = card("Gilt-Leaf Ambush") {
             Patterns.Mechanic.clash(
                 ForEachInCollectionEffect(
                     CREATED_TOKENS,
-                    Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.Self)
+                    Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.IterationEntity)
                 )
             )
         )

@@ -7,9 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.PreventionDirection
-import com.wingedsheep.sdk.scripting.effects.PreventionSourceFilter
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Mourner's Shield — Mirrodin #209
@@ -21,7 +19,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *
  * Modelling notes:
  * - Linked pair (CR 607), same as its Mirrodin cousins: `Effects.ExileLinkedToSource` writes the
- *   pile and [EntityReference.LinkedExiledCard] reads it back, so "the exiled card" can only ever
+ *   pile and [EffectTarget.LinkedExiledCard] reads it back, so "the exiled card" can only ever
  *   mean the one *this* Shield imprinted.
  * - The colour clause is an *eligibility filter on the choice*, not a restriction applied after the
  *   fact: only sources sharing a colour with the exiled card are offered. With no imprint (or a
@@ -56,11 +54,8 @@ val MournersShield = card("Mourner's Shield") {
     // shares a color with the exiled card."
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
-        effect = Effects.PreventDamage(
-            direction = PreventionDirection.FromTarget,
-            sources = PreventionSourceFilter.Chosen(
-                GameObjectFilter.Any.sharingColorWith(EntityReference.LinkedExiledCard())
-            )
+        effect = Effects.PreventAllDamageFromChosenSourceMatching(
+            GameObjectFilter.Any.sharingColorWith(EffectTarget.LinkedExiledCard())
         )
         description = "{2}, {T}: Prevent all damage that would be dealt this turn by a source of " +
             "your choice that shares a color with the exiled card."

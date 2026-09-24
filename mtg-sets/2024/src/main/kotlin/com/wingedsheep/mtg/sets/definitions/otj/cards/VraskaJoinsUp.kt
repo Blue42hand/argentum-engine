@@ -40,7 +40,7 @@ val VraskaJoinsUp = card("Vraska Joins Up") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
-            effect = AddCountersEffect(CounterType.DEATHTOUCH, 1, EffectTarget.Self)
+            effect = AddCountersEffect(CounterType.DEATHTOUCH, 1, EffectTarget.IterationEntity)
         )
     }
 

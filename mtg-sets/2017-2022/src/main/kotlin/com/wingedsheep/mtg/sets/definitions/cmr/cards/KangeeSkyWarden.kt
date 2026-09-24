@@ -35,14 +35,14 @@ val KangeeSkyWarden = card("Kangee, Sky Warden") {
         trigger = Triggers.Attacks
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING).attacking()),
-            Effects.ModifyStats(2, 0, EffectTarget.Self)
+            Effects.ModifyStats(2, 0, EffectTarget.IterationEntity)
         )
     }
     triggeredAbility {
         trigger = Triggers.Blocks
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING).blocking()),
-            Effects.ModifyStats(0, 2, EffectTarget.Self)
+            Effects.ModifyStats(0, 2, EffectTarget.IterationEntity)
         )
     }
     metadata {

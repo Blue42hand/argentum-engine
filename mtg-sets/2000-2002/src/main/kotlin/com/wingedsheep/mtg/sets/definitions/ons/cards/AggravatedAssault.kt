@@ -27,7 +27,7 @@ val AggravatedAssault = card("Aggravated Assault") {
         timing = TimingRule.SorcerySpeed
         effect = Effects.Composite(
             listOf(
-                Effects.ForEachInGroup(GroupFilter.AllCreaturesYouControl, TapUntapEffect(EffectTarget.Self, tap = false)),
+                Effects.ForEachInGroup(GroupFilter.AllCreaturesYouControl, TapUntapEffect(EffectTarget.IterationEntity, tap = false)),
                 // "an additional combat phase followed by an additional main phase"
                 Effects.AddCombatPhase,
                 Effects.AddMainPhase

@@ -581,7 +581,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -900,7 +900,7 @@
                     "type": "AddColorlessMana",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": "STORAGE"
@@ -947,7 +947,7 @@
                 },
                 "consequenceIfNonePaid": {
                     "type": "MoveToZone",
-                    "target": "Self",
+                    "target": "IterationEntity",
                     "destination": "Graveyard",
                     "byDestruction": true
                 }
@@ -1848,7 +1848,7 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": {
                                             "type": "CounterCount",
                                             "counterType": "HUNGER"
@@ -2773,7 +2773,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "When this Aura leaves the battlefield, it deals 1 damage to each Goblin creature."
@@ -3094,7 +3094,7 @@
                     "type": "Fixed",
                     "amount": -1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -3133,7 +3133,7 @@
                             "type": "Fixed",
                             "amount": 6
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -3394,7 +3394,10 @@
                     "counterType": "PLUS_ZERO_PLUS_ONE",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "ManaValue"
                     },
                     "target": {
@@ -3722,7 +3725,7 @@
                     "type": "Fixed",
                     "amount": 0
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -4154,7 +4157,7 @@
                     "type": "Fixed",
                     "amount": 1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -4228,7 +4231,7 @@
             "type": "Dynamic",
             "source": {
                 "type": "EntityProperty",
-                "entity": "Source",
+                "entity": "Self",
                 "numericProperty": "ValueChosenAsEntered"
             }
         },
@@ -4236,7 +4239,7 @@
             "type": "Dynamic",
             "source": {
                 "type": "EntityProperty",
-                "entity": "Source",
+                "entity": "Self",
                 "numericProperty": "ValueChosenAsEntered"
             }
         }
@@ -4438,7 +4441,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "{T}, Sacrifice another Orc or Goblin: Other Orc creatures get +1/+1 until end of turn."
@@ -4781,7 +4784,10 @@
                                 "type": "Multiply",
                                 "amount": {
                                     "type": "EntityProperty",
-                                    "entity": "Target",
+                                    "entity": {
+                                        "type": "ContextTarget",
+                                        "index": 0
+                                    },
                                     "numericProperty": "ManaValue"
                                 },
                                 "multiplier": 2
@@ -4833,7 +4839,7 @@
             },
             "body": {
                 "type": "TapUntap",
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -5606,7 +5612,7 @@
                                     "type": "Fixed",
                                     "amount": 2
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -5703,7 +5709,7 @@
                                         "body": {
                                             "type": "GrantKeyword",
                                             "keyword": "FIRST_STRIKE",
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         }
                                     }
                                 ]
@@ -6165,7 +6171,7 @@
                             "type": "DealDamage",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Power"
                             },
                             "target": {
@@ -6178,7 +6184,10 @@
                             "type": "DealDamage",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
                                 "numericProperty": "Power"
                             },
                             "target": "Self",

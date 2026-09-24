@@ -46,7 +46,7 @@ val BoromirWardenOfTheTower = card("Boromir, Warden of the Tower") {
         cost = Costs.SacrificeSelf
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
-            effect = GrantKeywordEffect(Keyword.INDESTRUCTIBLE, EffectTarget.Self)
+            effect = GrantKeywordEffect(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)
         ).then(Effects.TheRingTemptsYou())
     }
 

@@ -66,7 +66,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "MENACE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Goblins and Orcs you control gain menace until end of turn."
@@ -232,7 +232,10 @@
                                 "name": "azogTargetPower",
                                 "amount": {
                                     "type": "EntityProperty",
-                                    "entity": "Target",
+                                    "entity": {
+                                        "type": "ContextTarget",
+                                        "index": 0
+                                    },
                                     "numericProperty": "Power"
                                 }
                             },
@@ -280,7 +283,10 @@
                                 "name": "azogTargetPower",
                                 "amount": {
                                     "type": "EntityProperty",
-                                    "entity": "Target",
+                                    "entity": {
+                                        "type": "ContextTarget",
+                                        "index": 0
+                                    },
                                     "numericProperty": "Power"
                                 }
                             },
@@ -890,7 +896,7 @@
                                     "type": "AddCounters",
                                     "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 1,
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         }
@@ -1697,7 +1703,7 @@
                                 "amount": {
                                     "type": "EntityProperty",
                                     "entity": {
-                                        "type": "FromCostStorage",
+                                        "type": "PipelineTarget",
                                         "collectionName": "bolgSacrifice"
                                     },
                                     "numericProperty": "Power"
@@ -1736,7 +1742,10 @@
                                     "type": "Amass",
                                     "amount": {
                                         "type": "EntityProperty",
-                                        "entity": "Target",
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        },
                                         "numericProperty": "ExcessMarkedDamage"
                                     },
                                     "subtype": "Goblin"
@@ -2603,7 +2612,7 @@
                     "counterType": "PLUS_ONE_PLUS_ONE",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Triggering",
+                        "entity": "TriggeringEntity",
                         "numericProperty": "ManaValue"
                     },
                     "target": {
@@ -2685,7 +2694,7 @@
                             },
                             "body": {
                                 "type": "TapUntap",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "tap": false
                             }
                         },
@@ -2829,7 +2838,7 @@
                             "type": "Fixed",
                             "amount": 3
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -3007,12 +3016,12 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "VIGILANCE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -3041,12 +3050,12 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "VIGILANCE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -3347,7 +3356,7 @@
                         "type": "AddCounters",
                         "counterType": "HONE",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Whenever Dwalin enters, put a hone counter on each Equipment you control."
@@ -3367,7 +3376,7 @@
                         "type": "AddCounters",
                         "counterType": "HONE",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Whenever Dwalin attacks, put a hone counter on each Equipment you control."
@@ -3541,7 +3550,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -3717,7 +3726,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "DOUBLE_STRIKE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Whenever Dáin attacks, each equipped attacking creature gains double strike until end of turn."
@@ -4769,12 +4778,12 @@
                     },
                     "power": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "toughness": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Toughness"
                     },
                     "duration": "EndOfTurn"
@@ -5543,7 +5552,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -5630,7 +5639,7 @@
                                 "type": "Fixed",
                                 "amount": -1
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "targetRequirements": [
@@ -5679,10 +5688,7 @@
                         },
                         {
                             "type": "AttachEquipment",
-                            "target": {
-                                "type": "PipelineTarget",
-                                "collectionName": "__amassed_army"
-                            }
+                            "target": "AmassedArmy"
                         }
                     ]
                 },
@@ -7542,7 +7548,7 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": {
                                             "type": "CounterCount",
                                             "counterType": "QUEST"
@@ -8333,7 +8339,7 @@
                             "type": "AddCounters",
                             "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     }
                 }
@@ -9462,7 +9468,10 @@
             "type": "DealDamage",
             "amount": {
                 "type": "EntityProperty",
-                "entity": "Target",
+                "entity": {
+                    "type": "ContextTarget",
+                    "index": 0
+                },
                 "numericProperty": "Power"
             },
             "target": {
@@ -9959,7 +9968,7 @@
                             "counterType": "PLUS_ONE_PLUS_ONE",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Sacrificed",
+                                "entity": "SacrificedAsCost",
                                 "numericProperty": "Power"
                             },
                             "target": "Self"
@@ -9979,7 +9988,7 @@
                     "type": "Amass",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "subtype": "Goblin"
@@ -10928,7 +10937,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "ManaValue"
                     },
                     "operator": "LTE",
@@ -11480,7 +11492,7 @@
                     },
                     "body": {
                         "type": "BecomeArtifact",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "subtypes": [
                             "Food"
                         ],
@@ -12907,7 +12919,7 @@
                                 "type": "Fixed",
                                 "amount": 1
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Creatures you control get +2/+1 until end of turn"
@@ -13034,7 +13046,7 @@
                                     },
                                     "body": {
                                         "type": "AttachTargetEquipmentToCreature",
-                                        "equipmentTarget": "Self",
+                                        "equipmentTarget": "IterationEntity",
                                         "creatureTarget": {
                                             "type": "BoundVariable",
                                             "name": "target creature you control"
@@ -13059,7 +13071,7 @@
                                             "type": "ContextTarget",
                                             "index": 0
                                         },
-                                        "damageSource": "Self"
+                                        "damageSource": "IterationEntity"
                                     }
                                 },
                                 "reflexiveTargetRequirements": [
@@ -13780,7 +13792,7 @@
                             "type": "DrawCards",
                             "count": {
                                 "type": "EntityProperty",
-                                "entity": "Sacrificed",
+                                "entity": "SacrificedAsCost",
                                 "numericProperty": "Power"
                             }
                         },
@@ -14438,7 +14450,7 @@
                             "body": {
                                 "type": "GrantKeyword",
                                 "keyword": "TRAMPLE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -14561,7 +14573,7 @@
                         "type": "AddCounters",
                         "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "triggerRestriction": {
@@ -14728,7 +14740,7 @@
                     "type": "AddManaOfChoice",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "restriction": {

@@ -37,13 +37,13 @@ val WailOfTheNim = card("Wail of the Nim") {
             mode("Regenerate each creature you control") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.youControl()),
-                    RegenerateEffect(EffectTarget.Self)
+                    RegenerateEffect(EffectTarget.IterationEntity)
                 )
             }
             mode("Wail of the Nim deals 1 damage to each creature and each player") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter.AllCreatures,
-                    DealDamageEffect(1, EffectTarget.Self)
+                    DealDamageEffect(1, EffectTarget.IterationEntity)
                 ) then Effects.ForEachPlayer(
                     Player.Each,
                     listOf(Effects.DealDamage(1, EffectTarget.Controller))

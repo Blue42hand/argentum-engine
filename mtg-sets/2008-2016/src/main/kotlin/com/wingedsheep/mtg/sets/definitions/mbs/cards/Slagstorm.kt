@@ -34,7 +34,7 @@ val Slagstorm = card("Slagstorm") {
             mode("Slagstorm deals 3 damage to each creature") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature),
-                    DealDamageEffect(3, EffectTarget.Self)
+                    DealDamageEffect(3, EffectTarget.IterationEntity)
                 )
             }
             mode("Slagstorm deals 3 damage to each player") {

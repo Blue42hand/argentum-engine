@@ -38,7 +38,7 @@ val SubterraneanSpirit = card("Subterranean Spirit") {
         cost = Costs.Tap
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING)),
-            DealDamageEffect(1, EffectTarget.Self)
+            DealDamageEffect(1, EffectTarget.IterationEntity)
         )
     }
     metadata {

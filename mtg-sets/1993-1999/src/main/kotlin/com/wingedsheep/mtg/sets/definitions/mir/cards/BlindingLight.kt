@@ -24,7 +24,7 @@ val BlindingLight = card("Blinding Light") {
     oracleText = "Tap all nonwhite creatures."
 
     spell {
-        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures.notColor(Color.WHITE), TapUntapEffect(EffectTarget.Self, tap = true))
+        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures.notColor(Color.WHITE), TapUntapEffect(EffectTarget.IterationEntity, tap = true))
     }
 
     metadata {

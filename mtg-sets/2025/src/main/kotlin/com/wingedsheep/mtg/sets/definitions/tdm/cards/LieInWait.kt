@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Lie in Wait — Tarkir: Dragonstorm #203
@@ -19,7 +18,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * Two targets are chosen at cast (CR 601.2c): target #0 the creature card in your graveyard,
  * target #1 the creature to damage. On resolution the graveyard card is returned to hand first,
  * then we deal damage equal to that card's power — read via [DynamicAmount.EntityProperty] off
- * [EntityReference.Target] 0. The card has moved to hand by then, but power off the battlefield
+ * [EffectTarget.ContextTarget] 0. The card has moved to hand by then, but power off the battlefield
  * resolves to its printed power, which is exactly "that card's power".
  */
 val LieInWait = card("Lie in Wait") {
@@ -37,7 +36,7 @@ val LieInWait = card("Lie in Wait") {
                 Effects.ReturnToHand(EffectTarget.ContextTarget(0)),
                 Effects.DealDamage(
                     DynamicAmount.EntityProperty(
-                        entity = EntityReference.Target(0),
+                        entity = EffectTarget.ContextTarget(0),
                         numericProperty = EntityNumericProperty.Power
                     ),
                     EffectTarget.ContextTarget(1),

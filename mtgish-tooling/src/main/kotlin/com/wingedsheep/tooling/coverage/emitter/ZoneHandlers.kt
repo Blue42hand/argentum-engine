@@ -94,7 +94,7 @@ internal val zoneHandlers: Map<String, ActionHandler> = actionHandlers {
         val filter = groupFilterExpr(args) ?: return@on null
         call(
             "Effects.ForEachInGroup", arg(filter),
-            arg(call("Effects.Move", arg("EffectTarget.Self"), arg("Zone.GRAVEYARD"), arg("byDestruction", "true"))),
+            arg(call("Effects.Move", arg("EffectTarget.IterationEntity"), arg("Zone.GRAVEYARD"), arg("byDestruction", "true"))),
             arg("noRegenerate", noregen),
         )
     }

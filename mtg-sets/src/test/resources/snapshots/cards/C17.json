@@ -67,7 +67,7 @@
                         "type": "AddCounters",
                         "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Whenever Edgar attacks, put a +1/+1 counter on each Vampire you control."
@@ -121,7 +121,7 @@
                     "counterType": "PLUS_ONE_PLUS_ONE",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Triggering",
+                        "entity": "TriggeringEntity",
                         "numericProperty": "ColorCount"
                     },
                     "target": "Self"

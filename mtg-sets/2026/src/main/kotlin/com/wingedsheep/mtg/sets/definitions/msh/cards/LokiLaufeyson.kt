@@ -24,7 +24,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * evaluated when the spell is actually cast, which is exactly when the delayed trigger's condition
  * is checked, so pumping Loki with the power-up ability *after* activating this one still widens
  * what the rider will copy. (`CastSpellHandler` threads the rider's own `sourceId` into the
- * predicate context so `EntityReference.Source` resolves to Loki rather than to nothing.)
+ * predicate context so `EffectTarget.Self` resolves to Loki rather than to nothing.)
  *
  * Ability 2 is the plain power-up cycle shape (CR 702.193, Brave Brawler): `isPowerUp = true`
  * desugars to `ActivationRestriction.Once` and switches on the engine's pip-wise self cost

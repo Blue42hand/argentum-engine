@@ -36,7 +36,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Modeling notes:
  *
  *  - **The +1 is two independent sentences.** The keyword grant is [Effects.ForEachInGroup] over
- *    `Creature.youControl()` with [EffectTarget.Self] naming the iteration entity — the group is
+ *    `Creature.youControl()` with [EffectTarget.IterationEntity] naming the iteration entity — the group is
  *    snapshotted as the ability resolves, so a creature that arrives afterwards does not gain
  *    deathtouch. The counter rides an **optional** ("up to one") target restricted to a creature
  *    *token* you control, so the ability resolves fine with nothing chosen.
@@ -84,7 +84,7 @@ val KayaGeistHunter = card("Kaya, Geist Hunter") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
-                Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.Self)
+                Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.IterationEntity)
             ),
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, tokenCreature)
         )

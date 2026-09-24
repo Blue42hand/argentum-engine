@@ -1941,7 +1941,7 @@
             "type": "DealDamage",
             "amount": {
                 "type": "EntityProperty",
-                "entity": "Sacrificed",
+                "entity": "SacrificedAsCost",
                 "numericProperty": "Power"
             },
             "target": {
@@ -2153,7 +2153,7 @@
                             "type": "Fixed",
                             "amount": 6
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -3257,7 +3257,7 @@
             },
             "body": {
                 "type": "TapUntap",
-                "target": "Self",
+                "target": "IterationEntity",
                 "tap": false
             }
         }
@@ -3446,7 +3446,7 @@
             "body": {
                 "type": "GrantKeyword",
                 "keyword": "FORESTWALK",
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -3524,7 +3524,7 @@
                     "type": "Fixed",
                     "amount": 4
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -4394,7 +4394,7 @@
                     "type": "Fixed",
                     "amount": 1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         },
         "castRestrictions": [
@@ -4904,7 +4904,7 @@
                     "type": "Fixed",
                     "amount": 3
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -5314,7 +5314,7 @@
                     },
                     "body": {
                         "type": "TapUntap",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -5461,7 +5461,7 @@
             "body": {
                 "type": "GrantKeyword",
                 "keyword": "REACH",
-                "target": "Self"
+                "target": "IterationEntity"
             }
         },
         "castRestrictions": [
@@ -5549,7 +5549,7 @@
                     "type": "Fixed",
                     "amount": 0
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -5868,7 +5868,7 @@
                     "type": "Fixed",
                     "amount": 1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },

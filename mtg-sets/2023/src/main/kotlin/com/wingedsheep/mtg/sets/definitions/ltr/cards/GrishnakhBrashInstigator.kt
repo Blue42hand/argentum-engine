@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Grishnákh, Brash Instigator
@@ -28,7 +27,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *
  * The reflexive target filter — "creature with power <= the amassed Army's power" — references a
  * resolution-time pipeline value: the amass step stashes the just-amassed Army under
- * [EntityReference.AmassedArmy], and [TargetFilter.powerAtMostEntity] compares each candidate's
+ * [EffectTarget.AmassedArmy], and [TargetFilter.powerAtMostEntity] compares each candidate's
  * projected power against it. The pipeline is threaded into the target search via
  * `findLegalTargets(..., pipelineContext = ...)`, so a power-3 creature is excluded from the legal
  * targets after "amass Orcs 2" produced a 2/2 Army while a power-2 creature is included.
@@ -58,7 +57,7 @@ val GrishnakhBrashInstigator = card("Grishnákh, Brash Instigator") {
                 TargetCreature(
                     filter = TargetFilter.CreatureOpponentControls
                         .nonlegendary()
-                        .powerAtMostEntity(EntityReference.AmassedArmy)
+                        .powerAtMostEntity(EffectTarget.AmassedArmy)
                 )
             )
         )

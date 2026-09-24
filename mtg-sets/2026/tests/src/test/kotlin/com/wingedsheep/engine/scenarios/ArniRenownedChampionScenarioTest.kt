@@ -11,7 +11,7 @@ import io.kotest.matchers.shouldBe
  * Arni, Renowned Champion — "Whenever another creature you control enters, Arni gets +X/+0
  * until end of turn, where X is that creature's power."
  *
- * X is read off the entered creature (EntityReference.Triggering) on resolution.
+ * X is read off the entered creature (EffectTarget.TriggeringEntity) on resolution.
  */
 class ArniRenownedChampionScenarioTest : ScenarioTestBase() {
     init {

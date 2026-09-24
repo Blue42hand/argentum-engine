@@ -18,7 +18,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Syr Vondam, Sunstar Exemplar
@@ -78,7 +77,7 @@ val SyrVondamSunstarExemplar = card("Syr Vondam, Sunstar Exemplar") {
     // Power-is-4-or-greater condition for ability 2
     val powerAtLeast4 = Compare(
         left = DynamicAmount.EntityProperty(
-            entity = EntityReference.Source,
+            entity = EffectTarget.Self,
             numericProperty = EntityNumericProperty.Power
         ),
         operator = ComparisonOperator.GTE,

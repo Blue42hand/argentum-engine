@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Add Increment (Secrets of Strixhaven).
@@ -34,7 +33,7 @@ fun CardBuilder.increment() {
     keywordAbilityList.add(KeywordAbility.Increment)
 
     val manaSpent = DynamicAmount.EntityProperty(
-        EntityReference.Triggering,
+        EffectTarget.TriggeringEntity,
         EntityNumericProperty.ManaSpent
     )
     val incrementCondition = AnyCondition(

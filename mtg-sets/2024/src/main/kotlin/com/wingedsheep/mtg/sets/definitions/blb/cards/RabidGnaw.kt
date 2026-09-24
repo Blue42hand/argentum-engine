@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Rabid Gnaw
@@ -29,7 +29,7 @@ val RabidGnaw = card("Rabid Gnaw") {
             listOf(
                 Effects.ModifyStats(1, 0, myCreature),
                 Effects.DealDamage(
-                    amount = DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.Power),
+                    amount = DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.Power),
                     target = theirCreature,
                     damageSource = myCreature
                 )

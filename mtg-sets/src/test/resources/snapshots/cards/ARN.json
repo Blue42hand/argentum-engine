@@ -384,7 +384,7 @@
                     "type": "Fixed",
                     "amount": 0
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -909,7 +909,7 @@
                                     "type": "PayDynamicManaCost",
                                     "amount": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": {
                                             "type": "CounterCount",
                                             "counterType": "WIND"
@@ -933,13 +933,13 @@
                                             "type": "DealDamage",
                                             "amount": {
                                                 "type": "EntityProperty",
-                                                "entity": "Source",
+                                                "entity": "Self",
                                                 "numericProperty": {
                                                     "type": "CounterCount",
                                                     "counterType": "WIND"
                                                 }
                                             },
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         }
                                     },
                                     {
@@ -952,7 +952,7 @@
                                             "type": "DealDamage",
                                             "amount": {
                                                 "type": "EntityProperty",
-                                                "entity": "Source",
+                                                "entity": "Self",
                                                 "numericProperty": {
                                                     "type": "CounterCount",
                                                     "counterType": "WIND"
@@ -1226,7 +1226,7 @@
                     "type": "GainLife",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Sacrificed",
+                        "entity": "SacrificedAsCost",
                         "numericProperty": "Toughness"
                     }
                 }
@@ -2073,7 +2073,7 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -2840,7 +2840,7 @@
                                     },
                                     "body": {
                                         "type": "TapUntap",
-                                        "target": "Self",
+                                        "target": "IterationEntity",
                                         "tap": false
                                     }
                                 },
@@ -2959,7 +2959,7 @@
                 },
                 "right": {
                     "type": "EntityProperty",
-                    "entity": "Sacrificed",
+                    "entity": "SacrificedAsCost",
                     "numericProperty": "ManaValue"
                 }
             },
@@ -3228,7 +3228,7 @@
                                     "IsCreature",
                                     {
                                         "type": "PowerAtMostEntity",
-                                        "reference": "Source"
+                                        "reference": "Self"
                                     }
                                 ]
                             }
@@ -3327,7 +3327,7 @@
                     "type": "Fixed",
                     "amount": 3
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -3691,7 +3691,7 @@
                     "type": "Fixed",
                     "amount": 1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },

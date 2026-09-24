@@ -671,7 +671,7 @@
                     "type": "ModifyStats",
                     "powerModifier": {
                         "type": "EntityProperty",
-                        "entity": "Triggering",
+                        "entity": "TriggeringEntity",
                         "numericProperty": "Power"
                     },
                     "toughnessModifier": {
@@ -718,7 +718,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "FIRST_STRIKE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -1769,7 +1769,7 @@
                                 "type": "Fixed",
                                 "amount": 0
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Creatures you control get +2/+0 until end of turn"
@@ -2064,12 +2064,12 @@
                                             "type": "Fixed",
                                             "amount": 0
                                         },
-                                        "target": "Self"
+                                        "target": "IterationEntity"
                                     },
                                     {
                                         "type": "GrantKeyword",
                                         "keyword": "TRAMPLE",
-                                        "target": "Self"
+                                        "target": "IterationEntity"
                                     }
                                 ]
                             }
@@ -2634,7 +2634,7 @@
                         "type": "AddCounters",
                         "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -3172,7 +3172,7 @@
                         "type": "AddCounters",
                         "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "{4}{G}: Put a +1/+1 counter on each creature you control with a +1/+1 counter on it."
@@ -3626,7 +3626,7 @@
                                 "type": "Fixed",
                                 "amount": 2
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Creatures you control get +1/+2 until end of turn"
@@ -4005,7 +4005,7 @@
                                 "type": "Fixed",
                                 "amount": 1
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Deal 1 damage to each creature and planeswalker your opponents control."
@@ -4853,7 +4853,7 @@
                                         "type": "AddCounters",
                                         "counterType": "PLUS_ONE_PLUS_ONE",
                                         "count": 1,
-                                        "target": "Self"
+                                        "target": "IterationEntity"
                                     }
                                 }
                             ]
@@ -5562,7 +5562,7 @@
                             "body": {
                                 "type": "GrantKeyword",
                                 "keyword": "HASTE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -5689,7 +5689,7 @@
                     },
                     "body": {
                         "type": "TapUntap",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "tap": false
                     }
                 },
@@ -6812,7 +6812,7 @@
                         "type": "AddCounters",
                         "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -7282,7 +7282,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Whenever one or more opponents are dealt noncombat damage, creatures you control get +1/+0 until end of turn."
@@ -9016,7 +9016,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "oncePerTurn": true,
@@ -9748,7 +9748,7 @@
                                 "type": "Fixed",
                                 "amount": -3
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "All creatures get -3/-3 until end of turn."
@@ -10534,7 +10534,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -13569,7 +13569,7 @@
                         "type": "AddCounters",
                         "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -14505,7 +14505,10 @@
                 "isEquipAbility": true,
                 "genericCostReduction": {
                     "type": "EntityProperty",
-                    "entity": "Target",
+                    "entity": {
+                        "type": "ContextTarget",
+                        "index": 0
+                    },
                     "numericProperty": {
                         "type": "CounterCount",
                         "counterType": "PLUS_ONE_PLUS_ONE"
@@ -15019,7 +15022,7 @@
                         "type": "AddCounters",
                         "counterType": "LOYALTY",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -15128,7 +15131,7 @@
                         "type": "AddCounters",
                         "counterType": "LOYALTY",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -15766,7 +15769,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }

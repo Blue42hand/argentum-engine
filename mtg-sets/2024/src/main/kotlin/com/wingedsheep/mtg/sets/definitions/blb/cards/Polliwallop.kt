@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Polliwallop
@@ -34,7 +33,7 @@ val Polliwallop = card("Polliwallop") {
         val theirCreature = target("creature you don't control", Targets.CreatureOpponentControls)
         effect = DealDamageEffect(
             amount = DynamicAmount.Multiply(
-                DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.Power),
+                DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.Power),
                 2
             ),
             target = theirCreature,

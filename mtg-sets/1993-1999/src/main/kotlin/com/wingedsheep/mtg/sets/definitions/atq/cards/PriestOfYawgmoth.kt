@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Priest of Yawgmoth
@@ -18,7 +18,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * {T}, Sacrifice an artifact: Add an amount of {B} equal to the sacrificed artifact's mana value.
  *
  * Composes from existing primitives — no engine work. The sacrifice cost binds the sacrificed
- * artifact to [EntityReference.Sacrificed] (its last-known information is captured at cost payment,
+ * artifact to [EffectTarget.SacrificedAsCost] (its last-known information is captured at cost payment,
  * the same template as the rules' Bosh, Iron Golem example), and the mana ability adds {B} times
  * that artifact's mana value via
  * [DynamicAmount.EntityProperty] reading [EntityNumericProperty.ManaValue]. Mana value is a printed
@@ -39,7 +39,7 @@ val PriestOfYawgmoth = card("Priest of Yawgmoth") {
         effect = Effects.AddMana(
             Color.BLACK,
             amount = DynamicAmount.EntityProperty(
-                EntityReference.Sacrificed(0),
+                EffectTarget.SacrificedAsCost(0),
                 EntityNumericProperty.ManaValue
             )
         )

@@ -40,8 +40,8 @@ private val ArlinnEmbracedByTheMoon = card("Arlinn, Embraced by the Moon") {
     loyaltyAbility(+1) {
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreaturesYouControl,
-            Effects.ModifyStats(1, 1, EffectTarget.Self) then
-                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self, Duration.EndOfTurn),
+            Effects.ModifyStats(1, 1, EffectTarget.IterationEntity) then
+                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity, Duration.EndOfTurn),
         )
     }
     loyaltyAbility(-1) {

@@ -1609,7 +1609,7 @@
                     "type": "ModifyStats",
                     "powerModifier": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "toughnessModifier": {
@@ -1683,12 +1683,12 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "VIGILANCE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -2752,7 +2752,7 @@
                         "type": "AddCounters",
                         "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -3139,7 +3139,7 @@
                                     "type": "Subtract",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Triggering",
+                                        "entity": "TriggeringEntity",
                                         "numericProperty": "ManaValue"
                                     },
                                     "right": {
@@ -4514,7 +4514,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "HEXPROOF",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         ]
@@ -4561,7 +4561,7 @@
                                                 "body": {
                                                     "type": "GrantKeyword",
                                                     "keyword": "HEXPROOF",
-                                                    "target": "Self"
+                                                    "target": "IterationEntity"
                                                 }
                                             }
                                         ]
@@ -4577,7 +4577,7 @@
                                         "body": {
                                             "type": "GrantKeyword",
                                             "keyword": "INDESTRUCTIBLE",
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         }
                                     },
                                     "GiftGiven"
@@ -5315,7 +5315,10 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Target",
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        },
                                         "numericProperty": "Power"
                                     },
                                     "operator": "LTE",
@@ -6551,7 +6554,7 @@
                                 "type": "AddCounters",
                                 "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -6848,7 +6851,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -6894,7 +6897,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "INDESTRUCTIBLE",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "duration": "UntilYourNextTurn"
                     }
                 },
@@ -8073,7 +8076,7 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -8264,7 +8267,7 @@
                     "type": "AddManaOfChoice",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "restriction": {
@@ -8706,7 +8709,7 @@
                             "type": "DrawCards",
                             "count": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "CounterCount",
                                     "counterType": "STASH"
@@ -8964,7 +8967,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -9527,7 +9533,7 @@
                             "from": "graveyardCreatures",
                             "filter": {
                                 "type": "ExcludeEntity",
-                                "entity": "Triggering"
+                                "entity": "TriggeringEntity"
                             },
                             "storeMatching": "otherCreatures"
                         },
@@ -9540,7 +9546,7 @@
                                     "type": "Subtract",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Triggering",
+                                        "entity": "TriggeringEntity",
                                         "numericProperty": "ManaValue"
                                     },
                                     "right": {
@@ -9775,7 +9781,7 @@
                                     "type": "AddCounters",
                                     "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 1,
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             },
                             "description": "Put a +1/+1 counter on each Bird you control"
@@ -10246,7 +10252,7 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Power"
                             },
                             "operator": "GTE",
@@ -12161,12 +12167,12 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "DEATHTOUCH",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -13826,7 +13832,10 @@
                 "type": "Multiply",
                 "amount": {
                     "type": "EntityProperty",
-                    "entity": "Target",
+                    "entity": {
+                        "type": "ContextTarget",
+                        "index": 0
+                    },
                     "numericProperty": "Power"
                 },
                 "multiplier": 2
@@ -14183,7 +14192,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -14227,7 +14236,10 @@
             "type": "DealDamage",
             "amount": {
                 "type": "EntityProperty",
-                "entity": "Target",
+                "entity": {
+                    "type": "ContextTarget",
+                    "index": 0
+                },
                 "numericProperty": "Power"
             },
             "target": {
@@ -14296,7 +14308,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -14690,7 +14705,10 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Target",
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        },
                                         "numericProperty": "Power"
                                     },
                                     "operator": "LTE",
@@ -14916,7 +14934,7 @@
                             "type": "RepeatDynamicTimes",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "CounterCount",
                                     "counterType": "BLIGHT"
@@ -15019,7 +15037,7 @@
                             "type": "RepeatDynamicTimes",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "CounterCount",
                                     "counterType": "BLIGHT"
@@ -16032,7 +16050,7 @@
                                     },
                                     "body": {
                                         "type": "MoveToZone",
-                                        "target": "Self",
+                                        "target": "IterationEntity",
                                         "destination": "Graveyard",
                                         "byDestruction": true
                                     }
@@ -16050,7 +16068,7 @@
                                     },
                                     "body": {
                                         "type": "MoveToZone",
-                                        "target": "Self",
+                                        "target": "IterationEntity",
                                         "destination": "Graveyard",
                                         "byDestruction": true
                                     }
@@ -20434,11 +20452,11 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "TapUntap",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "tap": false
                             }
                         ]
@@ -20636,7 +20654,7 @@
                                 "type": "Fixed",
                                 "amount": 0
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Don't promise a gift — creatures you control get +2/+0 until end of turn"
@@ -20678,7 +20696,7 @@
                                                 "type": "Fixed",
                                                 "amount": 0
                                             },
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         }
                                     },
                                     {
@@ -21297,7 +21315,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -21388,7 +21406,7 @@
                                         "type": "Fixed",
                                         "amount": 1
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             },
                             "description": "Attacking creatures you control get +1/+1 until end of turn"
@@ -22079,7 +22097,7 @@
                             "type": "DealDamage",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Sacrificed",
+                                "entity": "SacrificedAsCost",
                                 "numericProperty": "Power"
                             },
                             "target": {
@@ -22091,7 +22109,7 @@
                             "type": "DrawCards",
                             "count": {
                                 "type": "EntityProperty",
-                                "entity": "Sacrificed",
+                                "entity": "SacrificedAsCost",
                                 "numericProperty": "Power"
                             }
                         }
@@ -22144,7 +22162,7 @@
                                 "type": "Fixed",
                                 "amount": 2
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Don't promise a gift — deal 2 damage to each creature"
@@ -22196,7 +22214,7 @@
                                                 "type": "Fixed",
                                                 "amount": 2
                                             },
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         }
                                     },
                                     "GiftGiven"
@@ -22266,7 +22284,7 @@
                                 "type": "ManaValueEquals",
                                 "value": {
                                     "type": "EntityProperty",
-                                    "entity": "Source",
+                                    "entity": "Self",
                                     "numericProperty": {
                                         "type": "CounterCount",
                                         "counterType": "COIN"

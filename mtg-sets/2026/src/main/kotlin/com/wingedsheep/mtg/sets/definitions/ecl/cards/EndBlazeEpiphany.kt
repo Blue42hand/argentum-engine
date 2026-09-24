@@ -18,7 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * End-Blaze Epiphany
@@ -50,7 +50,7 @@ val EndBlazeEpiphany = card("End-Blaze Epiphany") {
                             GatherCardsEffect(
                                 source = CardSource.TopOfLibrary(
                                     count = DynamicAmount.EntityProperty(
-                                        entity = EntityReference.Triggering,
+                                        entity = EffectTarget.TriggeringEntity,
                                         numericProperty = EntityNumericProperty.Power
                                     )
                                 ),

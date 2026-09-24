@@ -43,7 +43,7 @@ val VenomConnoisseur = card("Venom Connoisseur") {
                     condition = Conditions.SourceAbilityResolvedNTimes(2),
                     then = Effects.ForEachInGroup(
                         GroupFilter.AllCreaturesYouControl,
-                        Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.Self)
+                        Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.IterationEntity)
                     )
                 )
             )

@@ -59,11 +59,11 @@ val SandstormSalvager = card("Sandstorm Salvager") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 filter = creatureTokensYouControl,
-                effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
             ),
             Effects.ForEachInGroup(
                 filter = creatureTokensYouControl,
-                effect = GrantKeywordEffect(Keyword.TRAMPLE, EffectTarget.Self)
+                effect = GrantKeywordEffect(Keyword.TRAMPLE, EffectTarget.IterationEntity)
             )
         )
     }

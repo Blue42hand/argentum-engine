@@ -28,7 +28,7 @@ val GaleForce = card("Gale Force") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING)),
-            DealDamageEffect(5, EffectTarget.Self)
+            DealDamageEffect(5, EffectTarget.IterationEntity)
         )
     }
     metadata {

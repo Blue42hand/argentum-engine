@@ -34,7 +34,7 @@ val DrogskolShieldmate = card("Drogskol Shieldmate") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
-            Effects.ModifyStats(0, 1, EffectTarget.Self)
+            Effects.ModifyStats(0, 1, EffectTarget.IterationEntity)
         )
     }
     metadata {

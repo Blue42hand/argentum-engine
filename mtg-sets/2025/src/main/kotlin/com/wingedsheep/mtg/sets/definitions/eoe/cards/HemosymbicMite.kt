@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Hemosymbic Mite
@@ -29,7 +28,7 @@ val HemosymbicMite = card("Hemosymbic Mite") {
     triggeredAbility {
         trigger = Triggers.BecomesTapped
         val target = target("another target creature you control", Targets.OtherCreatureYouControl)
-        val powerBonus = DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power)
+        val powerBonus = DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power)
         effect = Effects.ModifyStats(powerBonus, powerBonus, target)
     }
 

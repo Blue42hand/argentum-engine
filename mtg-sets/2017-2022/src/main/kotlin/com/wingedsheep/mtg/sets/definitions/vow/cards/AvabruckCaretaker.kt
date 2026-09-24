@@ -93,7 +93,7 @@ private val HollowhengeHuntmaster = card("Hollowhenge Huntmaster") {
         trigger = Triggers.BeginCombat
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self),
+            AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.IterationEntity),
         )
         description = "Put two +1/+1 counters on each creature you control."
     }

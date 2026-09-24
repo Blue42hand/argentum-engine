@@ -30,7 +30,7 @@ val FlowstoneSlide = card("Flowstone Slide") {
             Effects.ModifyStats(
                 DynamicAmount.XValue,
                 DynamicAmount.Multiply(DynamicAmount.XValue, -1),
-                EffectTarget.Self
+                EffectTarget.IterationEntity
             )
         )
     }

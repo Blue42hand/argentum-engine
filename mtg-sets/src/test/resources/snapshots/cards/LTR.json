@@ -91,7 +91,7 @@
                     "type": "LoseLife",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": "BURDEN"
@@ -130,7 +130,7 @@
                             "type": "DrawCards",
                             "count": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "CounterCount",
                                     "counterType": "BURDEN"
@@ -296,7 +296,7 @@
                                 "type": "AddCounters",
                                 "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -330,7 +330,7 @@
                                 "type": "AddCounters",
                                 "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -907,12 +907,12 @@
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "DOUBLE_STRIKE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "HASTE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -1217,7 +1217,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -1813,12 +1813,12 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "MENACE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -1917,7 +1917,7 @@
                             "body": {
                                 "type": "GrantKeyword",
                                 "keyword": "INDESTRUCTIBLE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         "TheRingTemptsYou"
@@ -1999,7 +1999,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -3325,7 +3328,10 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Target",
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        },
                                         "numericProperty": "Power"
                                     },
                                     "operator": "LTE",
@@ -3425,12 +3431,12 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "FIRST_STRIKE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -4387,7 +4393,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -4613,7 +4619,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "genericCostReduction": {
@@ -5092,7 +5098,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -5701,7 +5707,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -5718,7 +5727,7 @@
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "Target",
+                            "type": "ContextTarget",
                             "index": 1
                         },
                         "numericProperty": "Power"
@@ -6693,7 +6702,7 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -7511,7 +7520,7 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -9705,7 +9714,7 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -9856,7 +9865,10 @@
                             "tokenType": "Treasure",
                             "dynamicCount": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
                                 "numericProperty": "Power"
                             }
                         }
@@ -11840,7 +11852,7 @@
                         "type": "AddCounters",
                         "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -12005,12 +12017,12 @@
                                 "type": "AddCounters",
                                 "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "VIGILANCE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -12646,7 +12658,7 @@
                                                     "type": "TopOfLibrary",
                                                     "count": {
                                                         "type": "EntityProperty",
-                                                        "entity": "Source",
+                                                        "entity": "Self",
                                                         "numericProperty": {
                                                             "type": "CounterCount",
                                                             "counterType": "INFLUENCE"
@@ -13087,7 +13099,10 @@
                     "name": "bouncedMv",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "ManaValue"
                     }
                 },
@@ -13406,7 +13421,7 @@
                                 "type": "TopOfLibrary",
                                 "count": {
                                     "type": "EntityProperty",
-                                    "entity": "Triggering",
+                                    "entity": "TriggeringEntity",
                                     "numericProperty": "ManaValue"
                                 }
                             },
@@ -13509,7 +13524,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "HASTE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -13616,7 +13631,7 @@
                                 "IsCreature",
                                 {
                                     "type": "PowerLessThanEntity",
-                                    "reference": "Source"
+                                    "reference": "Self"
                                 }
                             ]
                         }
@@ -13802,7 +13817,7 @@
                             "type": "CreateToken",
                             "count": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Toughness"
                             },
                             "power": 1,
@@ -14796,7 +14811,7 @@
                                         },
                                         {
                                             "type": "ManaValueAtMostEntity",
-                                            "reference": "Triggering"
+                                            "reference": "TriggeringEntity"
                                         }
                                     ],
                                     "controllerPredicate": "OwnedByOpponent"
@@ -15228,7 +15243,7 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -15637,7 +15652,7 @@
                                         "IsCreature",
                                         {
                                             "type": "PowerLessThanEntity",
-                                            "reference": "Source"
+                                            "reference": "Self"
                                         }
                                     ]
                                 }
@@ -15721,7 +15736,7 @@
                             "type": "Amass",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "AttachmentCount",
                                     "kind": "EQUIPMENT"
@@ -16667,7 +16682,7 @@
                     "body": {
                         "type": "DealDamage",
                         "amount": "XValue",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -16790,7 +16805,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -17718,7 +17736,7 @@
                             "type": "Fixed",
                             "amount": -1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "TheRingTemptsYou"
@@ -17918,7 +17936,7 @@
                     "type": "LoseLife",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": "BURDEN"
@@ -17945,7 +17963,7 @@
                             "type": "DrawCards",
                             "count": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "CounterCount",
                                     "counterType": "BURDEN"
@@ -19076,7 +19094,7 @@
                             "body": {
                                 "type": "GrantKeyword",
                                 "keyword": "DOUBLE_STRIKE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         "TheRingTemptsYou"
@@ -19724,7 +19742,7 @@
                             },
                             "body": {
                                 "type": "TapUntap",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "tap": false
                             }
                         },
@@ -19775,7 +19793,10 @@
                             "type": "ForEach",
                             "space": {
                                 "type": "IterationSpace.ColorsOf",
-                                "source": "Target"
+                                "source": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                }
                             },
                             "body": {
                                 "type": "ForEach",
@@ -19793,7 +19814,7 @@
                                 },
                                 "body": {
                                     "type": "GrantProtectionFromChosenColor",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -19815,7 +19836,7 @@
                                 "IsCreature",
                                 {
                                     "type": "PowerGreaterThanEntity",
-                                    "reference": "Source"
+                                    "reference": "Self"
                                 }
                             ],
                             "controllerPredicate": "ControlledByOpponent"

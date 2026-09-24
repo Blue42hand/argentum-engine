@@ -30,7 +30,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    enchantment is gone before a fifth counter could ever land — the threshold can never fire
  *    twice. No dedicated "Nth counter" trigger event is needed.
  *  - "A +1/+1 counter on each creature you control" is [Effects.ForEachInGroup] over a
- *    [GroupFilter] with the counter applied to `EffectTarget.Self` per iterated creature (the
+ *    [GroupFilter] with the counter applied to `EffectTarget.IterationEntity` per iterated creature (the
  *    Cathars' Crusade shape) — not a target.
  */
 val PoliticalTriumph = card("Political Triumph") {
@@ -68,7 +68,7 @@ val PoliticalTriumph = card("Political Triumph") {
             Effects.DrawCards(1),
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
-                AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
             ),
         )
         description = "When the fourth plan counter is put on this enchantment, sacrifice it, " +

@@ -44,7 +44,7 @@ val PietyCharm = card("Piety Charm") {
             mode("Creatures you control gain vigilance until end of turn") {
                 effect = Effects.ForEachInGroup(
                     filter = GroupFilter.AllCreaturesYouControl,
-                    effect = GrantKeywordEffect(Keyword.VIGILANCE, EffectTarget.Self)
+                    effect = GrantKeywordEffect(Keyword.VIGILANCE, EffectTarget.IterationEntity)
                 )
             }
         }

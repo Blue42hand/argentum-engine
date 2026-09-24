@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Mightform Harmonizer
@@ -33,7 +32,7 @@ val MightformHarmonizer = card("Mightform Harmonizer") {
         trigger = Triggers.LandYouControlEnters
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = ModifyStatsEffect(
-            powerModifier = DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.Power),
+            powerModifier = DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.Power),
             toughnessModifier = DynamicAmount.Fixed(0),
             target = EffectTarget.ContextTarget(0)
         )

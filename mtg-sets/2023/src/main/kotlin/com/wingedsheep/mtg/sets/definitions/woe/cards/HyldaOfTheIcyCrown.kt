@@ -68,7 +68,7 @@ val HyldaOfTheIcyCrown = card("Hylda of the Icy Crown") {
                 Mode.noTarget(
                     Effects.ForEachInGroup(
                         filter = GroupFilter(GameObjectFilter.Creature.youControl()),
-                        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
                     ),
                     "Put a +1/+1 counter on each creature you control"
                 ),

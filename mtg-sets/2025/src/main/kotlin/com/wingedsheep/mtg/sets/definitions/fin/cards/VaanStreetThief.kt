@@ -87,7 +87,7 @@ val VaanStreetThief = card("Vaan, Street Thief") {
             filter = GroupFilter(
                 GameObjectFilter.Creature.withAnySubtype("Scout", "Pirate", "Rogue").youControl()
             ),
-            effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
         )
     }
 

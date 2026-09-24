@@ -36,9 +36,9 @@ val FullSteamAhead = card("Full Steam Ahead") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.Composite(
-                Effects.ModifyStats(2, 2, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self),
-                Effects.GrantStaticAbility(CantBeBlockedByMoreThan(maxBlockers = 1), EffectTarget.Self),
+                Effects.ModifyStats(2, 2, EffectTarget.IterationEntity),
+                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity),
+                Effects.GrantStaticAbility(CantBeBlockedByMoreThan(maxBlockers = 1), EffectTarget.IterationEntity),
             ),
         )
     }

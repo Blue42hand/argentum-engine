@@ -171,7 +171,7 @@ sealed interface SerializableModification {
      * at projection time. Mirrors [Modification.SetPowerToughnessDynamic] for floating effects, so
      * a one-shot animate (e.g. Titania's Song's "this effect continues until end of turn" linger)
      * can set base P/T to a value computed from each animated permanent (its mana value, via
-     * `EntityProperty(EntityReference.AffectedEntity, EntityNumericProperty.ManaValue)`).
+     * `EntityProperty(EffectTarget.AffectedEntity, EntityNumericProperty.ManaValue)`).
      *
      * Also the shape a `SetBaseStatsEffect(reevaluateContinuously = true)` resolves into, which is
      * why [power] and [toughness] are independently nullable: "gains 'this creature's base *power*

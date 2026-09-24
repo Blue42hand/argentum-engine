@@ -788,9 +788,14 @@ backed `LiveEntityView` both implement one `EntityView` interface, so a read sit
 of an entity — live if it is still on the battlefield, otherwise its snapshot — and reads the same
 accessors either way. Whether a given reference falls back to its snapshot once the permanent has
 left is a declared property, not ad-hoc per-call logic: `lkiPolicyFor(reference)` is an exhaustive
-`when` over `EntityReference` returning `LIVE_THEN_LKI` or `LIVE_ONLY`, so a new reference variant is
-a compile error until its last-known behavior is classified — and filtered enumeration
+`when` over `EffectTarget.SingleEntity` returning `LIVE_THEN_LKI` or `LIVE_ONLY`, so a new reference
+variant is a compile error until its last-known behavior is classified — and filtered enumeration
 (Gather/ForEach) is deliberately `LIVE_ONLY`: a permanent that has left simply is not in the set.
+This is the *value-read* rule. `EffectTarget` is also what effects *act* on, and every reference
+resolves through one mapping (`TargetResolutionUtils`) entered two ways: `resolveEntity` for value
+reads, which then apply the policy above, and `resolveTarget` for actions, which instead refuse an
+object that has changed zones since the ability captured it (CR 400.7) — the source (`Self`), the
+triggering object, or the object a `ForEach` loop is visiting (`IterationEntity`).
 
 ### 2.6 Strategy-Based Registries
 

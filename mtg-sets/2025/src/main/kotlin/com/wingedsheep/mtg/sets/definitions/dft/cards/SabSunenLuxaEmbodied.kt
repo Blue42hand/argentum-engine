@@ -35,7 +35,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   608.2) — that is what makes the ability draw on the turns it cannot attack.
  *
  * The combat restriction is a plain pair of statics whose condition routes through the standard
- * `ConditionEvaluator`; [DynamicAmounts.countersOnSelf] reads `EntityReference.Source`, which for a
+ * `ConditionEvaluator`; [DynamicAmounts.countersOnSelf] reads `EffectTarget.Self`, which for a
  * static ability on Sab-Sunen is Sab-Sunen. Because the condition is re-read at each restriction
  * check, a counter gained or lost between declare-attackers and declare-blockers correctly changes
  * whether it may block.

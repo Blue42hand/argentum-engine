@@ -27,7 +27,7 @@ val FuelTheFlames = card("Fuel the Flames") {
     typeLine = "Instant"
     oracleText = "Fuel the Flames deals 2 damage to each creature.\nCycling {2} ({2}, Discard this card: Draw a card.)"
     spell {
-        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(2, EffectTarget.Self))
+        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(2, EffectTarget.IterationEntity))
     }
     keywordAbility(KeywordAbility.cycling("{2}"))
     metadata {

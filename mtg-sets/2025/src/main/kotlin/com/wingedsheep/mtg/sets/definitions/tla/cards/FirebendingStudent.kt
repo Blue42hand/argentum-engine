@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.ManaExpiry
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Firebending Student
@@ -43,7 +43,7 @@ val FirebendingStudent = card("Firebending Student") {
         trigger = Triggers.Attacks
         effect = AddManaEffect(
             Color.RED,
-            DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power),
+            DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power),
             expiry = ManaExpiry.END_OF_COMBAT,
         )
         description = "Firebending X, where X is this creature's power. Whenever this creature " +

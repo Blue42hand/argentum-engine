@@ -34,7 +34,7 @@ val ThorinsLastStand = card("Thorin's Last Stand") {
             mode("Creatures you control get +2/+1 until end of turn") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.youControl()),
-                    Effects.ModifyStats(2, 1, EffectTarget.Self)
+                    Effects.ModifyStats(2, 1, EffectTarget.IterationEntity)
                 )
             }
             mode("Destroy target artifact or enchantment. You gain 2 life") {

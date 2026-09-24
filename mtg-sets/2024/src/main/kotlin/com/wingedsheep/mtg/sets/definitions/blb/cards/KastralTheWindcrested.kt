@@ -95,7 +95,7 @@ val KastralTheWindcrested = card("Kastral, the Windcrested") {
             Mode.noTarget(
                 Effects.ForEachInGroup(
                     filter = GroupFilter(GameObjectFilter.Creature.withSubtype("Bird").youControl()),
-                    effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                    effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
                 ),
                 "Put a +1/+1 counter on each Bird you control"
             ),

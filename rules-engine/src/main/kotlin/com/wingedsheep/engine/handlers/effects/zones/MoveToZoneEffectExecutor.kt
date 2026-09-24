@@ -60,6 +60,7 @@ class MoveToZoneEffectExecutor(
     ): EffectResult {
         val targetId = context.resolveTarget(effect.target, state)
             ?: return if (effect.target == com.wingedsheep.sdk.scripting.targets.EffectTarget.Self ||
+                effect.target == com.wingedsheep.sdk.scripting.targets.EffectTarget.IterationEntity ||
                 effect.target == com.wingedsheep.sdk.scripting.targets.EffectTarget.TriggeringEntity ||
                 effect.target is com.wingedsheep.sdk.scripting.targets.EffectTarget.LibraryTop) {
                 EffectResult.success(state)

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Stalactite Stalker — {B}
@@ -29,7 +28,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * won't trigger unless you've already descended when the step begins).
  *
  * The activated ability sacrifices Stalactite Stalker as a cost, then reads its power for X. Because
- * the source is gone by resolution, X is last-known information: `EntityProperty(Source, Power)`
+ * the source is gone by resolution, X is last-known information: `EntityProperty(Self, Power)`
  * resolves via the source's LKI snapshot captured at cost-payment time (CR 113.7a / 608.2h),
  * including any +1/+1 counters it had accrued. (`Source` — not `Sacrificed()` — is the correct
  * reference for a `SacrificeSelf` cost: the self-sacrifice target is implicit, so it never lands in
@@ -60,7 +59,7 @@ val StalactiteStalker = card("Stalactite Stalker") {
         cost = Costs.Composite(Costs.Mana("{2}{B}"), Costs.SacrificeSelf)
         val creature = target("target", Targets.Creature)
         val negativePower = DynamicAmount.Multiply(
-            DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power),
+            DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power),
             -1
         )
         effect = Effects.ModifyStats(negativePower, negativePower, creature)

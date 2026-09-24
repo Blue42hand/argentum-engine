@@ -55,8 +55,8 @@ val HakodaSelflessCommander = card("Hakoda, Selfless Commander") {
             GroupFilter.AllCreaturesYouControl,
             Effects.Composite(
                 listOf(
-                    ModifyStatsEffect(0, 5, EffectTarget.Self),
-                    Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self)
+                    ModifyStatsEffect(0, 5, EffectTarget.IterationEntity),
+                    Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)
                 )
             )
         )

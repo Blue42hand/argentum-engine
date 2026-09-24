@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Éowyn, Fearless Knight
@@ -47,7 +46,7 @@ val EowynFearlessKnight = card("Éowyn, Fearless Knight") {
             TargetCreature(
                 filter = TargetFilter(
                     GameObjectFilter.Creature.opponentControls()
-                        .powerGreaterThanEntity(EntityReference.Source)
+                        .powerGreaterThanEntity(EffectTarget.Self)
                 )
             )
         )
@@ -56,10 +55,10 @@ val EowynFearlessKnight = card("Éowyn, Fearless Knight") {
         // feeding each color to GrantProtectionFromChosenColor via the chosen-color context.
         effect = Effects.Composite(
             Effects.ForEachColorOf(
-                source = EntityReference.Target(0),
+                source = EffectTarget.ContextTarget(0),
                 effect = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.legendary().youControl()),
-                    Effects.GrantProtectionFromChosenColor(EffectTarget.Self)
+                    Effects.GrantProtectionFromChosenColor(EffectTarget.IterationEntity)
                 )
             ),
             Effects.Exile(victim)

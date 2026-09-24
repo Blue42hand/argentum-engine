@@ -39,7 +39,7 @@ val MoltenNote = card("Molten Note") {
             .then(
                 Effects.ForEachInGroup(
                     Filters.Group.creaturesYouControl,
-                    Effects.Untap(EffectTarget.Self),
+                    Effects.Untap(EffectTarget.IterationEntity),
                 )
             )
     }

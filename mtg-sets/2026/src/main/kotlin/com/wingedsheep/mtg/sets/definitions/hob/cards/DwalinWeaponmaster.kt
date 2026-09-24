@@ -46,7 +46,7 @@ val DwalinWeaponmaster = card("Dwalin, Weaponmaster") {
 
     val honeEachEquipment = Effects.ForEachInGroup(
         GroupFilter(GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()),
-        AddCountersEffect(CounterType.HONE, 1, EffectTarget.Self),
+        AddCountersEffect(CounterType.HONE, 1, EffectTarget.IterationEntity),
     )
 
     triggeredAbility {

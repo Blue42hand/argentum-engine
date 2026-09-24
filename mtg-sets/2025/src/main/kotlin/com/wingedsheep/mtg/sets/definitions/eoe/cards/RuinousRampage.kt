@@ -35,7 +35,7 @@ val RuinousRampage = card("Ruinous Rampage") {
             Mode.noTarget(
                 Effects.ForEachInGroup(
                     filter = GroupFilter(GameObjectFilter.Artifact.manaValueAtMost(3)),
-                    effect = Effects.Move(EffectTarget.Self, Zone.EXILE)
+                    effect = Effects.Move(EffectTarget.IterationEntity, Zone.EXILE)
                 ),
                 "Exile all artifacts with mana value 3 or less"
             )

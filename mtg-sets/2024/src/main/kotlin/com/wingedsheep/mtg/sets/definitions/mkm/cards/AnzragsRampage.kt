@@ -92,10 +92,10 @@ val AnzragsRampage = card("Anzrag's Rampage") {
                 ForEachInCollectionEffect(
                     collection = entered.key,
                     effect = Effects.Composite(
-                        Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self, Duration.Permanent),
+                        Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.Permanent),
                         CreateDelayedTriggerEffect(
                             step = Step.END,
-                            effect = Effects.Move(EffectTarget.Self, Zone.HAND),
+                            effect = Effects.Move(EffectTarget.IterationEntity, Zone.HAND),
                         ),
                     ),
                 ),

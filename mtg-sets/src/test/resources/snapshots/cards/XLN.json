@@ -125,7 +125,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "HEXPROOF",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -929,7 +929,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -943,7 +943,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "TRAMPLE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -1187,7 +1187,7 @@
                             "type": "Fixed",
                             "amount": 2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -1280,7 +1280,7 @@
                     "type": "Fixed",
                     "amount": 2
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -3722,7 +3722,7 @@
                                 "type": "TopOfLibrary",
                                 "count": {
                                     "type": "EntityProperty",
-                                    "entity": "Triggering",
+                                    "entity": "TriggeringEntity",
                                     "numericProperty": "ManaValue"
                                 }
                             },
@@ -3744,7 +3744,7 @@
                                     "IsNonland",
                                     {
                                         "type": "ManaValueAtMostEntity",
-                                        "reference": "Triggering"
+                                        "reference": "TriggeringEntity"
                                     }
                                 ]
                             },
@@ -4043,7 +4043,7 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": {
                                             "type": "CounterCount",
                                             "counterType": "LANDMARK"

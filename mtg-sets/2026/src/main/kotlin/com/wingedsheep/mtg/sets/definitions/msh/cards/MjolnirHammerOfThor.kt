@@ -90,7 +90,7 @@ val MjolnirHammerOfThor = card("Mjölnir, Hammer of Thor") {
         cost = Costs.Composite(Costs.Mana("{2}{R}"), Costs.DiscardSelf)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature),
-            DealDamageEffect(2, EffectTarget.Self)
+            DealDamageEffect(2, EffectTarget.IterationEntity)
         )
         activateFromZone = Zone.HAND
     }

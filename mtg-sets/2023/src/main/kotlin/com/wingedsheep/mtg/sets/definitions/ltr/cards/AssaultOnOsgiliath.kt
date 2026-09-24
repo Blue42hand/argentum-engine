@@ -33,8 +33,8 @@ val AssaultOnOsgiliath = card("Assault on Osgiliath") {
                         com.wingedsheep.sdk.scripting.GameObjectFilter.Creature
                             .withAnySubtype("Goblin", "Orc").youControl()
                     ),
-                    effect = GrantKeywordEffect(Keyword.DOUBLE_STRIKE.name, EffectTarget.Self, Duration.EndOfTurn)
-                        .then(GrantKeywordEffect(Keyword.HASTE.name, EffectTarget.Self, Duration.EndOfTurn))
+                    effect = GrantKeywordEffect(Keyword.DOUBLE_STRIKE.name, EffectTarget.IterationEntity, Duration.EndOfTurn)
+                        .then(GrantKeywordEffect(Keyword.HASTE.name, EffectTarget.IterationEntity, Duration.EndOfTurn))
                 )
             )
     }

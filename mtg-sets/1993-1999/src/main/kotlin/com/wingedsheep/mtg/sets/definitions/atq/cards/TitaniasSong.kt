@@ -12,7 +12,7 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Titania's Song
@@ -26,7 +26,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *  - Layer 4 (TYPE): GrantCardType("CREATURE") — makes them creatures (already artifacts).
  *  - Layer 6 (ABILITY): LoseAllAbilities.
  *  - Layer 7b (POWER_TOUGHNESS, SET_VALUES): SetBasePowerToughnessDynamicStatic with each
- *    permanent's own mana value (EntityReference.AffectedEntity → ManaValue).
+ *    permanent's own mana value (EffectTarget.AffectedEntity → ManaValue).
  *
  * The "noncreature artifact" filter (`Artifact.notCreature()`) is locked in at effect-collection
  * time — it is not a [com.wingedsheep.sdk.scripting.predicates.CardPredicate.IsCreature]-keyed
@@ -48,7 +48,7 @@ val TitaniasSong = card("Titania's Song") {
 
     val noncreatureArtifacts = GroupFilter(GameObjectFilter.Artifact.notCreature())
     val manaValue: DynamicAmount = DynamicAmount.EntityProperty(
-        entity = EntityReference.AffectedEntity,
+        entity = EffectTarget.AffectedEntity,
         numericProperty = EntityNumericProperty.ManaValue
     )
 

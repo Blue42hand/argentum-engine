@@ -36,7 +36,7 @@ val CanopySurge = card("Canopy Surge") {
         listOf(
             Effects.ForEachInGroup(
                 GroupFilter.AllCreatures.withKeyword(Keyword.FLYING),
-                DealDamageEffect(amount, EffectTarget.Self)
+                DealDamageEffect(amount, EffectTarget.IterationEntity)
             ),
             ForEachPlayerEffect(
                 players = Player.Each,

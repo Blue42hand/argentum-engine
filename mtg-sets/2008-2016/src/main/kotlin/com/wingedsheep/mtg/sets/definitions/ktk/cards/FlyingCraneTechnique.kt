@@ -26,15 +26,15 @@ val FlyingCraneTechnique = card("Flying Crane Technique") {
             listOf(
                 Effects.ForEachInGroup(
                     GroupFilter.AllCreaturesYouControl,
-                    TapUntapEffect(EffectTarget.Self, tap = false)
+                    TapUntapEffect(EffectTarget.IterationEntity, tap = false)
                 ),
                 Effects.ForEachInGroup(
                     GroupFilter.AllCreaturesYouControl,
-                    GrantKeywordEffect(Keyword.FLYING, EffectTarget.Self)
+                    GrantKeywordEffect(Keyword.FLYING, EffectTarget.IterationEntity)
                 ),
                 Effects.ForEachInGroup(
                     GroupFilter.AllCreaturesYouControl,
-                    GrantKeywordEffect(Keyword.DOUBLE_STRIKE, EffectTarget.Self)
+                    GrantKeywordEffect(Keyword.DOUBLE_STRIKE, EffectTarget.IterationEntity)
                 )
             )
         )

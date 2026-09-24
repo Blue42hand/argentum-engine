@@ -18,7 +18,7 @@ import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -36,7 +36,7 @@ import com.wingedsheep.sdk.dsl.Effects
  *   1. gather every creature card in your graveyard,
  *   2. keep only those whose mana value equals the sacrificed creature's MV + 1
  *      (read from the cost-sacrificed permanent's last-known snapshot via
- *      EntityReference.Sacrificed — Rule 112.7a / 608.2h),
+ *      EffectTarget.SacrificedAsCost — Rule 112.7a / 608.2h),
  *   3. choose one (always prompts so the controller confirms the return, even
  *      with a single candidate; zero candidates resolves silently),
  *   4. return it to the battlefield.
@@ -67,7 +67,7 @@ val SidisiRegentOfTheMire = card("Sidisi, Regent of the Mire") {
                     filter = CollectionFilter.ManaValueEquals(
                         DynamicAmount.Add(
                             DynamicAmount.EntityProperty(
-                                EntityReference.Sacrificed(0),
+                                EffectTarget.SacrificedAsCost(0),
                                 EntityNumericProperty.ManaValue
                             ),
                             DynamicAmount.Fixed(1)

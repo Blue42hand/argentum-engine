@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Savanti Romero, Time's Exile
@@ -35,7 +34,7 @@ val SavantiRomeroTimesExile = card("Savanti Romero, Time's Exile") {
     triggeredAbility {
         trigger = Triggers.BeginCombat
         val counterAmount = DynamicAmount.EntityProperty(
-            EntityReference.Source,
+            EffectTarget.Self,
             EntityNumericProperty.CounterCount(null)
         )
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)

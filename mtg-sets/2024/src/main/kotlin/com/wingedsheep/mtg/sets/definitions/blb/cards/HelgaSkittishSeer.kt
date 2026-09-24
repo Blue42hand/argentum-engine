@@ -18,7 +18,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Helga, Skittish Seer
@@ -69,7 +68,7 @@ val HelgaSkittishSeer = card("Helga, Skittish Seer") {
         cost = AbilityCost.Tap
         effect = Effects.AddAnyColorMana(
             DynamicAmount.EntityProperty(
-                EntityReference.Source,
+                EffectTarget.Self,
                 EntityNumericProperty.Power
             ),
             ManaRestriction.SpellsWithManaValueAtLeast(4, orXInCost = true, creatureOnly = true)

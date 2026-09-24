@@ -29,7 +29,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -80,7 +80,7 @@ val ClementTheWorrywort = card("Clement, the Worrywort") {
                 from = "myCreatures",
                 filter = CollectionFilter.ManaValueAtMost(
                     DynamicAmount.Subtract(
-                        DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.ManaValue),
+                        DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.ManaValue),
                         DynamicAmount.Fixed(1)
                     )
                 ),

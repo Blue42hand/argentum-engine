@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Wojek Siren
@@ -18,7 +18,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * until end of turn.
  *
  * Radiance: the target is pumped directly; every *other* creature sharing a color with it
- * (`sharingColorWith(EntityReference.Target(0))`, `otherThanTarget()`) is found as the spell
+ * (`sharingColorWith(EffectTarget.ContextTarget(0))`, `otherThanTarget()`) is found as the spell
  * resolves and pumped too. A colorless target shares a color with nothing, so only it grows.
  */
 val WojekSiren = card("Wojek Siren") {
@@ -35,7 +35,7 @@ val WojekSiren = card("Wojek Siren") {
                 1,
                 1,
                 GroupFilter(
-                    GameObjectFilter.Creature.sharingColorWith(EntityReference.Target(0))
+                    GameObjectFilter.Creature.sharingColorWith(EffectTarget.ContextTarget(0))
                 ).otherThanTarget()
             )
     }

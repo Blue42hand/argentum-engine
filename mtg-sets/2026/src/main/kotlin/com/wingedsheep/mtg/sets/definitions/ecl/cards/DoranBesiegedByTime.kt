@@ -14,14 +14,13 @@ import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 // Absolute difference between the triggering creature's power and toughness:
 // max(toughness - power, power - toughness).
 private val TriggeringPower: DynamicAmount =
-    DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.Power)
+    DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.Power)
 private val TriggeringToughness: DynamicAmount =
-    DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.Toughness)
+    DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.Toughness)
 private val TriggeringPowerToughnessDifference: DynamicAmount = DynamicAmount.Max(
     DynamicAmount.Subtract(TriggeringToughness, TriggeringPower),
     DynamicAmount.Subtract(TriggeringPower, TriggeringToughness)

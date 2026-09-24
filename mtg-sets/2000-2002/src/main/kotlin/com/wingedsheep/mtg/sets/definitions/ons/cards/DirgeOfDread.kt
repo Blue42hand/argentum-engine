@@ -28,7 +28,7 @@ val DirgeOfDread = card("Dirge of Dread") {
     spell {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreatures,
-            effect = GrantKeywordEffect(Keyword.FEAR, EffectTarget.Self)
+            effect = GrantKeywordEffect(Keyword.FEAR, EffectTarget.IterationEntity)
         )
     }
 

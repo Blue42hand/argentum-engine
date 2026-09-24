@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Bristly Bill, Spine Sower
@@ -45,10 +44,10 @@ val BristlyBillSpineSower = card("Bristly Bill, Spine Sower") {
             effect = Effects.AddDynamicCounters(
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = DynamicAmount.EntityProperty(
-                    EntityReference.IterationEntity,
+                    EffectTarget.IterationEntity,
                     EntityNumericProperty.CounterCount(CounterType.PLUS_ONE_PLUS_ONE)
                 ),
-                target = EffectTarget.Self
+                target = EffectTarget.IterationEntity
             )
         )
     }

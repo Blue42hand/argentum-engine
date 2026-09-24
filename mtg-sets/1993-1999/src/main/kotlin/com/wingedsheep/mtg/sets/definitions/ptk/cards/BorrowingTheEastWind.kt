@@ -18,7 +18,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *
  * The Famine shape: one printed sentence, two halves joined by [Effects.Composite]. The board half
  * is [Effects.ForEachInGroup] over the horsemanship creatures with the damage aimed at
- * [EffectTarget.Self] — the current iteration entity — and the player half is the corpus' symmetric
+ * [EffectTarget.IterationEntity] — the current iteration entity — and the player half is the corpus' symmetric
  * player sweep, [Effects.ForEachPlayer] over [Player.Each], each iteration rebinding the controller
  * so [EffectTarget.Controller] is the player being processed.
  */
@@ -32,7 +32,7 @@ val BorrowingTheEastWind = card("Borrowing the East Wind") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.HORSEMANSHIP)),
-                Effects.DealDamage(DynamicAmount.XValue, EffectTarget.Self)
+                Effects.DealDamage(DynamicAmount.XValue, EffectTarget.IterationEntity)
             ),
             Effects.ForEachPlayer(
                 Player.Each,

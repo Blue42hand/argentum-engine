@@ -64,7 +64,7 @@ val KarlovWatchdog = card("Karlov Watchdog") {
         trigger = TriggerSpec(YouAttackEvent(minAttackers = 3), TriggerBinding.ANY)
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
-            effect = Effects.ModifyStats(1, 1, EffectTarget.Self, Duration.EndOfTurn),
+            effect = Effects.ModifyStats(1, 1, EffectTarget.IterationEntity, Duration.EndOfTurn),
         )
         description = "Whenever you attack with three or more creatures, creatures you control " +
             "get +1/+1 until end of turn."

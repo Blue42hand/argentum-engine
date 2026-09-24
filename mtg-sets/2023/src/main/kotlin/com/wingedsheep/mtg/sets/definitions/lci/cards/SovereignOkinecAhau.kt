@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Sovereign Okinec Ahau — The Lost Caverns of Ixalan #240 (canonical printing)
@@ -33,9 +32,9 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *    (it qualifies only if it is itself pumped above 3 power).
  *  - **The per-creature amount** is the "difference" the oracle names:
  *    `Subtract(EntityProperty(IterationEntity, Power), EntityProperty(IterationEntity, BasePower))`
- *    — current projected power minus that same creature's printed base power. `IterationEntity`
- *    and `EffectTarget.Self` both resolve to the creature currently being processed, so each
- *    qualifying creature receives counters equal to its *own* excess (measured at resolution). The
+ *    — current projected power minus that same creature's printed base power. The amount and the
+ *    counters' target both name the creature currently being processed, so each qualifying
+ *    creature receives counters equal to its *own* excess (measured at resolution). The
  *    `BasePower` numeric-property read matches the filter's base exactly, so the counter count is
  *    always ≥ 1 for every group member; a creature at power == base is never in the group, and a
  *    `*`/CDA-power creature (no fixed base) is excluded by the filter.
@@ -60,10 +59,10 @@ val SovereignOkinecAhau = card("Sovereign Okinec Ahau") {
             effect = Effects.AddDynamicCounters(
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = DynamicAmount.Subtract(
-                    DynamicAmount.EntityProperty(EntityReference.IterationEntity, EntityNumericProperty.Power),
-                    DynamicAmount.EntityProperty(EntityReference.IterationEntity, EntityNumericProperty.BasePower),
+                    DynamicAmount.EntityProperty(EffectTarget.IterationEntity, EntityNumericProperty.Power),
+                    DynamicAmount.EntityProperty(EffectTarget.IterationEntity, EntityNumericProperty.BasePower),
                 ),
-                target = EffectTarget.Self,
+                target = EffectTarget.IterationEntity,
             ),
         )
     }

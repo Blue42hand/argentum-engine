@@ -108,7 +108,7 @@ data class IsAllCreatureTypes(
  * replacing their own (CR 205.1b) while keeping every non-creature subtype.
  *
  * The type half of the "copy some characteristics of another object" family: [source] is an
- * ordinary [com.wingedsheep.sdk.scripting.values.EntityReference], so the same static reads a card
+ * ordinary [com.wingedsheep.sdk.scripting.targets.EffectTarget.SingleEntity], so the same static reads a card
  * exiled with this permanent (`LinkedExiledCard()` — Duplicant), the source itself, or any other
  * reference the evaluator can resolve. Pair it with
  * [SetBasePowerToughnessDynamicStatic] fed `DynamicAmount.EntityProperty(source, Power/Toughness)`
@@ -131,7 +131,7 @@ data class IsAllCreatureTypes(
 @SerialName("HasCreatureTypesOf")
 @Serializable
 data class HasCreatureTypesOf(
-    val source: com.wingedsheep.sdk.scripting.values.EntityReference,
+    val source: com.wingedsheep.sdk.scripting.targets.EffectTarget.SingleEntity,
     val retainedTypes: Set<String> = emptySet(),
     val filter: GroupFilter = GroupFilter.source()
 ) : StaticAbility {

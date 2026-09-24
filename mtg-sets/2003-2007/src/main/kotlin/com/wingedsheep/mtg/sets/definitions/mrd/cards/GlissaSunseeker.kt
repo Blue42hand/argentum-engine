@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Glissa Sunseeker — Mirrodin #120
@@ -38,7 +38,7 @@ val GlissaSunseeker = card("Glissa Sunseeker") {
         effect = Effects.If(
             condition = Compare(
                 left = DynamicAmount.EntityProperty(
-                    EntityReference.Target(0),
+                    EffectTarget.ContextTarget(0),
                     EntityNumericProperty.ManaValue,
                 ),
                 operator = ComparisonOperator.EQ,

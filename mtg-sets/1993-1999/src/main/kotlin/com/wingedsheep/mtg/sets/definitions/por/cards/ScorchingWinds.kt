@@ -32,7 +32,7 @@ val ScorchingWinds = card("Scorching Winds") {
         castOnlyIf(YouWereAttackedThisStep)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.attacking()),
-            DealDamageEffect(1, EffectTarget.Self)
+            DealDamageEffect(1, EffectTarget.IterationEntity)
         )
     }
     metadata {

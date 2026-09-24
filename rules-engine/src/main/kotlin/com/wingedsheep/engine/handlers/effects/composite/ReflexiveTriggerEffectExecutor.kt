@@ -412,7 +412,7 @@ class ReflexiveTriggerEffectExecutor(
         }
 
         // Action succeeded synchronously — merge whatever it stashed in the pipeline (e.g.
-        // `EntityReference.AmassedArmy`, Foray of Orcs) into the context before emitting, mirroring
+        // `EffectTarget.AmassedArmy`, Foray of Orcs) into the context before emitting, mirroring
         // CompositeEffectExecutor's sibling-to-sibling propagation.
         val mergedContext = if (
             result.updatedCollections.isNotEmpty() || result.updatedSubtypeGroups.isNotEmpty() ||

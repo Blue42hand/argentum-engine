@@ -71,7 +71,7 @@
                             "type": "DealDamage",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "ManaValue"
                             },
                             "target": {
@@ -249,7 +249,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": "QUEST"
@@ -592,7 +592,7 @@
                     "type": "Fixed",
                     "amount": 13
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         },
         "staticAbilities": [
@@ -774,7 +774,7 @@
                     "type": "Fixed",
                     "amount": 6
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -1337,12 +1337,12 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "TRAMPLE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -1548,7 +1548,7 @@
                                         "IsPermanent",
                                         {
                                             "type": "ManaValueAtMostEntity",
-                                            "reference": "Triggering"
+                                            "reference": "TriggeringEntity"
                                         }
                                     ]
                                 }
@@ -1894,7 +1894,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": "GROWTH"
@@ -2121,7 +2121,10 @@
                     "counterType": "PLUS_ONE_PLUS_ONE",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {

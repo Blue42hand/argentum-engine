@@ -58,7 +58,7 @@ val BoomScholar = card("Boom Scholar") {
                 GroupFilter(
                     (GameObjectFilter.Creature or GameObjectFilter.Any.withSubtype("Vehicle")).youControl()
                 ),
-                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self)
+                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
             ),
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         )

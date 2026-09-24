@@ -32,7 +32,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *     cards that *actually* arrived on the battlefield; a card that couldn't be returned must not
  *     be scheduled for sacrifice.
  *  2. The sacrifice clause becomes one delayed trigger *per* returned permanent, scheduled inside
- *     [ForEachInCollectionEffect] where `EffectTarget.Self` is the current permanent.
+ *     [ForEachInCollectionEffect] where `EffectTarget.IterationEntity` is the current permanent.
  *     `CreateDelayedTriggerExecutor` bakes that into a concrete entity id at scheduling time, so
  *     each trigger still finds its permanent at the end step. N single-permanent triggers firing
  *     together at the same step are indistinguishable from the printed one-ability-sacrifices-all:
@@ -87,20 +87,20 @@ val PushTheLimit = card("Push the Limit") {
                     collection = returned.key,
                     effect = CreateDelayedTriggerEffect(
                         step = Step.END,
-                        effect = Effects.SacrificeTarget(EffectTarget.Self),
+                        effect = Effects.SacrificeTarget(EffectTarget.IterationEntity),
                     ),
                 )
             )
             run(
                 Effects.ForEachInGroup(
                     VehiclesYouControl,
-                    Effects.AddCardType("Creature", EffectTarget.Self, Duration.EndOfTurn),
+                    Effects.AddCardType("Creature", EffectTarget.IterationEntity, Duration.EndOfTurn),
                 )
             )
             run(
                 Effects.ForEachInGroup(
                     GroupFilter.AllCreaturesYouControl,
-                    Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self, Duration.EndOfTurn),
+                    Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn),
                 )
             )
         }

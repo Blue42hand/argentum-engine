@@ -31,7 +31,6 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityReference
 import com.wingedsheep.sdk.scripting.values.TurnTracker
 
 /**
@@ -514,7 +513,7 @@ object Amounts {
      * **What a possessive noun phrase can read**, as the [EntityNumericProperty] half of
      * `DynamicAmount.EntityProperty`.
      *
-     * The SDK types this amount as a product — an [EntityReference] and a property of it — and
+     * The SDK types this amount as a product — an [EffectTarget.SingleEntity] and a property of it — and
      * English spells it as exactly that product: a possessive naming the object, then the noun
      * naming the characteristic. So the grammar is the product too, one table per axis, which is
      * why this is three rows rather than the twenty-one printed phrases they cross into.
@@ -559,7 +558,7 @@ object Amounts {
      */
     fun propertyOf(
         possessive: Phrase<Unit>,
-        reference: EntityReference,
+        reference: EffectTarget.SingleEntity,
         tag: String,
     ): Phrase<DynamicAmount> = oneOf(
         "a characteristic of $tag",
@@ -657,7 +656,7 @@ object Amounts {
      *
      * ### The source's own counter tally, which is last-known information half the time it is printed
      *
-     * [counterCount] reads `EntityProperty(Source, CounterCount)`, and `DynamicAmountEvaluator`
+     * [counterCount] reads `EntityProperty(Self, CounterCount)`, and `DynamicAmountEvaluator`
      * resolves that from **live** state: `counterCountOf` looks the entity up and answers 0 when it
      * is not there. So in the position Oracle most often prints this clause — "When ~ dies, put X
      * +1/+1 counters on target creature you control, where X is the number of +1/+1 counters on ~"
@@ -756,7 +755,7 @@ object Amounts {
         fun scriptFor(filter: GameObjectFilter) = CardScript(
             spellEffect = Effects.ForEachInGroup(
                 GroupFilter(filter),
-                Effects.ModifyStats(amount, amount, EffectTarget.Self),
+                Effects.ModifyStats(amount, amount, EffectTarget.IterationEntity),
             )
         )
         return phrase("$prefix{filter} get -X/-X until end of turn", name = name) {

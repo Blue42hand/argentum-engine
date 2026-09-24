@@ -112,7 +112,7 @@ val CovetedFalcon = card("Coveted Falcon") {
                 collection = "falconGifts",
                 effect = Effects.IfYouDo(
                     action = GiveControlToTargetPlayerEffect(
-                        permanent = EffectTarget.Self,
+                        permanent = EffectTarget.IterationEntity,
                         newController = opponent,
                     ),
                     then = Effects.DrawCards(1),

@@ -34,7 +34,7 @@ val HowToStartARiot = card("How to Start a Riot") {
             Effects.GrantKeyword(Keyword.MENACE, creature),
             Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.targetPlayerControls(player)),
-                effect = ModifyStatsEffect(2, 0, EffectTarget.Self)
+                effect = ModifyStatsEffect(2, 0, EffectTarget.IterationEntity)
             )
         )
     }

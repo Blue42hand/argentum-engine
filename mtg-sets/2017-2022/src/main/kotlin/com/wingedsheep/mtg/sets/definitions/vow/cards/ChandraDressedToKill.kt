@@ -20,7 +20,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayerOrPlaneswalker
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Chandra, Dressed to Kill — Innistrad: Crimson Vow #149
@@ -49,7 +48,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *    Chandra's last two abilities."
  *  - **The emblem** is a triggered emblem ([Effects.CreateGlobalTriggeredAbility], the Chandra,
  *    Spark Hunter shape) so it outlives Chandra. X reads the mana *actually* spent on the
- *    triggering spell — `EntityProperty(Triggering, ManaSpent)`, which sums the per-colour tallies
+ *    triggering spell — `EntityProperty(TriggeringEntity, ManaSpent)`, which sums the per-colour tallies
  *    recorded on the spell as it was cast, so cost increases and reductions are already baked in.
  */
 val ChandraDressedToKill = card("Chandra, Dressed to Kill") {
@@ -122,7 +121,7 @@ val ChandraDressedToKill = card("Chandra, Dressed to Kill") {
                         binding = TriggerBinding.ANY,
                         effect = Effects.DealDamage(
                             DynamicAmount.EntityProperty(
-                                EntityReference.Triggering,
+                                EffectTarget.TriggeringEntity,
                                 EntityNumericProperty.ManaSpent
                             ),
                             EffectTarget.ContextTarget(0)

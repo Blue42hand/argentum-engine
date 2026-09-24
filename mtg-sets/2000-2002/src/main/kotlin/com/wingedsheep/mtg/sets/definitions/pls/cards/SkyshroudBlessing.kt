@@ -30,7 +30,7 @@ val SkyshroudBlessing = card("Skyshroud Blessing") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Land),
-                Effects.GrantKeyword(Keyword.SHROUD, EffectTarget.Self)
+                Effects.GrantKeyword(Keyword.SHROUD, EffectTarget.IterationEntity)
             ),
             DrawCardsEffect(1)
         )

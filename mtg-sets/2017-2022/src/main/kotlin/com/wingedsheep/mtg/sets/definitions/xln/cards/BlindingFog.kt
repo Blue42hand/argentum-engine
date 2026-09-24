@@ -28,7 +28,7 @@ val BlindingFog = card("Blinding Fog") {
         effect = Effects.PreventDamage(toGroup = GameObjectFilter.Creature) then
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
-                Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.Self)
+                Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.IterationEntity)
             )
     }
 

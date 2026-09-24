@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * One Ring to Rule Them All
@@ -25,7 +24,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * Chapter I composes [Effects.TheRingTemptsYou] with a mill-each-player whose amount is
  * `EntityProperty(RingBearer(Player.You), Power)` — the power of the Saga controller's
  * designated Ring-bearer (0 if none). The mill applies to every player ([Player.Each]) while
- * the amount stays anchored to *your* Ring-bearer, because [EntityReference.RingBearer] reads
+ * the amount stays anchored to *your* Ring-bearer, because [EffectTarget.RingBearer] reads
  * the referenced player's bearer rather than the player being milled.
  *
  * Chapter II is a board wipe over `Creature.nonlegendary()` (legendary creatures survive).
@@ -49,7 +48,7 @@ val OneRingToRuleThemAll = card("One Ring to Rule Them All") {
             Effects.TheRingTemptsYou(),
             Patterns.Library.mill(
                 count = DynamicAmount.EntityProperty(
-                    EntityReference.RingBearer(Player.You),
+                    EffectTarget.RingBearer(Player.You),
                     EntityNumericProperty.Power
                 ),
                 target = EffectTarget.PlayerRef(Player.Each)

@@ -385,7 +385,7 @@ sealed interface Modification {
      */
     @Serializable
     data class SetCreatureSubtypesFrom(
-        val source: com.wingedsheep.sdk.scripting.values.EntityReference,
+        val source: com.wingedsheep.sdk.scripting.targets.EffectTarget.SingleEntity,
         val retainedTypes: Set<String> = emptySet()
     ) : Modification {
         override val layer get() = Layer.TYPE

@@ -22,7 +22,7 @@ val RainOfBlades = card("Rain of Blades") {
     spell {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AttackingCreatures,
-            effect = DealDamageEffect(1, EffectTarget.Self)
+            effect = DealDamageEffect(1, EffectTarget.IterationEntity)
         )
     }
 

@@ -36,7 +36,7 @@ val BreathOfDarigaaz = card("Breath of Darigaaz") {
         listOf(
             Effects.ForEachInGroup(
                 GroupFilter.AllCreatures.withoutKeyword(Keyword.FLYING),
-                DealDamageEffect(amount, EffectTarget.Self)
+                DealDamageEffect(amount, EffectTarget.IterationEntity)
             ),
             ForEachPlayerEffect(
                 players = Player.Each,

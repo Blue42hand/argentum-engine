@@ -103,7 +103,7 @@ val NickFuryAgentOfShield = card("Nick Fury, Agent of S.H.I.E.L.D.") {
             Effects.If(
                 condition = Conditions.CollectionContainsMatch("fury_entered", Filters.DoubleFaced),
                 then = Effects.May(
-                    ForEachInCollectionEffect("fury_entered", TransformEffect(EffectTarget.Self)),
+                    ForEachInCollectionEffect("fury_entered", TransformEffect(EffectTarget.IterationEntity)),
                     descriptionOverride = "transform it"
                 )
             ),

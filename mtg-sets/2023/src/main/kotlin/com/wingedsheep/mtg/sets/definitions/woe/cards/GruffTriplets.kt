@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Gruff Triplets
@@ -31,7 +30,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * copy trigger never fires.
  *
  * The death trigger reads "its power" off the dying permanent, which is already in the graveyard
- * by resolution, so the amount is [EntityReference.Source] — a last-known-information read
+ * by resolution, so the amount is [EffectTarget.Self] — a last-known-information read
  * (`LkiPolicy.LIVE_THEN_LKI`, CR 608.2h) that picks up any +1/+1 counters or pumps the dying
  * body had. The dying Triplet is not itself in "each creature you control named Gruff Triplets"
  * (that set is enumerated live off the battlefield), so a lone Triplet dying does nothing while
@@ -66,10 +65,10 @@ val GruffTriplets = card("Gruff Triplets") {
             effect = Effects.AddDynamicCounters(
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = DynamicAmount.EntityProperty(
-                    entity = EntityReference.Source,
+                    entity = EffectTarget.Self,
                     numericProperty = EntityNumericProperty.Power,
                 ),
-                target = EffectTarget.Self,
+                target = EffectTarget.IterationEntity,
             ),
         )
         description = "When this creature dies, put a number of +1/+1 counters equal to its " +

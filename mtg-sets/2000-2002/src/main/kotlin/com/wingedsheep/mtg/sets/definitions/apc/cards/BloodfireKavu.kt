@@ -30,7 +30,7 @@ val BloodfireKavu = card("Bloodfire Kavu") {
     toughness = 2
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{R}"), Costs.SacrificeSelf)
-        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(2, EffectTarget.Self))
+        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(2, EffectTarget.IterationEntity))
     }
     metadata {
         rarity = Rarity.UNCOMMON

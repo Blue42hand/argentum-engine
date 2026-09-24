@@ -26,7 +26,6 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Eddie Brock // Venom, Lethal Protector — Marvel's Spider-Man #55 (mythic)
@@ -53,7 +52,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *  - Attack trigger (back): [Triggers.Attacks] + [Effects.May] wrapping the optional sacrifice of
  *    another creature ([Effects.SacrificeTarget] over a `.other()` creature you control), so "If
  *    you do" gates the payoff on actually sacrificing. The sacrificed creature's mana value is read
- *    from last-known information via [EntityReference.Sacrificed] — the same capture Memorial Vault
+ *    from last-known information via [EffectTarget.SacrificedAsCost] — the same capture Memorial Vault
  *    / Eldritch Evolution rely on — and feeds two downstream reads: the draw count
  *    ([DynamicAmount.EntityProperty] `Sacrificed.ManaValue`) and the from-hand eligibility filter
  *    (`GameObjectFilter.Permanent.manaValueAtMostEntity(Sacrificed)`). The "you may put a permanent
@@ -133,9 +132,9 @@ private val VenomLethalProtector = card("Venom, Lethal Protector") {
                 filter = TargetFilter(GameObjectFilter.Creature.youControl()).other()
             )
         )
-        // X = the sacrificed creature's mana value (last-known info via EntityReference.Sacrificed).
+        // X = the sacrificed creature's mana value (last-known info via EffectTarget.SacrificedAsCost).
         val x = DynamicAmount.EntityProperty(
-            EntityReference.Sacrificed(0),
+            EffectTarget.SacrificedAsCost(0),
             EntityNumericProperty.ManaValue
         )
         effect = Effects.May(

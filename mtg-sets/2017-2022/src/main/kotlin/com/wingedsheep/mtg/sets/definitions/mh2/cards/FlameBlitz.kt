@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * "Each planeswalker" is untargeted group damage, so it is [Effects.ForEachInGroup] over a
  * [GroupFilter] of every planeswalker on the battlefield — no controller predicate, so the
- * enchantment burns its own controller's walkers too. Inside the loop, `EffectTarget.Self` names
+ * enchantment burns its own controller's walkers too. Inside the loop, `EffectTarget.IterationEntity` names
  * the *iterated* permanent (the group member currently being processed), not the enchantment; the
  * damage source stays Flame Blitz because the ability's source is the enchantment.
  *
@@ -37,7 +37,7 @@ val FlameBlitz = card("Flame Blitz") {
         trigger = Triggers.YourEndStep
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Planeswalker),
-            DealDamageEffect(5, EffectTarget.Self)
+            DealDamageEffect(5, EffectTarget.IterationEntity)
         )
     }
 

@@ -26,7 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   ([Triggers.OneOrMoreOpponentPermanentsEnter] on [GameObjectFilter.Token]). The batch exposes its
  *   matching tokens to the payoff as the pipeline collection `IterationSpace.TRIGGER_CAPTURED_COLLECTION`,
  *   so [ForEachInCollectionEffect] iterates them and [CreateTokenCopyOfTargetEffect] (target
- *   [EffectTarget.Self], `tapped = true`) makes one tapped copy of each. `oncePerTurn = true` gives
+ *   [EffectTarget.IterationEntity], `tapped = true`) makes one tapped copy of each. `oncePerTurn = true` gives
  *   "This ability triggers only once each turn" (CR 603.3 / engine-tracked once-per-turn). Per the
  *   official rulings, the copies use each original token's copiable characteristics and enter tapped;
  *   the copy executor reads each token at resolution, so any that left the battlefield meanwhile
@@ -52,7 +52,7 @@ val KambalProfiteeringMayor = card("Kambal, Profiteering Mayor") {
         oncePerTurn = true
         effect = ForEachInCollectionEffect(
             collection = IterationSpace.TRIGGER_CAPTURED_COLLECTION,
-            effect = CreateTokenCopyOfTargetEffect(target = EffectTarget.Self, tapped = true)
+            effect = CreateTokenCopyOfTargetEffect(target = EffectTarget.IterationEntity, tapped = true)
         )
     }
 

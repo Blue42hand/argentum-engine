@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /** VOW's own 1/1 black Slug token art. */
 private const val SLUG_TOKEN_IMAGE =
@@ -43,7 +42,7 @@ private const val SLUG_TOKEN_IMAGE =
  *  - **"for each slime counter on *them*" is a per-affected-permanent amount**, not a source
  *    tally. [GrantDynamicStatsEffect] is a Layer 7c bonus whose `DynamicAmount` is re-evaluated for
  *    every creature it touches, with `EffectContext.affectedEntityId` bound to that creature — so
- *    [EntityReference.AffectedEntity] reads *its own* counters. This is Withering Hex's expression
+ *    [EffectTarget.AffectedEntity] reads *its own* counters. This is Withering Hex's expression
  *    (`Multiply(counterCount, -1)`, the negation idiom — there is no `Negate`) with `Source`
  *    swapped for `AffectedEntity`, and Diligent Zookeeper's per-affected-entity read widened from
  *    one creature to a group.
@@ -75,7 +74,7 @@ val ToxrillTheCorrosive = card("Toxrill, the Corrosive") {
         trigger = Triggers.EachEndStep
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreaturesOpponentsControl,
-            Effects.AddCounters(CounterType.SLIME, 1, EffectTarget.Self)
+            Effects.AddCounters(CounterType.SLIME, 1, EffectTarget.IterationEntity)
         )
         description = "At the beginning of each end step, put a slime counter on each creature " +
             "you don't control."
@@ -86,7 +85,7 @@ val ToxrillTheCorrosive = card("Toxrill, the Corrosive") {
         // Re-evaluated per affected creature: AffectedEntity is *that* creature, not Toxrill.
         val slimeOnIt = DynamicAmount.Multiply(
             DynamicAmount.EntityProperty(
-                entity = EntityReference.AffectedEntity,
+                entity = EffectTarget.AffectedEntity,
                 numericProperty = EntityNumericProperty.CounterCount(
                     CounterType.SLIME
                 )

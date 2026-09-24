@@ -20,7 +20,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Terrific Team-Up
@@ -35,7 +34,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * [EffectTarget.ContextTarget] index 0 across the per-creature loop) and one or two creatures you
  * control. At resolution we gather the chosen targets, filter to the creatures you control (excludes
  * the victim), pump each +1/+0 until end of turn, then have each deal damage equal to its own
- * (boosted) power — read per-iteration via [EntityReference.IterationEntity] — to the opponent's
+ * (boosted) power — read per-iteration via [EffectTarget.IterationEntity] — to the opponent's
  * creature.
  */
 val TerrificTeamUp = card("Terrific Team-Up") {
@@ -86,18 +85,18 @@ val TerrificTeamUp = card("Terrific Team-Up") {
             // Each chosen creature gets +1/+0 until end of turn.
             ForEachInCollectionEffect(
                 collection = "team",
-                effect = Effects.ModifyStats(1, 0, EffectTarget.Self),
+                effect = Effects.ModifyStats(1, 0, EffectTarget.IterationEntity),
             ),
             // Then each deals damage equal to its (boosted) power to the opponent's creature.
             ForEachInCollectionEffect(
                 collection = "team",
                 effect = Effects.DealDamage(
                     amount = DynamicAmount.EntityProperty(
-                        EntityReference.IterationEntity,
+                        EffectTarget.IterationEntity,
                         EntityNumericProperty.Power,
                     ),
                     target = EffectTarget.ContextTarget(0),
-                    damageSource = EffectTarget.Self,
+                    damageSource = EffectTarget.IterationEntity,
                 ),
             ),
         )

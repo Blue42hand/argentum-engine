@@ -40,7 +40,7 @@ val RollingSpoil = card("Rolling Spoil") {
                     condition = Conditions.ManaSpentToCastIncludes(requiredBlack = 1),
                     then = Effects.ForEachInGroup(
                         GroupFilter(GameObjectFilter.Creature),
-                        Effects.ModifyStats(-1, -1, EffectTarget.Self),
+                        Effects.ModifyStats(-1, -1, EffectTarget.IterationEntity),
                     ),
                 )
             )

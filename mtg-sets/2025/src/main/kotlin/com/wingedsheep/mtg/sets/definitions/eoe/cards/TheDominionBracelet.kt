@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * The Dominion Bracelet
@@ -57,7 +56,7 @@ val TheDominionBracelet = card("The Dominion Bracelet") {
                 targetRequirements = listOf(TargetOpponent()),
                 timing = TimingRule.SorcerySpeed,
                 genericCostReduction = DynamicAmount.EntityProperty(
-                    EntityReference.Source,
+                    EffectTarget.Self,
                     EntityNumericProperty.Power
                 ),
                 descriptionOverride = "{15}, Exile The Dominion Bracelet: You control target " +

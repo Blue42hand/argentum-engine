@@ -41,9 +41,9 @@ val CraterclawColossus = card("Craterclaw Colossus") {
                     Effects.ModifyStats(
                         DynamicAmount.VariableReference(ARTIFACT_COUNT),
                         DynamicAmount.Fixed(0),
-                        EffectTarget.Self
+                        EffectTarget.IterationEntity
                     ),
-                    Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self)
+                    Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
                 )
             )
         )

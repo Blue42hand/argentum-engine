@@ -504,8 +504,8 @@ class GatedEffectExecutor(
      * The [DecisionContext] every gate prompt in this executor carries.
      *
      * Beyond the source/trigger plumbing, it stamps the *subject* of the prompt from the enclosing
-     * per-entity iteration ([com.wingedsheep.engine.handlers.PipelineState.iterationTarget], the
-     * binding `EffectTarget.Self` already reads inside a `ForEachInGroup` body). A gate that runs
+     * per-entity iteration ([EffectContext.iterationEntityId], the object
+     * `EffectTarget.IterationEntity` names inside a `ForEachInGroup` body). A gate that runs
      * once per creature — Killing Wave's "sacrifice it unless you pay X life" — otherwise raises N
      * character-identical prompts, and the player has no way to tell which creature each covers.
      */
@@ -519,7 +519,7 @@ class GatedEffectExecutor(
         phase = DecisionPhase.RESOLUTION,
         triggeringEntityId = context.triggeringEntityId,
         inlineOnTrigger = inlineOnTrigger,
-        subjectEntityId = context.pipeline.iterationTarget
+        subjectEntityId = context.iterationEntityId
     )
 
     /**
@@ -759,11 +759,14 @@ class GatedEffectExecutor(
         }
 
         SuccessCriterion.Auto.terminalSingleMove(action)?.let { move ->
-            // Only the Self target resolves to a concrete moved entity here; the destination
-            // zone is owned by that entity's owner (e.g. self-exile from a graveyard lands in
-            // that card's owner's exile).
-            if (move.target !is EffectTarget.Self) return GatedActionSnapshot()
-            val movedId = context.sourceId ?: return GatedActionSnapshot()
+            // Only a move of the source or of a loop's current object names a concrete moved
+            // entity here; the destination zone is owned by that entity's owner (e.g. self-exile
+            // from a graveyard lands in that card's owner's exile).
+            val movedId = when (move.target) {
+                EffectTarget.Self -> context.sourceId
+                EffectTarget.IterationEntity -> context.iterationEntityId
+                else -> null
+            } ?: return GatedActionSnapshot()
             val ownerId = state.getEntity(movedId)?.get<OwnerComponent>()?.playerId ?: return GatedActionSnapshot()
             return zoneSnapshot(state, ownerId, move.destination)
         }

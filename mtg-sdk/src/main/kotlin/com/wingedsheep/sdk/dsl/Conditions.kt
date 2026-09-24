@@ -51,7 +51,6 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.Aggregation
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 import com.wingedsheep.sdk.scripting.conditions.Condition as ConditionInterface
 
 /**
@@ -527,21 +526,21 @@ object Conditions {
      * Used for cards like Unified Strike.
      */
     fun TargetPowerAtMost(amount: DynamicAmount, targetIndex: Int = 0): ConditionInterface =
-        Compare(DynamicAmount.EntityProperty(EntityReference.Target(targetIndex), EntityNumericProperty.Power), ComparisonOperator.LTE, amount)
+        Compare(DynamicAmount.EntityProperty(EffectTarget.ContextTarget(targetIndex), EntityNumericProperty.Power), ComparisonOperator.LTE, amount)
 
     /**
      * If the target spell's mana value is at most the given dynamic amount.
      * Used for conditional counterspells like Dispersal Shield.
      */
     fun TargetSpellManaValueAtMost(amount: DynamicAmount, targetIndex: Int = 0): ConditionInterface =
-        Compare(DynamicAmount.EntityProperty(EntityReference.Target(targetIndex), EntityNumericProperty.ManaValue), ComparisonOperator.LTE, amount)
+        Compare(DynamicAmount.EntityProperty(EffectTarget.ContextTarget(targetIndex), EntityNumericProperty.ManaValue), ComparisonOperator.LTE, amount)
 
     /**
      * If the target permanent has at least one counter of the given type.
      * Used for cards like Bring Low: "If that creature has a +1/+1 counter on it"
      */
     fun TargetHasCounter(counterType: CounterType, targetIndex: Int = 0): ConditionInterface =
-        Compare(DynamicAmount.EntityProperty(EntityReference.Target(targetIndex), EntityNumericProperty.CounterCount(counterType)), ComparisonOperator.GTE, DynamicAmount.Fixed(1))
+        Compare(DynamicAmount.EntityProperty(EffectTarget.ContextTarget(targetIndex), EntityNumericProperty.CounterCount(counterType)), ComparisonOperator.GTE, DynamicAmount.Fixed(1))
 
     /**
      * If the chosen target at [targetIndex] matches a GameObjectFilter. Resolution-only; a player
@@ -1364,7 +1363,7 @@ object Conditions {
     fun SourceCounterCountAtLeast(counterType: CounterType?, count: Int): ConditionInterface =
         Compare(
             DynamicAmount.EntityProperty(
-                EntityReference.Source,
+                EffectTarget.Self,
                 EntityNumericProperty.CounterCount(counterType)
             ),
             ComparisonOperator.GTE,
@@ -1383,7 +1382,7 @@ object Conditions {
     fun SourceCounterCountAtMost(counterType: CounterType?, count: Int): ConditionInterface =
         Compare(
             DynamicAmount.EntityProperty(
-                EntityReference.Source,
+                EffectTarget.Self,
                 EntityNumericProperty.CounterCount(counterType)
             ),
             ComparisonOperator.LTE,

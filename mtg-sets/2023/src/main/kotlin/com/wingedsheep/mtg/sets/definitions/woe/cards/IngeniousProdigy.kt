@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.RemoveCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Ingenious Prodigy
@@ -45,7 +44,7 @@ val IngeniousProdigy = card("Ingenious Prodigy") {
 
     staticAbility {
         ability = CantBeBlockedBy(
-            GameObjectFilter.Creature.powerGreaterThanEntity(EntityReference.Source)
+            GameObjectFilter.Creature.powerGreaterThanEntity(EffectTarget.Self)
         )
     }
 

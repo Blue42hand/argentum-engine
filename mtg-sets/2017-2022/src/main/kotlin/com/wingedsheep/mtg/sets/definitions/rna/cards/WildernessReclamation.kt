@@ -28,7 +28,7 @@ val WildernessReclamation = card("Wilderness Reclamation") {
         trigger = Triggers.YourEndStep
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Land.youControl()),
-            Effects.Untap(EffectTarget.Self)
+            Effects.Untap(EffectTarget.IterationEntity)
         )
     }
     metadata {

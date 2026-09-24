@@ -33,7 +33,7 @@ val VolcanicSpray = card("Volcanic Spray") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING)),
-                DealDamageEffect(1, EffectTarget.Self)
+                DealDamageEffect(1, EffectTarget.IterationEntity)
             ),
             ForEachPlayerEffect(Player.Each, listOf(DealDamageEffect(1, EffectTarget.Controller)))
         )

@@ -36,7 +36,7 @@ val DragonbackAssault = card("Dragonback Assault") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.CreatureOrPlaneswalker),
-            DealDamageEffect(3, EffectTarget.Self),
+            DealDamageEffect(3, EffectTarget.IterationEntity),
         )
     }
 

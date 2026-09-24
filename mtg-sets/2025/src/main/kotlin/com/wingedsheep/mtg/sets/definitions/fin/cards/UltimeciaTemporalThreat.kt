@@ -36,7 +36,7 @@ val UltimeciaTemporalThreat = card("Ultimecia, Temporal Threat") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.opponentControls()),
-            Effects.Tap(EffectTarget.Self)
+            Effects.Tap(EffectTarget.IterationEntity)
         )
     }
     triggeredAbility {

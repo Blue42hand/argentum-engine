@@ -12,7 +12,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Lobelia Sackville-Baggins
@@ -68,7 +68,7 @@ val LobeliaSackvilleBaggins = card("Lobelia Sackville-Baggins") {
             CreatePredefinedTokenEffect(
                 tokenType = "Treasure",
                 dynamicCount = DynamicAmount.EntityProperty(
-                    entity = EntityReference.Target(0),
+                    entity = EffectTarget.ContextTarget(0),
                     numericProperty = EntityNumericProperty.Power
                 )
             )

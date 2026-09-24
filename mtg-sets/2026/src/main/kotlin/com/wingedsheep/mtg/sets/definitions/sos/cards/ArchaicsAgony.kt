@@ -13,7 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Archaic's Agony
@@ -28,7 +28,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * ([com.wingedsheep.sdk.dsl.DynamicAmounts.colorsOfManaSpent]). Composed from existing atoms:
  *  1. [Effects.DealDamage] deals that color-count to the target and marks the damage.
  *  2. The exile count reads the post-damage excess via
- *     `EntityProperty(Target(0), ExcessMarkedDamage)` — `max(0, marked − toughness)` (CR 120.4a),
+ *     `EntityProperty(ContextTarget(0), ExcessMarkedDamage)` — `max(0, marked − toughness)` (CR 120.4a),
  *     the same amount Hell to Pay reads. CompositeEffect resolves steps sequentially with no
  *     interleaved SBA pass, so the marked damage in scope is exactly what this spell just dealt.
  *  3. Gather that many cards off the top of your library → move them to exile → grant
@@ -53,7 +53,7 @@ val ArchaicsAgony = card("Archaic's Agony") {
             GatherCardsEffect(
                 source = CardSource.TopOfLibrary(
                     count = DynamicAmount.EntityProperty(
-                        EntityReference.Target(0),
+                        EffectTarget.ContextTarget(0),
                         EntityNumericProperty.ExcessMarkedDamage,
                     ),
                     player = Player.You,

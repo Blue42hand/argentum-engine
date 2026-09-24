@@ -55,8 +55,8 @@ val CircleOfPower = card("Circle of Power") {
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.WIZARD).youControl()),
                 Effects.Composite(
-                    Effects.ModifyStats(1, 0, EffectTarget.Self),
-                    Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self)
+                    Effects.ModifyStats(1, 0, EffectTarget.IterationEntity),
+                    Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.IterationEntity)
                 )
             )
         )

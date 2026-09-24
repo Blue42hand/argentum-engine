@@ -29,7 +29,7 @@ val SiltCrawler = card("Silt Crawler") {
     toughness = 3
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Land.youControl()), Effects.Tap(EffectTarget.Self))
+        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Land.youControl()), Effects.Tap(EffectTarget.IterationEntity))
     }
     metadata {
         rarity = Rarity.COMMON

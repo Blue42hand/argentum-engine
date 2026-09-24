@@ -202,7 +202,7 @@
                     },
                     "body": {
                         "type": "RemoveSuspected",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "When this creature enters, all suspected creatures are no longer suspected."
@@ -1205,7 +1205,7 @@
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "HASTE",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "duration": "Permanent"
                             },
                             {
@@ -1213,7 +1213,7 @@
                                 "step": "END",
                                 "effect": {
                                     "type": "MoveToZone",
-                                    "target": "Self",
+                                    "target": "IterationEntity",
                                     "destination": "Hand"
                                 }
                             }
@@ -1262,7 +1262,7 @@
                             },
                             "body": {
                                 "type": "TapUntap",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "tap": false
                             }
                         },
@@ -1395,7 +1395,10 @@
                                 "type": "DealDamage",
                                 "amount": {
                                     "type": "EntityProperty",
-                                    "entity": "Target",
+                                    "entity": {
+                                        "type": "ContextTarget",
+                                        "index": 0
+                                    },
                                     "numericProperty": "Power"
                                 },
                                 "target": {
@@ -2283,7 +2286,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -2419,7 +2425,7 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": {
                                             "type": "CounterCount",
                                             "counterType": "BLOODSTAIN"
@@ -2693,7 +2699,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "HASTE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -3844,7 +3850,7 @@
                             "type": "BoundVariable",
                             "name": "target creature"
                         },
-                        "damageSource": "Self"
+                        "damageSource": "IterationEntity"
                     }
                 },
                 "targetRequirement": {
@@ -5004,7 +5010,7 @@
                                     "type": "MayCastFromGraveyard",
                                     "filter": "creature"
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -6172,7 +6178,7 @@
                                     "type": "Gate.DoAction",
                                     "action": {
                                         "type": "GiveControlToTargetPlayer",
-                                        "permanent": "Self",
+                                        "permanent": "IterationEntity",
                                         "newController": {
                                             "type": "BoundVariable",
                                             "name": "target opponent"
@@ -6516,7 +6522,7 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "CounterCount",
                                     "counterType": "UNLOCK"
@@ -7894,7 +7900,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -7915,7 +7921,7 @@
                     },
                     "body": {
                         "type": "RemoveSuspected",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -8085,11 +8091,11 @@
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "HEXPROOF",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "TapUntap",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "tap": false
                             }
                         ]
@@ -9784,7 +9790,7 @@
                             },
                             "body": {
                                 "type": "Suspect",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -10093,7 +10099,7 @@
                         "type": "AddCounters",
                         "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -10788,12 +10794,12 @@
                                 "type": "AddCounters",
                                 "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "TRAMPLE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -10961,7 +10967,10 @@
             "type": "DealDamage",
             "amount": {
                 "type": "EntityProperty",
-                "entity": "Target",
+                "entity": {
+                    "type": "ContextTarget",
+                    "index": 0
+                },
                 "numericProperty": "Power"
             },
             "target": {
@@ -11579,12 +11588,12 @@
                                             "type": "Fixed",
                                             "amount": 2
                                         },
-                                        "target": "Self"
+                                        "target": "IterationEntity"
                                     },
                                     {
                                         "type": "GrantKeyword",
                                         "keyword": "TRAMPLE",
-                                        "target": "Self"
+                                        "target": "IterationEntity"
                                     }
                                 ]
                             }
@@ -11704,7 +11713,7 @@
                                         "type": "StoredCardManaValue",
                                         "collectionName": "greatestDiscarded"
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         ]
@@ -11762,7 +11771,7 @@
                         "type": "AddCounters",
                         "counterType": "IMPOSTOR",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "When this enchantment enters, put an impostor counter on each creature you control."
@@ -11881,7 +11890,7 @@
                                 "type": "VariableReference",
                                 "variableName": "incineratorEvidenceX"
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "descriptionOverride": "You may collect evidence X. When you do, this creature deals X damage to each creature and planeswalker that player controls."
@@ -12095,7 +12104,7 @@
                                 "type": "AddCounters",
                                 "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -12671,7 +12680,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Whenever you attack with three or more creatures, creatures you control get +1/+1 until end of turn."
@@ -13450,7 +13459,7 @@
                         "type": "AddCounters",
                         "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "{T}, Sacrifice an artifact: Put a +1/+1 counter on each Goblin you control."
@@ -16078,7 +16087,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -17313,14 +17322,14 @@
                                     {
                                         "type": "GrantKeyword",
                                         "keyword": "HASTE",
-                                        "target": "Self"
+                                        "target": "IterationEntity"
                                     },
                                     {
                                         "type": "CreateDelayedTrigger",
                                         "step": "END",
                                         "effect": {
                                             "type": "SacrificeTarget",
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         }
                                     }
                                 ]
@@ -17379,7 +17388,7 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Triggering",
+                        "entity": "TriggeringEntity",
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -19247,13 +19256,13 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "Power"
                             },
                             "operator": "GT",
                             "right": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Power"
                             }
                         },
@@ -19261,13 +19270,13 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "Toughness"
                             },
                             "operator": "GT",
                             "right": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Toughness"
                             }
                         }
@@ -20514,7 +20523,7 @@
                                     "type": "DrawCards",
                                     "count": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": "Toughness"
                                     }
                                 }
@@ -22074,7 +22083,7 @@
                                     "type": "AddCounters",
                                     "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 1,
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             },
                             "description": "Put a +1/+1 counter on each colorless creature you control"
@@ -22406,7 +22415,7 @@
                                     "player": "You",
                                     "filter": "creature Elf"
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -22560,12 +22569,12 @@
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "DEATHTOUCH",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "LIFELINK",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }

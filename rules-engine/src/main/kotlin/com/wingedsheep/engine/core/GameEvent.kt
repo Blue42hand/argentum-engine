@@ -920,7 +920,7 @@ data class SagaChapterResolvedEvent(
  * priority round before it resolves — instead of resolving inline/atomically with no response window.
  *
  * @property carriedPipeline Pipeline state the action produced (e.g. `Amass`'s army reference, a
- * discard's resolved count) that the reflexive effect may read via `EntityReference`/
+ * discard's resolved count) that the reflexive effect may read via `EffectTarget.SingleEntity`/
  * `VariableReference` — carried across the stack round-trip since the reflexive ability builds a
  * fresh [com.wingedsheep.engine.handlers.EffectContext] when it resolves.
  */

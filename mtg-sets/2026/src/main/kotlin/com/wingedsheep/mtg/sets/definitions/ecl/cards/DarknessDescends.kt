@@ -26,7 +26,7 @@ val DarknessDescends = card("Darkness Descends") {
             effect = AddCountersEffect(
                 counterType = CounterType.MINUS_ONE_MINUS_ONE,
                 count = 2,
-                target = EffectTarget.Self
+                target = EffectTarget.IterationEntity
             )
         )
     }

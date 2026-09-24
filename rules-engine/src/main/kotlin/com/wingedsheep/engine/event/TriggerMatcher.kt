@@ -457,7 +457,7 @@ class TriggerMatcher(
                     )
                 ) return false
                 // The attached-to permanent must match the attached-to filter, with the attachment
-                // exposed as EntityReference.Triggering so relative predicates (mana value at most
+                // exposed as EffectTarget.TriggeringEntity so relative predicates (mana value at most
                 // the Aura's mana value — Eriette) resolve against it.
                 if (trigger.attachedToFilter != GameObjectFilter.Any) {
                     val attachedToCtx = com.wingedsheep.engine.handlers.PredicateContext(
@@ -486,7 +486,7 @@ class TriggerMatcher(
                         state, state.projectedState, event.attachmentId, trigger.attachmentFilter, attachmentCtx
                     )
                 ) return false
-                // The former host, with the attachment exposed as EntityReference.Triggering so
+                // The former host, with the attachment exposed as EffectTarget.TriggeringEntity so
                 // relative predicates resolve against it (mirrors BecomesAttachedEvent). A host that
                 // left the battlefield can't satisfy a battlefield filter, so an unfiltered trigger
                 // (Stitcher's Graft) is the shape that still fires in that case — matching the

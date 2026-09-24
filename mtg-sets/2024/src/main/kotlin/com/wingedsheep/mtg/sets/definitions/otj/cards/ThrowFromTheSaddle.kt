@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Throw from the Saddle
@@ -47,7 +47,7 @@ val ThrowFromTheSaddle = card("Throw from the Saddle") {
         )
 
         val damage = DealDamageEffect(
-            amount = DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.Power),
+            amount = DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.Power),
             target = theirs,
             damageSource = mine
         )

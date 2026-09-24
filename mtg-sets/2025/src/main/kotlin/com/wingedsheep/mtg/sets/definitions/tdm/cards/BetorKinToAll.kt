@@ -54,7 +54,7 @@ val BetorKinToAll = card("Betor, Kin to All") {
                     condition = totalToughnessAtLeast(20),
                     then = Effects.ForEachInGroup(
                         filter = GroupFilter.AllCreaturesYouControl,
-                        effect = TapUntapEffect(EffectTarget.Self, tap = false)
+                        effect = TapUntapEffect(EffectTarget.IterationEntity, tap = false)
                     )
                 )
             )

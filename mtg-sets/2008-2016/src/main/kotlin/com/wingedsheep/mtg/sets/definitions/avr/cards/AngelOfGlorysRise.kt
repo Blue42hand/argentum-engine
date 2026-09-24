@@ -30,7 +30,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * "All Zombies" is a bare tribal noun, so it names *permanents* with the subtype (a Zombie
  * artifact or land counts), not only creatures; "Human creature cards" is explicit about the card
  * type and keeps [GameObjectFilter.Creature] as its base. The exile half is a per-permanent sweep
- * ([Effects.ForEachInGroup] with `EffectTarget.Self` bound to each member); the return half is the
+ * ([Effects.ForEachInGroup] with `EffectTarget.IterationEntity` bound to each member); the return half is the
  * gather → move pipeline the corpus writes for a mass graveyard return.
  */
 val AngelOfGlorysRise = card("Angel of Glory's Rise") {
@@ -49,7 +49,7 @@ val AngelOfGlorysRise = card("Angel of Glory's Rise") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Permanent.withSubtype("Zombie")),
-                Effects.Exile(EffectTarget.Self)
+                Effects.Exile(EffectTarget.IterationEntity)
             ),
             Effects.Composite(
                 GatherCardsEffect(

@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.text.TextReplaceable
 import com.wingedsheep.sdk.scripting.text.TextReplacer
@@ -542,8 +543,8 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     /**
      * How many counters of [counterType] a player currently has — the player-scoped sibling of
      * [EntityProperty]'s [com.wingedsheep.sdk.scripting.values.EntityNumericProperty.CounterCount]
-     * (which reads a permanent/object; `EntityReference` has no case for "a player" since players
-     * aren't targeted the way permanents are). Counters placed directly on a player rather than a
+     * (which reads one object named by an `EffectTarget.SingleEntity`; player roles are not
+     * among those). Counters placed directly on a player rather than a
      * permanent (CR 122.1) — poison ([com.wingedsheep.sdk.core.CounterType.POISON]), energy
      * ([com.wingedsheep.sdk.core.CounterType.ENERGY], CR 107.14), and rad counters all live here.
      *
@@ -1437,16 +1438,16 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
      *
      * Examples:
      * ```kotlin
-     * EntityProperty(EntityReference.Source, EntityNumericProperty.Power)        // SourcePower
-     * EntityProperty(EntityReference.Target(0), EntityNumericProperty.ManaValue) // TargetManaValue
-     * EntityProperty(EntityReference.Sacrificed(), EntityNumericProperty.Power)  // SacrificedPermanentPower
-     * EntityProperty(EntityReference.Source, EntityNumericProperty.CounterCount(CounterType.PLUS_ONE_PLUS_ONE)) // CountersOnSelf
+     * EntityProperty(EffectTarget.Self, EntityNumericProperty.Power)        // SourcePower
+     * EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.ManaValue) // TargetManaValue
+     * EntityProperty(EffectTarget.SacrificedAsCost(), EntityNumericProperty.Power)  // SacrificedPermanentPower
+     * EntityProperty(EffectTarget.Self, EntityNumericProperty.CounterCount(CounterType.PLUS_ONE_PLUS_ONE)) // CountersOnSelf
      * ```
      */
     @SerialName("EntityProperty")
     @Serializable
     data class EntityProperty(
-        val entity: EntityReference,
+        val entity: EffectTarget.SingleEntity,
         val numericProperty: EntityNumericProperty
     ) : DynamicAmount {
         override val description: String = "${entity.description}'s ${numericProperty.description}"

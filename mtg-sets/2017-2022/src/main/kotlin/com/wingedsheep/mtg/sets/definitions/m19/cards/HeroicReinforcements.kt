@@ -37,8 +37,8 @@ val HeroicReinforcements = card("Heroic Reinforcements") {
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
                 Effects.Composite(
-                    Effects.ModifyStats(1, 1, EffectTarget.Self),
-                    Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self)
+                    Effects.ModifyStats(1, 1, EffectTarget.IterationEntity),
+                    Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
                 )
             )
         )

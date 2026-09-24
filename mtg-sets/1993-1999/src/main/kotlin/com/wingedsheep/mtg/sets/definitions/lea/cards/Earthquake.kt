@@ -22,7 +22,7 @@ val Earthquake = card("Earthquake") {
     typeLine = "Sorcery"
 
     spell {
-        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures.withoutKeyword(Keyword.FLYING), DealDamageEffect(DynamicAmount.XValue, EffectTarget.Self)) then
+        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures.withoutKeyword(Keyword.FLYING), DealDamageEffect(DynamicAmount.XValue, EffectTarget.IterationEntity)) then
             Effects.ForEachPlayer(Player.Each, listOf(Effects.DealDamage(DynamicAmount.XValue, EffectTarget.Controller)))
     }
 

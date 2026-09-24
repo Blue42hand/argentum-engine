@@ -3,13 +3,13 @@ package com.wingedsheep.engine.handlers.effects
 import com.wingedsheep.engine.state.components.stack.EntitySnapshot
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.model.EntityId
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
 /**
- * Pins the last-known-information classification of every [EntityReference] (CR 113.7a / 603.10 /
- * 608.2h) and the [EntitySnapshot] derived counter accessors that replaced the former per-count
+ * Pins the last-known-information classification of every [EffectTarget.SingleEntity]
+ * (CR 113.7a / 603.10 / 608.2h) and the [EntitySnapshot] derived counter accessors that replaced the former per-count
  * scalars. `lkiPolicyFor` is an exhaustive `when`, so a new reference variant cannot be added
  * without choosing its policy here — this test documents and guards those choices.
  */
@@ -17,12 +17,15 @@ class LkiPolicyTest : FunSpec({
 
     test("references that read a permanent after it has left fall back to LKI") {
         listOf(
-            EntityReference.Source,
-            EntityReference.Triggering,
-            EntityReference.EnchantedCreature,
-            EntityReference.Sacrificed(),
-            EntityReference.TappedAsCost(),
-            EntityReference.FromCostStorage("chosen"),
+            EffectTarget.Self,
+            EffectTarget.GrantingSource,
+            EffectTarget.TriggeringEntity,
+            EffectTarget.EnchantedCreature,
+            EffectTarget.EquippedCreature,
+            EffectTarget.EnchantedPermanent,
+            EffectTarget.SacrificedAsCost(),
+            EffectTarget.TappedAsCost(),
+            EffectTarget.PipelineTarget("chosen"),
         ).forEach { ref ->
             lkiPolicyFor(ref) shouldBe LkiPolicy.LIVE_THEN_LKI
         }
@@ -30,11 +33,25 @@ class LkiPolicyTest : FunSpec({
 
     test("references that only ever name a live permanent never fall back to LKI") {
         listOf(
-            EntityReference.Target(),
-            EntityReference.RingBearer(),
-            EntityReference.AffectedEntity,
-            EntityReference.IterationEntity,
-            EntityReference.AmassedArmy,
+            EffectTarget.ContextTarget(0),
+            EffectTarget.BoundVariable("creature"),
+            EffectTarget.SpecificEntity(EntityId("e1")),
+            EffectTarget.RingBearer(),
+            EffectTarget.AffectedEntity,
+            EffectTarget.IterationEntity,
+            EffectTarget.AmassedArmy,
+            EffectTarget.ChosenCreature,
+            EffectTarget.AttachedToTriggeringPermanent,
+        ).forEach { ref ->
+            lkiPolicyFor(ref) shouldBe LkiPolicy.LIVE_ONLY
+        }
+    }
+
+    test("cards that are never on the battlefield read their printed characteristics") {
+        listOf(
+            EffectTarget.LibraryTop(),
+            EffectTarget.LinkedExiledCard(),
+            EffectTarget.DiscardedAsCost(),
         ).forEach { ref ->
             lkiPolicyFor(ref) shouldBe LkiPolicy.LIVE_ONLY
         }

@@ -455,7 +455,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "INDESTRUCTIBLE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Creatures you control gain indestructible until end of turn."
@@ -536,7 +536,7 @@
                                         "type": "Fixed",
                                         "amount": 3
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             },
                             {
@@ -719,12 +719,12 @@
                                         "type": "Fixed",
                                         "amount": 1
                                     },
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 },
                                 {
                                     "type": "GrantKeyword",
                                     "keyword": "TRAMPLE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             ]
                         }
@@ -786,7 +786,7 @@
                                     "type": "DealDamage",
                                     "amount": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": "Power"
                                     },
                                     "target": {
@@ -948,7 +948,7 @@
                     "type": "Fixed",
                     "amount": -2
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -2033,7 +2033,7 @@
                     "type": "Fixed",
                     "amount": 1
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -3114,7 +3114,7 @@
                         "type": "AddCounters",
                         "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -3216,7 +3216,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -3671,7 +3671,7 @@
                     "type": "ContextTarget",
                     "index": 0
                 },
-                "damageSource": "Self"
+                "damageSource": "IterationEntity"
             }
         },
         "targetRequirements": [
@@ -4094,7 +4094,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "FIRST_STRIKE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -4120,7 +4120,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "FLYING",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -4146,7 +4146,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "DEATHTOUCH",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -4172,7 +4172,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "DOUBLE_STRIKE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -4198,7 +4198,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "HASTE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -4224,7 +4224,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "HEXPROOF",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -4250,7 +4250,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "INDESTRUCTIBLE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -4276,7 +4276,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "LIFELINK",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -4302,7 +4302,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "MENACE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -4328,7 +4328,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "REACH",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -4354,7 +4354,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "TRAMPLE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -4380,7 +4380,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "VIGILANCE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         }
@@ -5095,7 +5095,7 @@
             },
             "body": {
                 "type": "CreateTokenCopyOfTarget",
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -6041,7 +6041,7 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": {
                                             "type": "CounterCount",
                                             "counterType": "ICE"

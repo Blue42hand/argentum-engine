@@ -41,7 +41,7 @@ val EdgarMoonlitSovereign = card("Edgar, Moonlit Sovereign") {
         cost = Costs.Mana("{4}{G}")
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withCounter(CounterType.PLUS_ONE_PLUS_ONE).youControl()),
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
         )
         description = "{4}{G}: Put a +1/+1 counter on each creature you control with a +1/+1 counter on it."
     }

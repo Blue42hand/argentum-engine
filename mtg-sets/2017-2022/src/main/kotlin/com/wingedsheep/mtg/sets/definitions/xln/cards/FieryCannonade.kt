@@ -28,7 +28,7 @@ val FieryCannonade = card("Fiery Cannonade") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.notSubtype(Subtype.PIRATE)),
-            DealDamageEffect(2, EffectTarget.Self)
+            DealDamageEffect(2, EffectTarget.IterationEntity)
         )
     }
     metadata {

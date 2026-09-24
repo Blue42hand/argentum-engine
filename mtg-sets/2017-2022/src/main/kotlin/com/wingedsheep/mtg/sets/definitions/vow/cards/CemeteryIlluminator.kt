@@ -28,7 +28,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  * it keeps exiling — one card per enter *and* per attack — so its payoff reads the whole
  * linked-exile pile (CR 607) rather than a single "the exiled card": `sharingCardTypeWithLinkedExile`
  * is the filter form of the reading `CostReductionSource.SharedCardTypesWithLinkedExile` already
- * takes on the Prowler's cost side. An index-keyed `EntityReference.LinkedExiledCard` would only
+ * takes on the Prowler's cost side. An index-keyed `EffectTarget.LinkedExiledCard` would only
  * ever see the first exile and go stale the moment it left exile.
  *
  * "Enters or attacks" is two triggered abilities for [CemeteryGatekeeper]'s reason: the corpus

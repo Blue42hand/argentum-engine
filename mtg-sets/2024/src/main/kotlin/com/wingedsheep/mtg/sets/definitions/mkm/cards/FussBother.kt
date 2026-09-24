@@ -23,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Neither half targets, so Fuss is [Effects.ForEachInGroup] over the attacking creatures you
  * control rather than a target list — it hits whatever is attacking as it resolves, and does
- * nothing at all outside combat. `EffectTarget.Self` inside the group body is the *iterated*
+ * nothing at all outside combat. `EffectTarget.IterationEntity` inside the group body is the *iterated*
  * permanent, not the spell.
  *
  * Bother's Thopters take their art from the MKM `tokenArt` layer, so no `imageUri` is baked in.
@@ -42,7 +42,7 @@ val FussBother = card("Fuss // Bother") {
         spell {
             effect = Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.youControl().attacking()),
-                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
             )
         }
     }

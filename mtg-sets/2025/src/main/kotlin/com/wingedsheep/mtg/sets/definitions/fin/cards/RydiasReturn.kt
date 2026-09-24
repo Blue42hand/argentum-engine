@@ -33,7 +33,7 @@ val RydiasReturn = card("Rydia's Return") {
             mode("Creatures you control get +3/+3 until end of turn") {
                 effect = Effects.ForEachInGroup(
                     filter = GroupFilter(GameObjectFilter.Creature.youControl()),
-                    effect = ModifyStatsEffect(3, 3, EffectTarget.Self)
+                    effect = ModifyStatsEffect(3, 3, EffectTarget.IterationEntity)
                 )
             }
             mode("Return up to two target permanent cards from your graveyard to your hand") {

@@ -18,7 +18,6 @@ import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Auratouched Mage
@@ -29,7 +28,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * creature is still on the battlefield, put that Aura card onto the battlefield attached to it.
  * Otherwise, reveal the Aura card and put it into your hand. Then shuffle.
  *
- * The search pool is `couldEnchant(Source)` — each Aura card's printed enchant restriction tested
+ * The search pool is `couldEnchant(Self)` — each Aura card's printed enchant restriction tested
  * against the Mage as it currently exists (so an Aura with "enchant artifact" qualifies if the
  * Mage has been made an artifact, per the ruling). Searching for a card with a stated quality may
  * fail to find (CR 701.23b), so the choice is up to one. The Aura then enters attached to the Mage
@@ -53,7 +52,7 @@ val AuratouchedMage = card("Auratouched Mage") {
                 source = CardSource.FromZone(
                     Zone.LIBRARY,
                     Player.You,
-                    GameObjectFilter.Enchantment.withSubtype("Aura").couldEnchant(EntityReference.Source)
+                    GameObjectFilter.Enchantment.withSubtype("Aura").couldEnchant(EffectTarget.Self)
                 ),
                 storeAs = "searchable"
             ),

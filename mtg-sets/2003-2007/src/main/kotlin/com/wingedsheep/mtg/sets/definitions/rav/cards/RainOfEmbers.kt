@@ -28,7 +28,7 @@ val RainOfEmbers = card("Rain of Embers") {
     oracleText = "Rain of Embers deals 1 damage to each creature and each player."
     spell {
         effect = Effects.Composite(
-            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(1, EffectTarget.Self)),
+            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(1, EffectTarget.IterationEntity)),
             ForEachPlayerEffect(Player.Each, listOf(DealDamageEffect(1, EffectTarget.Controller)))
         )
     }

@@ -60,7 +60,7 @@ val RanAndShaw = card("Ran and Shaw") {
         cost = Costs.Mana("{3}{R}")
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Creature.withSubtype("Dragon").youControl()),
-            effect = ModifyStatsEffect(2, 0, EffectTarget.Self),
+            effect = ModifyStatsEffect(2, 0, EffectTarget.IterationEntity),
         )
         description = "{3}{R}: Dragons you control get +2/+0 until end of turn."
     }

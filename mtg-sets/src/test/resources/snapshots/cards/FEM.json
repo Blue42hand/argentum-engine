@@ -636,7 +636,7 @@
                                     "type": "GainLife",
                                     "amount": {
                                         "type": "EntityProperty",
-                                        "entity": "Triggering",
+                                        "entity": "TriggeringEntity",
                                         "numericProperty": "Power"
                                     }
                                 },
@@ -1003,7 +1003,7 @@
                     },
                     "roundUp": false
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         },
         "targetRequirements": [
@@ -2560,7 +2560,7 @@
                         },
                         "suffer": {
                             "type": "PreventDamageShield",
-                            "target": "Self",
+                            "target": "IterationEntity",
                             "scope": "CombatOnly",
                             "direction": "FromTarget"
                         },
@@ -2725,7 +2725,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": "TIDE"
@@ -2761,7 +2761,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": "TIDE"
@@ -2789,7 +2789,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": "TIDE"
@@ -2907,7 +2907,7 @@
                     "type": "CreateToken",
                     "count": {
                         "type": "EntityProperty",
-                        "entity": "Sacrificed",
+                        "entity": "SacrificedAsCost",
                         "numericProperty": "ManaValue"
                     },
                     "power": 1,
@@ -3508,7 +3508,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "FIRST_STRIKE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Whenever this creature attacks, all creatures banded with it gain first strike until end of turn."
@@ -3800,7 +3800,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": "NET"
@@ -4509,7 +4509,7 @@
                                         },
                                         "body": {
                                             "type": "TapUntap",
-                                            "target": "Self"
+                                            "target": "IterationEntity"
                                         }
                                     },
                                     {
@@ -5121,7 +5121,7 @@
                     },
                     "body": {
                         "type": "TapUntap",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -5158,7 +5158,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "DOESNT_UNTAP",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "duration": "UntilAfterAffectedControllersNextUntap"
                     }
                 }
@@ -5669,7 +5669,7 @@
                                     },
                                     "body": {
                                         "type": "TapUntap",
-                                        "target": "Self",
+                                        "target": "IterationEntity",
                                         "tap": false
                                     }
                                 },
@@ -5750,6 +5750,7 @@
                     },
                     "body": {
                         "type": "BecomeCreature",
+                        "target": "IterationEntity",
                         "power": {
                             "type": "Fixed",
                             "amount": 2
@@ -6153,7 +6154,7 @@
                             "body": {
                                 "type": "GrantKeyword",
                                 "keyword": "FIRST_STRIKE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         "player": {
@@ -6208,7 +6209,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": "TIDE"
@@ -6243,7 +6244,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": "TIDE"
@@ -6270,7 +6271,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": "TIDE"
@@ -6428,7 +6429,7 @@
                                         "type": "Compare",
                                         "left": {
                                             "type": "EntityProperty",
-                                            "entity": "Source",
+                                            "entity": "Self",
                                             "numericProperty": {
                                                 "type": "CounterCount",
                                                 "counterType": "TIME"
@@ -6488,7 +6489,7 @@
                             "type": "Fixed",
                             "amount": -1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Tap enchanted land: Attacking creatures you control get +2/-1 until end of turn. Activate only if enchanted land is untapped."

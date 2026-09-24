@@ -20,7 +20,6 @@ import com.wingedsheep.sdk.scripting.values.Aggregation
 import com.wingedsheep.sdk.scripting.values.CardNumericProperty
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Getaway Glamer {W}
@@ -76,7 +75,7 @@ val GetawayGlamer = card("Getaway Glamer") {
                     effect = Effects.If(
                         condition = Compare(
                             left = DynamicAmount.EntityProperty(
-                                EntityReference.Target(0),
+                                EffectTarget.ContextTarget(0),
                                 EntityNumericProperty.Power
                             ),
                             operator = ComparisonOperator.GTE,

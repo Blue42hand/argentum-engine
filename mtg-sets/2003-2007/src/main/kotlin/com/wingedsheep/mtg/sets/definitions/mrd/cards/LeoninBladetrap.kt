@@ -32,7 +32,7 @@ val LeoninBladetrap = card("Leonin Bladetrap") {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.SacrificeSelf)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING).attacking()),
-            DealDamageEffect(2, EffectTarget.Self)
+            DealDamageEffect(2, EffectTarget.IterationEntity)
         )
     }
     metadata {

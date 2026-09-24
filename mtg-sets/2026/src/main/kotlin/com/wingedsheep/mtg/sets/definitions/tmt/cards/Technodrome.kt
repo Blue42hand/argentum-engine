@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Technodrome
@@ -38,7 +37,7 @@ val Technodrome = card("Technodrome") {
     // "can't attack or block unless its power is 6 or greater" — compares the source's
     // own (projected) power to 6.
     val powerAtLeastSix = Compare(
-        DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power),
+        DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power),
         ComparisonOperator.GTE,
         DynamicAmount.Fixed(6)
     )

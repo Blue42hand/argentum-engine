@@ -76,7 +76,7 @@ val FightOrFlight = card("Fight or Flight") {
                 // 4. Only the chosen pile can attack — the other pile can't attack this turn.
                 ForEachInCollectionEffect(
                     collection = "cantAttack",
-                    effect = Effects.CantAttack(EffectTarget.Self)
+                    effect = Effects.CantAttack(EffectTarget.IterationEntity)
                 )
             )
         )

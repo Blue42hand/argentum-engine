@@ -34,7 +34,7 @@ val Thundermare = card("Thundermare") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature, excludeSelf = true),
-            Effects.Tap(EffectTarget.Self)
+            Effects.Tap(EffectTarget.IterationEntity)
         )
     }
     metadata {

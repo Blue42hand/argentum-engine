@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Tracker
@@ -44,12 +43,12 @@ val Tracker = card("Tracker") {
         val prey = target("target creature", Targets.Creature)
         effect = Effects.Composite(
             Effects.DealDamage(
-                DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power),
+                DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power),
                 prey,
                 damageSource = EffectTarget.Self,
             ),
             Effects.DealDamage(
-                DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.Power),
+                DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.Power),
                 EffectTarget.Self,
                 damageSource = prey,
             ),

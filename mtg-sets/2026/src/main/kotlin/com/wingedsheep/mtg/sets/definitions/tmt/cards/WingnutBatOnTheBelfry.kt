@@ -62,7 +62,7 @@ val WingnutBatOnTheBelfry = card("Wingnut, Bat on the Belfry") {
                 GameObjectFilter.Creature.attacking(),
                 excludeSelf = true
             ),
-            effect = ModifyStatsEffect(1, 0, EffectTarget.Self)
+            effect = ModifyStatsEffect(1, 0, EffectTarget.IterationEntity)
         )
     }
 

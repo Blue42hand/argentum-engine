@@ -85,7 +85,7 @@ val OdricLunarchMarshal = card("Odric, Lunarch Marshal") {
                     condition = Conditions.ControlCreatureWithKeyword(keyword),
                     then = Effects.ForEachInGroup(
                         GroupFilter(GameObjectFilter.Creature.youControl()),
-                        Effects.GrantKeyword(keyword, EffectTarget.Self, Duration.EndOfTurn)
+                        Effects.GrantKeyword(keyword, EffectTarget.IterationEntity, Duration.EndOfTurn)
                     )
                 )
             },

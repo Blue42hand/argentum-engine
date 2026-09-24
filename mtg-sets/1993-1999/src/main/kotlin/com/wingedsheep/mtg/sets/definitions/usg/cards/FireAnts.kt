@@ -33,7 +33,7 @@ val FireAnts = card("Fire Ants") {
         cost = Costs.Tap
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING), excludeSelf = true),
-            DealDamageEffect(1, EffectTarget.Self)
+            DealDamageEffect(1, EffectTarget.IterationEntity)
         )
     }
     metadata {

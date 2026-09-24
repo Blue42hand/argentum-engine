@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.scripting.values.CardNumericProperty
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.references.Player
@@ -636,10 +636,10 @@ object DynamicAmounts {
     // =========================================================================
 
     fun sourcePower(): DynamicAmount =
-        DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power)
+        DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power)
 
     fun sourceToughness(): DynamicAmount =
-        DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Toughness)
+        DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Toughness)
 
     /**
      * The source's own mana value — the ninth cell of the source/target/triggering grid the two
@@ -647,30 +647,30 @@ object DynamicAmounts {
      * "{2}, {T}, Sacrifice this artifact: You gain life equal to its mana value."
      */
     fun sourceManaValue(): DynamicAmount =
-        DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.ManaValue)
+        DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.ManaValue)
 
     /** Power of the creature the source Aura/Equipment is attached to. */
     fun enchantedCreaturePower(): DynamicAmount =
-        DynamicAmount.EntityProperty(EntityReference.EnchantedCreature, EntityNumericProperty.Power)
+        DynamicAmount.EntityProperty(EffectTarget.EnchantedCreature, EntityNumericProperty.Power)
 
     fun targetPower(index: Int = 0): DynamicAmount =
-        DynamicAmount.EntityProperty(EntityReference.Target(index), EntityNumericProperty.Power)
+        DynamicAmount.EntityProperty(EffectTarget.ContextTarget(index), EntityNumericProperty.Power)
 
     fun targetToughness(index: Int = 0): DynamicAmount =
-        DynamicAmount.EntityProperty(EntityReference.Target(index), EntityNumericProperty.Toughness)
+        DynamicAmount.EntityProperty(EffectTarget.ContextTarget(index), EntityNumericProperty.Toughness)
 
     fun targetManaValue(index: Int = 0): DynamicAmount =
-        DynamicAmount.EntityProperty(EntityReference.Target(index), EntityNumericProperty.ManaValue)
+        DynamicAmount.EntityProperty(EffectTarget.ContextTarget(index), EntityNumericProperty.ManaValue)
 
     fun targetManaSpent(index: Int = 0): DynamicAmount =
-        DynamicAmount.EntityProperty(EntityReference.Target(index), EntityNumericProperty.ManaSpent)
+        DynamicAmount.EntityProperty(EffectTarget.ContextTarget(index), EntityNumericProperty.ManaSpent)
 
     /** Number of distinct colors of the indexed cast-time target ("for each color of the creature it targets"). */
     fun targetColorCount(index: Int = 0): DynamicAmount =
-        DynamicAmount.EntityProperty(EntityReference.Target(index), EntityNumericProperty.ColorCount)
+        DynamicAmount.EntityProperty(EffectTarget.ContextTarget(index), EntityNumericProperty.ColorCount)
 
     /** Number of distinct colors of any referenced entity. */
-    fun colorCountOf(entity: EntityReference): DynamicAmount =
+    fun colorCountOf(entity: EffectTarget.SingleEntity): DynamicAmount =
         DynamicAmount.EntityProperty(entity, EntityNumericProperty.ColorCount)
 
     /**
@@ -679,20 +679,20 @@ object DynamicAmounts {
      * many", Namor the Sub-Mariner), *not* devotion. Use [devotionTo] for the whole-battlefield
      * count of CR 700.5. Hybrid and Phyrexian pips count for their colour(s) (CR 107.4e/f).
      */
-    fun coloredManaSymbolsOf(entity: EntityReference, vararg colors: Color): DynamicAmount =
+    fun coloredManaSymbolsOf(entity: EffectTarget.SingleEntity, vararg colors: Color): DynamicAmount =
         DynamicAmount.EntityProperty(entity, EntityNumericProperty.ColoredManaSymbolCount(colors.toList()))
 
     fun sacrificedPower(index: Int = 0): DynamicAmount =
-        DynamicAmount.EntityProperty(EntityReference.Sacrificed(index), EntityNumericProperty.Power)
+        DynamicAmount.EntityProperty(EffectTarget.SacrificedAsCost(index), EntityNumericProperty.Power)
 
     fun sacrificedToughness(index: Int = 0): DynamicAmount =
-        DynamicAmount.EntityProperty(EntityReference.Sacrificed(index), EntityNumericProperty.Toughness)
+        DynamicAmount.EntityProperty(EffectTarget.SacrificedAsCost(index), EntityNumericProperty.Toughness)
 
     fun countersOnSelf(type: CounterType?): DynamicAmount =
-        DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.CounterCount(type))
+        DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.CounterCount(type))
 
     fun countersOnTarget(type: CounterType?, index: Int = 0): DynamicAmount =
-        DynamicAmount.EntityProperty(EntityReference.Target(index), EntityNumericProperty.CounterCount(type))
+        DynamicAmount.EntityProperty(EffectTarget.ContextTarget(index), EntityNumericProperty.CounterCount(type))
 
     /**
      * Number of counters (of [type]; defaults to counters of every kind) on the triggering
@@ -700,10 +700,10 @@ object DynamicAmounts {
      * Spider-Man Noir's "whenever a creature you control attacks alone."
      */
     fun countersOnTriggering(type: CounterType? = null): DynamicAmount =
-        DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.CounterCount(type))
+        DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.CounterCount(type))
 
     fun attachmentsOnSelf(): DynamicAmount =
-        DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.AttachmentCount())
+        DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.AttachmentCount())
 
     /**
      * Number of attachments of [kind] on the creature the source is attached to — the *enchanted*
@@ -718,28 +718,28 @@ object DynamicAmounts {
      */
     fun attachmentsOnEnchantedCreature(kind: AttachmentKind = AttachmentKind.ANY): DynamicAmount =
         DynamicAmount.EntityProperty(
-            EntityReference.EnchantedCreature,
+            EffectTarget.EnchantedCreature,
             EntityNumericProperty.AttachmentCount(kind)
         )
 
     /** Number of Equipment attached to the source (Shagrat, Loot Bearer's amass amount). */
     fun equipmentAttachedToSelf(): DynamicAmount =
         DynamicAmount.EntityProperty(
-            EntityReference.Source,
+            EffectTarget.Self,
             EntityNumericProperty.AttachmentCount(AttachmentKind.EQUIPMENT)
         )
 
     fun numberOfBlockers(): DynamicAmount =
-        DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.BlockerCount)
+        DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.BlockerCount)
 
     fun triggeringManaValue(): DynamicAmount =
-        DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.ManaValue)
+        DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.ManaValue)
 
     fun triggeringPower(): DynamicAmount =
-        DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.Power)
+        DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.Power)
 
     fun triggeringToughness(): DynamicAmount =
-        DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.Toughness)
+        DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.Toughness)
 
     /**
      * Number of distinct creatures that crewed or saddled this permanent this turn (source-

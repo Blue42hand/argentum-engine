@@ -38,7 +38,7 @@ val BlasphemousAct = card("Blasphemous Act") {
     spell {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreatures,
-            effect = DealDamageEffect(13, EffectTarget.Self),
+            effect = DealDamageEffect(13, EffectTarget.IterationEntity),
         )
     }
 

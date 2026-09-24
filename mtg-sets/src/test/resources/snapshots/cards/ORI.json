@@ -323,7 +323,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -1355,7 +1355,7 @@
                     "type": "Fixed",
                     "amount": -2
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -1946,11 +1946,11 @@
                             "type": "Fixed",
                             "amount": 3
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     },
                     {
                         "type": "MustBeBlocked",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "allCreatures": false
                     }
                 ]
@@ -2087,7 +2087,7 @@
                     "type": "Fixed",
                     "amount": -4
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -2978,7 +2978,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -3230,7 +3230,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 "descriptionOverride": "Creatures you control get +1/+1 until end of turn."

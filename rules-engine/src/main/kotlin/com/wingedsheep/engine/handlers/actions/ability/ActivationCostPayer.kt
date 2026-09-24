@@ -394,7 +394,7 @@ internal class ActivationCostPayer(
         // A *forced* sacrifice (candidates <= count) never pauses for a choice, so the action
         // arrives with no chosen permanents and CostHandler auto-picks them during payment. Snapshot
         // that same set here, or "deals damage equal to the sacrificed creature's power" (Brion
-        // Stoutarm with exactly one other creature) resolves EntityReference.Sacrificed to nothing
+        // Stoutarm with exactly one other creature) resolves EffectTarget.SacrificedAsCost to nothing
         // and deals 0.
         val sacrificeCost = effectiveCost.extractSacrificeCost()
         val chosenSacrifices = action.costPayment?.sacrificedPermanents ?: emptyList()

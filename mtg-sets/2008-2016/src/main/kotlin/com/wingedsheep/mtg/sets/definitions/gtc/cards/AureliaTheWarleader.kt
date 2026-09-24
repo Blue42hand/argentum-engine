@@ -35,7 +35,7 @@ val AureliaTheWarleader = card("Aurelia, the Warleader") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
-                Effects.Untap(EffectTarget.Self)
+                Effects.Untap(EffectTarget.IterationEntity)
             ),
             Effects.AddCombatPhase
         )

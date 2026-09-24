@@ -42,7 +42,7 @@ val DesolationOfSmaug = card("Desolation of Smaug") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.notSubtype(Subtype.DRAGON)),
-                DealDamageEffect(3, EffectTarget.Self)
+                DealDamageEffect(3, EffectTarget.IterationEntity)
             ),
             Effects.AddManaInAnyCombination(
                 amount = 4,

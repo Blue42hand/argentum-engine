@@ -39,7 +39,12 @@ val Heroism = card("Heroism") {
             filter = GroupFilter(GameObjectFilter.Creature.withColor(Color.RED).attacking()),
             effect = PayOrSufferEffect(
                 cost = Costs.pay.Mana("{2}{R}"),
-                suffer = Effects.PreventAllDamageDealtBy(EffectTarget.Self, scope = PreventionScope.CombatOnly),
+                suffer = PreventDamageEffect(
+                    target = EffectTarget.IterationEntity,
+                    direction = PreventionDirection.FromTarget,
+                    scope = PreventionScope.CombatOnly,
+                    duration = Duration.EndOfTurn,
+                ),
                 player = EffectTarget.PlayerRef(Player.ControllerOfIterationEntity),
                 consequenceDescription = "have all combat damage that creature would deal this turn prevented",
             )

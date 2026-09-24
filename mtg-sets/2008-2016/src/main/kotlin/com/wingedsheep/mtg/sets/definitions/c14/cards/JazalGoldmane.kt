@@ -39,7 +39,7 @@ val JazalGoldmane = card("Jazal Goldmane") {
             Effects.ModifyStats(
                 DynamicAmount.AggregateBattlefield(Player.Each, GameObjectFilter.Creature.attacking()),
                 DynamicAmount.AggregateBattlefield(Player.Each, GameObjectFilter.Creature.attacking()),
-                EffectTarget.Self
+                EffectTarget.IterationEntity
             )
         )
     }

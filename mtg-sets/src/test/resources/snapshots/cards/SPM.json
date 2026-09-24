@@ -1163,7 +1163,7 @@
                                     "type": "AddColorlessMana",
                                     "amount": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": {
                                             "type": "CounterCount",
                                             "counterType": null
@@ -1309,27 +1309,27 @@
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "FLYING",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "FIRST_STRIKE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "TRAMPLE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "LIFELINK",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "HASTE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -2090,7 +2090,7 @@
                                     "type": "DrawCards",
                                     "count": {
                                         "type": "EntityProperty",
-                                        "entity": "Sacrificed",
+                                        "entity": "SacrificedAsCost",
                                         "numericProperty": "ManaValue"
                                     }
                                 },
@@ -2123,7 +2123,7 @@
                                                     "type": "TotalManaValueAtMost",
                                                     "maxAmount": {
                                                         "type": "EntityProperty",
-                                                        "entity": "Sacrificed",
+                                                        "entity": "SacrificedAsCost",
                                                         "numericProperty": "ManaValue"
                                                     }
                                                 }
@@ -3792,7 +3792,7 @@
                         "type": "AddCounters",
                         "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -3948,13 +3948,13 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Triggering",
+                        "entity": "TriggeringEntity",
                         "numericProperty": "ManaValue"
                     },
                     "operator": "EQ",
                     "right": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     }
                 }
@@ -4398,7 +4398,7 @@
                                 "type": "ManaValueAtMost",
                                 "max": {
                                     "type": "EntityProperty",
-                                    "entity": "Source",
+                                    "entity": "Self",
                                     "numericProperty": {
                                         "type": "CounterCount",
                                         "counterType": "INGENUITY"
@@ -4824,7 +4824,7 @@
                     },
                     "body": {
                         "type": "Goad",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             },
@@ -5155,7 +5155,7 @@
                         "body": {
                             "type": "DoubleCounters",
                             "counterType": null,
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "descriptionOverride": "Whenever you attack, double the number of each kind of counter on each Spider and legendary creature you control."
@@ -7859,7 +7859,7 @@
                         "type": "Fixed",
                         "amount": -2
                     },
-                    "target": "Self"
+                    "target": "IterationEntity"
                 }
             },
             "otherwise": {
@@ -7880,7 +7880,7 @@
                         "type": "Fixed",
                         "amount": -2
                     },
-                    "target": "Self"
+                    "target": "IterationEntity"
                 }
             }
         }
@@ -9087,12 +9087,12 @@
                                     "type": "Fixed",
                                     "amount": 2
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "VIGILANCE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -9364,7 +9364,7 @@
                             "body": {
                                 "type": "GrantKeyword",
                                 "keyword": "HEXPROOF",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -9378,7 +9378,7 @@
                             "body": {
                                 "type": "GrantKeyword",
                                 "keyword": "INDESTRUCTIBLE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -9924,7 +9924,7 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -10144,7 +10144,7 @@
                                         "type": "TopOfLibrary",
                                         "count": {
                                             "type": "EntityProperty",
-                                            "entity": "Triggering",
+                                            "entity": "TriggeringEntity",
                                             "numericProperty": {
                                                 "type": "CounterCount",
                                                 "counterType": null
@@ -10160,7 +10160,7 @@
                                         "type": "ChooseUpTo",
                                         "count": {
                                             "type": "EntityProperty",
-                                            "entity": "Triggering",
+                                            "entity": "TriggeringEntity",
                                             "numericProperty": {
                                                 "type": "CounterCount",
                                                 "counterType": null
@@ -12100,7 +12100,7 @@
                             "type": "Fixed",
                             "amount": 0
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -12120,7 +12120,7 @@
                             "type": "ContextTarget",
                             "index": 0
                         },
-                        "damageSource": "Self"
+                        "damageSource": "IterationEntity"
                     }
                 }
             ]
@@ -13544,7 +13544,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "FLYING",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -13909,7 +13909,7 @@
                         "type": "AddCounters",
                         "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -14065,7 +14065,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {

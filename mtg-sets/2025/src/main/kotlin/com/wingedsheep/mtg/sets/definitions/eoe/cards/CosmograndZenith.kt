@@ -51,7 +51,7 @@ val CosmograndZenith = card("Cosmogrand Zenith") {
             Mode.noTarget(
                 Effects.ForEachInGroup(
                     filter = GroupFilter.AllCreaturesYouControl,
-                    effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                    effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
                 ),
                 "Put a +1/+1 counter on each creature you control"
             )

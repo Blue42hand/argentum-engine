@@ -83,7 +83,7 @@ val BreakOut = card("Break Out") {
             run(
                 ForEachInCollectionEffect(
                     collection = entered.key,
-                    effect = Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self, Duration.EndOfTurn)
+                    effect = Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn)
                 )
             )
             toHand(tooExpensive)

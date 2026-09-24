@@ -38,7 +38,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * - **New SDK vocabulary:** `CardPredicate.SharesNameWithLinkedExile`, reached here through
  *   `GameObjectFilter.Any.sharingNameWithLinkedExile()`. It is the *name* axis of the existing
  *   `SharesCardTypeWithLinkedExile` (Cemetery Illuminator) and, like it, has to be pile-wide:
- *   `sharingNameWith(EntityReference.LinkedExiledCard())` reads exactly one index, and Circu's
+ *   `sharingNameWith(EffectTarget.LinkedExiledCard())` reads exactly one index, and Circu's
  *   pile grows on every blue and every black spell you cast, so no index names "a card exiled
  *   with Circu". Comparing printed names is correct on both sides — neither an exiled card nor a
  *   card in a hand or library has a battlefield projection a Layer-3 rename could have touched.

@@ -46,7 +46,7 @@ val DawnstrikeVanguard = card("Dawnstrike Vanguard") {
         )
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.OtherCreaturesYouControl,
-            effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
         )
     }
 

@@ -47,7 +47,7 @@ extended until Assay read each whole (**+3 whole cards**, 9,228 → 9,231, diffe
 51). It is the smallest band here by card count and the one whose finding travels furthest, because
 its construct **is not on a line**. CR 607 makes "Exile a card from a graveyard." *linked* to a later
 ability that says "the exiled card", the SDK carries that fact twice — on the read
-(`EntityReference.LinkedExiledCard`) and on the move (`MoveCollectionEffect.linkToSource`) — and
+(`EffectTarget.LinkedExiledCard`) and on the move (`MoveCollectionEffect.linkToSource`) — and
 only the read is printed. Every previous derivation of that shape reads one field off another inside
 one line; this one cannot, so it moved out to the **fold**
 (`CardFragment.deriveExileLinkage`, called by both the differential's merge and `CardCompiler`).
@@ -687,7 +687,7 @@ in the sentence says which. What says it is a **different line**: "if it shares 
 **the exiled card**", "for each card type they share with **cards exiled with this creature**".
 
 The SDK carries the fact twice, which is this module's own signal for a derivation: on the read side
-(`EntityReference.LinkedExiledCard`, `CostReductionSource.SharedCardTypesWithLinkedExile`) and on the
+(`EffectTarget.LinkedExiledCard`, `CostReductionSource.SharedCardTypesWithLinkedExile`) and on the
 move that fills the pile (`MoveCollectionEffect.linkToSource`). Every previous derivation of that
 shape — `Activated.producesMana` for CR 605.1a, `Recursion.functionsIn` for CR 113.6m — reads one
 field off another *within a line*. This one cannot: the exile line has no evidence and the payoff
@@ -3804,7 +3804,7 @@ already spell. The other 136 are one construct:
 | a chosen target ("its", "that creature's", "that card's", "that spell's") | | | |
 | the triggering object ("its") | | | |
 
-`DynamicAmount.EntityProperty` is an `EntityReference` × an `EntityNumericProperty`, and English
+`DynamicAmount.EntityProperty` is an `EffectTarget.SingleEntity` × an `EntityNumericProperty`, and English
 spells it as exactly that product: a possessive naming the object, then the noun naming the
 characteristic. So the grammar is the product too — two tables, one rule — which is three rows and a
 possessive vocabulary rather than the twenty-one printed phrases they cross into. The rows are
@@ -3859,9 +3859,9 @@ of a line that has otherwise parsed.
 **Tribute to Hunger.** "Target opponent sacrifices a creature of their choice. You gain life equal to
 **that creature's** toughness." The line declares exactly one target and it is the *opponent*; the
 noun the possessive names is the creature they sacrificed, which the SDK spells
-`EntityReference.Sacrificed`. The reading round-tripped byte-perfectly and meant a player's toughness.
+`EffectTarget.SacrificedAsCost`. The reading round-tripped byte-perfectly and meant a player's toughness.
 
-`renumbered`'s existing dangling-anaphor guard could not see it: `EntityReference.Target(0)` is an
+`renumbered`'s existing dangling-anaphor guard could not see it: `EffectTarget.ContextTarget(0)` is an
 **ordinal into the line's requirements**, not a slot name, so `Slots.references` walks straight past
 it. The target reading therefore needs a guard of its own, and it is the same guard one axis over —
 the line must declare exactly one target, and that requirement must be one that can never resolve to

@@ -434,18 +434,18 @@ data class TargetFilter(
     fun powerAtLeast(min: Int) = copy(baseFilter = baseFilter.powerAtLeast(min))
 
     /** Power strictly greater than the projected power of a referenced entity (source, triggering, etc.) */
-    fun powerGreaterThanEntity(reference: com.wingedsheep.sdk.scripting.values.EntityReference) =
+    fun powerGreaterThanEntity(reference: com.wingedsheep.sdk.scripting.targets.EffectTarget.SingleEntity) =
         copy(baseFilter = baseFilter.powerGreaterThanEntity(reference))
 
     /** Power strictly less than the projected power of a referenced entity (source, triggering, etc.) */
-    fun powerLessThanEntity(reference: com.wingedsheep.sdk.scripting.values.EntityReference) =
+    fun powerLessThanEntity(reference: com.wingedsheep.sdk.scripting.targets.EffectTarget.SingleEntity) =
         copy(baseFilter = baseFilter.powerLessThanEntity(reference))
 
     /** Projected power strictly greater than the object's own base (printed) power. */
     fun powerGreaterThanBase() = copy(baseFilter = baseFilter.powerGreaterThanBase())
 
     /** Power less than or equal to the projected power of a referenced entity (source, triggering, etc.) */
-    fun powerAtMostEntity(reference: com.wingedsheep.sdk.scripting.values.EntityReference) =
+    fun powerAtMostEntity(reference: com.wingedsheep.sdk.scripting.targets.EffectTarget.SingleEntity) =
         copy(baseFilter = baseFilter.powerAtMostEntity(reference))
 
     /** Toughness at most */

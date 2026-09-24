@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 import com.wingedsheep.sdk.dsl.Triggers
 
 /**
@@ -36,7 +35,7 @@ val WitheringHex = card("Withering Hex") {
 
     staticAbility {
         val plagueCounters = DynamicAmount.EntityProperty(
-            EntityReference.Source,
+            EffectTarget.Self,
             EntityNumericProperty.CounterCount(CounterType.PLAGUE)
         )
         ability = GrantDynamicStatsEffect(

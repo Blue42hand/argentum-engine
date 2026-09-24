@@ -42,7 +42,7 @@ val RustlerRampage = card("Rustler Rampage") {
                         filter = GroupFilter(
                             GameObjectFilter.Creature.targetPlayerControls(EffectTarget.ContextTarget(0))
                         ),
-                        effect = Effects.Untap(EffectTarget.Self)
+                        effect = Effects.Untap(EffectTarget.IterationEntity)
                     ),
                     targetRequirements = listOf(Targets.Player),
                     description = "+ {1} — Untap all creatures target player controls.",

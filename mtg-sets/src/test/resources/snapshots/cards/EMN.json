@@ -682,12 +682,12 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "MENACE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -736,7 +736,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -1351,12 +1354,12 @@
                                     "type": "Fixed",
                                     "amount": 2
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "TRAMPLE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -1719,7 +1722,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -1825,7 +1828,7 @@
                                         },
                                         "right": {
                                             "type": "EntityProperty",
-                                            "entity": "Sacrificed",
+                                            "entity": "SacrificedAsCost",
                                             "numericProperty": "ManaValue"
                                         }
                                     }
@@ -2599,7 +2602,10 @@
                                 "baseFilter": "creature ctrl:opponent"
                             }
                         },
-                        "body": "MarkMustAttackThisTurn"
+                        "body": {
+                            "type": "MarkMustAttackThisTurn",
+                            "target": "IterationEntity"
+                        }
                     },
                     "descriptionOverride": "Creatures your opponents control attack this turn if able."
                 }
@@ -3333,7 +3339,7 @@
                         "type": "CounterCondition.UnlessPaysDynamic",
                         "amount": {
                             "type": "EntityProperty",
-                            "entity": "Source",
+                            "entity": "Self",
                             "numericProperty": "Power"
                         }
                     }
@@ -3678,7 +3684,7 @@
                         "body": {
                             "type": "GrantKeyword",
                             "keyword": "TRAMPLE",
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "targetRequirements": [
@@ -3738,7 +3744,7 @@
                                 "type": "Fixed",
                                 "amount": 1
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "targetRequirements": [
@@ -3805,7 +3811,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "INDESTRUCTIBLE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -4115,12 +4121,18 @@
                             ],
                             "dynamicPower": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
                                 "numericProperty": "Power"
                             },
                             "dynamicToughness": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
                                 "numericProperty": "Toughness"
                             }
                         }
@@ -4558,7 +4570,7 @@
                     },
                     "body": {
                         "type": "TapUntap",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }

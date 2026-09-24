@@ -34,7 +34,7 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -55,7 +55,7 @@
                                     "type": "Fixed",
                                     "amount": 2
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -111,7 +111,7 @@
                                         },
                                         {
                                             "type": "CouldEnchant",
-                                            "reference": "Source"
+                                            "reference": "Self"
                                         }
                                     ]
                                 }
@@ -300,7 +300,10 @@
                                         "IsCreature",
                                         {
                                             "type": "SharesColorWith",
-                                            "entity": "Target"
+                                            "entity": {
+                                                "type": "ContextTarget",
+                                                "index": 0
+                                            }
                                         }
                                     ]
                                 },
@@ -309,7 +312,7 @@
                         },
                         "body": {
                             "type": "GrantProtectionFromChosenColor",
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     }
                 ]
@@ -551,7 +554,7 @@
                                     "type": "Fixed",
                                     "amount": 3
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -681,7 +684,7 @@
                                     "cardPredicates": [
                                         {
                                             "type": "SharesNameWith",
-                                            "entity": "Triggering"
+                                            "entity": "TriggeringEntity"
                                         }
                                     ]
                                 }
@@ -760,7 +763,7 @@
                             "type": "LoseLife",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "CounterCount",
                                     "counterType": "BLOOD"
@@ -838,7 +841,10 @@
                         "type": "DealDamage",
                         "amount": {
                             "type": "EntityProperty",
-                            "entity": "Target",
+                            "entity": {
+                                "type": "ContextTarget",
+                                "index": 0
+                            },
                             "numericProperty": "Power"
                         },
                         "target": "TargetController"
@@ -1481,7 +1487,7 @@
                                         },
                                         "body": {
                                             "type": "TapUntap",
-                                            "target": "Self",
+                                            "target": "IterationEntity",
                                             "tap": false
                                         }
                                     },
@@ -1532,7 +1538,7 @@
                     "name": "number0",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "DamageDealtThisTurn"
                     }
                 },
@@ -1545,7 +1551,10 @@
                                 "IsCreature",
                                 {
                                     "type": "SharesColorWith",
-                                    "entity": "Target"
+                                    "entity": {
+                                        "type": "ContextTarget",
+                                        "index": 0
+                                    }
                                 }
                             ]
                         },
@@ -1570,7 +1579,7 @@
                     "body": {
                         "type": "DealDamage",
                         "amount": "XValue",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -1579,7 +1588,7 @@
                         "type": "Subtract",
                         "left": {
                             "type": "EntityProperty",
-                            "entity": "Source",
+                            "entity": "Self",
                             "numericProperty": "DamageDealtThisTurn"
                         },
                         "right": {
@@ -2329,7 +2338,10 @@
                                     "IsCreature",
                                     {
                                         "type": "SharesColorWith",
-                                        "entity": "Target"
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        }
                                     }
                                 ]
                             },
@@ -2342,7 +2354,7 @@
                             "type": "Fixed",
                             "amount": 2
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -2447,7 +2459,7 @@
                                         "IsPermanent",
                                         {
                                             "type": "SharesCardTypeWith",
-                                            "entity": "Triggering"
+                                            "entity": "TriggeringEntity"
                                         }
                                     ]
                                 },
@@ -2783,7 +2795,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "FLYING",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -2809,7 +2821,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "FEAR",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -2835,7 +2847,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "FIRST_STRIKE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -2861,7 +2873,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "DOUBLE_STRIKE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -2887,7 +2899,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "SWAMPWALK",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -2913,7 +2925,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "FORESTWALK",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -2939,7 +2951,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "ISLANDWALK",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -2965,7 +2977,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "MOUNTAINWALK",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -2991,7 +3003,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "PLAINSWALK",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -3017,7 +3029,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "DESERTWALK",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -3043,7 +3055,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "NONBASIC_LANDWALK",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -3069,7 +3081,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "TRAMPLE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -3095,7 +3107,7 @@
                                 "body": {
                                     "type": "GrantKeyword",
                                     "keyword": "VIGILANCE",
-                                    "target": "Self"
+                                    "target": "IterationEntity"
                                 }
                             }
                         },
@@ -3111,7 +3123,8 @@
                                 "type": "GrantProtectionsSharedByGroup",
                                 "group": {
                                     "baseFilter": "creature ctrl:you"
-                                }
+                                },
+                                "target": "IterationEntity"
                             }
                         }
                     ],
@@ -5292,7 +5305,7 @@
                         },
                         "body": {
                             "type": "TapUntap",
-                            "target": "Self",
+                            "target": "IterationEntity",
                             "tap": false
                         }
                     }
@@ -6184,7 +6197,7 @@
                         "AnyTarget"
                     ]
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -6249,12 +6262,12 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             },
                             {
                                 "type": "GrantKeyword",
                                 "keyword": "HASTE",
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -6858,7 +6871,7 @@
                                         "statePredicates": [
                                             {
                                                 "type": "BlockedOrWasBlockedByEntityThisTurn",
-                                                "reference": "Triggering"
+                                                "reference": "TriggeringEntity"
                                             }
                                         ]
                                     }
@@ -8293,7 +8306,7 @@
                                     "type": "Fixed",
                                     "amount": 4
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         },
                         {
@@ -8886,7 +8899,10 @@
                                     "IsCreature",
                                     {
                                         "type": "SharesColorWith",
-                                        "entity": "Target"
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        }
                                     }
                                 ]
                             },
@@ -8895,7 +8911,7 @@
                     },
                     "body": {
                         "type": "CantBlockTargetCreatures",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -9009,7 +9025,10 @@
                                     "type": "TopOfLibrary",
                                     "count": {
                                         "type": "EntityProperty",
-                                        "entity": "Target",
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        },
                                         "numericProperty": "ManaValue"
                                     },
                                     "player": {
@@ -9443,7 +9462,10 @@
                                     "IsEnchantment",
                                     {
                                         "type": "SharesColorWith",
-                                        "entity": "Target"
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        }
                                     }
                                 ]
                             },
@@ -9452,7 +9474,7 @@
                     },
                     "body": {
                         "type": "MoveToZone",
-                        "target": "Self",
+                        "target": "IterationEntity",
                         "destination": "Graveyard",
                         "byDestruction": true
                     }
@@ -9812,7 +9834,7 @@
                     },
                     "body": {
                         "type": "Regenerate",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -10475,13 +10497,13 @@
                         },
                         "then": {
                             "type": "MoveToZone",
-                            "target": "Self",
+                            "target": "IterationEntity",
                             "destination": "Hand",
                             "fromZone": "Library"
                         },
                         "otherwise": {
                             "type": "MoveToZone",
-                            "target": "Self",
+                            "target": "IterationEntity",
                             "destination": "Graveyard",
                             "fromZone": "Library"
                         },
@@ -10796,7 +10818,7 @@
                                             "type": "ManaValueEqualsDynamic",
                                             "amount": {
                                                 "type": "EntityProperty",
-                                                "entity": "Source",
+                                                "entity": "Self",
                                                 "numericProperty": {
                                                     "type": "CounterCount",
                                                     "counterType": "PLUS_ONE_PLUS_ONE"
@@ -11338,7 +11360,7 @@
                     "type": "Fixed",
                     "amount": 3
                 },
-                "target": "Self"
+                "target": "IterationEntity"
             }
         }
     },
@@ -11798,7 +11820,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": "PLAGUE"
@@ -12248,7 +12270,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 },
                 {
@@ -12323,7 +12345,10 @@
                                     "IsCreature",
                                     {
                                         "type": "SharesColorWith",
-                                        "entity": "Target"
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        }
                                     }
                                 ]
                             },
@@ -12335,7 +12360,7 @@
                         "effects": [
                             {
                                 "type": "TapUntap",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "tap": false
                             },
                             {
@@ -12348,7 +12373,7 @@
                                     "type": "Fixed",
                                     "amount": 0
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         ]
                     }
@@ -12797,7 +12822,7 @@
                                 "type": "Fixed",
                                 "amount": -1
                             },
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     }
                 }
@@ -13726,7 +13751,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             }
@@ -14523,7 +14548,10 @@
                                     "IsCreature",
                                     {
                                         "type": "PowerAtMostEntity",
-                                        "reference": "Target"
+                                        "reference": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        }
                                     }
                                 ],
                                 "controllerPredicate": "ControlledByOpponent"
@@ -15297,7 +15325,10 @@
                                     "IsCreature",
                                     {
                                         "type": "SharesColorWith",
-                                        "entity": "Target"
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        }
                                     }
                                 ]
                             },
@@ -15307,7 +15338,7 @@
                     "body": {
                         "type": "GrantKeyword",
                         "keyword": "HASTE",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]
@@ -15727,7 +15758,7 @@
                             },
                             "body": {
                                 "type": "SetLandType",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "fromChosenValueKey": "chosenLandType"
                             }
                         }
@@ -17842,7 +17873,10 @@
                                             "IsCreature",
                                             {
                                                 "type": "SharesColorWith",
-                                                "entity": "Target"
+                                                "entity": {
+                                                    "type": "ContextTarget",
+                                                    "index": 0
+                                                }
                                             }
                                         ]
                                     },
@@ -17851,7 +17885,7 @@
                             },
                             "body": {
                                 "type": "PreventDamageShield",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "amount": {
                                     "type": "Fixed",
                                     "amount": 1
@@ -17923,7 +17957,10 @@
                                             "IsCreature",
                                             {
                                                 "type": "SharesColorWith",
-                                                "entity": "Target"
+                                                "entity": {
+                                                    "type": "ContextTarget",
+                                                    "index": 0
+                                                }
                                             }
                                         ]
                                     },
@@ -17936,7 +17973,7 @@
                                     "type": "Fixed",
                                     "amount": 1
                                 },
-                                "target": "Self"
+                                "target": "IterationEntity"
                             }
                         }
                     ]
@@ -18000,7 +18037,10 @@
                                     "IsCreature",
                                     {
                                         "type": "SharesColorWith",
-                                        "entity": "Target"
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        }
                                     }
                                 ]
                             },
@@ -18017,7 +18057,7 @@
                             "type": "Fixed",
                             "amount": 1
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 }
             ]

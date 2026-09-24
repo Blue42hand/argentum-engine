@@ -31,13 +31,13 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * which the resolver honours by mode index — so "lose all abilities" precedes "indestructible"
  * precedes "destroy all". Each mode composes existing atoms:
  *  - Mode 1: [Effects.ForEachInGroup] over every creature, each losing all abilities
- *    (`RemoveAllAbilities(Self)` per iteration). A creature that gains an ability *after* this
+ *    (`RemoveAllAbilities(IterationEntity)` per iteration). A creature that gains an ability *after* this
  *    resolves keeps it (the ruling) because the removal is a one-shot snapshot, not a continuous
  *    layer effect tied to a filter.
  *  - Mode 2 does **not** target (per ruling: the creature is chosen as the spell resolves, too
  *    late to respond). Modeled as a resolution-time gather -> choose-exactly-one -> grant pipeline:
  *    [GatherCardsEffect] over creatures you control, [SelectFromCollectionEffect] (battlefield
- *    click UI), then [ForEachEffect] over the singleton selection grants indestructible to `Self`.
+ *    click UI), then [ForEachEffect] over the singleton selection grants indestructible to `IterationEntity`.
  *  - Mode 3: [Effects.DestroyAll] over all creatures (honours indestructible granted by mode 2).
  */
 val FinalShowdown = card("Final Showdown") {
@@ -55,7 +55,7 @@ val FinalShowdown = card("Final Showdown") {
                 Mode(
                     effect = Effects.ForEachInGroup(
                         GroupFilter(GameObjectFilter.Creature),
-                        Effects.RemoveAllAbilities(EffectTarget.Self)
+                        Effects.RemoveAllAbilities(EffectTarget.IterationEntity)
                     ),
                     description = "+ {1} — All creatures lose all abilities until end of turn.",
                     additionalManaCost = "{1}"
@@ -78,7 +78,7 @@ val FinalShowdown = card("Final Showdown") {
                             ),
                             ForEachEffect(
                                 space = IterationSpace.Collection("indestructibleChosen"),
-                                body = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self)
+                                body = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)
                             )
                         )
                     ),

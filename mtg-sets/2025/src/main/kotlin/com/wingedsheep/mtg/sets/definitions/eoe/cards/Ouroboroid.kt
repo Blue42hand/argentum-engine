@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Ouroboroid
@@ -31,13 +30,13 @@ val Ouroboroid = card("Ouroboroid") {
         // Snapshot source power before iteration so counter gains on Ouroboroid don't
         // increase X for the remaining creatures mid-loop.
         effect = Effects.Composite(
-            Effects.StoreNumber("ouroboroid_power", DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power)),
+            Effects.StoreNumber("ouroboroid_power", DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power)),
             Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreaturesYouControl,
                 effect = Effects.AddDynamicCounters(
                     counterType = CounterType.PLUS_ONE_PLUS_ONE,
                     amount = DynamicAmount.VariableReference("ouroboroid_power"),
-                    target = EffectTarget.Self
+                    target = EffectTarget.IterationEntity
                 )
             )
         )

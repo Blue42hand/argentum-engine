@@ -108,7 +108,7 @@ internal class ConditionBadgeProjector(
         sourceId: EntityId,
     ): List<ClientCardEffect> {
         // The badge must evaluate against the permanent that owns the ability: conditions
-        // routinely read `EntityReference.Source` (counters on this permanent, its power,
+        // routinely read `EffectTarget.Self` (counters on this permanent, its power,
         // whether it's attacking). With a null sourceId those resolve to 0, so the badge
         // reads a permanently-stuck "0/N" while the real condition works fine — e.g. MSH's
         // Plan enchantments, whose "the number of plan counters" badge never moved.

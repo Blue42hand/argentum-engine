@@ -82,7 +82,7 @@ val CaseOfTheUneatenFeast = card("Case of the Uneaten Feast") {
                 collection = "uneatenFeast.creatures",
                 effect = Effects.GrantStaticAbility(
                     ability = MayCastFromGraveyard(filter = GameObjectFilter.Creature),
-                    target = EffectTarget.Self,
+                    target = EffectTarget.IterationEntity,
                     duration = Duration.EndOfTurn
                 )
             )

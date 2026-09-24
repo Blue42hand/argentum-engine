@@ -28,7 +28,7 @@ val NeedleStorm = card("Needle Storm") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING)),
-            DealDamageEffect(4, EffectTarget.Self)
+            DealDamageEffect(4, EffectTarget.IterationEntity)
         )
     }
     metadata {

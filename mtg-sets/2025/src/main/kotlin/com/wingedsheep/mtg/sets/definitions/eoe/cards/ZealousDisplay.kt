@@ -27,14 +27,14 @@ val ZealousDisplay = card("Zealous Display") {
                 // Creatures you control get +2/+0 until end of turn
                 Effects.ForEachInGroup(
                     GroupFilter.AllCreaturesYouControl,
-                    ModifyStatsEffect(2, 0, EffectTarget.Self)
+                    ModifyStatsEffect(2, 0, EffectTarget.IterationEntity)
                 ),
                 // If it's not your turn, untap those creatures
                 Effects.If(
                     condition = IsNotYourTurn,
                     then = Effects.ForEachInGroup(
                         GroupFilter.AllCreaturesYouControl,
-                        TapUntapEffect(EffectTarget.Self, tap = false)
+                        TapUntapEffect(EffectTarget.IterationEntity, tap = false)
                     )
                 )
             )

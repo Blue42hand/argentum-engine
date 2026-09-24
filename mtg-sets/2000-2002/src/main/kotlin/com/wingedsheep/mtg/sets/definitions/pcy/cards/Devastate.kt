@@ -33,7 +33,7 @@ val Devastate = card("Devastate") {
         val t = target("target", TargetPermanent(filter = TargetFilter.Land))
         effect = Effects.Composite(
             Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(1, EffectTarget.Self)),
+            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(1, EffectTarget.IterationEntity)),
             ForEachPlayerEffect(Player.Each, listOf(DealDamageEffect(1, EffectTarget.Controller)))
         )
     }

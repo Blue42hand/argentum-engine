@@ -73,7 +73,7 @@ val CamelliaTheSeedmiser = card("Camellia, the Seedmiser") {
             effect = AddCountersEffect(
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 count = 1,
-                target = EffectTarget.Self
+                target = EffectTarget.IterationEntity
             )
         )
     }

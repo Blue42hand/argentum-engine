@@ -51,11 +51,11 @@ val DragonThroneOfTarkir = card("Dragon Throne of Tarkir") {
                     listOf(
                         Effects.ForEachInGroup(
                             GroupFilter.OtherCreaturesYouControl,
-                            GrantKeywordEffect(Keyword.TRAMPLE, EffectTarget.Self)
+                            GrantKeywordEffect(Keyword.TRAMPLE, EffectTarget.IterationEntity)
                         ),
                         Effects.ForEachInGroup(
                             GroupFilter.OtherCreaturesYouControl,
-                            ModifyStatsEffect(DynamicAmounts.sourcePower(), DynamicAmounts.sourcePower(), EffectTarget.Self)
+                            ModifyStatsEffect(DynamicAmounts.sourcePower(), DynamicAmounts.sourcePower(), EffectTarget.IterationEntity)
                         )
                     )
                 ),

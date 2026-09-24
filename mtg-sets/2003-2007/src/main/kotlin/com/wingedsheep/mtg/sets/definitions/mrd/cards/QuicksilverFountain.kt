@@ -106,7 +106,7 @@ val QuicksilverFountain = card("Quicksilver Fountain") {
         )
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllLands,
-            effect = Effects.RemoveAllCountersOfType(CounterType.FLOOD, EffectTarget.Self)
+            effect = Effects.RemoveAllCountersOfType(CounterType.FLOOD, EffectTarget.IterationEntity)
         )
         description = "At the beginning of each end step, if all lands on the battlefield are " +
             "Islands, remove all flood counters from them."

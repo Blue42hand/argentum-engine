@@ -34,7 +34,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *    prepare spell — evaluated once at resolution, CR 613.4c) for the 0/0 green/blue Fractals.
  *  - [Effects.ForEachInGroup] over every Fractal you control (the just-made tokens *and* any
  *    pre-existing Fractals), each iteration adding X +1/+1 counters to the iterated permanent
- *    (`EffectTarget.Self` inside a ForEach body, per the linter's iteration-space rule).
+ *    (`EffectTarget.IterationEntity` inside a ForEach body, per the linter's iteration-space rule).
  */
 val JadziStewardOfFate = card("Jadzi, Steward of Fate") {
     manaCost = "{2}{U}"
@@ -74,7 +74,7 @@ val JadziStewardOfFate = card("Jadzi, Steward of Fate") {
                     Effects.AddDynamicCounters(
                         counterType = CounterType.PLUS_ONE_PLUS_ONE,
                         amount = DynamicAmount.XValue,
-                        target = EffectTarget.Self,
+                        target = EffectTarget.IterationEntity,
                     ),
                 ),
             )

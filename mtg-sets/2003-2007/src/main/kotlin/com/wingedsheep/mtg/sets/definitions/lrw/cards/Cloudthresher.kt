@@ -44,7 +44,7 @@ val Cloudthresher = card("Cloudthresher") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING)),
-                DealDamageEffect(2, EffectTarget.Self)
+                DealDamageEffect(2, EffectTarget.IterationEntity)
             ),
             Effects.ForEachPlayer(
                 Player.Each,

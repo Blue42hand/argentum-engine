@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Hell to Pay {X}{R}
@@ -18,7 +17,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *
  * Composed from existing atoms: [Effects.DealXDamage] deals X to the target and marks the
  * damage, then [Effects.CreateTreasure] reads the post-damage excess via
- * `EntityProperty(EntityReference.Target(0), ExcessMarkedDamage)` — `max(0, marked − toughness)`
+ * `EntityProperty(EffectTarget.ContextTarget(0), ExcessMarkedDamage)` — `max(0, marked − toughness)`
  * (CR 120.4a). CompositeEffect resolves its steps sequentially with no interleaved SBA pass, so
  * the marked damage in scope at the second step is exactly the X this spell just dealt. No
  * bespoke "excess damage" executor — this mirrors Orbital Plunge's excess gate, but reads the
@@ -37,7 +36,7 @@ val HellToPay = card("Hell to Pay") {
             Effects.DealXDamage(creature),
             Effects.CreateTreasure(
                 count = DynamicAmount.EntityProperty(
-                    EntityReference.Target(0),
+                    EffectTarget.ContextTarget(0),
                     EntityNumericProperty.ExcessMarkedDamage
                 ),
                 tapped = true

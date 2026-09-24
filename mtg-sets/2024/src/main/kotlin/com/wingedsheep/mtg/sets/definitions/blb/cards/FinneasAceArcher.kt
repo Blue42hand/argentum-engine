@@ -56,7 +56,7 @@ val FinneasAceArcher = card("Finneas, Ace Archer") {
             listOf(
                 Effects.ForEachInGroup(
                     filter = otherTokenOrRabbitYouControl,
-                    effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                    effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
                 ),
                 Effects.If(
                     condition = Compare(

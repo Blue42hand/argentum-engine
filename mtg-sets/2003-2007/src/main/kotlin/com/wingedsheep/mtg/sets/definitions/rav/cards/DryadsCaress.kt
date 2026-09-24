@@ -40,7 +40,7 @@ val DryadsCaress = card("Dryad's Caress") {
                 condition = Conditions.ManaSpentToCastIncludes(requiredWhite = 1),
                 then = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.youControl()),
-                    Effects.Untap(EffectTarget.Self),
+                    Effects.Untap(EffectTarget.IterationEntity),
                 ),
             )
         )

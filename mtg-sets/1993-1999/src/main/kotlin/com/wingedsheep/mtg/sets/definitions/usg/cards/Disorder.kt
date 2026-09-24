@@ -31,7 +31,7 @@ val Disorder = card("Disorder") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withColor(Color.WHITE)),
-                DealDamageEffect(2, EffectTarget.Self)
+                DealDamageEffect(2, EffectTarget.IterationEntity)
             ),
             ForEachPlayerEffect(Player.Each, listOf(DealDamageEffect(2, EffectTarget.Controller)))
         )

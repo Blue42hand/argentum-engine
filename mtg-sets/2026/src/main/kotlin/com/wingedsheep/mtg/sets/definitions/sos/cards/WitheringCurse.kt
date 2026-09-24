@@ -31,12 +31,12 @@ val WitheringCurse = card("Withering Curse") {
             condition = Conditions.YouGainedLifeThisTurn,
             then = Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature),
-                Effects.Move(EffectTarget.Self, Zone.GRAVEYARD, byDestruction = true),
+                Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, byDestruction = true),
                 noRegenerate = false
             ),
             otherwise = Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature),
-                Effects.ModifyStats(-2, -2, EffectTarget.Self)
+                Effects.ModifyStats(-2, -2, EffectTarget.IterationEntity)
             )
         )
     }

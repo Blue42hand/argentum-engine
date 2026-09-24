@@ -35,7 +35,7 @@ import com.wingedsheep.sdk.scripting.values.CardNumericProperty
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.TurnTracker
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -132,8 +132,8 @@ class DynamicAmountEvaluator(
         is DynamicAmount.EntityProperty ->
             // The enchanted-creature branch of [evaluate] has its own last-known-information
             // fallback and stays determinable even once the aura has detached.
-            amount.entity is EntityReference.EnchantedCreature ||
-                TargetResolutionUtils.resolveEntityReference(amount.entity, context, state) != null
+            amount.entity is EffectTarget.EnchantedCreature ||
+                TargetResolutionUtils.resolveEntity(amount.entity, context, state) != null
 
         is DynamicAmount.Add -> isDeterminable(state, amount.left, context) &&
             isDeterminable(state, amount.right, context)
@@ -495,13 +495,13 @@ class DynamicAmountEvaluator(
 
             // Composable entity property — replaces SourcePower, TargetPower, CountersOnSelf, etc.
             is DynamicAmount.EntityProperty -> {
-                val entityId = TargetResolutionUtils.resolveEntityReference(amount.entity, context, state)
+                val entityId = TargetResolutionUtils.resolveEntity(amount.entity, context, state)
                 // Enchanted-creature power reads use last-known information when the source aura
                 // has detached: the enchanted creature (and the aura) can leave the battlefield
                 // before the ability resolves — e.g. removed in response to the aura's ETB
                 // trigger — and "deals damage equal to its power" must use the power as it last
                 // existed on the battlefield (CR 608.2h). Captured at trigger time.
-                if (amount.entity is EntityReference.EnchantedCreature &&
+                if (amount.entity is EffectTarget.EnchantedCreature &&
                     amount.numericProperty is EntityNumericProperty.Power &&
                     (entityId == null || entityId !in state.getBattlefield())
                 ) {

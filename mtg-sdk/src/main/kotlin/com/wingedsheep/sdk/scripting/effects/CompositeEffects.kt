@@ -754,7 +754,7 @@ data class CreateDelayedTriggerEffect(
      *
      * For step-based delayed triggers (no [trigger]) there is no event to scope, so the baked
      * entity instead becomes the fired trigger's *triggering entity* — reachable from the effect
-     * as `EffectTarget.TriggeringEntity` or, inside a filter, `EntityReference.Triggering`. That is
+     * as `EffectTarget.TriggeringEntity`, in an effect and in a filter alike. That is
      * how "at end of combat, destroy all creatures that blocked or were blocked by **it** this
      * turn" (Gaze of the Gorgon) remembers which creature "it" was. Ignored when [fireOnPlayer]
      * is set, which already names the triggering player.

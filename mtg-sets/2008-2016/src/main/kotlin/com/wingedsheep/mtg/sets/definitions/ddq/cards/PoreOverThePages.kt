@@ -51,7 +51,7 @@ val PoreOverThePages = card("Pore Over the Pages") {
             ),
             ForEachInCollectionEffect(
                 collection = "toUntap",
-                effect = Effects.Untap(EffectTarget.Self),
+                effect = Effects.Untap(EffectTarget.IterationEntity),
             ),
             Patterns.Hand.discardCards(1),
         )

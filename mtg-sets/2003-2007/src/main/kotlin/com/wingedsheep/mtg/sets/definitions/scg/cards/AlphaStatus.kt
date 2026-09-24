@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Alpha Status
@@ -33,7 +33,7 @@ val AlphaStatus = card("Alpha Status") {
         // since the bonus is granted to the enchanted creature rather than to the Aura source.
         val sharedTypeCount = DynamicAmount.AggregateBattlefield(
             player = Player.Each,
-            filter = GameObjectFilter.Creature.sharingCreatureTypeWith(EntityReference.AffectedEntity),
+            filter = GameObjectFilter.Creature.sharingCreatureTypeWith(EffectTarget.AffectedEntity),
             excludeSelf = true,
         )
         ability = GrantDynamicStatsEffect(

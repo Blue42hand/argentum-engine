@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Composed rather than given its own effect type: [CardSource.AttachedTo] gathers the Equipment
  * currently attached to the target (the same gather Light of Judgment uses), then
  * [ForEachInCollectionEffect] runs [Effects.UnattachEquipment] once per gathered Equipment with
- * `EffectTarget.Self` bound to the iteration entity. No selection step — the oracle text says
+ * `EffectTarget.IterationEntity` bound to the iteration entity. No selection step — the oracle text says
  * "all", so nothing is chosen and nothing is targeted beyond the creature itself.
  *
  * Per the 2004-12-01 ruling, each Equipment stays on the battlefield under its controller's
@@ -47,7 +47,7 @@ val Disarm = card("Disarm") {
             run(
                 ForEachInCollectionEffect(
                     collection = equipment.key,
-                    effect = Effects.UnattachEquipment(EffectTarget.Self),
+                    effect = Effects.UnattachEquipment(EffectTarget.IterationEntity),
                 )
             )
         }

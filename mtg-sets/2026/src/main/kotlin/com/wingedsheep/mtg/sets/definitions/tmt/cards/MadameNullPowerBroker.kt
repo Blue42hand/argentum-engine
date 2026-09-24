@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Madame Null, Power Broker
@@ -35,7 +34,7 @@ val MadameNullPowerBroker = card("Madame Null, Power Broker") {
         trigger = Triggers.OtherCreatureEnters
         // "its power" / "that many" — the entering creature's power, used for both the life
         // payment and the counters (Effects.PayDynamicLife is the dynamic pay-life cost).
-        val enteringPower = DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.Power)
+        val enteringPower = DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.Power)
         effect = Effects.MayPay(
             cost = Effects.PayDynamicLife(enteringPower),
             then = Effects.AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE, enteringPower, EffectTarget.TriggeringEntity)

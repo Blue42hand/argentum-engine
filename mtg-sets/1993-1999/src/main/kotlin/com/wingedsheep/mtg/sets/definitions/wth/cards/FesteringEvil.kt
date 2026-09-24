@@ -28,13 +28,13 @@ val FesteringEvil = card("Festering Evil") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures, DealDamageEffect(1, EffectTarget.Self)) then
+        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures, DealDamageEffect(1, EffectTarget.IterationEntity)) then
             Effects.ForEachPlayer(Player.Each, listOf(Effects.DealDamage(1, EffectTarget.Controller)))
     }
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{B}{B}"), Costs.SacrificeSelf)
-        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures, DealDamageEffect(3, EffectTarget.Self)) then
+        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures, DealDamageEffect(3, EffectTarget.IterationEntity)) then
             Effects.ForEachPlayer(Player.Each, listOf(Effects.DealDamage(3, EffectTarget.Controller)))
     }
 

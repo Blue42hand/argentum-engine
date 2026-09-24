@@ -63,10 +63,10 @@ val PushPull = card("Push // Pull") {
                     ForEachInCollectionEffect(
                         collection = entered.key,
                         effect = Effects.Composite(
-                            Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self, Duration.EndOfTurn),
+                            Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn),
                             CreateDelayedTriggerEffect(
                                 step = Step.END,
-                                effect = Effects.SacrificeTarget(EffectTarget.Self),
+                                effect = Effects.SacrificeTarget(EffectTarget.IterationEntity),
                             ),
                         ),
                     ),

@@ -28,7 +28,7 @@ val SteamBlast = card("Steam Blast") {
     oracleText = "Steam Blast deals 2 damage to each creature and each player."
     spell {
         effect = Effects.Composite(
-            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(2, EffectTarget.Self)),
+            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(2, EffectTarget.IterationEntity)),
             ForEachPlayerEffect(Player.Each, listOf(DealDamageEffect(2, EffectTarget.Controller)))
         )
     }

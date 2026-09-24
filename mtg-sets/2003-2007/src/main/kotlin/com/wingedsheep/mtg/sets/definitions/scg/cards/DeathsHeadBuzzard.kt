@@ -31,7 +31,7 @@ val DeathsHeadBuzzard = card("Death's-Head Buzzard") {
         trigger = Triggers.Dies
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreatures,
-            effect = ModifyStatsEffect(-1, -1, EffectTarget.Self)
+            effect = ModifyStatsEffect(-1, -1, EffectTarget.IterationEntity)
         )
     }
 

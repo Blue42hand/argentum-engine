@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Breeches, the Blastmaker
@@ -62,7 +61,7 @@ val BreechesTheBlastmaker = card("Breeches, the Blastmaker") {
                 wonEffect = Effects.CopyTargetSpell(target = EffectTarget.TriggeringEntity),
                 lostEffect = Effects.DealDamage(
                     amount = DynamicAmount.EntityProperty(
-                        EntityReference.Triggering,
+                        EffectTarget.TriggeringEntity,
                         EntityNumericProperty.ManaValue
                     ),
                     target = damageTarget

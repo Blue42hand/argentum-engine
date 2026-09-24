@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * HULK SMASH! — Marvel Super Heroes #135
@@ -30,7 +30,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *
  * Mode 2 is the Rabid Bite shape — one-sided damage whose source is the attacking creature, so
  * deathtouch/lifelink on it apply and the victim deals nothing back. Its amount reads *this*
- * mode's first target ([EntityReference.Target]`(0)` is scoped to the mode's own target list), and
+ * mode's first target ([EffectTarget.ContextTarget]`(0)` is scoped to the mode's own target list), and
  * it is read at resolution, so a pump between cast and resolution counts.
  */
 val HulkSmash = card("HULK SMASH!") {
@@ -66,7 +66,7 @@ val HulkSmash = card("HULK SMASH!") {
                 )
                 effect = Effects.DealDamage(
                     amount = DynamicAmount.EntityProperty(
-                        EntityReference.Target(0),
+                        EffectTarget.ContextTarget(0),
                         EntityNumericProperty.Power,
                     ),
                     target = theirs,

@@ -18,7 +18,6 @@ import com.wingedsheep.sdk.scripting.effects.AddAnyColorManaSpendOnChosenTypeEff
 import com.wingedsheep.sdk.scripting.effects.AddManaOfChoiceEffect
 import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
 import com.wingedsheep.sdk.scripting.effects.AddDynamicManaEffect
-import com.wingedsheep.sdk.scripting.values.EntityReference
 import com.wingedsheep.sdk.scripting.values.LandControllerScope
 import com.wingedsheep.sdk.scripting.values.ManaColorSet
 import com.wingedsheep.sdk.scripting.effects.AddOneManaOfEachColorAmongEffect
@@ -1727,8 +1726,8 @@ object Effects {
      * Grant a **point-of-use** static ability to a target until end of turn (or another
      * [duration]) — e.g. [com.wingedsheep.sdk.scripting.CantBeBlockedByMoreThan] so the combat
      * blocker validation honors a temporarily-conferred "can't be blocked by more than one
-     * creature" (Full Steam Ahead). Compose inside [ForEachInGroup] with [EffectTarget.Self] for
-     * "each creature you control gains ...".
+     * creature" (Full Steam Ahead). Compose inside [ForEachInGroup] with
+     * [EffectTarget.IterationEntity] for "each creature you control gains ...".
      *
      * The grant lands in `GameState.grantedStaticAbilities`, which the combat, casting, and
      * activation checks read alongside a permanent's printed statics. The **layer projector does
@@ -3327,11 +3326,11 @@ object Effects {
     /**
      * [target] gains every protection ability some permanent in [group] has, read at resolution
      * — the protection clause of Concerted Effort. Fan it over the group with [ForEachInGroup]
-     * and [EffectTarget.Self]. See [GrantProtectionsSharedByGroupEffect].
+     * and [EffectTarget.IterationEntity]. See [GrantProtectionsSharedByGroupEffect].
      */
     fun GrantProtectionsSharedByGroup(
         group: com.wingedsheep.sdk.scripting.filters.unified.GroupFilter,
-        target: EffectTarget = EffectTarget.Self,
+        target: EffectTarget,
         duration: Duration = Duration.EndOfTurn
     ): Effect = com.wingedsheep.sdk.scripting.effects.GrantProtectionsSharedByGroupEffect(group, target, duration)
 
@@ -3366,8 +3365,8 @@ object Effects {
      * "[group] gain protection from each of [source]'s colors" (Éowyn, Fearless Knight) is:
      *
      *     Effects.ForEachColorOf(
-     *         source = EntityReference.Target(0),
-     *         effect = ForEachInGroupEffect(group, Effects.GrantProtectionFromChosenColor(EffectTarget.Self)),
+     *         source = EffectTarget.ContextTarget(0),
+     *         effect = ForEachInGroupEffect(group, Effects.GrantProtectionFromChosenColor(EffectTarget.IterationEntity)),
      *     )
      *
      * Colors are read from projected state on the battlefield (Layer-5 / Devoid honored),
@@ -3376,7 +3375,7 @@ object Effects {
      * exile/destroy step so its projected colors are still readable.
      */
     fun ForEachColorOf(
-        source: EntityReference,
+        source: EffectTarget.SingleEntity,
         effect: Effect
     ): Effect = ForEachColorOfEffect(source, effect)
 
@@ -3673,7 +3672,8 @@ object Effects {
 
     /**
      * Apply [effect] to every entity matching [filter] (Rule: "each", "all"). Within the inner
-     * effect, [EffectTarget.Self] resolves to the current iteration entity.
+     * effect, [EffectTarget.IterationEntity] names the entity being visited; [EffectTarget.Self]
+     * stays the source.
      *
      * The group is snapshotted before any iteration applies.
      *
@@ -5293,7 +5293,7 @@ object Effects {
         duration: Duration = Duration.EndOfTurn
     ): Effect {
         val manaValue = DynamicAmount.EntityProperty(
-            entity = com.wingedsheep.sdk.scripting.values.EntityReference.AffectedEntity,
+            entity = com.wingedsheep.sdk.scripting.targets.EffectTarget.AffectedEntity,
             numericProperty = com.wingedsheep.sdk.scripting.values.EntityNumericProperty.ManaValue
         )
         return BecomeCreatureEffect(

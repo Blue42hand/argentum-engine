@@ -61,7 +61,7 @@ val GoddricCloakedReveler = card("Goddric, Cloaked Reveler") {
                             cost = Costs.Mana("{R}"),
                             effect = Effects.ForEachInGroup(
                                 GroupFilter(GameObjectFilter.Creature.withSubtype("Dragon").youControl()),
-                                Effects.ModifyStats(1, 0, EffectTarget.Self),
+                                Effects.ModifyStats(1, 0, EffectTarget.IterationEntity),
                             ),
                             descriptionOverride = "{R}: Dragons you control get +1/+0 until end of turn.",
                         ),

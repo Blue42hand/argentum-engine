@@ -22,7 +22,7 @@ val ChargeTheSanctum = card("Charge the Sanctum") {
             mode("Creatures you control get +2/+0 until end of turn") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter.AllCreaturesYouControl,
-                    Effects.ModifyStats(2, 0, EffectTarget.Self)
+                    Effects.ModifyStats(2, 0, EffectTarget.IterationEntity)
                 )
             }
             mode("Target creature gets +2/+0 and gains first strike until end of turn. Put a +1/+1 counter on it") {

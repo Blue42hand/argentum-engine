@@ -34,7 +34,7 @@ val WildfireHowl = card("Wildfire Howl") {
 
     val damageToEachCreature = Effects.ForEachInGroup(
         filter = GroupFilter.AllCreatures,
-        effect = DealDamageEffect(2, EffectTarget.Self)
+        effect = DealDamageEffect(2, EffectTarget.IterationEntity)
     )
 
     spell {

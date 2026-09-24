@@ -113,7 +113,7 @@
                             },
                             "body": {
                                 "type": "TapUntap",
-                                "target": "Self",
+                                "target": "IterationEntity",
                                 "tap": false
                             }
                         },
@@ -178,7 +178,7 @@
                         "body": {
                             "type": "GrantKeyword",
                             "keyword": "INDESTRUCTIBLE",
-                            "target": "Self"
+                            "target": "IterationEntity"
                         }
                     },
                     "description": "Permanents you control gain indestructible until end of turn"
@@ -714,7 +714,7 @@
                     "type": "DrawCards",
                     "count": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     }
                 },
@@ -917,12 +917,12 @@
                             "type": "Fixed",
                             "amount": 5
                         },
-                        "target": "Self"
+                        "target": "IterationEntity"
                     },
                     {
                         "type": "GrantKeyword",
                         "keyword": "REACH",
-                        "target": "Self"
+                        "target": "IterationEntity"
                     }
                 ]
             }

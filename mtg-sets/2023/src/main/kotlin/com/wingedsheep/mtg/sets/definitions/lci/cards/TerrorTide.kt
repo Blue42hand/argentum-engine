@@ -32,7 +32,7 @@ val TerrorTide = card("Terror Tide") {
             Effects.ModifyStats(
                 DynamicAmount.Multiply(DynamicAmount.Count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Permanent), -1),
                 DynamicAmount.Multiply(DynamicAmount.Count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Permanent), -1),
-                EffectTarget.Self
+                EffectTarget.IterationEntity
             )
         )
     }

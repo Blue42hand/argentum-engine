@@ -48,7 +48,7 @@ val AnzragTheQuakeMole = card("Anzrag, the Quake-Mole") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
-                Effects.Untap(EffectTarget.Self),
+                Effects.Untap(EffectTarget.IterationEntity),
             ),
             Effects.AddCombatPhase,
         )

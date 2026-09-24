@@ -18,7 +18,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Fire Lord Zuko
@@ -33,7 +32,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *
  * Dynamic firebending: the `firebending(n)` DSL only models a fixed amount, so the attack trigger
  * is hand-wired as an [AddManaEffect] producing red mana equal to this creature's power
- * (`EntityProperty(Source, Power)`) with [ManaExpiry.END_OF_COMBAT] — the same firebending-style
+ * (`EntityProperty(Self, Power)`) with [ManaExpiry.END_OF_COMBAT] — the same firebending-style
  * mana the pool keeps through combat and discards once combat ends. The display keyword is omitted
  * because the `Firebending N` keyword ability is fixed-N only; the behavior and reminder text live
  * in the triggered ability and `oracleText`.
@@ -58,7 +57,7 @@ val FireLordZuko = card("Fire Lord Zuko") {
         trigger = Triggers.Attacks
         effect = AddManaEffect(
             Color.RED,
-            DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power),
+            DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power),
             expiry = ManaExpiry.END_OF_COMBAT,
         )
         description = "Firebending X, where X is Fire Lord Zuko's power. Whenever this creature " +
@@ -71,7 +70,7 @@ val FireLordZuko = card("Fire Lord Zuko") {
         )
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
         )
         description = "Whenever you cast a spell from exile, put a +1/+1 counter on each creature you control."
     }
@@ -83,7 +82,7 @@ val FireLordZuko = card("Fire Lord Zuko") {
         ).youControl()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
         )
         description = "Whenever a permanent you control enters from exile, put a +1/+1 counter on each creature you control."
     }

@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Belligerent Yearling
@@ -27,7 +26,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *
  * The trigger uses TriggerBinding.OTHER scoped to Creature.withSubtype("Dinosaur").youControl()
  * entering the battlefield — "another Dinosaur you control". The payoff is a Effects.May wrapping
- * SetBasePower(Self, EntityProperty(Triggering, Power), EndOfTurn): Layer 7b set-base-power that
+ * SetBasePower(Self, EntityProperty(TriggeringEntity, Power), EndOfTurn): Layer 7b set-base-power that
  * reads the entering Dinosaur's projected power at resolution time, lasting until cleanup (EndOfTurn).
  */
 val BelligerentYearling = card("Belligerent Yearling") {
@@ -54,7 +53,7 @@ val BelligerentYearling = card("Belligerent Yearling") {
             effect = Effects.SetBasePower(
                 target = EffectTarget.Self,
                 power = DynamicAmount.EntityProperty(
-                    EntityReference.Triggering,
+                    EffectTarget.TriggeringEntity,
                     EntityNumericProperty.Power
                 ),
                 duration = Duration.EndOfTurn

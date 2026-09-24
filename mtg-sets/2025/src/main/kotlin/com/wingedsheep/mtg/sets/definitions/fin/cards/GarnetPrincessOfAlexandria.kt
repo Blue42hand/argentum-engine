@@ -30,7 +30,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * Composed from atoms (no new effect): on attack, gather the Sagas you control that still have
  * a lore counter, let the controller pick any number of them (the "you may … any number" — zero
  * is a legal choice), remove one lore counter from each chosen Saga via
- * [ForEachInCollectionEffect] (`EffectTarget.Self` binds to the iterated Saga), then put that
+ * [ForEachInCollectionEffect] (`EffectTarget.IterationEntity` binds to the iterated Saga), then put that
  * many +1/+1 counters on Garnet. The gather filters to Sagas that have a lore counter so every
  * chosen Saga removes exactly one — making "lore counters removed this way" equal to the number
  * of chosen Sagas ([DynamicAmount.DistinctEntitiesInCollections] over the chosen collection).
@@ -74,7 +74,7 @@ val GarnetPrincessOfAlexandria = card("Garnet, Princess of Alexandria") {
                 // Remove one lore counter from each chosen Saga.
                 ForEachInCollectionEffect(
                     collection = "garnetChosen",
-                    effect = Effects.RemoveCounters(CounterType.LORE, 1, EffectTarget.Self)
+                    effect = Effects.RemoveCounters(CounterType.LORE, 1, EffectTarget.IterationEntity)
                 ),
                 // Put a +1/+1 counter on Garnet for each lore counter removed this way.
                 Effects.AddDynamicCounters(

@@ -28,7 +28,7 @@ val Inferno = card("Inferno") {
     oracleText = "Inferno deals 6 damage to each creature and each player."
     spell {
         effect = Effects.Composite(
-            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(6, EffectTarget.Self)),
+            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(6, EffectTarget.IterationEntity)),
             ForEachPlayerEffect(Player.Each, listOf(DealDamageEffect(6, EffectTarget.Controller)))
         )
     }

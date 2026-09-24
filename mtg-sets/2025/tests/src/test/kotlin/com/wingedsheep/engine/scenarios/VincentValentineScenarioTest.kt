@@ -29,7 +29,7 @@ import com.wingedsheep.engine.core.Outcome
  *   When Galian Beast dies, return it to the battlefield tapped (front face up).
  *
  * Exercises three independently-proven primitives composed on one card: the
- * `EntityProperty(Triggering, Power)` last-known-information read on an opponent's-creature-dies
+ * `EntityProperty(TriggeringEntity, Power)` last-known-information read on an opponent's-creature-dies
  * trigger (proven elsewhere by Jackal, Genius Geneticist / Doran, Besieged by Time), the
  * attack-triggered `Effects.May(TransformEffect)` (proven by Cecil, Dark Knight / Grub, Storied
  * Matriarch), and a DFC's "dies, return tapped" trigger relying on the automatic front-face-up

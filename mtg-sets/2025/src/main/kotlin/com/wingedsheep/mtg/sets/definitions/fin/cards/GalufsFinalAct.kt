@@ -28,7 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * "Its power" reads the dying creature's *last-known* power via [DynamicAmounts.sourcePower]
  * (the granted ability's source is the creature it was granted to). The same
- * `EntityProperty(Source, Power)` resolution backs Heartfire Hero's "deals damage equal to
+ * `EntityProperty(Self, Power)` resolution backs Heartfire Hero's "deals damage equal to
  * its power" dies trigger — the DynamicAmountEvaluator falls back to the leave-battlefield
  * power snapshot once the source is in the graveyard, so the printed base power is never used.
  *

@@ -86,7 +86,7 @@ val VannifarEvolvedEnigma = card("Vannifar, Evolved Enigma") {
                                 .withCardPredicate(CardPredicate.IsColorless)
                                 .youControl(),
                         ),
-                        Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                        Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
                     ),
                     "Put a +1/+1 counter on each colorless creature you control",
                 ),

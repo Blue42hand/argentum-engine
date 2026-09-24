@@ -30,7 +30,7 @@ val TranquilPath = card("Tranquil Path") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Enchantment),
-                Effects.Move(EffectTarget.Self, Zone.GRAVEYARD, byDestruction = true),
+                Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, byDestruction = true),
                 noRegenerate = false
             ),
             DrawCardsEffect(1)

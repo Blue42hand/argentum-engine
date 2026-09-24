@@ -19,7 +19,6 @@ import com.wingedsheep.sdk.scripting.costs.CostAtom
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -54,7 +53,7 @@ class StationMechanicTest : ScenarioTestBase() {
             cost = Costs.TapPermanents(count = 1, filter = GameObjectFilter.Creature, excludeSelf = true)
             effect = Effects.AddDynamicCounters(
                 counterType = CounterType.CHARGE,
-                amount = DynamicAmount.EntityProperty(EntityReference.TappedAsCost(), EntityNumericProperty.Power),
+                amount = DynamicAmount.EntityProperty(EffectTarget.TappedAsCost(), EntityNumericProperty.Power),
                 target = EffectTarget.Self
             )
             timing = TimingRule.SorcerySpeed
