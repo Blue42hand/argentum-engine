@@ -19,7 +19,8 @@ import com.wingedsheep.sdk.scripting.effects.DrawUpToEffect
  * beneficiary trigger is then created while the pipeline is rebound to that captured
  * controller, so the identity survives the spell leaving the stack without adding a
  * card-specific delayed-target primitive. The 0/1/2 choice stays in DrawUpToEffect and
- * is therefore made only when the next-upkeep delayed trigger resolves.
+ * is therefore made only when the next-upkeep delayed trigger resolves. Existing generic
+ * pipeline and delayed-trigger vocabulary is sufficient; no new engine primitive is needed.
  */
 val ArcaneDenial = card("Arcane Denial") {
     manaCost = "{1}{U}"
