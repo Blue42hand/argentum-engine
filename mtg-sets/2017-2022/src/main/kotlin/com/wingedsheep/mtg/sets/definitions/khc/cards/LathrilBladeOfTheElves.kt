@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
@@ -62,7 +61,7 @@ val LathrilBladeOfTheElves = card("Lathril, Blade of the Elves") {
         )
         effect = Effects.Composite(
             Effects.LoseLife(10, EffectTarget.PlayerRef(Player.EachOpponent)),
-            GainLifeEffect(10)
+            Effects.GainLife(10)
         )
         description = "Each opponent loses 10 life and you gain 10 life."
     }

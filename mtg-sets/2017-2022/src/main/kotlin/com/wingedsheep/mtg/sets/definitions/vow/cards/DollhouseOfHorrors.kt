@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -72,7 +71,7 @@ val DollhouseOfHorrors = card("Dollhouse of Horrors") {
         timing = TimingRule.SorcerySpeed
         effect = Effects.Pipeline {
             val dollhouseExiled = gather(CardSource.ExiledAsCost)
-            run(CreateTokenCopyOfTargetEffect(
+            run(Effects.CreateTokenCopyOfTarget(
                 target = dollhouseExiled.asTarget,
                 overridePower = 0,
                 overrideToughness = 0,

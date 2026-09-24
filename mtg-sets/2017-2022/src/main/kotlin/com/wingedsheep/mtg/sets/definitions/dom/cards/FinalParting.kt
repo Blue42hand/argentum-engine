@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -43,7 +42,7 @@ val FinalParting = card("Final Parting") {
             // Move the other to graveyard
             toGraveyard(toGraveyardCards)
             // Shuffle library
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
         }
     }
 

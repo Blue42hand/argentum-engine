@@ -10,9 +10,6 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddManaEffect
-import com.wingedsheep.sdk.scripting.effects.BecomeCreatureEffect
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -47,21 +44,21 @@ val RestlessRidgeline = card("Restless Ridgeline") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = AddManaEffect(Color.RED)
+        effect = Effects.AddMana(Color.RED)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = AddManaEffect(Color.GREEN)
+        effect = Effects.AddMana(Color.GREEN)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }
 
     activatedAbility {
         cost = Costs.Mana("{2}{R}{G}")
-        effect = BecomeCreatureEffect(
+        effect = Effects.BecomeCreature(
             target = EffectTarget.Self,
             power = DynamicAmount.Fixed(3),
             toughness = DynamicAmount.Fixed(4),
@@ -78,9 +75,9 @@ val RestlessRidgeline = card("Restless Ridgeline") {
             TargetOther(TargetCreature(filter = TargetFilter.AttackingCreature)),
         )
         effect = Effects.Composite(
-            ModifyStatsEffect(
-                powerModifier = 2,
-                toughnessModifier = 0,
+            Effects.ModifyStats(
+                power = 2,
+                toughness = 0,
                 target = creature,
                 duration = Duration.EndOfTurn,
             ),

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -51,11 +50,11 @@ val ThrabenCharm = card("Thraben Charm") {
             }
             mode("Exile any number of target players' graveyards") {
                 target("any number of target players", TargetPlayer(unlimited = true))
-                effect = ForEachTargetEffect(
-                    listOf(Effects.Pipeline {
-                        val tcGraveyard = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.ContextPlayer(0)))
-                        exile(tcGraveyard)
-                    }),
+                effect = Effects.ForEachTarget(
+                    Effects.Pipeline {
+                    val tcGraveyard = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.ContextPlayer(0)))
+                    exile(tcGraveyard)
+                },
                 )
             }
         }

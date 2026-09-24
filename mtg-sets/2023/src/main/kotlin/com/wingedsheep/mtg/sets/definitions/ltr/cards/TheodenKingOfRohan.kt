@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -36,7 +36,7 @@ val TheodenKingOfRohan = card("Théoden, King of Rohan") {
             filter = GameObjectFilter.Permanent.youControl().withSubtype("Human"),
             binding = TriggerBinding.ANY
         )
-        effect = GrantKeywordEffect(Keyword.DOUBLE_STRIKE, creature, Duration.EndOfTurn)
+        effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, creature, Duration.EndOfTurn)
     }
 
     metadata {

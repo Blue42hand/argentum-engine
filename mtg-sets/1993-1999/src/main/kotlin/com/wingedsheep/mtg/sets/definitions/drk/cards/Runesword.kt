@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CreaturesDamagedBySourceAreDoomed
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 
 /**
@@ -58,7 +57,7 @@ val Runesword = card("Runesword") {
                 CreaturesDamagedBySourceAreDoomed(),
                 attackingCreature,
             ),
-            CreateDelayedTriggerEffect(
+            Effects.CreateDelayedTrigger(
                 trigger = Triggers.LeavesBattlefield,
                 watchedTarget = attackingCreature,
                 effect = SacrificeSelfEffect,

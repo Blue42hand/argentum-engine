@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CantBeRegeneratedEffect
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -40,7 +39,7 @@ val CruelRevival = card("Cruel Revival") {
             )
         )
 
-        effect = CantBeRegeneratedEffect(creature) then
+        effect = Effects.CantBeRegenerated(creature) then
                 Effects.Move(creature, Zone.GRAVEYARD, byDestruction = true) then
                 Effects.Move(zombieCard, Zone.HAND)
     }

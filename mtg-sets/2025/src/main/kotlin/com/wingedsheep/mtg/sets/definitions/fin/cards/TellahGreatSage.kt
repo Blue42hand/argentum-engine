@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -46,7 +44,7 @@ val TellahGreatSage = card("Tellah, Great Sage") {
                     ComparisonOperator.GTE,
                     DynamicAmount.Fixed(4)
                 ),
-                then = DrawCardsEffect(2)
+                then = Effects.DrawCards(2)
             ),
             Effects.If(
                 condition = Compare(
@@ -56,7 +54,7 @@ val TellahGreatSage = card("Tellah, Great Sage") {
                 ),
                 then = Effects.Composite(
                     SacrificeSelfEffect,
-                    DealDamageEffect(
+                    Effects.DealDamage(
                         DynamicAmount.ContextProperty(ContextPropertyKey.MANA_SPENT_ON_TRIGGERING_SPELL),
                         EffectTarget.PlayerRef(Player.EachOpponent)
                     )

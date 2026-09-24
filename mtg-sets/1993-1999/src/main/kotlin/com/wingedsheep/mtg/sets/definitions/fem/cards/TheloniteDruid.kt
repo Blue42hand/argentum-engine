@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.BecomeCreatureEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -42,7 +41,7 @@ val TheloniteDruid = card("Thelonite Druid") {
         )
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Land.withSubtype(Subtype.FOREST).youControl()),
-            effect = BecomeCreatureEffect(
+            effect = Effects.BecomeCreature(
                 target = EffectTarget.IterationEntity,
                 power = DynamicAmount.Fixed(2),
                 toughness = DynamicAmount.Fixed(3),

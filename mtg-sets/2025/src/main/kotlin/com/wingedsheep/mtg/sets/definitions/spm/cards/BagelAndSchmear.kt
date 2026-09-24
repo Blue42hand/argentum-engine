@@ -6,9 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -28,16 +25,16 @@ val BagelAndSchmear = card("Bagel and Schmear") {
         cost = Costs.Composite(Costs.Mana("{W}"), Costs.Tap, Costs.SacrificeSelf)
         val t = target("target", TargetCreature(optional = true, filter = TargetFilter.Creature))
         effect = Effects.Composite(
-            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
-            DrawCardsEffect(1)
+            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
+            Effects.DrawCards(1)
         )
         timing = TimingRule.SorcerySpeed
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap, Costs.SacrificeSelf)
         effect = Effects.Composite(
-            GainLifeEffect(3),
-            DrawCardsEffect(1)
+            Effects.GainLife(3),
+            Effects.DrawCards(1)
         )
     }
     metadata {

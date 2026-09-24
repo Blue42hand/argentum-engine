@@ -12,8 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -111,9 +109,9 @@ private val GhostlyCastigator = card("Ghostly Castigator") {
             id = "three target cards from your graveyard",
         )
         effect = Effects.May(
-            ForEachTargetEffect(
-                effects = listOf(Effects.Move(EffectTarget.ContextTarget(0), Zone.LIBRARY))
-            ).then(ShuffleLibraryEffect()),
+            Effects.ForEachTarget(
+                Effects.Move(EffectTarget.ContextTarget(0), Zone.LIBRARY)
+            ).then(Effects.ShuffleLibrary()),
             descriptionOverride = "Shuffle the targeted cards from your graveyard into your library?",
         )
         description = "When this creature enters, you may shuffle up to three target cards from " +

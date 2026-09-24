@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -40,7 +39,7 @@ val SawbladeSlinger = card("Sawblade Slinger") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 Mode.withTarget(
                     Effects.Destroy(EffectTarget.ContextTarget(0)),

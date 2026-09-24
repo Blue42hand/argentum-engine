@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.mayhem
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.model.Rarity
@@ -34,11 +33,11 @@ val SandmansQuicksand = card("Sandman's Quicksand") {
             condition = Conditions.MayhemCostWasPaid,
             then = Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreaturesOpponentsControl,
-                effect = ModifyStatsEffect(-2, -2, EffectTarget.IterationEntity)
+                effect = Effects.ModifyStats(-2, -2, EffectTarget.IterationEntity)
             ),
             otherwise = Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreatures,
-                effect = ModifyStatsEffect(-2, -2, EffectTarget.IterationEntity)
+                effect = Effects.ModifyStats(-2, -2, EffectTarget.IterationEntity)
             )
         )
     }

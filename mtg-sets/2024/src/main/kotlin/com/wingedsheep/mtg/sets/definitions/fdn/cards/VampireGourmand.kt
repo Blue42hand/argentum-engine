@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -45,7 +44,7 @@ val VampireGourmand = card("Vampire Gourmand") {
         effect = Effects.May(
             Effects.SacrificeTarget(sacrificeTarget) then
                 Effects.DrawCards(1) then
-                GrantKeywordEffect(AbilityFlag.CANT_BE_BLOCKED.name, EffectTarget.Self)
+                Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, EffectTarget.Self)
         )
         description = "Whenever this creature attacks, you may sacrifice another creature. If you do, " +
             "draw a card and this creature can't be blocked this turn."

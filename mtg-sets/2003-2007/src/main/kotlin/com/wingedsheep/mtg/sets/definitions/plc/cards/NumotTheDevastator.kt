@@ -6,9 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -44,11 +41,9 @@ val NumotTheDevastator = card("Numot, the Devastator") {
             id = "target"
         )
         effect = Effects.MayPay(
-            cost = PayManaCostEffect(ManaCost.parse("{2}{R}")),
-            then = ForEachTargetEffect(
-                listOf(
-                    Effects.Move(EffectTarget.ContextTarget(0), Zone.GRAVEYARD, byDestruction = true)
-                )
+            cost = Effects.PayMana("{2}{R}"),
+            then = Effects.ForEachTarget(
+                Effects.Move(EffectTarget.ContextTarget(0), Zone.GRAVEYARD, byDestruction = true)
             )
         )
     }

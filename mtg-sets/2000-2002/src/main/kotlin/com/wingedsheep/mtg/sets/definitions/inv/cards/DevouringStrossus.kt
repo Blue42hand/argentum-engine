@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -38,7 +37,7 @@ val DevouringStrossus = card("Devouring Strossus") {
 
     activatedAbility {
         cost = Costs.Sacrifice(GameObjectFilter.Creature)
-        effect = RegenerateEffect(EffectTarget.Self)
+        effect = Effects.Regenerate(EffectTarget.Self)
     }
 
     metadata {

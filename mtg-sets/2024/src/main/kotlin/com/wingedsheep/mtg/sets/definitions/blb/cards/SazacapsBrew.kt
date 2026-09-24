@@ -6,10 +6,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -43,7 +40,7 @@ val SazacapsBrew = card("Sazacap's Brew") {
         effect = Patterns.Mechanic.giftSpell(
             // Mode 1: No gift — target player draws 2
             Mode.withTarget(
-                DrawCardsEffect(2, EffectTarget.ContextTarget(0)),
+                Effects.DrawCards(2, EffectTarget.ContextTarget(0)),
                 Targets.Player,
                 "Don't promise a gift — target player draws two cards"
             ),
@@ -52,7 +49,7 @@ val SazacapsBrew = card("Sazacap's Brew") {
             Mode(
                 effect = Effects.Composite(
                     listOf(
-                        CreateTokenEffect(
+                        Effects.CreateToken(
                             count = DynamicAmount.Fixed(1),
                             power = 1,
                             toughness = 1,
@@ -62,10 +59,10 @@ val SazacapsBrew = card("Sazacap's Brew") {
                             controller = EffectTarget.PlayerRef(Player.ChosenOpponent),
                             imageUri = "https://cards.scryfall.io/normal/front/d/e/de0d6700-49f0-4233-97ba-cef7821c30ed.jpg?1721431109"
                         ),
-                        DrawCardsEffect(2, EffectTarget.ContextTarget(0)),
-                        ModifyStatsEffect(
-                            powerModifier = 2,
-                            toughnessModifier = 0,
+                        Effects.DrawCards(2, EffectTarget.ContextTarget(0)),
+                        Effects.ModifyStats(
+                            power = 2,
+                            toughness = 0,
                             target = EffectTarget.ContextTarget(1),
                             duration = Duration.EndOfTurn
                         ),

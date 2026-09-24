@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -57,7 +56,7 @@ val StealTheShow = card("Steal the Show") {
                         moveType = MoveType.Discard
                     )
                     run(
-                        DrawCardsEffect(
+                        Effects.DrawCards(
                             discarded.count,
                             EffectTarget.ContextTarget(0)
                         )

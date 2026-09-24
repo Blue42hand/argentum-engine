@@ -2,12 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.ModifyCounterPlacement
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddManaOfChoiceEffect
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.values.ManaColorSet
 
@@ -62,7 +62,7 @@ val DocSamsonSuperPsychiatrist = card("Doc Samson, Super Psychiatrist") {
 
     activatedAbility {
         cost = Costs.Tap
-        effect = AddManaOfChoiceEffect(
+        effect = Effects.AddManaOfChoice(
             colorSet = ManaColorSet.AnyColor,
             amount = DynamicAmounts.sourcePower()
         )

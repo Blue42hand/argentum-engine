@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 
 /**
  * Quiet Contemplation
@@ -30,7 +29,7 @@ val QuietContemplation = card("Quiet Contemplation") {
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
             then = Effects.Tap(creatureOpponentControls) then
-                GrantKeywordEffect(AbilityFlag.DOESNT_UNTAP.name, creatureOpponentControls, Duration.UntilAfterAffectedControllersNextUntap)
+                Effects.GrantKeyword(AbilityFlag.DOESNT_UNTAP, creatureOpponentControls, Duration.UntilAfterAffectedControllersNextUntap)
         )
     }
 

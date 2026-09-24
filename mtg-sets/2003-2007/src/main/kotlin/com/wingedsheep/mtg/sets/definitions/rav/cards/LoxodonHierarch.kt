@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -47,7 +46,7 @@ val LoxodonHierarch = card("Loxodon Hierarch") {
         cost = Costs.Composite(Costs.Mana("{G}{W}"), Costs.SacrificeSelf)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            RegenerateEffect(EffectTarget.IterationEntity)
+            Effects.Regenerate(EffectTarget.IterationEntity)
         )
     }
 

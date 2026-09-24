@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -33,13 +32,13 @@ val TimeOfIce = card("Time of Ice") {
     sagaChapter(1) {
         val creature = target("creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.Tap(creature) then
-            GrantKeywordEffect(AbilityFlag.DOESNT_UNTAP.name, creature, Duration.WhileSourceOnBattlefield("Time of Ice"))
+            Effects.GrantKeyword(AbilityFlag.DOESNT_UNTAP, creature, Duration.WhileSourceOnBattlefield("Time of Ice"))
     }
 
     sagaChapter(2) {
         val creature = target("creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.Tap(creature) then
-            GrantKeywordEffect(AbilityFlag.DOESNT_UNTAP.name, creature, Duration.WhileSourceOnBattlefield("Time of Ice"))
+            Effects.GrantKeyword(AbilityFlag.DOESNT_UNTAP, creature, Duration.WhileSourceOnBattlefield("Time of Ice"))
     }
 
     sagaChapter(3) {

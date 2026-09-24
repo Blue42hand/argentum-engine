@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
@@ -76,7 +75,7 @@ val SpinerockKnoll = card("Spinerock Knoll") {
 
     activatedAbility {
         cost = Costs.Tap
-        effect = AddManaEffect(Color.RED)
+        effect = Effects.AddMana(Color.RED)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

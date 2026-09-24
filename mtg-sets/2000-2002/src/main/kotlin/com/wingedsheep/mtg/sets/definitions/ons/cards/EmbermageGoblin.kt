@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 
@@ -45,7 +44,7 @@ val EmbermageGoblin = card("Embermage Goblin") {
     activatedAbility {
         cost = Costs.Tap
         val t = target("target", Targets.Any)
-        effect = DealDamageEffect(1, t)
+        effect = Effects.DealDamage(1, t)
     }
 
     metadata {

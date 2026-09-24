@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.SetBasePowerToughnessDynamicStatic
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.dsl.Costs
@@ -106,7 +105,7 @@ private val ThousandMoonsSmithyFront = card("Thousand Moons Smithy") {
         }
         effect = Effects.MayPay(
             cost = tapCost,
-            then = TransformEffect(EffectTarget.Self),
+            then = Effects.Transform(EffectTarget.Self),
             descriptionOverride = "You may tap five untapped artifacts and/or creatures you control. " +
                 "If you do, transform Thousand Moons Smithy.",
         )

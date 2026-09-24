@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreatePredefinedTokenEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -19,10 +18,9 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  *  Activate only as a sorcery.")"
  *
  * Target filter: There is no pre-built TargetFilter for "creature, enchantment, or planeswalker",
- * so we construct one inline using CardPredicate.Or. The token-creation step uses
- * CreatePredefinedTokenEffect directly (bypassing the Effects.CreateMapToken facade) because only
- * the data-class constructor exposes the [EffectTarget.TargetController] controller override that
- * redirects the token creation to the destroyed permanent's controller rather than the caster.
+ * so we construct one inline using CardPredicate.Or. The Map tokens go to the destroyed
+ * permanent's controller rather than the caster via the [EffectTarget.TargetController] controller
+ * override.
  */
 private val creatureEnchantmentOrPlaneswalker = TargetFilter(
     GameObjectFilter(
@@ -46,7 +44,7 @@ val GetLost = card("Get Lost") {
         val t = target("target creature, enchantment, or planeswalker", TargetPermanent(filter = creatureEnchantmentOrPlaneswalker))
         effect = Effects.Composite(
             Effects.Destroy(t),
-            CreatePredefinedTokenEffect("Map", 2, EffectTarget.TargetController)
+            Effects.CreateMapToken(2, controller = EffectTarget.TargetController)
         )
     }
 

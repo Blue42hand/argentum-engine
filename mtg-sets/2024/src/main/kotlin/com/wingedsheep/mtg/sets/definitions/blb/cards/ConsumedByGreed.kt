@@ -5,8 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.ForceSacrificeEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -29,7 +27,7 @@ val ConsumedByGreed = card("Consumed by Greed") {
     typeLine = "Instant"
     oracleText = "Gift a card (You may promise an opponent a gift as you cast this spell. If you do, they draw a card before its other effects.)\nTarget opponent sacrifices a creature with the greatest power among creatures they control. If the gift was promised, return target creature card from your graveyard to your hand."
 
-    val sacrificeEffect = ForceSacrificeEffect(
+    val sacrificeEffect = Effects.Sacrifice(
         filter = GameObjectFilter.Creature.hasGreatestPower(),
         count = 1,
         target = EffectTarget.ContextTarget(0)
@@ -47,7 +45,7 @@ val ConsumedByGreed = card("Consumed by Greed") {
             Mode(
                 effect = Effects.Composite(
                     listOf(
-                        DrawCardsEffect(1, EffectTarget.PlayerRef(Player.ChosenOpponent)),
+                        Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent)),
                         sacrificeEffect,
                         Effects.ReturnToHand(EffectTarget.ContextTarget(1)),
                         Effects.GiftGiven()

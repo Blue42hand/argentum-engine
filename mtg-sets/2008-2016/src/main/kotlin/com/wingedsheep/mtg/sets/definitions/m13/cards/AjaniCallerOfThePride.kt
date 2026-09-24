@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -40,8 +39,8 @@ val AjaniCallerOfThePride = card("Ajani, Caller of the Pride") {
     // +1: Put a +1/+1 counter on up to one target creature.
     loyaltyAbility(+1) {
         target("up to one target creature", TargetCreature(count = 1, optional = true))
-        effect = ForEachTargetEffect(
-            listOf(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
+        effect = Effects.ForEachTarget(
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
         )
     }
 

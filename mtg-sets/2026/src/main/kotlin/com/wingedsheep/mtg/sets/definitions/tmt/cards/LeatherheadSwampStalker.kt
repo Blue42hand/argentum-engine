@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -58,7 +57,7 @@ val LeatherheadSwampStalker = card("Leatherhead, Swamp Stalker") {
     // two-player game.
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.RemoveCounterOfAnyKind(EffectTarget.Self),
             optional = true,
             reflexiveEffect = Effects.Destroy(EffectTarget.ContextTarget(0)),

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -35,7 +34,7 @@ val RowdySnowballers = card("Rowdy Snowballers") {
         )
         effect = Effects.Composite(
             Effects.Tap(t),
-            AddCountersEffect(counterType = CounterType.STUN, count = 1, target = t),
+            Effects.AddCounters(counterType = CounterType.STUN, count = 1, target = t),
         )
     }
 

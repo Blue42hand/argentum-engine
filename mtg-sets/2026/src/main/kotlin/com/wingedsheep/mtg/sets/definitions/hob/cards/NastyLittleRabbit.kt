@@ -6,11 +6,11 @@ package com.wingedsheep.mtg.sets.definitions.hob.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
@@ -31,7 +31,7 @@ val NastyLittleRabbit = card("Nasty Little Rabbit") {
     triggeredAbility {
         trigger = Triggers.BeginCombat
         interveningIf = Conditions.YouControl(GameObjectFilter.Creature.powerAtLeast(4))
-        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.UNCOMMON

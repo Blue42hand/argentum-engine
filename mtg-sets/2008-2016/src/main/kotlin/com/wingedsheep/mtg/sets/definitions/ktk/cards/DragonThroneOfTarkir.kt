@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -51,11 +49,11 @@ val DragonThroneOfTarkir = card("Dragon Throne of Tarkir") {
                     listOf(
                         Effects.ForEachInGroup(
                             GroupFilter.OtherCreaturesYouControl,
-                            GrantKeywordEffect(Keyword.TRAMPLE, EffectTarget.IterationEntity)
+                            Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
                         ),
                         Effects.ForEachInGroup(
                             GroupFilter.OtherCreaturesYouControl,
-                            ModifyStatsEffect(DynamicAmounts.sourcePower(), DynamicAmounts.sourcePower(), EffectTarget.IterationEntity)
+                            Effects.ModifyStats(DynamicAmounts.sourcePower(), DynamicAmounts.sourcePower(), EffectTarget.IterationEntity)
                         )
                     )
                 ),

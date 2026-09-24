@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.ons.cards
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MarkMustAttackThisTurnEffect
 import com.wingedsheep.sdk.scripting.effects.OptionType
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -31,7 +30,7 @@ val WalkingDesecration = card("Walking Desecration") {
             val chosenCreatureType = chooseOption(OptionType.CREATURE_TYPE)
             run(Effects.ForEachInGroup(
                 filter = GroupFilter.ChosenSubtypeCreatures(chosenCreatureType),
-                effect = MarkMustAttackThisTurnEffect(
+                effect = Effects.MarkMustAttackThisTurn(
                     target = EffectTarget.IterationEntity
                 )
             ))

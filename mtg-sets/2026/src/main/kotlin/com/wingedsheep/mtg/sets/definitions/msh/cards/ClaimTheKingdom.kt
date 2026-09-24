@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -62,7 +61,7 @@ val ClaimTheKingdom = card("Claim the Kingdom") {
             binding = TriggerBinding.SELF,
         )
         triggerRestriction = Conditions.SourceCounterCountAtLeast(CounterType.PLAN, 4)
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeTarget(EffectTarget.Self),
             optional = false,
             reflexiveEffect = Effects.AddCounters(

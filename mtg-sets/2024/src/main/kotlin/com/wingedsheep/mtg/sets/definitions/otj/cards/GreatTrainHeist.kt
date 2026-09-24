@@ -11,9 +11,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -53,7 +51,7 @@ val GreatTrainHeist = card("Great Train Heist") {
         "+ {R} — Choose target opponent. Whenever a creature you control deals combat damage to that player this turn, create a tapped Treasure token."
 
     spell {
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 Mode(
                     effect = Patterns.Group.untapGroup(GroupFilter.AllCreaturesYouControl)
@@ -74,7 +72,7 @@ val GreatTrainHeist = card("Great Train Heist") {
                     additionalManaCost = "{2}"
                 ),
                 Mode(
-                    effect = CreateDelayedTriggerEffect(
+                    effect = Effects.CreateDelayedTrigger(
                         trigger = Triggers.dealsDamage(
                             damageType = DamageType.Combat,
                             recipient = Recipient.AnyPlayer,

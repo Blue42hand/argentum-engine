@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -33,9 +31,9 @@ val OldManWillow = card("Old Man Willow") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             // "you may sacrifice another creature or a token"
-            action = SacrificeEffect(
+            action = Effects.SacrificeOwn(
                 filter = GameObjectFilter.Creature.youControl() or GameObjectFilter.Token.youControl(),
                 excludeSource = true
             ),

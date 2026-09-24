@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -55,7 +54,7 @@ private val HuntmasterOfTheFellsFront = card("Huntmaster of the Fells") {
             ComparisonOperator.EQ,
             DynamicAmount.Fixed(0),
         )
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
     }
 
     metadata {
@@ -105,7 +104,7 @@ private val RavagerOfTheFells = card("Ravager of the Fells") {
             ComparisonOperator.GTE,
             DynamicAmount.Fixed(2),
         )
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
     }
 
     metadata {

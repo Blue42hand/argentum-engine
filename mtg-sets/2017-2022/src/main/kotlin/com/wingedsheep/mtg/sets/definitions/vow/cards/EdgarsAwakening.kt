@@ -1,13 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -41,8 +38,8 @@ val EdgarsAwakening = card("Edgar's Awakening") {
 
     triggeredAbility {
         trigger = Triggers.YouDiscardThis
-        effect = ReflexiveTriggerEffect(
-            action = PayManaCostEffect(ManaCost.parse("{B}")),
+        effect = Effects.ReflexiveTrigger(
+            action = Effects.PayMana("{B}"),
             reflexiveEffect = Effects.ReturnToHand(EffectTarget.ContextTarget(0)),
             reflexiveTargetRequirements = listOf(Targets.CreatureCardInYourGraveyard),
             // The composed description reads "return target to its owner's hand"; this is the

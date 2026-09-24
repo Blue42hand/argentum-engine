@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.TurnFaceDownEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -30,7 +29,7 @@ val MischievousQuanar = card("Mischievous Quanar") {
     // {3}{U}{U}: Turn this creature face down.
     activatedAbility {
         cost = Costs.Mana("{3}{U}{U}")
-        effect = TurnFaceDownEffect(target = EffectTarget.Self)
+        effect = Effects.TurnFaceDown(target = EffectTarget.Self)
     }
 
     morph = "{1}{U}{U}"

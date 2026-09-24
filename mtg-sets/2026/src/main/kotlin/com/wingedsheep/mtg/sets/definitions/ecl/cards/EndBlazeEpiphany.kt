@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -34,7 +33,7 @@ val EndBlazeEpiphany = card("End-Blaze Epiphany") {
         effect = Effects.Composite(
             listOf(
                 Effects.DealDamage(DynamicAmount.XValue, creature),
-                CreateDelayedTriggerEffect(
+                Effects.CreateDelayedTrigger(
                     trigger = Triggers.Dies,
                     watchedTarget = creature,
                     expiry = DelayedTriggerExpiry.EndOfTurn,

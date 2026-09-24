@@ -8,10 +8,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
-import com.wingedsheep.sdk.scripting.effects.GiveControlToTargetPlayerEffect
-import com.wingedsheep.sdk.scripting.effects.RemoveCountersEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
@@ -42,7 +39,7 @@ val JinxedChoker = card("Jinxed Choker") {
         trigger = Triggers.YourEndStep
         val opponent = target("opponent", TargetOpponent())
         effect = Effects.Composite(
-            GiveControlToTargetPlayerEffect(
+            Effects.GiveControl(
                 permanent = EffectTarget.Self,
                 newController = opponent,
             ),
@@ -63,12 +60,12 @@ val JinxedChoker = card("Jinxed Choker") {
         val addCounter = Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)
         effect = Effects.If(
             condition = Conditions.SourceHasCounter(CounterType.CHARGE),
-            then = ChooseActionEffect(
+            then = Effects.ChooseAction(
                 choices = listOf(
                     EffectChoice("Put a charge counter on Jinxed Choker", addCounter),
                     EffectChoice(
                         "Remove a charge counter from Jinxed Choker",
-                        RemoveCountersEffect(CounterType.CHARGE, 1, EffectTarget.Self),
+                        Effects.RemoveCounters(CounterType.CHARGE, 1, EffectTarget.Self),
                     ),
                 ),
             ),

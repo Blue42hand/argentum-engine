@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -39,7 +39,7 @@ val ExcaliburII = card("Excalibur II") {
 
     triggeredAbility {
         trigger = Triggers.YouGainLife
-        effect = AddCountersEffect(CounterType.CHARGE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)
     }
 
     staticAbility {

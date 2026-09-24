@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.lgn.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.TurnFaceDownEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -30,7 +30,7 @@ val MasterOfTheVeil = card("Master of the Veil") {
         val t = target("creature with a morph ability", TargetPermanent(
             filter = TargetFilter(GameObjectFilter.Creature.withMorph().faceUp())
         ))
-        effect = TurnFaceDownEffect(t)
+        effect = Effects.TurnFaceDown(t)
     }
 
     morph = "{2}{U}"

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.LookAtTargetHandEffect
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -54,7 +53,7 @@ val OildeepGearhulk = card("Oildeep Gearhulk") {
         trigger = Triggers.EntersBattlefield
         val player = target("target player", Targets.Player)
         effect = Effects.Pipeline {
-            run(LookAtTargetHandEffect(player))
+            run(Effects.LookAtHand(player))
             val targetHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
             val chosenCard = chooseUpTo(
                 1,

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetOther
@@ -57,7 +56,7 @@ val ItzquinthFirstbornOfGishath = card("Itzquinth, Firstborn of Gishath") {
         // "you may pay {2}. When you do" → Gate.MayPay; if paid, t1 deals damage to t2.
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}"),
-            then = DealDamageEffect(DynamicAmounts.targetPower(0), t2, damageSource = t1)
+            then = Effects.DealDamage(DynamicAmounts.targetPower(0), t2, damageSource = t1)
         )
     }
 

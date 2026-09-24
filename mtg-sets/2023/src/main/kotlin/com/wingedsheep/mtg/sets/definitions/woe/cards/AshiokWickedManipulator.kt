@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ReplaceLifePaymentWithLibraryExile
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.CardDestination
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -88,7 +87,7 @@ val AshiokWickedManipulator = card("Ashiok, Wicked Manipulator") {
     // −2: Create two 1/1 black Nightmare creature tokens with "At the beginning of combat on your
     //     turn, if a card was put into exile this turn, put a +1/+1 counter on this token."
     loyaltyAbility(-2) {
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             count = DynamicAmount.Fixed(2),
             power = 1,
             toughness = 1,

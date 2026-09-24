@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreatePredefinedTokenEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -40,14 +38,10 @@ val GenerousPlunderer = card("Generous Plunderer") {
     // "you may create a Treasure token. When you do, target opponent creates a tapped Treasure token."
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.CreateTreasure(1),
             optional = true,
-            reflexiveEffect = CreatePredefinedTokenEffect(
-                "Treasure",
-                controller = EffectTarget.ContextTarget(0),
-                tapped = true,
-            ),
+            reflexiveEffect = Effects.CreateTreasure(controller = EffectTarget.ContextTarget(0), tapped = true),
             reflexiveTargetRequirements = listOf(Targets.Opponent),
         )
     }

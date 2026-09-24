@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 
 
 /**
@@ -33,7 +32,7 @@ val DarkwaterEgg = card("Darkwater Egg") {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap, Costs.SacrificeSelf)
         effect = Effects.Composite(
             Effects.Composite(Effects.AddMana(Color.BLUE, 1), Effects.AddMana(Color.BLACK, 1)),
-            DrawCardsEffect(1)
+            Effects.DrawCards(1)
         )
     }
     metadata {

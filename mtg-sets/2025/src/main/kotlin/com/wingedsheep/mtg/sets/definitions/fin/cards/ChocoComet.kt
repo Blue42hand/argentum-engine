@@ -12,8 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -34,8 +32,8 @@ val ChocoComet = card("Choco-Comet") {
     spell {
         val t = target("target", AnyTarget())
         effect = Effects.Composite(
-            DealDamageEffect(DynamicAmount.XValue, t),
-            CreateTokenEffect(
+            Effects.DealDamage(DynamicAmount.XValue, t),
+            Effects.CreateToken(
                 power = 2,
                 toughness = 2,
                 colors = setOf(Color.GREEN),

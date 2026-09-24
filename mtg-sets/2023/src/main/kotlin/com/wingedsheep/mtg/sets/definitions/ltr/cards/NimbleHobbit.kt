@@ -1,18 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -34,13 +29,13 @@ val NimbleHobbit = card("Nimble Hobbit") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             // "you may sacrifice a Food or pay {2}{W}"
-            action = ChooseActionEffect(
+            action = Effects.ChooseAction(
                 choices = listOf(
                     EffectChoice(
                         label = "Sacrifice a Food",
-                        effect = SacrificeEffect(
+                        effect = Effects.SacrificeOwn(
                             filter = GameObjectFilter.Any.withSubtype("Food")
                         ),
                         feasibilityCheck = FeasibilityCheck.ControlsPermanentMatching(
@@ -49,7 +44,7 @@ val NimbleHobbit = card("Nimble Hobbit") {
                     ),
                     EffectChoice(
                         label = "Pay {2}{W}",
-                        effect = PayManaCostEffect(ManaCost.parse("{2}{W}"))
+                        effect = Effects.PayMana("{2}{W}")
                     )
                 )
             ),

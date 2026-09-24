@@ -1,11 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
@@ -25,12 +24,10 @@ val RewardTheFaithful = card("Reward the Faithful") {
 
     spell {
         target("players", TargetPlayer(count = 2, optional = true))
-        effect = ForEachTargetEffect(
-            listOf(
-                GainLifeEffect(
-                    amount = DynamicAmounts.battlefield(Player.You).maxManaValue(),
-                    target = EffectTarget.ContextTarget(0)
-                )
+        effect = Effects.ForEachTarget(
+            Effects.GainLife(
+                amount = DynamicAmounts.battlefield(Player.You).maxManaValue(),
+                target = EffectTarget.ContextTarget(0)
             )
         )
     }

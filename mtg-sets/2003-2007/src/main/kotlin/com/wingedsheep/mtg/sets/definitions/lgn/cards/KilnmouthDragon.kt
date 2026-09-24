@@ -2,11 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.lgn.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithRevealCounters
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 
@@ -36,7 +36,7 @@ val KilnmouthDragon = card("Kilnmouth Dragon") {
     activatedAbility {
         cost = Costs.Tap
         val t = target("any target", Targets.Any)
-        effect = DealDamageEffect(
+        effect = Effects.DealDamage(
             amount = DynamicAmounts.countersOnSelf(CounterType.PLUS_ONE_PLUS_ONE),
             target = t
         )

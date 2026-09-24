@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -46,7 +45,7 @@ val CrosisThePurger = card("Crosis, the Purger") {
             cost = ManaCost.parse("{2}{B}"),
             then = Effects.ChooseColorThen(
                 then = Effects.Pipeline {
-                    run(RevealHandEffect(EffectTarget.PlayerRef(Player.TriggeringPlayer)))
+                    run(Effects.RevealHand(EffectTarget.PlayerRef(Player.TriggeringPlayer)))
                     val crosisDiscard = gather(
                         CardSource.FromZone(
                             zone = Zone.HAND,

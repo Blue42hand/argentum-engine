@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -99,7 +98,7 @@ val CloakAndDaggerEntwined = card("Cloak and Dagger, Entwined") {
             TargetCreature(optional = true, filter = TargetFilter.CreatureOpponentControls),
         )
         effect = Effects.Composite(
-            RevealHandEffect(opponent),
+            Effects.RevealHand(opponent),
             Effects.May(
                 Effects.ChooseAction(
                     listOf(

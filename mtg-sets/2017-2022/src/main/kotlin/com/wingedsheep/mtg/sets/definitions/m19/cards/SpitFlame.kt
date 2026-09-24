@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.m19.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -10,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -45,7 +43,7 @@ val SpitFlame = card("Spit Flame") {
             binding = TriggerBinding.ANY
         )
         effect = Effects.MayPay(
-            cost = PayManaCostEffect(ManaCost.parse("{R}")),
+            cost = Effects.PayMana("{R}"),
             then = Effects.ReturnToHandFromGraveyard(EffectTarget.Self)
         )
         triggerZones = setOf(Zone.GRAVEYARD)

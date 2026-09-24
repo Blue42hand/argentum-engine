@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 val TetherTechnician = card("Tether Technician") {
@@ -24,7 +23,7 @@ val TetherTechnician = card("Tether Technician") {
     // only once the discard has happened.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.Discard(1),
             optional = true,
             reflexiveEffect = Effects.DealDamage(2, EffectTarget.ContextTarget(0)),

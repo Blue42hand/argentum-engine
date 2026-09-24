@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -68,7 +67,7 @@ val ThereAndBackAgain = card("There and Back Again") {
     }
 
     sagaChapter(3) {
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             count = DynamicAmount.Fixed(1),
             power = 6,
             toughness = 6,

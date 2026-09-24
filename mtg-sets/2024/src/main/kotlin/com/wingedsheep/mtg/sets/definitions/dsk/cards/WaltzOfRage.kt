@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -51,7 +49,7 @@ val WaltzOfRage = card("Waltz of Rage") {
             // Target creature you control deals damage equal to its power to each other creature.
             Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature).otherThanTarget(),
-                effect = DealDamageEffect(
+                effect = Effects.DealDamage(
                     amount = DynamicAmounts.targetPower(0),
                     target = EffectTarget.IterationEntity,
                     damageSource = chosen
@@ -59,7 +57,7 @@ val WaltzOfRage = card("Waltz of Rage") {
             ),
             // Until end of turn, whenever a creature you control dies, exile the top card of your
             // library. You may play it until the end of your next turn.
-            CreateDelayedTriggerEffect(
+            Effects.CreateDelayedTrigger(
                 trigger = Triggers.YourCreatureDies,
                 expiry = DelayedTriggerExpiry.EndOfTurn,
                 fireOnce = false,

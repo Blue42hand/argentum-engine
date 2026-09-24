@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.PayLifeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -43,7 +42,7 @@ val SavraQueenOfTheGolgari = card("Savra, Queen of the Golgari") {
     triggeredAbility {
         trigger = Triggers.YouSacrificeA(GameObjectFilter.Creature.withColor(Color.BLACK))
         effect = Effects.MayPay(
-            cost = PayLifeEffect(2),
+            cost = Effects.PayLife(2),
             then = Effects.Sacrifice(
                 GameObjectFilter.Creature,
                 target = EffectTarget.PlayerRef(Player.EachOpponent)

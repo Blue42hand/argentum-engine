@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -28,13 +27,13 @@ val PlagueSpitter = card("Plague Spitter") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures, DealDamageEffect(1, EffectTarget.IterationEntity)) then
+        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures, Effects.DealDamage(1, EffectTarget.IterationEntity)) then
             Effects.ForEachPlayer(Player.Each, listOf(Effects.DealDamage(1, EffectTarget.Controller)))
     }
 
     triggeredAbility {
         trigger = Triggers.Dies
-        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures, DealDamageEffect(1, EffectTarget.IterationEntity)) then
+        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures, Effects.DealDamage(1, EffectTarget.IterationEntity)) then
             Effects.ForEachPlayer(Player.Each, listOf(Effects.DealDamage(1, EffectTarget.Controller)))
     }
 

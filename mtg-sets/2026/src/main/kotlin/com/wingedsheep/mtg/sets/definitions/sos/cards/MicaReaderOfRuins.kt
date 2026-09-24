@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -44,7 +43,7 @@ val MicaReaderOfRuins = card("Mica, Reader of Ruins") {
     triggeredAbility {
         trigger = Triggers.YouCastInstantOrSorcery
         effect = Effects.MayPay(
-            cost = SacrificeEffect(filter = GameObjectFilter.Artifact),
+            cost = Effects.SacrificeOwn(filter = GameObjectFilter.Artifact),
             then = Effects.CopyTargetSpell(target = EffectTarget.TriggeringEntity),
         )
         description = "Whenever you cast an instant or sorcery spell, you may sacrifice an " +

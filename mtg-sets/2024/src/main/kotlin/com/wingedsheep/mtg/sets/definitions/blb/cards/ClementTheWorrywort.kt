@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.AddDynamicManaEffect
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -83,8 +82,8 @@ val ClementTheWorrywort = card("Clement, the Worrywort") {
             ability = ActivatedAbility(
                 id = AbilityId.generate(),
                 cost = Costs.Tap,
-                effect = AddDynamicManaEffect(
-                    amountSource = DynamicAmount.Fixed(1),
+                effect = Effects.AddDynamicMana(
+                    amount = DynamicAmount.Fixed(1),
                     allowedColors = setOf(Color.GREEN, Color.BLUE),
                     restriction = ManaRestriction.CreatureSpellsOnly
                 ),

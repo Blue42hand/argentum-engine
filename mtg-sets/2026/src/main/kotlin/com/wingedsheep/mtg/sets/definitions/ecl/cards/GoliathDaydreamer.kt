@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
-import com.wingedsheep.sdk.scripting.effects.MarkSpellExileWithCountersEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
@@ -43,7 +42,7 @@ val GoliathDaydreamer = card("Goliath Daydreamer") {
             spellFilter = GameObjectFilter.InstantOrSorcery,
             requires = setOf(SpellCastPredicate.CastFromZone(Zone.HAND)),
         )
-        effect = MarkSpellExileWithCountersEffect(
+        effect = Effects.MarkSpellExileWithCounters(
             target = EffectTarget.TriggeringEntity,
             counterType = CounterType.DREAM,
             count = 1

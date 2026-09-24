@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.ecl.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -45,7 +44,7 @@ val Unbury = card("Unbury") {
                 "Return target creature card from your graveyard to your hand"
             ),
             Mode.withTarget(
-                ForEachTargetEffect(listOf(Effects.ReturnToHand(EffectTarget.ContextTarget(0)))),
+                Effects.ForEachTarget(Effects.ReturnToHand(EffectTarget.ContextTarget(0))),
                 TargetObject(
                     count = 2,
                     filter = TargetFilter.CreatureInYourGraveyard,

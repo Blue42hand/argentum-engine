@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -52,7 +51,7 @@ val GastalRaider = card("Gastal Raider") {
         trigger = Triggers.EntersBattlefield
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Pipeline {
-            run(RevealHandEffect(opponent))
+            run(Effects.RevealHand(opponent))
             val revealedInstantsAndSorceries = gather(
                 CardSource.FromZone(
                     Zone.HAND,

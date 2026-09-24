@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 
@@ -26,7 +25,7 @@ val OzaisCruelty = card("Ozai's Cruelty") {
     spell {
         val t = target("target", TargetPlayer())
         effect = Effects.Composite(
-            DealDamageEffect(2, t),
+            Effects.DealDamage(2, t),
             Patterns.Hand.discardCards(2, t)
         )
     }

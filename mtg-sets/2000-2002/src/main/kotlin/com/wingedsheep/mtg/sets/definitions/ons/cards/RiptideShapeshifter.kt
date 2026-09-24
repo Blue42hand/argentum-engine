@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.ChooseCreatureTypeEffect
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -36,7 +35,7 @@ val RiptideShapeshifter = card("Riptide Shapeshifter") {
             )
             reveal(allRevealed)
             move(found, CardDestination.ToZone(Zone.BATTLEFIELD))
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
         }
     }
 

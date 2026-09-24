@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
@@ -43,7 +42,7 @@ val BindingNegotiation = card("Binding Negotiation") {
         val opponent = target("target opponent", TargetOpponent())
         effect = Effects.Pipeline {
             // Reveal the opponent's hand.
-            run(RevealHandEffect(opponent))
+            run(Effects.RevealHand(opponent))
             val opponentHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
             // "You may choose a nonland card from it." — optional (ChooseUpTo 1).
             val toDiscard = chooseUpTo(

@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -10,7 +11,6 @@ import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
@@ -60,9 +60,9 @@ val DoranBesiegedByTime = card("Doran, Besieged by Time") {
             AttackEvent(filter = GameObjectFilter.Creature.youControl()),
             TriggerBinding.ANY
         )
-        effect = ModifyStatsEffect(
-            powerModifier = TriggeringPowerToughnessDifference,
-            toughnessModifier = TriggeringPowerToughnessDifference,
+        effect = Effects.ModifyStats(
+            power = TriggeringPowerToughnessDifference,
+            toughness = TriggeringPowerToughnessDifference,
             target = EffectTarget.TriggeringEntity
         )
     }
@@ -73,9 +73,9 @@ val DoranBesiegedByTime = card("Doran, Besieged by Time") {
             filter = GameObjectFilter.Creature.youControl(),
             binding = TriggerBinding.ANY,
         )
-        effect = ModifyStatsEffect(
-            powerModifier = TriggeringPowerToughnessDifference,
-            toughnessModifier = TriggeringPowerToughnessDifference,
+        effect = Effects.ModifyStats(
+            power = TriggeringPowerToughnessDifference,
+            toughness = TriggeringPowerToughnessDifference,
             target = EffectTarget.TriggeringEntity
         )
     }

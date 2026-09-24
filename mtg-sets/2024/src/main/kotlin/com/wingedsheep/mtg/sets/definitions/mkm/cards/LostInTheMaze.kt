@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -71,17 +70,15 @@ val LostInTheMaze = card("Lost in the Maze") {
         target = TargetCreature(optional = true, dynamicMaxCount = DynamicAmount.CastX)
         effect = Effects.TapEachTarget()
             .then(
-                ForEachTargetEffect(
-                    listOf(
-                        Effects.If(
-                            condition = Conditions.TargetMatchesFilter(
-                                    GameObjectFilter.Creature.opponentControls()
-                                ),
-                            then = Effects.AddCounters(
-                                CounterType.STUN,
-                                1,
-                                EffectTarget.ContextTarget(0)
-                            )
+                Effects.ForEachTarget(
+                    Effects.If(
+                        condition = Conditions.TargetMatchesFilter(
+                                GameObjectFilter.Creature.opponentControls()
+                            ),
+                        then = Effects.AddCounters(
+                            CounterType.STUN,
+                            1,
+                            EffectTarget.ContextTarget(0)
                         )
                     )
                 )

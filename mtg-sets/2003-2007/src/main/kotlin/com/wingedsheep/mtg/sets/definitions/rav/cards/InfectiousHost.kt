@@ -4,10 +4,10 @@
 
 package com.wingedsheep.mtg.sets.definitions.rav.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 
@@ -28,7 +28,7 @@ val InfectiousHost = card("Infectious Host") {
     triggeredAbility {
         trigger = Triggers.Dies
         val t = target("target", TargetPlayer())
-        effect = LoseLifeEffect(2, t)
+        effect = Effects.LoseLife(2, t)
     }
     metadata {
         rarity = Rarity.COMMON

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -43,7 +42,7 @@ val RenderSpeechless = card("Render Speechless") {
             // card from it, that player discards it. The opponent is the first chosen target, addressed
             // by Player.ContextPlayer(0) for both the gather source and the discard destination.
             Effects.Pipeline {
-                run(RevealHandEffect(EffectTarget.ContextTarget(0)))
+                run(Effects.RevealHand(EffectTarget.ContextTarget(0)))
                 val opponentHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
                 val toDiscard = chooseExactly(
                     1,

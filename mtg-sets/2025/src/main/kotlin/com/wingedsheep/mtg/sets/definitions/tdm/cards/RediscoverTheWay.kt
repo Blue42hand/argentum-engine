@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -54,7 +53,7 @@ val RediscoverTheWay = card("Rediscover the Way") {
         effect = rediscoverDig()
     }
     sagaChapter(3) {
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             trigger = Triggers.YouCastNoncreature,
             fireOnce = false,
             expiry = DelayedTriggerExpiry.EndOfTurn,

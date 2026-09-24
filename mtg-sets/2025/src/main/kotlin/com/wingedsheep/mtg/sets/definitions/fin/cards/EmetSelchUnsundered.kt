@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.MayCastFromGraveyard
 import com.wingedsheep.sdk.scripting.MayPlayLandsFromGraveyard
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -134,7 +133,7 @@ private val EmetSelchUnsunderedFront = card("Emet-Selch, Unsundered") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         interveningIf = Conditions.CardsInGraveyardAtLeast(14)
-        effect = Effects.May(TransformEffect(EffectTarget.Self))
+        effect = Effects.May(Effects.Transform(EffectTarget.Self))
     }
 
     metadata {

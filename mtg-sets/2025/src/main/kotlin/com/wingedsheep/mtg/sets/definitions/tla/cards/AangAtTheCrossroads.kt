@@ -14,8 +14,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -122,9 +120,9 @@ private val AangAtTheCrossroadsFront = card("Aang, at the Crossroads") {
             filter = GameObjectFilter.Creature.youControl(),
             binding = TriggerBinding.OTHER
         )
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             step = Step.UPKEEP,
-            effect = TransformEffect(EffectTarget.Self)
+            effect = Effects.Transform(EffectTarget.Self)
         )
     }
 

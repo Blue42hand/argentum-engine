@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
@@ -77,7 +76,7 @@ val MosswortBridge = card("Mosswort Bridge") {
 
     activatedAbility {
         cost = Costs.Tap
-        effect = AddManaEffect(Color.GREEN)
+        effect = Effects.AddMana(Color.GREEN)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

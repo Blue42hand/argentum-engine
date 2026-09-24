@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -34,7 +33,7 @@ val FeralThallid = card("Feral Thallid") {
 
     activatedAbility {
         cost = Costs.RemoveCounterFromSelf(CounterType.SPORE, 3)
-        effect = RegenerateEffect(EffectTarget.Self)
+        effect = Effects.Regenerate(EffectTarget.Self)
         description = "Remove three spore counters from this creature: Regenerate this creature."
     }
 

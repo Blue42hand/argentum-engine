@@ -13,9 +13,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ChooseCreatureTypeEffect
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -53,7 +50,7 @@ private val OkoShadowmoorScion = card("Oko, Shadowmoor Scion") {
         trigger = Triggers.FirstMainPhase
         effect = Effects.MayPay(
             cost = ManaCost.parse("{U}"),
-            then = TransformEffect(EffectTarget.Self)
+            then = Effects.Transform(EffectTarget.Self)
         )
     }
 
@@ -77,7 +74,7 @@ private val OkoShadowmoorScion = card("Oko, Shadowmoor Scion") {
 
     // −3: Create two 3/3 green Elk creature tokens.
     loyaltyAbility(-3) {
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             count = 2,
             power = 3,
             toughness = 3,
@@ -127,7 +124,7 @@ private val OkoLorwynLiegeFront = card("Oko, Lorwyn Liege") {
         trigger = Triggers.FirstMainPhase
         effect = Effects.MayPay(
             cost = ManaCost.parse("{G}"),
-            then = TransformEffect(EffectTarget.Self)
+            then = Effects.Transform(EffectTarget.Self)
         )
     }
 
@@ -141,9 +138,9 @@ private val OkoLorwynLiegeFront = card("Oko, Lorwyn Liege") {
     // +1: Target creature gets -2/-0 until your next turn.
     loyaltyAbility(+1) {
         val creature = target("creature", Targets.Creature)
-        effect = ModifyStatsEffect(
-            powerModifier = -2,
-            toughnessModifier = 0,
+        effect = Effects.ModifyStats(
+            power = -2,
+            toughness = 0,
             target = creature,
             duration = Duration.UntilYourNextTurn
         )

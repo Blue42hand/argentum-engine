@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.DamageCantBePrevented
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PreventLifeGain
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -38,22 +37,20 @@ val SunspineLynx = card("Sunspine Lynx") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ForEachPlayerEffect(
+        effect = Effects.ForEachPlayer(
             players = Player.Each,
-            effects = listOf(
-                Effects.DealDamage(
-                    amount = DynamicAmount.Count(
-                        player = Player.You,
-                        zone = Zone.BATTLEFIELD,
-                        filter = GameObjectFilter(
-                            cardPredicates = listOf(
-                                CardPredicate.IsLand,
-                                CardPredicate.Not(CardPredicate.IsBasicLand)
-                            )
+            effect = Effects.DealDamage(
+                amount = DynamicAmount.Count(
+                    player = Player.You,
+                    zone = Zone.BATTLEFIELD,
+                    filter = GameObjectFilter(
+                        cardPredicates = listOf(
+                            CardPredicate.IsLand,
+                            CardPredicate.Not(CardPredicate.IsBasicLand)
                         )
-                    ),
-                    target = EffectTarget.Controller
-                )
+                    )
+                ),
+                target = EffectTarget.Controller
             )
         )
     }

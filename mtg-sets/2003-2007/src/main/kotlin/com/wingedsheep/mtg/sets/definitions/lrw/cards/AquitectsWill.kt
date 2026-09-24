@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AddSubtypeEffect
 
 /**
  * Aquitect's Will
@@ -46,7 +45,7 @@ val AquitectsWill = card("Aquitect's Will") {
         val land = target("target land", Targets.Land)
         effect = Effects.AddCounters(CounterType.FLOOD, 1, land)
             .then(
-                AddSubtypeEffect(
+                Effects.AddSubtype(
                     subtype = "Island",
                     target = land,
                     duration = Duration.WhileAffectedHasCounter(CounterType.FLOOD)

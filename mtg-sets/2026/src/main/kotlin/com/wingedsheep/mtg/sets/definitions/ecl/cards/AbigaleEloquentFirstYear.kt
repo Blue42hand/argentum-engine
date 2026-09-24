@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.RemoveAllAbilitiesEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -49,7 +48,7 @@ val AbigaleEloquentFirstYear = card("Abigale, Eloquent First-Year") {
             )
         )
         effect = Effects.Composite(
-            RemoveAllAbilitiesEffect(creature, Duration.Permanent),
+            Effects.RemoveAllAbilities(creature, Duration.Permanent),
             Effects.AddCounters(CounterType.FLYING, 1, creature),
             Effects.AddCounters(CounterType.FIRST_STRIKE, 1, creature),
             Effects.AddCounters(CounterType.LIFELINK, 1, creature),

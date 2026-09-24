@@ -18,7 +18,6 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardDestination
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -109,7 +108,7 @@ private val SoulcipherBoardFront = card("Soulcipher Board") {
                     ComparisonOperator.EQ,
                     DynamicAmount.Fixed(0),
                 ),
-                then = TransformEffect(EffectTarget.Self),
+                then = Effects.Transform(EffectTarget.Self),
             ),
         )
         description = "Whenever a creature card is put into your graveyard from anywhere, remove " +

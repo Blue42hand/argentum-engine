@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -42,7 +41,7 @@ val IntoTheFloodMaw = card("Into the Flood Maw") {
             ),
             // Mode 2: Gift a tapped Fish — opponent gets Fish token, then return target nonland permanent to hand
             Mode.withTarget(
-                CreateTokenEffect(
+                Effects.CreateToken(
                     count = DynamicAmount.Fixed(1),
                     power = 1,
                     toughness = 1,

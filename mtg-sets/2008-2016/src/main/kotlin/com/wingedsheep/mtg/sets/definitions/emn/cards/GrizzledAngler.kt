@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -63,7 +62,7 @@ private val GrizzledAnglerFront = card("Grizzled Angler") {
             Patterns.Library.mill(2),
             Effects.If(
                 condition = Conditions.CardsInGraveyardMatchingAtLeast(1, ColorlessCreatureCard),
-                then = TransformEffect(EffectTarget.Self),
+                then = Effects.Transform(EffectTarget.Self),
             ),
         )
         description = "Mill two cards. Then if there is a colorless creature card in your " +

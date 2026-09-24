@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.CantAttack
 import com.wingedsheep.sdk.scripting.CantBlock
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -81,7 +80,7 @@ val TheAncientOne = card("The Ancient One") {
         cost = Costs.Mana("{2}{U}{B}")
         effect = Effects.Composite(
             Effects.DrawCards(1, EffectTarget.Controller),
-            ReflexiveTriggerEffect(
+            Effects.ReflexiveTrigger(
                 action = Patterns.Hand.discardCards(1),
                 optional = false,
                 reflexiveEffect = Patterns.Library.mill(

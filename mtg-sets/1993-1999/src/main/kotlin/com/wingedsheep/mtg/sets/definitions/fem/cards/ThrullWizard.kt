@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetSpell
 
@@ -33,7 +32,7 @@ val ThrullWizard = card("Thrull Wizard") {
     activatedAbility {
         val spell = target("target spell", TargetSpell(filter = TargetFilter.SpellOnStack.withColor(Color.BLACK)))
         cost = Costs.Mana("{1}{B}")
-        effect = PayOrSufferEffect(
+        effect = Effects.PayOrSuffer(
             cost = Costs.pay.Choice(listOf(Costs.pay.Mana("{B}"), Costs.pay.Mana("{3}"))),
             suffer = Effects.CounterSpell(),
             player = EffectTarget.TargetController,

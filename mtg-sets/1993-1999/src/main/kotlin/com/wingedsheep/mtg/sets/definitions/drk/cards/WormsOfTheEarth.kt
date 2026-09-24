@@ -8,9 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.LandsCantEnterTheBattlefield
 import com.wingedsheep.sdk.scripting.PlayersCantPlayLands
-import com.wingedsheep.sdk.scripting.effects.ForEachEffect
-import com.wingedsheep.sdk.scripting.effects.IterationSpace
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -51,10 +48,10 @@ val WormsOfTheEarth = card("Worms of the Earth") {
 
     triggeredAbility {
         trigger = Triggers.EachUpkeep
-        effect = ForEachEffect(
-            space = IterationSpace.Players(Player.ActivePlayerFirst),
-            body = Effects.May(
-                effect = ModalEffect(
+        effect = Effects.ForEachPlayer(
+            Player.ActivePlayerFirst,
+            Effects.May(
+                effect = Effects.Modal(
                     modes = listOf(
                         Mode(
                             description = "Sacrifice two lands",

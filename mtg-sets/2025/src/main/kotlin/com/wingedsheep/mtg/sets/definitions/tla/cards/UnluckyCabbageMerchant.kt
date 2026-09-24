@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -59,7 +58,7 @@ val UnluckyCabbageMerchant = card("Unlucky Cabbage Merchant") {
                     shuffleAfter = false
                 ),
                 Effects.PutOnBottomOfLibrary(EffectTarget.Self),
-                ShuffleLibraryEffect()
+                Effects.ShuffleLibrary()
             ),
             descriptionOverride = "You may search your library for a basic land card and put it onto the battlefield tapped",
             hint = "If you search this way, put this creature on the bottom of its owner's library, then shuffle"

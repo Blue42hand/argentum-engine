@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.rav.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
@@ -30,7 +30,7 @@ val CoalhaulerSwine = card("Coalhauler Swine") {
     toughness = 4
     triggeredAbility {
         trigger = Triggers.TakesDamage
-        effect = DealDamageEffect(
+        effect = Effects.DealDamage(
             amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
             target = EffectTarget.PlayerRef(Player.Each),
         )

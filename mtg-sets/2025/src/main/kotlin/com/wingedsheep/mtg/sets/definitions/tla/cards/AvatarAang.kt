@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -73,7 +72,7 @@ private val AangMasterOfElements = card("Aang, Master of Elements") {
         effect = Effects.May(
             Effects.Composite(
                 listOf(
-                    TransformEffect(EffectTarget.Self),
+                    Effects.Transform(EffectTarget.Self),
                     Effects.GainLife(4),
                     Effects.DrawCards(4),
                     Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 4, EffectTarget.Self),
@@ -120,7 +119,7 @@ private val AvatarAangFront = card("Avatar Aang") {
                         ComparisonOperator.GTE,
                         DynamicAmount.Fixed(4)
                     ),
-                    then = TransformEffect(EffectTarget.Self)
+                    then = Effects.Transform(EffectTarget.Self)
                 )
             )
         )

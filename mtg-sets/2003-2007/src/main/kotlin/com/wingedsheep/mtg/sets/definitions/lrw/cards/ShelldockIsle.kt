@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
@@ -93,7 +92,7 @@ val ShelldockIsle = card("Shelldock Isle") {
 
     activatedAbility {
         cost = Costs.Tap
-        effect = AddManaEffect(Color.BLUE)
+        effect = Effects.AddMana(Color.BLUE)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

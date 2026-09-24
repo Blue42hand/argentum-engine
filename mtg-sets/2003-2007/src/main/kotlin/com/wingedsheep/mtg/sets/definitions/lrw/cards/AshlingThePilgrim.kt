@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -72,7 +71,7 @@ val AshlingThePilgrim = card("Ashling the Pilgrim") {
                         ))
                         run(Effects.ForEachInGroup(
                             GroupFilter.AllCreatures,
-                            DealDamageEffect(
+                            Effects.DealDamage(
                                 ashlingRemovedCounters.amount,
                                 EffectTarget.IterationEntity,
                             ),

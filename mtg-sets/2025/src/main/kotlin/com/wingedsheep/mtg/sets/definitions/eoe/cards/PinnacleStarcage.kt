@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -62,7 +61,7 @@ val PinnacleStarcage = card("Pinnacle Starcage") {
         effect = Effects.Pipeline {
             val exiled = gather(CardSource.FromLinkedExile())
             val moved = moveTracked(exiled, CardDestination.ToZone(Zone.GRAVEYARD))
-            run(CreateTokenEffect(
+            run(Effects.CreateToken(
                 count = moved.count,
                 power = 2,
                 toughness = 2,

@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.ecl.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
@@ -23,7 +22,7 @@ val DarknessDescends = card("Darkness Descends") {
     spell {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreatures,
-            effect = AddCountersEffect(
+            effect = Effects.AddCounters(
                 counterType = CounterType.MINUS_ONE_MINUS_ONE,
                 count = 2,
                 target = EffectTarget.IterationEntity

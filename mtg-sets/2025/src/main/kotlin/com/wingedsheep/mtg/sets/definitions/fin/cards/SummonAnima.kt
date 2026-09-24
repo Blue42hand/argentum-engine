@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ForceSacrificeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -42,7 +41,7 @@ val SummonAnima = card("Summon: Anima") {
     sagaChapter(3) { effect = pain }
     sagaChapter(4) {
         effect = Effects.Composite(
-            ForceSacrificeEffect(GameObjectFilter.Creature, 1, EffectTarget.PlayerRef(Player.EachOpponent)),
+            Effects.Sacrifice(GameObjectFilter.Creature, 1, EffectTarget.PlayerRef(Player.EachOpponent)),
             Effects.LoseLife(3, EffectTarget.PlayerRef(Player.EachOpponent)),
         )
     }

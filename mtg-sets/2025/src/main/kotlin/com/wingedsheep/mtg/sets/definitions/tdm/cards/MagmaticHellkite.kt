@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
@@ -92,7 +91,7 @@ val MagmaticHellkite = card("Magmatic Hellkite") {
                         ),
                         addCounterType = CounterType.STUN
                     )
-                    run(ShuffleLibraryEffect(target = EffectTarget.TargetController))
+                    run(Effects.ShuffleLibrary(target = EffectTarget.TargetController))
                 }
             )
         description = "destroy target nonbasic land an opponent controls. Its controller searches " +

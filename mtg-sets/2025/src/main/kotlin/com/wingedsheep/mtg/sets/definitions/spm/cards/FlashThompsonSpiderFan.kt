@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -43,7 +42,7 @@ val FlashThompsonSpiderFan = card("Flash Thompson, Spider-Fan") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 Mode.withTarget(
                     effect = Effects.Tap(EffectTarget.ContextTarget(0)),

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 
 /**
  * Key to the Side-Door — The Hobbit #175
@@ -40,7 +39,7 @@ val KeyToTheSideDoor = card("Key to the Side-Door") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
         val creature = target("target creature", Targets.Creature)
-        effect = GrantKeywordEffect(AbilityFlag.CANT_BE_BLOCKED.name, creature)
+        effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature)
         description = "Target creature can't be blocked this turn."
     }
 

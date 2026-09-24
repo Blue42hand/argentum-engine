@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -36,7 +35,7 @@ val DreadSummons = card("Dread Summons") {
             val milledCreatures = selectAll(from = milled, filter = GameObjectFilter.Creature)
             run(Effects.ForEachInCollection(
                 milledCreatures,
-                CreateTokenEffect(
+                Effects.CreateToken(
                     power = 2,
                     toughness = 2,
                     colors = setOf(Color.BLACK),

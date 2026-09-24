@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Subtype
@@ -12,7 +13,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.TurnTracker
@@ -58,7 +58,7 @@ val VrenTheRelentless = card("Vren, the Relentless") {
     // At the beginning of each end step, create X Rat tokens
     triggeredAbility {
         trigger = Triggers.EachEndStep
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             count = DynamicAmount.TurnTracking(Player.You, TurnTracker.OPPONENT_CREATURES_EXILED),
             power = 1,
             toughness = 1,

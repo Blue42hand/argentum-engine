@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
@@ -71,7 +70,7 @@ val RydiaSummonerOfMist = card("Rydia, Summoner of Mist") {
             ),
         )
         effect = Effects.Move(saga, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
-            .then(AddCountersEffect(CounterType.FINALITY, 1, saga))
+            .then(Effects.AddCounters(CounterType.FINALITY, 1, saga))
             .then(Effects.GrantKeyword(Keyword.HASTE, saga, Duration.EndOfTurn))
         timing = TimingRule.SorcerySpeed
         description = "Summon — {X}, {T}: Return target Saga card with mana value X from your graveyard to " +

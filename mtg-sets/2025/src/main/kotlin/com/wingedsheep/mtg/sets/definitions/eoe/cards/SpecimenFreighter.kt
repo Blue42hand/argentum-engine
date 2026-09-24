@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantCardType
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -49,8 +48,8 @@ val SpecimenFreighter = card("Specimen Freighter") {
                 filter = TargetFilter(GameObjectFilter.Creature.notSubtype(Subtype("Spacecraft")))
             )
         )
-        effect = ForEachTargetEffect(
-            listOf(Effects.ReturnToHand(EffectTarget.ContextTarget(0)))
+        effect = Effects.ForEachTarget(
+            Effects.ReturnToHand(EffectTarget.ContextTarget(0))
         )
     }
 

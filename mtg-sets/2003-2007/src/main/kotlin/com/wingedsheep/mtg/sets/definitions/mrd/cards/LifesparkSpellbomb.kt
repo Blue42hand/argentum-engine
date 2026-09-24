@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 
 /**
  * Lifespark Spellbomb — Mirrodin #197
@@ -42,7 +41,7 @@ val LifesparkSpellbomb = card("Lifespark Spellbomb") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.SacrificeSelf)
-        effect = DrawCardsEffect(1)
+        effect = Effects.DrawCards(1)
         description = "{1}, Sacrifice this artifact: Draw a card."
     }
 

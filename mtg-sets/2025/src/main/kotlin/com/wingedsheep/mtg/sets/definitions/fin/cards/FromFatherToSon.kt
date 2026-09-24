@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasCastFromZone
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -58,7 +57,7 @@ val FromFatherToSon = card("From Father to Son") {
                 then = Effects.Pipeline { move(found, CardDestination.ToZone(Zone.BATTLEFIELD), revealed = true) },
                 otherwise = Effects.Pipeline { toHand(found, revealed = true) }
             ))
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
         }
     }
 

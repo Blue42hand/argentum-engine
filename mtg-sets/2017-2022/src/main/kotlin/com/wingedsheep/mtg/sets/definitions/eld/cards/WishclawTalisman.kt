@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.GiveControlToTargetPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -62,7 +61,7 @@ val WishclawTalisman = card("Wishclaw Talisman") {
                 destination = SearchDestination.HAND
             ),
             Effects.ChooseOpponent("Choose an opponent to gain control of Wishclaw Talisman"),
-            GiveControlToTargetPlayerEffect(
+            Effects.GiveControl(
                 permanent = EffectTarget.Self,
                 newController = EffectTarget.PlayerRef(Player.ChosenOpponent)
             )

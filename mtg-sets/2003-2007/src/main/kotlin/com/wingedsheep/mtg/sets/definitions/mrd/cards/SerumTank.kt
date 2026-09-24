@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -44,7 +43,7 @@ val SerumTank = card("Serum Tank") {
             filter = GameObjectFilter.Artifact,
             binding = TriggerBinding.ANY
         )
-        effect = AddCountersEffect(CounterType.CHARGE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)
     }
 
     // {3}, {T}, Remove a charge counter from this artifact: Draw a card.

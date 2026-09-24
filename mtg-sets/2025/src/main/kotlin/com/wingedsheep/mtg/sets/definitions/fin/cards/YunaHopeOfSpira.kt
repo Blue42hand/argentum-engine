@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.GrantWard
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -71,7 +70,7 @@ val YunaHopeOfSpira = card("Yuna, Hope of Spira") {
             )
         )
         effect = Effects.Move(enchantment, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
-            .then(AddCountersEffect(CounterType.FINALITY, 1, enchantment))
+            .then(Effects.AddCounters(CounterType.FINALITY, 1, enchantment))
         description = "At the beginning of your end step, return up to one target enchantment card " +
             "from your graveyard to the battlefield with a finality counter on it."
     }

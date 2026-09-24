@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -43,7 +42,7 @@ val AggressiveNegotiations = card("Aggressive Negotiations") {
         )
 
         effect = Effects.Pipeline {
-            run(RevealHandEffect(opponent))
+            run(Effects.RevealHand(opponent))
             val revealedNonland = gather(
                 CardSource.FromZone(
                     zone = Zone.HAND,

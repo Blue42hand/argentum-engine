@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.hob.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DividedDamageEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
 /**
@@ -36,8 +36,8 @@ val GandalfSparkStarter = card("Gandalf, Spark Starter") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         target = AnyTarget(count = 3, minCount = 1)
-        effect = DividedDamageEffect(
-            totalDamage = 3,
+        effect = Effects.DividedDamage(
+            total = 3,
             minTargets = 1,
             maxTargets = 3
         )

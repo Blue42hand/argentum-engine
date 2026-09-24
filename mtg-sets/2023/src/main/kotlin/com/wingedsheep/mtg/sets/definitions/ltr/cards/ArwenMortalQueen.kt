@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -52,10 +51,10 @@ val ArwenMortalQueen = card("Arwen, Mortal Queen") {
         effect = Effects.Composite(
             listOf(
                 Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature),
-                AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
-                AddCountersEffect(CounterType.LIFELINK, 1, creature),
-                AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-                AddCountersEffect(CounterType.LIFELINK, 1, EffectTarget.Self)
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
+                Effects.AddCounters(CounterType.LIFELINK, 1, creature),
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                Effects.AddCounters(CounterType.LIFELINK, 1, EffectTarget.Self)
             )
         )
     }

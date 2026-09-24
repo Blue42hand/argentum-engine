@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 
 /**
  * Embrace the Paradox
@@ -24,7 +23,7 @@ val EmbraceTheParadox = card("Embrace the Paradox") {
     oracleText = "Draw three cards. You may put a land card from your hand onto the battlefield tapped."
     spell {
         effect = Effects.Composite(
-            DrawCardsEffect(3),
+            Effects.DrawCards(3),
             Effects.May(Patterns.Hand.putFromHand(filter = GameObjectFilter.Land, entersTapped = true))
         )
     }

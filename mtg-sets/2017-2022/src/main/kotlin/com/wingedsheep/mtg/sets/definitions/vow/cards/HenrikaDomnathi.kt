@@ -8,11 +8,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
-import com.wingedsheep.sdk.scripting.effects.ForceSacrificeEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -64,14 +61,12 @@ private val HenrikaDomnathiFront = card("Henrika Domnathi") {
         effect = ModalEffect.chooseOneNotYetChosen(
             // • Each player sacrifices a creature of their choice.
             Mode.noTarget(
-                ForEachPlayerEffect(
+                Effects.ForEachPlayer(
                     players = Player.Each,
-                    effects = listOf(
-                        ForceSacrificeEffect(
-                            filter = GameObjectFilter.Creature,
-                            count = 1,
-                            target = EffectTarget.Controller,
-                        ),
+                    effect = Effects.Sacrifice(
+                        filter = GameObjectFilter.Creature,
+                        count = 1,
+                        target = EffectTarget.Controller,
                     ),
                 ),
                 "Each player sacrifices a creature of their choice",
@@ -83,7 +78,7 @@ private val HenrikaDomnathiFront = card("Henrika Domnathi") {
             ),
             // • Transform Henrika.
             Mode.noTarget(
-                TransformEffect(EffectTarget.Self),
+                Effects.Transform(EffectTarget.Self),
                 "Transform Henrika",
             ),
         )

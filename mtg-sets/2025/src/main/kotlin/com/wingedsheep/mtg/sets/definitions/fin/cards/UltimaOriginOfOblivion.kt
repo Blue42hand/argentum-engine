@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.AdditionalManaOnSourceTap
 import com.wingedsheep.sdk.scripting.Durations
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TappedForManaType
-import com.wingedsheep.sdk.scripting.effects.BecomeArtifactEffect
 
 /**
  * Ultima, Origin of Oblivion
@@ -69,7 +68,7 @@ val UltimaOriginOfOblivion = card("Ultima, Origin of Oblivion") {
         val land = target("target land", Targets.Land)
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.BLIGHT, 1, land),
-            BecomeArtifactEffect(
+            Effects.BecomeArtifact(
                 target = land,
                 cardTypes = null,       // keep the land's card types (stays a land; keeps e.g. artifact)
                 subtypes = emptySet(),  // "loses all land types" (subtypes)

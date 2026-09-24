@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -59,7 +58,7 @@ val ColossusOfTheBloodAge = card("Colossus of the Blood Age") {
                 moveType = MoveType.Discard
             )
             run(
-                DrawCardsEffect(
+                Effects.DrawCards(
                     DynamicAmount.Add(
                         discarded.count,
                         DynamicAmount.Fixed(1)

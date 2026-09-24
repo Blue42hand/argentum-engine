@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.PreventDamage
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -79,7 +78,7 @@ private val KingTChallaFront = card("King T'Challa") {
     // {4}{W}{U}: Transform King T'Challa. Activate only as a sorcery.
     activatedAbility {
         cost = Costs.Mana("{4}{W}{U}")
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         timing = TimingRule.SorcerySpeed
         description = "Transform King T'Challa. Activate only as a sorcery."
     }

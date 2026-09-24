@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.scripting.EventPattern.SpellCastEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.references.Player
@@ -40,7 +38,7 @@ val RavenousRobots = card("Ravenous Robots") {
             event = SpellCastEvent(spellFilter = GameObjectFilter.Artifact, player = Player.You),
             binding = TriggerBinding.ANY
         )
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 1,
             toughness = 1,
             colors = setOf(),
@@ -62,7 +60,7 @@ val RavenousRobots = card("Ravenous Robots") {
                         CardPredicate.IsToken
                 ).youControl()
             ),
-            effect = GrantKeywordEffect(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn)
+            effect = Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn)
         )
     }
 

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AssignDamageEqualToToughness
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.PayLifeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -97,7 +96,7 @@ val TheKingpinOfCrime = card("The Kingpin of Crime") {
     triggeredAbility {
         trigger = Triggers.YouAttack
         effect = Effects.MayPay(
-            cost = PayLifeEffect(2),
+            cost = Effects.PayLife(2),
             then = Effects.GrantStaticAbility(
                 AssignDamageEqualToToughness(
                     filter = GroupFilter.AllCreaturesYouControl,

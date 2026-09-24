@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantFlashToSpellType
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
@@ -60,8 +58,8 @@ val ValleyFloodcaller = card("Valley Floodcaller") {
             filter = creatureFilter,
             effect = Effects.Composite(
                 listOf(
-                    ModifyStatsEffect(1, 1, EffectTarget.IterationEntity),
-                    TapUntapEffect(EffectTarget.IterationEntity, tap = false)
+                    Effects.ModifyStats(1, 1, EffectTarget.IterationEntity),
+                    Effects.Untap(EffectTarget.IterationEntity)
                 )
             )
         )

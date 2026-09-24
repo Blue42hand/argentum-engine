@@ -1,9 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CantBlockEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -21,7 +20,7 @@ val WaveOfIndifference = card("Wave of Indifference") {
 
     spell {
         target = TargetCreature(count = 20, optional = true)
-        effect = ForEachTargetEffect(listOf(CantBlockEffect(EffectTarget.ContextTarget(0))))
+        effect = Effects.ForEachTarget(Effects.CantBlock(EffectTarget.ContextTarget(0)))
     }
 
     metadata {

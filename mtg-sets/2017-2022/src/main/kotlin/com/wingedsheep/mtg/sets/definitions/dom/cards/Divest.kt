@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.dsl.Effects
@@ -27,7 +26,7 @@ val Divest = card("Divest") {
     spell {
         val t = target("target", TargetOpponent())
         effect = Effects.Pipeline {
-            run(RevealHandEffect(t))
+            run(Effects.RevealHand(t))
             val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
             val toDiscard = chooseExactly(
                 1,

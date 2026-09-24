@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -85,12 +84,10 @@ val TheSuperHeroCivilWar = card("The Super Hero Civil War") {
                 totalManaValueAtMost = DynamicAmount.Fixed(6),
             )
         )
-        effect = ForEachTargetEffect(
-            effects = listOf(
-                Effects.GainControl(
-                    EffectTarget.ContextTarget(0),
-                    Duration.WhileSourceOnBattlefield("this Saga"),
-                )
+        effect = Effects.ForEachTarget(
+            Effects.GainControl(
+                EffectTarget.ContextTarget(0),
+                Duration.WhileSourceOnBattlefield("this Saga"),
             )
         )
     }

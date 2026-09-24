@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOther
@@ -49,7 +48,7 @@ val RedHulk = card("Red Hulk") {
 
     triggeredAbility {
         trigger = Triggers.TakesDamage
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             // "put a +1/+1 counter on him"
             action = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             optional = false,

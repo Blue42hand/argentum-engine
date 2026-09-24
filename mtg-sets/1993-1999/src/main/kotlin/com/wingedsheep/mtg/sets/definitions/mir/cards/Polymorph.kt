@@ -4,9 +4,7 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CantBeRegeneratedEffect
 import com.wingedsheep.sdk.scripting.effects.CardDestination
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -30,7 +28,7 @@ val Polymorph = card("Polymorph") {
         val t = target("target creature", TargetCreature())
         val controllerOfTarget = Player.ControllerOf("target creature")
         effect = Effects.Pipeline {
-            run(CantBeRegeneratedEffect(t))
+            run(Effects.CantBeRegenerated(t))
             run(Effects.Move(t, Zone.GRAVEYARD, byDestruction = true))
             val (found, allRevealed) = gatherUntilMatch(GameObjectFilter.Creature, player = controllerOfTarget)
             // fromZone/toZone tag this as a zone-transition reveal so the client shows
@@ -39,7 +37,7 @@ val Polymorph = card("Polymorph") {
             // public info — see web-client gameplayHandlers `isZoneTransitionReveal`).
             reveal(allRevealed, fromZone = Zone.LIBRARY, toZone = Zone.BATTLEFIELD)
             move(found, CardDestination.ToZone(Zone.BATTLEFIELD, player = controllerOfTarget))
-            run(ShuffleLibraryEffect(EffectTarget.TargetController))
+            run(Effects.ShuffleLibrary(EffectTarget.TargetController))
         }
     }
 

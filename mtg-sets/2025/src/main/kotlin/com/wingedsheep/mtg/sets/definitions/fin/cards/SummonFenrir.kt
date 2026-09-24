@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.references.Player
@@ -64,7 +63,7 @@ val SummonFenrir = card("Summon: Fenrir") {
     }
 
     sagaChapter(2) {
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             trigger = TriggerSpec(
                 event = EventPattern.SpellCastEvent(
                     spellFilter = GameObjectFilter.Creature,

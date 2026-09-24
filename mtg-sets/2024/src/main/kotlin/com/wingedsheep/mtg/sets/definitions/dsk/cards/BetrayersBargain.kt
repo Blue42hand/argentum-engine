@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.effects.MarkExileOnDeathEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -40,7 +39,7 @@ val BetrayersBargain = card("Betrayer's Bargain") {
         "this turn, exile it instead."
 
     val creature = EffectTarget.ContextTarget(0)
-    val body = MarkExileOnDeathEffect(creature).then(Effects.DealDamage(5, creature))
+    val body = Effects.MarkExileOnDeath(creature).then(Effects.DealDamage(5, creature))
 
     spell {
         effect = ModalEffect.chooseOne(

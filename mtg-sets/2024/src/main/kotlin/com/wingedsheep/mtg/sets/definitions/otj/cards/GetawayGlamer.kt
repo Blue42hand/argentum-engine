@@ -9,9 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -54,12 +52,12 @@ val GetawayGlamer = card("Getaway Glamer") {
         "+ {2} — Destroy target creature if no other creature has greater power."
 
     spell {
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 Mode(
                     effect = Effects.Composite(
                         Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE),
-                        CreateDelayedTriggerEffect(
+                        Effects.CreateDelayedTrigger(
                             step = Step.END,
                             effect = Effects.Move(EffectTarget.ContextTarget(0), Zone.BATTLEFIELD)
                         )

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -41,7 +40,7 @@ val HoodedHydra = card("Hooded Hydra") {
     // When this creature dies, create 1/1 green Snake tokens equal to its +1/+1 counters
     triggeredAbility {
         trigger = Triggers.Dies
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             count = DynamicAmount.ContextProperty(ContextPropertyKey.LAST_KNOWN_PLUS_ONE_COUNTER_COUNT),
             power = 1,
             toughness = 1,

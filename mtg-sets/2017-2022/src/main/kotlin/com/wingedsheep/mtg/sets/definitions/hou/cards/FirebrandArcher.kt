@@ -4,10 +4,10 @@
 
 package com.wingedsheep.mtg.sets.definitions.hou.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -28,7 +28,7 @@ val FirebrandArcher = card("Firebrand Archer") {
     toughness = 1
     triggeredAbility {
         trigger = Triggers.YouCastNoncreature
-        effect = DealDamageEffect(1, EffectTarget.PlayerRef(Player.EachOpponent))
+        effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent))
     }
     metadata {
         rarity = Rarity.COMMON

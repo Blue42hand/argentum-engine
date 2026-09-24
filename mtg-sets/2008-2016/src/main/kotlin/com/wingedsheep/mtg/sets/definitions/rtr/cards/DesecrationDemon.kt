@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AnyPlayerMayPayEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -42,7 +41,7 @@ val DesecrationDemon = card("Desecration Demon") {
 
     triggeredAbility {
         trigger = Triggers.EachCombat
-        effect = AnyPlayerMayPayEffect(
+        effect = Effects.AnyPlayerMayPay(
             cost = Costs.pay.Sacrifice(GameObjectFilter.Creature, count = 1),
             consequence = Effects.Tap(EffectTarget.Self)
                 .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)),

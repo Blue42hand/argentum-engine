@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -48,7 +47,7 @@ val ScarwoodBandits = card("Scarwood Bandits") {
     activatedAbility {
         val artifact = target("target artifact", Targets.Artifact)
         cost = Costs.Composite(Costs.Mana("{2}{G}"), Costs.Tap)
-        effect = PayOrSufferEffect(
+        effect = Effects.PayOrSuffer(
             cost = Costs.pay.Mana("{2}"),
             suffer = Effects.GainControl(
                 artifact,

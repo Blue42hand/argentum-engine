@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -48,9 +47,9 @@ val FlowerfootSwordmaster = card("Flowerfoot Swordmaster") {
         trigger = Triggers.Valiant
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Creature.withSubtype("Mouse")).youControl(),
-            effect = ModifyStatsEffect(
-                powerModifier = 1,
-                toughnessModifier = 0,
+            effect = Effects.ModifyStats(
+                power = 1,
+                toughness = 0,
                 target = EffectTarget.IterationEntity,
                 duration = Duration.EndOfTurn
             )

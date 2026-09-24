@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
@@ -53,7 +52,7 @@ val DownDownToGoblinTown = card("Down, Down to Goblin-town") {
     sagaChapter(1) {
         val opponent = target("target opponent to strip a card from", TargetOpponent())
         effect = Effects.Pipeline {
-            run(RevealHandEffect(opponent))
+            run(Effects.RevealHand(opponent))
             val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
             val chosen = chooseExactly(
                 1, from = hand,

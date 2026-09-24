@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -44,7 +43,7 @@ val KykarZephyrAwakener = card("Kykar, Zephyr Awakener") {
             Mode.withTarget(
                 Effects.Composite(
                     Effects.Exile(EffectTarget.ContextTarget(0)),
-                    CreateDelayedTriggerEffect(
+                    Effects.CreateDelayedTrigger(
                         step = Step.END,
                         effect = Effects.Move(EffectTarget.ContextTarget(0), Zone.BATTLEFIELD)
                     )

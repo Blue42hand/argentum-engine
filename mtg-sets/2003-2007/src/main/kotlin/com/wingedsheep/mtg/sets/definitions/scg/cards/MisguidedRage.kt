@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForceSacrificeEffect
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 
 /**
@@ -20,7 +20,7 @@ val MisguidedRage = card("Misguided Rage") {
 
     spell {
         val t = target("target", Targets.Player)
-        effect = ForceSacrificeEffect(GameObjectFilter.Permanent, 1, t)
+        effect = Effects.Sacrifice(GameObjectFilter.Permanent, 1, t)
     }
 
     metadata {

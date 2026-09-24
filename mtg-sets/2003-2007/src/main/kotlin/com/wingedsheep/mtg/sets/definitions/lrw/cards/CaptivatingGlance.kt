@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GiveControlToTargetPlayerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -54,7 +53,7 @@ val CaptivatingGlance = card("Captivating Glance") {
         trigger = Triggers.YourEndStep
         effect = Patterns.Mechanic.clash(
             ifYouWin = Effects.GainControl(EffectTarget.EnchantedCreature),
-            otherwise = GiveControlToTargetPlayerEffect(
+            otherwise = Effects.GiveControl(
                 permanent = EffectTarget.EnchantedCreature,
                 newController = EffectTarget.PlayerRef(Player.ChosenOpponent)
             )

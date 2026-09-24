@@ -8,9 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.RemoveCountersEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -65,18 +62,18 @@ val DyadrineSynthesisAmalgam = card("Dyadrine, Synthesis Amalgam") {
                     useTargetingUI = true,
                     prompt = "Choose two creatures you control to remove a +1/+1 counter from"
                 )
-                run(RemoveCountersEffect(
+                run(Effects.RemoveCounters(
                     counterType = CounterType.PLUS_ONE_PLUS_ONE,
                     count = 1,
                     target = chosen.asTarget,
                 ))
-                run(RemoveCountersEffect(
+                run(Effects.RemoveCounters(
                     counterType = CounterType.PLUS_ONE_PLUS_ONE,
                     count = 1,
                     target = chosen.asTarget(1),
                 ))
-                run(DrawCardsEffect(1, EffectTarget.Controller))
-                run(CreateTokenEffect(
+                run(Effects.DrawCards(1, EffectTarget.Controller))
+                run(Effects.CreateToken(
                     power = 2,
                     toughness = 2,
                     colors = setOf(), // colorless

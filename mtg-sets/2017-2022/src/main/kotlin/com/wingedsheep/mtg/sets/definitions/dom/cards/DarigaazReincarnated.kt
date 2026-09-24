@@ -12,8 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.RedirectZoneChangeWith
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.RemoveCountersEffect
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -42,7 +40,7 @@ val DarigaazReincarnated = card("Darigaaz Reincarnated") {
     replacementEffect(
         RedirectZoneChangeWith(
             newDestination = Zone.EXILE,
-            additionalEffect = AddCountersEffect(CounterType.EGG, 3, EffectTarget.Self),
+            additionalEffect = Effects.AddCounters(CounterType.EGG, 3, EffectTarget.Self),
             selfOnly = true,
             appliesTo = EventPattern.ZoneChangeEvent(
                 filter = GameObjectFilter.Any,
@@ -62,7 +60,7 @@ val DarigaazReincarnated = card("Darigaaz Reincarnated") {
             ComparisonOperator.GTE,
             DynamicAmount.Fixed(1)
         )
-        effect = RemoveCountersEffect(CounterType.EGG, 1, EffectTarget.Self) then
+        effect = Effects.RemoveCounters(CounterType.EGG, 1, EffectTarget.Self) then
             Effects.If(
                 condition = Compare(
                     DynamicAmounts.countersOnSelf(CounterType.EGG),

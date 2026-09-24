@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -37,7 +36,7 @@ val TakeTheFall = card("Take the Fall") {
                     then = Effects.ModifyStats(-4, 0, creature),
                     otherwise = Effects.ModifyStats(-1, 0, creature)
                 ),
-                DrawCardsEffect(1, EffectTarget.Controller)
+                Effects.DrawCards(1, EffectTarget.Controller)
             )
         )
     }

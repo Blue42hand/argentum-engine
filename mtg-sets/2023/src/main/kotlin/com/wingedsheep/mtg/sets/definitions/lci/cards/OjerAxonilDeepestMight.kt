@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.SetMinimumDamage
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -107,7 +106,7 @@ private val TempleOfPower = card("Temple of Power") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{R}"), Costs.Tap)
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         timing = TimingRule.SorcerySpeed
         restrictions = listOf(
             ActivationRestriction.OnlyIfCondition(

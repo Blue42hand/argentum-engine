@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -47,7 +46,7 @@ val RosieCottonOfSouthLane = card("Rosie Cotton of South Lane") {
             binding = TriggerBinding.ANY
         )
         target("creature you control other than Rosie Cotton", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
-        effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
     }
 
     metadata {

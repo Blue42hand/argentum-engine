@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.MayPlayLandsFromGraveyard
-import com.wingedsheep.sdk.scripting.effects.CreatePredefinedTokenEffect
 
 /**
  * Mole Man, Moloid Master (MSH #177) — {2}{G} Legendary Creature — Human Villain · 1/1
@@ -36,7 +36,7 @@ val MoleManMoloidMaster = card("Mole Man, Moloid Master") {
 
     triggeredAbility {
         trigger = Triggers.LandYouControlEnters
-        effect = CreatePredefinedTokenEffect("Moloid")
+        effect = Effects.CreatePredefinedToken("Moloid")
         description = "Landfall — Whenever a land you control enters, create a 1/1 green Minion " +
             "creature token named Moloid with \"Whenever this token attacks, you may mill a card.\""
     }

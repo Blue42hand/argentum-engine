@@ -11,8 +11,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -32,8 +30,8 @@ val WitheringGaze = card("Withering Gaze") {
     spell {
         val t = target("target", TargetOpponent())
         effect = Effects.Composite(
-            RevealHandEffect(t),
-            DrawCardsEffect(
+            Effects.RevealHand(t),
+            Effects.DrawCards(
                 DynamicAmount.Count(
                     Player.TargetOpponent,
                     Zone.HAND,

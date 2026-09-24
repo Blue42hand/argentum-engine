@@ -9,9 +9,7 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.dsl.Triggers
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -44,7 +42,7 @@ val DelifsCone = card("Delif's Cone") {
             "target creature you control",
             TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.youControl()))
         )
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             trigger = Triggers.AttacksAndIsntBlocked.copy(binding = TriggerBinding.ANY),
             watchedTarget = t,
             effect = Effects.May(
@@ -55,8 +53,8 @@ val DelifsCone = card("Delif's Cone") {
                             EntityNumericProperty.Power
                         )
                     ),
-                    GrantKeywordEffect(
-                        AbilityFlag.ASSIGNS_NO_COMBAT_DAMAGE.name,
+                    Effects.GrantKeyword(
+                        AbilityFlag.ASSIGNS_NO_COMBAT_DAMAGE,
                         EffectTarget.TriggeringEntity,
                         Duration.EndOfTurn,
                     ),

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -58,21 +57,19 @@ val ZodiarkUmbralGod = card("Zodiark, Umbral God") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ForEachPlayerEffect(
+        effect = Effects.ForEachPlayer(
             players = Player.Each,
-            effects = listOf(
-                Effects.Sacrifice(
-                    filter = GameObjectFilter.Creature.notSubtype(Subtype.GOD),
-                    count = DynamicAmount.Divide(
-                        numerator = DynamicAmount.AggregateBattlefield(
-                            Player.You,
-                            GameObjectFilter.Creature.notSubtype(Subtype.GOD)
-                        ),
-                        denominator = DynamicAmount.Fixed(2),
-                        roundUp = false
+            effect = Effects.Sacrifice(
+                filter = GameObjectFilter.Creature.notSubtype(Subtype.GOD),
+                count = DynamicAmount.Divide(
+                    numerator = DynamicAmount.AggregateBattlefield(
+                        Player.You,
+                        GameObjectFilter.Creature.notSubtype(Subtype.GOD)
                     ),
-                    target = EffectTarget.PlayerRef(Player.You)
-                )
+                    denominator = DynamicAmount.Fixed(2),
+                    roundUp = false
+                ),
+                target = EffectTarget.PlayerRef(Player.You)
             )
         )
     }

@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.ReturnFace
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -135,7 +134,7 @@ private val DionBahamutsDominantFront = card("Dion, Bahamut's Dominant") {
     // When Dion enters, create a 2/2 white Knight creature token.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 2,
             toughness = 2,
             colors = setOf(Color.WHITE),

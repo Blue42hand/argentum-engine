@@ -2,11 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.drk.cards
 
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 
 /**
  * Barl's Cage
@@ -27,8 +27,8 @@ val BarlsCage = card("Barl's Cage") {
     activatedAbility {
         val creature = target("target creature", Targets.Creature)
         cost = Costs.Mana("{3}")
-        effect = GrantKeywordEffect(
-            AbilityFlag.DOESNT_UNTAP.name,
+        effect = Effects.GrantKeyword(
+            AbilityFlag.DOESNT_UNTAP,
             creature,
             Duration.UntilAfterAffectedControllersNextUntap,
         )

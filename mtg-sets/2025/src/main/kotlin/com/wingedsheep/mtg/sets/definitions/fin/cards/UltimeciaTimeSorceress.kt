@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -11,8 +10,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -97,7 +94,7 @@ private val UltimeciaTimeSorceressFront = card("Ultimecia, Time Sorceress") {
             condition = Conditions.CardsInGraveyardAtLeast(8),
             then = Effects.MayPay(
                 cost = Effects.Composite(
-                    PayManaCostEffect(ManaCost.parse("{4}{U}{U}{B}{B}")),
+                    Effects.PayMana("{4}{U}{U}{B}{B}"),
                     Effects.Pipeline {
                         val grave = gather(
                             CardSource.FromZone(Zone.GRAVEYARD, Player.You),
@@ -110,7 +107,7 @@ private val UltimeciaTimeSorceressFront = card("Ultimecia, Time Sorceress") {
                         move(toExile, CardDestination.ToZone(Zone.EXILE))
                     },
                 ),
-                then = TransformEffect(EffectTarget.Self),
+                then = Effects.Transform(EffectTarget.Self),
                 descriptionOverride = "Pay {4}{U}{U}{B}{B} and exile eight cards from your " +
                     "graveyard? If you do, transform Ultimecia.",
             ),

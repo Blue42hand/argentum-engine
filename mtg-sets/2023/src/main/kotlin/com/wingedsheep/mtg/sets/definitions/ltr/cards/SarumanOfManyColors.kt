@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -87,7 +86,7 @@ val SarumanOfManyColors = card("Saruman of Many Colors") {
         )
         val exiledCard = EffectTarget.ContextTarget(0)
 
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             // Each opponent mills two. Modeled as a flat Gather→Move mill aimed at every opponent
             // (rather than a ForEachPlayer wrapper) so the milled cards surface in the `"milled"`
             // pipeline collection — that collection is what the reflexive's "one or more cards

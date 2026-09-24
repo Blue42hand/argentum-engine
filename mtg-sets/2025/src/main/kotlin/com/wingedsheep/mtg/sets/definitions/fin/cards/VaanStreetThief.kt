@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.EventPattern.OneOrMoreDealCombatDamageToPla
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
@@ -77,7 +76,7 @@ val VaanStreetThief = card("Vaan, Street Thief") {
             filter = GroupFilter(
                 GameObjectFilter.Creature.withAnySubtype("Scout", "Pirate", "Rogue").youControl()
             ),
-            effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
         )
     }
 

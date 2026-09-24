@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -29,7 +28,7 @@ val HuatlisFinalStrike = card("Huatli's Final Strike") {
         val t2 = target("t2", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.Composite(
             Effects.ModifyStats(1, 0, t1),
-            DealDamageEffect(DynamicAmounts.targetPower(0), t2, damageSource = t1)
+            Effects.DealDamage(DynamicAmounts.targetPower(0), t2, damageSource = t1)
         )
     }
     metadata {

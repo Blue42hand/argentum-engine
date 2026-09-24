@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.MoveType
 
 /**
@@ -56,7 +55,7 @@ val ComeBackWrong = card("Come Back Wrong") {
             // only a nontoken creature card remains to be reanimated.
             val toReanimate = selectAll(from = died, filter = GameObjectFilter.Creature.nontoken())
             val reanimated = moveTracked(toReanimate, CardDestination.ToZone(Zone.BATTLEFIELD))
-            run(CreateDelayedTriggerEffect(
+            run(Effects.CreateDelayedTrigger(
                 step = Step.END,
                 effect = Effects.SacrificeTarget(reanimated.asTarget)
             ))

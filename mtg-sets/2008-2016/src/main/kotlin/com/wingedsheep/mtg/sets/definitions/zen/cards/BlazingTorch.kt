@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.CantBeBlockedBy
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -62,7 +61,7 @@ val BlazingTorch = card("Blazing Torch") {
                     Costs.Tap,
                     Costs.SacrificeGrantingPermanent
                 ),
-                effect = DealDamageEffect(
+                effect = Effects.DealDamage(
                     amount = 2,
                     target = EffectTarget.ContextTarget(0),
                     damageSource = EffectTarget.GrantingSource

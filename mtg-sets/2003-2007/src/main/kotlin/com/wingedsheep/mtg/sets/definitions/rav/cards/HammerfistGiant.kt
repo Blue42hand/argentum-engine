@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -36,9 +34,9 @@ val HammerfistGiant = card("Hammerfist Giant") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING)),
-                DealDamageEffect(4, EffectTarget.IterationEntity)
+                Effects.DealDamage(4, EffectTarget.IterationEntity)
             ),
-            ForEachPlayerEffect(Player.Each, listOf(DealDamageEffect(4, EffectTarget.Controller)))
+            Effects.ForEachPlayer(Player.Each, Effects.DealDamage(4, EffectTarget.Controller))
         )
     }
     metadata {

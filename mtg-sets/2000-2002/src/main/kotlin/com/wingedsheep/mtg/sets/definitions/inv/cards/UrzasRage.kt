@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -34,7 +33,7 @@ val UrzasRage = card("Urza's Rage") {
         val t = target("any target", Targets.Any)
         effect = Effects.If(
             condition = WasKicked,
-            then = DealDamageEffect(10, t, cantBePrevented = true),
+            then = Effects.DealDamage(10, t, cantBePrevented = true),
             otherwise = Effects.DealDamage(3, t),
         )
     }

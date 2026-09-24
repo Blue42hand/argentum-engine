@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.conditions.Exists
-import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -48,7 +47,7 @@ val BaradDur = card("Barad-dûr") {
     // {T}: Add {B}.
     activatedAbility {
         cost = Costs.Tap
-        effect = AddManaEffect(Color.BLACK)
+        effect = Effects.AddMana(Color.BLACK)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

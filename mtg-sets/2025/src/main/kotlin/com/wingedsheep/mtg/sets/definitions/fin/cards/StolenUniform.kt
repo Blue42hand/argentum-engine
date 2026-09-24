@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -56,7 +55,7 @@ val StolenUniform = card("Stolen Uniform") {
                 equipmentTarget = equipment,
                 creatureTarget = creature
             ),
-            CreateDelayedTriggerEffect(
+            Effects.CreateDelayedTrigger(
                 trigger = Triggers.LoseControlOfWatched,
                 watchedTarget = equipment,
                 fireOnce = true,

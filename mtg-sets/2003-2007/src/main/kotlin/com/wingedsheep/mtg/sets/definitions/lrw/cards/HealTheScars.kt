@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -31,7 +30,7 @@ val HealTheScars = card("Heal the Scars") {
     spell {
         val t = target("target creature", Targets.Creature)
         effect = Effects.Composite(
-            RegenerateEffect(t),
+            Effects.Regenerate(t),
             Effects.GainLife(
                 DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.Toughness)
             )

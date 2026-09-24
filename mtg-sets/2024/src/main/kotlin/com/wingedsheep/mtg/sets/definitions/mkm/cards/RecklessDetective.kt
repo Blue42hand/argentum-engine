@@ -7,11 +7,9 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -51,11 +49,11 @@ val RecklessDetective = card("Reckless Detective") {
         val payoff: Effect = Effects.DrawCards(1) then
             Effects.ModifyStats(2, 0, EffectTarget.Self)
         effect = Effects.May(
-            effect = ChooseActionEffect(
+            effect = Effects.ChooseAction(
                 choices = listOf(
                     EffectChoice(
                         label = "Sacrifice an artifact",
-                        effect = SacrificeEffect(filter = GameObjectFilter.Artifact) then payoff,
+                        effect = Effects.SacrificeOwn(filter = GameObjectFilter.Artifact) then payoff,
                         feasibilityCheck = FeasibilityCheck.ControlsPermanentMatching(
                             filter = GameObjectFilter.Artifact
                         ),

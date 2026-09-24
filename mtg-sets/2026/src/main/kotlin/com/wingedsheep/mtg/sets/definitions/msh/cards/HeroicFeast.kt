@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -56,8 +55,8 @@ val HeroicFeast = card("Heroic Feast") {
                 dynamicMaxCount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_LIFE_GAINED)
             )
         )
-        effect = ForEachTargetEffect(
-            listOf(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
+        effect = Effects.ForEachTarget(
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
         )
         description = "Whenever you gain life, choose up to that many target creatures you " +
             "control. Put a +1/+1 counter on each of them."

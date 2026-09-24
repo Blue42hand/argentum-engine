@@ -10,9 +10,7 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -65,7 +63,7 @@ private val CookingCampsite = card("Cooking Campsite") {
         timing = TimingRule.SorcerySpeed
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
         )
     }
 
@@ -105,7 +103,7 @@ private val SidequestCatchAFishFront = card("Sidequest: Catch a Fish") {
             ifNotEmpty(kept) {
                 toHand(kept, revealed = true)
                 run(Effects.CreateFood())
-                run(TransformEffect(EffectTarget.Self))
+                run(Effects.Transform(EffectTarget.Self))
             }
         }
     }

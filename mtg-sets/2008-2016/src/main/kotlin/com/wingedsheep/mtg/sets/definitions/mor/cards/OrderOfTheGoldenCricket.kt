@@ -1,12 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.mor.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -30,7 +28,7 @@ val OrderOfTheGoldenCricket = card("Order of the Golden Cricket") {
     triggeredAbility {
         trigger = Triggers.Attacks
         effect = Effects.MayPay(
-            cost = PayManaCostEffect(ManaCost.parse("{W}")),
+            cost = Effects.PayMana("{W}"),
             then = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self),
         )
         description = "Whenever this creature attacks, you may pay {W}. If you do, it gains flying until end of turn."

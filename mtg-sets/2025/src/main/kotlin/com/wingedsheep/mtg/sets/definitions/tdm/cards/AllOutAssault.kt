@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.dsl.Effects
@@ -59,7 +58,7 @@ val AllOutAssault = card("All-Out Assault") {
                 Effects.AddCombatPhase,
                 Effects.AddMainPhase,
                 // "When you next attack this turn, untap each creature you control."
-                CreateDelayedTriggerEffect(
+                Effects.CreateDelayedTrigger(
                     trigger = Triggers.YouAttack,
                     fireOnce = true,
                     effect = Patterns.Group.untapGroup(GroupFilter.AllCreaturesYouControl),

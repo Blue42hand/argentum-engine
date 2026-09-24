@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -70,8 +68,8 @@ val DaiLiAgents = card("Dai Li Agents") {
         trigger = Triggers.Attacks
         effect = Effects.Composite(
             listOf(
-                LoseLifeEffect(xAmount, EffectTarget.PlayerRef(Player.EachOpponent)),
-                GainLifeEffect(xAmount, EffectTarget.Controller),
+                Effects.LoseLife(xAmount, EffectTarget.PlayerRef(Player.EachOpponent)),
+                Effects.GainLife(xAmount, EffectTarget.Controller),
             )
         )
         description = "Whenever this creature attacks, each opponent loses X life and you gain X " +

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -66,11 +65,9 @@ val ScrollOfIsildur = card("Scroll of Isildur") {
             "up to two target creatures",
             TargetCreature(count = 2, optional = true)
         )
-        effect = ForEachTargetEffect(
-            effects = listOf(
-                Effects.Tap(EffectTarget.ContextTarget(0)),
-                Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(0))
-            )
+        effect = Effects.ForEachTarget(
+            Effects.Tap(EffectTarget.ContextTarget(0)),
+            Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(0))
         )
     }
 

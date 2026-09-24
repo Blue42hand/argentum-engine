@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.withSubtypeFromVariable
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.OptionType
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -31,7 +30,7 @@ val HarmonizedCrescendo = card("Harmonized Crescendo") {
     spell {
         effect = Effects.Pipeline {
             val chosenType = chooseOption(OptionType.CREATURE_TYPE)
-            run(DrawCardsEffect(
+            run(Effects.DrawCards(
                 count = DynamicAmount.AggregateBattlefield(
                     player = Player.You,
                     filter = GameObjectFilter.Permanent.withSubtypeFromVariable(chosenType)

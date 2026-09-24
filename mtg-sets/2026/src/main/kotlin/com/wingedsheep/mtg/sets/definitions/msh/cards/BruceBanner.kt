@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -77,7 +76,7 @@ private val BruceBannerFront = card("Bruce Banner") {
     // {2}{R}{R}{G}{G}: Transform Bruce Banner. Activate only as a sorcery.
     activatedAbility {
         cost = Costs.Mana("{2}{R}{R}{G}{G}")
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         timing = TimingRule.SorcerySpeed
         description = "Transform Bruce Banner. Activate only as a sorcery."
     }

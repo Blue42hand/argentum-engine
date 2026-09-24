@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -44,7 +43,7 @@ val BeseechTheMirror = card("Beseech the Mirror") {
                 CardDestination.ToZone(Zone.EXILE),
                 faceDown = FaceDownMode.HIDDEN
             )
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
             run(Effects.If(
                 condition = Conditions.WasBargained,
                 then = Effects.Pipeline {

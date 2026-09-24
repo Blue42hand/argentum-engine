@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -41,11 +40,9 @@ val HapatraTheDesertFrost = card("Hapatra, the Desert Frost") {
                 differentControllers = true,
             )
         )
-        effect = ForEachTargetEffect(
-            listOf(
-                Effects.Tap(EffectTarget.ContextTarget(0)),
-                Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(0))
-            )
+        effect = Effects.ForEachTarget(
+            Effects.Tap(EffectTarget.ContextTarget(0)),
+            Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(0))
         )
         description = "When Hapatra enters, for each opponent, tap up to one target creature that player " +
             "controls. Put a stun counter on each of those creatures."

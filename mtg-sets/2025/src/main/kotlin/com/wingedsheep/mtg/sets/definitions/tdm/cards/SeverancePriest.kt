@@ -11,8 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -57,7 +55,7 @@ val SeverancePriest = card("Severance Priest") {
         trigger = Triggers.EntersBattlefield
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Pipeline {
-            run(RevealHandEffect(opponent))
+            run(Effects.RevealHand(opponent))
             val revealedHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
             val exiledCard = chooseUpTo(
                 1,
@@ -76,7 +74,7 @@ val SeverancePriest = card("Severance Priest") {
         trigger = Triggers.LeavesBattlefield
         effect = Effects.Pipeline {
             val exiledCard = gather(CardSource.FromLinkedExile())
-            run(CreateTokenEffect(
+            run(Effects.CreateToken(
                 count = exiledCard.count,
                 power = 0,
                 toughness = 0,

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 
 /**
  * Firebending Lesson — {R}
@@ -32,7 +31,7 @@ val FirebendingLesson = card("Firebending Lesson") {
         val t = target("target creature", Targets.Creature)
         effect = Effects.If(
             condition = WasKicked,
-            then = DealDamageEffect(5, t),
+            then = Effects.DealDamage(5, t),
             otherwise = Effects.DealDamage(2, t),
         )
     }

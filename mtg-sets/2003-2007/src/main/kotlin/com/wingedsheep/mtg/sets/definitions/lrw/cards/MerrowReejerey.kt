@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
 /**
@@ -52,10 +50,10 @@ val MerrowReejerey = card("Merrow Reejerey") {
         trigger = Triggers.YouCastSubtype(Subtype.MERFOLK)
         val permanent = target("target permanent", Targets.Permanent)
         effect = Effects.May(
-            ModalEffect(
+            Effects.Modal(
                 modes = listOf(
-                    Mode.noTarget(TapUntapEffect(permanent, tap = true), "Tap that permanent"),
-                    Mode.noTarget(TapUntapEffect(permanent, tap = false), "Untap that permanent")
+                    Mode.noTarget(Effects.Tap(permanent), "Tap that permanent"),
+                    Mode.noTarget(Effects.Untap(permanent), "Untap that permanent")
                 ),
                 chooseCount = 1,
                 countsAsModalSpell = false

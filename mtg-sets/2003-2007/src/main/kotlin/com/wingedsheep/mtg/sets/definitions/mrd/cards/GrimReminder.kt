@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -87,7 +86,7 @@ val GrimReminder = card("Grim Reminder") {
                 )
             )
 
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
             run(EmitLibrarySearchedEventEffect)
         }
     }

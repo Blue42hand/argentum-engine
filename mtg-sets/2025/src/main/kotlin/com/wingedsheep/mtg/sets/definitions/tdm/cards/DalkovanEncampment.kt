@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -13,9 +14,6 @@ import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.conditions.Exists
-import com.wingedsheep.sdk.scripting.effects.AddManaEffect
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -52,16 +50,16 @@ val DalkovanEncampment = card("Dalkovan Encampment") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = AddManaEffect(Color.WHITE)
+        effect = Effects.AddMana(Color.WHITE)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{W}"), Costs.Tap)
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             trigger = Triggers.YouAttack,
-            effect = CreateTokenEffect(
+            effect = Effects.CreateToken(
                 count = DynamicAmount.Fixed(2),
                 power = 1,
                 toughness = 1,

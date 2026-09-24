@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.PayLifeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -32,7 +31,7 @@ val SeymourFlux = card("Seymour Flux") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         effect = Effects.MayPay(
-            cost = PayLifeEffect(1),
+            cost = Effects.PayLife(1),
             then = Effects.Composite(
                 Effects.DrawCards(1),
                 Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)

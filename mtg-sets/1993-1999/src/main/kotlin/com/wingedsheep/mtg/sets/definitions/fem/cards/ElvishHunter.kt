@@ -2,11 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.fem.cards
 
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 
 /**
  * Elvish Hunter
@@ -30,8 +30,8 @@ val ElvishHunter = card("Elvish Hunter") {
     activatedAbility {
         val creature = target("target creature", Targets.Creature)
         cost = Costs.Composite(Costs.Mana("{1}{G}"), Costs.Tap)
-        effect = GrantKeywordEffect(
-            AbilityFlag.DOESNT_UNTAP.name,
+        effect = Effects.GrantKeyword(
+            AbilityFlag.DOESNT_UNTAP,
             creature,
             Duration.UntilAfterAffectedControllersNextUntap,
         )

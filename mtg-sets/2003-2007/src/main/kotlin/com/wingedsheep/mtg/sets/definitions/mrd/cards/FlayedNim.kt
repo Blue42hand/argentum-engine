@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -58,7 +57,7 @@ val FlayedNim = card("Flayed Nim") {
 
     activatedAbility {
         cost = Costs.Mana("{2}{B}")
-        effect = RegenerateEffect(EffectTarget.Self)
+        effect = Effects.Regenerate(EffectTarget.Self)
         description = "{2}{B}: Regenerate this creature."
     }
 

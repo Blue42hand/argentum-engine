@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 
 /**
@@ -32,11 +30,11 @@ val ScarbladesMalice = card("Scarblade's Malice") {
             listOf(
                 Effects.GrantKeyword(Keyword.DEATHTOUCH, creature),
                 Effects.GrantKeyword(Keyword.LIFELINK, creature),
-                CreateDelayedTriggerEffect(
+                Effects.CreateDelayedTrigger(
                     trigger = Triggers.Dies,
                     watchedTarget = creature,
                     expiry = DelayedTriggerExpiry.EndOfTurn,
-                    effect = CreateTokenEffect(
+                    effect = Effects.CreateToken(
                         count = 1,
                         power = 2,
                         toughness = 2,

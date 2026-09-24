@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -36,7 +35,7 @@ val TinkersTote = card("Tinker's Tote") {
     // When this artifact enters, create two 1/1 colorless Gnome artifact creature tokens.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             count = DynamicAmount.Fixed(2),
             power = 1,
             toughness = 1,

@@ -1,14 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.DoubleDamage
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -68,8 +67,8 @@ val TheRollercrusherRide = card("The Rollercrusher Ride") {
             "up to X target creatures",
             TargetCreature(optional = true, dynamicMaxCount = DynamicAmount.CastX),
         )
-        effect = ForEachTargetEffect(
-            listOf(DealDamageEffect(DynamicAmount.CastX, EffectTarget.ContextTarget(0)))
+        effect = Effects.ForEachTarget(
+            Effects.DealDamage(DynamicAmount.CastX, EffectTarget.ContextTarget(0))
         )
         description = "When The Rollercrusher Ride enters, it deals X damage to each of up to X " +
             "target creatures."

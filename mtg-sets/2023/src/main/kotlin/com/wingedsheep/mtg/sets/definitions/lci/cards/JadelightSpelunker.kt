@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.RepeatDynamicTimesEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -34,7 +33,7 @@ val JadelightSpelunker = card("Jadelight Spelunker") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = RepeatDynamicTimesEffect(
+        effect = Effects.Repeat(
             amount = DynamicAmount.XValue,
             body = Effects.Explore(EffectTarget.Self)
         )

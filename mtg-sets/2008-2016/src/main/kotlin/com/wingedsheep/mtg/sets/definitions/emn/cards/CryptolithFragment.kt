@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -36,7 +35,7 @@ private val CryptolithFragmentFront = card("Cryptolith Fragment") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         interveningIf = Conditions.EachPlayerLifeAtMost(10)
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
     }
 
     metadata {

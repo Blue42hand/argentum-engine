@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.startYourEngines
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
@@ -58,13 +57,11 @@ val OutpaceOblivion = card("Outpace Oblivion") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.SacrificeSelf)
-        effect = ForEachPlayerEffect(
+        effect = Effects.ForEachPlayer(
             players = Player.Each,
-            effects = listOf(
-                Effects.If(
-                    condition = Conditions.Not(Conditions.HasMaxSpeed(Player.You)),
-                    then = Effects.DealDamage(2, EffectTarget.Controller),
-                ),
+            effect = Effects.If(
+                condition = Conditions.Not(Conditions.HasMaxSpeed(Player.You)),
+                then = Effects.DealDamage(2, EffectTarget.Controller),
             ),
         )
         description = "{2}, Sacrifice this enchantment: It deals 2 damage to each player who " +

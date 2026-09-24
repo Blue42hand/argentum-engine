@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -40,7 +39,7 @@ val MorcantsEyes = card("Morcant's Eyes") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{4}{G}{G}"), Costs.SacrificeSelf)
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             count = DynamicAmount.Count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Any.withSubtype("Elf")),
             power = 2,
             toughness = 2,

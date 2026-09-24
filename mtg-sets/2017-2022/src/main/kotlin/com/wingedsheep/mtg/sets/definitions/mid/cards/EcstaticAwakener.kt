@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /** Ecstatic Awakener // Awoken Demon (Innistrad: Midnight Hunt). */
@@ -26,7 +25,7 @@ private val EcstaticAwakenerFront = card("Ecstatic Awakener") {
         )
         effect = Effects.Composite(
             Effects.DrawCards(1),
-            TransformEffect(EffectTarget.Self)
+            Effects.Transform(EffectTarget.Self)
         )
         restrictions = listOf(ActivationRestriction.OncePerTurn)
         description = "Draw a card, then transform this creature. Activate only once each turn."

@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -37,8 +35,8 @@ val BeetleHeadedMerchants = card("Beetle-Headed Merchants") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = ReflexiveTriggerEffect(
-            action = SacrificeEffect(
+        effect = Effects.ReflexiveTrigger(
+            action = Effects.SacrificeOwn(
                 filter = GameObjectFilter.Creature.or(GameObjectFilter.Artifact),
                 count = 1,
                 excludeSource = true

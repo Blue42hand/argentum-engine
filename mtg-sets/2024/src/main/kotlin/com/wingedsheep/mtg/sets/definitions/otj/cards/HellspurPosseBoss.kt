@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -56,7 +55,7 @@ val HellspurPosseBoss = card("Hellspur Posse Boss") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             count = DynamicAmount.Fixed(2),
             power = 1,
             toughness = 1,

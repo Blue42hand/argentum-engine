@@ -1,11 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -53,7 +51,7 @@ val RingsOfBrighthearth = card("Rings of Brighthearth") {
     triggeredAbility {
         trigger = Triggers.YouActivateAbility
         effect = Effects.MayPay(
-            cost = PayManaCostEffect(ManaCost.parse("{2}")),
+            cost = Effects.PayMana("{2}"),
             then = Effects.CopyTargetSpellOrAbility(EffectTarget.TriggeringEntity),
             descriptionOverride = "Pay {2}? If you do, copy that ability. You may choose new " +
                 "targets for the copy."

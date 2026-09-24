@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
  * Mouser Attack!
@@ -26,7 +25,7 @@ val MouserAttack = card("Mouser Attack!") {
     spell {
         modal(chooseCount = 1) {
             mode("Create a 1/1 colorless Robot artifact creature token") {
-                effect = CreateTokenEffect(
+                effect = Effects.CreateToken(
                     power = 1,
                     toughness = 1,
                     colors = setOf(),

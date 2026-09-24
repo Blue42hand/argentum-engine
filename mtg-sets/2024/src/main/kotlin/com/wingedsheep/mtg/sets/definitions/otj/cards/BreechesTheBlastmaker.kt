@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.FlipCoinEffect
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -56,8 +54,8 @@ val BreechesTheBlastmaker = card("Breeches, the Blastmaker") {
         trigger = Triggers.NthSpellCast(2, Player.You)
         val damageTarget = target("any target", Targets.Any)
         effect = Effects.MayPay(
-            cost = SacrificeEffect(filter = GameObjectFilter.Artifact),
-            then = FlipCoinEffect(
+            cost = Effects.SacrificeOwn(filter = GameObjectFilter.Artifact),
+            then = Effects.FlipCoin(
                 wonEffect = Effects.CopyTargetSpell(target = EffectTarget.TriggeringEntity),
                 lostEffect = Effects.DealDamage(
                     amount = DynamicAmount.EntityProperty(

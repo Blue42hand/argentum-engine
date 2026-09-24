@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
@@ -136,7 +135,7 @@ private val TempleOfCultivation = card("Temple of Cultivation") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{G}"), Costs.Tap)
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         timing = TimingRule.SorcerySpeed
         restrictions = listOf(
             ActivationRestriction.OnlyIfCondition(

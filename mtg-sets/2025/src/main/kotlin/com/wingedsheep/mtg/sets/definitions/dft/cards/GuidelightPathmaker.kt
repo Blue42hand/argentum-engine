@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -63,7 +62,7 @@ val GuidelightPathmaker = card("Guidelight Pathmaker") {
                 } orElse {
                     toHand(found)
                 }
-                run(ShuffleLibraryEffect())
+                run(Effects.ShuffleLibrary())
                 run(EmitLibrarySearchedEventEffect)
             },
         )

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.dsl.Triggers
@@ -30,7 +29,7 @@ val FalseCure = card("False Cure") {
             ability = TriggeredAbility.create(
                 trigger = Triggers.AnyPlayerGainsLife.event,
                 binding = Triggers.AnyPlayerGainsLife.binding,
-                effect = LoseLifeEffect(
+                effect = Effects.LoseLife(
                     amount = DynamicAmount.Multiply(DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_LIFE_GAINED), 2),
                     target = EffectTarget.PlayerRef(Player.TriggeringPlayer)
                 )

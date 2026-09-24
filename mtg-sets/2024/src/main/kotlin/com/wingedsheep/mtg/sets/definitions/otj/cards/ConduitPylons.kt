@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
 
 /**
  * Conduit Pylons
@@ -30,7 +29,7 @@ val ConduitPylons = card("Conduit Pylons") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = AddColorlessManaEffect(1)
+        effect = Effects.AddColorlessMana(1)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.RemoveCountersEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -69,7 +68,7 @@ val PlagueBoiler = card("Plague Boiler") {
                 "Put a plague counter on this artifact"
             ),
             Mode.noTarget(
-                RemoveCountersEffect(CounterType.PLAGUE, 1, EffectTarget.Self),
+                Effects.RemoveCounters(CounterType.PLAGUE, 1, EffectTarget.Self),
                 "Remove a plague counter from this artifact"
             )
         )

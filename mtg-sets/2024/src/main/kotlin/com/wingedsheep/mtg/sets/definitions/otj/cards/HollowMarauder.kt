@@ -13,8 +13,6 @@ import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
@@ -69,24 +67,24 @@ val HollowMarauder = card("Hollow Marauder") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         target("any number of target opponents", TargetOpponent(unlimited = true))
-        effect = ForEachTargetEffect(
-            listOf(Effects.Pipeline {
-                // The current target opponent discards a card.
-                val hmHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
-                val hmDiscarded = chooseExactly(
-                    1,
-                    from = hmHand,
-                    chooser = Chooser.TargetPlayer,
-                    prompt = "Choose a card to discard"
-                )
-                discard(hmDiscarded, Player.ContextPlayer(0))
-                // Draw a card unless the discarded card had mana value 4 or greater.
-                ifNotEmpty(hmDiscarded, filter = GameObjectFilter.Any.manaValueAtLeast(4)) {
-                    run(Effects.Composite(emptyList()))
-                } orElse {
-                    run(DrawCardsEffect(count = 1, target = EffectTarget.Controller))
-                }
-            })
+        effect = Effects.ForEachTarget(
+            Effects.Pipeline {
+            // The current target opponent discards a card.
+            val hmHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val hmDiscarded = chooseExactly(
+                1,
+                from = hmHand,
+                chooser = Chooser.TargetPlayer,
+                prompt = "Choose a card to discard"
+            )
+            discard(hmDiscarded, Player.ContextPlayer(0))
+            // Draw a card unless the discarded card had mana value 4 or greater.
+            ifNotEmpty(hmDiscarded, filter = GameObjectFilter.Any.manaValueAtLeast(4)) {
+                run(Effects.Composite(emptyList()))
+            } orElse {
+                run(Effects.DrawCards(count = 1, target = EffectTarget.Controller))
+            }
+        }
         )
     }
 

@@ -11,8 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -47,9 +45,9 @@ val KoyaDeathFromAbove = card("Koya, Death from Above") {
         )
         effect = Effects.Move(creature, Zone.EXILE, linkToSource = true)
             .then(
-                CreateDelayedTriggerEffect(
+                Effects.CreateDelayedTrigger(
                     step = Step.END,
-                    effect = PayOrSufferEffect(
+                    effect = Effects.PayOrSuffer(
                         cost = Costs.pay.Mana("{3}{B}"),
                         suffer = Effects.Pipeline {
                             val koyaExile = gather(CardSource.FromLinkedExile())

@@ -7,9 +7,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.BudgetModalEffect
 import com.wingedsheep.sdk.scripting.effects.BudgetMode
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -35,7 +33,7 @@ val SeasonOfTheBurrow = card("Season of the Burrow") {
         "{P}{P}{P} — Return target permanent card with mana value 3 or less from your graveyard to the battlefield with an indestructible counter on it."
 
     spell {
-        effect = BudgetModalEffect(
+        effect = Effects.BudgetModal(
             budget = 5,
             modes = listOf(
                 // {P} — Create a 1/1 white Rabbit creature token
@@ -58,7 +56,7 @@ val SeasonOfTheBurrow = card("Season of the Burrow") {
                             TargetObject(filter = TargetFilter.NonlandPermanent, id = "target nonland permanent to exile")
                         )
                         run(Effects.Exile(exileTarget.asTarget))
-                        run(DrawCardsEffect(count = DynamicAmount.Fixed(1), target = exileTarget.controllerOf()))
+                        run(Effects.DrawCards(count = DynamicAmount.Fixed(1), target = exileTarget.controllerOf()))
                     },
                     description = "Exile target nonland permanent. Its controller draws a card"
                 ),

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -45,7 +44,7 @@ val MysterioMasterOfIllusion = card("Mysterio, Master of Illusion") {
     // ETB: one 3/3 blue Illusion Villain token per nontoken Villain you control.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             count = DynamicAmount.Count(
                 Player.You,
                 Zone.BATTLEFIELD,

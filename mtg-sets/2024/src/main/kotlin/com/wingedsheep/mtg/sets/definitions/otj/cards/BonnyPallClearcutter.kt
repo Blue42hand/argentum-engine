@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.SetBasePowerToughnessDynamicStatic
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -52,7 +51,7 @@ val BonnyPallClearcutter = card("Bonny Pall, Clearcutter") {
     // When Bonny Pall enters, create Beau (a legendary blue Ox with a CDA P/T).
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             count = DynamicAmount.Fixed(1),
             power = 0,
             toughness = 0,

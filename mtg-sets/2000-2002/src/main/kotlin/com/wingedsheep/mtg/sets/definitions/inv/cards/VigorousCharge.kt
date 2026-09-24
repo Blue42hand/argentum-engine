@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -39,7 +38,7 @@ val VigorousCharge = card("Vigorous Charge") {
                 Effects.GrantKeyword(Keyword.TRAMPLE, t),
                 Effects.If(
                     condition = WasKicked,
-                    then = GrantTriggeredAbilityEffect(
+                    then = Effects.GrantTriggeredAbility(
                         ability = TriggeredAbility.create(
                             trigger = Triggers.dealsDamage(damageType = DamageType.Combat).event,
                             binding = Triggers.dealsDamage(damageType = DamageType.Combat).binding,

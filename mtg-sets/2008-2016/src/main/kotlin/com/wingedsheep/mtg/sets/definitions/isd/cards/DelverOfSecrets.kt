@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -65,7 +64,7 @@ private val DelverOfSecretsFront = card("Delver of Secrets") {
             // If an instant or sorcery card is revealed this way, transform this creature.
             run(Effects.If(
                 condition = whenMatches(delverRevealed, GameObjectFilter.InstantOrSorcery),
-                then = TransformEffect(EffectTarget.Self),
+                then = Effects.Transform(EffectTarget.Self),
             ))
         }
         description = "At the beginning of your upkeep, look at the top card of your library. You " +

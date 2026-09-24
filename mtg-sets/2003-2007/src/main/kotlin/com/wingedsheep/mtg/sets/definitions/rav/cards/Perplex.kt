@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.transmute
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -33,7 +32,7 @@ val Perplex = card("Perplex") {
 
     spell {
         target("target spell", Targets.Spell)
-        effect = PayOrSufferEffect(
+        effect = Effects.PayOrSuffer(
             cost = Costs.pay.DiscardHand,
             suffer = Effects.CounterSpell(),
             player = EffectTarget.TargetController,

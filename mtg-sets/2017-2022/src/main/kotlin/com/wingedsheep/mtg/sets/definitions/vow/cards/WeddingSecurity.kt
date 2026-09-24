@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -34,7 +33,7 @@ val WeddingSecurity = card("Wedding Security") {
     triggeredAbility {
         trigger = Triggers.Attacks
         effect = Effects.MayPay(
-            cost = SacrificeEffect(filter = GameObjectFilter.Artifact.withSubtype("Blood")),
+            cost = Effects.SacrificeOwn(filter = GameObjectFilter.Artifact.withSubtype("Blood")),
             then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
                 .then(Effects.DrawCards(1))
         )

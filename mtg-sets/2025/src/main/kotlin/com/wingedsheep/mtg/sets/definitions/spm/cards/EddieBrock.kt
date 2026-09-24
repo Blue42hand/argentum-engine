@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.SelectionRestriction
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -88,7 +87,7 @@ private val EddieBrockFront = card("Eddie Brock") {
     // {3}{B}{R}{G}: Transform Eddie Brock. Activate only as a sorcery.
     activatedAbility {
         cost = Costs.Mana("{3}{B}{R}{G}")
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         timing = TimingRule.SorcerySpeed
         description = "Transform Eddie Brock. Activate only as a sorcery."
     }

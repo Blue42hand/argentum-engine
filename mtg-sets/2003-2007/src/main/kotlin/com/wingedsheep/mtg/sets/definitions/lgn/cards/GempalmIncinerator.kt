@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 
 /**
  * Gempalm Incinerator
@@ -33,7 +32,7 @@ val GempalmIncinerator = card("Gempalm Incinerator") {
         trigger = Triggers.YouCycleThis
         val t = target("target", Targets.Creature)
         effect = Effects.May(
-            DealDamageEffect(
+            Effects.DealDamage(
                 DynamicAmounts.permanentsWithSubtype(Subtype("Goblin")),
                 t
             )

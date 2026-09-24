@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.Aggregation
@@ -53,7 +52,7 @@ val SelvalaEagerTrailblazer = card("Selvala, Eager Trailblazer") {
 
     triggeredAbility {
         trigger = Triggers.YouCastCreature
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 1,
             toughness = 1,
             colors = setOf(Color.RED),

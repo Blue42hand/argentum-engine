@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.CostReductionSource
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -42,7 +41,7 @@ val VenomsHunger = card("Venom's Hunger") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Composite(
             Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            GainLifeEffect(2)
+            Effects.GainLife(2)
         )
     }
 

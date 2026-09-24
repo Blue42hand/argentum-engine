@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -71,7 +70,7 @@ private val LodestoneNeedleFront = card("Lodestone Needle") {
         )
         effect = Effects.Composite(
             Effects.Tap(permanent),
-            AddCountersEffect(counterType = CounterType.STUN, count = 2, target = permanent)
+            Effects.AddCounters(counterType = CounterType.STUN, count = 2, target = permanent)
         )
     }
 

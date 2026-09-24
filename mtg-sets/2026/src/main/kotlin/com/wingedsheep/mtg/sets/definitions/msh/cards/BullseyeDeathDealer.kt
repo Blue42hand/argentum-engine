@@ -9,11 +9,8 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -58,12 +55,12 @@ val BullseyeDeathDealer = card("Bullseye, Death Dealer") {
     // When you do, Bullseye deals 2 damage to any target.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ReflexiveTriggerEffect(
-            action = ChooseActionEffect(
+        effect = Effects.ReflexiveTrigger(
+            action = Effects.ChooseAction(
                 choices = listOf(
                     EffectChoice(
                         label = "Sacrifice an artifact",
-                        effect = SacrificeEffect(filter = GameObjectFilter.Artifact),
+                        effect = Effects.SacrificeOwn(filter = GameObjectFilter.Artifact),
                         feasibilityCheck = FeasibilityCheck.ControlsPermanentMatching(
                             filter = GameObjectFilter.Artifact
                         ),

@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -64,11 +62,11 @@ val RewriteHistory = card("Rewrite History") {
             binding = TriggerBinding.SELF,
         )
         triggerRestriction = Conditions.SourceCounterCountAtLeast(CounterType.PLAN, 4)
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeTarget(EffectTarget.Self),
             optional = false,
-            reflexiveEffect = ForEachTargetEffect(
-                effects = listOf(Effects.ReturnToHand(EffectTarget.ContextTarget(0))),
+            reflexiveEffect = Effects.ForEachTarget(
+                Effects.ReturnToHand(EffectTarget.ContextTarget(0)),
             ),
             reflexiveTargetRequirements = listOf(
                 TargetObject(

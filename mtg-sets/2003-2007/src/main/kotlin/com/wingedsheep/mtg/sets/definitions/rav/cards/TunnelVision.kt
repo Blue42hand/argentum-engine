@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
@@ -59,7 +58,7 @@ val TunnelVision = card("Tunnel Vision") {
             ifNotEmpty(match) {
                 toGraveyard(rest, Player.TargetPlayer)
             } orElse {
-                run(ShuffleLibraryEffect(target = victim))
+                run(Effects.ShuffleLibrary(target = victim))
             }
         }
     }

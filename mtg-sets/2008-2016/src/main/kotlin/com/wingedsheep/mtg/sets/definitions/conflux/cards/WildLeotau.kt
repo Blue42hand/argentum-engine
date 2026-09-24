@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.conflux.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 
 /**
@@ -28,7 +28,7 @@ val WildLeotau = card("Wild Leotau") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = PayOrSufferEffect(cost = Costs.pay.Mana("{G}"), suffer = SacrificeSelfEffect)
+        effect = Effects.PayOrSuffer(cost = Costs.pay.Mana("{G}"), suffer = SacrificeSelfEffect)
         description = "At the beginning of your upkeep, sacrifice this creature unless you pay {G}."
     }
 

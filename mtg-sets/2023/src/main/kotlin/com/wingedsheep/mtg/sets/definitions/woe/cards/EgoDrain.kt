@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
@@ -39,7 +38,7 @@ val EgoDrain = card("Ego Drain") {
         val opponent = target("target opponent", TargetOpponent())
         effect = Effects.Pipeline {
             // 1. Target opponent reveals their hand.
-            run(RevealHandEffect(opponent))
+            run(Effects.RevealHand(opponent))
             // 2. Gather it so you can pick the card to strip.
             val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
             // 3. You choose a nonland card from it.

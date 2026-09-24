@@ -2,14 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.ModifyLifeGain
 import com.wingedsheep.sdk.scripting.ReplaceDrawWith
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddManaOfChoiceEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.ManaColorSet
@@ -35,7 +34,7 @@ val PhialOfGaladriel = card("Phial of Galadriel") {
 
     replacementEffect(
         ReplaceDrawWith(
-            replacementEffect = DrawCardsEffect(2),
+            replacementEffect = Effects.DrawCards(2),
             appliesTo = EventPattern.DrawEvent(),
             restrictions = listOf(Conditions.EmptyHand),
         )
@@ -51,7 +50,7 @@ val PhialOfGaladriel = card("Phial of Galadriel") {
 
     activatedAbility {
         cost = Costs.Tap
-        effect = AddManaOfChoiceEffect(
+        effect = Effects.AddManaOfChoice(
             colorSet = ManaColorSet.AnyColor,
             amount = DynamicAmount.Fixed(1),
         )

@@ -2,12 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.lgn.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddDynamicManaEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -32,8 +32,8 @@ val GoblinClearcutter = card("Goblin Clearcutter") {
                 Costs.Sacrifice(GameObjectFilter.Land.withSubtype("Forest"))
             )
         )
-        effect = AddDynamicManaEffect(
-            amountSource = DynamicAmount.Fixed(3),
+        effect = Effects.AddDynamicMana(
+            amount = DynamicAmount.Fixed(3),
             allowedColors = setOf(Color.RED, Color.GREEN)
         )
         manaAbility = true

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -62,7 +61,7 @@ val SalvationSwan = card("Salvation Swan") {
         // Exile target, then return with flying counter at end step
         effect = Effects.Composite(listOf(
             Effects.Move(creature, Zone.EXILE),
-            CreateDelayedTriggerEffect(
+            Effects.CreateDelayedTrigger(
                 step = Step.END,
                 effect = Effects.Composite(listOf(
                     Effects.Move(creature, Zone.BATTLEFIELD),

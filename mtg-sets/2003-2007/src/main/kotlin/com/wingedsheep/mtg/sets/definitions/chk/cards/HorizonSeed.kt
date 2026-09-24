@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.chk.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -36,7 +36,7 @@ val HorizonSeed = card("Horizon Seed") {
             spellFilter = GameObjectFilter.Any.withAnySubtype("Spirit", "Arcane")
         )
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = RegenerateEffect(t)
+        effect = Effects.Regenerate(t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

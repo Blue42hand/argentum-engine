@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
@@ -38,7 +37,7 @@ val FullThrottle = card("Full Throttle") {
                 ),
                 then = Effects.Composite(Effects.AddCombatPhase, Effects.AddCombatPhase),
             ),
-            CreateDelayedTriggerEffect(
+            Effects.CreateDelayedTrigger(
                 step = Step.BEGIN_COMBAT,
                 effect = Patterns.Group.untapGroup(
                     GroupFilter(GameObjectFilter.Creature.attackedThisTurn())

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.DoubleDamage
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -89,7 +88,7 @@ val MjolnirHammerOfThor = card("Mjölnir, Hammer of Thor") {
         cost = Costs.Composite(Costs.Mana("{2}{R}"), Costs.DiscardSelf)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature),
-            DealDamageEffect(2, EffectTarget.IterationEntity)
+            Effects.DealDamage(2, EffectTarget.IterationEntity)
         )
         activateFromZone = Zone.HAND
     }

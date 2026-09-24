@@ -1,13 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ForceSacrificeEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -21,7 +21,7 @@ val CallToTheGrave = card("Call to the Grave") {
 
     triggeredAbility {
         trigger = Triggers.EachUpkeep
-        effect = ForceSacrificeEffect(
+        effect = Effects.Sacrifice(
             GameObjectFilter.Creature.notSubtype(Subtype("Zombie")),
             1,
             EffectTarget.PlayerRef(Player.TriggeringPlayer)

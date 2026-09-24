@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -25,7 +24,7 @@ val MeandersGuide = card("Meanders Guide") {
         // The "may tap another untapped Merfolk" is not a target — it's a resolution-time
         // choice. Selecting the Merfolk happens via SelectTargetEffect after the player
         // accepts the optional, so declining the may does not force them to commit to one.
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.Pipeline {
                 val merfolkToTap = selectTarget(
                     TargetObject(

@@ -1,9 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -51,12 +50,10 @@ val Doppelgang = card("Doppelgang") {
             filter = TargetFilter.Permanent,
             dynamicMaxCount = DynamicAmount.XValue
         )
-        effect = ForEachTargetEffect(
-            listOf(
-                CreateTokenCopyOfTargetEffect(
-                    target = EffectTarget.ContextTarget(0),
-                    count = DynamicAmount.XValue
-                )
+        effect = Effects.ForEachTarget(
+            Effects.CreateTokenCopyOfTarget(
+                target = EffectTarget.ContextTarget(0),
+                count = DynamicAmount.XValue
             )
         )
     }

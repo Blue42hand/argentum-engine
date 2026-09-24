@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -84,7 +83,7 @@ val DanceOfMany = card("Dance of Many") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = PayOrSufferEffect(
+        effect = Effects.PayOrSuffer(
             cost = Costs.pay.Mana("{U}{U}"),
             suffer = SacrificeSelfEffect,
         )

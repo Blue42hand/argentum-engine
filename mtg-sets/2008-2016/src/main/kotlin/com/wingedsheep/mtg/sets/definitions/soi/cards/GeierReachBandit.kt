@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -54,7 +53,7 @@ private val GeierReachBanditFront = card("Geier Reach Bandit") {
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.spellsCastLastTurn(), ComparisonOperator.EQ, DynamicAmount.Fixed(0)
         )
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
     }
 
     metadata {
@@ -82,7 +81,7 @@ private val VildinPackAlpha = card("Vildin-Pack Alpha") {
             filter = GameObjectFilter.Creature.withSubtype("Werewolf").youControl(),
             binding = TriggerBinding.ANY,
         )
-        effect = Effects.May(effect = TransformEffect(EffectTarget.TriggeringEntity))
+        effect = Effects.May(effect = Effects.Transform(EffectTarget.TriggeringEntity))
         description = "Whenever a Werewolf you control enters, you may transform it."
     }
 
@@ -91,7 +90,7 @@ private val VildinPackAlpha = card("Vildin-Pack Alpha") {
         interveningIf = Conditions.CompareAmounts(
             DynamicAmounts.spellsCastLastTurn(), ComparisonOperator.GTE, DynamicAmount.Fixed(2)
         )
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
     }
 
     metadata {

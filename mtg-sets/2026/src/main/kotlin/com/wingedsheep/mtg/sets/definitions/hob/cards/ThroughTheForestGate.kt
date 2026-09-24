@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -49,7 +48,7 @@ val ThroughTheForestGate = card("Through the Forest Gate") {
                 remainderLabel = "Leave in your library"
             )
             move(toBattlefield, CardDestination.ToZone(Zone.BATTLEFIELD, Player.You, ZonePlacement.Tapped))
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
             run(Effects.GainLife(8))
         }
     }

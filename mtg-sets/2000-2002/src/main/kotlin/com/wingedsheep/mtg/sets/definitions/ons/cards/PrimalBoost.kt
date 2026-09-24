@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.dsl.Triggers
 
 /**
@@ -24,9 +23,9 @@ val PrimalBoost = card("Primal Boost") {
 
     spell {
         val t = target("target", Targets.Creature)
-        effect = ModifyStatsEffect(
-            powerModifier = 4,
-            toughnessModifier = 4,
+        effect = Effects.ModifyStats(
+            power = 4,
+            toughness = 4,
             target = t
         )
     }
@@ -37,9 +36,9 @@ val PrimalBoost = card("Primal Boost") {
         trigger = Triggers.YouCycleThis
         val t = target("target", Targets.Creature)
         effect = Effects.May(
-            ModifyStatsEffect(
-                powerModifier = 1,
-                toughnessModifier = 1,
+            Effects.ModifyStats(
+                power = 1,
+                toughness = 1,
                 target = t
             )
         )

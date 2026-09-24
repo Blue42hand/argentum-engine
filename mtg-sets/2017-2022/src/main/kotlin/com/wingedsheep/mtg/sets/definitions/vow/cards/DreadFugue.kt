@@ -8,8 +8,8 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 /**
@@ -50,7 +50,7 @@ val DreadFugue = card("Dread Fugue") {
 
         // Printed (brackets present): choose a nonland card with mana value 2 or less to discard.
         effect = Effects.Pipeline {
-            run(RevealHandEffect())
+            run(Effects.RevealHand(EffectTarget.ContextTarget(0)))
             val revealedHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
             val toDiscard = chooseExactly(
                 1,
@@ -66,7 +66,7 @@ val DreadFugue = card("Dread Fugue") {
 
         // Cleaved (brackets removed): choose any nonland card to discard (no mana-value cap).
         cleaveEffect = Effects.Pipeline {
-            run(RevealHandEffect())
+            run(Effects.RevealHand(EffectTarget.ContextTarget(0)))
             val revealedHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
             val toDiscard = chooseExactly(
                 1,

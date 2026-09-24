@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -61,7 +60,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
 private const val EXILED_CARD = "exiledCard"
 
 private val desecrate: Effect =
-    ReflexiveTriggerEffect(
+    Effects.ReflexiveTrigger(
         optional = false,
         action = Effects.Pipeline {
             val graveyardCards = gather(

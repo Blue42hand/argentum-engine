@@ -79,6 +79,21 @@ value class CollectionSlot(val key: String) {
 
     /** The controller of the entity at [index] in this collection ([EffectTarget.ControllerOfPipelineTarget]). */
     fun controllerOf(index: Int = 0): EffectTarget = EffectTarget.ControllerOfPipelineTarget(key, index)
+
+    companion object {
+        /**
+         * The tokens the most recent token-creating effect in this resolution made — the "they" of
+         * "create two 1/1 tokens. They gain haste until end of turn."
+         */
+        val CreatedTokens: CollectionSlot = CollectionSlot(com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS)
+
+        /**
+         * The objects a batch trigger captured when it fired — "them" / "those creatures"
+         * ([IterationSpace.TRIGGER_CAPTURED_COLLECTION]). Inside `Effects.Pipeline { }` the same
+         * slot is `triggerCaptured`.
+         */
+        val TriggerCaptured: CollectionSlot = CollectionSlot(IterationSpace.TRIGGER_CAPTURED_COLLECTION)
+    }
 }
 
 /** Handle to a named entry in `EffectContext.storedNumbers`. */
@@ -226,7 +241,7 @@ class PipelineBuilder private constructor(private val shared: Shared) {
      *
      * Empty when the trigger captured nothing, which every downstream step treats as "no cards".
      */
-    val triggerCaptured: CollectionSlot get() = CollectionSlot(IterationSpace.TRIGGER_CAPTURED_COLLECTION)
+    val triggerCaptured: CollectionSlot get() = CollectionSlot.TriggerCaptured
 
     /** Gather cards from [source] into a new collection ([GatherCardsEffect]). */
     fun gather(

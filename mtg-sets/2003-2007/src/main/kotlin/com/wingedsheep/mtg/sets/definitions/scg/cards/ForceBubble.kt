@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ReplaceDamageWithCounters
-import com.wingedsheep.sdk.scripting.effects.RemoveCountersEffect
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -39,7 +39,7 @@ val ForceBubble = card("Force Bubble") {
     // At the beginning of each end step, remove all depletion counters
     triggeredAbility {
         trigger = Triggers.EachEndStep
-        effect = RemoveCountersEffect(CounterType.DEPLETION, Int.MAX_VALUE, EffectTarget.Self)
+        effect = Effects.RemoveCounters(CounterType.DEPLETION, Int.MAX_VALUE, EffectTarget.Self)
     }
 
     metadata {

@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -30,8 +28,8 @@ val FellingBlow = card("Felling Blow") {
         val t1 = target("t1", TargetCreature(filter = TargetFilter.Creature.youControl()))
         val t2 = target("t2", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.Composite(
-            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t1),
-            DealDamageEffect(DynamicAmounts.targetPower(0), t2, damageSource = t1)
+            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t1),
+            Effects.DealDamage(DynamicAmounts.targetPower(0), t2, damageSource = t1)
         )
     }
     metadata {

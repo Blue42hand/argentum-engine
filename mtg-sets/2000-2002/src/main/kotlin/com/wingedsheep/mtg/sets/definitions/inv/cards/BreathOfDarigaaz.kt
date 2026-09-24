@@ -6,9 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -36,13 +34,11 @@ val BreathOfDarigaaz = card("Breath of Darigaaz") {
         listOf(
             Effects.ForEachInGroup(
                 GroupFilter.AllCreatures.withoutKeyword(Keyword.FLYING),
-                DealDamageEffect(amount, EffectTarget.IterationEntity)
+                Effects.DealDamage(amount, EffectTarget.IterationEntity)
             ),
-            ForEachPlayerEffect(
+            Effects.ForEachPlayer(
                 players = Player.Each,
-                effects = listOf(
-                    Effects.DealDamage(amount, EffectTarget.Controller)
-                )
+                effect = Effects.DealDamage(amount, EffectTarget.Controller)
             )
         )
     )

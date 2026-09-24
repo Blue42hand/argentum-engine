@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -43,7 +42,7 @@ val PeerlessRecycling = card("Peerless Recycling") {
             // Mode 1: Gift — opponent draws a card, return 2 target permanent cards to hand
             Mode(
                 effect = Effects.Composite(listOf(
-                    DrawCardsEffect(1, EffectTarget.PlayerRef(Player.ChosenOpponent)),
+                    Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent)),
                     Effects.ReturnToHand(EffectTarget.ContextTarget(0)),
                     Effects.ReturnToHand(EffectTarget.ContextTarget(1)),
                     Effects.GiftGiven()

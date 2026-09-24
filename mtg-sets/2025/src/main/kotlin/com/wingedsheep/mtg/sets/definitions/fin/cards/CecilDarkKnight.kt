@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -85,7 +84,7 @@ private val CecilDarkKnightFrontFace = card("Cecil, Dark Knight") {
                 ),
                 then = Effects.Composite(listOf(
                     Effects.Untap(EffectTarget.Self),
-                    TransformEffect(EffectTarget.Self)
+                    Effects.Transform(EffectTarget.Self)
                 ))
             )
         ))

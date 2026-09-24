@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -26,7 +25,7 @@ val TandemTactics = card("Tandem Tactics") {
     spell {
         target("target creature", Targets.UpToCreatures(2))
         effect = Effects.Composite(
-            ForEachTargetEffect(listOf(Effects.ModifyStats(1, 2, EffectTarget.ContextTarget(0)))),
+            Effects.ForEachTarget(Effects.ModifyStats(1, 2, EffectTarget.ContextTarget(0))),
             Effects.GainLife(2),
         )
     }

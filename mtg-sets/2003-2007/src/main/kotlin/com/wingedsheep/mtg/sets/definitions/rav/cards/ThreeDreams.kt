@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionRestriction
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -47,7 +46,7 @@ val ThreeDreams = card("Three Dreams") {
                 prompt = "Search for up to three Aura cards with different names"
             )
             toHand(found, revealed = true)
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
             // CR 701.23 — the search happened whether or not anything was found.
             run(EmitLibrarySearchedEventEffect)
         }

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -42,7 +41,7 @@ val SlithBloodletter = card("Slith Bloodletter") {
 
     activatedAbility {
         cost = Costs.Mana("{1}{B}")
-        effect = RegenerateEffect(EffectTarget.Self)
+        effect = Effects.Regenerate(EffectTarget.Self)
         description = "{1}{B}: Regenerate this creature."
     }
 

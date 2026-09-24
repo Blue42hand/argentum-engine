@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 
 /**
  * Vayne's Treachery
@@ -35,8 +34,8 @@ val VaynesTreachery = card("Vayne's Treachery") {
         val t = target("target", Targets.Creature)
         effect = Effects.If(
             condition = WasKicked,
-            then = ModifyStatsEffect(-6, -6, t, Duration.EndOfTurn),
-            otherwise = ModifyStatsEffect(-2, -2, t, Duration.EndOfTurn)
+            then = Effects.ModifyStats(-6, -6, t, Duration.EndOfTurn),
+            otherwise = Effects.ModifyStats(-2, -2, t, Duration.EndOfTurn)
         )
     }
 

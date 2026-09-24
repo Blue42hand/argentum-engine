@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.PlayAdditionalLandsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
@@ -53,7 +52,7 @@ val KellanInquisitiveProdigy = card("Kellan, Inquisitive Prodigy") {
         oracleText = "Investigate. You may play an additional land this turn. (Then exile this " +
             "card. You may cast the creature later from exile.)"
         spell {
-            effect = Effects.Investigate().then(PlayAdditionalLandsEffect(count = 1))
+            effect = Effects.Investigate().then(Effects.PlayAdditionalLands(count = 1))
         }
     }
 

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -28,8 +27,8 @@ val CratersClaws = card("Crater's Claws") {
         val t = target("target", AnyTarget())
         effect = Effects.If(
             condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.powerAtLeast(4)),
-            then = DealDamageEffect(DynamicAmount.Add(DynamicAmount.XValue, DynamicAmount.Fixed(2)), t),
-            otherwise = DealDamageEffect(DynamicAmount.XValue, t)
+            then = Effects.DealDamage(DynamicAmount.Add(DynamicAmount.XValue, DynamicAmount.Fixed(2)), t),
+            otherwise = Effects.DealDamage(DynamicAmount.XValue, t)
         )
     }
 

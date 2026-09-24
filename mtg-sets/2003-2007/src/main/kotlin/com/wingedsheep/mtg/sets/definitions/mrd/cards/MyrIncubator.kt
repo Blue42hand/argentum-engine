@@ -8,9 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -63,7 +61,7 @@ val MyrIncubator = card("Myr Incubator") {
             exile(found)
 
             run(
-                CreateTokenEffect(
+                Effects.CreateToken(
                     count = DynamicAmounts.distinctEntitiesIn(found),
                     power = 1,
                     toughness = 1,
@@ -76,7 +74,7 @@ val MyrIncubator = card("Myr Incubator") {
                 )
             )
 
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
             run(EmitLibrarySearchedEventEffect)
         }
         description = "{6}, {T}, Sacrifice this artifact: Search your library for any number of " +

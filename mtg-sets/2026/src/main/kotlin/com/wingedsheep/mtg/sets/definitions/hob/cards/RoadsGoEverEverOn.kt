@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -57,7 +55,7 @@ val RoadsGoEverEverOn = card("Roads Go Ever, Ever On") {
                 prompt = "Search your library for up to two basic Plains cards"
             )
             exile(roadsExiled, linkToSource = true)
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
             run(Effects.GainLife(2))
         }
     }
@@ -70,7 +68,7 @@ val RoadsGoEverEverOn = card("Roads Go Ever, Ever On") {
             Player.You,
             GameObjectFilter.Land.withSubtype("Plains"),
         ).count()
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             trigger = Triggers.YouAttack,
             targetRequirement = TargetCreature(filter = TargetFilter.Creature.youControl()),
             effect = Effects.ModifyStats(

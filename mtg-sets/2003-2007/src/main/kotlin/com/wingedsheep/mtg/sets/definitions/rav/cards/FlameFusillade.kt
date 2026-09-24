@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.GrantActivatedAbilityEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -36,7 +35,7 @@ val FlameFusillade = card("Flame Fusillade") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter.AllPermanentsYouControl,
-            GrantActivatedAbilityEffect(
+            Effects.GrantActivatedAbility(
                 ability = ActivatedAbility(
                     id = AbilityId.generate(),
                     cost = Costs.Tap,

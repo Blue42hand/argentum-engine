@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -51,7 +50,7 @@ val FoggySwampVisions = card("Foggy Swamp Visions") {
             val exiledCards = moveTracked(exiled, CardDestination.ToZone(Zone.EXILE))
             run(Effects.ForEachInCollection(
                 collection = exiledCards,
-                effect = CreateTokenCopyOfTargetEffect(
+                effect = Effects.CreateTokenCopyOfTarget(
                     target = EffectTarget.IterationEntity,
                     sacrificeAtStep = Step.END,
                 ),

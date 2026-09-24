@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -10,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -47,7 +45,7 @@ val RebellionOfTheFlamekin = card("Rebellion of the Flamekin") {
     triggeredAbility {
         trigger = Triggers.WheneverYouClash
         effect = Effects.MayPay(
-            cost = PayManaCostEffect(ManaCost.parse("{1}")),
+            cost = Effects.PayMana("{1}"),
             then = Effects.Composite(
                 Effects.CreateToken(
                     power = 3,

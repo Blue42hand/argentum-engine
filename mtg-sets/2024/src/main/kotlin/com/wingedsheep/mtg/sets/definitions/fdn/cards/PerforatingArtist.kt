@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.costs.PayCost
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -52,14 +50,14 @@ val PerforatingArtist = card("Perforating Artist") {
         effect = Effects.ForEachPlayer(
             Player.EachOpponent,
             listOf(
-                PayOrSufferEffect(
+                Effects.PayOrSuffer(
                     cost = Costs.pay.Choice(
                         listOf(
                             Costs.pay.Sacrifice(filter = GameObjectFilter.Nonland),
                             Costs.pay.Discard()
                         )
                     ),
-                    suffer = LoseLifeEffect(
+                    suffer = Effects.LoseLife(
                         amount = DynamicAmount.Fixed(3),
                         target = EffectTarget.Controller
                     ),

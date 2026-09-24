@@ -13,8 +13,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantCardType
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.conditions.Exists
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -50,19 +48,17 @@ val EntropicBattlecruiser = card("Entropic Battlecruiser") {
     triggeredAbility {
         trigger = Triggers.AnyOpponentDiscards
         triggerRestriction = atLeast1Charge
-        effect = LoseLifeEffect(3, EffectTarget.PlayerRef(Player.TriggeringPlayer))
+        effect = Effects.LoseLife(3, EffectTarget.PlayerRef(Player.TriggeringPlayer))
     }
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = ForEachPlayerEffect(
+        effect = Effects.ForEachPlayer(
             players = Player.EachOpponent,
-            effects = listOf(
-                Effects.If(
-                    condition = Exists(Player.You, Zone.HAND),
-                    then = Patterns.Hand.discardCards(1, EffectTarget.Controller),
-                    otherwise = LoseLifeEffect(3, EffectTarget.Controller)
-                )
+            effect = Effects.If(
+                condition = Exists(Player.You, Zone.HAND),
+                then = Patterns.Hand.discardCards(1, EffectTarget.Controller),
+                otherwise = Effects.LoseLife(3, EffectTarget.Controller)
             )
         )
     }

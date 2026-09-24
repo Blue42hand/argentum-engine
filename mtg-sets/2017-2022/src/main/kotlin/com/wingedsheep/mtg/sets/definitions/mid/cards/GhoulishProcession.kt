@@ -2,11 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.mid.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
  * Ghoulish Procession
@@ -37,7 +37,7 @@ val GhoulishProcession = card("Ghoulish Procession") {
     triggeredAbility {
         trigger = Triggers.OneOrMoreCreaturesDie(GameObjectFilter.Creature.nontoken())
         oncePerTurn = true
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 2,
             toughness = 2,
             colors = setOf(Color.BLACK),

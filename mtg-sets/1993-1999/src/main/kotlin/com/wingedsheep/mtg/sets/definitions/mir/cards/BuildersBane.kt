@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -58,7 +57,7 @@ val BuildersBane = card("Builder's Bane") {
             val preControllers = captureControllers(targets)
             val destroyed = moveTracked(targets, CardDestination.ToZone(Zone.GRAVEYARD), moveType = MoveType.Destroy)
             forEachCaptured(destroyed, original = targets, controllers = preControllers) { killCount ->
-                run(DealDamageEffect(amount = killCount.amount, target = EffectTarget.Controller))
+                run(Effects.DealDamage(amount = killCount.amount, target = EffectTarget.Controller))
             }
         }
     }

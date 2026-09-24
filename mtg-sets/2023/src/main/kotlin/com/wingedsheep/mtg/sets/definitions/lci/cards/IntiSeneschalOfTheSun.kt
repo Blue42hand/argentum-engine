@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -50,7 +49,7 @@ val IntiSeneschalOfTheSun = card("Inti, Seneschal of the Sun") {
     // target attacking creature. It gains trample until end of turn."
     triggeredAbility {
         trigger = Triggers.YouAttack
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.Discard(1),
             optional = true,
             reflexiveEffect = Effects.Composite(listOf(

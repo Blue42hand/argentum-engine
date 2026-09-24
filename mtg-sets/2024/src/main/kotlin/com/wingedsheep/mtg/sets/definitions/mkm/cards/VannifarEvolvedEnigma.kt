@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
@@ -52,7 +51,7 @@ val VannifarEvolvedEnigma = card("Vannifar, Evolved Enigma") {
 
     triggeredAbility {
         trigger = Triggers.BeginCombat
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 Mode.noTarget(
                     Effects.Pipeline {

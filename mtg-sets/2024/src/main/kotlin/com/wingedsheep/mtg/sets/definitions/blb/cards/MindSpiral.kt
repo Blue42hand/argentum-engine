@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -39,7 +37,7 @@ val MindSpiral = card("Mind Spiral") {
         effect = Patterns.Mechanic.giftSpell(
             // Mode 1: No gift — target player draws 3
             Mode.withTarget(
-                DrawCardsEffect(3, EffectTarget.ContextTarget(0)),
+                Effects.DrawCards(3, EffectTarget.ContextTarget(0)),
                 TargetPlayer(descriptionOverride = "target player to draw three cards"),
                 "Don't promise a gift — target player draws three cards"
             ),
@@ -48,7 +46,7 @@ val MindSpiral = card("Mind Spiral") {
             Mode(
                 effect = Effects.Composite(
                     listOf(
-                        CreateTokenEffect(
+                        Effects.CreateToken(
                             count = DynamicAmount.Fixed(1),
                             power = 1,
                             toughness = 1,
@@ -58,7 +56,7 @@ val MindSpiral = card("Mind Spiral") {
                             tapped = true,
                             imageUri = "https://cards.scryfall.io/normal/front/d/e/de0d6700-49f0-4233-97ba-cef7821c30ed.jpg?1721431109"
                         ),
-                        DrawCardsEffect(3, EffectTarget.ContextTarget(0)),
+                        Effects.DrawCards(3, EffectTarget.ContextTarget(0)),
                         Effects.Tap(EffectTarget.ContextTarget(1)),
                         Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(1)),
                         Effects.GiftGiven()

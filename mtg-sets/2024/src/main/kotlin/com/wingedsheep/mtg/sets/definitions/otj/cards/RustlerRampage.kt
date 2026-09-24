@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -35,7 +34,7 @@ val RustlerRampage = card("Rustler Rampage") {
         "+ {1} — Target creature gains double strike until end of turn."
 
     spell {
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 Mode(
                     effect = Effects.ForEachInGroup(

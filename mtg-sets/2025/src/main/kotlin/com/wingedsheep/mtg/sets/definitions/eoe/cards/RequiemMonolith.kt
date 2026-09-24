@@ -7,10 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -41,8 +37,8 @@ val RequiemMonolith = card("Requiem Monolith") {
             binding = Triggers.TakesDamage.binding,
             effect = Effects.Composite(
                 listOf(
-                    DrawCardsEffect(damage, EffectTarget.Controller),
-                    LoseLifeEffect(damage, EffectTarget.Controller)
+                    Effects.DrawCards(damage, EffectTarget.Controller),
+                    Effects.LoseLife(damage, EffectTarget.Controller)
                 )
             ),
             descriptionOverride = "Whenever this creature is dealt damage, you draw that many cards and lose that much life"
@@ -50,9 +46,9 @@ val RequiemMonolith = card("Requiem Monolith") {
 
         effect = Effects.Composite(
             listOf(
-                GrantTriggeredAbilityEffect(ability = grantedAbility, target = creature),
+                Effects.GrantTriggeredAbility(ability = grantedAbility, target = creature),
                 Effects.May(
-                    effect = DealDamageEffect(amount = 1, target = creature, damageSource = EffectTarget.Self),
+                    effect = Effects.DealDamage(amount = 1, target = creature, damageSource = EffectTarget.Self),
                     descriptionOverride = "Have Requiem Monolith deal 1 damage to that creature?",
                     decisionMaker = EffectTarget.TargetController
                 )

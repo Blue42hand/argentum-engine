@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -30,7 +30,7 @@ val MorlunDevourerOfSpiders = card("Morlun, Devourer of Spiders") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val t = target("target", TargetOpponent())
-        effect = DealDamageEffect(DynamicAmount.XValue, t)
+        effect = Effects.DealDamage(DynamicAmount.XValue, t)
     }
     metadata {
         rarity = Rarity.RARE

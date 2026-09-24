@@ -13,8 +13,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -51,7 +49,7 @@ val OldHobAlleycatBlues = card("Old Hob, Alleycat Blues") {
 
     triggeredAbility {
         trigger = Triggers.BeginCombat
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 2,
             toughness = 2,
             colors = setOf(Color.RED),
@@ -59,7 +57,7 @@ val OldHobAlleycatBlues = card("Old Hob, Alleycat Blues") {
             keywords = setOf(Keyword.HASTE),
             imageUri = "https://cards.scryfall.io/normal/front/5/1/51e33613-7a24-461c-8d9f-12680af4b92a.jpg?1771590526"
         ).then(
-            CreateDelayedTriggerEffect(
+            Effects.CreateDelayedTrigger(
                 step = Step.END,
                 effect = Effects.Move(
                     target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0),

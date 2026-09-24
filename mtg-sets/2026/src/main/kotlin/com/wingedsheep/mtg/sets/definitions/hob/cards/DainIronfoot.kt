@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
-import com.wingedsheep.sdk.scripting.effects.CreatePredefinedTokenEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -51,8 +49,8 @@ val DainIronfoot = card("Dáin Ironfoot") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ReflexiveTriggerEffect(
-            action = CreatePredefinedTokenEffect("Axe"),
+        effect = Effects.ReflexiveTrigger(
+            action = Effects.CreatePredefinedToken("Axe"),
             optional = false,
             reflexiveEffect = Effects.AttachTargetEquipmentToCreature(
                 equipmentTarget = EffectTarget.PipelineTarget(CREATED_TOKENS, 0),

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -67,7 +66,7 @@ private val DowsingDeviceFront = card("Dowsing Device") {
             Effects.GrantKeyword(Keyword.HASTE, creature),
             Effects.If(
                 condition = Conditions.YouControlAtLeast(4, GameObjectFilter.Artifact),
-                then = TransformEffect(EffectTarget.Self),
+                then = Effects.Transform(EffectTarget.Self),
             ),
         )
     }

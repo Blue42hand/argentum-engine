@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -46,11 +44,11 @@ val VengefulVillagers = card("Vengeful Villagers") {
         effect = Effects.Composite(
             Effects.Tap(chosen),
             Effects.MayPay(
-                cost = SacrificeEffect(
+                cost = Effects.SacrificeOwn(
                     filter = GameObjectFilter.Artifact.or(GameObjectFilter.Creature),
                     count = 1
                 ),
-                then = AddCountersEffect(counterType = CounterType.STUN, count = 1, target = chosen)
+                then = Effects.AddCounters(counterType = CounterType.STUN, count = 1, target = chosen)
             )
         )
         description = "Whenever this creature attacks, choose target creature an opponent controls. " +

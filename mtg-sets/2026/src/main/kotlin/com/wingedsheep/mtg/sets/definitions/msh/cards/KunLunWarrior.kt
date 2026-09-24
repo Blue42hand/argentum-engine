@@ -7,10 +7,8 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 
 /**
  * K'un-Lun Warrior (MSH #140) — {1}{R} Creature — Human Warrior Hero, 2/2
@@ -34,11 +32,11 @@ val KunLunWarrior = card("K'un-Lun Warrior") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.May(
-            effect = ChooseActionEffect(
+            effect = Effects.ChooseAction(
                 choices = listOf(
                     EffectChoice(
                         label = "Sacrifice an artifact",
-                        effect = SacrificeEffect(filter = GameObjectFilter.Artifact) then
+                        effect = Effects.SacrificeOwn(filter = GameObjectFilter.Artifact) then
                             Effects.DrawCards(1),
                         feasibilityCheck = FeasibilityCheck.ControlsPermanentMatching(
                             filter = GameObjectFilter.Artifact

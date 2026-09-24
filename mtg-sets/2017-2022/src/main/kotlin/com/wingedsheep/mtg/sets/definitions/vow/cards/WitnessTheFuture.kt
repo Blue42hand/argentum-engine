@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -50,8 +49,8 @@ val WitnessTheFuture = card("Witness the Future") {
             optional = true,
             filter = TargetFilter.CardInGraveyard
         )
-        effect = ForEachTargetEffect(
-            effects = listOf(Effects.ShuffleIntoLibrary(EffectTarget.ContextTarget(0)))
+        effect = Effects.ForEachTarget(
+            Effects.ShuffleIntoLibrary(EffectTarget.ContextTarget(0))
         ).then(
             Patterns.Library.lookAtTopAndKeep(
                 count = 4,

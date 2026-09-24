@@ -12,9 +12,6 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -84,7 +81,7 @@ private val KujaGenomeSorcererFront = card("Kuja, Genome Sorcerer") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         effect = Effects.Composite(
-            CreateTokenEffect(
+            Effects.CreateToken(
                 power = 0,
                 toughness = 1,
                 colors = setOf(Color.BLACK),
@@ -95,7 +92,7 @@ private val KujaGenomeSorcererFront = card("Kuja, Genome Sorcerer") {
                     TriggeredAbility.create(
                         trigger = Triggers.YouCastNoncreature.event,
                         binding = TriggerBinding.ANY,
-                        effect = DealDamageEffect(1, EffectTarget.PlayerRef(Player.EachOpponent)),
+                        effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)),
                     ),
                 ),
             ),
@@ -104,7 +101,7 @@ private val KujaGenomeSorcererFront = card("Kuja, Genome Sorcerer") {
                     4,
                     GameObjectFilter.Creature.withSubtype("Wizard")
                 ),
-                then = TransformEffect(EffectTarget.Self),
+                then = Effects.Transform(EffectTarget.Self),
             ),
         )
     }

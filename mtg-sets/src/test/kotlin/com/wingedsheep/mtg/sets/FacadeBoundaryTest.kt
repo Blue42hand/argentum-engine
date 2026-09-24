@@ -27,6 +27,12 @@ class FacadeBoundaryTest : FunSpec({
         Regex("""\bPayCost\.[A-Z]""") to "Costs.pay.*",
         Regex("""(?<!Conditions\.)\bEntityMatches\s*\(""") to
             "Conditions.EntityMatches(...) (or Conditions.SourceMatches/TargetMatchesFilter/…)",
+        // Every effect data class is named `…Effect`; a card never constructs one directly. The
+        // lookbehind lets qualified calls through — `Effects.GrantReplacementEffect(…)`,
+        // `ModalEffect.chooseOne(…)` — and objects (`SacrificeSelfEffect`) aren't constructions.
+        Regex("""((?<![\w.])|\bscripting\.effects\.)[A-Z]\w*Effect\s*\(""") to "the Effects.* facade for that effect",
+        Regex("""(?<![\w.])(GatedEffect\s*\(|Gate\.[A-Z])""") to
+            "Effects.If / May / MayPay / MayPayX / IfYouDo",
     )
 
     /**
@@ -90,11 +96,10 @@ class FacadeBoundaryTest : FunSpec({
 
         SetSourceRoots.definitionFiles().forEach { path ->
             stripCommentsAndImports(path.readText()).forEachIndexed { idx, line ->
-                for ((regex, hint) in forbidden) {
-                    if (regex.containsMatchIn(line)) {
-                        val rel = SetSourceRoots.relativize(path)
-                        violations += "$rel:${idx + 1}  →  use $hint instead of `${regex.find(line)!!.value}`"
-                    }
+                // The specific hints come first; one report per line is enough.
+                forbidden.firstOrNull { (regex, _) -> regex.containsMatchIn(line) }?.let { (regex, hint) ->
+                    val rel = SetSourceRoots.relativize(path)
+                    violations += "$rel:${idx + 1}  →  use $hint instead of `${regex.find(line)!!.value}`"
                 }
             }
         }

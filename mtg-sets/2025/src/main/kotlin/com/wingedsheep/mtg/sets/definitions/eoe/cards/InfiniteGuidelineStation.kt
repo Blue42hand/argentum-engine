@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantCardType
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -44,7 +43,7 @@ val InfiniteGuidelineStation = card("Infinite Guideline Station") {
     // ETB: create a tapped 2/2 colorless Robot artifact creature token for each multicolored permanent.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             count = DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Multicolored),
             name = "Robot",
             power = 2,

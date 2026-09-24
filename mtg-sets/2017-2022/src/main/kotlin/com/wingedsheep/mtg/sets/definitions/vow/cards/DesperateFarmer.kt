@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -47,7 +47,7 @@ private val DesperateFarmerFront = card("Desperate Farmer") {
             to = Zone.GRAVEYARD,
             binding = TriggerBinding.OTHER,
         )
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         description = "When another creature you control dies, transform this creature."
     }
 

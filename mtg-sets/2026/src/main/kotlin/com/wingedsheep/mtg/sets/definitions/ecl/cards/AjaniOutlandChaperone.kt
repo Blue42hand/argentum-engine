@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -38,7 +36,7 @@ val AjaniOutlandChaperone = card("Ajani, Outland Chaperone") {
 
     // +1: Create a 1/1 green and white Kithkin creature token.
     loyaltyAbility(+1) {
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 1,
             toughness = 1,
             colors = setOf(Color.GREEN, Color.WHITE),
@@ -69,7 +67,7 @@ val AjaniOutlandChaperone = card("Ajani, Outland Chaperone") {
             )
             move(toBattlefield, CardDestination.ToZone(Zone.BATTLEFIELD))
             move(rest, CardDestination.ToZone(Zone.LIBRARY))
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
         }
     }
 

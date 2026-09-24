@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -35,13 +33,13 @@ val PoisonTheWaters = card("Poison the Waters") {
             mode("All creatures get -1/-1 until end of turn") {
                 effect = Effects.ForEachInGroup(
                     filter = GroupFilter.AllCreatures,
-                    effect = ModifyStatsEffect(-1, -1, EffectTarget.IterationEntity)
+                    effect = Effects.ModifyStats(-1, -1, EffectTarget.IterationEntity)
                 )
             }
             mode("Target player reveals their hand; discard an artifact or creature card") {
                 val t = target("target", TargetPlayer())
                 effect = Effects.Pipeline {
-                    run(RevealHandEffect(t))
+                    run(Effects.RevealHand(t))
                     val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
                     val toDiscard = chooseExactly(
                         1,

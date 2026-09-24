@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -59,7 +58,7 @@ private val MatzalantliTheGreatDoorFront = card("Matzalantli, the Great Door") {
     // among cards in your graveyard.
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{4}"), Costs.Tap)
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         restrictions = listOf(
             ActivationRestriction.OnlyIfCondition(
                 Conditions.DistinctPermanentTypesInGraveyard(4)

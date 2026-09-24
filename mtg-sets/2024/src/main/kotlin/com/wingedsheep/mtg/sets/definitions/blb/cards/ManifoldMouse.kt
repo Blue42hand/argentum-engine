@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -55,11 +54,11 @@ val ManifoldMouse = card("Manifold Mouse") {
         trigger = Triggers.BeginCombat
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
-                GrantKeywordEffect(Keyword.DOUBLE_STRIKE, creature, Duration.EndOfTurn),
+                Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, creature, Duration.EndOfTurn),
                 "Double strike"
             ),
             Mode.noTarget(
-                GrantKeywordEffect(Keyword.TRAMPLE, creature, Duration.EndOfTurn),
+                Effects.GrantKeyword(Keyword.TRAMPLE, creature, Duration.EndOfTurn),
                 "Trample"
             )
         )

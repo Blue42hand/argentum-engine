@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.startYourEngines
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -52,21 +51,19 @@ val MomentumBreaker = card("Momentum Breaker") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ForEachPlayerEffect(
+        effect = Effects.ForEachPlayer(
             players = Player.EachOpponent,
-            effects = listOf(
-                Effects.If(
-                    condition = Exists(
-                        player = Player.You,
-                        zone = Zone.BATTLEFIELD,
-                        filter = GameObjectFilter.CreatureOrVehicle
-                    ),
-                    then = Effects.Sacrifice(
-                        GameObjectFilter.CreatureOrVehicle,
-                        target = EffectTarget.Controller
-                    ),
-                    otherwise = Patterns.Hand.discardCards(1, EffectTarget.Controller)
-                )
+            effect = Effects.If(
+                condition = Exists(
+                    player = Player.You,
+                    zone = Zone.BATTLEFIELD,
+                    filter = GameObjectFilter.CreatureOrVehicle
+                ),
+                then = Effects.Sacrifice(
+                    GameObjectFilter.CreatureOrVehicle,
+                    target = EffectTarget.Controller
+                ),
+                otherwise = Patterns.Hand.discardCards(1, EffectTarget.Controller)
             )
         )
     }

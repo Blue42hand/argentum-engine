@@ -12,8 +12,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -49,11 +47,11 @@ val KheruLichLord = card("Kheru Lich Lord") {
                 // Move to battlefield
                 val returned = moveTracked(chosen, CardDestination.ToZone(Zone.BATTLEFIELD)).asTarget
                 // Grant flying, trample, and haste (permanent — no duration specified in oracle text)
-                run(GrantKeywordEffect(Keyword.FLYING, returned, Duration.Permanent))
-                run(GrantKeywordEffect(Keyword.TRAMPLE, returned, Duration.Permanent))
-                run(GrantKeywordEffect(Keyword.HASTE, returned, Duration.Permanent))
+                run(Effects.GrantKeyword(Keyword.FLYING, returned, Duration.Permanent))
+                run(Effects.GrantKeyword(Keyword.TRAMPLE, returned, Duration.Permanent))
+                run(Effects.GrantKeyword(Keyword.HASTE, returned, Duration.Permanent))
                 // Exile at the beginning of your next end step
-                run(CreateDelayedTriggerEffect(step = Step.END, effect = Effects.Move(returned, Zone.EXILE)))
+                run(Effects.CreateDelayedTrigger(step = Step.END, effect = Effects.Move(returned, Zone.EXILE)))
                 // If it would leave the battlefield, exile it instead
                 run(Effects.GrantExileOnLeave(returned))
             }

@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -40,9 +38,9 @@ val BeastieBeatdown = card("Beastie Beatdown") {
             // Delirium — counters land first so the damage uses the buffed power.
             Effects.If(
                 condition = Conditions.Delirium(),
-                then = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = yours),
+                then = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = yours),
             ),
-            DealDamageEffect(DynamicAmounts.targetPower(0), theirs, damageSource = yours),
+            Effects.DealDamage(DynamicAmounts.targetPower(0), theirs, damageSource = yours),
         )
     }
 

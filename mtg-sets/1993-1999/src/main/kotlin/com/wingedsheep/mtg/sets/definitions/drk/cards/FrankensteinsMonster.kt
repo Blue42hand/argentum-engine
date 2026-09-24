@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.OnEnterRun
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -82,7 +81,7 @@ val FrankensteinsMonster = card("Frankenstein's Monster") {
                     )
                     val fmExiled = chooseExactly(DynamicAmount.XValue, from = fmCandidates)
                     exile(fmExiled)
-                    run(ModalEffect(
+                    run(Effects.Modal(
                         modes = listOf(
                             Mode(
                                 description = "Put a +2/+0 counter on this creature",

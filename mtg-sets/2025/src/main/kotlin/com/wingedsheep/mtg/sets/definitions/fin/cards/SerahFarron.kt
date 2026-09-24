@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -104,7 +103,7 @@ private val SerahFarronFront = card("Serah Farron") {
             ComparisonOperator.GTE,
             DynamicAmount.Fixed(2),
         )
-        effect = Effects.May(effect = TransformEffect(EffectTarget.Self))
+        effect = Effects.May(effect = Effects.Transform(EffectTarget.Self))
     }
 
     metadata {

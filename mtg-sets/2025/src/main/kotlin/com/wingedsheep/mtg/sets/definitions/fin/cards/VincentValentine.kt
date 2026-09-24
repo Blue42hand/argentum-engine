@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
@@ -92,7 +91,7 @@ private val VincentValentineFront = card("Vincent Valentine") {
     // Whenever Vincent Valentine attacks, you may transform it.
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = Effects.May(effect = TransformEffect(EffectTarget.Self))
+        effect = Effects.May(effect = Effects.Transform(EffectTarget.Self))
     }
 
     metadata {

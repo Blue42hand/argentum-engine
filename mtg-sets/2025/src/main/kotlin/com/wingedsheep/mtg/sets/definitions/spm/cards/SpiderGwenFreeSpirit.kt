@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 
 /**
  * Spider-Gwen, Free Spirit
@@ -25,7 +24,7 @@ val SpiderGwenFreeSpirit = card("Spider-Gwen, Free Spirit") {
     keywords(Keyword.REACH)
     triggeredAbility {
         trigger = Triggers.BecomesTapped
-        effect = Effects.May(effect = Effects.IfYouDo(action = Patterns.Hand.discardCards(1), then = DrawCardsEffect(1)))
+        effect = Effects.May(effect = Effects.IfYouDo(action = Patterns.Hand.discardCards(1), then = Effects.DrawCards(1)))
     }
     metadata {
         rarity = Rarity.COMMON

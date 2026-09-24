@@ -4,9 +4,9 @@
 
 package com.wingedsheep.mtg.sets.definitions.pcy.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.SkipUntapEffect
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 
@@ -23,7 +23,7 @@ val ManaVapors = card("Mana Vapors") {
     oracleText = "Lands target player controls don't untap during their next untap step."
     spell {
         val t = target("target", TargetPlayer())
-        effect = SkipUntapEffect(t)
+        effect = Effects.SkipUntap(t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

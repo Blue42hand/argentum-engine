@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
  * Sergeant-at-Arms
@@ -31,7 +30,7 @@ val SergeantAtArms = card("Sergeant-at-Arms") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.If(
             condition = WasKicked,
-            then = CreateTokenEffect(
+            then = Effects.CreateToken(
                 count = 2,
                 power = 1,
                 toughness = 1,

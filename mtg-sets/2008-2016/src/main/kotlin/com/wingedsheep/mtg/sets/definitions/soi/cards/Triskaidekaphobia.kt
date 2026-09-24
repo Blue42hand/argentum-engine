@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
@@ -38,17 +37,15 @@ val Triskaidekaphobia = card("Triskaidekaphobia") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
 
-        val eachPlayerWith13LosesTheGame = ForEachPlayerEffect(
+        val eachPlayerWith13LosesTheGame = Effects.ForEachPlayer(
             Player.ActivePlayerFirst,
-            listOf(
-                Effects.If(
-                    condition = Conditions.CompareAmounts(
-                        DynamicAmount.LifeTotal(Player.You),
-                        ComparisonOperator.EQ,
-                        DynamicAmount.Fixed(13)
-                    ),
-                    then = Effects.LoseGame()
-                )
+            Effects.If(
+                condition = Conditions.CompareAmounts(
+                    DynamicAmount.LifeTotal(Player.You),
+                    ComparisonOperator.EQ,
+                    DynamicAmount.Fixed(13)
+                ),
+                then = Effects.LoseGame()
             )
         )
 

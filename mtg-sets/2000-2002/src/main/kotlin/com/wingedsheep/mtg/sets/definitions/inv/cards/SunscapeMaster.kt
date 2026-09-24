@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -30,7 +29,7 @@ val SunscapeMaster = card("Sunscape Master") {
         cost = Costs.Composite(Costs.Mana("{G}{G}"), Costs.Tap)
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreaturesYouControl,
-            ModifyStatsEffect(2, 2, EffectTarget.IterationEntity)
+            Effects.ModifyStats(2, 2, EffectTarget.IterationEntity)
         )
     }
 

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
@@ -86,7 +85,7 @@ val TheEaglesAreComing = card("The Eagles Are Coming!") {
                 name = "returned"
             )
             run(
-                CreateDelayedTriggerEffect(
+                Effects.CreateDelayedTrigger(
                     step = Step.UPKEEP,
                     timing = DelayedTriggerTiming.CURRENT_TURN_OR_LATER,
                     effect = Effects.CreateToken(

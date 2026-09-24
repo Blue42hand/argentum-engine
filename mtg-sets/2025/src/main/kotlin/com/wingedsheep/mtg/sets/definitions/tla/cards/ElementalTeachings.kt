@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.SelectionRestriction
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -61,7 +60,7 @@ val ElementalTeachings = card("Elemental Teachings") {
             )
             toGraveyard(toGraveyardCards)
             move(toBattlefield, CardDestination.ToZone(Zone.BATTLEFIELD, placement = ZonePlacement.Tapped))
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
         }
     }
 

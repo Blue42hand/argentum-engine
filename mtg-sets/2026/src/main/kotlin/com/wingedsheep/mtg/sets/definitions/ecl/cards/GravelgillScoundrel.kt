@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -28,7 +27,7 @@ val GravelgillScoundrel = card("Gravelgill Scoundrel") {
         // The "may tap another untapped creature" is a resolution-time choice, not a target.
         // Selection happens via SelectTargetEffect after the player accepts the optional,
         // so declining doesn't force them to commit to one.
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.Pipeline {
                 val creatureToTap = selectTarget(
                     TargetObject(

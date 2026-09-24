@@ -13,10 +13,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -36,9 +32,9 @@ val CircleOfPower = card("Circle of Power") {
     oracleText = "You draw two cards and you lose 2 life. Create a 0/1 black Wizard creature token with \"Whenever you cast a noncreature spell, this token deals 1 damage to each opponent.\"\nWizards you control get +1/+0 and gain lifelink until end of turn."
     spell {
         effect = Effects.Composite(
-            DrawCardsEffect(2),
-            LoseLifeEffect(2, EffectTarget.Controller),
-            CreateTokenEffect(
+            Effects.DrawCards(2),
+            Effects.LoseLife(2, EffectTarget.Controller),
+            Effects.CreateToken(
                 power = 0,
                 toughness = 1,
                 colors = setOf(Color.BLACK),
@@ -48,7 +44,7 @@ val CircleOfPower = card("Circle of Power") {
                     TriggeredAbility.create(
                         trigger = Triggers.YouCastNoncreature.event,
                         binding = Triggers.YouCastNoncreature.binding,
-                        effect = DealDamageEffect(1, EffectTarget.PlayerRef(Player.EachOpponent))
+                        effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent))
                     )
                 )
             ),

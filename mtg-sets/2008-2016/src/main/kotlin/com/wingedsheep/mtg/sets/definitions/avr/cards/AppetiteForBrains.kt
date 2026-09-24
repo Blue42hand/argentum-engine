@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -33,7 +32,7 @@ val AppetiteForBrains = card("Appetite for Brains") {
         val opponent = target("target opponent", Targets.Opponent)
 
         effect = Effects.Pipeline {
-            run(RevealHandEffect(opponent))
+            run(Effects.RevealHand(opponent))
             val mv4Plus = gather(
                 CardSource.FromZone(
                     zone = Zone.HAND,

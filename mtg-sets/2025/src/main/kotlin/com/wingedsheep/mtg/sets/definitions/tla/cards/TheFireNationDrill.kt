@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -41,7 +40,7 @@ val TheFireNationDrill = card("The Fire Nation Drill") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.Tap(EffectTarget.Self),
             optional = true,
             reflexiveEffect = Effects.Destroy(EffectTarget.ContextTarget(0)),

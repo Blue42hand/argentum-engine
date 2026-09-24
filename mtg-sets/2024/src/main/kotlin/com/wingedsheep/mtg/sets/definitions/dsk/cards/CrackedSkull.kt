@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.LookAtTargetHandEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -40,7 +39,7 @@ val CrackedSkull = card("Cracked Skull") {
         trigger = Triggers.EntersBattlefield
         val player = target("target player", Targets.Player)
         effect = Effects.Pipeline {
-            run(LookAtTargetHandEffect(player))
+            run(Effects.LookAtHand(player))
             val targetHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
             val toDiscard = chooseUpTo(
                 1,

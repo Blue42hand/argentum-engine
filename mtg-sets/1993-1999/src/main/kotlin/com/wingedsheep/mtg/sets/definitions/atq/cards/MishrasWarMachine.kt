@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DamageRecipient
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -44,7 +43,7 @@ val MishrasWarMachine = card("Mishra's War Machine") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         effect = Effects.IfYouDo(
-            action = PayOrSufferEffect(
+            action = Effects.PayOrSuffer(
                 cost = Costs.pay.Discard(),
                 suffer = Effects.DealDamage(
                     amount = 3,

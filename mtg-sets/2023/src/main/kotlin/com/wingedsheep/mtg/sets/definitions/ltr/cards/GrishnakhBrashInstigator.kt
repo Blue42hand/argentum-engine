@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -45,7 +44,7 @@ val GrishnakhBrashInstigator = card("Grishnákh, Brash Instigator") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val controlled = EffectTarget.ContextTarget(0)
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.Amass(2, "Orc"),
             optional = false,
             reflexiveEffect = Effects.Composite(

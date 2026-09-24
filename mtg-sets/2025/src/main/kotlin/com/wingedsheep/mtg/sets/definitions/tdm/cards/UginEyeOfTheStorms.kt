@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -101,7 +100,7 @@ val UginEyeOfTheStorms = card("Ugin, Eye of the Storms") {
                 prompt = "Search your library for any number of colorless nonland cards"
             )
             exile(exiled)
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
             run(Effects.GrantMayPlayFromExile(exiled, MayPlayExpiry.EndOfTurn))
             run(Effects.GrantPlayWithoutPayingCost(exiled))
         }

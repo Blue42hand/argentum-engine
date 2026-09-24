@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -93,7 +92,7 @@ val ChocoSeekerOfParadise = card("Choco, Seeker of Paradise") {
     // Landfall — Whenever a land you control enters, Choco gets +1/+0 until end of turn.
     triggeredAbility {
         trigger = Triggers.LandYouControlEnters
-        effect = ModifyStatsEffect(1, 0, EffectTarget.Self)
+        effect = Effects.ModifyStats(1, 0, EffectTarget.Self)
         description = "Landfall — Whenever a land you control enters, Choco, Seeker of Paradise gets +1/+0 until end of turn."
     }
 

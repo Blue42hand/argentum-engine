@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
  * Mighty Mutanimals
@@ -29,7 +28,7 @@ val MightyMutanimals = card("Mighty Mutanimals") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 2,
             toughness = 2,
             colors = setOf(Color.RED),

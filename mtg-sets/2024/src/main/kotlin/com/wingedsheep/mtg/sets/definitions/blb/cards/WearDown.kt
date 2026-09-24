@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -42,7 +41,7 @@ val WearDown = card("Wear Down") {
             Mode(
                 effect = Effects.Composite(
                     listOf(
-                        DrawCardsEffect(1, EffectTarget.PlayerRef(Player.ChosenOpponent)),
+                        Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent)),
                         Effects.Destroy(EffectTarget.ContextTarget(0)),
                         Effects.Destroy(EffectTarget.ContextTarget(1)),
                         Effects.GiftGiven()

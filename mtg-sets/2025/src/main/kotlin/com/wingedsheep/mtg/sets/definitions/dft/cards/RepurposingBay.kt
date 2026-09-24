@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
@@ -71,7 +70,7 @@ val RepurposingBay = card("Repurposing Bay") {
             )
             val found = chooseUpTo(1, from = candidates)
             move(found, CardDestination.ToZone(Zone.BATTLEFIELD))
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
             run(EmitLibrarySearchedEventEffect)
         }
         description = "{2}, {T}, Sacrifice another artifact: Search your library for an artifact " +

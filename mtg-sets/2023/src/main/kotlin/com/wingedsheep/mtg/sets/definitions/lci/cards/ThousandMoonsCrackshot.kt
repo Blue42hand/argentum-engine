@@ -1,13 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -32,9 +29,9 @@ val ThousandMoonsCrackshot = card("Thousand Moons Crackshot") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             // "you may pay {2}{W}"
-            action = PayManaCostEffect(ManaCost.parse("{2}{W}")),
+            action = Effects.PayMana("{2}{W}"),
             optional = true,
             // "When you do, tap target creature."
             reflexiveEffect = Effects.Tap(EffectTarget.ContextTarget(0)),

@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.lci.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -12,8 +13,6 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddManaEffect
-import com.wingedsheep.sdk.scripting.effects.BecomeCreatureEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -43,21 +42,21 @@ val RestlessReef = card("Restless Reef") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = AddManaEffect(Color.BLUE)
+        effect = Effects.AddMana(Color.BLUE)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = AddManaEffect(Color.BLACK)
+        effect = Effects.AddMana(Color.BLACK)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }
 
     activatedAbility {
         cost = Costs.Mana("{2}{U}{B}")
-        effect = BecomeCreatureEffect(
+        effect = Effects.BecomeCreature(
             target = EffectTarget.Self,
             power = DynamicAmount.Fixed(4),
             toughness = DynamicAmount.Fixed(4),

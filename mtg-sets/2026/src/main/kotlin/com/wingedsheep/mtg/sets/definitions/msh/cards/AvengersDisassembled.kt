@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -44,7 +42,7 @@ val AvengersDisassembled = card("Avengers Disassembled") {
             mode("Avengers Disassembled deals 3 damage to each creature") {
                 effect = Effects.ForEachInGroup(
                     filter = GroupFilter.AllCreatures,
-                    effect = DealDamageEffect(3, EffectTarget.IterationEntity),
+                    effect = Effects.DealDamage(3, EffectTarget.IterationEntity),
                 )
             }
             mode(
@@ -71,7 +69,7 @@ val AvengersDisassembled = card("Avengers Disassembled") {
                                 placement = ZonePlacement.Tapped,
                             )
                         )
-                        run(ShuffleLibraryEffect(target = EffectTarget.TargetController))
+                        run(Effects.ShuffleLibrary(target = EffectTarget.TargetController))
                     },
                     decisionMaker = EffectTarget.TargetController,
                     // The Gather/Select/Move/Shuffle pipeline's auto-composed description reads

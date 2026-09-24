@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -56,7 +55,7 @@ private val DormantGroveFront = card("Dormant Grove") {
                 GameObjectFilter.Creature.toughnessAtLeast(6),
                 targetIndex = 0
             ),
-            then = TransformEffect(EffectTarget.Self)
+            then = Effects.Transform(EffectTarget.Self)
         )
         description = "At the beginning of combat on your turn, put a +1/+1 counter on target " +
             "creature you control. Then if that creature has toughness 6 or greater, transform " +

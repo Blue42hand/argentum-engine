@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 
 /**
@@ -37,11 +36,10 @@ val MalevolentWitchkite = card("Malevolent Witchkite") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = SacrificeEffect(
+        effect = Effects.SacrificeAnyNumber(
             filter = GameObjectFilter.Artifact.or(GameObjectFilter.Enchantment).or(
                 GameObjectFilter.Any.withCardPredicate(CardPredicate.IsToken)
             ),
-            any = true,
         ).then(Effects.DrawCards(DynamicAmounts.permanentsSacrificedThisWay()))
         description = "When this creature enters, sacrifice any number of artifacts, enchantments, " +
             "and/or tokens, then draw that many cards."

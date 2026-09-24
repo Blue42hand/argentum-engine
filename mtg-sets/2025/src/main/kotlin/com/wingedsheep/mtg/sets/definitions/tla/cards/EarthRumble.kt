@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.tla.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -44,7 +43,7 @@ val EarthRumble = card("Earth Rumble") {
 
     spell {
         val land = target("target land you control", TargetObject(filter = TargetFilter.Land.youControl()))
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.Earthbend(2, land),
             optional = false,
             reflexiveEffect = Effects.Fight(EffectTarget.ContextTarget(0), EffectTarget.ContextTarget(1)),

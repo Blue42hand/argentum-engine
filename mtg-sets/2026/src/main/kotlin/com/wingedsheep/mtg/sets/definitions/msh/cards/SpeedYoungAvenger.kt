@@ -1,14 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -49,9 +46,9 @@ val SpeedYoungAvenger = card("Speed, Young Avenger") {
 
     triggeredAbility {
         trigger = Triggers.YouCastNoncreature
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             // "you may pay {1}"
-            action = PayManaCostEffect(ManaCost.parse("{1}")),
+            action = Effects.PayMana("{1}"),
             optional = true,
             // "When you do, target creature with haste can't be blocked this turn except by
             //  creatures with haste."

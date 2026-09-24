@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.firebending
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -61,7 +60,7 @@ val FirebenderAscension = card("Firebender Ascension") {
     // When this enchantment enters, create a 2/2 red Soldier creature token with firebending 1.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 2,
             toughness = 2,
             colors = setOf(Color.RED),

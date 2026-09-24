@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -36,7 +35,7 @@ val TheCrystalsChosen = card("The Crystal's Chosen") {
             ),
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
-                AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
             )
         )
     }

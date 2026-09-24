@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 
 
 /**
@@ -26,7 +25,7 @@ val MentalNote = card("Mental Note") {
     spell {
         effect = Effects.Composite(
             Patterns.Library.mill(2),
-            DrawCardsEffect(1)
+            Effects.DrawCards(1)
         )
     }
     metadata {

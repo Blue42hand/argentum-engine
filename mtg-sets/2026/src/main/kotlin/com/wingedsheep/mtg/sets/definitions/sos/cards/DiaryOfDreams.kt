@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -27,7 +26,7 @@ val DiaryOfDreams = card("Diary of Dreams") {
 
     triggeredAbility {
         trigger = Triggers.YouCastInstantOrSorcery
-        effect = AddCountersEffect(CounterType.PAGE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PAGE, 1, EffectTarget.Self)
     }
 
     activatedAbility {

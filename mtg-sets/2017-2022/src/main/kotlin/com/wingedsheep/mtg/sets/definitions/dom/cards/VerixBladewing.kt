@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
  * Verix Bladewing
@@ -36,7 +35,7 @@ val VerixBladewing = card("Verix Bladewing") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.If(
             condition = WasKicked,
-            then = CreateTokenEffect(
+            then = Effects.CreateToken(
                 count = 1,
                 power = 4,
                 toughness = 4,

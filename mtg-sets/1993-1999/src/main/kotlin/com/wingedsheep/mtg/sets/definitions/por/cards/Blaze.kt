@@ -4,9 +4,9 @@
 
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -24,7 +24,7 @@ val Blaze = card("Blaze") {
     oracleText = "Blaze deals X damage to any target."
     spell {
         val t = target("target", AnyTarget())
-        effect = DealDamageEffect(DynamicAmount.XValue, t)
+        effect = Effects.DealDamage(DynamicAmount.XValue, t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

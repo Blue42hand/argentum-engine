@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -57,7 +56,7 @@ val RenoAndRude = card("Reno and Rude") {
             )
             exile(exiled, Player.TriggeringPlayer)
             run(Effects.MayPay(
-                cost = SacrificeEffect(
+                cost = Effects.SacrificeOwn(
                     filter = GameObjectFilter.CreatureOrArtifact,
                     count = 1,
                     excludeSource = true,

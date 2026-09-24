@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
@@ -57,7 +56,7 @@ val LluwenImperfectNaturalist = card("Lluwen, Imperfect Naturalist") {
             Costs.Tap,
             Costs.Discard(GameObjectFilter.Land)
         )
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             count = DynamicAmount.Count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Land),
             power = 1,
             toughness = 1,

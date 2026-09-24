@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GainControlByActivePlayerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -53,7 +52,7 @@ val ContestedGameBall = card("Contested Game Ball") {
     triggeredAbility {
         trigger = Triggers.OneOrMoreCreaturesDealCombatDamageToYou()
         effect = Effects.Composite(
-            GainControlByActivePlayerEffect(EffectTarget.Self),
+            Effects.GainControlByActivePlayer(EffectTarget.Self),
             Effects.Untap(EffectTarget.Self),
         )
         description = "Whenever you're dealt combat damage, the attacking player gains control of " +

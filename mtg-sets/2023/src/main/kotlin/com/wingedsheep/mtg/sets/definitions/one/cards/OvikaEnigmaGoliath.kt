@@ -2,13 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.one.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.CollectionSlot
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -67,8 +66,8 @@ val OvikaEnigmaGoliath = card("Ovika, Enigma Goliath") {
                 creatureTypes = setOf("Phyrexian", "Goblin"),
                 imageUri = "https://cards.scryfall.io/normal/front/3/6/3663e79b-2bf9-44af-a638-c0ad9067d8d4.jpg?1783918169",
             ),
-            ForEachInCollectionEffect(
-                CREATED_TOKENS,
+            Effects.ForEachInCollection(
+                CollectionSlot.CreatedTokens,
                 Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity),
             ),
         ))

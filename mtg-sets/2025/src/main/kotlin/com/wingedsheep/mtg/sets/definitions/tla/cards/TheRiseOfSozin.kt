@@ -12,8 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -88,7 +86,7 @@ private val FireLordSozin = card("Fire Lord Sozin") {
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
         effect = Effects.MayPayX(
-            then = ReflexiveTriggerEffect(
+            then = Effects.ReflexiveTrigger(
                 action = Effects.Composite(emptyList()),
                 optional = false,
                 reflexiveTargetRequirements = listOf(
@@ -162,7 +160,7 @@ private val TheRiseOfSozinFront = card("The Rise of Sozin") {
             // Exile them.
             exile(sozinToExile, Player.ContextPlayer(0))
             // Then that player shuffles.
-            run(ShuffleLibraryEffect(target = EffectTarget.ContextTarget(0)))
+            run(Effects.ShuffleLibrary(target = EffectTarget.ContextTarget(0)))
         }
     }
 

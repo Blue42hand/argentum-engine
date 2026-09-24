@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
@@ -35,7 +34,7 @@ val BrightfieldMustang = card("Brightfield Mustang") {
         triggerRestriction = Conditions.SourceIsSaddled
         effect = Effects.Composite(
             Effects.Untap(EffectTarget.Self),
-            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
         )
     }
     keywordAbility(KeywordAbility.saddle(1))

@@ -4,8 +4,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.conditions.IsNotYourTurn
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -27,14 +25,14 @@ val ZealousDisplay = card("Zealous Display") {
                 // Creatures you control get +2/+0 until end of turn
                 Effects.ForEachInGroup(
                     GroupFilter.AllCreaturesYouControl,
-                    ModifyStatsEffect(2, 0, EffectTarget.IterationEntity)
+                    Effects.ModifyStats(2, 0, EffectTarget.IterationEntity)
                 ),
                 // If it's not your turn, untap those creatures
                 Effects.If(
                     condition = IsNotYourTurn,
                     then = Effects.ForEachInGroup(
                         GroupFilter.AllCreaturesYouControl,
-                        TapUntapEffect(EffectTarget.IterationEntity, tap = false)
+                        Effects.Untap(EffectTarget.IterationEntity)
                     )
                 )
             )

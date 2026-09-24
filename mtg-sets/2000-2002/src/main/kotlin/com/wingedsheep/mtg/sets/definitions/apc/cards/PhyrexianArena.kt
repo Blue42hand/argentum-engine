@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
@@ -27,8 +25,8 @@ val PhyrexianArena = card("Phyrexian Arena") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         effect = Effects.Composite(
-            DrawCardsEffect(1),
-            LoseLifeEffect(1, EffectTarget.Controller)
+            Effects.DrawCards(1),
+            Effects.LoseLife(1, EffectTarget.Controller)
         )
     }
     metadata {

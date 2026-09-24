@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 
 /**
  * Spider-Woman, Secret Agent — Marvel Super Heroes #229
@@ -48,8 +47,8 @@ val SpiderWomanSecretAgent = card("Spider-Woman, Secret Agent") {
         trigger = Triggers.EntersBattlefield
         val creature = target("target creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.Tap(creature) then
-            GrantKeywordEffect(
-                AbilityFlag.CANT_BECOME_UNTAPPED.name,
+            Effects.GrantKeyword(
+                AbilityFlag.CANT_BECOME_UNTAPPED,
                 creature,
                 Duration.WhileYouControlSource("Spider-Woman"),
             )

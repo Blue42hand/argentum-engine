@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
@@ -24,7 +23,7 @@ val LongTermPlans = card("Long-Term Plans") {
                 search = true
             )
             val found = chooseExactly(1, from = searchable)
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
             toLibraryBottom(found, order = CardOrder.Preserve)
             val aboveCards = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(2)))
             toLibraryTop(found, order = CardOrder.Preserve)

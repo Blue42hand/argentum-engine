@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -42,7 +41,7 @@ val RimefireTorque = card("Rimefire Torque") {
             ),
             binding = TriggerBinding.OTHER
         )
-        effect = AddCountersEffect(CounterType.CHARGE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)
     }
 
     activatedAbility {

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -42,7 +41,7 @@ val WolfStrike: CardDefinition = card("Wolf Strike") {
                 condition = Conditions.IsNight,
                 then = Effects.ModifyStats(2, 0, t1),
             ),
-            DealDamageEffect(DynamicAmounts.targetPower(0), t2, damageSource = t1),
+            Effects.DealDamage(DynamicAmounts.targetPower(0), t2, damageSource = t1),
         )
     }
 

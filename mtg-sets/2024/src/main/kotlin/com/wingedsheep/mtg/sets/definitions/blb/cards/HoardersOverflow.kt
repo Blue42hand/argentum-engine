@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -50,7 +49,7 @@ val HoardersOverflow = card("Hoarder's Overflow") {
         effect = Effects.Composite(
             listOf(
                 Patterns.Hand.discardHand(),
-                DrawCardsEffect(
+                Effects.DrawCards(
                     count = DynamicAmounts.countersOnSelf(CounterType.STASH),
                     target = EffectTarget.Controller
                 ),

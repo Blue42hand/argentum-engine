@@ -13,8 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.RedirectZoneChangeWith
 import com.wingedsheep.sdk.scripting.SpellCostTarget
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -54,7 +52,7 @@ val TheDarknessCrystal = card("The Darkness Crystal") {
     replacementEffect(
         RedirectZoneChangeWith(
             newDestination = Zone.EXILE,
-            additionalEffect = GainLifeEffect(2),
+            additionalEffect = Effects.GainLife(2),
             selfOnly = false,
             linkToSource = true,
             appliesTo = EventPattern.ZoneChangeEvent(
@@ -84,7 +82,7 @@ val TheDarknessCrystal = card("The Darkness Crystal") {
             placement = ZonePlacement.Tapped,
             controllerOverride = EffectTarget.Controller,
             fromZone = Zone.EXILE,
-        ).then(AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 2, t))
+        ).then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t))
     }
 
     metadata {

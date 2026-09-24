@@ -1,15 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -46,9 +43,9 @@ val GrimReaperLethalLegionnaire = card("Grim Reaper, Lethal Legionnaire") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             // "you may pay {3}{B}"
-            action = PayManaCostEffect(ManaCost.parse("{3}{B}")),
+            action = Effects.PayMana("{3}{B}"),
             optional = true,
             // "When you do, return target creature card from your graveyard to the battlefield
             // tapped and attacking with a finality counter on it."

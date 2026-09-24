@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.effects.BecomeArtifactEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -86,7 +85,7 @@ val TenthDistrictHero = card("Tenth District Hero") {
             ),
             then = Effects.Composite(
                 Effects.AddCardType("LEGENDARY", EffectTarget.Self, Duration.Permanent),
-                BecomeArtifactEffect(
+                Effects.BecomeArtifact(
                     target = EffectTarget.Self,
                     cardTypes = null,
                     subtypes = null,

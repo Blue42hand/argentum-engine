@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -51,7 +50,7 @@ val CosmograndZenith = card("Cosmogrand Zenith") {
             Mode.noTarget(
                 Effects.ForEachInGroup(
                     filter = GroupFilter.AllCreaturesYouControl,
-                    effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
+                    effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
                 ),
                 "Put a +1/+1 counter on each creature you control"
             )

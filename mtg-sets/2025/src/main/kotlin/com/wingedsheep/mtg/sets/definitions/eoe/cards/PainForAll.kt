@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
@@ -35,7 +35,7 @@ val PainForAll = card("Pain for All") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val victim = target("any other target", Targets.AnyOtherThanEnchantedCreature)
-        effect = DealDamageEffect(
+        effect = Effects.DealDamage(
             amount = DynamicAmounts.enchantedCreaturePower(),
             target = victim,
             damageSource = EffectTarget.EnchantedCreature
@@ -45,7 +45,7 @@ val PainForAll = card("Pain for All") {
     // Whenever enchanted creature is dealt damage, it deals that much damage to each opponent.
     triggeredAbility {
         trigger = Triggers.takesDamage(binding = TriggerBinding.ATTACHED)
-        effect = DealDamageEffect(
+        effect = Effects.DealDamage(
             amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
             target = EffectTarget.PlayerRef(Player.EachOpponent),
             damageSource = EffectTarget.EnchantedCreature

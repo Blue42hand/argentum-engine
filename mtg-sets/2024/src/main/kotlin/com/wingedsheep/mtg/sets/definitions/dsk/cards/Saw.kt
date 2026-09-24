@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 
 /**
  * Saw
@@ -44,7 +43,7 @@ val Saw = card("Saw") {
     triggeredAbility {
         trigger = Triggers.attacks(binding = TriggerBinding.ATTACHED)
         effect = Effects.MayPay(
-            cost = SacrificeEffect(
+            cost = Effects.SacrificeOwn(
                     filter = GameObjectFilter.Permanent.notAttachedToBySource(),
                     count = 1,
                     excludeSource = true

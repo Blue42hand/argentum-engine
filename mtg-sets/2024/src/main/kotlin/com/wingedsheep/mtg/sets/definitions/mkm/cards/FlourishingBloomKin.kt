@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -102,7 +101,7 @@ val FlourishingBloomKin = card("Flourishing Bloom-Kin") {
                 revealed = true
             )
             toHand(toHandCards, revealed = true)
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
             run(EmitLibrarySearchedEventEffect)
         }
         description = "When this creature is turned face up, search your library for up to two " +

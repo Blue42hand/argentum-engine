@@ -10,10 +10,8 @@ import com.wingedsheep.sdk.scripting.EventPattern.OneOrMoreDealCombatDamageToPla
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -83,13 +81,13 @@ val KastralTheWindcrested = card("Kastral, the Windcrested") {
             Mode.noTarget(
                 Effects.ForEachInGroup(
                     filter = GroupFilter(GameObjectFilter.Creature.withSubtype("Bird").youControl()),
-                    effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
+                    effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
                 ),
                 "Put a +1/+1 counter on each Bird you control"
             ),
             // Mode 3: Draw a card
             Mode.noTarget(
-                DrawCardsEffect(count = DynamicAmount.Fixed(1), target = EffectTarget.Controller),
+                Effects.DrawCards(count = DynamicAmount.Fixed(1), target = EffectTarget.Controller),
                 "Draw a card"
             )
         )

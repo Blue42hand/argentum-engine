@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -34,8 +32,8 @@ val ExplosiveGetaway = card("Explosive Getaway") {
         val t = target("target", TargetPermanent(filter = TargetFilter.CreatureOrArtifact))
         effect = Effects.Composite(
             Effects.Exile(t),
-            CreateDelayedTriggerEffect(step = Step.END, effect = Effects.Move(t, Zone.BATTLEFIELD)),
-            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), DealDamageEffect(4, EffectTarget.IterationEntity))
+            Effects.CreateDelayedTrigger(step = Step.END, effect = Effects.Move(t, Zone.BATTLEFIELD)),
+            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), Effects.DealDamage(4, EffectTarget.IterationEntity))
         )
     }
     metadata {

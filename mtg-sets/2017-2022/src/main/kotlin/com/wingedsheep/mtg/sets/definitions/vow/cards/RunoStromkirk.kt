@@ -11,8 +11,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -112,7 +110,7 @@ private val RunoStromkirkFront = card("Runo Stromkirk") {
             reveal(runoRevealed, revealToSelf = false)
             run(Effects.If(
                 condition = whenMatches(runoRevealed, GameObjectFilter.Creature.manaValueAtLeast(6)),
-                then = TransformEffect(EffectTarget.Self),
+                then = Effects.Transform(EffectTarget.Self),
             ))
         }
         description = "At the beginning of your upkeep, look at the top card of your library. You " +
@@ -148,7 +146,7 @@ private val KrothussLordOfTheDeep = card("Krothuss, Lord of the Deep") {
             "another attacking creature",
             TargetOther(baseRequirement = Targets.AttackingCreature)
         )
-        effect = CreateTokenCopyOfTargetEffect(
+        effect = Effects.CreateTokenCopyOfTarget(
             target = copied,
             count = DynamicAmount.Conditional(
                 condition = Conditions.TargetMatchesFilter(

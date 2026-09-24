@@ -8,16 +8,13 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
-import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.station
 
@@ -39,7 +36,7 @@ val KavaronMemorialWorld = card("Kavaron, Memorial World") {
     // Basic mana ability: {T}: Add {R}
     activatedAbility {
         cost = Costs.Tap
-        effect = AddManaEffect(Color.RED)
+        effect = Effects.AddMana(Color.RED)
         manaAbility = true
     }
 
@@ -59,7 +56,7 @@ val KavaronMemorialWorld = card("Kavaron, Memorial World") {
             then = Effects.Composite(
                 listOf(
                     // Create a 2/2 colorless Robot artifact creature token
-                    CreateTokenEffect(
+                    Effects.CreateToken(
                         power = 2,
                         toughness = 2,
                         colors = setOf(), // colorless
@@ -70,20 +67,11 @@ val KavaronMemorialWorld = card("Kavaron, Memorial World") {
                     // Creatures you control get +1/+0 and gain haste until end of turn
                     Effects.ForEachInGroup(
                         GroupFilter.AllCreaturesYouControl,
-                        com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect(
-                            powerModifier = DynamicAmount.Fixed(1),
-                            toughnessModifier = DynamicAmount.Fixed(0),
-                            target = EffectTarget.IterationEntity,
-                            duration = com.wingedsheep.sdk.scripting.Duration.EndOfTurn
-                        )
+                        Effects.ModifyStats(1, 0, EffectTarget.IterationEntity)
                     ),
                     Effects.ForEachInGroup(
                         GroupFilter.AllCreaturesYouControl,
-                        com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect(
-                            keyword = Keyword.HASTE,
-                            target = EffectTarget.IterationEntity,
-                            duration = com.wingedsheep.sdk.scripting.Duration.EndOfTurn
-                        )
+                        Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
                     )
                 )
             )

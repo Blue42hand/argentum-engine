@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -60,7 +59,7 @@ val Deceit = card("Deceit") {
         interveningIf = Conditions.ManaSpentToCastIncludes(requiredBlack = 2)
         val opponent = target("target opponent", TargetOpponent())
         effect = Effects.Pipeline {
-            run(RevealHandEffect(opponent))
+            run(Effects.RevealHand(opponent))
             val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
             val toDiscard = chooseExactly(
                 1,

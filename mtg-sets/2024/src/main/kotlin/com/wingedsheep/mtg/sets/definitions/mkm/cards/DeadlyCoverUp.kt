@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -76,7 +75,7 @@ val DeadlyCoverUp = card("Deadly Cover-Up") {
                     GameObjectFilter.Any.currentlyIn(Zone.HAND),
                 )
                 exile(selected)
-                run(ShuffleLibraryEffect(target = EffectTarget.Controller))
+                run(Effects.ShuffleLibrary(target = EffectTarget.Controller))
                 run(
                     Effects.DrawCards(
                         selectedFromHand.count,

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -36,7 +35,7 @@ val TourachsChant = card("Tourach's Chant") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = PayOrSufferEffect(
+        effect = Effects.PayOrSuffer(
             cost = Costs.pay.Mana("{B}"),
             suffer = SacrificeSelfEffect,
         )
@@ -48,7 +47,7 @@ val TourachsChant = card("Tourach's Chant") {
             filter = GameObjectFilter.Land.withSubtype(Subtype.FOREST),
             binding = TriggerBinding.ANY,
         )
-        effect = PayOrSufferEffect(
+        effect = Effects.PayOrSuffer(
             cost = Costs.pay.PutCountersOnPermanent(
                 counterType = CounterType.MINUS_ONE_MINUS_ONE,
                 filter = GameObjectFilter.Creature,

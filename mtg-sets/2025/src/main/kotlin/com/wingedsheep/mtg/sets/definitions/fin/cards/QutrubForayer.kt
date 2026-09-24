@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -50,8 +49,8 @@ val QutrubForayer = card("Qutrub Forayer") {
             ),
             // Mode 2: Exile up to two target cards from a single graveyard.
             Mode(
-                effect = ForEachTargetEffect(
-                    effects = listOf(Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE))
+                effect = Effects.ForEachTarget(
+                    Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE)
                 ),
                 targetRequirements = listOf(
                     TargetObject(

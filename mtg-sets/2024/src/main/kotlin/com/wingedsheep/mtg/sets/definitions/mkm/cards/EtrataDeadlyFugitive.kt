@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.effects.LookAudience
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
-import com.wingedsheep.sdk.scripting.effects.TurnFaceUpEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -92,7 +91,7 @@ val EtrataDeadlyFugitive = card("Etrata, Deadly Fugitive") {
             ability = ActivatedAbility(
                 cost = Costs.Mana("{2}{U}{B}"),
                 effect = Effects.IfYouDo(
-                    action = TurnFaceUpEffect(EffectTarget.Self),
+                    action = Effects.TurnFaceUp(EffectTarget.Self),
                     then = Effects.Composite(emptyList()),
                     otherwise = Effects.Pipeline {
                         val thisCreature = gather(CardSource.Self)

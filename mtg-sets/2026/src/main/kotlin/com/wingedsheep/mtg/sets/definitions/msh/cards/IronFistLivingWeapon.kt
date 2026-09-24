@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.GrantActivatedAbilityEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOther
@@ -46,7 +45,7 @@ val IronFistLivingWeapon = card("Iron Fist, Living Weapon") {
 
     triggeredAbility {
         trigger = Triggers.youCastSpellTargeting(GameObjectFilter.Creature.youControl())
-        effect = GrantActivatedAbilityEffect(
+        effect = Effects.GrantActivatedAbility(
             ability = ActivatedAbility(
                 id = AbilityId.generate(),
                 cost = Costs.Tap,

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.sneak
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -34,15 +33,13 @@ val RaphaelsTechnique = card("Raphael's Technique") {
     sneak("{2}{R}")
 
     spell {
-        effect = ForEachPlayerEffect(
+        effect = Effects.ForEachPlayer(
             players = Player.Each,
-            effects = listOf(
-                Effects.May(
-                    decisionMaker = EffectTarget.Controller,
-                    effect = Effects.Composite(
-                        Patterns.Hand.discardHand(EffectTarget.Controller),
-                        Effects.DrawCards(7)
-                    )
+            effect = Effects.May(
+                decisionMaker = EffectTarget.Controller,
+                effect = Effects.Composite(
+                    Patterns.Hand.discardHand(EffectTarget.Controller),
+                    Effects.DrawCards(7)
                 )
             )
         )

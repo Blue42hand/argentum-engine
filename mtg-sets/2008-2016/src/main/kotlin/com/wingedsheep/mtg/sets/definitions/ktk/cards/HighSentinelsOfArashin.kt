@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
@@ -9,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -53,7 +53,7 @@ val HighSentinelsOfArashin = card("High Sentinels of Arashin") {
     activatedAbility {
         cost = Costs.Mana("{3}{W}")
         val t = target("target creature", Targets.Creature)
-        effect = AddCountersEffect(
+        effect = Effects.AddCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 1,
             target = t

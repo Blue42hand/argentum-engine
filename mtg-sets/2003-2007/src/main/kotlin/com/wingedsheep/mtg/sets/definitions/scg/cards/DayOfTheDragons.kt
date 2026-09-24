@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.ForceSacrificeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -35,7 +33,7 @@ val DayOfTheDragons = card("Day of the Dragons") {
         effect = Effects.Pipeline {
             val exiled = runStoringCollection { Effects.ExileGroupAndLink(GroupFilter.AllCreaturesYouControl, storeAs = it) }
             run(
-                CreateTokenEffect(
+                Effects.CreateToken(
                     count = exiled.count,
                     power = 5,
                     toughness = 5,
@@ -51,7 +49,7 @@ val DayOfTheDragons = card("Day of the Dragons") {
     // LTB: Sacrifice all Dragons you control, return exiled cards
     triggeredAbility {
         trigger = Triggers.LeavesBattlefield
-        effect = ForceSacrificeEffect(
+        effect = Effects.Sacrifice(
             filter = GameObjectFilter.Creature.withSubtype("Dragon"),
             count = 100,
             target = EffectTarget.Controller

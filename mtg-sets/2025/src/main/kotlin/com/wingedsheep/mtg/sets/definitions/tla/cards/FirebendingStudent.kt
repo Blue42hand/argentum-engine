@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.ManaExpiry
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
@@ -41,7 +41,7 @@ val FirebendingStudent = card("Firebending Student") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = AddManaEffect(
+        effect = Effects.AddMana(
             Color.RED,
             DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power),
             expiry = ManaExpiry.END_OF_COMBAT,

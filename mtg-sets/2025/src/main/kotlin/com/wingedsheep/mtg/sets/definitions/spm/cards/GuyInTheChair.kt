@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -35,7 +34,7 @@ val GuyInTheChair = card("Guy in the Chair") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{G}"), Costs.Tap)
         val t = target("target", TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Spider"))))
-        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
         timing = TimingRule.SorcerySpeed
     }
     metadata {

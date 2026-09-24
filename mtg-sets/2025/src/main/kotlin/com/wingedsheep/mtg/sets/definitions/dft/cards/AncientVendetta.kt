@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.OptionType
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -68,7 +67,7 @@ val AncientVendetta = card("Ancient Vendetta") {
             // 4. Exile them.
             exile(toExile, owner = Player.ContextPlayer(0))
             // 5. Then that player shuffles.
-            run(ShuffleLibraryEffect(target = EffectTarget.ContextTarget(0)))
+            run(Effects.ShuffleLibrary(target = EffectTarget.ContextTarget(0)))
         }
     }
 

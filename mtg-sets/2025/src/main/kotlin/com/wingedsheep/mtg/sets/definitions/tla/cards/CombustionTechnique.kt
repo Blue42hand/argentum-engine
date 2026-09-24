@@ -2,12 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.tla.cards
 
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.MarkExileOnDeathEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -33,7 +32,7 @@ val CombustionTechnique = card("Combustion Technique") {
 
     spell {
         val t = target("target creature", Targets.Creature)
-        effect = DealDamageEffect(
+        effect = Effects.DealDamage(
             DynamicAmount.Add(
                 DynamicAmount.Fixed(2),
                 DynamicAmount.Count(
@@ -43,7 +42,7 @@ val CombustionTechnique = card("Combustion Technique") {
                 ),
             ),
             t,
-        ) then MarkExileOnDeathEffect(t)
+        ) then Effects.MarkExileOnDeath(t)
     }
 
     metadata {

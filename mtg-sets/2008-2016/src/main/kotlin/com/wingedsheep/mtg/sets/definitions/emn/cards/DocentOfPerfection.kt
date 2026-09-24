@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -76,7 +75,7 @@ private val DocentOfPerfectionFront = card("Docent of Perfection") {
                     3,
                     GameObjectFilter.Creature.withSubtype("Wizard"),
                 ),
-                then = TransformEffect(EffectTarget.Self),
+                then = Effects.Transform(EffectTarget.Self),
             ),
         )
         description = "Create a 1/1 blue Human Wizard creature token. Then if you control three " +

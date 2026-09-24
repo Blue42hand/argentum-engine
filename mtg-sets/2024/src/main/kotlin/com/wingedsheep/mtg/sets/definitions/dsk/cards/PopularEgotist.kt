@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -57,7 +56,7 @@ val PopularEgotist = card("Popular Egotist") {
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Composite(
             Effects.LoseLife(1, opponent),
-            GainLifeEffect(1)
+            Effects.GainLife(1)
         )
         description = "Whenever you sacrifice a permanent, target opponent loses 1 life and you gain 1 life."
     }

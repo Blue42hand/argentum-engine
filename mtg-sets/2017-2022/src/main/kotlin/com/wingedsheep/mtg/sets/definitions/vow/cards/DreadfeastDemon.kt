@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfSourceEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -56,7 +55,7 @@ val DreadfeastDemon = card("Dreadfeast Demon") {
                 )
                 sacrifice(chosen)
             },
-            then = CreateTokenCopyOfSourceEffect()
+            then = Effects.CreateTokenCopyOfSelf()
         )
         description = "At the beginning of your end step, sacrifice a non-Demon creature. If you " +
             "do, create a token that's a copy of this creature."

@@ -5,10 +5,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddManaOfChoiceEffect
-import com.wingedsheep.sdk.scripting.effects.ChooseColorForTargetEffect
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ManaColorSet
 import com.wingedsheep.sdk.dsl.Effects
@@ -39,11 +36,11 @@ private val rummageMay = Effects.May(
 
 private val addRimeboundMana = Effects.Composite(
     listOf(
-        ChooseColorForTargetEffect(
+        Effects.ChooseColorForTarget(
             target = EffectTarget.Self,
             prompt = "Choose a color for Ashling's mana"
         ),
-        AddManaOfChoiceEffect(
+        Effects.AddManaOfChoice(
             colorSet = ManaColorSet.SourceChosenColor,
             amount = 2,
             restriction = ManaRestriction.SpellsWithManaValueAtLeast(4)
@@ -75,7 +72,7 @@ private val AshlingRimebound = card("Ashling, Rimebound") {
         trigger = Triggers.FirstMainPhase
         effect = Effects.MayPay(
             cost = ManaCost.parse("{R}"),
-            then = TransformEffect(EffectTarget.Self)
+            then = Effects.Transform(EffectTarget.Self)
         )
     }
 
@@ -110,7 +107,7 @@ private val AshlingRekindledFront = card("Ashling, Rekindled") {
         trigger = Triggers.FirstMainPhase
         effect = Effects.MayPay(
             cost = ManaCost.parse("{U}"),
-            then = TransformEffect(EffectTarget.Self)
+            then = Effects.Transform(EffectTarget.Self)
         )
     }
 

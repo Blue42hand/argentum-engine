@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -46,7 +44,7 @@ val PartingGust = card("Parting Gust") {
             Mode.withTarget(
                 Effects.Composite(listOf(
                     Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE),
-                    CreateDelayedTriggerEffect(
+                    Effects.CreateDelayedTrigger(
                         step = Step.END,
                         effect = Effects.Composite(listOf(
                             Effects.Move(EffectTarget.ContextTarget(0), Zone.BATTLEFIELD),
@@ -59,7 +57,7 @@ val PartingGust = card("Parting Gust") {
             ),
             // Mode 2: Gift a tapped Fish — opponent gets Fish token, exile target permanently
             Mode.withTarget(
-                CreateTokenEffect(
+                Effects.CreateToken(
                     count = DynamicAmount.Fixed(1),
                     power = 1,
                     toughness = 1,

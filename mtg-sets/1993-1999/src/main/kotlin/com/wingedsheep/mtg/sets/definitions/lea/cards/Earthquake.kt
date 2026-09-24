@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -22,7 +21,7 @@ val Earthquake = card("Earthquake") {
     typeLine = "Sorcery"
 
     spell {
-        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures.withoutKeyword(Keyword.FLYING), DealDamageEffect(DynamicAmount.XValue, EffectTarget.IterationEntity)) then
+        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures.withoutKeyword(Keyword.FLYING), Effects.DealDamage(DynamicAmount.XValue, EffectTarget.IterationEntity)) then
             Effects.ForEachPlayer(Player.Each, listOf(Effects.DealDamage(DynamicAmount.XValue, EffectTarget.Controller)))
     }
 

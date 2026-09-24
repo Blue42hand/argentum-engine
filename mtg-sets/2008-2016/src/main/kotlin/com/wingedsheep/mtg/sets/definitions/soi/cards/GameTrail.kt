@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.OnEnterRun
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -46,14 +45,14 @@ val GameTrail = card("Game Trail") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = AddManaEffect(Color.RED)
+        effect = Effects.AddMana(Color.RED)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = AddManaEffect(Color.GREEN)
+        effect = Effects.AddMana(Color.GREEN)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

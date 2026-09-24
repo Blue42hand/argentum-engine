@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -50,7 +49,7 @@ val AnimPakal = card("Anim Pakal, Thousandth Moon") {
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             // Step 2: create X tapped-and-attacking 1/1 colorless Gnome artifact creature tokens,
             // where X = +1/+1 counters on Anim Pakal — evaluated after step 1.
-            CreateTokenEffect(
+            Effects.CreateToken(
                 count = DynamicAmounts.countersOnSelf(CounterType.PLUS_ONE_PLUS_ONE),
                 power = 1,
                 toughness = 1,

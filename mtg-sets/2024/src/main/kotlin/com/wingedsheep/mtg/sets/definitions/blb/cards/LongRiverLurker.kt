@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantWard
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.WardCost
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -58,7 +57,7 @@ val LongRiverLurker = card("Long River Lurker") {
         val creature = target("creature you control", Targets.CreatureYouControl)
         effect = Effects.Composite(listOf(
             Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature),
-            CreateDelayedTriggerEffect(
+            Effects.CreateDelayedTrigger(
                 effect = Effects.May(
                     effect = Effects.Composite(listOf(
                         Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE),

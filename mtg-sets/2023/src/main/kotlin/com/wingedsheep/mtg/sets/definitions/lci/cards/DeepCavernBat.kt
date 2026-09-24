@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.LookAtTargetHandEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -52,7 +51,7 @@ val DeepCavernBat = card("Deep-Cavern Bat") {
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Composite(
             listOf(
-                LookAtTargetHandEffect(opponent),
+                Effects.LookAtHand(opponent),
                 Effects.If(
                     condition = Conditions.SourceInZone(Zone.BATTLEFIELD),
                     then = Effects.Pipeline {

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -76,7 +75,7 @@ private val ThingInTheIceFront = card("Thing in the Ice") {
             Effects.RemoveCounters(CounterType.ICE, 1, EffectTarget.Self),
             Effects.If(
                 condition = Conditions.SourceCounterCountAtMost(CounterType.ICE, 0),
-                then = TransformEffect(EffectTarget.Self),
+                then = Effects.Transform(EffectTarget.Self),
             ),
         )
         description = "Remove an ice counter from this creature. Then if it has no ice counters " +

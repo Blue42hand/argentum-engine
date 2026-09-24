@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 
 
@@ -38,7 +37,7 @@ val ThrorsMap = card("Thrór's Map") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
         effect = Effects.Composite(
-            DrawCardsEffect(1),
+            Effects.DrawCards(1),
             Patterns.Hand.discardCards(1)
         )
     }

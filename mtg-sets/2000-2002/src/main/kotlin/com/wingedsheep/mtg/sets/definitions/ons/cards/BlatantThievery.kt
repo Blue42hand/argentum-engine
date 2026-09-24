@@ -1,8 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GainControlEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -22,7 +22,7 @@ val BlatantThievery = card("Blatant Thievery") {
 
     spell {
         val t = target("target", TargetPermanent(filter = TargetFilter.PermanentOpponentControls))
-        effect = GainControlEffect(t)
+        effect = Effects.GainControl(t)
     }
 
     metadata {

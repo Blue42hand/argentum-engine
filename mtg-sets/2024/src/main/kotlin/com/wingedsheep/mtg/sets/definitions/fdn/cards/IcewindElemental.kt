@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 
 
 /**
@@ -32,7 +31,7 @@ val IcewindElemental = card("Icewind Elemental") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Composite(
-            DrawCardsEffect(1),
+            Effects.DrawCards(1),
             Patterns.Hand.discardCards(1)
         )
     }

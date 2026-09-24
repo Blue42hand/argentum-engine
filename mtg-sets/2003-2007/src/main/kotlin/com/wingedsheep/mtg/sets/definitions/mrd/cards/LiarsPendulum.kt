@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -75,7 +74,7 @@ val LiarsPendulum = card("Liar's Pendulum") {
             )
             run(
                 Effects.May(
-                    effect = RevealHandEffect(EffectTarget.Controller)
+                    effect = Effects.RevealHand(EffectTarget.Controller)
                         .then(
                             Effects.If(
                                 condition = Conditions.CompareAmounts(

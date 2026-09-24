@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -46,7 +45,7 @@ val KravensLastHunt = card("Kraven's Last Hunt") {
     // I — Mill five cards. When you do, this Saga deals damage equal to the greatest power
     //     among creature cards in your graveyard to target creature.
     sagaChapter(1) {
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Patterns.Library.mill(5),
             optional = false,
             reflexiveEffect = Effects.DealDamage(

@@ -7,9 +7,6 @@ package com.wingedsheep.mtg.sets.definitions.apc.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 
@@ -28,9 +25,9 @@ val LastCaress = card("Last Caress") {
     spell {
         val t = target("target", TargetPlayer())
         effect = Effects.Composite(
-            LoseLifeEffect(1, t),
-            GainLifeEffect(1),
-            DrawCardsEffect(1)
+            Effects.LoseLife(1, t),
+            Effects.GainLife(1),
+            Effects.DrawCards(1)
         )
     }
     metadata {

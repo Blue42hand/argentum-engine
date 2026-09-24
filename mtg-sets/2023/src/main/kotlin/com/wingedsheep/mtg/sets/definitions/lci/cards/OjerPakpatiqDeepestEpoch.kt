@@ -14,8 +14,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordToSpellEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -67,7 +65,7 @@ private val OjerPakpatiqDeepestEpochFront = card("Ojer Pakpatiq, Deepest Epoch")
             spellFilter = GameObjectFilter.Instant,
             requires = setOf(SpellCastPredicate.CastFromZone(Zone.HAND)),
         )
-        effect = GrantKeywordToSpellEffect(Keyword.REBOUND, EffectTarget.TriggeringEntity)
+        effect = Effects.GrantKeywordToSpell(Keyword.REBOUND, EffectTarget.TriggeringEntity)
         description = "Whenever you cast an instant spell from your hand, it gains rebound."
     }
 
@@ -110,7 +108,7 @@ private val TempleOfCyclicalTime = card("Temple of Cyclical Time") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{U}"), Costs.Tap)
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         timing = TimingRule.SorcerySpeed
         restrictions = listOf(
             ActivationRestriction.OnlyIfCondition(

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -35,7 +34,7 @@ val RavenousSailback = card("Ravenous Sailback") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 Mode.noTarget(
                     effect = Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self),

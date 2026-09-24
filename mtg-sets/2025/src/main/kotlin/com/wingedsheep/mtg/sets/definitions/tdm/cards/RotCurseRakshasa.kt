@@ -2,12 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.decayed
 import com.wingedsheep.sdk.dsl.renew
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -46,10 +45,8 @@ val RotCurseRakshasa = card("Rot-Curse Rakshasa") {
 
     renew("{X}{B}{B}") {
         target("creatures", TargetCreature(dynamicMaxCount = DynamicAmount.XValue))
-        effect = ForEachTargetEffect(
-            listOf(
-                AddCountersEffect(CounterType.DECAYED, 1, EffectTarget.ContextTarget(0))
-            )
+        effect = Effects.ForEachTarget(
+            Effects.AddCounters(CounterType.DECAYED, 1, EffectTarget.ContextTarget(0))
         )
         description = "Put a decayed counter on each of X target creatures."
     }

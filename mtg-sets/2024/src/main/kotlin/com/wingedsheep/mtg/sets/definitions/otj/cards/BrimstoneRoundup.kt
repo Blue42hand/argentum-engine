@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -35,7 +34,7 @@ val BrimstoneRoundup = card("Brimstone Roundup") {
 
     triggeredAbility {
         trigger = Triggers.NthSpellCast(2, Player.You)
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 1,
             toughness = 1,
             colors = setOf(Color.RED),

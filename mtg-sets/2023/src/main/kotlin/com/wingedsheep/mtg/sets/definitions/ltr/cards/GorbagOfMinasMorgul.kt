@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -39,7 +38,7 @@ val GorbagOfMinasMorgul = card("Gorbag of Minas Morgul") {
                 GameObjectFilter.Creature.withSubtype("Orc")).youControl(),
             binding = TriggerBinding.ANY,
         )
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeTarget(EffectTarget.TriggeringEntity),
             optional = true,
             reflexiveEffect = ModalEffect.chooseOne(

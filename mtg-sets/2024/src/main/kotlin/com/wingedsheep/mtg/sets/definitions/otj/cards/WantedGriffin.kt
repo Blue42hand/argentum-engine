@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -40,7 +39,7 @@ val WantedGriffin = card("Wanted Griffin") {
 
     triggeredAbility {
         trigger = Triggers.Dies
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 1,
             toughness = 1,
             colors = setOf(Color.RED),

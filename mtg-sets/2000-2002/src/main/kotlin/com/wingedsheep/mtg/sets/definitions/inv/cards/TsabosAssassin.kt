@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.TargetSharesMostCommonColor
-import com.wingedsheep.sdk.scripting.effects.CantBeRegeneratedEffect
 
 /**
  * Tsabo's Assassin
@@ -32,7 +31,7 @@ val TsabosAssassin = card("Tsabo's Assassin") {
         val creature = target("target creature", Targets.Creature)
         effect = Effects.If(
             condition = TargetSharesMostCommonColor(),
-            then = CantBeRegeneratedEffect(creature) then Effects.Destroy(creature)
+            then = Effects.CantBeRegenerated(creature) then Effects.Destroy(creature)
         )
     }
 

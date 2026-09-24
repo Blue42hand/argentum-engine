@@ -11,9 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
@@ -80,8 +78,8 @@ val SymbioteSpiderMan = card("Symbiote Spider-Man") {
         cost = Costs.Composite(Costs.Mana("{2}{U/B}"), Costs.ExileSelf)
         val creature = target("target", TargetCreature(filter = TargetFilter.CreatureYouControl))
         effect = Effects.Composite(
-            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = creature),
-            GrantTriggeredAbilityEffect(
+            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = creature),
+            Effects.GrantTriggeredAbility(
                 ability = symbioteCombatDamageTrigger(),
                 target = creature,
                 duration = Duration.Permanent,

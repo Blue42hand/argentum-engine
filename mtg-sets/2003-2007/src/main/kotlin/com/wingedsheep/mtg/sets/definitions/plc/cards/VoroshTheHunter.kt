@@ -2,12 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.plc.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -32,7 +30,7 @@ val VoroshTheHunter = card("Vorosh, the Hunter") {
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
         effect = Effects.MayPay(
-            cost = PayManaCostEffect(ManaCost.parse("{2}{G}")),
+            cost = Effects.PayMana("{2}{G}"),
             then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 6, EffectTarget.Self)
         )
     }

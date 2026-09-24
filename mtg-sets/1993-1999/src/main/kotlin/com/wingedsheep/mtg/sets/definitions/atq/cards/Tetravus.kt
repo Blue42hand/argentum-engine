@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ConvertCountersToTokensEffect
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -69,9 +67,9 @@ val Tetravus = card("Tetravus") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         optional = true
-        effect = ConvertCountersToTokensEffect(
+        effect = Effects.ConvertCountersToTokens(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
-            tokenFactory = CreateTokenEffect(
+            tokenFactory = Effects.CreateToken(
                 count = DynamicAmount.Fixed(1),
                 power = 1,
                 toughness = 1,

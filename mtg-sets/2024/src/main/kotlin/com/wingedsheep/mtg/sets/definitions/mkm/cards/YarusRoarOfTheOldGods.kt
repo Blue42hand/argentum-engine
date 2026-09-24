@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
-import com.wingedsheep.sdk.scripting.effects.TurnFaceUpEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -115,7 +114,7 @@ val YarusRoarOfTheOldGods = card("Yarus, Roar of the Old Gods") {
                 destination = Zone.BATTLEFIELD,
                 fromZone = Zone.GRAVEYARD,
                 faceDown = FaceDownMode.HIDDEN
-            ) then TurnFaceUpEffect(EffectTarget.TriggeringEntity)
+            ) then Effects.TurnFaceUp(EffectTarget.TriggeringEntity)
         )
         description = "Whenever a face-down creature you control dies, return it to the " +
             "battlefield face down under its owner's control if it's a permanent card, then turn " +

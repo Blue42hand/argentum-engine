@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.effects.BecomeCreatureEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -97,7 +96,7 @@ val IronManArmor = card("Iron Man Armor") {
         cost = Costs.Mana("{2}")
         effect = Effects.If(
             condition = Conditions.SourceMatches(GameObjectFilter.Noncreature),
-            then = BecomeCreatureEffect(
+            then = Effects.BecomeCreature(
                 target = EffectTarget.Self,
                 power = DynamicAmount.Fixed(0),
                 toughness = DynamicAmount.Fixed(0),

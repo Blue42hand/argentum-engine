@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.ManaExpiry
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -55,7 +54,7 @@ val FireLordZuko = card("Fire Lord Zuko") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = AddManaEffect(
+        effect = Effects.AddMana(
             Color.RED,
             DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power),
             expiry = ManaExpiry.END_OF_COMBAT,

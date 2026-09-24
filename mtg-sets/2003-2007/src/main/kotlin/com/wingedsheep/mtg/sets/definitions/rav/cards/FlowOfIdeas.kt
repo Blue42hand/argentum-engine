@@ -5,10 +5,10 @@
 package com.wingedsheep.mtg.sets.definitions.rav.cards
 
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -25,7 +25,7 @@ val FlowOfIdeas = card("Flow of Ideas") {
     typeLine = "Sorcery"
     oracleText = "Draw a card for each Island you control."
     spell {
-        effect = DrawCardsEffect(
+        effect = Effects.DrawCards(
             DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Land.withSubtype(Subtype.ISLAND))
         )
     }

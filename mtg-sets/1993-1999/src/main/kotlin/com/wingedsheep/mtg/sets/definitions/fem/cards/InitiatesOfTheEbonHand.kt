@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 
 /**
@@ -40,7 +39,7 @@ val InitiatesOfTheEbonHand = card("Initiates of the Ebon Hand") {
         effect = Effects.AddMana(Color.BLACK).then(
             Effects.If(
                 condition = Conditions.ThisAbilityActivatedThisTurnAtLeast(4),
-                then = CreateDelayedTriggerEffect(
+                then = Effects.CreateDelayedTrigger(
                     step = Step.END,
                     effect = SacrificeSelfEffect,
                 )

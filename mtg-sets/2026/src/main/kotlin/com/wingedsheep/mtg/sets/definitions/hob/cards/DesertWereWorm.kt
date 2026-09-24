@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -82,7 +81,7 @@ val DesertWereWorm = card("Desert Were-Worm") {
             listOf(
                 Effects.ForEachInGroup(
                     filter = GroupFilter(baseFilter = GameObjectFilter.Creature.attacking()),
-                    effect = TapUntapEffect(EffectTarget.IterationEntity, tap = false)
+                    effect = Effects.Untap(EffectTarget.IterationEntity)
                 ),
                 Effects.AddCombatPhase
             )

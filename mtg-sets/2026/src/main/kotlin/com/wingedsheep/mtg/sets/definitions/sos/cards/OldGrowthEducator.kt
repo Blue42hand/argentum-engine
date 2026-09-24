@@ -7,10 +7,10 @@ package com.wingedsheep.mtg.sets.definitions.sos.cards
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
@@ -33,7 +33,7 @@ val OldGrowthEducator = card("Old-Growth Educator") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         triggerRestriction = Conditions.YouGainedLifeThisTurn
-        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = EffectTarget.Self)
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.UNCOMMON

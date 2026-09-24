@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
@@ -28,7 +27,7 @@ val Despise = card("Despise") {
         val t = target("target", TargetOpponent())
         effect = Effects.Pipeline {
             // 1. Reveal opponent's hand
-            run(RevealHandEffect(t))
+            run(Effects.RevealHand(t))
             // 2. Gather all cards from opponent's hand
             val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
             // 3. Controller chooses a creature or planeswalker card

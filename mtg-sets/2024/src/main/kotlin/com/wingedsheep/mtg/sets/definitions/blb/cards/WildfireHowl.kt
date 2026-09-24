@@ -5,8 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -34,7 +32,7 @@ val WildfireHowl = card("Wildfire Howl") {
 
     val damageToEachCreature = Effects.ForEachInGroup(
         filter = GroupFilter.AllCreatures,
-        effect = DealDamageEffect(2, EffectTarget.IterationEntity)
+        effect = Effects.DealDamage(2, EffectTarget.IterationEntity)
     )
 
     spell {
@@ -48,8 +46,8 @@ val WildfireHowl = card("Wildfire Howl") {
             Mode.withTarget(
                 Effects.Composite(
                     listOf(
-                        DrawCardsEffect(1, EffectTarget.PlayerRef(Player.ChosenOpponent)),
-                        DealDamageEffect(1, EffectTarget.ContextTarget(0)),
+                        Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent)),
+                        Effects.DealDamage(1, EffectTarget.ContextTarget(0)),
                         damageToEachCreature,
                         Effects.GiftGiven()
                     )

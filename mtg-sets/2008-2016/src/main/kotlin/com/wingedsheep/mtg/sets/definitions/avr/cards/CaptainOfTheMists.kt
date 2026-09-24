@@ -8,9 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -59,10 +57,10 @@ val CaptainOfTheMists = card("Captain of the Mists") {
         cost = Costs.Composite(Costs.Mana("{1}{U}"), Costs.Tap)
         val t = target("target permanent", TargetPermanent())
         effect = Effects.May(
-            ModalEffect(
+            Effects.Modal(
                 modes = listOf(
-                    Mode.noTarget(TapUntapEffect(t, tap = true), "Tap that permanent"),
-                    Mode.noTarget(TapUntapEffect(t, tap = false), "Untap that permanent"),
+                    Mode.noTarget(Effects.Tap(t), "Tap that permanent"),
+                    Mode.noTarget(Effects.Untap(t), "Untap that permanent"),
                 ),
                 chooseCount = 1,
                 countsAsModalSpell = false,

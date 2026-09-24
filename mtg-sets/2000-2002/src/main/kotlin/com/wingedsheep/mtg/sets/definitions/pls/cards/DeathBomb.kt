@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -32,7 +31,7 @@ val DeathBomb = card("Death Bomb") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.notColor(Color.BLACK)))
         effect = Effects.Composite(
             Effects.Destroy(t, noRegenerate = true),
-            GainLifeEffect(2, t)
+            Effects.GainLife(2, t)
         )
     }
     metadata {

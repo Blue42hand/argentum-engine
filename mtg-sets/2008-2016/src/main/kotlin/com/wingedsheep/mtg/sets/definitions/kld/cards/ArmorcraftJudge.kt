@@ -4,11 +4,11 @@
 
 package com.wingedsheep.mtg.sets.definitions.kld.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -29,7 +29,7 @@ val ArmorcraftJudge = card("Armorcraft Judge") {
     toughness = 3
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = DrawCardsEffect(DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature))
+        effect = Effects.DrawCards(DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature))
     }
     metadata {
         rarity = Rarity.UNCOMMON

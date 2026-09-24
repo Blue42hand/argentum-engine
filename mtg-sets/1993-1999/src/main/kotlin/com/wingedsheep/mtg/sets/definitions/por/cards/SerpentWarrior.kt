@@ -4,10 +4,10 @@
 
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
@@ -27,7 +27,7 @@ val SerpentWarrior = card("Serpent Warrior") {
     toughness = 3
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = LoseLifeEffect(3, EffectTarget.Controller)
+        effect = Effects.LoseLife(3, EffectTarget.Controller)
     }
     metadata {
         rarity = Rarity.COMMON

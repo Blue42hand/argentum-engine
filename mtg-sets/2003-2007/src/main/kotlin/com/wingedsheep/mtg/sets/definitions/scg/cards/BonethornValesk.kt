@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern.TurnFaceUpEvent
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 
 /**
  * Bonethorn Valesk
@@ -26,7 +26,7 @@ val BonethornValesk = card("Bonethorn Valesk") {
     triggeredAbility {
         trigger = TriggerSpec(TurnFaceUpEvent, TriggerBinding.ANY)
         val t = target("any target", Targets.Any)
-        effect = DealDamageEffect(1, t)
+        effect = Effects.DealDamage(1, t)
     }
 
     metadata {

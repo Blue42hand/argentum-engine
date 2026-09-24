@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -45,7 +44,7 @@ val Cyclone = card("Cyclone") {
         val dealDamageToAll = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter.AllCreatures,
-                DealDamageEffect(windCount, EffectTarget.IterationEntity)
+                Effects.DealDamage(windCount, EffectTarget.IterationEntity)
             ),
             Effects.ForEachPlayer(Player.Each, listOf(Effects.DealDamage(windCount, EffectTarget.Controller)))
         )

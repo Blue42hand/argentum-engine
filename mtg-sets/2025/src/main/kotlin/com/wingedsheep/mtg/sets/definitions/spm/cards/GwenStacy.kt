@@ -18,7 +18,6 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.YouControlSource
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -97,7 +96,7 @@ private val GwenStacyFront = card("Gwen Stacy") {
     // {2}{U}{R}{W}: Transform Gwen Stacy. Activate only as a sorcery.
     activatedAbility {
         cost = Costs.Mana("{2}{U}{R}{W}")
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         timing = TimingRule.SorcerySpeed
         description = "Transform Gwen Stacy. Activate only as a sorcery."
     }

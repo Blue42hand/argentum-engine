@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.ons.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawUpToEffect
 import com.wingedsheep.sdk.scripting.effects.RepeatCondition
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
@@ -26,7 +25,7 @@ val TradeSecrets = card("Trade Secrets") {
         effect = Effects.RepeatWhile(
             body = Effects.Composite(
                 Effects.DrawCards(2, t),
-                DrawUpToEffect(maxCards = 4, target = EffectTarget.Controller)
+                Effects.DrawUpTo(maxCards = 4, target = EffectTarget.Controller)
             ),
             repeatCondition = RepeatCondition.PlayerChooses(
                 decider = t,

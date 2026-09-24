@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.withId
@@ -34,7 +33,7 @@ val KnightOfAutumn = card("Knight of Autumn") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 Mode.noTarget(
                     Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -34,9 +33,9 @@ val EdgeRover = card("Edge Rover") {
 
     triggeredAbility {
         trigger = Triggers.Dies
-        effect = ForEachPlayerEffect(
+        effect = Effects.ForEachPlayer(
             players = Player.Each,
-            effects = listOf(Effects.CreateLander())
+            effect = Effects.CreateLander()
         )
     }
 

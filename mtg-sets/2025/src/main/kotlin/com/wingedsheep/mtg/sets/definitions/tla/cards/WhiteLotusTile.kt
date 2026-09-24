@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddManaOfChoiceEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.ManaColorSet
@@ -35,7 +35,7 @@ val WhiteLotusTile = card("White Lotus Tile") {
 
     activatedAbility {
         cost = Costs.Tap
-        effect = AddManaOfChoiceEffect(
+        effect = Effects.AddManaOfChoice(
             colorSet = ManaColorSet.AnyColor,
             amount = DynamicAmount.LargestSharedCreatureTypeCount(Player.You),
         )

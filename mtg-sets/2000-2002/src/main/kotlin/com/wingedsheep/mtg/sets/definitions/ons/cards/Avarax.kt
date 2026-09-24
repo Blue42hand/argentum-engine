@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 
 /**
@@ -47,9 +46,9 @@ val Avarax = card("Avarax") {
 
     activatedAbility {
         cost = Costs.Mana("{1}{R}")
-        effect = ModifyStatsEffect(
-            powerModifier = 1,
-            toughnessModifier = 0,
+        effect = Effects.ModifyStats(
+            power = 1,
+            toughness = 0,
             target = EffectTarget.Self
         )
     }

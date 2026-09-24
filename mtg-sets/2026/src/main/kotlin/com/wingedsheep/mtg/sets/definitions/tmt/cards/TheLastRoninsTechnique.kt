@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.sneak
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.SneakCostWasPaid
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -22,7 +21,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
 private const val NINJA_TURTLE_SPIRIT_TOKEN =
     "https://cards.scryfall.io/normal/front/9/8/98c32288-8676-44d0-b480-7eddcac1a0e4.jpg?1771590416"
 
-private fun spiritTokens(tappedAndAttacking: Boolean) = CreateTokenEffect(
+private fun spiritTokens(tappedAndAttacking: Boolean) = Effects.CreateToken(
     count = DynamicAmount.Fixed(3),
     power = 1,
     toughness = 1,

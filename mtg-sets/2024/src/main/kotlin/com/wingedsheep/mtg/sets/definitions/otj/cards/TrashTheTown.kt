@@ -8,9 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -44,7 +42,7 @@ val TrashTheTown = card("Trash the Town") {
         "combat damage to a player, draw two cards.\""
 
     spell {
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 Mode(
                     effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.ContextTarget(0)),
@@ -59,7 +57,7 @@ val TrashTheTown = card("Trash the Town") {
                     additionalManaCost = "{1}"
                 ),
                 Mode(
-                    effect = GrantTriggeredAbilityEffect(
+                    effect = Effects.GrantTriggeredAbility(
                         ability = TriggeredAbility.create(
                             trigger = Triggers.DealsCombatDamageToPlayer.event,
                             binding = Triggers.DealsCombatDamageToPlayer.binding,

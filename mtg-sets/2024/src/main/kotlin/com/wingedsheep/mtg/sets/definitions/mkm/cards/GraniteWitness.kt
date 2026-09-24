@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 
 /**
  * Granite Witness — Murders at Karlov Manor #206
@@ -52,10 +50,10 @@ val GraniteWitness = card("Granite Witness") {
         trigger = Triggers.TurnedFaceUp
         val creature = target("target creature", Targets.Creature)
         effect = Effects.May(
-            ModalEffect(
+            Effects.Modal(
                 modes = listOf(
-                    Mode.noTarget(TapUntapEffect(creature, tap = true), "Tap that creature"),
-                    Mode.noTarget(TapUntapEffect(creature, tap = false), "Untap that creature")
+                    Mode.noTarget(Effects.Tap(creature), "Tap that creature"),
+                    Mode.noTarget(Effects.Untap(creature), "Untap that creature")
                 ),
                 chooseCount = 1,
                 countsAsModalSpell = false

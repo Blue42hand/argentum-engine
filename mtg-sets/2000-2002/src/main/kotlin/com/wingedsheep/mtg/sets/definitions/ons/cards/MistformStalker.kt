@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.BecomeCreatureTypeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -26,7 +25,7 @@ val MistformStalker = card("Mistform Stalker") {
 
     activatedAbility {
         cost = Costs.Mana("{1}")
-        effect = BecomeCreatureTypeEffect(
+        effect = Effects.BecomeCreatureType(
             target = EffectTarget.Self
         )
     }

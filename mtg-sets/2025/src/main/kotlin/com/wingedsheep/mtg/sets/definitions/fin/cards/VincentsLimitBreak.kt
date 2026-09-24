@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -88,6 +87,6 @@ private fun transform(power: Int, toughness: Int): Effect {
     )
     return Effects.Composite(
         Effects.SetBasePowerAndToughness(power, toughness, EffectTarget.ContextTarget(0), Duration.EndOfTurn),
-        GrantTriggeredAbilityEffect(diesReturnTapped, EffectTarget.ContextTarget(0), Duration.EndOfTurn)
+        Effects.GrantTriggeredAbility(diesReturnTapped, EffectTarget.ContextTarget(0), Duration.EndOfTurn)
     )
 }

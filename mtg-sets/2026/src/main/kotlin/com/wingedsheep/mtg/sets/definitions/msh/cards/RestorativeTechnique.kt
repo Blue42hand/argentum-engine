@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -63,7 +62,7 @@ val RestorativeTechnique = card("Restorative Technique") {
                     found,
                     CardDestination.ToZone(Zone.BATTLEFIELD, Player.TargetPlayer, ZonePlacement.Tapped)
                 )
-                run(ShuffleLibraryEffect(player))
+                run(Effects.ShuffleLibrary(player))
                 run(EmitLibrarySearchedEventEffect)
             },
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)

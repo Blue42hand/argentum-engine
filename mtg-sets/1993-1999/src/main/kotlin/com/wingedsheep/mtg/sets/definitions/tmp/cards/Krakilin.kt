@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.tmp.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -29,7 +29,7 @@ val Krakilin = card("Krakilin") {
 
     activatedAbility {
         cost = Costs.Mana("{1}{G}")
-        effect = RegenerateEffect(EffectTarget.Self)
+        effect = Effects.Regenerate(EffectTarget.Self)
     }
 
     metadata {

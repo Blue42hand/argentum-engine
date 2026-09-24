@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -67,7 +66,7 @@ val ScavengersTalent = card("Scavenger's Talent") {
         triggeredAbility {
             trigger = Triggers.YourEndStep
             effect = Effects.MayPay(
-                cost = SacrificeEffect(
+                cost = Effects.SacrificeOwn(
                     filter = GameObjectFilter.NonlandPermanent,
                     count = 3,
                     excludeSource = true

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -39,7 +38,7 @@ val HullbreakerHorror = card("Hullbreaker Horror") {
 
     triggeredAbility {
         trigger = Triggers.YouCastSpell
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 Mode.withTarget(
                     Effects.ReturnSpellToOwnersHand(),

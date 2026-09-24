@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -48,9 +46,9 @@ val MakeshiftMannequin = card("Makeshift Mannequin") {
     spell {
         val creature = target("target creature card from your graveyard", Targets.CreatureCardInYourGraveyard)
         effect = Effects.PutOntoBattlefieldFromGraveyard(creature)
-            .then(AddCountersEffect(CounterType.MANNEQUIN, 1, creature))
+            .then(Effects.AddCounters(CounterType.MANNEQUIN, 1, creature))
             .then(
-                GrantTriggeredAbilityEffect(
+                Effects.GrantTriggeredAbility(
                     ability = TriggeredAbility.create(
                         trigger = EventPattern.BecomesTargetEvent(),
                         binding = TriggerBinding.SELF,

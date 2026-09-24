@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -51,7 +50,7 @@ val HoardingDragon = card("Hoarding Dragon") {
             )
             val hoardFound = chooseUpTo(1, from = hoardSearchable, prompt = "Search for an artifact card to exile")
             exile(hoardFound, linkToSource = true)
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
             run(EmitLibrarySearchedEventEffect)
         }
     }

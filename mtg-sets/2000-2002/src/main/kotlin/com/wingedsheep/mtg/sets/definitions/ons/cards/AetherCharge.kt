@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.core.Subtype
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -32,7 +31,7 @@ val AetherCharge = card("Aether Charge") {
             )
         val t = target("target", Targets.Opponent)
         effect = Effects.May(
-            DealDamageEffect(4, t)
+            Effects.DealDamage(4, t)
         )
     }
 

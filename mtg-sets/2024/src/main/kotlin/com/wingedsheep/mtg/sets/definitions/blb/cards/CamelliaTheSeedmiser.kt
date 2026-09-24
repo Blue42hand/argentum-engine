@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -70,7 +69,7 @@ val CamelliaTheSeedmiser = card("Camellia, the Seedmiser") {
                 GameObjectFilter.Permanent.withSubtype("Squirrel").youControl(),
                 excludeSelf = true
             ),
-            effect = AddCountersEffect(
+            effect = Effects.AddCounters(
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 count = 1,
                 target = EffectTarget.IterationEntity

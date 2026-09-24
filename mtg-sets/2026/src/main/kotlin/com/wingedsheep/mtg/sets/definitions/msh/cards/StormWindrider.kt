@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.CollectionSlot
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -8,8 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBeAttackedBy
 import com.wingedsheep.sdk.scripting.CantBeBlockedBy
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.IterationSpace
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -77,8 +76,8 @@ val StormWindrider = card("Storm, Windrider") {
 
     triggeredAbility {
         trigger = Triggers.youCastSpellTargeting(GameObjectFilter.Creature)
-        effect = ForEachInCollectionEffect(
-            collection = IterationSpace.TRIGGER_CAPTURED_COLLECTION,
+        effect = Effects.ForEachInCollection(
+            collection = CollectionSlot.TriggerCaptured,
             effect = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity)
         )
         description = "Whenever you cast a spell that targets one or more creatures, those " +

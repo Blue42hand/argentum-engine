@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -54,7 +53,7 @@ val Flickerform = card("Flickerform") {
             )
             exile(flickerHost)
             exile(flickerAuras)
-            run(CreateDelayedTriggerEffect(
+            run(Effects.CreateDelayedTrigger(
                 step = Step.END,
                 effect = Effects.Pipeline {
                     move(flickerHost, CardDestination.ToZone(Zone.BATTLEFIELD), underOwnersControl = true)

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreatePredefinedTokenEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -65,13 +64,10 @@ val LobeliaSackvilleBaggins = card("Lobelia Sackville-Baggins") {
             destination = Zone.EXILE,
             fromZone = Zone.GRAVEYARD
         ).then(
-            CreatePredefinedTokenEffect(
-                tokenType = "Treasure",
-                dynamicCount = DynamicAmount.EntityProperty(
+            Effects.CreateTreasure(DynamicAmount.EntityProperty(
                     entity = EffectTarget.ContextTarget(0),
                     numericProperty = EntityNumericProperty.Power
-                )
-            )
+                ))
         )
     }
 

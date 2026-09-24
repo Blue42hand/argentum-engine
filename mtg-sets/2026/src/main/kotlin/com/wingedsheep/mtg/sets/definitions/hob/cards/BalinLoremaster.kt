@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.storied
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -74,7 +73,7 @@ val BalinLoremaster = card("Balin, Loremaster") {
             Effects.DrawCards(Patterns.Hand.discardedHand.count),
             Effects.If(
                 condition = Conditions.YouHaveEnduringStory,
-                then = DealDamageEffect(
+                then = Effects.DealDamage(
                     amount = Patterns.Hand.discardedHand.count,
                     target = EffectTarget.PlayerRef(Player.EachOpponent),
                 ),

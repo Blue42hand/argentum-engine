@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -89,7 +88,7 @@ val FrodoSauronsBane = card("Frodo, Sauron's Bane") {
                 subtypes = setOf("Halfling", "Rogue"),
                 target = EffectTarget.Self,
                 duration = Duration.Permanent
-            ) then GrantTriggeredAbilityEffect(
+            ) then Effects.GrantTriggeredAbility(
                 ability = rogueCombatDamageAbility,
                 target = EffectTarget.Self,
                 duration = Duration.Permanent

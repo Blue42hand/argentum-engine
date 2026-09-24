@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -32,7 +31,7 @@ val Rakalite = card("Rakalite") {
         val t = target("any target", Targets.Any)
         effect = Effects.Composite(listOf(
             Effects.PreventNextDamage(1, EffectTarget.ContextTarget(0)),
-            CreateDelayedTriggerEffect(
+            Effects.CreateDelayedTrigger(
                 step = Step.END,
                 effect = Effects.ReturnToHand(EffectTarget.Self)
             )

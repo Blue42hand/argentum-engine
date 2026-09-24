@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
  * Militia's Pride
@@ -45,7 +44,7 @@ val MilitiasPride = card("Militia's Pride") {
         )
         effect = Effects.MayPay(
             cost = ManaCost.parse("{W}"),
-            then = CreateTokenEffect(
+            then = Effects.CreateToken(
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.WHITE),

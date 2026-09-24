@@ -11,8 +11,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
@@ -42,12 +40,12 @@ val EriettesTemptingApple = card("Eriette's Tempting Apple") {
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap, Costs.SacrificeSelf)
-        effect = GainLifeEffect(3)
+        effect = Effects.GainLife(3)
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap, Costs.SacrificeSelf)
         val t = target("target", TargetOpponent())
-        effect = LoseLifeEffect(3, t)
+        effect = Effects.LoseLife(3, t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

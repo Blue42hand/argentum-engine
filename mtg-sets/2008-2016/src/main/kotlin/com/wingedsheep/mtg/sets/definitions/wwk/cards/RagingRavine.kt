@@ -12,10 +12,6 @@ import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.AddManaEffect
-import com.wingedsheep.sdk.scripting.effects.BecomeCreatureEffect
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
@@ -41,14 +37,14 @@ val RagingRavine = card("Raging Ravine") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = AddManaEffect(Color.RED)
+        effect = Effects.AddMana(Color.RED)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = AddManaEffect(Color.GREEN)
+        effect = Effects.AddMana(Color.GREEN)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }
@@ -57,7 +53,7 @@ val RagingRavine = card("Raging Ravine") {
         cost = Costs.Mana("{2}{R}{G}")
         effect = Effects.Composite(
             listOf(
-                BecomeCreatureEffect(
+                Effects.BecomeCreature(
                     target = EffectTarget.Self,
                     power = DynamicAmount.Fixed(3),
                     toughness = DynamicAmount.Fixed(3),
@@ -65,11 +61,11 @@ val RagingRavine = card("Raging Ravine") {
                     colors = setOf(Color.RED.name, Color.GREEN.name),
                     duration = Duration.EndOfTurn,
                 ),
-                GrantTriggeredAbilityEffect(
+                Effects.GrantTriggeredAbility(
                     ability = TriggeredAbility.create(
                         trigger = AttackEvent(),
                         binding = TriggerBinding.SELF,
-                        effect = AddCountersEffect(
+                        effect = Effects.AddCounters(
                             counterType = CounterType.PLUS_ONE_PLUS_ONE,
                             count = 1,
                             target = EffectTarget.Self,

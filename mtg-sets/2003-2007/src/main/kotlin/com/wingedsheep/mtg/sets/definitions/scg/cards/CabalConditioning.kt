@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
@@ -26,16 +25,16 @@ val CabalConditioning = card("Cabal Conditioning") {
 
     spell {
         target("players", TargetPlayer(count = 2, optional = true))
-        effect = ForEachTargetEffect(
-            listOf(Effects.Pipeline {
-                val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
-                val discarded = chooseExactly(
-                    DynamicAmounts.battlefield(Player.You).maxManaValue(),
-                    from = hand,
-                    chooser = Chooser.TargetPlayer
-                )
-                discard(discarded, Player.ContextPlayer(0))
-            })
+        effect = Effects.ForEachTarget(
+            Effects.Pipeline {
+            val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val discarded = chooseExactly(
+                DynamicAmounts.battlefield(Player.You).maxManaValue(),
+                from = hand,
+                chooser = Chooser.TargetPlayer
+            )
+            discard(discarded, Player.ContextPlayer(0))
+        }
         )
     }
 

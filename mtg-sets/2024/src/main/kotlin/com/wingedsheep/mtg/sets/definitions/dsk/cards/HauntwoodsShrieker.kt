@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.TurnFaceUpEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -58,7 +57,7 @@ val HauntwoodsShrieker = card("Hauntwoods Shrieker") {
             Effects.RevealFaceDownPermanent(t),
             Effects.If(
                 condition = Conditions.TargetIsCreatureCard(0),
-                then = Effects.May(TurnFaceUpEffect(t)),
+                then = Effects.May(Effects.TurnFaceUp(t)),
             ),
         )
         description = "{1}{G}: Reveal target face-down permanent. If it's a creature card, you may " +

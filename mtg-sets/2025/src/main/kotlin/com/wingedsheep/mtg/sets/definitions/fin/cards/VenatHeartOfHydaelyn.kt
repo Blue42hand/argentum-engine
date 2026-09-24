@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -103,7 +102,7 @@ private val VenatHeartOfHydaelynFront = card("Venat, Heart of Hydaelyn") {
         val victim = target("nonland permanent", TargetPermanent(filter = TargetFilter.NonlandPermanent))
         effect = Effects.Composite(
             Effects.Exile(victim),
-            TransformEffect(EffectTarget.Self),
+            Effects.Transform(EffectTarget.Self),
         )
     }
 

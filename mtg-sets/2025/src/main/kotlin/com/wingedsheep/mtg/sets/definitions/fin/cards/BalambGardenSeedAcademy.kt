@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -97,7 +96,7 @@ private val BalambGardenSeedAcademyFront = card("Balamb Garden, SeeD Academy") {
     // other Town you control.
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{5}{G}{U}"), Costs.Tap)
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         genericCostReduction = DynamicAmount.AggregateBattlefield(
             player = Player.You,
             filter = GameObjectFilter.Land.withSubtype("Town"),

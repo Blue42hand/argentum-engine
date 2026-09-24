@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -57,7 +56,7 @@ val SandbenderScavengers = card("Sandbender Scavengers") {
     // mana value less than or equal to this creature's power from your graveyard to the battlefield.
     triggeredAbility {
         trigger = Triggers.Dies
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.Exile(EffectTarget.Self),
             optional = true,
             reflexiveEffect = Effects.PutOntoBattlefield(EffectTarget.ContextTarget(0)),

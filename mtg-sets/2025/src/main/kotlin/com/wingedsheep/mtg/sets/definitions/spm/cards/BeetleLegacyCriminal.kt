@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -32,7 +31,7 @@ val BeetleLegacyCriminal = card("Beetle, Legacy Criminal") {
         cost = Costs.Composite(Costs.Mana("{1}{U}"), Costs.ExileSelf)
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Composite(
-            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
+            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
             Effects.GrantKeyword(Keyword.FLYING, t)
         )
         timing = TimingRule.SorcerySpeed

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.RemoveDamageShieldEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.StatePredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -50,7 +49,7 @@ val Pyramids = card("Pyramids") {
                 "Destroy target Aura attached to a land"
             ),
             Mode.withTarget(
-                RemoveDamageShieldEffect(EffectTarget.ContextTarget(0)),
+                Effects.RemoveDamageShield(EffectTarget.ContextTarget(0)),
                 Targets.Land,
                 "The next time target land would be destroyed this turn, " +
                     "remove all damage marked on it instead"

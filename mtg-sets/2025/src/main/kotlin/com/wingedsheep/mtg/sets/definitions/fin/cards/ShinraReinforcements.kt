@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 
 
 /**
@@ -30,7 +29,7 @@ val ShinraReinforcements = card("Shinra Reinforcements") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Composite(
             Patterns.Library.mill(3),
-            GainLifeEffect(3)
+            Effects.GainLife(3)
         )
     }
     metadata {

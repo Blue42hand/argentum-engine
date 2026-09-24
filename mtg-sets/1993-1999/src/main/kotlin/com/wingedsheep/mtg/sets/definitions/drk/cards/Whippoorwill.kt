@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
-import com.wingedsheep.sdk.scripting.effects.CantBeRegeneratedEffect
-import com.wingedsheep.sdk.scripting.effects.DamageToTargetCantBePreventedThisTurnEffect
 
 /**
  * Whippoorwill
@@ -50,8 +48,8 @@ val Whippoorwill = card("Whippoorwill") {
         val creature = target("target creature", Targets.Creature)
         cost = Costs.Composite(Costs.Mana("{G}{G}"), Costs.Tap)
         effect = Effects.Composite(
-            CantBeRegeneratedEffect(creature),
-            DamageToTargetCantBePreventedThisTurnEffect(creature),
+            Effects.CantBeRegenerated(creature),
+            Effects.DamageCantBePreventedThisTurn(creature),
             Effects.GrantReplacementEffect(
                 replacement = RedirectZoneChange(
                     newDestination = Zone.EXILE,

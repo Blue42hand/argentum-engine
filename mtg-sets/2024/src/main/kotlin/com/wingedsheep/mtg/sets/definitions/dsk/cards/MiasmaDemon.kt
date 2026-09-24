@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -46,13 +44,11 @@ val MiasmaDemon = card("Miasma Demon") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Patterns.Hand.discardAnyNumber(),
             optional = false,
-            reflexiveEffect = ForEachTargetEffect(
-                listOf(
-                    Effects.ModifyStats(-2, -2, EffectTarget.ContextTarget(0))
-                )
+            reflexiveEffect = Effects.ForEachTarget(
+                Effects.ModifyStats(-2, -2, EffectTarget.ContextTarget(0))
             ),
             reflexiveTargetRequirements = listOf(
                 TargetCreature(

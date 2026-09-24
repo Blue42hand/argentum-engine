@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
@@ -76,7 +75,7 @@ private val BrasssTunnelGrinderFront = card("Brass's Tunnel-Grinder") {
                 condition = Conditions.SourceCounterCountAtLeast(CounterType.BORE, 3),
                 then = Effects.Composite(
                     Effects.RemoveCounters(CounterType.BORE, 3, EffectTarget.Self),
-                    TransformEffect(EffectTarget.Self),
+                    Effects.Transform(EffectTarget.Self),
                 ),
             ),
         )

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -46,7 +45,7 @@ val Spelunking = card("Spelunking") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.Pipeline {
-            run(DrawCardsEffect(1, EffectTarget.Controller))
+            run(Effects.DrawCards(1, EffectTarget.Controller))
             val landsInHand = gather(CardSource.FromZone(Zone.HAND, Player.You, GameObjectFilter.Land))
             val putting = chooseUpTo(1, from = landsInHand)
             move(putting, CardDestination.ToZone(Zone.BATTLEFIELD, Player.You))

@@ -5,11 +5,11 @@
 package com.wingedsheep.mtg.sets.definitions.cmr.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -32,7 +32,7 @@ val WylethSoulOfSteel = card("Wyleth, Soul of Steel") {
     keywords(Keyword.TRAMPLE)
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = DrawCardsEffect(DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Any))
+        effect = Effects.DrawCards(DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Any))
     }
     metadata {
         rarity = Rarity.MYTHIC

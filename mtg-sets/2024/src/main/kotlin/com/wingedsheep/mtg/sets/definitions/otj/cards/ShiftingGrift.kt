@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -42,7 +41,7 @@ val ShiftingGrift = card("Shifting Grift") {
         "+ {1} — Exchange control of two target enchantments."
 
     spell {
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 // + {2} — Exchange control of two target creatures.
                 Mode(

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -46,7 +45,7 @@ val UltimeciaTemporalThreat = card("Ultimecia, Temporal Threat") {
             sourceFilter = GameObjectFilter.Creature.youControl(),
             binding = TriggerBinding.ANY
         )
-        effect = DrawCardsEffect(1)
+        effect = Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.RARE

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -33,8 +32,8 @@ val AssaultOnOsgiliath = card("Assault on Osgiliath") {
                         com.wingedsheep.sdk.scripting.GameObjectFilter.Creature
                             .withAnySubtype("Goblin", "Orc").youControl()
                     ),
-                    effect = GrantKeywordEffect(Keyword.DOUBLE_STRIKE.name, EffectTarget.IterationEntity, Duration.EndOfTurn)
-                        .then(GrantKeywordEffect(Keyword.HASTE.name, EffectTarget.IterationEntity, Duration.EndOfTurn))
+                    effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, EffectTarget.IterationEntity, Duration.EndOfTurn)
+                        .then(Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn))
                 )
             )
     }

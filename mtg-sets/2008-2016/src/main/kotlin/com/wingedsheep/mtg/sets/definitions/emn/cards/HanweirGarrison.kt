@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.emn.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -30,7 +30,7 @@ val HanweirGarrison = card("Hanweir Garrison") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             count = DynamicAmount.Fixed(2),
             power = 1,
             toughness = 1,

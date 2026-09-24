@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
  * Sidisi, Brood Tyrant
@@ -43,7 +43,7 @@ val SidisiBroodTyrant = card("Sidisi, Brood Tyrant") {
     // create a 2/2 black Zombie creature token.
     triggeredAbility {
         trigger = Triggers.CreaturesPutIntoGraveyardFromLibrary
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             count = 1,
             power = 2,
             toughness = 2,

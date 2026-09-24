@@ -12,8 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -60,8 +58,8 @@ private val MilesMoralesFront = card("Miles Morales") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         target = Targets.UpToCreatures(2)
-        effect = ForEachTargetEffect(
-            listOf(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
+        effect = Effects.ForEachTarget(
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
         )
         description = "When Miles Morales enters, put a +1/+1 counter on each of up to two target creatures."
     }
@@ -69,7 +67,7 @@ private val MilesMoralesFront = card("Miles Morales") {
     // {3}{R}{G}{W}: Transform Miles Morales. Activate only as a sorcery.
     activatedAbility {
         cost = Costs.Mana("{3}{R}{G}{W}")
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         timing = TimingRule.SorcerySpeed
         description = "Transform Miles Morales. Activate only as a sorcery."
     }

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -36,7 +35,7 @@ val DarkConfidant = card("Dark Confidant") {
         effect = Effects.Pipeline {
             val revealed = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.You))
             toHand(revealed, revealed = true)
-            run(LoseLifeEffect(
+            run(Effects.LoseLife(
                 DynamicAmounts.manaValueOf(revealed),
                 EffectTarget.Controller
             ))

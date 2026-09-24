@@ -4,10 +4,10 @@
 
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -24,7 +24,7 @@ val BlessedReversal = card("Blessed Reversal") {
     typeLine = "Instant"
     oracleText = "You gain 3 life for each creature attacking you."
     spell {
-        effect = GainLifeEffect(
+        effect = Effects.GainLife(
             DynamicAmount.Multiply(
                 DynamicAmount.AggregateBattlefield(Player.EachOpponent, GameObjectFilter.Creature.attacking()),
                 3

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -94,7 +93,7 @@ val ArchdruidsCharm = card("Archdruid's Charm") {
                         CardDestination.ToZone(Zone.BATTLEFIELD, placement = ZonePlacement.Tapped),
                     )
                     toHand(others)
-                    run(ShuffleLibraryEffect())
+                    run(Effects.ShuffleLibrary())
                     run(EmitLibrarySearchedEventEffect)
                 }
             }

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -41,7 +40,7 @@ val ThorinsLastStand = card("Thorin's Last Stand") {
                 val t = target("target", TargetPermanent(filter = TargetFilter.ArtifactOrEnchantment))
                 effect = Effects.Composite(
                     Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-                    GainLifeEffect(2)
+                    Effects.GainLife(2)
                 )
             }
         }

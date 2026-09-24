@@ -2,11 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.WardCost
 
 /**
@@ -43,7 +43,7 @@ val KomaWorldEater = card("Koma, World-Eater") {
 
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             count = 4,
             power = 3,
             toughness = 3,

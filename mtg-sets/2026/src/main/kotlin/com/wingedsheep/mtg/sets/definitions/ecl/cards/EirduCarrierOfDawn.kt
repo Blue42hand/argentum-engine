@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.GrantKeywordToOwnSpells
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -57,7 +56,7 @@ private val IsiluCarrierOfTwilight = card("Isilu, Carrier of Twilight") {
         trigger = Triggers.FirstMainPhase
         effect = Effects.MayPay(
             cost = ManaCost.parse("{W}"),
-            then = TransformEffect(EffectTarget.Self)
+            then = Effects.Transform(EffectTarget.Self)
         )
     }
 
@@ -93,7 +92,7 @@ private val EirduFrontFace = card("Eirdu, Carrier of Dawn") {
         trigger = Triggers.FirstMainPhase
         effect = Effects.MayPay(
             cost = ManaCost.parse("{B}"),
-            then = TransformEffect(EffectTarget.Self)
+            then = Effects.Transform(EffectTarget.Self)
         )
     }
 

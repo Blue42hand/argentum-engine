@@ -7,9 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -47,10 +45,10 @@ val GhostlyTouch = card("Ghostly Touch") {
                 trigger = Triggers.Attacks.event,
                 binding = Triggers.Attacks.binding,
                 effect = Effects.May(
-                    ModalEffect(
+                    Effects.Modal(
                         modes = listOf(
-                            Mode.noTarget(TapUntapEffect(EffectTarget.ContextTarget(0), tap = true)),
-                            Mode.noTarget(TapUntapEffect(EffectTarget.ContextTarget(0), tap = false))
+                            Mode.noTarget(Effects.Tap(EffectTarget.ContextTarget(0))),
+                            Mode.noTarget(Effects.Untap(EffectTarget.ContextTarget(0)))
                         ),
                         chooseCount = 1,
                         countsAsModalSpell = false

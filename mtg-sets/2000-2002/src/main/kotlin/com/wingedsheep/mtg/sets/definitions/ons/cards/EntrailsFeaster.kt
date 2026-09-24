@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -38,10 +36,10 @@ val EntrailsFeaster = card("Entrails Feaster") {
         effect = Effects.Composite(
             listOf(
                 Effects.Move(t, Zone.EXILE),
-                AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             )
         )
-        elseEffect = TapUntapEffect(EffectTarget.Self, tap = true)
+        elseEffect = Effects.Tap(EffectTarget.Self)
     }
 
     metadata {

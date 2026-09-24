@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CollectionFilter
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
 /**
@@ -29,7 +28,7 @@ val IllTimedExplosion = card("Ill-Timed Explosion") {
     spell {
         effect = Effects.Composite(
             Effects.DrawCards(2),
-            ReflexiveTriggerEffect(
+            Effects.ReflexiveTrigger(
                 action = Patterns.Hand.discardCards(2),
                 optional = true,
                 reflexiveEffect = Effects.Pipeline {

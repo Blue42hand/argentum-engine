@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.EventPattern.YouAttackEvent
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -76,7 +75,7 @@ private val AlluringSuitorFront = card("Alluring Suitor") {
             ComparisonOperator.EQ,
             DynamicAmount.Fixed(2),
         )
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         description = "When you attack with exactly two creatures, transform this creature."
     }
 

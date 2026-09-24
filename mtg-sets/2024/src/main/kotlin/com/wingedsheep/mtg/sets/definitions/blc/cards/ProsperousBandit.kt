@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.RepeatDynamicTimesEffect
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -50,7 +49,7 @@ val ProsperousBandit = card("Prosperous Bandit") {
     // tapped Treasure tokens.
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = RepeatDynamicTimesEffect(
+        effect = Effects.Repeat(
             amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
             body = Effects.CreateTreasure(tapped = true)
         )

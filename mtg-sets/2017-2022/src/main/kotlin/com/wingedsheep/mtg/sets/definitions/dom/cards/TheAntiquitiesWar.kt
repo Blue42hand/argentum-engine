@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.BecomeCreatureEffect
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -56,7 +55,7 @@ val TheAntiquitiesWar = card("The Antiquities War") {
     sagaChapter(3) {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Artifact.youControl()),
-            effect = BecomeCreatureEffect(
+            effect = Effects.BecomeCreature(
                 target = EffectTarget.IterationEntity,
                 power = DynamicAmount.Fixed(5),
                 toughness = DynamicAmount.Fixed(5),

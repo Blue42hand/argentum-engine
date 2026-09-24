@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.namedFromVariable
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
@@ -56,7 +55,7 @@ val TheCloneSaga = card("The Clone Saga") {
 
     // II — When you next cast a creature spell this turn, copy it, except the copy isn't legendary.
     sagaChapter(2) {
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             trigger = Triggers.YouCastCreature,
             effect = Effects.CopyTargetSpell(
                 target = EffectTarget.TriggeringEntity,
@@ -72,7 +71,7 @@ val TheCloneSaga = card("The Clone Saga") {
     sagaChapter(3) {
         effect = Effects.Pipeline {
             val clonedName = chooseCardName()
-            run(CreateDelayedTriggerEffect(
+            run(Effects.CreateDelayedTrigger(
                 trigger = Triggers.dealsDamage(
                     damageType = DamageType.Combat,
                     recipient = Recipient.AnyPlayer,

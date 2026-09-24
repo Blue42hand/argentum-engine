@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
-import com.wingedsheep.sdk.scripting.effects.MustBeBlockedEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -28,7 +27,7 @@ val RoarOfChallenge = card("Roar of Challenge") {
 
     spell {
         val t = target("creature", TargetCreature())
-        effect = MustBeBlockedEffect(t)
+        effect = Effects.MustBeBlocked(t)
             .then(Effects.If(
                 condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.powerAtLeast(4)),
                 then = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)

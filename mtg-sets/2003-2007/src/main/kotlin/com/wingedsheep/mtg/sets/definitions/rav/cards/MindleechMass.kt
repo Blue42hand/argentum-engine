@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.LookAtTargetHandEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -26,7 +25,7 @@ val MindleechMass = card("Mindleech Mass") {
         trigger = Triggers.DealsCombatDamageToPlayer
         optional = true
         effect = Effects.Pipeline {
-            run(LookAtTargetHandEffect(EffectTarget.PlayerRef(Player.TriggeringPlayer)))
+            run(Effects.LookAtHand(EffectTarget.PlayerRef(Player.TriggeringPlayer)))
             val opponentsHand = gather(CardSource.FromZone(Zone.HAND, Player.TriggeringPlayer))
             val spellToCast = chooseUpTo(
                 1,

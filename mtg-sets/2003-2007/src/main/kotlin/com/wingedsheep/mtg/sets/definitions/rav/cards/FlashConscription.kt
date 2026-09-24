@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -49,7 +48,7 @@ val FlashConscription = card("Flash Conscription") {
             .then(
                 Effects.If(
                     condition = Conditions.ManaSpentToCastIncludes(requiredWhite = 1),
-                    then = GrantTriggeredAbilityEffect(
+                    then = Effects.GrantTriggeredAbility(
                         ability = TriggeredAbility.create(
                             trigger = Triggers.dealsDamage(damageType = DamageType.Combat).event,
                             binding = Triggers.dealsDamage(damageType = DamageType.Combat).binding,

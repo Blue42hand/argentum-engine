@@ -4,9 +4,9 @@
 
 package com.wingedsheep.mtg.sets.definitions.lea.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -24,7 +24,7 @@ val StreamOfLife = card("Stream of Life") {
     oracleText = "Target player gains X life."
     spell {
         val t = target("target", TargetPlayer())
-        effect = GainLifeEffect(DynamicAmount.XValue, t)
+        effect = Effects.GainLife(DynamicAmount.XValue, t)
     }
     metadata {
         rarity = Rarity.COMMON

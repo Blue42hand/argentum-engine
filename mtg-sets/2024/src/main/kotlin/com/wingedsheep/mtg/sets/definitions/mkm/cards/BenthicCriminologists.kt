@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 
 /**
  * Benthic Criminologists — Murders at Karlov Manor #40
@@ -57,7 +56,7 @@ val BenthicCriminologists = card("Benthic Criminologists") {
 /** The rider shared by the enters and attacks triggers. */
 private fun TriggeredAbilityBuilder.sacrificeAnArtifactToDraw() {
     effect = Effects.MayPay(
-        cost = SacrificeEffect(filter = GameObjectFilter.Artifact),
+        cost = Effects.SacrificeOwn(filter = GameObjectFilter.Artifact),
         then = Effects.DrawCards(1)
     )
     description = "You may sacrifice an artifact. If you do, draw a card."

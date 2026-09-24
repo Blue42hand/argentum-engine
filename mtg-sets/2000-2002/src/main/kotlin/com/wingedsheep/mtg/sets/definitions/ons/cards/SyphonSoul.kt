@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -23,7 +22,7 @@ val SyphonSoul = card("Syphon Soul") {
 
     spell {
         effect = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent)) then
-                GainLifeEffect(2)
+                Effects.GainLife(2)
     }
 
     metadata {

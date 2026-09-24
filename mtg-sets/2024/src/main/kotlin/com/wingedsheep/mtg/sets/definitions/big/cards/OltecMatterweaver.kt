@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -37,7 +36,7 @@ val OltecMatterweaver = card("Oltec Matterweaver") {
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
                 // 1/1 colorless (emptySet colors) Gnome artifact creature token.
-                CreateTokenEffect(
+                Effects.CreateToken(
                     power = 1,
                     toughness = 1,
                     colors = emptySet(),

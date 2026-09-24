@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 // Oracle errata: Original text used "remove from the game" (now "exile").
@@ -42,7 +41,7 @@ val ParallelThoughts = card("Parallel Thoughts") {
                 linkToSource = true,
                 faceDown = FaceDownMode.HIDDEN
             )
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
         }
     }
 

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -37,7 +36,7 @@ val FlameBlitz = card("Flame Blitz") {
         trigger = Triggers.YourEndStep
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Planeswalker),
-            DealDamageEffect(5, EffectTarget.IterationEntity)
+            Effects.DealDamage(5, EffectTarget.IterationEntity)
         )
     }
 

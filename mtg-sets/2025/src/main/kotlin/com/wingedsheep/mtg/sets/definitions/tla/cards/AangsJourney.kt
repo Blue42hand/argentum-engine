@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -57,7 +56,7 @@ val AangsJourney = card("Aang's Journey") {
             val foundShrine = chooseUpTo(1, from = shrineSearchable, prompt = "Search your library for a Shrine card")
             toHand(foundLand, revealed = true)
             toHand(foundShrine, revealed = true)
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
         }
 
         effect = Effects.If(

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -29,8 +28,8 @@ val WeftbladeEnhancer = card("Weftblade Enhancer") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         target("up to two target creatures", TargetCreature(count = 2, optional = true))
-        effect = ForEachTargetEffect(
-            listOf(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
+        effect = Effects.ForEachTarget(
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
         )
     }
 

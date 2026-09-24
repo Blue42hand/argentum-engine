@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -33,7 +32,7 @@ val AnticausalVestige = card("Anticausal Vestige") {
     triggeredAbility {
         trigger = Triggers.LeavesBattlefield
         effect = Effects.Pipeline {
-            run(DrawCardsEffect(1))
+            run(Effects.DrawCards(1))
             val handPermanents = gather(CardSource.FromZone(Zone.HAND, Player.You, GameObjectFilter.Permanent))
             val eligiblePermanents = filter(
                 handPermanents,

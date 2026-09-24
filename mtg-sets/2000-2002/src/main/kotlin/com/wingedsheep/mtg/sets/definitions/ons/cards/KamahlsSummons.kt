@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -32,7 +31,7 @@ val KamahlsSummons = card("Kamahl's Summons") {
                     from = creatures,
                     prompt = "You may reveal any number of creature cards from your hand"
                 )
-                run(CreateTokenEffect(
+                run(Effects.CreateToken(
                     count = revealed.count,
                     power = 2,
                     toughness = 2,

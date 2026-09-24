@@ -9,9 +9,6 @@ import com.wingedsheep.sdk.scripting.EventPattern.SpellCastEvent
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -52,9 +49,9 @@ val HelgaSkittishSeer = card("Helga, Skittish Seer") {
         )
         effect = Effects.Composite(
             listOf(
-                DrawCardsEffect(1),
-                GainLifeEffect(1),
-                AddCountersEffect(
+                Effects.DrawCards(1),
+                Effects.GainLife(1),
+                Effects.AddCounters(
                     counterType = CounterType.PLUS_ONE_PLUS_ONE,
                     count = 1,
                     target = EffectTarget.Self

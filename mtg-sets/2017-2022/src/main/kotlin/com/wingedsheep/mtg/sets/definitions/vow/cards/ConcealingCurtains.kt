@@ -13,8 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -54,7 +52,7 @@ private val ConcealingCurtainsFront = card("Concealing Curtains") {
 
     activatedAbility {
         cost = Costs.Mana("{2}{B}")
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         timing = TimingRule.SorcerySpeed
         description = "Transform this creature. Activate only as a sorcery."
     }
@@ -84,7 +82,7 @@ private val RevealingEye = card("Revealing Eye") {
         trigger = Triggers.TransformsToBack
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Pipeline {
-            run(RevealHandEffect(opponent))
+            run(Effects.RevealHand(opponent))
             val revealedHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
             val chosenCard = chooseUpTo(
                 1,

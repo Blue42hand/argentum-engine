@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -36,7 +35,7 @@ val BiblioplexTomekeeper = card("Biblioplex Tomekeeper") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 Mode.withTarget(
                     Effects.BecomePrepared(EffectTarget.ContextTarget(0)),

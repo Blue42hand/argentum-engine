@@ -1,12 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.avr.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
 
 /**
  * Lunar Mystic
@@ -30,7 +28,7 @@ val LunarMystic = card("Lunar Mystic") {
     triggeredAbility {
         trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Instant)
         effect = Effects.MayPay(
-            cost = PayManaCostEffect(ManaCost.parse("{1}")),
+            cost = Effects.PayMana("{1}"),
             then = Effects.DrawCards(1)
         )
     }

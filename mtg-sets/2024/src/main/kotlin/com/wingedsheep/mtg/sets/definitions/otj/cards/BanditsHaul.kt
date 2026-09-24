@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -34,7 +33,7 @@ val BanditsHaul = card("Bandit's Haul") {
     triggeredAbility {
         trigger = Triggers.YouCommitCrime
         oncePerTurn = true
-        effect = AddCountersEffect(
+        effect = Effects.AddCounters(
             counterType = CounterType.LOOT,
             count = 1,
             target = EffectTarget.Self

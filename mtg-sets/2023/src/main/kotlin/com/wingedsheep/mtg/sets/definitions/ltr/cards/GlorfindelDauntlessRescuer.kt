@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.effects.MustBeBlockedEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -45,7 +44,7 @@ val GlorfindelDauntlessRescuer = card("Glorfindel, Dauntless Rescuer") {
                 Effects.Composite(
                     listOf(
                         Effects.ModifyStats(1, 1, EffectTarget.Self),
-                        MustBeBlockedEffect(EffectTarget.Self, allCreatures = false)
+                        Effects.MustBeBlocked(EffectTarget.Self, allCreatures = false)
                     )
                 ),
                 "Glorfindel gets +1/+1 until end of turn and must be blocked this turn if able"

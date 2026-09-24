@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
@@ -63,14 +62,14 @@ val WandOfIth = card("Wand of Ith") {
             // without these gates the player is asked to pay for *both* branches every activation,
             // one of which is always empty.
             ifNotEmpty(land) {
-                run(PayOrSufferEffect(
+                run(Effects.PayOrSuffer(
                     cost = Costs.pay.PayLife(1),
                     suffer = Effects.Pipeline { discard(land, Player.ContextPlayer(0)) },
                     player = payer,
                 ))
             }
             ifNotEmpty(nonland) {
-                run(PayOrSufferEffect(
+                run(Effects.PayOrSuffer(
                     cost = Costs.pay.PayDynamicLife(DynamicAmounts.manaValueSumOf(nonland)),
                     suffer = Effects.Pipeline { discard(nonland, Player.ContextPlayer(0)) },
                     player = payer,

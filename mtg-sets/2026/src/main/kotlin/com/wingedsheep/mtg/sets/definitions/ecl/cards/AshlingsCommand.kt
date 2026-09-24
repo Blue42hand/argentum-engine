@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreatePredefinedTokenEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -54,7 +53,7 @@ val AshlingsCommand = card("Ashling's Command") {
             }
             mode("Target player creates two Treasure tokens") {
                 val player = target("target player", TargetPlayer())
-                effect = CreatePredefinedTokenEffect("Treasure", count = 2, controller = player)
+                effect = Effects.CreateTreasure(2, controller = player)
             }
         }
     }

@@ -5,10 +5,10 @@
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -25,7 +25,7 @@ val Fruition = card("Fruition") {
     typeLine = "Sorcery"
     oracleText = "You gain 1 life for each Forest on the battlefield."
     spell {
-        effect = GainLifeEffect(
+        effect = Effects.GainLife(
             DynamicAmount.AggregateBattlefield(Player.Each, GameObjectFilter.Land.withSubtype(Subtype.FOREST))
         )
     }

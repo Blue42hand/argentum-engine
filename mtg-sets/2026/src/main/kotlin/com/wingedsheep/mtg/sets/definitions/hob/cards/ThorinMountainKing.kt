@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -104,7 +102,7 @@ val ThorinMountainKing = card("Thorin, Mountain-king") {
                         whenMatches(equipment),
                         whenMatches(creature)
                     ),
-                    then = ReflexiveTriggerEffect(
+                    then = Effects.ReflexiveTrigger(
                         optional = false,
                         action = Effects.ForEachInCollection(
                             collection = equipment,
@@ -115,7 +113,7 @@ val ThorinMountainKing = card("Thorin, Mountain-king") {
                         ),
                         reflexiveEffect = Effects.ForEachInCollection(
                             collection = creature,
-                            effect = DealDamageEffect(
+                            effect = Effects.DealDamage(
                                 amount = DynamicAmount.EntityProperty(
                                     EffectTarget.IterationEntity,
                                     EntityNumericProperty.Power

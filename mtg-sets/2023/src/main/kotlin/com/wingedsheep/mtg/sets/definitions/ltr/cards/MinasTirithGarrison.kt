@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
@@ -50,7 +49,7 @@ val MinasTirithGarrison = card("Minas Tirith Garrison") {
                 useTargetingUI = true
             )
             run(Effects.TapCollection(tapped, tap = true))
-            run(DrawCardsEffect(tapped.count))
+            run(Effects.DrawCards(tapped.count))
         }
     }
 

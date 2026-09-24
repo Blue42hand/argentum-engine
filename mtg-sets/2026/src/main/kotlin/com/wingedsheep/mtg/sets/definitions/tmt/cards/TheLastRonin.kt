@@ -11,9 +11,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.events.AttackPredicate
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -46,7 +44,7 @@ val TheLastRonin = card("The Last Ronin") {
     sagaChapter(2) {
         // Mill is mandatory, so the "when you do" reflexive always fires; its target is chosen
         // after the mill so you can grab a creature it just put into the graveyard.
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Patterns.Library.mill(4),
             optional = false,
             reflexiveEffect = Effects.ReturnToHand(EffectTarget.ContextTarget(0)),
@@ -61,7 +59,7 @@ val TheLastRonin = card("The Last Ronin") {
     sagaChapter(3) {
         // Turn-scoped, filter-scoped delayed trigger; the per-attacker fan-out in
         // TriggerDetector.detectEventBasedDelayedTriggers binds each lone attacker to TriggeringEntity.
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             trigger = Triggers.attacks(
                 filter = GameObjectFilter.Creature.youControl(),
                 requires = setOf(AttackPredicate.Alone),

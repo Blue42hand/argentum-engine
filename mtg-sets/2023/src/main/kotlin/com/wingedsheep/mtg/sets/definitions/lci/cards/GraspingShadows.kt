@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.events.AttackPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -62,7 +61,7 @@ private val GraspingShadowsFront = card("Grasping Shadows") {
             Effects.AddCounters(CounterType.DREAD, 1, EffectTarget.Self),
             Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(CounterType.DREAD, 3),
-                then = TransformEffect(EffectTarget.Self),
+                then = Effects.Transform(EffectTarget.Self),
             ),
         )
         description = "Whenever a creature you control attacks alone, it gains deathtouch and " +

@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.scg.cards
 
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
@@ -24,7 +24,7 @@ val GoblinWarStrike = card("Goblin War Strike") {
 
     spell {
         val t = target("target", TargetPlayer())
-        effect = DealDamageEffect(
+        effect = Effects.DealDamage(
             amount = DynamicAmounts.battlefield(
                 Player.You,
                 GameObjectFilter.Creature.withSubtype(Subtype.GOBLIN)

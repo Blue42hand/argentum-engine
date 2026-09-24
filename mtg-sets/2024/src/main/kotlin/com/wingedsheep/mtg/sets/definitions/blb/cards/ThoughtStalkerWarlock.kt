@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
@@ -46,7 +45,7 @@ val ThoughtStalkerWarlock = card("Thought-Stalker Warlock") {
             condition = Conditions.PlayerLostLifeThisTurn(Player.ContextPlayer(0)),
             // If they lost life: reveal hand, controller chooses nonland, discard it
             then = Effects.Pipeline {
-                run(RevealHandEffect(opponent))
+                run(Effects.RevealHand(opponent))
                 val nonlandCards = gather(
                     CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0), GameObjectFilter.Nonland)
                 )

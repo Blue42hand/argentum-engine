@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -50,7 +49,7 @@ val SkulkingKiller = card("Skulking Killer") {
                 ComparisonOperator.EQ,
                 DynamicAmount.Fixed(1)
             ),
-            then = ModifyStatsEffect(-2, -2, creature)
+            then = Effects.ModifyStats(-2, -2, creature)
         )
         description = "When this creature enters, target creature an opponent controls gets -2/-2 " +
             "until end of turn if that opponent controls no other creatures."

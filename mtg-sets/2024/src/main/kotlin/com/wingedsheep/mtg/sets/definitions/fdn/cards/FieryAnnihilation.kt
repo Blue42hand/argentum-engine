@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.MarkExileOnDeathEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -37,9 +35,9 @@ val FieryAnnihilation = card("Fiery Annihilation") {
             )
         )
         effect = Effects.Composite(
-            DealDamageEffect(5, t1),
+            Effects.DealDamage(5, t1),
             Effects.Exile(t2),
-            MarkExileOnDeathEffect(t1)
+            Effects.MarkExileOnDeath(t1)
         )
     }
     metadata {

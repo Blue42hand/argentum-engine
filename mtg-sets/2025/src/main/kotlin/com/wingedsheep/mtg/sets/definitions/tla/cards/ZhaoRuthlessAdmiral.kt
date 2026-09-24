@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.firebending
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -48,9 +47,9 @@ val ZhaoRuthlessAdmiral = card("Zhao, Ruthless Admiral") {
         trigger = Triggers.YouSacrificeAnother(GameObjectFilter.Permanent)
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
-            effect = ModifyStatsEffect(
-                powerModifier = 1,
-                toughnessModifier = 0,
+            effect = Effects.ModifyStats(
+                power = 1,
+                toughness = 0,
                 target = EffectTarget.IterationEntity,
                 duration = Duration.EndOfTurn
             )

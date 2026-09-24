@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -60,7 +59,7 @@ private val ForebodingStatueFront = card("Foreboding Statue") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.SourceCounterCountAtLeast(CounterType.OMEN, 3)
-        effect = Effects.Untap(EffectTarget.Self) then TransformEffect(EffectTarget.Self)
+        effect = Effects.Untap(EffectTarget.Self) then Effects.Transform(EffectTarget.Self)
         description = "At the beginning of your end step, if there are three or more omen counters " +
             "on this creature, untap it, then transform it."
     }

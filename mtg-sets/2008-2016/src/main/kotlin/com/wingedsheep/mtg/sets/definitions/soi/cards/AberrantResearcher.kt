@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -53,7 +52,7 @@ private val AberrantResearcherFront = card("Aberrant Researcher") {
             Patterns.Library.mill(1),
             Effects.If(
                 condition = Conditions.CollectionContainsMatch(Patterns.Library.milled, GameObjectFilter.InstantOrSorcery),
-                then = TransformEffect(EffectTarget.Self),
+                then = Effects.Transform(EffectTarget.Self),
             ),
         )
         description = "At the beginning of your upkeep, mill a card. If an instant or sorcery card " +

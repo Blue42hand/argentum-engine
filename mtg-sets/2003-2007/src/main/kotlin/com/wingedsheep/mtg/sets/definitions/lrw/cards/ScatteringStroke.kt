@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -62,7 +61,7 @@ val ScatteringStroke = card("Scattering Stroke") {
             run(Effects.CounterSpell())
             run(
                 Patterns.Mechanic.clash(
-                    CreateDelayedTriggerEffect(
+                    Effects.CreateDelayedTrigger(
                         step = Step.PRECOMBAT_MAIN,
                         fireOnPlayer = EffectTarget.PlayerRef(Player.You),
                         timing = DelayedTriggerTiming.CURRENT_TURN_OR_LATER,

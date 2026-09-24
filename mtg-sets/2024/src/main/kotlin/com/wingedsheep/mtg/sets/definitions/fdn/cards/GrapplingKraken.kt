@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -35,7 +34,7 @@ val GrapplingKraken = card("Grappling Kraken") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.Composite(
             Effects.Tap(t),
-            AddCountersEffect(counterType = CounterType.STUN, count = 1, target = t)
+            Effects.AddCounters(counterType = CounterType.STUN, count = 1, target = t)
         )
     }
     metadata {

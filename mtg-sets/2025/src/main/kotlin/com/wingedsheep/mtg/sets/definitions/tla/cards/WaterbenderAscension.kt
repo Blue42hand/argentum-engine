@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -67,7 +66,7 @@ val WaterbenderAscension = card("Waterbender Ascension") {
         cost = Costs.Mana("{4}")
         hasWaterbend = true
         val t = target("target creature", Targets.Creature)
-        effect = GrantKeywordEffect(AbilityFlag.CANT_BE_BLOCKED.name, t)
+        effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t)
         description = "Waterbend {4}: Target creature can't be blocked this turn."
     }
 

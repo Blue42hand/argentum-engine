@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -37,7 +36,7 @@ val ActionNewsCrew = card("Action News Crew") {
         activateFromZone = Zone.HAND
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Creature.youControl()),
-            effect = AddCountersEffect(
+            effect = Effects.AddCounters(
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 count = 1,
                 target = EffectTarget.IterationEntity

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -57,7 +56,7 @@ val TemporalCascade = card("Temporal Cascade") {
             }
             mode(
                 "Each player draws seven cards",
-                ForEachPlayerEffect(Player.Each, listOf(Effects.DrawCards(7))),
+                Effects.ForEachPlayer(Player.Each, Effects.DrawCards(7)),
             )
         }
     }

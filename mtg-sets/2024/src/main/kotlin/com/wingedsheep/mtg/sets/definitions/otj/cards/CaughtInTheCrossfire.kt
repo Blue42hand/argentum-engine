@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -34,7 +33,7 @@ val CaughtInTheCrossfire = card("Caught in the Crossfire") {
         "+ {1} — Caught in the Crossfire deals 2 damage to each non-outlaw creature."
 
     spell {
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 Mode(
                     effect = Effects.ForEachInGroup(

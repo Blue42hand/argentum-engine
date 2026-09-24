@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -43,7 +42,7 @@ val NibelheimAflame = card("Nibelheim Aflame") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature).otherThanTarget(),
-                effect = DealDamageEffect(
+                effect = Effects.DealDamage(
                     amount = DynamicAmounts.targetPower(0),
                     target = EffectTarget.IterationEntity,
                     damageSource = chosen,

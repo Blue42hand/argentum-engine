@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.emn.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.effects.GiveControlToTargetPlayerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -29,7 +29,7 @@ val HarmlessOffering = card("Harmless Offering") {
     spell {
         val opponent = target("opponent", TargetOpponent())
         val permanent = target("permanent", TargetPermanent(filter = TargetFilter.PermanentYouControl))
-        effect = GiveControlToTargetPlayerEffect(
+        effect = Effects.GiveControl(
             permanent = permanent,
             newController = opponent
         )

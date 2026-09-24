@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -44,7 +43,7 @@ val ColiseumBehemoth = card("Coliseum Behemoth") {
                 TargetPermanent(filter = TargetFilter.ArtifactOrEnchantment),
                 "Destroy target artifact or enchantment"
             ),
-            Mode.noTarget(DrawCardsEffect(1), "Draw a card")
+            Mode.noTarget(Effects.DrawCards(1), "Draw a card")
         )
     }
     metadata {

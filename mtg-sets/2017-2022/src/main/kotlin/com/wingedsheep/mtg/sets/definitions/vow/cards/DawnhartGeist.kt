@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 
 /**
  * Dawnhart Geist
@@ -21,7 +21,7 @@ val DawnhartGeist = card("Dawnhart Geist") {
     toughness = 3
     triggeredAbility {
         trigger = Triggers.YouCastEnchantment
-        effect = GainLifeEffect(2)
+        effect = Effects.GainLife(2)
     }
     metadata {
         rarity = Rarity.UNCOMMON

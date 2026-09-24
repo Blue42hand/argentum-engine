@@ -1,11 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
 
 /**
  * Descendant of Storms — Tarkir: Dragonstorm #8
@@ -29,7 +27,7 @@ val DescendantOfStorms = card("Descendant of Storms") {
     triggeredAbility {
         trigger = Triggers.Attacks
         effect = Effects.MayPay(
-            cost = PayManaCostEffect(ManaCost.parse("{1}{W}")),
+            cost = Effects.PayMana("{1}{W}"),
             then = Effects.Endure(1)
         )
         description = "Whenever this creature attacks, you may pay {1}{W}. If you do, it endures 1."

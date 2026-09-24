@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -52,7 +50,7 @@ val PracticedOffense = card("Practiced Offense") {
             // Put a +1/+1 counter on each creature the target player controls.
             Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.targetPlayerControls(player)),
-                effect = AddCountersEffect(
+                effect = Effects.AddCounters(
                     counterType = CounterType.PLUS_ONE_PLUS_ONE,
                     count = 1,
                     target = EffectTarget.IterationEntity,
@@ -61,11 +59,11 @@ val PracticedOffense = card("Practiced Offense") {
             // Target creature gains your choice of double strike or lifelink until end of turn.
             ModalEffect.chooseOne(
                 Mode.noTarget(
-                    GrantKeywordEffect(Keyword.DOUBLE_STRIKE, creature, Duration.EndOfTurn),
+                    Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, creature, Duration.EndOfTurn),
                     "Double strike",
                 ),
                 Mode.noTarget(
-                    GrantKeywordEffect(Keyword.LIFELINK, creature, Duration.EndOfTurn),
+                    Effects.GrantKeyword(Keyword.LIFELINK, creature, Duration.EndOfTurn),
                     "Lifelink",
                 ),
                 countsAsModalSpell = false,

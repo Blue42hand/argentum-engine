@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.AddDynamicCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -56,7 +55,7 @@ val JenovaAncientCalamity = card("Jenova, Ancient Calamity") {
             TargetCreature(optional = true, filter = TargetFilter.OtherCreature)
         )
         effect = Effects.Composite(listOf(
-            AddDynamicCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, DynamicAmounts.sourcePower(), t),
+            Effects.AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE, DynamicAmounts.sourcePower(), t),
             Effects.AddCreatureType("Mutant", t)
         ))
     }

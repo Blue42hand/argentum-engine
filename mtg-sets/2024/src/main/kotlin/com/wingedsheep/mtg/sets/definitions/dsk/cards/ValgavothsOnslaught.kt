@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.RepeatDynamicTimesEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -46,7 +45,7 @@ val ValgavothsOnslaught = card("Valgavoth's Onslaught") {
 
     spell {
         effect = Effects.Pipeline {
-            run(RepeatDynamicTimesEffect(
+            run(Effects.Repeat(
                 amount = DynamicAmount.XValue,
                 body = Patterns.Library.manifestDread(markEntered = true)
             ))

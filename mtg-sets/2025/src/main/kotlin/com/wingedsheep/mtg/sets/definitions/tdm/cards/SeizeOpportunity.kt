@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
@@ -42,8 +41,8 @@ val SeizeOpportunity = card("Seize Opportunity") {
             ),
             // Up to two target creatures each get +2/+1 until end of turn.
             Mode(
-                effect = ForEachTargetEffect(
-                    listOf(Effects.ModifyStats(2, 1, EffectTarget.ContextTarget(0)))
+                effect = Effects.ForEachTarget(
+                    Effects.ModifyStats(2, 1, EffectTarget.ContextTarget(0))
                 ),
                 targetRequirements = listOf(Targets.UpToCreatures(2)),
                 description = "Up to two target creatures each get +2/+1 until end of turn"

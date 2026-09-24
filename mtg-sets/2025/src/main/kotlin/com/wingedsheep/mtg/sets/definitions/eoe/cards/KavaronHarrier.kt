@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Step
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
  * Kavaron Harrier
@@ -28,7 +27,7 @@ val KavaronHarrier = card("Kavaron Harrier") {
         trigger = Triggers.Attacks
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}"),
-            then = CreateTokenEffect(
+            then = Effects.CreateToken(
                 power = 2,
                 toughness = 2,
                 colors = setOf(), // colorless

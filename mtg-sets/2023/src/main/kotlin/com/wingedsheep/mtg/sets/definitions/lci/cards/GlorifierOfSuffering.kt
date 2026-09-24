@@ -5,8 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -44,7 +42,7 @@ val GlorifierOfSuffering = card("Glorifier of Suffering") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.Pipeline {
                 val toSacrifice = selectTarget(
                     TargetObject(
@@ -54,8 +52,8 @@ val GlorifierOfSuffering = card("Glorifier of Suffering") {
                 run(Effects.SacrificeTarget(toSacrifice.asTarget))
             },
             optional = true,
-            reflexiveEffect = ForEachTargetEffect(
-                listOf(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
+            reflexiveEffect = Effects.ForEachTarget(
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
             ),
             reflexiveTargetRequirements = listOf(TargetCreature(count = 2, optional = true)),
             descriptionOverride = "You may sacrifice another creature or artifact. When you do, put a +1/+1 counter on each of up to two target creatures."

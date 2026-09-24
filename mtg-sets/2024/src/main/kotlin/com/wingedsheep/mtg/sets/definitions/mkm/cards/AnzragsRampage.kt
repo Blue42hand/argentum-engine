@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -89,7 +88,7 @@ val AnzragsRampage = card("Anzrag's Rampage") {
                     entered,
                     Effects.Composite(
                         Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.Permanent),
-                        CreateDelayedTriggerEffect(
+                        Effects.CreateDelayedTrigger(
                             step = Step.END,
                             effect = Effects.Move(EffectTarget.IterationEntity, Zone.HAND),
                         ),

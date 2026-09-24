@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -50,7 +49,7 @@ val KataraBendingProdigy = card("Katara, Bending Prodigy") {
     activatedAbility {
         cost = Costs.Mana("{6}")
         hasWaterbend = true
-        effect = DrawCardsEffect(1)
+        effect = Effects.DrawCards(1)
     }
 
     metadata {

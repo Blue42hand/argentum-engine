@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -73,14 +71,14 @@ val FeralEncounter = card("Feral Encounter") {
             exile(feralExiled)
             toLibraryBottom(feralRest, order = CardOrder.Random)
             run(Effects.GrantMayPlayFromExile(feralExiled))
-            run(CreateDelayedTriggerEffect(
+            run(Effects.CreateDelayedTrigger(
                 step = Step.BEGIN_COMBAT,
                 timing = DelayedTriggerTiming.THIS_TURN_ONLY,
                 targetRequirement = TargetCreature(filter = TargetFilter.Creature.youControl()),
                 additionalTargetRequirements = listOf(
                     TargetCreature(optional = true, filter = TargetFilter.Creature.opponentControls())
                 ),
-                effect = DealDamageEffect(
+                effect = Effects.DealDamage(
                     DynamicAmounts.targetPower(0),
                     EffectTarget.ContextTarget(1),
                     damageSource = EffectTarget.ContextTarget(0)

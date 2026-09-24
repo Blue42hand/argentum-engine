@@ -2,13 +2,13 @@ package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.conditions.EnchantedCreatureHasSubtype
@@ -38,7 +38,7 @@ val LavamancersSkill = card("Lavamancer's Skill") {
             ability = ActivatedAbility(
                 id = AbilityId.generate(),
                 cost = Costs.Tap,
-                effect = DealDamageEffect(
+                effect = Effects.DealDamage(
                     amount = DynamicAmount.Conditional(
                         condition = EnchantedCreatureHasSubtype(Subtype("Wizard")),
                         ifTrue = DynamicAmount.Fixed(2),

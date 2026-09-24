@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantCardType
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -42,7 +41,7 @@ val ExtinguisherBattleship = card("Extinguisher Battleship") {
                 Effects.Destroy(target),
                 Effects.ForEachInGroup(
                     filter = GroupFilter.AllCreatures,
-                    effect = DealDamageEffect(4, EffectTarget.IterationEntity)
+                    effect = Effects.DealDamage(4, EffectTarget.IterationEntity)
                 )
             )
         )

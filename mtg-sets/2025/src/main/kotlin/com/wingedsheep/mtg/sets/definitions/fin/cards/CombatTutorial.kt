@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
@@ -30,8 +28,8 @@ val CombatTutorial = card("Combat Tutorial") {
         val t1 = target("t1", TargetPlayer())
         val t2 = target("t2", TargetCreature(optional = true, filter = TargetFilter.Creature.youControl()))
         effect = Effects.Composite(
-            DrawCardsEffect(2, t1),
-            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t2)
+            Effects.DrawCards(2, t1),
+            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t2)
         )
     }
     metadata {

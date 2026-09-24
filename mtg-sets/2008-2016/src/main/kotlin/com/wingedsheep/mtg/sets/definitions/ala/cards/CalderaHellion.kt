@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDevour
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -47,7 +46,7 @@ val CalderaHellion = card("Caldera Hellion") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature),
-            DealDamageEffect(3, EffectTarget.IterationEntity)
+            Effects.DealDamage(3, EffectTarget.IterationEntity)
         )
     }
 

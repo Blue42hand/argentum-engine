@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.effects.AttachEquipmentEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -34,7 +33,7 @@ val Hylderblade = card("Hylderblade") {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.Void
         val creature = target("target creature you control", Targets.CreatureYouControl)
-        effect = AttachEquipmentEffect(target = creature)
+        effect = Effects.AttachEquipment(target = creature)
     }
 
     equipAbility("{4}")

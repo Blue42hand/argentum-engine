@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 
 /**
  * Pinpoint Avalanche
@@ -20,7 +20,7 @@ val PinpointAvalanche = card("Pinpoint Avalanche") {
 
     spell {
         val t = target("target", Targets.Creature)
-        effect = DealDamageEffect(4, t, cantBePrevented = true)
+        effect = Effects.DealDamage(4, t, cantBePrevented = true)
     }
 
     metadata {

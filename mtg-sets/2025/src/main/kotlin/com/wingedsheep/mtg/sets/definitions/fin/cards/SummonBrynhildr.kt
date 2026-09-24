@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.references.Player
@@ -101,7 +100,7 @@ val SummonBrynhildr = card("Summon: Brynhildr") {
  * Gestalt Mode — install a one-shot delayed trigger that grants haste to your next creature spell
  * cast this turn. Shared by chapters II and III.
  */
-private fun gestaltMode() = CreateDelayedTriggerEffect(
+private fun gestaltMode() = Effects.CreateDelayedTrigger(
     trigger = TriggerSpec(
         event = EventPattern.SpellCastEvent(
             spellFilter = GameObjectFilter.Creature,

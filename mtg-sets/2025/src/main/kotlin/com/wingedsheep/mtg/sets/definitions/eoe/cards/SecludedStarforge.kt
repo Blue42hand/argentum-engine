@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -40,7 +38,7 @@ val SecludedStarforge = card("Secluded Starforge") {
             Costs.TapXPermanents(GameObjectFilter.Artifact)
         )
         val target = target("target creature", Targets.Creature)
-        effect = ModifyStatsEffect(DynamicAmount.XValue, DynamicAmount.Fixed(0), target, Duration.EndOfTurn)
+        effect = Effects.ModifyStats(DynamicAmount.XValue, DynamicAmount.Fixed(0), target, Duration.EndOfTurn)
         timing = TimingRule.SorcerySpeed
     }
 
@@ -50,7 +48,7 @@ val SecludedStarforge = card("Secluded Starforge") {
             Costs.Mana("{5}"),
             Costs.Tap
         )
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 2,
             toughness = 2,
             colors = setOf(), // colorless

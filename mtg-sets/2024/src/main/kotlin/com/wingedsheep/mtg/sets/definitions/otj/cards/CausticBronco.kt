@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -53,11 +52,11 @@ val CausticBronco = card("Caustic Bronco") {
             toHand(revealed, revealed = true)
             run(Effects.If(
                 condition = Conditions.SourceIsSaddled,
-                then = LoseLifeEffect(
+                then = Effects.LoseLife(
                     DynamicAmounts.manaValueOf(revealed),
                     EffectTarget.PlayerRef(Player.EachOpponent)
                 ),
-                otherwise = LoseLifeEffect(
+                otherwise = Effects.LoseLife(
                     DynamicAmounts.manaValueOf(revealed),
                     EffectTarget.Controller
                 )

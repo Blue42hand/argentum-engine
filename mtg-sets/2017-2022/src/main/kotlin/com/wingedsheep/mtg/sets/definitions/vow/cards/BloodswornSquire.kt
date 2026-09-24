@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.SetBasePowerToughnessDynamicStatic
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -55,7 +54,7 @@ private val BloodswornSquireFront = card("Bloodsworn Squire") {
             Effects.Tap(EffectTarget.Self),
             Effects.If(
                 condition = Conditions.CreatureCardsInGraveyardAtLeast(4),
-                then = TransformEffect(EffectTarget.Self),
+                then = Effects.Transform(EffectTarget.Self),
             ),
         )
         description = "This creature gains indestructible until end of turn. Tap it. Then if there " +

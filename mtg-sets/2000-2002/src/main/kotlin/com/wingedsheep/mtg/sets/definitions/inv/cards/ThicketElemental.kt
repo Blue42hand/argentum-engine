@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.effects.CardDestination
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -45,7 +44,7 @@ val ThicketElemental = card("Thicket Elemental") {
                 // battlefield in the same update).
                 reveal(allRevealed, fromZone = Zone.LIBRARY, toZone = Zone.BATTLEFIELD)
                 move(found, CardDestination.ToZone(Zone.BATTLEFIELD))
-                run(ShuffleLibraryEffect())
+                run(Effects.ShuffleLibrary())
             }
         )
     }

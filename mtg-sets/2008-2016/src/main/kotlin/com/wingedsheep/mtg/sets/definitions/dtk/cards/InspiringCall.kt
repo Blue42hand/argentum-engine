@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -30,7 +29,7 @@ val InspiringCall = card("Inspiring Call") {
     oracleText = "Draw a card for each creature you control with a +1/+1 counter on it. Those creatures gain indestructible until end of turn. (Damage and effects that say \"destroy\" don't destroy them.)"
     spell {
         effect = Effects.Composite(
-            DrawCardsEffect(DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature)),
+            Effects.DrawCards(DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature)),
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withCounter(CounterType.PLUS_ONE_PLUS_ONE).youControl()),
                 Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)

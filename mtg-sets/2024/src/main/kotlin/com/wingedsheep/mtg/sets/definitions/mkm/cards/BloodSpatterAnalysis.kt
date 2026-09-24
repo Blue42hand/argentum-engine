@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -79,7 +78,7 @@ val BloodSpatterAnalysis = card("Blood Spatter Analysis") {
             .then(
                 Effects.If(
                     condition = Conditions.SourceCounterCountAtLeast(CounterType.BLOODSTAIN, 5),
-                    then = ReflexiveTriggerEffect(
+                    then = Effects.ReflexiveTrigger(
                         action = Effects.SacrificeTarget(EffectTarget.Self),
                         optional = false,
                         reflexiveEffect = Effects.ReturnToHand(EffectTarget.ContextTarget(0)),

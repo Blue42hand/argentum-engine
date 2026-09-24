@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 private val ChaliceOfLifeFront = card("Chalice of Life") {
@@ -23,7 +22,7 @@ private val ChaliceOfLifeFront = card("Chalice of Life") {
             Effects.GainLife(1),
             Effects.If(
                 condition = Conditions.LifeAboveStartingBy(10),
-                then = TransformEffect(EffectTarget.Self),
+                then = Effects.Transform(EffectTarget.Self),
             ),
         )
         description = "Gain 1 life, then transform Chalice of Life if you have at least 10 life " +

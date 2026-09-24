@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ForceSacrificeEffect
 
 /**
  * Gatekeeper of Malakir
@@ -34,7 +33,7 @@ val GatekeeperOfMalakir = card("Gatekeeper of Malakir") {
         trigger = Triggers.EntersBattlefield
         interveningIf = WasKicked
         val player = target("target player", Targets.Player)
-        effect = ForceSacrificeEffect(GameObjectFilter.Creature, 1, player)
+        effect = Effects.Sacrifice(GameObjectFilter.Creature, 1, player)
     }
 
     metadata {

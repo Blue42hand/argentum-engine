@@ -6,10 +6,8 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 
 /**
  * Vision of Love (MSH #158) — {1}{R} Instant
@@ -36,11 +34,11 @@ val VisionOfLove = card("Vision of Love") {
 
     spell {
         effect = Effects.May(
-            effect = ChooseActionEffect(
+            effect = Effects.ChooseAction(
                 choices = listOf(
                     EffectChoice(
                         label = "Sacrifice an artifact",
-                        effect = SacrificeEffect(filter = GameObjectFilter.Artifact) then
+                        effect = Effects.SacrificeOwn(filter = GameObjectFilter.Artifact) then
                             Effects.DrawCards(2),
                         feasibilityCheck = FeasibilityCheck.ControlsPermanentMatching(
                             filter = GameObjectFilter.Artifact

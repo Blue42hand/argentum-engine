@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -45,7 +44,7 @@ val CurseOfTheWerefox = card("Curse of the Werefox") {
         ) {
             val enchanted = gather(CardSource.ChosenTargets, name = "roleHost")
             run(
-                ReflexiveTriggerEffect(
+                Effects.ReflexiveTrigger(
                     action = Effects.CreateRoleToken("Monster Role", host),
                     optional = false,
                     reflexiveEffect = Effects.Fight(

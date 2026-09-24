@@ -4,9 +4,9 @@
 
 package com.wingedsheep.mtg.sets.definitions.lea.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CounterEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetSpell
 
@@ -24,7 +24,7 @@ val SpellBlast = card("Spell Blast") {
     oracleText = "Counter target spell with mana value X. (For example, if that spell's mana cost is {3}{U}{U}, X is 5.)"
     spell {
         val t = target("target", TargetSpell(filter = TargetFilter.SpellOnStack.manaValueEqualsX()))
-        effect = CounterEffect()
+        effect = Effects.CounterSpell()
     }
     metadata {
         rarity = Rarity.COMMON

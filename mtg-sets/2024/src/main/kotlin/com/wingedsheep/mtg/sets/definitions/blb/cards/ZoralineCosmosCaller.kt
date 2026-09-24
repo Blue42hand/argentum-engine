@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -12,9 +11,6 @@ import com.wingedsheep.sdk.scripting.EventPattern.AttackEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.PayLifeEffect
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -90,10 +86,10 @@ val ZoralineCosmosCaller = card("Zoraline, Cosmos Caller") {
  */
 private fun zoralineReanimateEffect() = Effects.MayPay(
     cost = Effects.Composite(
-        PayManaCostEffect(ManaCost.parse("{W}{B}")),
-        PayLifeEffect(2)
+        Effects.PayMana("{W}{B}"),
+        Effects.PayLife(2)
     ),
-    then = ReflexiveTriggerEffect(
+    then = Effects.ReflexiveTrigger(
         action = Effects.Composite(emptyList()),
         optional = false,
         reflexiveTargetRequirements = listOf(

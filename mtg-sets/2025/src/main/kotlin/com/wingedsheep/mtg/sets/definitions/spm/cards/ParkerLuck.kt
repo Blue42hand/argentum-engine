@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
@@ -50,11 +49,11 @@ val ParkerLuck = card("Parker Luck") {
             val revealedB = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.ContextPlayer(1)))
             reveal(revealedB)
             // Each loses life equal to the mana value of the OTHER player's revealed card.
-            run(LoseLifeEffect(
+            run(Effects.LoseLife(
                 DynamicAmounts.manaValueOf(revealedB),
                 EffectTarget.ContextTarget(0),
             ))
-            run(LoseLifeEffect(
+            run(Effects.LoseLife(
                 DynamicAmounts.manaValueOf(revealedA),
                 EffectTarget.ContextTarget(1),
             ))

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
  * Goblinslide
@@ -26,7 +25,7 @@ val Goblinslide = card("Goblinslide") {
         trigger = Triggers.YouCastNoncreature
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
-            then = CreateTokenEffect(
+            then = Effects.CreateToken(
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.RED),

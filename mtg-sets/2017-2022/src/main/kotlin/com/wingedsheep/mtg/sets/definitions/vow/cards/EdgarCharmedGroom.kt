@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -94,7 +93,7 @@ private val EdgarMarkovsCoffin = card("Edgar Markov's Coffin") {
                 condition = Conditions.SourceCounterCountAtLeast(CounterType.BLOODLINE, 3),
                 then = Effects.Composite(
                     Effects.RemoveCounters(CounterType.BLOODLINE, 3, EffectTarget.Self),
-                    TransformEffect(EffectTarget.Self),
+                    Effects.Transform(EffectTarget.Self),
                 ),
             ),
         )

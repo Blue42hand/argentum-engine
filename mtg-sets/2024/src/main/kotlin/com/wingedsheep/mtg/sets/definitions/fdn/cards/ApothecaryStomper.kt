@@ -6,11 +6,10 @@ package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -40,7 +39,7 @@ val ApothecaryStomper = card("Apothecary Stomper") {
         trigger = Triggers.EntersBattlefield
         effect = ModalEffect.chooseOne(
             Mode.withTarget(
-                AddCountersEffect(
+                Effects.AddCounters(
                     counterType = CounterType.PLUS_ONE_PLUS_ONE,
                     count = 2,
                     target = EffectTarget.ContextTarget(0)
@@ -48,7 +47,7 @@ val ApothecaryStomper = card("Apothecary Stomper") {
                 TargetCreature(filter = TargetFilter.Creature.youControl()),
                 "Put two +1/+1 counters on target creature you control"
             ),
-            Mode.noTarget(GainLifeEffect(4), "You gain 4 life")
+            Mode.noTarget(Effects.GainLife(4), "You gain 4 life")
         )
     }
     metadata {

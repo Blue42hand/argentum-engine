@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBlock
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CantBlockEffect
 
 /**
  * Blood Hypnotist
@@ -42,7 +42,7 @@ val BloodHypnotist = card("Blood Hypnotist") {
         trigger = Triggers.YouSacrificeOneOrMore(GameObjectFilter.Artifact.withSubtype("Blood"))
         oncePerTurn = true
         val creature = target("creature", Targets.Creature)
-        effect = CantBlockEffect(target = creature)
+        effect = Effects.CantBlock(target = creature)
     }
 
     metadata {

@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -24,9 +23,9 @@ val TheBlackBreath = card("The Black Breath") {
     spell {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesOpponentsControl,
-            effect = ModifyStatsEffect(
-                powerModifier = -1,
-                toughnessModifier = -1,
+            effect = Effects.ModifyStats(
+                power = -1,
+                toughness = -1,
                 target = EffectTarget.IterationEntity,
                 duration = Duration.EndOfTurn
             )

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -45,14 +44,14 @@ val TabletOfDiscovery = card("Tablet of Discovery") {
 
     activatedAbility {
         cost = Costs.Tap
-        effect = AddManaEffect(Color.RED)
+        effect = Effects.AddMana(Color.RED)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }
 
     activatedAbility {
         cost = Costs.Tap
-        effect = AddManaEffect(Color.RED, amount = 2, restriction = ManaRestriction.InstantOrSorceryOnly)
+        effect = Effects.AddMana(Color.RED, amount = 2, restriction = ManaRestriction.InstantOrSorceryOnly)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

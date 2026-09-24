@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.eld.cards
 
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 
@@ -35,7 +35,7 @@ val KeeperOfFables = card("Keeper of Fables") {
             binding = TriggerBinding.ANY,
             batch = true,
         )
-        effect = DrawCardsEffect(1)
+        effect = Effects.DrawCards(1)
         description = "Whenever one or more non-Human creatures you control deal combat damage to a " +
             "player, draw a card."
     }

@@ -3,11 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.scg.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -33,7 +32,7 @@ val DragonTyrant = card("Dragon Tyrant") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = PayOrSufferEffect(
+        effect = Effects.PayOrSuffer(
             cost = Costs.pay.Mana(ManaCost.parse("{R}{R}{R}{R}")),
             suffer = SacrificeSelfEffect
         )
@@ -41,7 +40,7 @@ val DragonTyrant = card("Dragon Tyrant") {
 
     activatedAbility {
         cost = Costs.Mana("{R}")
-        effect = ModifyStatsEffect(1, 0, EffectTarget.Self)
+        effect = Effects.ModifyStats(1, 0, EffectTarget.Self)
     }
 
     metadata {

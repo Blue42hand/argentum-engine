@@ -5,9 +5,9 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -29,7 +29,7 @@ val SoldierReplica = card("Soldier Replica") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{W}"), Costs.SacrificeSelf)
         val t = target("target", TargetCreature(filter = TargetFilter.AttackingOrBlockingCreature))
-        effect = DealDamageEffect(3, t)
+        effect = Effects.DealDamage(3, t)
     }
     metadata {
         rarity = Rarity.COMMON

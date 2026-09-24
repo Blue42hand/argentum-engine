@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -60,7 +59,7 @@ private val VisageOfDreadFront = card("Visage of Dread") {
         trigger = Triggers.EntersBattlefield
         val opponent = target("opponent", Targets.Opponent)
         effect = Effects.Pipeline {
-            run(RevealHandEffect(opponent))
+            run(Effects.RevealHand(opponent))
             val revealedHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
             val chosenCard = chooseExactly(
                 1,

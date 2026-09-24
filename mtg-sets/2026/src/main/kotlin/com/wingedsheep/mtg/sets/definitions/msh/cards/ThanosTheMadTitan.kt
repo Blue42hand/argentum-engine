@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -53,7 +52,7 @@ val ThanosTheMadTitan = card("Thanos, the Mad Titan") {
         cost = Costs.Mana("{C}{W}{U}{B}{R}{G}")
         effect = Effects.Composite(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self),
-            ModalEffect(
+            Effects.Modal(
                 modes = listOf(
                     Mode.noTarget(
                         effect = Effects.DestroyAll(

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 
 /**
  * Sokka's Haiku
@@ -32,7 +31,7 @@ val SokkasHaiku = card("Sokka's Haiku") {
         effect = Effects.CounterSpell() then
             Effects.DrawCards(1) then
             Patterns.Library.mill(3) then
-            TapUntapEffect(target = land, tap = false)
+            Effects.Untap(target = land)
     }
 
     metadata {

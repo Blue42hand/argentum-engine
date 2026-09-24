@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -74,8 +73,8 @@ val ProfaneCommand = card("Profane Command") {
                     "X target creatures",
                     TargetCreature(optional = true, dynamicMaxCount = DynamicAmount.XValue)
                 )
-                effect = ForEachTargetEffect(
-                    listOf(Effects.GrantKeyword(Keyword.FEAR, EffectTarget.ContextTarget(0)))
+                effect = Effects.ForEachTarget(
+                    Effects.GrantKeyword(Keyword.FEAR, EffectTarget.ContextTarget(0))
                 )
             }
         }

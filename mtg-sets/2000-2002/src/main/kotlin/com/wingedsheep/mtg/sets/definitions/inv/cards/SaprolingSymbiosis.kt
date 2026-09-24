@@ -2,11 +2,11 @@ package com.wingedsheep.mtg.sets.definitions.inv.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -33,7 +33,7 @@ val SaprolingSymbiosis = card("Saproling Symbiosis") {
     keywordAbility(KeywordAbility.flashKicker("{2}"))
 
     spell {
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             count = DynamicAmount.Count(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature),
             power = 1,
             toughness = 1,

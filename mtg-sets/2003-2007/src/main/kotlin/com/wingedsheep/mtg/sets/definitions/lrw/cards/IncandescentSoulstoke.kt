@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -80,7 +79,7 @@ val IncandescentSoulstoke = card("Incandescent Soulstoke") {
                     target = putting.asTarget,
                     duration = Duration.EndOfTurn
                 ))
-                run(CreateDelayedTriggerEffect(
+                run(Effects.CreateDelayedTrigger(
                     step = Step.END,
                     effect = Effects.SacrificeTarget(putting.asTarget)
                 ))

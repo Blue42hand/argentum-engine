@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.PayLifeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -45,7 +44,7 @@ val MoonlightBargain = card("Moonlight Bargain") {
                 Effects.ForEachInCollection(
                     looked,
                     Effects.MayPay(
-                        cost = PayLifeEffect(2),
+                        cost = Effects.PayLife(2),
                         then = Effects.Move(EffectTarget.IterationEntity, Zone.HAND, fromZone = Zone.LIBRARY),
                         otherwise = Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, fromZone = Zone.LIBRARY),
                         descriptionOverride = "Pay 2 life to put this card into your hand? " +

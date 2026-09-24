@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.BecomeArtifactEffect
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
@@ -80,7 +79,7 @@ val SupperForSpiders = card("Supper for Spiders") {
             run(
                 Effects.ForEachInCollection(
                     collection = fallen,
-                    effect = BecomeArtifactEffect(
+                    effect = Effects.BecomeArtifact(
                         target = EffectTarget.IterationEntity,
                         cardTypes = setOf("ARTIFACT"),
                         subtypes = setOf(Subtype.FOOD.value),

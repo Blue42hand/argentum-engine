@@ -1,18 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -46,9 +42,9 @@ val Anthropede = card("Anthropede") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             // "you may discard a card or pay {2}"
-            action = ChooseActionEffect(
+            action = Effects.ChooseAction(
                 choices = listOf(
                     EffectChoice(
                         label = "Discard a card",
@@ -57,7 +53,7 @@ val Anthropede = card("Anthropede") {
                     ),
                     EffectChoice(
                         label = "Pay {2}",
-                        effect = PayManaCostEffect(ManaCost.parse("{2}"))
+                        effect = Effects.PayMana("{2}")
                     )
                 )
             ),

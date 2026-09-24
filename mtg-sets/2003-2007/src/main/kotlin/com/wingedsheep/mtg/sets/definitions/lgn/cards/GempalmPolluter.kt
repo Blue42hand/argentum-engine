@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 
 /**
  * Gempalm Polluter
@@ -33,7 +32,7 @@ val GempalmPolluter = card("Gempalm Polluter") {
         trigger = Triggers.YouCycleThis
         val player = target("target player", Targets.Player)
         effect = Effects.May(
-            LoseLifeEffect(
+            Effects.LoseLife(
                 DynamicAmounts.permanentsWithSubtype(Subtype("Zombie")),
                 player
             )

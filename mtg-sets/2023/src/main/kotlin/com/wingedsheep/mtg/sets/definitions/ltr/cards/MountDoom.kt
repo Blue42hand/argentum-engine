@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddManaOfChoiceEffect
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -36,7 +35,7 @@ val MountDoom = card("Mount Doom") {
     // {T}, Pay 1 life: Add {B} or {R}.
     activatedAbility {
         cost = Costs.Composite(Costs.Tap, Costs.PayLife(1))
-        effect = AddManaOfChoiceEffect(ManaColorSet.Specific(setOf(Color.BLACK, Color.RED)))
+        effect = Effects.AddManaOfChoice(ManaColorSet.Specific(setOf(Color.BLACK, Color.RED)))
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

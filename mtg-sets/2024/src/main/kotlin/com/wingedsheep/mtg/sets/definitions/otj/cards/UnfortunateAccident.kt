@@ -8,9 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -38,7 +36,7 @@ val UnfortunateAccident = card("Unfortunate Accident") {
         "control gets +1/+0 until end of turn. Activate only as a sorcery.\""
 
     spell {
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 Mode(
                     effect = Effects.Destroy(EffectTarget.ContextTarget(0)),
@@ -47,7 +45,7 @@ val UnfortunateAccident = card("Unfortunate Accident") {
                     additionalManaCost = "{2}{B}"
                 ),
                 Mode(
-                    effect = CreateTokenEffect(
+                    effect = Effects.CreateToken(
                         count = DynamicAmount.Fixed(1),
                         power = 1,
                         toughness = 1,

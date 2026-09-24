@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -86,7 +85,7 @@ val NickFuryAgentOfShield = card("Nick Fury, Agent of S.H.I.E.L.D.") {
             run(Effects.If(
                 condition = whenMatches(furyEntered, Filters.DoubleFaced),
                 then = Effects.May(
-                    Effects.ForEachInCollection(furyEntered, TransformEffect(EffectTarget.IterationEntity)),
+                    Effects.ForEachInCollection(furyEntered, Effects.Transform(EffectTarget.IterationEntity)),
                     descriptionOverride = "transform it"
                 )
             ))

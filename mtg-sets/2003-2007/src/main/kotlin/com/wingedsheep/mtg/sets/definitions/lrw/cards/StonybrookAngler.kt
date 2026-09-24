@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 
 /**
  * Stonybrook Angler
@@ -35,10 +33,10 @@ val StonybrookAngler = card("Stonybrook Angler") {
         cost = Costs.Composite(Costs.Mana("{1}{U}"), Costs.Tap)
         val creature = target("target creature", Targets.Creature)
         effect = Effects.May(
-            ModalEffect(
+            Effects.Modal(
                 modes = listOf(
-                    Mode.noTarget(TapUntapEffect(creature, tap = true), "Tap that creature"),
-                    Mode.noTarget(TapUntapEffect(creature, tap = false), "Untap that creature")
+                    Mode.noTarget(Effects.Tap(creature), "Tap that creature"),
+                    Mode.noTarget(Effects.Untap(creature), "Untap that creature")
                 ),
                 chooseCount = 1,
                 countsAsModalSpell = false

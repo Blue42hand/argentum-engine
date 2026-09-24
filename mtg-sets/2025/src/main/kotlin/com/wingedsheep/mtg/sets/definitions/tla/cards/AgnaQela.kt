@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.conditions.Exists
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -44,7 +43,7 @@ val AgnaQela = card("Agna Qel'a") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{U}"), Costs.Tap)
         effect = Effects.Composite(
-            DrawCardsEffect(1),
+            Effects.DrawCards(1),
             Patterns.Hand.discardCards(1)
         )
         description = "{2}{U}, {T}: Draw a card, then discard a card."

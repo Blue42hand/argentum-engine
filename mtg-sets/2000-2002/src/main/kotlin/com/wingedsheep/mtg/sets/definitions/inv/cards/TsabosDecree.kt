@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ChooseCreatureTypeEffect
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
-import com.wingedsheep.sdk.scripting.effects.CantBeRegeneratedEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -41,7 +39,7 @@ val TsabosDecree = card("Tsabo's Decree") {
         effect = Effects.Pipeline {
             run(ChooseCreatureTypeEffect)
             // Target player reveals their hand and discards all creature cards of that type.
-            run(RevealHandEffect(targetPlayer))
+            run(Effects.RevealHand(targetPlayer))
             val tsaboHand = gather(
                 CardSource.FromZone(
                     zone = Zone.HAND,
@@ -59,7 +57,7 @@ val TsabosDecree = card("Tsabo's Decree") {
                 ),
                 effect = Effects.Composite(
                     listOf(
-                        CantBeRegeneratedEffect(EffectTarget.IterationEntity),
+                        Effects.CantBeRegenerated(EffectTarget.IterationEntity),
                         Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, byDestruction = true),
                     ),
                 ),

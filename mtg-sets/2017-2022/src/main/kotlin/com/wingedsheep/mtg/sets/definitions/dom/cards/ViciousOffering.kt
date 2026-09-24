@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.dsl.Costs
@@ -32,8 +31,8 @@ val ViciousOffering = card("Vicious Offering") {
         val t = target("target", Targets.Creature)
         effect = Effects.If(
             condition = WasKicked,
-            then = ModifyStatsEffect(-5, -5, t, Duration.EndOfTurn),
-            otherwise = ModifyStatsEffect(-2, -2, t, Duration.EndOfTurn)
+            then = Effects.ModifyStats(-5, -5, t, Duration.EndOfTurn),
+            otherwise = Effects.ModifyStats(-2, -2, t, Duration.EndOfTurn)
         )
     }
 

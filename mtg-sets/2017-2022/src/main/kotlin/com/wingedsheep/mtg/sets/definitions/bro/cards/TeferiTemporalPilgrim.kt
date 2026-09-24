@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -57,7 +56,7 @@ val TeferiTemporalPilgrim = card("Teferi, Temporal Pilgrim") {
     // −2: Create a 2/2 blue Spirit creature token with vigilance and
     //     "Whenever you draw a card, put a +1/+1 counter on this token."
     loyaltyAbility(-2) {
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 2,
             toughness = 2,
             colors = setOf(Color.BLUE),

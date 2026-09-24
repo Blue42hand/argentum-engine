@@ -1,13 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
+import com.wingedsheep.sdk.dsl.CollectionSlot
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.IterationSpace
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -50,9 +48,9 @@ val KambalProfiteeringMayor = card("Kambal, Profiteering Mayor") {
     triggeredAbility {
         trigger = Triggers.OneOrMoreOpponentPermanentsEnter(GameObjectFilter.Token)
         oncePerTurn = true
-        effect = ForEachInCollectionEffect(
-            collection = IterationSpace.TRIGGER_CAPTURED_COLLECTION,
-            effect = CreateTokenCopyOfTargetEffect(target = EffectTarget.IterationEntity, tapped = true)
+        effect = Effects.ForEachInCollection(
+            collection = CollectionSlot.TriggerCaptured,
+            effect = Effects.CreateTokenCopyOfTarget(target = EffectTarget.IterationEntity, tapped = true)
         )
     }
 

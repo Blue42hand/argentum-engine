@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
@@ -56,15 +54,13 @@ val TheDeathOfGwenStacy = card("The Death of Gwen Stacy") {
 
     // II — Each player may discard a card. Each player who doesn't loses 3 life.
     sagaChapter(2) {
-        effect = ForEachPlayerEffect(
+        effect = Effects.ForEachPlayer(
             players = Player.Each,
-            effects = listOf(
-                Effects.May(
-                    effect = Effects.Discard(1, EffectTarget.Controller),
-                    otherwise = Effects.LoseLife(3, EffectTarget.Controller),
-                    descriptionOverride = "You may discard a card. If you don't, you lose 3 life.",
-                    feasibility = FeasibilityCheck.HasCardsInZone(Zone.HAND)
-                )
+            effect = Effects.May(
+                effect = Effects.Discard(1, EffectTarget.Controller),
+                otherwise = Effects.LoseLife(3, EffectTarget.Controller),
+                descriptionOverride = "You may discard a card. If you don't, you lose 3 life.",
+                feasibility = FeasibilityCheck.HasCardsInZone(Zone.HAND)
             )
         )
     }
@@ -72,11 +68,11 @@ val TheDeathOfGwenStacy = card("The Death of Gwen Stacy") {
     // III — Exile any number of target players' graveyards.
     sagaChapter(3) {
         target("any number of target players", TargetPlayer(unlimited = true))
-        effect = ForEachTargetEffect(
-            effects = listOf(Effects.Pipeline {
-                val gwenTargetGraveyard = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.ContextPlayer(0)))
-                exile(gwenTargetGraveyard)
-            })
+        effect = Effects.ForEachTarget(
+            Effects.Pipeline {
+            val gwenTargetGraveyard = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.ContextPlayer(0)))
+            exile(gwenTargetGraveyard)
+        }
         )
     }
 

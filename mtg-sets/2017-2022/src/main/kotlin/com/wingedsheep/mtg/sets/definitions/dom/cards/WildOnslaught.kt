@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
@@ -23,11 +22,11 @@ val WildOnslaught = card("Wild Onslaught") {
             condition = WasKicked,
             then = Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreaturesYouControl,
-                effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.IterationEntity)
+                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.IterationEntity)
             ),
             otherwise = Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreaturesYouControl,
-                effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
+                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
             )
         )
     }

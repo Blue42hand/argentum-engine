@@ -7,9 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -58,7 +56,7 @@ val FelotharDawnOfTheAbzan = card("Felothar, Dawn of the Abzan") {
  * creature you control." Modeled as a reflexive trigger: the reflexive counter effect
  * happens only if the controller actually sacrifices.
  */
-private fun felotharSacrificeEffect(): Effect = ReflexiveTriggerEffect(
+private fun felotharSacrificeEffect(): Effect = Effects.ReflexiveTrigger(
     action = Effects.Sacrifice(
         filter = GameObjectFilter.NonlandPermanent,
         count = 1,
@@ -67,7 +65,7 @@ private fun felotharSacrificeEffect(): Effect = ReflexiveTriggerEffect(
     optional = true,
     reflexiveEffect = Effects.ForEachInGroup(
         filter = GroupFilter.AllCreaturesYouControl,
-        effect = AddCountersEffect(
+        effect = Effects.AddCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 1,
             target = EffectTarget.IterationEntity

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -51,7 +50,7 @@ val ThroughTheBreach = card("Through the Breach") {
                     target = putting.asTarget,
                     duration = Duration.Permanent
                 ))
-                run(CreateDelayedTriggerEffect(
+                run(Effects.CreateDelayedTrigger(
                     step = Step.END,
                     effect = Effects.SacrificeTarget(putting.asTarget)
                 ))

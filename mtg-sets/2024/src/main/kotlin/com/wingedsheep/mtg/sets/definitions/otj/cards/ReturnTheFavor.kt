@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 /**
@@ -41,7 +40,7 @@ val ReturnTheFavor = card("Return the Favor") {
         "+ {1} — Change the target of target spell or ability with a single target."
 
     spell {
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 // + {1} — Copy target instant/sorcery spell, activated ability, or triggered ability.
                 Mode(

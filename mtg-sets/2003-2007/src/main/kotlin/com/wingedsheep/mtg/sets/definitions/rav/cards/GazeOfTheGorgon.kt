@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -39,7 +38,7 @@ val GazeOfTheGorgon = card("Gaze of the Gorgon") {
         val gazer = target("target creature", Targets.Creature)
         effect = Effects.Composite(
             Effects.Regenerate(gazer),
-            CreateDelayedTriggerEffect(
+            Effects.CreateDelayedTrigger(
                 step = Step.END_COMBAT,
                 timing = DelayedTriggerTiming.THIS_TURN_ONLY,
                 watchedTarget = gazer,

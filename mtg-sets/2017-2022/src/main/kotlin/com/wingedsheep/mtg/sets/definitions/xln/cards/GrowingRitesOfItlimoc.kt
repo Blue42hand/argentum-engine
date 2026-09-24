@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardOrder
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -69,7 +68,7 @@ private val GrowingRitesOfItlimocFront = card("Growing Rites of Itlimoc") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.YouControlAtLeast(4, GameObjectFilter.Creature)
-        effect = TransformEffect(EffectTarget.Self)
+        effect = Effects.Transform(EffectTarget.Self)
         description = "At the beginning of your end step, if you control four or more " +
             "creatures, transform Growing Rites of Itlimoc."
     }

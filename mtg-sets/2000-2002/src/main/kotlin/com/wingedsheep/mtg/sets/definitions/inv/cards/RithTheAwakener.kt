@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -41,7 +40,7 @@ val RithTheAwakener = card("Rith, the Awakener") {
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}{G}"),
             then = Effects.ChooseColorThen(
-                then = CreateTokenEffect(
+                then = Effects.CreateToken(
                     count = DynamicAmount.AggregateBattlefield(
                         player = Player.Each,
                         filter = GameObjectFilter.Permanent.withChosenColor()

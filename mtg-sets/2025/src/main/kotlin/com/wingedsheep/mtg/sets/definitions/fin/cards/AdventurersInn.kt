@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 
 
 /**
@@ -22,7 +21,7 @@ val AdventurersInn = card("Adventurer's Inn") {
     oracleText = "When this land enters, you gain 2 life.\n{T}: Add {C}."
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = GainLifeEffect(2)
+        effect = Effects.GainLife(2)
     }
     activatedAbility {
         cost = Costs.Tap

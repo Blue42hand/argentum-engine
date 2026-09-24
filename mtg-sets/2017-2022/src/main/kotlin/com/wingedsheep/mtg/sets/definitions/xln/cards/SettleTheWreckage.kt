@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -84,7 +83,7 @@ val SettleTheWreckage = card("Settle the Wreckage") {
                                     ZonePlacement.Tapped
                                 )
                             )
-                            run(ShuffleLibraryEffect(EffectTarget.PlayerRef(Player.TargetPlayer)))
+                            run(Effects.ShuffleLibrary(EffectTarget.PlayerRef(Player.TargetPlayer)))
                         },
                         decisionMaker = EffectTarget.PlayerRef(Player.TargetPlayer),
                         descriptionOverride = "That player may search their library for that many " +

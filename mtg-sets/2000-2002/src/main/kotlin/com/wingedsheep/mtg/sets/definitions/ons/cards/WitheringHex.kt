@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
@@ -30,7 +30,7 @@ val WitheringHex = card("Withering Hex") {
 
     triggeredAbility {
         trigger = Triggers.AnyPlayerCycles
-        effect = AddCountersEffect(CounterType.PLAGUE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLAGUE, 1, EffectTarget.Self)
     }
 
     staticAbility {

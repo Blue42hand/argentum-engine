@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -34,11 +33,9 @@ val QuickbeamUpstartEnt = card("Quickbeam, Upstart Ent") {
             binding = TriggerBinding.ANY
         )
         target = TargetCreature(count = 2, optional = true)
-        effect = ForEachTargetEffect(
-            effects = listOf(
-                Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0)),
-                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.ContextTarget(0))
-            )
+        effect = Effects.ForEachTarget(
+            Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0)),
+            Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.ContextTarget(0))
         )
     }
 

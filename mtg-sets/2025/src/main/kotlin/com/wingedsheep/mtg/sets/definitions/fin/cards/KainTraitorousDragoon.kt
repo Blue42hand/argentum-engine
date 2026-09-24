@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.effects.GiveControlToTargetPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -57,7 +56,7 @@ val KainTraitorousDragoon = card("Kain, Traitorous Dragoon") {
         trigger = Triggers.DealsCombatDamageToPlayer
         val damageDealt = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)
         effect = Effects.IfYouDo(
-            action = GiveControlToTargetPlayerEffect(
+            action = Effects.GiveControl(
                 permanent = EffectTarget.Self,
                 newController = EffectTarget.PlayerRef(Player.TriggeringPlayer),
             ),

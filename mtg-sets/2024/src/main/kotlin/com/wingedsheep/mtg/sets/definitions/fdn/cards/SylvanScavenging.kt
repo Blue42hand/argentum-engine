@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -37,7 +36,7 @@ val SylvanScavenging = card("Sylvan Scavenging") {
         trigger = Triggers.YourEndStep
         effect = ModalEffect.chooseOne(
             Mode.withTarget(
-                AddCountersEffect(
+                Effects.AddCounters(
                     counterType = CounterType.PLUS_ONE_PLUS_ONE,
                     count = 1,
                     target = EffectTarget.ContextTarget(0)

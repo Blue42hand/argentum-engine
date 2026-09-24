@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -75,7 +74,7 @@ private val GrubNotoriousAuntie = card("Grub, Notorious Auntie") {
         trigger = Triggers.FirstMainPhase
         effect = Effects.MayPay(
             cost = ManaCost.parse("{B}"),
-            then = TransformEffect(EffectTarget.Self)
+            then = Effects.Transform(EffectTarget.Self)
         )
     }
 
@@ -121,7 +120,7 @@ private val GrubStoriedMatriarchFrontFace = card("Grub, Storied Matriarch") {
         trigger = Triggers.FirstMainPhase
         effect = Effects.MayPay(
             cost = ManaCost.parse("{R}"),
-            then = TransformEffect(EffectTarget.Self)
+            then = Effects.Transform(EffectTarget.Self)
         )
     }
 

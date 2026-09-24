@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -60,7 +59,7 @@ val FishingPole = card("Fishing Pole") {
                     Costs.Tap,
                     Costs.TapGrantingPermanent,
                 ),
-                effect = AddCountersEffect(CounterType.BAIT, 1, EffectTarget.GrantingSource),
+                effect = Effects.AddCounters(CounterType.BAIT, 1, EffectTarget.GrantingSource),
             )
             // filter defaults to GroupFilter.attachedCreature() — "equipped creature has ..."
         )

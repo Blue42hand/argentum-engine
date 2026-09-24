@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.hob.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -53,7 +52,7 @@ val ElrondMoonReader = card("Elrond, Moon-Reader") {
     triggeredAbility {
         trigger = Triggers.activatesAbilityOf(GameObjectFilter.Creature, includeManaAbilities = true)
         oncePerTurn = true
-        effect = DrawCardsEffect(1)
+        effect = Effects.DrawCards(1)
     }
 
     activatedAbility {
@@ -63,8 +62,8 @@ val ElrondMoonReader = card("Elrond, Moon-Reader") {
             optional = true,
             filter = TargetFilter.OtherNonlandPermanent.youControl()
         )
-        effect = ForEachTargetEffect(
-            listOf(Patterns.Exile.exileUntilEndStep(EffectTarget.ContextTarget(0)))
+        effect = Effects.ForEachTarget(
+            Patterns.Exile.exileUntilEndStep(EffectTarget.ContextTarget(0))
         )
     }
 

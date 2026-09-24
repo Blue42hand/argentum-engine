@@ -15,8 +15,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffect
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -93,9 +91,8 @@ private val SephirothOneWingedAngel = card("Sephiroth, One-Winged Angel") {
     // that many cards.
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = SacrificeEffect(
+        effect = Effects.SacrificeAnyNumber(
             filter = GameObjectFilter.Creature,
-            any = true,
             excludeSource = true,
         ).then(Effects.DrawCards(DynamicAmounts.permanentsSacrificedThisWay()))
         description = "Whenever Sephiroth attacks, you may sacrifice any number of other creatures. " +
@@ -126,7 +123,7 @@ private val SephirothFabledSoldierFrontFace = card("Sephiroth, Fabled SOLDIER") 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = Effects.MayPay(
-            cost = SacrificeEffect(
+            cost = Effects.SacrificeOwn(
                 filter = GameObjectFilter.Creature,
                 count = 1,
                 excludeSource = true,
@@ -139,7 +136,7 @@ private val SephirothFabledSoldierFrontFace = card("Sephiroth, Fabled SOLDIER") 
     triggeredAbility {
         trigger = Triggers.Attacks
         effect = Effects.MayPay(
-            cost = SacrificeEffect(
+            cost = Effects.SacrificeOwn(
                 filter = GameObjectFilter.Creature,
                 count = 1,
                 excludeSource = true,
@@ -168,7 +165,7 @@ private val SephirothFabledSoldierFrontFace = card("Sephiroth, Fabled SOLDIER") 
             .then(
                 Effects.If(
                     condition = Conditions.SourceAbilityResolvedNTimes(4),
-                    then = TransformEffect(EffectTarget.Self),
+                    then = Effects.Transform(EffectTarget.Self),
                 )
             )
         description = "Whenever another creature dies, target opponent loses 1 life and you gain 1 " +

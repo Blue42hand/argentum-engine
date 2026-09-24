@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.OnEnterRun
 import com.wingedsheep.sdk.scripting.effects.OptionType
-import com.wingedsheep.sdk.scripting.effects.PayLifeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -53,7 +52,7 @@ val MultiversalPassage = card("Multiversal Passage") {
                 ))
                 // Then you may pay 2 life. If you don't, it enters tapped.
                 run(Effects.MayPay(
-                    cost = PayLifeEffect(2),
+                    cost = Effects.PayLife(2),
                     then = Effects.Composite(),
                     otherwise = Effects.Tap(EffectTarget.Self),
                 ))

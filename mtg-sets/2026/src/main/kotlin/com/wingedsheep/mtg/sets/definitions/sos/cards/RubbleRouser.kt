@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -51,7 +50,7 @@ val RubbleRouser = card("Rubble Rouser") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Tap, Costs.ExileFromGraveyard(1))
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.AddMana(Color.RED),
             optional = false,
             reflexiveEffect = Effects.DealDamage(

@@ -5,8 +5,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -32,7 +30,7 @@ val VitalityCharm = card("Vitality Charm") {
     spell {
         modal(chooseCount = 1) {
             mode("Create a 1/1 green Insect creature token") {
-                effect = CreateTokenEffect(
+                effect = Effects.CreateToken(
                     power = 1,
                     toughness = 1,
                     colors = setOf(Color.GREEN),
@@ -47,7 +45,7 @@ val VitalityCharm = card("Vitality Charm") {
             }
             mode("Regenerate target Beast") {
                 val t = target("target", TargetPermanent(filter = TargetFilter.Permanent.withSubtype("Beast")))
-                effect = RegenerateEffect(t)
+                effect = Effects.Regenerate(t)
             }
         }
     }

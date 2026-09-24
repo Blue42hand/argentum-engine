@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -38,7 +37,7 @@ val SupremeInquisitor = card("Supreme Inquisitor") {
             )
             val exiled = chooseUpTo(5, from = searchable, chooser = Chooser.Controller)
             exile(exiled, Player.ContextPlayer(0))
-            run(ShuffleLibraryEffect(player))
+            run(Effects.ShuffleLibrary(player))
         }
     }
 

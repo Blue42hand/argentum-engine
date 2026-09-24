@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -49,7 +48,7 @@ val BattleMenu = card("Battle Menu") {
                 effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
             }
             mode("Item — You gain 4 life") {
-                effect = GainLifeEffect(4)
+                effect = Effects.GainLife(4)
             }
         }
     }

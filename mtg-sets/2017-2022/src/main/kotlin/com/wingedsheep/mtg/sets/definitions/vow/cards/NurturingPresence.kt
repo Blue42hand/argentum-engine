@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -56,9 +55,9 @@ val NurturingPresence = card("Nurturing Presence") {
             TriggeredAbility.create(
                 trigger = creatureEnters.event,
                 binding = creatureEnters.binding,
-                effect = ModifyStatsEffect(
-                    powerModifier = 1,
-                    toughnessModifier = 1,
+                effect = Effects.ModifyStats(
+                    power = 1,
+                    toughness = 1,
                     target = EffectTarget.Self
                 )
             )

@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
@@ -74,7 +73,7 @@ val HowltoothHollow = card("Howltooth Hollow") {
 
     activatedAbility {
         cost = Costs.Tap
-        effect = AddManaEffect(Color.BLACK)
+        effect = Effects.AddMana(Color.BLACK)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

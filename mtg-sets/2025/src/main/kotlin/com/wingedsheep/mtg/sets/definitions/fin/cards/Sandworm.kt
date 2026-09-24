@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -68,7 +67,7 @@ val Sandworm = card("Sandworm") {
                         placement = ZonePlacement.Tapped,
                     )
                 )
-                run(ShuffleLibraryEffect(target = EffectTarget.TargetController))
+                run(Effects.ShuffleLibrary(target = EffectTarget.TargetController))
             },
             decisionMaker = EffectTarget.TargetController,
         )

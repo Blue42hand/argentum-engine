@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -55,7 +54,7 @@ val DarkstarAugur = card("Darkstar Augur") {
         effect = Effects.Pipeline {
             val revealed = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.You))
             toHand(revealed, revealed = true)
-            run(LoseLifeEffect(
+            run(Effects.LoseLife(
                 DynamicAmounts.manaValueOf(revealed),
                 EffectTarget.Controller
             ))

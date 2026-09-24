@@ -6,10 +6,10 @@ package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -32,7 +32,7 @@ val ToadstoolAdmirer = card("Toadstool Admirer") {
     keywordAbility(KeywordAbility.Ward(WardCost.Mana("{2}")))
     activatedAbility {
         cost = Costs.Mana("{3}{G}")
-        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.COMMON

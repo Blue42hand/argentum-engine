@@ -7,9 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.RepeatDynamicTimesEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -38,7 +35,7 @@ val SallyPrideLionessLeader = card("Sally Pride, Lioness Leader") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = RepeatDynamicTimesEffect(
+        effect = Effects.Repeat(
             amount = DynamicAmount.Count(
                 player = Player.You,
                 zone = Zone.BATTLEFIELD,
@@ -47,7 +44,7 @@ val SallyPrideLionessLeader = card("Sally Pride, Lioness Leader") {
                         CardPredicate.IsNontoken
                 ).youControl()
             ),
-            body = CreateTokenEffect(
+            body = Effects.CreateToken(
                 power = 2,
                 toughness = 2,
                 colors = setOf(Color.RED),
@@ -61,7 +58,7 @@ val SallyPrideLionessLeader = card("Sally Pride, Lioness Leader") {
         trigger = Triggers.Attacks
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Creature.youControl()),
-            effect = AddCountersEffect(
+            effect = Effects.AddCounters(
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 count = 1,
                 target = EffectTarget.IterationEntity

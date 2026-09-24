@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 
 /**
  * Yuyan Archers
@@ -28,7 +27,7 @@ val YuyanArchers = card("Yuyan Archers") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.May(effect = Effects.IfYouDo(action = Patterns.Hand.discardCards(1), then = DrawCardsEffect(1)))
+        effect = Effects.May(effect = Effects.IfYouDo(action = Patterns.Hand.discardCards(1), then = Effects.DrawCards(1)))
     }
 
     metadata {

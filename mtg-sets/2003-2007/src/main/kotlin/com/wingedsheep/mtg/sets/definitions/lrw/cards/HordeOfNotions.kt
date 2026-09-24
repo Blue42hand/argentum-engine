@@ -3,9 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.lrw.cards
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GrantFreeCastTargetFromExileEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
@@ -52,7 +52,7 @@ val HordeOfNotions = card("Horde of Notions") {
             id = "elemental"
         ))
         cost = Costs.Mana("{W}{U}{B}{R}{G}")
-        effect = GrantFreeCastTargetFromExileEffect(target = target)
+        effect = Effects.GrantFreeCastTargetFromExile(target = target)
         description = "You may play target Elemental card from your graveyard without paying its mana cost."
     }
 

@@ -12,9 +12,6 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -43,7 +40,7 @@ val RakishCrew = card("Rakish Crew") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 1,
             toughness = 1,
             colors = setOf(Color.RED),
@@ -70,8 +67,8 @@ val RakishCrew = card("Rakish Crew") {
         )
         effect = Effects.Composite(
             listOf(
-                LoseLifeEffect(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-                GainLifeEffect(1, EffectTarget.Controller),
+                Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
+                Effects.GainLife(1, EffectTarget.Controller),
             )
         )
         description = "Whenever an outlaw you control dies, each opponent loses 1 life and you gain 1 life."

@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CantBlockEffect
 
 /**
  * Mardu Roughrider
@@ -24,7 +24,7 @@ val MarduRoughrider = card("Mardu Roughrider") {
     triggeredAbility {
         trigger = Triggers.Attacks
         val creature = target("creature", Targets.Creature)
-        effect = CantBlockEffect(target = creature)
+        effect = Effects.CantBlock(target = creature)
     }
 
     metadata {

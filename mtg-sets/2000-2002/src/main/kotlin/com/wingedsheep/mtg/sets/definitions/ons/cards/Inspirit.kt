@@ -1,9 +1,8 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 
 /**
  * Inspirit
@@ -19,8 +18,8 @@ val Inspirit = card("Inspirit") {
 
     spell {
         val t = target("target", com.wingedsheep.sdk.scripting.targets.TargetCreature())
-        effect = TapUntapEffect(t, tap = false) then
-                ModifyStatsEffect(2, 4, t)
+        effect = Effects.Untap(t) then
+                Effects.ModifyStats(2, 4, t)
     }
 
     metadata {

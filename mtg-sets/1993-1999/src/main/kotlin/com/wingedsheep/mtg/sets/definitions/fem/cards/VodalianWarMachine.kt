@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -82,7 +81,7 @@ val VodalianWarMachine = card("Vodalian War Machine") {
  * per activation, watching the War Machine's own death. `fireOnce` keeps a single activation from
  * destroying its Merfolk twice; the end-of-turn expiry is the "this turn" in the printed text.
  */
-private fun deathRevengeOn() = CreateDelayedTriggerEffect(
+private fun deathRevengeOn() = Effects.CreateDelayedTrigger(
     trigger = Triggers.Dies,
     watchedTarget = EffectTarget.Self,
     effect = Effects.Destroy(EffectTarget.TappedAsCost(0)),

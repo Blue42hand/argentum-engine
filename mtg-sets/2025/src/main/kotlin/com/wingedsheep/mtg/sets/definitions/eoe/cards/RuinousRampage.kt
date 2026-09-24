@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -29,7 +28,7 @@ val RuinousRampage = card("Ruinous Rampage") {
     spell {
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
-                DealDamageEffect(3, EffectTarget.PlayerRef(Player.EachOpponent)),
+                Effects.DealDamage(3, EffectTarget.PlayerRef(Player.EachOpponent)),
                 "Ruinous Rampage deals 3 damage to each opponent"
             ),
             Mode.noTarget(

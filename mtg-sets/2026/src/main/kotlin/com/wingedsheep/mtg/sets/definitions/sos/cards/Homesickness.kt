@@ -6,9 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
@@ -40,14 +37,12 @@ val Homesickness = card("Homesickness") {
     spell {
         target("target player", TargetPlayer())
         target("up to two target creatures", TargetCreature(count = 2, optional = true))
-        effect = DrawCardsEffect(2, EffectTarget.ContextTarget(0)).then(
-            ForEachTargetEffect(
-                listOf(
-                    Effects.If(
-                        condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature),
-                        then = Effects.Tap(EffectTarget.ContextTarget(0))
-                            .then(AddCountersEffect(CounterType.STUN, 1, EffectTarget.ContextTarget(0))),
-                    )
+        effect = Effects.DrawCards(2, EffectTarget.ContextTarget(0)).then(
+            Effects.ForEachTarget(
+                Effects.If(
+                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature),
+                    then = Effects.Tap(EffectTarget.ContextTarget(0))
+                        .then(Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(0))),
                 )
             )
         )

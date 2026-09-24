@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.ModeOption
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.conditions.SourceChosenModeIs
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
@@ -81,7 +80,7 @@ val OutpostSiege = card("Outpost Siege") {
         )
         triggerRestriction = SourceChosenModeIs("dragons")
         val any = target("target", Targets.Any)
-        effect = DealDamageEffect(1, any)
+        effect = Effects.DealDamage(1, any)
     }
 
     metadata {

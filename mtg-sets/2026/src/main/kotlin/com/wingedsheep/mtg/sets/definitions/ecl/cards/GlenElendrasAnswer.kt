@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
  * Glen Elendra's Answer
@@ -31,7 +30,7 @@ val GlenElendrasAnswer = card("Glen Elendra's Answer") {
         effect = Effects.Pipeline {
             val countered = runStoringCollection { Effects.CounterAllOpponentStackObjects(storeCountAs = it) }
             run(
-                CreateTokenEffect(
+                Effects.CreateToken(
                     count = countered.count,
                     power = 1,
                     toughness = 1,

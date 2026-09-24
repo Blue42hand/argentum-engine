@@ -7,7 +7,6 @@ package com.wingedsheep.mtg.sets.definitions.por.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -27,7 +26,7 @@ val BurningCloak = card("Burning Cloak") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Composite(
             Effects.ModifyStats(2, 0, t),
-            DealDamageEffect(2, t)
+            Effects.DealDamage(2, t)
         )
     }
     metadata {

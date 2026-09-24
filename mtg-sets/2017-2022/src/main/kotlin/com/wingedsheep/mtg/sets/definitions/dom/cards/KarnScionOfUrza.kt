@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
@@ -62,7 +61,7 @@ val KarnScionOfUrza = card("Karn, Scion of Urza") {
 
     // -2: Create 0/0 Construct artifact creature token with dynamic P/T
     loyaltyAbility(-2) {
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 0,
             toughness = 0,
             colors = emptySet(),

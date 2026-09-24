@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 
 /**
  * Skirk Commando
@@ -27,7 +26,7 @@ val SkirkCommando = card("Skirk Commando") {
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
         val t = target("target", Targets.CreatureOpponentControls)
-        effect = Effects.May(DealDamageEffect(2, t))
+        effect = Effects.May(Effects.DealDamage(2, t))
     }
 
     morph = "{2}{R}"

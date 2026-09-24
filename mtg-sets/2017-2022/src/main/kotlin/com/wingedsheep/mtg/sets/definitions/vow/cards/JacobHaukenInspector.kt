@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GrantMayCastFromLinkedExile
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -82,7 +81,7 @@ private val JacobHaukenInspectorFront = card("Jacob Hauken, Inspector") {
             )
             run(Effects.MayPay(
                 cost = ManaCost.parse("{4}{U}{U}"),
-                then = TransformEffect(EffectTarget.Self),
+                then = Effects.Transform(EffectTarget.Self),
             ))
         }
         description = "{T}: Draw a card, then exile a card from your hand face down. You may look " +

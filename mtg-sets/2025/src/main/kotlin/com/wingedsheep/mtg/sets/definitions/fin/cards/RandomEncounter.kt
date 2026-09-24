@@ -11,8 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -52,7 +50,7 @@ val RandomEncounter = card("Random Encounter") {
 
     spell {
         effect = Effects.Pipeline {
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
             val milled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4)))
             toGraveyard(milled)
             val reanimated = moveTracked(
@@ -65,7 +63,7 @@ val RandomEncounter = card("Random Encounter") {
                 collection = reanimated,
                 effect = Effects.Composite(
                     Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.Permanent),
-                    CreateDelayedTriggerEffect(
+                    Effects.CreateDelayedTrigger(
                         step = Step.END,
                         effect = Effects.Move(EffectTarget.IterationEntity, Zone.HAND)
                     )

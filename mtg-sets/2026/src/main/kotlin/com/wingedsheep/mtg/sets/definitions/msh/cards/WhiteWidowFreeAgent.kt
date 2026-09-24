@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -44,13 +43,11 @@ val WhiteWidowFreeAgent = card("White Widow, Free Agent") {
         trigger = Triggers.EntersBattlefield
         effect = ModalEffect.chooseOne(
             Mode(
-                effect = ForEachTargetEffect(
-                    listOf(
-                        Effects.AddCounters(
-                            CounterType.PLUS_ONE_PLUS_ONE,
-                            1,
-                            EffectTarget.ContextTarget(0),
-                        )
+                effect = Effects.ForEachTarget(
+                    Effects.AddCounters(
+                        CounterType.PLUS_ONE_PLUS_ONE,
+                        1,
+                        EffectTarget.ContextTarget(0),
                     )
                 ),
                 targetRequirements = listOf(TargetCreature(count = 2, optional = true)),

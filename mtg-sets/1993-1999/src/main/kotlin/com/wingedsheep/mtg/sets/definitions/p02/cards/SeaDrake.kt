@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -38,8 +37,8 @@ val SeaDrake = card("Sea Drake") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         target("target", TargetPermanent(count = 2, filter = TargetFilter.Land.youControl()))
-        effect = ForEachTargetEffect(
-            listOf(Effects.ReturnToHand(EffectTarget.ContextTarget(0)))
+        effect = Effects.ForEachTarget(
+            Effects.ReturnToHand(EffectTarget.ContextTarget(0))
         )
     }
 

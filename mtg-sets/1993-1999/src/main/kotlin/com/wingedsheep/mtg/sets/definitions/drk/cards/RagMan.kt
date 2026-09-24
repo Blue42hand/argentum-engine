@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
@@ -42,7 +41,7 @@ val RagMan = card("Rag Man") {
         val victim = target("target opponent", TargetOpponent())
         restrictions = listOf(ActivationRestriction.OnlyDuringYourTurn)
         effect = Effects.Pipeline {
-            run(RevealHandEffect(victim))
+            run(Effects.RevealHand(victim))
             val ragManCandidates = gather(
                 CardSource.FromZone(
                     zone = Zone.HAND,

@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -35,7 +33,7 @@ val TerrapactIntimidator = card("Terrapact Intimidator") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val opponent = target("target opponent", Targets.Opponent)
-        effect = ChooseActionEffect(
+        effect = Effects.ChooseAction(
             choices = listOf(
                 EffectChoice(
                     label = "Have them create two Lander tokens",
@@ -43,7 +41,7 @@ val TerrapactIntimidator = card("Terrapact Intimidator") {
                 ),
                 EffectChoice(
                     label = "Put two +1/+1 counters on this creature",
-                    effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
+                    effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
                 )
             ),
             player = opponent

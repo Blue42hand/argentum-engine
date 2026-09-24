@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.MarkExileOnDeathEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -59,7 +58,7 @@ val FaunsbaneTroll = card("Faunsbane Troll") {
         val creature = target("target creature you don't control", Targets.CreatureOpponentControls)
         effect = Effects.Composite(
             Effects.Fight(EffectTarget.Self, creature),
-            MarkExileOnDeathEffect(creature),
+            Effects.MarkExileOnDeath(creature),
         )
         description = "This creature fights target creature you don't control. If that creature " +
             "would die this turn, exile it instead. Activate only as a sorcery."

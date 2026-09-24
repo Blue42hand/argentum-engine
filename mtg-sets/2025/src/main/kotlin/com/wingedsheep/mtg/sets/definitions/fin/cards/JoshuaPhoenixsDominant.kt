@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.ReturnFace
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -117,7 +116,7 @@ private val JoshuaPhoenixsDominantFront = card("Joshua, Phoenix's Dominant") {
             val hand = gather(CardSource.FromZone(Zone.HAND, Player.You))
             val discarded = chooseUpTo(2, from = hand, prompt = "Discard up to two cards")
             discard(discarded)
-            run(DrawCardsEffect(discarded.count))
+            run(Effects.DrawCards(discarded.count))
         }
         description = "When Joshua enters, discard up to two cards, then draw that many cards."
     }

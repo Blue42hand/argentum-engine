@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 
 /**
  * Shivan Fire
@@ -28,8 +27,8 @@ val ShivanFire = card("Shivan Fire") {
         val t = target("target", Targets.CreatureOrPlaneswalker)
         effect = Effects.If(
             condition = WasKicked,
-            then = DealDamageEffect(4, t),
-            otherwise = DealDamageEffect(2, t)
+            then = Effects.DealDamage(4, t),
+            otherwise = Effects.DealDamage(2, t)
         )
     }
 

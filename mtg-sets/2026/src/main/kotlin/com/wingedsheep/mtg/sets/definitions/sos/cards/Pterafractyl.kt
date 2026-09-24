@@ -5,11 +5,11 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 
@@ -33,7 +33,7 @@ val Pterafractyl = card("Pterafractyl") {
     replacementEffect(EntersWithDynamicCounters(count = DynamicAmount.XValue))
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = GainLifeEffect(2)
+        effect = Effects.GainLife(2)
     }
     metadata {
         rarity = Rarity.COMMON

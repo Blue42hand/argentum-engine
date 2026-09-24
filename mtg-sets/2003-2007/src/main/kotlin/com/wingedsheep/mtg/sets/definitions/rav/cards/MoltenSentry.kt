@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.OnEnterRun
-import com.wingedsheep.sdk.scripting.effects.FlipCoinEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -47,7 +46,7 @@ val MoltenSentry = card("Molten Sentry") {
 
     replacementEffect(
         OnEnterRun(
-            FlipCoinEffect(
+            Effects.FlipCoin(
                 wonEffect = Effects.Composite(
                     Effects.SetBasePowerAndToughness(5, 2, EffectTarget.Self, Duration.Permanent),
                     Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self, Duration.Permanent),

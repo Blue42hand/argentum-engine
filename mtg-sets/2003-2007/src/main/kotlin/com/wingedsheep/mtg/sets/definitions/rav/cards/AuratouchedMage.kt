@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -62,7 +61,7 @@ val AuratouchedMage = card("Auratouched Mage") {
                 },
                 Effects.Pipeline { toHand(found, revealed = true) }
             ))
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
             // CR 701.23 — the search happened whether or not anything was found.
             run(EmitLibrarySearchedEventEffect)
         }

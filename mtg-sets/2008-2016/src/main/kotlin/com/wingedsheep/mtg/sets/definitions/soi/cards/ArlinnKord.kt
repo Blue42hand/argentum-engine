@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -46,7 +45,7 @@ private val ArlinnEmbracedByTheMoon = card("Arlinn, Embraced by the Moon") {
     }
     loyaltyAbility(-1) {
         val target = target("target", AnyTarget())
-        effect = Effects.DealDamage(3, target) then TransformEffect(EffectTarget.Self)
+        effect = Effects.DealDamage(3, target) then Effects.Transform(EffectTarget.Self)
     }
     loyaltyAbility(-6) {
         effect = Effects.CreatePermanentEmblem(
@@ -84,7 +83,7 @@ private val ArlinnKordFront = card("Arlinn Kord") {
             toughness = 2,
             colors = setOf(Color.GREEN),
             creatureTypes = setOf("Wolf"),
-        ) then TransformEffect(EffectTarget.Self)
+        ) then Effects.Transform(EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.MYTHIC

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.CardLayout
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.TurnFaceUpEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -65,7 +64,7 @@ val HustleBustle = card("Hustle // Bustle") {
                     prompt = "You may turn a creature you control face up",
                     useTargetingUI = true
                 )
-                run(TurnFaceUpEffect(turnFaceUp.asTarget))
+                run(Effects.TurnFaceUp(turnFaceUp.asTarget))
             }
         }
     }

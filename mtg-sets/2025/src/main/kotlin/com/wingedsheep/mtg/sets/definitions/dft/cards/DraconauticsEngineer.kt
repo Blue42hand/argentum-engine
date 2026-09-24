@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -40,7 +39,7 @@ val DraconauticsEngineer = card("Draconautics Engineer") {
                 GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
                 Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
             ),
-            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
         )
     }
     activatedAbility {

@@ -1,12 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -35,7 +35,7 @@ val SamiShipsEngineer = card("Sami, Ship's Engineer") {
             ComparisonOperator.GTE,
             DynamicAmount.Fixed(2)
         )
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             name = "Robot",
             power = 2,
             toughness = 2,

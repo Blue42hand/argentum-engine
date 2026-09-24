@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -38,7 +36,7 @@ val UndyingMalice = card("Undying Malice") {
 
     spell {
         val t = target("target", Targets.Creature)
-        effect = GrantTriggeredAbilityEffect(
+        effect = Effects.GrantTriggeredAbility(
             ability = TriggeredAbility.create(
                 trigger = Triggers.Dies.event,
                 binding = Triggers.Dies.binding,
@@ -49,7 +47,7 @@ val UndyingMalice = card("Undying Malice") {
                         placement = ZonePlacement.Tapped,
                         fromZone = Zone.GRAVEYARD
                     ),
-                    AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                 ),
                 descriptionOverride = "When this creature dies, return it to the battlefield tapped under its owner's control with a +1/+1 counter on it."
             ),

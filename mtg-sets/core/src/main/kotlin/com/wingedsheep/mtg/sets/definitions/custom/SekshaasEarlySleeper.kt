@@ -10,9 +10,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.CreatePredefinedTokenEffect
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -67,11 +64,11 @@ val SekshaasEarlySleeper = card("Sekshaas, Early Sleeper") {
         effect = Effects.Composite(
             listOf(
                 Effects.Move(EffectTarget.Self, Zone.EXILE),
-                CreateDelayedTriggerEffect(
+                Effects.CreateDelayedTrigger(
                     step = Step.UPKEEP,
                     effect = Effects.Composite(listOf(
                         Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD),
-                        GrantKeywordEffect(Keyword.HASTE, EffectTarget.Self)
+                        Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self)
                     )),
                     fireOnPlayer = EffectTarget.PlayerRef(Player.You)
                 )
@@ -82,7 +79,7 @@ val SekshaasEarlySleeper = card("Sekshaas, Early Sleeper") {
     // {T}: Create a Food token named "Just One Glass" — once per turn
     activatedAbility {
         cost = Costs.Tap
-        effect = CreatePredefinedTokenEffect("Just One Glass", 1)
+        effect = Effects.CreatePredefinedToken("Just One Glass")
         restrictions = listOf(ActivationRestriction.OncePerTurn)
         description = "Create a Food token named \"Just One Glass.\""
     }

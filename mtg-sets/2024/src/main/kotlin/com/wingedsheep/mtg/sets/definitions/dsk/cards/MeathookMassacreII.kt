@@ -9,9 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.PayLifeEffect
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -78,7 +75,7 @@ val MeathookMassacreII = card("Meathook Massacre II") {
     triggeredAbility {
         trigger = Triggers.YourCreatureDies
         effect = Effects.MayPay(
-            cost = PayLifeEffect(3),
+            cost = Effects.PayLife(3),
             then = returnDeadCreatureUnderYourControl(),
             descriptionOverride = "You may pay 3 life. If you do, return that card under your control " +
                 "with a finality counter on it."
@@ -93,7 +90,7 @@ val MeathookMassacreII = card("Meathook Massacre II") {
             to = Zone.GRAVEYARD,
             binding = TriggerBinding.ANY
         )
-        effect = PayOrSufferEffect(
+        effect = Effects.PayOrSuffer(
             // The dying creature's last-known controller (the opponent) decides and pays the 3 life.
             player = EffectTarget.PlayerRef(Player.TriggeringPlayer),
             cost = Costs.pay.PayLife(3),
@@ -146,7 +143,7 @@ private fun returnDeadCreatureUnderYourControl() = Effects.Composite(
         fromZone = Zone.GRAVEYARD,
         controllerOverride = EffectTarget.Controller
     ),
-    AddCountersEffect(
+    Effects.AddCounters(
         counterType = CounterType.FINALITY,
         count = 1,
         target = EffectTarget.TriggeringEntity

@@ -8,9 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -37,10 +34,10 @@ val MarduCharm = card("Mardu Charm") {
         modal(chooseCount = 1) {
             mode("Mardu Charm deals 4 damage to target creature") {
                 val t = target("target", TargetCreature())
-                effect = DealDamageEffect(4, t)
+                effect = Effects.DealDamage(4, t)
             }
             mode("Create two 1/1 white Warrior creature tokens with first strike") {
-                effect = CreateTokenEffect(
+                effect = Effects.CreateToken(
                     count = 2,
                     power = 1,
                     toughness = 1,
@@ -53,7 +50,7 @@ val MarduCharm = card("Mardu Charm") {
             mode("Target opponent reveals their hand, discard a noncreature, nonland card") {
                 val t = target("target", TargetOpponent())
                 effect = Effects.Pipeline {
-                    run(RevealHandEffect(t))
+                    run(Effects.RevealHand(t))
                     val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
                     val toDiscard = chooseExactly(
                         1,

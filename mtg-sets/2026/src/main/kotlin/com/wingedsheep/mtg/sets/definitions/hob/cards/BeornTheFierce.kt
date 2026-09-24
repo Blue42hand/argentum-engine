@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -72,14 +71,12 @@ val BeornTheFierce = card("Beorn the Fierce") {
             TargetCreature(optional = true, filter = TargetFilter.Creature.youControl())
         )
         effect = Effects.Composite(
-            ForEachTargetEffect(
-                listOf(
-                    Effects.AddCounters(CounterType.TRAMPLE, 1, EffectTarget.ContextTarget(0)),
-                    Effects.AddSubtype(
-                        Subtype.BEAR.value,
-                        EffectTarget.ContextTarget(0),
-                        Duration.Permanent
-                    )
+            Effects.ForEachTarget(
+                Effects.AddCounters(CounterType.TRAMPLE, 1, EffectTarget.ContextTarget(0)),
+                Effects.AddSubtype(
+                    Subtype.BEAR.value,
+                    EffectTarget.ContextTarget(0),
+                    Duration.Permanent
                 )
             ),
             Effects.If(

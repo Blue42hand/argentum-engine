@@ -5,9 +5,9 @@
 package com.wingedsheep.mtg.sets.definitions.nem.cards
 
 import com.wingedsheep.sdk.core.AbilityFlag
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -25,7 +25,7 @@ val Infiltrate = card("Infiltrate") {
     oracleText = "Target creature can't be blocked this turn."
     spell {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = GrantKeywordEffect(AbilityFlag.CANT_BE_BLOCKED.name, t)
+        effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t)
     }
     metadata {
         rarity = Rarity.COMMON

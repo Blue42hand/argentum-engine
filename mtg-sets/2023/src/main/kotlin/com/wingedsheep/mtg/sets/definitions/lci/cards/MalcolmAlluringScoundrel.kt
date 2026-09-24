@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GrantFreeCastTargetFromExileEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -66,7 +65,7 @@ val MalcolmAlluringScoundrel = card("Malcolm, Alluring Scoundrel") {
                     ComparisonOperator.GTE,
                     DynamicAmount.Fixed(4)
                 ),
-                then = GrantFreeCastTargetFromExileEffect(
+                then = Effects.GrantFreeCastTargetFromExile(
                     target = discarded.asTarget
                 )
             ))

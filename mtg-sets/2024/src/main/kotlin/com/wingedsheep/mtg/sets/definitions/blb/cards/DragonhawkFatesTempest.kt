@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.references.Player
@@ -48,7 +47,7 @@ val DragonhawkFatesTempest = card("Dragonhawk, Fate's Tempest") {
         )
         exile(exiledCards)
         run(Effects.GrantMayPlayFromExile(exiledCards))
-        run(CreateDelayedTriggerEffect(
+        run(Effects.CreateDelayedTrigger(
             step = Step.END,
             fireOnPlayer = EffectTarget.PlayerRef(Player.You),
             timing = DelayedTriggerTiming.NEXT_END_STEP,

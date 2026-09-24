@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -93,7 +92,7 @@ private val TrystanPenitentCuller = card("Trystan, Penitent Culler") {
         trigger = Triggers.FirstMainPhase
         effect = Effects.MayPay(
             cost = ManaCost.parse("{G}"),
-            then = TransformEffect(EffectTarget.Self)
+            then = Effects.Transform(EffectTarget.Self)
         )
     }
 
@@ -131,7 +130,7 @@ private val TrystanCallousCultivatorFrontFace = card("Trystan, Callous Cultivato
         trigger = Triggers.FirstMainPhase
         effect = Effects.MayPay(
             cost = ManaCost.parse("{B}"),
-            then = TransformEffect(EffectTarget.Self)
+            then = Effects.Transform(EffectTarget.Self)
         )
     }
 

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -51,7 +50,7 @@ val CaretakersTalent = card("Caretaker's Talent") {
                 "token you control",
                 TargetObject(filter = TargetFilter(GameObjectFilter.Token.youControl()))
             )
-            effect = CreateTokenCopyOfTargetEffect(token)
+            effect = Effects.CreateTokenCopyOfTarget(token)
         }
     }
 

@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
@@ -144,7 +143,7 @@ private val KefkaCourtMageFrontFace = card("Kefka, Court Mage") {
                     1,
                     EffectTarget.PlayerRef(Player.EachOpponent)
                 ),
-                TransformEffect(EffectTarget.Self)
+                Effects.Transform(EffectTarget.Self)
             )
         )
         description = "{8}: Each opponent sacrifices a permanent of their choice. Transform " +

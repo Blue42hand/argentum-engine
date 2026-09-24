@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.references.Player
@@ -52,7 +51,7 @@ val FabledPassage = card("Fabled Passage") {
                 CardDestination.ToZone(Zone.BATTLEFIELD, placement = ZonePlacement.Tapped)
             )
             // Shuffle library
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
             // Then if you control 4+ lands, untap that land
             run(Effects.If(
                 condition = Conditions.ControlLandsAtLeast(4),

@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.MultiplyTokenCreation
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -58,11 +56,11 @@ val ElspethStormSlayer = card("Elspeth, Storm Slayer") {
     loyaltyAbility(0) {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
-            effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
         ).then(
             Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreaturesYouControl,
-                effect = GrantKeywordEffect(Keyword.FLYING, EffectTarget.IterationEntity, Duration.UntilYourNextTurn)
+                effect = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity, Duration.UntilYourNextTurn)
             )
         )
     }

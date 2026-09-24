@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -56,8 +55,8 @@ val DoesMachines = card("Does Machines") {
                 optional = true,
                 filter = TargetFilter.ArtifactInYourGraveyard
             )
-            effect = ForEachTargetEffect(
-                effects = listOf(Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND))
+            effect = Effects.ForEachTarget(
+                Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND)
             )
         }
     }

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -40,7 +39,7 @@ val DaiLiIndoctrination = card("Dai Li Indoctrination") {
             mode("Target opponent reveals their hand. You choose a nonland permanent card from it. That player discards that card") {
                 val opponent = target("target opponent", TargetOpponent())
                 effect = Effects.Pipeline {
-                    run(RevealHandEffect(opponent))
+                    run(Effects.RevealHand(opponent))
                     val opponentHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
                     val toDiscard = chooseExactly(
                         1,

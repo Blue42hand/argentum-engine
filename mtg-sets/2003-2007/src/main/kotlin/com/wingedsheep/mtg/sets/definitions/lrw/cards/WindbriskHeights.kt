@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
@@ -74,7 +73,7 @@ val WindbriskHeights = card("Windbrisk Heights") {
 
     activatedAbility {
         cost = Costs.Tap
-        effect = AddManaEffect(Color.WHITE)
+        effect = Effects.AddMana(Color.WHITE)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

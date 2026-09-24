@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.effects.MustBeBlockedEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -42,7 +41,7 @@ val MagitekScythe = card("Magitek Scythe") {
             Effects.Composite(
                 Effects.AttachEquipment(t),
                 Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),
-                MustBeBlockedEffect(t, allCreatures = false)
+                Effects.MustBeBlocked(t, allCreatures = false)
             )
         )
     }

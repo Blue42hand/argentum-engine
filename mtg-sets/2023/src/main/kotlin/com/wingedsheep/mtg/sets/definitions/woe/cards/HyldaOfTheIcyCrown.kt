@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
@@ -11,8 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -52,8 +49,8 @@ val HyldaOfTheIcyCrown = card("Hylda of the Icy Crown") {
 
     triggeredAbility {
         trigger = Triggers.YouTap(GameObjectFilter.Creature.opponentControls())
-        effect = ReflexiveTriggerEffect(
-            action = PayManaCostEffect(ManaCost.parse("{1}")),
+        effect = Effects.ReflexiveTrigger(
+            action = Effects.PayMana("{1}"),
             optional = true,
             reflexiveEffect = ModalEffect.chooseOne(
                 Mode.noTarget(

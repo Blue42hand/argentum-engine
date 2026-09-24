@@ -12,9 +12,6 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddManaEffect
-import com.wingedsheep.sdk.scripting.effects.BecomeCreatureEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -49,21 +46,21 @@ val RestlessVents = card("Restless Vents") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = AddManaEffect(Color.BLACK)
+        effect = Effects.AddMana(Color.BLACK)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = AddManaEffect(Color.RED)
+        effect = Effects.AddMana(Color.RED)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }
 
     activatedAbility {
         cost = Costs.Mana("{1}{B}{R}")
-        effect = BecomeCreatureEffect(
+        effect = Effects.BecomeCreature(
             target = EffectTarget.Self,
             power = DynamicAmount.Fixed(2),
             toughness = DynamicAmount.Fixed(3),
@@ -79,7 +76,7 @@ val RestlessVents = card("Restless Vents") {
         effect = Effects.May(
             effect = Effects.IfYouDo(
                 action = Patterns.Hand.discardCards(1),
-                then = DrawCardsEffect(1),
+                then = Effects.DrawCards(1),
             ),
         )
         description = "Whenever this land attacks, you may discard a card. If you do, draw a card."

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -53,7 +52,7 @@ val AladdinsLamp = card("Aladdin's Lamp") {
                     selectedLabel = "Keep on top",
                     remainderLabel = "Put on bottom at random"
                 ),
-                DrawCardsEffect(1)
+                Effects.DrawCards(1)
             )
         )
         description = "{X}, {T}: The next time you would draw a card this turn, instead look at the top X " +

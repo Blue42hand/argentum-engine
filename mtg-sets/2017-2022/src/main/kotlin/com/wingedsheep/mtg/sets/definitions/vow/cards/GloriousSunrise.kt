@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
@@ -14,10 +13,7 @@ import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.effects.GrantActivatedAbilityEffect
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -70,7 +66,7 @@ val GloriousSunrise = card("Glorious Sunrise") {
                 "Creatures you control get +1/+1 and gain trample until end of turn"
             ),
             Mode.withTarget(
-                effect = GrantActivatedAbilityEffect(
+                effect = Effects.GrantActivatedAbility(
                     ability = ActivatedAbility(
                         id = AbilityId.generate(),
                         cost = com.wingedsheep.sdk.scripting.AbilityCost.Tap,

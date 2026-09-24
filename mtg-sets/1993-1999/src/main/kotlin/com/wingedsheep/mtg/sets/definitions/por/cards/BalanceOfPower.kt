@@ -5,9 +5,9 @@
 package com.wingedsheep.mtg.sets.definitions.por.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
 
@@ -24,7 +24,7 @@ val BalanceOfPower = card("Balance of Power") {
     oracleText = "If target opponent has more cards in hand than you, draw cards equal to the difference."
     spell {
         val opponent = target("target opponent", TargetOpponent())
-        effect = DrawCardsEffect(DynamicAmounts.handSizeDifferenceFromTargetOpponent())
+        effect = Effects.DrawCards(DynamicAmounts.handSizeDifferenceFromTargetOpponent())
     }
     metadata {
         rarity = Rarity.RARE

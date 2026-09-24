@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.BecomeArtifactEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -71,7 +70,7 @@ val VraskaTheSilencer = card("Vraska, the Silencer") {
                     controllerOverride = EffectTarget.Controller
                 ),
                 // It's a colorless Treasure artifact with the mana ability, losing all other types.
-                BecomeArtifactEffect(
+                Effects.BecomeArtifact(
                     target = EffectTarget.TriggeringEntity,
                     cardTypes = setOf("ARTIFACT"),
                     subtypes = setOf("Treasure"),

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModeOption
 import com.wingedsheep.sdk.scripting.conditions.SourceChosenModeIs
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -69,7 +68,7 @@ val BarrensteppeSiege = card("Barrensteppe Siege") {
         triggerRestriction = SourceChosenModeIs("abzan")
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
-            effect = AddCountersEffect(
+            effect = Effects.AddCounters(
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 count = 1,
                 target = EffectTarget.IterationEntity

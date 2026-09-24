@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 
 
 /**
@@ -23,7 +22,7 @@ val DreamsOfLaguna = card("Dreams of Laguna") {
     spell {
         effect = Effects.Composite(
             Patterns.Library.surveil(1),
-            DrawCardsEffect(1)
+            Effects.DrawCards(1)
         )
     }
     keywordAbility(KeywordAbility.flashback("{3}{U}"))

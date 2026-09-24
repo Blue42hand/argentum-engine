@@ -6,9 +6,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.DynamicAmounts
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 
 /**
@@ -27,11 +25,11 @@ val CommandoRaid = card("Commando Raid") {
 
     spell {
         val t = target("target", Targets.CreatureYouControl)
-        effect = GrantTriggeredAbilityEffect(
+        effect = Effects.GrantTriggeredAbility(
             ability = TriggeredAbility.create(
                 trigger = Triggers.DealsCombatDamageToPlayer.event,
                 binding = Triggers.DealsCombatDamageToPlayer.binding,
-                effect = Effects.May(DealDamageEffect(DynamicAmounts.sourcePower(), EffectTarget.ContextTarget(0))),
+                effect = Effects.May(Effects.DealDamage(DynamicAmounts.sourcePower(), EffectTarget.ContextTarget(0))),
                 targetRequirement = Targets.CreatureOpponentControls
             ),
             target = t

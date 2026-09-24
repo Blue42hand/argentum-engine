@@ -5,8 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -48,10 +46,10 @@ val CruelclawsHeist = card("Cruelclaw's Heist") {
             //         with permanent cast-from-exile permission
             Mode.withTarget(
                 Effects.Composite(
-                    listOf(DrawCardsEffect(1, EffectTarget.ContextTarget(0))) +
+                    listOf(Effects.DrawCards(1, EffectTarget.ContextTarget(0))) +
                     revealChooseExile +
                     listOf(
-                        GrantMayPlayFromExileEffect(
+                        Effects.GrantMayPlayFromExile(
                             from = "chosenCard",
                             expiry = MayPlayExpiry.Permanent,
                             // "and mana of any type can be spent to cast it"

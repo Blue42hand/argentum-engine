@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -39,7 +38,7 @@ val StarfallInvocation = card("Starfall Invocation") {
             // Mode 2: Gift a card — opponent draws, destroy all creatures, then return one of yours
             Mode.noTarget(
                 Effects.Pipeline {
-                    run(DrawCardsEffect(1, EffectTarget.PlayerRef(Player.ChosenOpponent)))
+                    run(Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent)))
                     val destroyed = runStoringCollection {
                         Effects.DestroyAll(GameObjectFilter.Creature, storeDestroyedAs = it)
                     }

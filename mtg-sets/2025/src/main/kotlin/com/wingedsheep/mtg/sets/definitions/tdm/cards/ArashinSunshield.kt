@@ -5,8 +5,6 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -43,8 +41,8 @@ val ArashinSunshield = card("Arashin Sunshield") {
                 sameOwner = true,
             )
         )
-        effect = ForEachTargetEffect(
-            effects = listOf(Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE))
+        effect = Effects.ForEachTarget(
+            Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE)
         )
     }
 
@@ -52,7 +50,7 @@ val ArashinSunshield = card("Arashin Sunshield") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{W}"), Costs.Tap)
         val t = target("target creature", TargetCreature())
-        effect = TapUntapEffect(target = t, tap = true)
+        effect = Effects.Tap(target = t)
     }
 
     metadata {

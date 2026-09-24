@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStats
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -76,7 +75,7 @@ val WinterSoldierIcyAssassin = card("Winter Soldier, Icy Assassin") {
         activateFromZone = Zone.GRAVEYARD
         effect = Effects.Composite(
             Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
-            AddCountersEffect(counterType = CounterType.FINALITY, count = 1, target = EffectTarget.Self),
+            Effects.AddCounters(counterType = CounterType.FINALITY, count = 1, target = EffectTarget.Self),
             Effects.May(
                 effect = Effects.Pipeline {
                     val winterSoldierEquipment = selectTarget(

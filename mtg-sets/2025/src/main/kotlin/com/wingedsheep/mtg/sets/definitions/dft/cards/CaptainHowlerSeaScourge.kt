@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.events.DamageType
@@ -69,7 +68,7 @@ val CaptainHowlerSeaScourge = card("Captain Howler, Sea Scourge") {
                 toughness = DynamicAmount.Fixed(0),
                 target = creature
             ),
-            CreateDelayedTriggerEffect(
+            Effects.CreateDelayedTrigger(
                 effect = Effects.DrawCards(1),
                 trigger = Triggers.dealsDamage(
                     damageType = DamageType.Combat,

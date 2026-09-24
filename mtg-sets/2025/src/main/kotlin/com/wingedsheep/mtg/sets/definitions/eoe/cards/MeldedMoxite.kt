@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Patterns
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
  * Melded Moxite
@@ -38,7 +37,7 @@ val MeldedMoxite = card("Melded Moxite") {
             Costs.Mana("{3}"),
             Costs.SacrificeSelf
         )
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 2,
             toughness = 2,
             colors = setOf(), // colorless

@@ -5,11 +5,11 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -31,7 +31,7 @@ val RunawayBoulder = card("Runaway Boulder") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
-        effect = DealDamageEffect(6, t)
+        effect = Effects.DealDamage(6, t)
     }
     keywordAbility(KeywordAbility.cycling("{2}"))
     metadata {

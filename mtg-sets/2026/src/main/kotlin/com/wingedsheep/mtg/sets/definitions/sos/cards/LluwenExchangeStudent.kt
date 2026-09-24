@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -57,7 +56,7 @@ val LluwenExchangeStudent = card("Lluwen, Exchange Student") {
         oracleText = "Create a 1/1 black and green Pest creature token with \"Whenever this token " +
             "attacks, you gain 1 life.\""
         spell {
-            effect = CreateTokenEffect(
+            effect = Effects.CreateToken(
                 count = DynamicAmount.Fixed(1),
                 power = 1,
                 toughness = 1,

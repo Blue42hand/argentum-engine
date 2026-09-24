@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -56,7 +55,7 @@ val MornsongAria = card("Mornsong Aria") {
                         selectedLabel = "Put into hand"
                     )
                     toHand(found, Player.TriggeringPlayer)
-                    run(ShuffleLibraryEffect(target = EffectTarget.PlayerRef(Player.TriggeringPlayer)))
+                    run(Effects.ShuffleLibrary(target = EffectTarget.PlayerRef(Player.TriggeringPlayer)))
                 }
             )
     }

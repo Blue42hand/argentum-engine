@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.maxSpeed
 import com.wingedsheep.sdk.dsl.startYourEngines
@@ -7,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.NoMaximumHandSize
 import com.wingedsheep.sdk.scripting.ReplaceDrawWith
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -57,7 +57,7 @@ val VnwxtVerboseHost = card("Vnwxt, Verbose Host") {
     maxSpeed {
         replacementEffect(
             ReplaceDrawWith(
-                replacementEffect = DrawCardsEffect(2),
+                replacementEffect = Effects.DrawCards(2),
                 appliesTo = EventPattern.DrawEvent(player = Player.You),
             )
         )

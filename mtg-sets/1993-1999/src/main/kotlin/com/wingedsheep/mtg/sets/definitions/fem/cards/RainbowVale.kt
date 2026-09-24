@@ -5,8 +5,6 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.GiveControlToTargetPlayerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -30,9 +28,9 @@ val RainbowVale = card("Rainbow Vale") {
         manaAbility = true
         effect = Effects.Composite(
             Effects.AddAnyColorMana(1),
-            CreateDelayedTriggerEffect(
+            Effects.CreateDelayedTrigger(
                 step = Step.END,
-                effect = GiveControlToTargetPlayerEffect(
+                effect = Effects.GiveControl(
                     permanent = EffectTarget.Self,
                     newController = EffectTarget.PlayerRef(Player.AnOpponent),
                 )

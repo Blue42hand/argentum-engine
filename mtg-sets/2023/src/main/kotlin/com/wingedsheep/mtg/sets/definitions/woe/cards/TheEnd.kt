@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -75,7 +74,7 @@ val TheEnd = card("The End") {
                     name = "selectedFromHand"
                 )
                 exile(selected)
-                run(ShuffleLibraryEffect(target = EffectTarget.Controller))
+                run(Effects.ShuffleLibrary(target = EffectTarget.Controller))
                 run(
                     Effects.DrawCards(
                         selectedFromHand.count,

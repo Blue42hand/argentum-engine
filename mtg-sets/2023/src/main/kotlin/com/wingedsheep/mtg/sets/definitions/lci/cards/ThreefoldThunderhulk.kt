@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -56,7 +55,7 @@ val ThreefoldThunderhulk = card("Threefold Thunderhulk") {
     // Whenever this creature enters, create tokens equal to its power.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             count = DynamicAmounts.sourcePower(),
             power = 1,
             toughness = 1,
@@ -70,7 +69,7 @@ val ThreefoldThunderhulk = card("Threefold Thunderhulk") {
     // Whenever this creature attacks, create tokens equal to its power.
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             count = DynamicAmounts.sourcePower(),
             power = 1,
             toughness = 1,

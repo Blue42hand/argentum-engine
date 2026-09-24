@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -49,7 +48,7 @@ val FaramirPrinceOfIthilien = card("Faramir, Prince of Ithilien") {
     triggeredAbility {
         val opponent = target("target opponent", Targets.Opponent)
         trigger = Triggers.YourEndStep
-        effect = CreateDelayedTriggerEffect(
+        effect = Effects.CreateDelayedTrigger(
             step = Step.END,
             fireOnPlayer = opponent,
             // The chosen opponent is never the active player at Faramir's controller's end step,

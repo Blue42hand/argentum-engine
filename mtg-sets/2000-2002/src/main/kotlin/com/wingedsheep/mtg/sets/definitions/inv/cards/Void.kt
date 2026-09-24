@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
@@ -46,7 +45,7 @@ val Void = card("Void") {
                     ),
                 ))
                 // Target player reveals their hand and discards all nonland cards with that mana value.
-                run(RevealHandEffect(targetPlayer))
+                run(Effects.RevealHand(targetPlayer))
                 val voidDiscard = gather(
                     CardSource.FromZone(
                         zone = Zone.HAND,

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -35,7 +34,7 @@ val BorosCharm = card("Boros Charm") {
         modal(chooseCount = 1) {
             mode("Boros Charm deals 4 damage to target player or planeswalker") {
                 val t = target("target", TargetPlayerOrPlaneswalker())
-                effect = DealDamageEffect(4, t)
+                effect = Effects.DealDamage(4, t)
             }
             mode("Permanents you control gain indestructible until end of turn") {
                 effect = Effects.ForEachInGroup(

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.OnEnterRun
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -47,14 +46,14 @@ val SecludedGlen = card("Secluded Glen") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = AddManaEffect(Color.BLUE)
+        effect = Effects.AddMana(Color.BLUE)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = AddManaEffect(Color.BLACK)
+        effect = Effects.AddMana(Color.BLACK)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

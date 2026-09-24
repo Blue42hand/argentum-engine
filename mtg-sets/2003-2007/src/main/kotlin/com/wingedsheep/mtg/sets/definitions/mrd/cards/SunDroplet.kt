@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.RemoveCountersEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -53,7 +52,7 @@ val SunDroplet = card("Sun Droplet") {
             condition = Conditions.SourceHasCounter(CounterType.CHARGE),
             then = Effects.May(
                 Effects.Composite(
-                    RemoveCountersEffect(CounterType.CHARGE, 1, EffectTarget.Self),
+                    Effects.RemoveCounters(CounterType.CHARGE, 1, EffectTarget.Self),
                     Effects.GainLife(1),
                 ),
                 descriptionOverride = "Remove a charge counter from Sun Droplet to gain 1 life?",

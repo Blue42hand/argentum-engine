@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -80,7 +79,7 @@ val Sunforger = card("Sunforger") {
                 prompt = "Search for a red or white instant card with mana value 4 or less to " +
                     "cast without paying its mana cost"
             )
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
             run(Effects.CastFromCollectionWithoutPayingCost(from = sunforgerFound))
         }
     }

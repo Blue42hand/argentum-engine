@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -35,8 +33,8 @@ val ShireShirriff = card("Shire Shirriff") {
     // until this creature leaves the battlefield.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ReflexiveTriggerEffect(
-            action = SacrificeEffect(filter = GameObjectFilter.Token),
+        effect = Effects.ReflexiveTrigger(
+            action = Effects.SacrificeOwn(filter = GameObjectFilter.Token),
             optional = true,
             reflexiveEffect = Effects.ExileUntilLeaves(EffectTarget.ContextTarget(0)),
             reflexiveTargetRequirements = listOf(Targets.CreatureOpponentControls)

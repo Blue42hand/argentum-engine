@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -50,7 +49,7 @@ val Wolfbat = card("Wolfbat") {
             cost = ManaCost.parse("{B}"),
             then = Effects.Composite(
                 Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
-                AddCountersEffect(counterType = CounterType.FINALITY, count = 1, target = EffectTarget.Self),
+                Effects.AddCounters(counterType = CounterType.FINALITY, count = 1, target = EffectTarget.Self),
             ),
         )
         description = "Whenever you draw your second card each turn, you may pay {B}. If you do, " +

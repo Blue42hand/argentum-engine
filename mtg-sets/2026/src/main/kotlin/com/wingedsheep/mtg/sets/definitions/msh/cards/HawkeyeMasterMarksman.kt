@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
@@ -70,10 +68,10 @@ val HawkeyeMasterMarksman = card("Hawkeye, Master Marksman") {
     // When you do, choose up to that many —
     triggeredAbility {
         trigger = Triggers.BecomesTapped
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.PayRepeatedly("{1}", upTo = 3),
             optional = true,
-            reflexiveEffect = ModalEffect(
+            reflexiveEffect = Effects.Modal(
                 modes = listOf(
                     Mode.withTarget(
                         effect = Effects.CantBlock(EffectTarget.ContextTarget(0)),

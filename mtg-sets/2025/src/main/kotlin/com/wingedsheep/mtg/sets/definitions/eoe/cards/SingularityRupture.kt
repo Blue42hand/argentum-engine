@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
@@ -28,7 +27,7 @@ val SingularityRupture = card("Singularity Rupture") {
         target = TargetPlayer(unlimited = true)
         effect = Effects.Composite(listOf(
             Effects.DestroyAll(GameObjectFilter.Creature),
-            ForEachTargetEffect(
+            Effects.ForEachTarget(
                 Patterns.Library.mill(
                     DynamicAmount.Divide(
                         DynamicAmount.Count(Player.ContextPlayer(0), Zone.LIBRARY),

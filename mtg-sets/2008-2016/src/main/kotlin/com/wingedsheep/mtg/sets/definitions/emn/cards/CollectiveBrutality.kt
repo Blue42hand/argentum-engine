@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.costs.CostAtom
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
@@ -43,7 +42,7 @@ val CollectiveBrutality = card("Collective Brutality") {
             mode("Target opponent reveals their hand. You choose an instant or sorcery card from it. That player discards that card.") {
                 val opponent = target("reveal opponent", TargetOpponent())
                 effect = Effects.Pipeline {
-                    run(RevealHandEffect(opponent))
+                    run(Effects.RevealHand(opponent))
                     val opponentHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
                     val toDiscard = chooseExactly(
                         1,

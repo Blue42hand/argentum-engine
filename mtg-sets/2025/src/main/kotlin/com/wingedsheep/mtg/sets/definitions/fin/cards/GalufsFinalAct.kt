@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -61,7 +60,7 @@ val GalufsFinalAct = card("Galuf's Final Act") {
 
         effect = Effects.Composite(
             Effects.ModifyStats(1, 0, t, Duration.EndOfTurn),
-            GrantTriggeredAbilityEffect(diesGrantCounters, t, Duration.EndOfTurn)
+            Effects.GrantTriggeredAbility(diesGrantCounters, t, Duration.EndOfTurn)
         )
     }
 

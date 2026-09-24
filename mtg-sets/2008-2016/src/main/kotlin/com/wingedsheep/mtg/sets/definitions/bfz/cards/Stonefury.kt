@@ -4,10 +4,10 @@
 
 package com.wingedsheep.mtg.sets.definitions.bfz.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -27,7 +27,7 @@ val Stonefury = card("Stonefury") {
     oracleText = "Stonefury deals damage to target creature equal to the number of lands you control."
     spell {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = DealDamageEffect(DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Land), t)
+        effect = Effects.DealDamage(DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Land), t)
     }
     metadata {
         rarity = Rarity.COMMON

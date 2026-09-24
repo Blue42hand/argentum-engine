@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -46,7 +45,7 @@ val CoilingRebirth = card("Coiling Rebirth") {
             ),
             // Mode 2: Gift a card — opponent draws, return creature, then if nonlegendary create 1/1 copy
             Mode(
-                effect = DrawCardsEffect(1, EffectTarget.PlayerRef(Player.ChosenOpponent))
+                effect = Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent))
                     .then(returnEffect)
                     .then(
                         Effects.If(

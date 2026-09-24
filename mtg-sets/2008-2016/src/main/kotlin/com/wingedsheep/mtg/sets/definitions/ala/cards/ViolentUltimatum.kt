@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.ala.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -28,8 +27,8 @@ val ViolentUltimatum = card("Violent Ultimatum") {
 
     spell {
         target = TargetPermanent(count = 3)
-        effect = ForEachTargetEffect(
-            effects = listOf(Effects.Destroy(EffectTarget.ContextTarget(0)))
+        effect = Effects.ForEachTarget(
+            Effects.Destroy(EffectTarget.ContextTarget(0))
         )
     }
 

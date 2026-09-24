@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -28,7 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   {T}: Add X {G} or X {W}, where X is the number of other creatures you control.
  *   At the beginning of your first main phase, you may pay {W}. If you do, transform Brigid.
  */
-private val createKithkinToken = CreateTokenEffect(
+private val createKithkinToken = Effects.CreateToken(
     power = 1,
     toughness = 1,
     colors = setOf(Color.GREEN, Color.WHITE),
@@ -62,7 +60,7 @@ private val BrigidDounsMind = card("Brigid, Doun's Mind") {
         trigger = Triggers.FirstMainPhase
         effect = Effects.MayPay(
             cost = ManaCost.parse("{W}"),
-            then = TransformEffect(EffectTarget.Self)
+            then = Effects.Transform(EffectTarget.Self)
         )
     }
 
@@ -97,7 +95,7 @@ private val BrigidClachansHeartFrontFace = card("Brigid, Clachan's Heart") {
         trigger = Triggers.FirstMainPhase
         effect = Effects.MayPay(
             cost = ManaCost.parse("{G}"),
-            then = TransformEffect(EffectTarget.Self)
+            then = Effects.Transform(EffectTarget.Self)
         )
     }
 

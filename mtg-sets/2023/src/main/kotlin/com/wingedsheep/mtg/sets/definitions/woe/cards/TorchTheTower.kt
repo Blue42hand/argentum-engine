@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.bargain
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.MarkExileOnDeathEffect
 import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
 
 /**
@@ -53,7 +52,7 @@ val TorchTheTower = card("Torch the Tower") {
                 ),
                 otherwise = Effects.DealDamage(2, permanent),
             ),
-            MarkExileOnDeathEffect(permanent),
+            Effects.MarkExileOnDeath(permanent),
         )
     }
 

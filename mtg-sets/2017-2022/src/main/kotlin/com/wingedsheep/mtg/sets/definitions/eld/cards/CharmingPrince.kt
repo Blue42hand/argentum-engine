@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -47,14 +45,14 @@ val CharmingPrince = card("Charming Prince") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = ModalEffect(
+        effect = Effects.Modal(
             modes = listOf(
                 Mode.noTarget(Effects.Scry(2), "Scry 2."),
                 Mode.noTarget(Effects.GainLife(3), "You gain 3 life."),
                 Mode.withTarget(
                     effect = Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE)
                         .then(
-                            CreateDelayedTriggerEffect(
+                            Effects.CreateDelayedTrigger(
                                 step = Step.END,
                                 effect = Effects.Move(EffectTarget.ContextTarget(0), Zone.BATTLEFIELD)
                             )

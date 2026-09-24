@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.splice
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 
 /**
  * Psychic Puppetry
@@ -34,7 +33,7 @@ val PsychicPuppetry = card("Psychic Puppetry") {
     spell {
         val permanent = target("target", Targets.Permanent)
         effect = Effects.May(
-            ModalEffect(
+            Effects.Modal(
                 modes = listOf(
                     Mode.noTarget(Effects.Tap(permanent)),
                     Mode.noTarget(Effects.Untap(permanent))

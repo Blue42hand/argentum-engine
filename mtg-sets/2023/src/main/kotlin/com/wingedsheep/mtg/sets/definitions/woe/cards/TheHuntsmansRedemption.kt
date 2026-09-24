@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -89,11 +88,9 @@ val TheHuntsmansRedemption = card("The Huntsman's Redemption") {
 
     sagaChapter(3) {
         target("up to two target creatures", TargetCreature(count = 2, optional = true))
-        effect = ForEachTargetEffect(
-            listOf(
-                Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0), Duration.EndOfTurn),
-                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.ContextTarget(0), Duration.EndOfTurn),
-            )
+        effect = Effects.ForEachTarget(
+            Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0), Duration.EndOfTurn),
+            Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.ContextTarget(0), Duration.EndOfTurn)
         )
     }
 

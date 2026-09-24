@@ -1,13 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.effects.FlipCoinEffect
-import com.wingedsheep.sdk.scripting.effects.GainControlByActivePlayerEffect
-import com.wingedsheep.sdk.scripting.effects.GiveControlToTargetPlayerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -31,7 +29,7 @@ val RiskyMove = card("Risky Move") {
     // Ability 1: At the beginning of each player's upkeep, that player gains control of this.
     triggeredAbility {
         trigger = Triggers.EachUpkeep
-        effect = GainControlByActivePlayerEffect(EffectTarget.Self)
+        effect = Effects.GainControlByActivePlayer(EffectTarget.Self)
     }
 
     // Ability 2: When you gain control of this from another player, choose a creature
@@ -42,8 +40,8 @@ val RiskyMove = card("Risky Move") {
         // "Choose ... an opponent" is a non-targeted choice; until the multiplayer
         // choose-an-opponent flow exists (backlog/multiplayer.md), AnOpponent resolves
         // to the first opponent in turn order — exact in two-player games.
-        effect = FlipCoinEffect(
-            lostEffect = GiveControlToTargetPlayerEffect(
+        effect = Effects.FlipCoin(
+            lostEffect = Effects.GiveControl(
                 permanent = t,
                 newController = EffectTarget.PlayerRef(Player.AnOpponent)
             )

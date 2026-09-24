@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.AddCreatureTypeByCounter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.GrantKeywordByCounter
@@ -13,7 +12,6 @@ import com.wingedsheep.sdk.scripting.EventPattern.DealsDamageEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.effects.RemoveCountersEffect
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.dsl.Effects
@@ -41,7 +39,7 @@ val Aurification = card("Aurification") {
             DealsDamageEvent(recipient = Recipient.You, sourceFilter = GameObjectFilter.Creature),
             TriggerBinding.ANY
         )
-        effect = AddCountersEffect(CounterType.GOLD, 1, EffectTarget.TriggeringEntity)
+        effect = Effects.AddCounters(CounterType.GOLD, 1, EffectTarget.TriggeringEntity)
     }
 
     staticAbility { ability = AddCreatureTypeByCounter("Wall", CounterType.GOLD) }
@@ -49,7 +47,7 @@ val Aurification = card("Aurification") {
 
     triggeredAbility {
         trigger = Triggers.LeavesBattlefield
-        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures, RemoveCountersEffect(CounterType.GOLD, Int.MAX_VALUE, EffectTarget.IterationEntity))
+        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures, Effects.RemoveCounters(CounterType.GOLD, Int.MAX_VALUE, EffectTarget.IterationEntity))
     }
 
     metadata {

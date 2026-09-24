@@ -5,8 +5,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
@@ -39,12 +37,12 @@ val DutyBeyondDeath = card("Duty Beyond Death") {
                 // Creatures you control gain indestructible until end of turn.
                 Effects.ForEachInGroup(
                     filter = GroupFilter.AllCreaturesYouControl,
-                    effect = GrantKeywordEffect(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)
+                    effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)
                 ),
                 // Put a +1/+1 counter on each creature you control.
                 Effects.ForEachInGroup(
                     filter = GroupFilter.AllCreaturesYouControl,
-                    effect = AddCountersEffect(
+                    effect = Effects.AddCounters(
                         counterType = CounterType.PLUS_ONE_PLUS_ONE,
                         count = 1,
                         target = EffectTarget.IterationEntity

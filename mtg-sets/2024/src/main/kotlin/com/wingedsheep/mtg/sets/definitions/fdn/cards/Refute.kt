@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CounterEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.targets.TargetSpell
 
 
@@ -27,8 +25,8 @@ val Refute = card("Refute") {
     spell {
         val t = target("target", TargetSpell())
         effect = Effects.Composite(
-            CounterEffect(),
-            DrawCardsEffect(1),
+            Effects.CounterSpell(),
+            Effects.DrawCards(1),
             Patterns.Hand.discardCards(1)
         )
     }

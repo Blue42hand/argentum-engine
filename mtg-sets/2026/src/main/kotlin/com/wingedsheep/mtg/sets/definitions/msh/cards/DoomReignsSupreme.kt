@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -91,7 +90,7 @@ val DoomReignsSupreme = card("Doom Reigns Supreme") {
             binding = TriggerBinding.SELF,
         )
         triggerRestriction = Conditions.SourceCounterCountAtLeast(CounterType.PLAN, 5)
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeTarget(EffectTarget.Self),
             optional = false,
             reflexiveEffect = Effects.Pipeline {

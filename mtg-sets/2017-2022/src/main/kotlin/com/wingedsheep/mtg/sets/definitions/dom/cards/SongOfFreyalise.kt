@@ -11,9 +11,6 @@ import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.GrantActivatedAbilityToGroupEffect
-import com.wingedsheep.sdk.scripting.effects.GrantKeywordEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -38,7 +35,7 @@ val SongOfFreyalise = card("Song of Freyalise") {
 
     val creaturesYouControl = GroupFilter.AllCreaturesYouControl
 
-    val manaAbility = GrantActivatedAbilityToGroupEffect(
+    val manaAbility = Effects.GrantActivatedAbilityToGroup(
         ability = ActivatedAbility(
             id = AbilityId.generate(),
             cost = AbilityCost.Tap,
@@ -62,14 +59,14 @@ val SongOfFreyalise = card("Song of Freyalise") {
         effect = Effects.Composite(listOf(
             Effects.ForEachInGroup(
                 filter = creaturesYouControl,
-                effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
+                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
             ),
             Effects.ForEachInGroup(
                 filter = creaturesYouControl,
                 effect = Effects.Composite(listOf(
-                    GrantKeywordEffect(Keyword.VIGILANCE.name, EffectTarget.IterationEntity, Duration.EndOfTurn),
-                    GrantKeywordEffect(Keyword.TRAMPLE.name, EffectTarget.IterationEntity, Duration.EndOfTurn),
-                    GrantKeywordEffect(Keyword.INDESTRUCTIBLE.name, EffectTarget.IterationEntity, Duration.EndOfTurn)
+                    Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.IterationEntity, Duration.EndOfTurn),
+                    Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity, Duration.EndOfTurn),
+                    Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity, Duration.EndOfTurn)
                 ))
             )
         ))

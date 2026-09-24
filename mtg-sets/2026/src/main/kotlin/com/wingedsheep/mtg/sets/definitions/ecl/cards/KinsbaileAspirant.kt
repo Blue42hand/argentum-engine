@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Costs
 
@@ -38,7 +38,7 @@ val KinsbaileAspirant = card("Kinsbaile Aspirant") {
 
     triggeredAbility {
         trigger = Triggers.OtherCreatureEnters
-        effect = ModifyStatsEffect(1, 1, EffectTarget.Self, Duration.EndOfTurn)
+        effect = Effects.ModifyStats(1, 1, EffectTarget.Self, Duration.EndOfTurn)
     }
 
     metadata {

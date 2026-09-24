@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GrantFreeCastTargetFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionRestriction
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
@@ -66,7 +65,7 @@ val PortentOfCalamity = card("Portent of Calamity") {
                     from = exiled,
                     prompt = "You may cast a spell from among the exiled cards without paying its mana cost"
                 )
-                run(GrantFreeCastTargetFromExileEffect(
+                run(Effects.GrantFreeCastTargetFromExile(
                     target = freeCast.asTarget
                 ))
                 toHand(toHandCards)

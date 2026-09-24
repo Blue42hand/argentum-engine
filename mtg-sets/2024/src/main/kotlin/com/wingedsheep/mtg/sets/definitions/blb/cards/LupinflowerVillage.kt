@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
-import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
@@ -32,14 +30,14 @@ val LupinflowerVillage = card("Lupinflower Village") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = AddColorlessManaEffect(1)
+        effect = Effects.AddColorlessMana(1)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = AddManaEffect(Color.WHITE, restriction = ManaRestriction.CreatureSpellsOnly)
+        effect = Effects.AddMana(Color.WHITE, restriction = ManaRestriction.CreatureSpellsOnly)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

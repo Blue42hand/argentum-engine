@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.OnEnterRun
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -47,14 +46,14 @@ val WanderwineHub = card("Wanderwine Hub") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = AddManaEffect(Color.WHITE)
+        effect = Effects.AddMana(Color.WHITE)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = AddManaEffect(Color.BLUE)
+        effect = Effects.AddMana(Color.BLUE)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

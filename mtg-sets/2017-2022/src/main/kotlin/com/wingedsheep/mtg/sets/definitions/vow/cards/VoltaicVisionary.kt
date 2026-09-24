@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBlock
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -69,7 +68,7 @@ private val VoltaicVisionaryFront = card("Voltaic Visionary") {
             exile(voltaicExiled)
             run(Effects.GrantMayPlayFromExile(
                 from = voltaicExiled,
-                onPlayRider = TransformEffect(EffectTarget.Self)
+                onPlayRider = Effects.Transform(EffectTarget.Self)
             ))
         }
         timing = TimingRule.SorcerySpeed

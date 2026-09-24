@@ -13,9 +13,6 @@ import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
-import com.wingedsheep.sdk.scripting.effects.SacrificeTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -53,7 +50,7 @@ val TerminalVelocity = card("Terminal Velocity") {
             binding = TriggerBinding.SELF,
             effect = Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreatures,
-                effect = DealDamageEffect(
+                effect = Effects.DealDamage(
                     amount = DynamicAmount.EntityProperty(
                         entity = EffectTarget.Self,
                         numericProperty = EntityNumericProperty.ManaValue,
@@ -67,7 +64,7 @@ val TerminalVelocity = card("Terminal Velocity") {
         val endStepSacrifice = TriggeredAbility.create(
             trigger = StepEvent(Step.END, Player.You),
             binding = TriggerBinding.ANY,
-            effect = SacrificeTargetEffect(target = EffectTarget.Self),
+            effect = Effects.SacrificeTarget(target = EffectTarget.Self),
             descriptionOverride = "At the beginning of your end step, sacrifice this permanent.",
         )
 
@@ -76,8 +73,8 @@ val TerminalVelocity = card("Terminal Velocity") {
             val put = Patterns.Hand.putFromHandCards
             ifNotEmpty(put) {
                 run(Effects.GrantKeyword(keyword = Keyword.HASTE, target = put.asTarget, duration = Duration.Permanent))
-                run(GrantTriggeredAbilityEffect(ability = ltbDamage, target = put.asTarget, duration = Duration.Permanent))
-                run(GrantTriggeredAbilityEffect(ability = endStepSacrifice, target = put.asTarget, duration = Duration.Permanent))
+                run(Effects.GrantTriggeredAbility(ability = ltbDamage, target = put.asTarget, duration = Duration.Permanent))
+                run(Effects.GrantTriggeredAbility(ability = endStepSacrifice, target = put.asTarget, duration = Duration.Permanent))
             }
         }
     }

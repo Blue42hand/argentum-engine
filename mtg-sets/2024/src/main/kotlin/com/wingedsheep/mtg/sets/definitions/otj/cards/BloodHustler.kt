@@ -6,9 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
@@ -36,7 +33,7 @@ val BloodHustler = card("Blood Hustler") {
     triggeredAbility {
         trigger = Triggers.YouCommitCrime
         oncePerTurn = true
-        effect = AddCountersEffect(
+        effect = Effects.AddCounters(
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 1,
             target = EffectTarget.Self
@@ -49,8 +46,8 @@ val BloodHustler = card("Blood Hustler") {
         cost = Costs.Mana("{3}{B}")
         val t = target("target", TargetOpponent())
         effect = Effects.Composite(
-            LoseLifeEffect(1, t),
-            GainLifeEffect(1, EffectTarget.Controller)
+            Effects.LoseLife(1, t),
+            Effects.GainLife(1, EffectTarget.Controller)
         )
         description = "{3}{B}: Target opponent loses 1 life and you gain 1 life."
     }

@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Costs
@@ -39,14 +37,14 @@ val StarseerMentor = card("Starseer Mentor") {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.YouGainedOrLostLifeThisTurn
         val opponent = target("opponent", Targets.Opponent)
-        effect = PayOrSufferEffect(
+        effect = Effects.PayOrSuffer(
             cost = Costs.pay.Choice(
                 listOf(
                     Costs.pay.Sacrifice(filter = GameObjectFilter.Nonland),
                     Costs.pay.Discard()
                 )
             ),
-            suffer = LoseLifeEffect(
+            suffer = Effects.LoseLife(
                 amount = DynamicAmount.Fixed(3),
                 target = opponent
             ),

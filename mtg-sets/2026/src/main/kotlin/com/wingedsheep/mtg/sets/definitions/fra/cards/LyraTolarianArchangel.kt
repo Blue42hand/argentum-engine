@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -53,7 +52,7 @@ val LyraTolarianArchangel = card("Lyra, Tolarian Archangel") {
 
     activatedAbility {
         cost = Costs.Mana("{3}{U}{U}")
-        effect = GrantTriggeredAbilityEffect(
+        effect = Effects.GrantTriggeredAbility(
             ability = TriggeredAbility.create(
                 trigger = Triggers.DealsCombatDamageToPlayer.event,
                 binding = Triggers.DealsCombatDamageToPlayer.binding,

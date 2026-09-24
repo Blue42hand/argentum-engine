@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 
 /**
  * Stalking Assassin
@@ -27,7 +26,7 @@ val StalkingAssassin = card("Stalking Assassin") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}{U}"), Costs.Tap)
         val t = target("target", Targets.Creature)
-        effect = TapUntapEffect(target = t, tap = true)
+        effect = Effects.Tap(target = t)
     }
 
     activatedAbility {

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 
 /**
  * Saproling Migration
@@ -27,7 +26,7 @@ val SaprolingMigration = card("Saproling Migration") {
     spell {
         effect = Effects.If(
             condition = WasKicked,
-            then = CreateTokenEffect(
+            then = Effects.CreateToken(
                 count = 4,
                 power = 1,
                 toughness = 1,
@@ -35,7 +34,7 @@ val SaprolingMigration = card("Saproling Migration") {
                 creatureTypes = setOf("Saproling"),
                 imageUri = "https://cards.scryfall.io/normal/front/5/3/5371de1b-db33-4db4-a518-e35c71aa72b7.jpg?1562702067"
             ),
-            otherwise = CreateTokenEffect(
+            otherwise = Effects.CreateToken(
                 count = 2,
                 power = 1,
                 toughness = 1,

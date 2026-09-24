@@ -5,9 +5,9 @@
 package com.wingedsheep.mtg.sets.definitions.ulg.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -29,7 +29,7 @@ val ExpendableTroops = card("Expendable Troops") {
     activatedAbility {
         cost = Costs.Composite(Costs.Tap, Costs.SacrificeSelf)
         val t = target("target", TargetCreature(filter = TargetFilter.AttackingOrBlockingCreature))
-        effect = DealDamageEffect(2, t)
+        effect = Effects.DealDamage(2, t)
     }
     metadata {
         rarity = Rarity.COMMON

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -60,7 +59,7 @@ val SavageThallid = card("Savage Thallid") {
             "target",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.Permanent.withSubtype(Subtype.FUNGUS)))
         )
-        effect = RegenerateEffect(t)
+        effect = Effects.Regenerate(t)
         description = "Sacrifice a Saproling: Regenerate target Fungus."
     }
 

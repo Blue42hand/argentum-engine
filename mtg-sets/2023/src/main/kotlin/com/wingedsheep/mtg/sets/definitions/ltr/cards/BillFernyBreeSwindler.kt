@@ -6,10 +6,8 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.GiveControlToTargetPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.effects.RemoveFromCombatEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -44,11 +42,11 @@ val BillFernyBreeSwindler = card("Bill Ferny, Bree Swindler") {
             ),
             // Mode 2: Target opponent gains control of target Horse you control.
             Mode(
-                effect = GiveControlToTargetPlayerEffect(
+                effect = Effects.GiveControl(
                     permanent = EffectTarget.ContextTarget(1),
                     newController = EffectTarget.ContextTarget(0)
                 )
-                    .then(RemoveFromCombatEffect(EffectTarget.Self))
+                    .then(Effects.RemoveFromCombat(EffectTarget.Self))
                     .then(Effects.CreateTreasure(3)),
                 targetRequirements = listOf(
                     Targets.Opponent,

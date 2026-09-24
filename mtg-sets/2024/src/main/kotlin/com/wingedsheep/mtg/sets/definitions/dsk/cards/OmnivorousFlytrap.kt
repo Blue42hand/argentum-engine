@@ -5,8 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachEffect
-import com.wingedsheep.sdk.scripting.effects.IterationSpace
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -50,9 +48,8 @@ val OmnivorousFlytrap = card("Omnivorous Flytrap") {
         Effects.DistributeCountersAmongTargets(totalCounters = 2),
         Effects.If(
             condition = Conditions.Delirium(count = 6),
-            then = ForEachEffect(
-                space = IterationSpace.Targets,
-                body = Effects.DoubleCounters(target = EffectTarget.ContextTarget(0)),
+            then = Effects.ForEachTarget(
+                Effects.DoubleCounters(target = EffectTarget.ContextTarget(0)),
             ),
         ),
     )

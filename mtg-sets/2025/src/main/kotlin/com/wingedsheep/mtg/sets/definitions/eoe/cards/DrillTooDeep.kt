@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -29,7 +28,7 @@ val DrillTooDeep = card("Drill Too Deep") {
         modal(chooseCount = 1) {
             mode("Put five charge counters on target Spacecraft or Planet you control") {
                 val t = target("target planet or spacecraft", TargetPermanent(filter = TargetFilter(GameObjectFilter.Permanent.withSubtype("Planet") or GameObjectFilter.Permanent.withSubtype("Spacecraft"))))
-                effect = AddCountersEffect(CounterType.CHARGE, 5, t)
+                effect = Effects.AddCounters(CounterType.CHARGE, 5, t)
             }
             
             mode("Destroy target artifact") {

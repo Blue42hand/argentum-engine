@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetOther
@@ -49,7 +48,7 @@ val MarkovRetribution = card("Markov Retribution") {
                     TargetCreature(filter = TargetFilter.Creature.withSubtype("Vampire").youControl())
                 )
                 val victim = target("another target creature", TargetOther(TargetCreature()))
-                effect = DealDamageEffect(DynamicAmounts.targetPower(0), victim, damageSource = vampire)
+                effect = Effects.DealDamage(DynamicAmounts.targetPower(0), victim, damageSource = vampire)
             }
             mode(
                 "Creatures you control get +1/+0 until end of turn and target Vampire you " +
@@ -63,7 +62,7 @@ val MarkovRetribution = card("Markov Retribution") {
                 effect = Effects.Composite(
                     listOf(
                         pumpAll,
-                        DealDamageEffect(DynamicAmounts.targetPower(0), victim, damageSource = vampire)
+                        Effects.DealDamage(DynamicAmounts.targetPower(0), victim, damageSource = vampire)
                     )
                 )
             }

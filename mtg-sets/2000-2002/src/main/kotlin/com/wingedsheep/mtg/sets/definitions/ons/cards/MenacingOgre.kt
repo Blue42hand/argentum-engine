@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.YouControlSource
-import com.wingedsheep.sdk.scripting.effects.SecretBidEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -33,7 +32,7 @@ val MenacingOgre = card("Menacing Ogre") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = SecretBidEffect(
+        effect = Effects.SecretBid(
             highestBidderEffect = Effects.Composite(listOf(
                 // Each highest bidder loses life equal to their bid
                 Effects.LoseLife(DynamicAmount.XValue, EffectTarget.Controller),

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
@@ -68,11 +67,9 @@ val HeroesHangout = card("Heroes' Hangout") {
                 description = "Date Night — Exile the top two cards of your library. Choose one of them. Until the end of your next turn, you may play that card.",
             ),
             Mode.withTarget(
-                effect = ForEachTargetEffect(
-                    listOf(
-                        Effects.ModifyStats(1, 0, EffectTarget.ContextTarget(0), Duration.EndOfTurn),
-                        Effects.GrantKeyword(Keyword.FIRST_STRIKE, EffectTarget.ContextTarget(0), Duration.EndOfTurn),
-                    )
+                effect = Effects.ForEachTarget(
+                    Effects.ModifyStats(1, 0, EffectTarget.ContextTarget(0), Duration.EndOfTurn),
+                    Effects.GrantKeyword(Keyword.FIRST_STRIKE, EffectTarget.ContextTarget(0), Duration.EndOfTurn)
                 ),
                 target = TargetCreature(count = 2, minCount = 1),
                 description = "Patrol Night — One or two target creatures each get +1/+0 and gain first strike until end of turn.",

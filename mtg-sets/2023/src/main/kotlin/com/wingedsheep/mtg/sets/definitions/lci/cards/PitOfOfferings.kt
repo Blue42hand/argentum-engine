@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -45,8 +44,8 @@ val PitOfOfferings = card("Pit of Offerings") {
             "cards from graveyards",
             TargetObject(count = 3, optional = true, filter = TargetFilter.CardInGraveyard)
         )
-        effect = ForEachTargetEffect(
-            listOf(Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE, linkToSource = true))
+        effect = Effects.ForEachTarget(
+            Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE, linkToSource = true)
         )
     }
 

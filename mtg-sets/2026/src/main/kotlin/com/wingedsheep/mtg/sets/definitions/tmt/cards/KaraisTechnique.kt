@@ -1,11 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.sneak
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 
 /**
  * Karai's Technique
@@ -30,11 +30,11 @@ val KaraisTechnique = card("Karai's Technique") {
         modal(chooseCount = 2, minChooseCount = 1) {
             mode("Target creature gets +3/+3 until end of turn") {
                 val c = target("target creature", Targets.Creature)
-                effect = ModifyStatsEffect(3, 3, c, Duration.EndOfTurn)
+                effect = Effects.ModifyStats(3, 3, c, Duration.EndOfTurn)
             }
             mode("Target creature gets -3/-3 until end of turn") {
                 val c = target("target creature", Targets.Creature)
-                effect = ModifyStatsEffect(-3, -3, c, Duration.EndOfTurn)
+                effect = Effects.ModifyStats(-3, -3, c, Duration.EndOfTurn)
             }
         }
     }

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.CostGating
 import com.wingedsheep.sdk.scripting.CostModification
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -67,8 +66,8 @@ val RallyTheMonastery = card("Rally the Monastery") {
             ),
             // Up to two target creatures you control each get +2/+2 until end of turn.
             Mode(
-                effect = ForEachTargetEffect(
-                    listOf(Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0)))
+                effect = Effects.ForEachTarget(
+                    Effects.ModifyStats(2, 2, EffectTarget.ContextTarget(0))
                 ),
                 targetRequirements = listOf(
                     TargetCreature(

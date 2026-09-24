@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -47,7 +46,7 @@ val RustElemental = card("Rust Elemental") {
         trigger = Triggers.YourUpkeep
         effect = Effects.If(
             condition = Conditions.YouControl(GameObjectFilter.Artifact, excludeSelf = true),
-            then = SacrificeEffect(GameObjectFilter.Artifact, excludeSource = true),
+            then = Effects.SacrificeOwn(GameObjectFilter.Artifact, excludeSource = true),
             otherwise = Effects.Composite(
                 Effects.Tap(EffectTarget.Self),
                 Effects.LoseLife(4, EffectTarget.PlayerRef(Player.You))

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
@@ -28,7 +27,7 @@ val DecreeOfSavagery = card("Decree of Savagery") {
     spell {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
-            effect = AddCountersEffect(
+            effect = Effects.AddCounters(
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 count = 4,
                 target = EffectTarget.IterationEntity
@@ -42,7 +41,7 @@ val DecreeOfSavagery = card("Decree of Savagery") {
         trigger = Triggers.YouCycleThis
         val t = target("target creature", Targets.Creature)
         effect = Effects.May(
-            AddCountersEffect(
+            Effects.AddCounters(
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 count = 4,
                 target = t

@@ -1,9 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.lgn.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -27,7 +27,7 @@ val GoblinDynamo = card("Goblin Dynamo") {
     activatedAbility {
         cost = Costs.Tap
         val t = target("any target", AnyTarget())
-        effect = DealDamageEffect(
+        effect = Effects.DealDamage(
             amount = DynamicAmount.Fixed(1),
             target = t
         )
@@ -41,7 +41,7 @@ val GoblinDynamo = card("Goblin Dynamo") {
             Costs.SacrificeSelf
         )
         val t = target("any target", AnyTarget())
-        effect = DealDamageEffect(
+        effect = Effects.DealDamage(
             amount = DynamicAmount.XValue,
             target = t
         )

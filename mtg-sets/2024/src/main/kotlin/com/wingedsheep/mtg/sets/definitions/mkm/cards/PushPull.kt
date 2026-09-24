@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -62,7 +61,7 @@ val PushPull = card("Push // Pull") {
                         entered,
                         Effects.Composite(
                             Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn),
-                            CreateDelayedTriggerEffect(
+                            Effects.CreateDelayedTrigger(
                                 step = Step.END,
                                 effect = Effects.SacrificeTarget(EffectTarget.IterationEntity),
                             ),

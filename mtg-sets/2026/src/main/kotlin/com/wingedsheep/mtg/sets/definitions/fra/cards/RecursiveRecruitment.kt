@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -25,7 +24,7 @@ val RecursiveRecruitment = card("Recursive Recruitment") {
 
     spell {
         effect = Effects.Composite(
-            CreateTokenEffect(
+            Effects.CreateToken(
                 count = 2,
                 power = 2,
                 toughness = 2,

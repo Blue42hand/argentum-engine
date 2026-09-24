@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.RepeatDynamicTimesEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -59,7 +58,7 @@ val AnotherRound = card("Another Round") {
         effect = Effects.Composite(
             listOf(
                 oneRound,
-                RepeatDynamicTimesEffect(amount = DynamicAmount.XValue, body = oneRound)
+                Effects.Repeat(amount = DynamicAmount.XValue, body = oneRound)
             )
         )
     }

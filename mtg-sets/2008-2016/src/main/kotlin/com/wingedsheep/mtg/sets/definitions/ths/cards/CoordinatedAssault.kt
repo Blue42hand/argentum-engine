@@ -4,8 +4,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.ForEachEffect
-import com.wingedsheep.sdk.scripting.effects.IterationSpace
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -28,9 +26,8 @@ val CoordinatedAssault = card("Coordinated Assault") {
 
     spell {
         target = TargetCreature(count = 2, optional = true)
-        effect = ForEachEffect(
-            space = IterationSpace.Targets,
-            body = Effects.Composite(
+        effect = Effects.ForEachTarget(
+            Effects.Composite(
                 Effects.ModifyStats(1, 0, target = EffectTarget.ContextTarget(0)),
                 Effects.GrantKeyword(Keyword.FIRST_STRIKE, target = EffectTarget.ContextTarget(0)),
             ),

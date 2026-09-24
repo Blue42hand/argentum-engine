@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -56,7 +54,7 @@ val FinneasAceArcher = card("Finneas, Ace Archer") {
             listOf(
                 Effects.ForEachInGroup(
                     filter = otherTokenOrRabbitYouControl,
-                    effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
+                    effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
                 ),
                 Effects.If(
                     condition = Compare(
@@ -69,7 +67,7 @@ val FinneasAceArcher = card("Finneas, Ace Archer") {
                         operator = ComparisonOperator.GTE,
                         right = DynamicAmount.Fixed(10)
                     ),
-                    then = DrawCardsEffect(DynamicAmount.Fixed(1), EffectTarget.Controller)
+                    then = Effects.DrawCards(DynamicAmount.Fixed(1), EffectTarget.Controller)
                 )
             )
         )

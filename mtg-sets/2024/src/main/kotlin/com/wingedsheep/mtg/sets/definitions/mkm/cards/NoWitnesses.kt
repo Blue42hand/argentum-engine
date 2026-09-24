@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -42,16 +41,14 @@ val NoWitnesses = card("No Witnesses") {
 
     spell {
         effect = Effects.Composite(
-            ForEachPlayerEffect(
+            Effects.ForEachPlayer(
                 players = Player.Each,
-                effects = listOf(
-                    Effects.If(
-                        condition = Conditions.PlayerControlsMostPermanents(
-                            Player.You,
-                            GameObjectFilter.Creature,
-                        ),
-                        then = Effects.Investigate(controller = EffectTarget.Controller),
+                effect = Effects.If(
+                    condition = Conditions.PlayerControlsMostPermanents(
+                        Player.You,
+                        GameObjectFilter.Creature,
                     ),
+                    then = Effects.Investigate(controller = EffectTarget.Controller),
                 ),
             ),
             Effects.DestroyAll(GameObjectFilter.Creature),

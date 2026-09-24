@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -58,7 +57,7 @@ val GlacialDragonhunt = card("Glacial Dragonhunt") {
             // (CR 603.12): it exists only when the discarded card is nonland, and its target
             // creature is chosen as it goes on the stack, not picked during resolution.
             ifNotEmpty(discarded, filter = GameObjectFilter.Nonland) {
-                run(ReflexiveTriggerEffect(
+                run(Effects.ReflexiveTrigger(
                     action = Effects.Composite(emptyList()),
                     optional = false,
                     reflexiveTargetRequirements = listOf(Targets.Creature),

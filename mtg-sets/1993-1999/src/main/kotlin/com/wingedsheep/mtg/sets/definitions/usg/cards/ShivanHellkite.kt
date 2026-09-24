@@ -6,9 +6,9 @@ package com.wingedsheep.mtg.sets.definitions.usg.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 
 
@@ -31,7 +31,7 @@ val ShivanHellkite = card("Shivan Hellkite") {
     activatedAbility {
         cost = Costs.Mana("{1}{R}")
         val t = target("target", AnyTarget())
-        effect = DealDamageEffect(1, t)
+        effect = Effects.DealDamage(1, t)
     }
     metadata {
         rarity = Rarity.RARE

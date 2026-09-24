@@ -4,10 +4,8 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -36,7 +34,7 @@ val JayaBallard = card("Jaya Ballard") {
     // +1: Add {R}{R}{R}. Spend this mana only to cast instant or sorcery spells.
     loyaltyAbility(+1) {
         description = "+1: Add {R}{R}{R}. Spend this mana only to cast instant or sorcery spells."
-        effect = AddManaEffect(Color.RED, 3, ManaRestriction.InstantOrSorceryOnly)
+        effect = Effects.AddMana(Color.RED, 3, ManaRestriction.InstantOrSorceryOnly)
     }
 
     // +1: Discard up to three cards, then draw that many cards
@@ -46,7 +44,7 @@ val JayaBallard = card("Jaya Ballard") {
             val hand = gather(CardSource.FromZone(Zone.HAND, Player.You))
             val toDiscard = chooseUpTo(3, from = hand)
             discard(toDiscard)
-            run(DrawCardsEffect(toDiscard.count))
+            run(Effects.DrawCards(toDiscard.count))
         }
     }
 

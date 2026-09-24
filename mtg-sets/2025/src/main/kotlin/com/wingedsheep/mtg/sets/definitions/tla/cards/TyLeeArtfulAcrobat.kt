@@ -1,13 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.ManaCost
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CantBlockEffect
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -36,12 +33,12 @@ val TyLeeArtfulAcrobat = card("Ty Lee, Artful Acrobat") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = ReflexiveTriggerEffect(
+        effect = Effects.ReflexiveTrigger(
             // "you may pay {1}"
-            action = PayManaCostEffect(ManaCost.parse("{1}")),
+            action = Effects.PayMana("{1}"),
             optional = true,
             // "When you do, target creature can't block this turn."
-            reflexiveEffect = CantBlockEffect(EffectTarget.ContextTarget(0)),
+            reflexiveEffect = Effects.CantBlock(EffectTarget.ContextTarget(0)),
             reflexiveTargetRequirements = listOf(Targets.Creature)
         )
     }

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.BecomeArtifactEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
@@ -85,7 +84,7 @@ val TomBertAndWilliam = card("Tom, Bert, and William") {
                 destination = Zone.BATTLEFIELD,
                 fromZone = Zone.GRAVEYARD
             ),
-            BecomeArtifactEffect(
+            Effects.BecomeArtifact(
                 target = EffectTarget.Self,
                 cardTypes = setOf(CardType.ARTIFACT.name),
                 subtypes = emptySet(),

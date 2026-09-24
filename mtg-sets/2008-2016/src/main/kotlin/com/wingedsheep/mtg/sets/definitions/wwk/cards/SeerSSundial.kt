@@ -1,11 +1,9 @@
 package com.wingedsheep.mtg.sets.definitions.wwk.cards
 
-import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.PayManaCostEffect
 
 /**
  * Seer's Sundial
@@ -28,7 +26,7 @@ val SeerSSundial = card("Seer's Sundial") {
     triggeredAbility {
         trigger = Triggers.LandYouControlEnters
         effect = Effects.MayPay(
-            cost = PayManaCostEffect(ManaCost.parse("{2}")),
+            cost = Effects.PayMana("{2}"),
             then = Effects.DrawCards(1)
         )
     }

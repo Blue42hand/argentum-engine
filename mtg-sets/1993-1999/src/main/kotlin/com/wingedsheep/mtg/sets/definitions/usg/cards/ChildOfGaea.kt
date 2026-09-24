@@ -6,11 +6,10 @@ package com.wingedsheep.mtg.sets.definitions.usg.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -34,11 +33,11 @@ val ChildOfGaea = card("Child of Gaea") {
     keywords(Keyword.TRAMPLE)
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = PayOrSufferEffect(cost = Costs.pay.Mana("{G}{G}"), suffer = SacrificeSelfEffect)
+        effect = Effects.PayOrSuffer(cost = Costs.pay.Mana("{G}{G}"), suffer = SacrificeSelfEffect)
     }
     activatedAbility {
         cost = Costs.Mana("{1}{G}")
-        effect = RegenerateEffect(EffectTarget.Self)
+        effect = Effects.Regenerate(EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.RARE

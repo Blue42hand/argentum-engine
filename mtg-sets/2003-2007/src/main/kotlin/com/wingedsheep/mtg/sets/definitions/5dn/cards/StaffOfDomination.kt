@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GainLifeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -36,7 +34,7 @@ val StaffOfDomination = card("Staff of Domination") {
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
-        effect = GainLifeEffect(1)
+        effect = Effects.GainLife(1)
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}"), Costs.Tap)
@@ -50,7 +48,7 @@ val StaffOfDomination = card("Staff of Domination") {
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{5}"), Costs.Tap)
-        effect = DrawCardsEffect(1)
+        effect = Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.RARE

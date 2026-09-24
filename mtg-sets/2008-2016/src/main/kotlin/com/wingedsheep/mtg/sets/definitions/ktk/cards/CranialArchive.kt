@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -31,7 +30,7 @@ val CranialArchive = card("Cranial Archive") {
         effect = Effects.Pipeline {
             val graveyardCards = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.TargetPlayer))
             move(graveyardCards, CardDestination.ToZone(Zone.LIBRARY, Player.TargetPlayer, ZonePlacement.Shuffled))
-            run(DrawCardsEffect(1))
+            run(Effects.DrawCards(1))
         }
     }
 

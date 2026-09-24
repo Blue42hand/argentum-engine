@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -34,7 +33,7 @@ val ForTheCommonGood = card("For the Common Good") {
         val token = target("token you control", TargetObject(
             filter = TargetFilter(baseFilter = GameObjectFilter.Token.youControl())
         ))
-        effect = CreateTokenCopyOfTargetEffect(
+        effect = Effects.CreateTokenCopyOfTarget(
             target = token,
             count = DynamicAmount.XValue
         ).then(

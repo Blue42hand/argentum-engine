@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.RegenerateEffect
 
 /**
  * Herbal Poultice
@@ -21,7 +21,7 @@ val HerbalPoultice = card("Herbal Poultice") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}"), Costs.SacrificeSelf)
         val creature = target("target creature", Targets.Creature)
-        effect = RegenerateEffect(creature)
+        effect = Effects.Regenerate(creature)
         description = "{3}, Sacrifice this artifact: Regenerate target creature."
     }
 

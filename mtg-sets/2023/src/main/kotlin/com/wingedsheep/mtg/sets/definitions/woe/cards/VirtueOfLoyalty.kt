@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -32,11 +30,11 @@ val VirtueOfLoyalty = card("Virtue of Loyalty") {
         effect = Effects.Composite(
             Effects.ForEachInGroup(
                 GroupFilter.AllCreaturesYouControl,
-                AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
             ),
             Effects.ForEachInGroup(
                 GroupFilter.AllCreaturesYouControl,
-                TapUntapEffect(EffectTarget.IterationEntity, tap = false)
+                Effects.Untap(EffectTarget.IterationEntity)
             )
         )
         description = "At the beginning of your end step, put a +1/+1 counter on each creature " +

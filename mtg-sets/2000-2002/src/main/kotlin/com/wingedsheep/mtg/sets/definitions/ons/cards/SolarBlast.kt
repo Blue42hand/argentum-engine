@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.dsl.Triggers
 
@@ -24,7 +23,7 @@ val SolarBlast = card("Solar Blast") {
 
     spell {
         val t = target("target", Targets.Any)
-        effect = DealDamageEffect(3, t)
+        effect = Effects.DealDamage(3, t)
     }
 
     keywordAbility(KeywordAbility.cycling("{1}{R}{R}"))
@@ -33,7 +32,7 @@ val SolarBlast = card("Solar Blast") {
         trigger = Triggers.YouCycleThis
         val t = target("target", Targets.Any)
         effect = Effects.May(
-            DealDamageEffect(1, t)
+            Effects.DealDamage(1, t)
         )
     }
 

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -64,8 +63,8 @@ val LagorinSoulOfAlacria = card("Lagorin, Soul of Alacria") {
             filter = TargetFilter(MountsAndVehicles),
             id = "two target Mounts and/or Vehicles"
         )
-        effect = ForEachTargetEffect(
-            listOf(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
+        effect = Effects.ForEachTarget(
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
         )
         description = "Whenever Lagorin attacks while saddled, put a +1/+1 counter on each of " +
             "up to two target Mounts and/or Vehicles."

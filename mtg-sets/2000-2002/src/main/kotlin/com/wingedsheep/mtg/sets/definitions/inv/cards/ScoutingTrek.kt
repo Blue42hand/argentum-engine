@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -31,7 +30,7 @@ val ScoutingTrek = card("Scouting Trek") {
                 prompt = "Search your library for any number of basic land cards"
             )
             reveal(found)
-            run(ShuffleLibraryEffect())
+            run(Effects.ShuffleLibrary())
             toLibraryTop(found, order = CardOrder.Preserve)
         }
     }

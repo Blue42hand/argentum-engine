@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -36,12 +35,12 @@ val ArtisticProcess = card("Artistic Process") {
         modal(chooseCount = 1) {
             mode("Artistic Process deals 6 damage to target creature") {
                 val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-                effect = DealDamageEffect(6, t)
+                effect = Effects.DealDamage(6, t)
             }
             mode("Artistic Process deals 2 damage to each creature you don't control") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.opponentControls()),
-                    DealDamageEffect(2, EffectTarget.IterationEntity)
+                    Effects.DealDamage(2, EffectTarget.IterationEntity)
                 )
             }
             mode("Create a 3/3 blue and red Elemental creature token with flying. It gains haste until end of turn") {

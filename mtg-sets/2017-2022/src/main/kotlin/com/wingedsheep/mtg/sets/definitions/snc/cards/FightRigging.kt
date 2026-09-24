@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
@@ -72,7 +71,7 @@ val FightRigging = card("Fight Rigging") {
         val t = target("target", Targets.CreatureYouControl)
         effect = Effects.Composite(
             listOf(
-                AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
+                Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
                 Effects.If(
                     condition = Conditions.YouControlAtLeast(1, GameObjectFilter.Creature.powerAtLeast(7)),
                     then = Effects.May(

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -29,7 +28,7 @@ val ImpossibleInferno = card("Impossible Inferno") {
     spell {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Composite(
-            DealDamageEffect(6, t),
+            Effects.DealDamage(6, t),
             // Delirium: only exile/grant-play if there are four or more card types in your graveyard.
             Effects.If(
                 condition = Conditions.Delirium(),

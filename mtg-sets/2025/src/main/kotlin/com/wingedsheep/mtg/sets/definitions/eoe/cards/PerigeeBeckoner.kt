@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -58,7 +57,7 @@ val PerigeeBeckoner = card("Perigee Beckoner") {
         effect = Effects.Composite(
             listOf(
                 Effects.ModifyStats(2, 0, creature),
-                GrantTriggeredAbilityEffect(
+                Effects.GrantTriggeredAbility(
                     ability = diesReturnTapped,
                     target = creature,
                     duration = Duration.EndOfTurn,

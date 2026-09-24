@@ -8,9 +8,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.BudgetModalEffect
 import com.wingedsheep.sdk.scripting.effects.BudgetMode
-import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
@@ -38,7 +36,7 @@ val SeasonOfGathering = card("Season of Gathering") {
         "{P}{P}{P} — Draw cards equal to the greatest power among creatures you control."
 
     spell {
-        effect = BudgetModalEffect(
+        effect = Effects.BudgetModal(
             budget = 5,
             modes = listOf(
                 // {P} — +1/+1 counter + vigilance + trample on a creature you control
@@ -76,7 +74,7 @@ val SeasonOfGathering = card("Season of Gathering") {
                 // {P}{P}{P} — Draw cards equal to greatest power among creatures you control
                 BudgetMode(
                     cost = 3,
-                    effect = DrawCardsEffect(
+                    effect = Effects.DrawCards(
                         count = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature).maxPower(),
                         target = EffectTarget.Controller
                     ),

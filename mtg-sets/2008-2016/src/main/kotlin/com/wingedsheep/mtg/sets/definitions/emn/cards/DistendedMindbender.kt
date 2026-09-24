@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
@@ -54,7 +53,7 @@ val DistendedMindbender = card("Distended Mindbender") {
         trigger = Triggers.WhenYouCastThisSpell()
         val opponent = target("target opponent", TargetOpponent())
         effect = Effects.Pipeline {
-            run(RevealHandEffect(opponent))
+            run(Effects.RevealHand(opponent))
             val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
             val cheap = chooseExactly(
                 1, from = hand,

@@ -6,9 +6,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
-import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 
 /**
  * Turn Inside Out
@@ -38,8 +36,8 @@ val TurnInsideOut = card("Turn Inside Out") {
     spell {
         val t = target("target creature", Targets.Creature)
         effect = Effects.Composite(
-            ModifyStatsEffect(3, 0, t),
-            CreateDelayedTriggerEffect(
+            Effects.ModifyStats(3, 0, t),
+            Effects.CreateDelayedTrigger(
                 effect = Patterns.Library.manifestDread(),
                 trigger = Triggers.Dies,
                 watchedTarget = t,

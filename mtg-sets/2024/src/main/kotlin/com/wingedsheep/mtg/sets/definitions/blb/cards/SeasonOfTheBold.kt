@@ -6,10 +6,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.BudgetModalEffect
 import com.wingedsheep.sdk.scripting.effects.BudgetMode
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -39,7 +37,7 @@ val SeasonOfTheBold = card("Season of the Bold") {
         "{P}{P}{P} — Until the end of your next turn, whenever you cast a spell, Season of the Bold deals 2 damage to up to one target creature."
 
     spell {
-        effect = BudgetModalEffect(
+        effect = Effects.BudgetModal(
             budget = 5,
             modes = listOf(
                 // {P} — Create a tapped Treasure token
@@ -66,7 +64,7 @@ val SeasonOfTheBold = card("Season of the Bold") {
                         ability = TriggeredAbility.create(
                             trigger = SpellCastEvent(player = Player.You),
                             binding = TriggerBinding.ANY,
-                            effect = DealDamageEffect(
+                            effect = Effects.DealDamage(
                                 amount = DynamicAmount.Fixed(2),
                                 target = EffectTarget.ContextTarget(0)
                             ),

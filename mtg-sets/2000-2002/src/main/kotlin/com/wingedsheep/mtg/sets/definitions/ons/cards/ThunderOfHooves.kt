@@ -4,7 +4,6 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -27,7 +26,7 @@ val ThunderOfHooves = card("Thunder of Hooves") {
     val beastCount = DynamicAmount.AggregateBattlefield(Player.Each, GameObjectFilter.Creature.withSubtype("Beast"))
 
     spell {
-        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures.withoutKeyword(Keyword.FLYING), DealDamageEffect(beastCount, EffectTarget.IterationEntity)) then
+        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures.withoutKeyword(Keyword.FLYING), Effects.DealDamage(beastCount, EffectTarget.IterationEntity)) then
             Effects.ForEachPlayer(Player.Each, listOf(Effects.DealDamage(beastCount, EffectTarget.Controller)))
     }
 

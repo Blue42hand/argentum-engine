@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -53,7 +52,7 @@ val DragonbroodsRelic = card("Dragonbroods' Relic") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}{W}{U}{B}{R}{G}"), Costs.SacrificeSelf)
         timing = TimingRule.SorcerySpeed
-        effect = CreateTokenEffect(
+        effect = Effects.CreateToken(
             power = 4,
             toughness = 4,
             colors = setOf(Color.WHITE, Color.BLUE, Color.BLACK, Color.RED, Color.GREEN),
