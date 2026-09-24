@@ -269,6 +269,5 @@ These are source-backed leads, not claims that every card needs a new executor.
 | Brightflame | Aggregate actual damage dealt after prevention/replacement before life gain. |
 | Master Warcraft | Attack/block declaration choice ownership across engine, server, and client. |
 | Grifter’s Blade | Enter attached as a replacement, rather than an entry trigger. |
-| Chorus of the Conclave | Optional arbitrary extra mana for creature spells, carried into entry counters. |
 | Mindleech Mass | Existing hand selection and free-cast pipeline; prove timing and continuation behavior. |
 | Gaze of the Gorgon | Combat-history tracking and delayed destruction alongside regeneration. |

@@ -317,6 +317,8 @@ export interface XSelectionState {
   selectedX: number
   /** When true, this is a repeat count selector (not X cost) */
   isRepeatCount?: boolean
+  /** When true, this picks the optional extra mana paid for entry counters (Chorus of the Conclave) */
+  isAdditionalManaForCounters?: boolean
 }
 
 /**
@@ -825,6 +827,8 @@ export type PipelinePhase =
   | { type: 'modalModes' }
   | { type: 'counterDistribution' }
   | { type: 'xSelection' }
+  /** "You may pay any amount of mana" as an additional cost (Chorus of the Conclave). */
+  | { type: 'additionalManaForCounters' }
   | { type: 'delve' }
   | { type: 'convoke' }
   | { type: 'tapForGeneric' }
@@ -856,6 +860,7 @@ export type PhaseResult =
       distributedCounterRemovals: ReadonlyArray<{ entityId: EntityId; counterType: string; count: number }>
     }
   | { type: 'xSelection'; xValue: number; isRepeatCount?: boolean }
+  | { type: 'additionalManaForCounters'; amount: number }
   | { type: 'delve'; delvedCards: EntityId[]; modifiedManaCost: string }
   | { type: 'convoke'; convokedCreatures: Record<string, { color: string | null }> }
   | { type: 'tapForGeneric'; tapForGenericPermanents: EntityId[] }

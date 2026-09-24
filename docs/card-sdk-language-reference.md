@@ -8159,6 +8159,16 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
   wraps the ability in a `ConditionalStaticAbility`, and `WarpGrants` matches the bare type
   without unwrapping it — so the grant never applies rather than applying conditionally. Teach
   that read site to unwrap first; `FlashTypeGrants.activeGrant` is the worked example.
+- `AdditionalManaForEntryCounters(spellFilter = Creature, counterType = PlusOnePlusOne)` — "As an additional
+  cost to cast creature spells, you may pay any amount of mana. If you do, that creature enters with that many
+  additional +1/+1 counters on it." (Chorus of the Conclave). While the permanent is on the battlefield under
+  your control (abilities intact), each matching spell you cast may carry `CastSpell.additionalManaForCounters = N`:
+  `{N}` generic is added to the total cost (on top of free/alternative casts — it's an additional cost), the
+  handler rejects N < 0 or N > 0 without an applicable grant (or on a face-down cast), and the spell records
+  `SpellOnStackComponent.additionalEntryCounters` so the permanent enters with N counters even if the granter
+  has left. The legal action carries `maxAdditionalManaForCounters` (a picker bound; the client shows an
+  amount selector before mana payment). Only creature *spells* as cast — never a permanent put onto the
+  battlefield by an effect.
 - `GrantKeywordToOwnSpells(keyword, spellFilter = Creature)` — while this permanent is on the battlefield,
   spells its controller casts matching `spellFilter` effectively have `keyword` ("you cast" semantics). Read by
   the cast machinery via `GrantedKeywordResolver`:

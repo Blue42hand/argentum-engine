@@ -172,6 +172,7 @@ class StackResolver(
         declaredCostSlot: ChoiceSlot? = null,
         wasBlightPaid: Boolean = false,
         wasWaterbendPaid: Boolean = false,
+        additionalEntryCounters: com.wingedsheep.engine.state.components.stack.AdditionalEntryCounters? = null,
         giftRecipient: EntityId? = null,
         wasWarped: Boolean = false,
         wasDashed: Boolean = false,
@@ -328,6 +329,7 @@ class StackResolver(
                 declaredCostSlot = declaredCostSlot,
                 wasBlightPaid = wasBlightPaid,
                 wasWaterbendPaid = wasWaterbendPaid,
+                additionalEntryCounters = additionalEntryCounters,
                 giftRecipient = giftRecipient,
                 splicedCardNames = splicedCardNames,
                 splicedTargetsOrdered = splicedTargetsOrdered,
@@ -1775,6 +1777,21 @@ class StackResolver(
                 )
             newState = riderState
             counterEvents.addAll(riderEvents)
+        }
+
+        // Counters bought while casting (Chorus of the Conclave: "that creature enters with that
+        // many additional +1/+1 counters on it"). Recorded on the spell when the cost was paid, so
+        // they arrive even if the granting permanent has since left the battlefield. Placed through
+        // the shared entry-counter path so counter-modifying replacements see them.
+        val boughtCounters = spellComponent.additionalEntryCounters
+        if (boughtCounters != null && boughtCounters.count > 0) {
+            val (boughtState, boughtEvents) = EntersWithReplacements.placeEntryCounters(
+                newState, spellId,
+                boughtCounters.counterType, boughtCounters.count,
+                controllerId, cardComponent?.name ?: ""
+            )
+            newState = boughtState
+            counterEvents.addAll(boughtEvents)
         }
 
         // Handle the intrinsic entry counters of a planeswalker (starting loyalty, CR 306.5b) or a

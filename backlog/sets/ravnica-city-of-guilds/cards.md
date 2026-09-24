@@ -2,7 +2,7 @@
 
 **Set Size:** 291 cards
 **Release Date:** October 7, 2005
-**Implemented:** 275 / 291
+**Implemented:** 278 / 291
 | Section    | Total | Done |
 |------------|-------|------|
 | White      | 37    | 33   |
@@ -226,7 +226,7 @@
 - [x] Boros Swiftblade
 - [x] Brightflame
 - [x] Centaur Safeguard
-- [ ] Chorus of the Conclave
+- [x] Chorus of the Conclave
 - [x] Circu, Dimir Lobotomist
 - [x] Clutch of the Undercity
 - [x] Congregation at Dawn
