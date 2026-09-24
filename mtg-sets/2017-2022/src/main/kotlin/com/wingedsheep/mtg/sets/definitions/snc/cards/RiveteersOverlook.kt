@@ -10,6 +10,10 @@ import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
+private const val RIVETEERS_OVERLOOK_ORACLE =
+    "When this land enters, sacrifice it. When you do, search your library for a basic Swamp, " +
+        "Mountain, or Forest card, put it onto the battlefield tapped, then shuffle and you gain 1 life."
+
 /**
  * Riveteers Overlook — Streets of New Capenna #255
  * Land
@@ -24,9 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 val RiveteersOverlook = card("Riveteers Overlook") {
     colorIdentity = ""
     typeLine = "Land"
-    oracleText = "When this land enters, sacrifice it. When you do, search your library for a " +
-        "basic Swamp, Mountain, or Forest card, put it onto the battlefield tapped, then shuffle " +
-        "and you gain 1 life."
+    oracleText = RIVETEERS_OVERLOOK_ORACLE
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
@@ -45,7 +47,7 @@ val RiveteersOverlook = card("Riveteers Overlook") {
                 "basic Swamp, Mountain, or Forest card, put it onto the battlefield tapped, then " +
                 "shuffle and you gain 1 life.",
         )
-        description = oracleText
+        description = RIVETEERS_OVERLOOK_ORACLE
     }
 
     metadata {
