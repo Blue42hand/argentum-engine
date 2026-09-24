@@ -5,6 +5,7 @@ import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.stack.*
+import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersWithChoice
@@ -40,7 +41,7 @@ internal class EntersWithChoicePrompt(
 
         return when (choice.choiceType) {
             ChoiceType.COLOR ->
-                promptColor(state, spellId, controllerId, ownerId, cardComponent, chooserId)
+                promptColor(state, spellId, controllerId, ownerId, cardComponent, choice, chooserId)
             ChoiceType.CREATURE_TYPE ->
                 promptCreatureType(state, spellId, controllerId, ownerId, cardComponent, choice, chooserId)
             ChoiceType.CREATURE_ON_BATTLEFIELD ->
@@ -67,6 +68,7 @@ internal class EntersWithChoicePrompt(
         controllerId: EntityId,
         ownerId: EntityId,
         cardComponent: CardComponent,
+        choice: EntersWithChoice,
         chooserId: EntityId
     ): ExecutionResult? {
         val continuation = EntersWithChoiceSpellContinuation(
@@ -80,12 +82,13 @@ internal class EntersWithChoicePrompt(
                 ChooseColorDecision(
                     id = decisionId,
                     playerId = chooserId,
-                    prompt = "Choose a color",
+                    prompt = colorChoicePrompt(choice),
                     context = DecisionContext(
                         sourceId = spellId,
                         sourceName = cardComponent.name,
                         phase = DecisionPhase.RESOLUTION
-                    )
+                    ),
+                    availableColors = Color.entries.toSet() - choice.excludedColors
                 )
             },
             answer = continuation
@@ -384,3 +387,16 @@ internal class EntersWithChoicePrompt(
         )
     }
 }
+
+/**
+ * The prompt for an [EntersWithChoice] of [ChoiceType.COLOR] — "Choose a color", or "Choose a color
+ * other than red" when the choice excludes colors (the Thriving lands). The exclusion itself is
+ * enforced by the decision's `availableColors`; this only keeps the prompt honest about it.
+ */
+internal fun colorChoicePrompt(choice: EntersWithChoice): String =
+    if (choice.excludedColors.isEmpty()) {
+        "Choose a color"
+    } else {
+        "Choose a color other than " +
+            choice.excludedColors.sortedBy { it.ordinal }.joinToString(" or ") { it.displayName.lowercase() }
+    }

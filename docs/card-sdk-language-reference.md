@@ -3592,6 +3592,15 @@ one-off pipeline belongs inline in the card file via `Effects.Pipeline { }` (§5
   (`MoveType.Discard`), so madness and "whenever you discard a card" payoffs see it. Collection
   names are `learn_`-prefixed so a nested Learn can't collide with its host pipeline's `hand` /
   `discarded`. Academic Dispute.
+- `Patterns.Mechanic.temptingOffer(offer, description)` — **Tempting offer** (an ability word, CR
+  207.2c): "[offer]. Each opponent may [offer]. For each opponent who does, [offer] again." Follows
+  the cycle's ruling: you take the offer; every opponent answers yes/no in turn order, knowing the
+  earlier answers; *then* each accepter takes it (APNAP, as their own "you"); then you take it once
+  more per acceptance. Write [offer] from the doer's side (`Player.You`). Composed as
+  `offer` → `ForEachPlayerCollecting(EachOpponent, May(StorePlayer))` →
+  `ForEachPlayer(Player.InCollection(accepted), offer)` → `RepeatDynamicTimes(count, offer)`.
+  Tempt with Bunnies, Tempt with Discovery (the search pattern shuffles each library as its own
+  search finishes, rather than all at the end).
 - `Patterns.Mechanic.recruit()` — **Recruit** (The Hobbit): "draw a card, then discard a card. If you
   discarded a nonland card, create a 1/1 white Human Soldier creature token." A keyword *action* with
   fixed reminder text, not a keyword ability, so there is no `Keyword.RECRUIT` — it is connive's pipeline
@@ -3695,6 +3704,7 @@ e.g. `Effects.DrawCards(Patterns.Hand.discardedHand.count)`,
 | `slot.asSource` | a `CardSource` for a downstream `gather` |
 | `slot.asTarget` / `slot.asTarget(i)` | its first / i-th entity as an `EffectTarget` (`PipelineTarget`) |
 | `slot.controllerOf(i = 0)` | that entity's controller (`ControllerOfPipelineTarget`) |
+| `slot.asPlayers` | the players recorded in it by `storePlayer`, as a plural `Player` (`Player.InCollection`) — `Effects.ForEachPlayer(slot.asPlayers, …)` |
 
 Two collections are seeded by the engine rather than by a step, so they have well-known slots usable
 outside a pipeline too: `CollectionSlot.CreatedTokens` (the tokens the last token-creating effect in
@@ -3749,6 +3759,7 @@ with cards):
 | `gatherSubtypes(from)` | `GatherSubtypesEffect` |
 | `storeCardName(from)` | `StoreCardNameEffect` |
 | `storeNumber(amount)` | `StoreNumberEffect` |
+| `storePlayer(player = You, onlyIf?)` → the players recorded (a `CollectionSlot`; with `onlyIf`, only when the condition holds then). Inside `forEachPlayerCollecting` it records the iterated player, so the aggregate is "each player who …" snapshotted before anyone acts — Plaguecrafter: `forEachPlayerCollecting(ActivePlayerFirst) { listOf(storePlayer(onlyIf = YouControl(CreatureOrPlaneswalker, negate = true))) }` then sacrifice, then `ForEachPlayer(cant.asPlayers, discard)` | `StorePlayerEffect` (wrapped in `Effects.If` for `onlyIf`) |
 | `chooseOption(optionType, …)` / `chooseCardName(prompt?, excludeBasicLandNames?)` / `noteCreatureType(…)` | `ChooseOptionEffect` / `NoteCreatureTypeEffect` |
 | `choosePile(a, b, chooser?, …)` → `(chosen, other)` | `ChoosePileEffect` |
 | `selectTarget(requirement, nonTargeting?)` (resolution-time choice — never printed "target") | `SelectTargetEffect` |
@@ -4039,6 +4050,12 @@ A resolving nonpermanent spell retains its stack instance through serialized eff
   they contribute nothing (CR 608.2b). Like `Each` / `EachOpponent` / `OwnersOfLinkedExile` it is a
   *list-only* reference: the single-player resolver returns null for it deliberately, so a
   `ForEach`-over-players reads it through its own arm.
+- `Player.InCollection(collection)` — "those players": every player a `StorePlayerEffect` recorded in a
+  pipeline collection earlier in the resolution, in APNAP order (CR 101.4), skipping players who
+  have left the game. An empty or missing collection is *nobody*. Reach it as `slot.asPlayers` from a
+  `storePlayer` handle. List-only like `EachTargetedPlayer`: `ForEachPlayer` and the counting
+  primitives read it; the single-player resolver returns null. Plaguecrafter's "each player who
+  can't discards" and the tempting-offer accepters (`Patterns.Mechanic.temptingOffer`).
 - `Player.DefendingPlayer` — CR 802.2a: the player the ability's source is attacking, read from
   the source's attack assignment (a creature attacking a planeswalker defends against its
   controller); once the source has left the battlefield the defender frozen into its exit snapshot
@@ -7744,6 +7761,14 @@ staticAbility {
   `defaultBlockEvasionRules` a declared block goes through. A creature that couldn't have blocked a
   flier by declaring can't be handed one here either. If either direction is illegal the effect does
   nothing at all — not a partial swap.
+- `GrantAdditionalLandDrop(count = 1, affected = Player.You)` — "you may play an additional land on each
+  of your turns" (CR 305.2: a continuous effect raising how many lands a player can play). Copies are
+  additive. `affected` is `Player.You` (Hugs, Grisly Guardian; Oracle of Mul Daya), `Player.Each` for
+  the symmetric "each player may play an additional land on each of their turns" (Rites of
+  Flourishing, Ghirapur Orrery) or `Player.EachOpponent`, all relative to the source's projected
+  controller. Read by `LandDropUtils.getAdditionalLandDrops`, which scans the whole battlefield (a
+  symmetric grant usually sits on another player's side) and unwraps a `ConditionalStaticAbility`;
+  both `PlayLandHandler` and `EnumerationContext` go through it.
 - `PlayersCantPlayLands(affected = Player.Each, condition = null, landFilter = GameObjectFilter.Any)`
   — the land-play sibling of `PlayersCantCastSpells` (Worms of the Earth). Playing a land is a
   *special action*, not casting a spell, so a card stopping one says nothing about the other.
@@ -12098,6 +12123,7 @@ solver picks if there's only one), and that color is added to the pool.
 - `ManaColorSet.AmongPermanents(filter)` — colors of permanents matching `filter`, read via projected state so type/color-changing effects are honored. Mox Amber shape.
 - `ManaColorSet.LandsCouldProduce(scope)` — colors any land in `scope` could produce; tapped state and activation costs are ignored (CR 106.7). `scope` is `LandControllerScope.{YOU, OPPONENTS, ANY}`. Fellwar Stone / Exotic Orchard / Reflecting Pool shape.
 - `ManaColorSet.SourceChosenColor` — the single color stored on the source's `ChosenColorComponent` (set via `EntersWithChoice(ChoiceType.COLOR)`). Uncharted Haven / Ashling Rekindled shape.
+- `ManaColorSet.Union(members)` — the union of two or more pools; the player picks one color from any of them. A fixed color *or* a looked-up one: the Thriving lands' "Add {R} or one mana of the chosen color" is `Union(listOf(Specific(setOf(RED)), SourceChosenColor))`, which still taps for {R} if no color was ever chosen. The resolver, the mana solver and `LandManaColorInspector` all recurse into the members.
 - `ManaColorSet.AmongLinkedExiledCards` — union of the base colors of the cards currently exiled *with* the source permanent — the ids in its `LinkedExileComponent` (set by `MoveToZoneEffect(linkToSource = true)`) that are still in the exile zone. A card that has since left exile drops out of the pool; colorless-only or empty piles produce no mana. Pit of Offerings shape ("any of the exiled cards' colors").
 
 ### `ManaRestriction`
@@ -12667,7 +12693,9 @@ EntersWithChoice(
 - Icons live in `web-client/src/assets/icons/options/`.
 
 **Other `ChoiceType`s** — `ChoiceType.COLOR` writes `ChosenColorComponent` (read by
-`GrantChosenColor`), `ChoiceType.CREATURE_TYPE` writes `ChosenCreatureTypeComponent`,
+`GrantChosenColor`), and takes `excludedColors` for "choose a color other than red" (the Thriving lands — the
+`ChooseColorDecision` offers only the remaining colors and the validator rejects an excluded one),
+`ChoiceType.CREATURE_TYPE` writes `ChosenCreatureTypeComponent`,
 `ChoiceType.CREATURE_ON_BATTLEFIELD` writes `ChosenCreatureComponent`,
 `ChoiceType.BASIC_LAND_TYPE` writes `ChosenLandTypeComponent` (read by
 `SetEnchantedLandTypeFromChosen` and `GrantLandwalkOfChosenType`), and
@@ -13602,6 +13630,11 @@ Counter effects live in §4 (`AddCounters`, `RemoveCounters`, `Proliferate`, `Mo
   single pile face up for everyone — including the caster, before a `ChoosePileEffect` — re-gather
   that pile via `GatherCards(FromVariable("pile"), revealed = true)`; any pile never revealed
   renders to the caster as opaque card backs (Sauron's Ransom's concealed face-down pile).
+- `StorePlayerEffect(storeAs, player = Player.You)` *(SDK-internal step; cards use `Effects.Pipeline { storePlayer }`.)* —
+  append the resolved player to the pipeline collection `storeAs` (players are entities, so it is an
+  ordinary `storedCollections` entry). Read back as `Player.InCollection(storeAs)`. Inside a
+  `ForEachPlayerCollecting` the per-iteration scope starts empty and `collectCollections` unions the
+  records into "every player who …".
 - `CaptureControllersEffect(from, storeAs)` *(SDK-internal step; cards use `Effects.Pipeline { captureControllers }` — §5.5.)* — snapshot each entity's current controller into a parallel
   `List<EntityId>` under `storedCollections[storeAs]`. Required when a later step needs "who controlled
   this card before it left the battlefield" — `ControllerComponent` is stripped on move-out.

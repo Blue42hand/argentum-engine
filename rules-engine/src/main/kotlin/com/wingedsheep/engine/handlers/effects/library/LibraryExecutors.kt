@@ -77,6 +77,7 @@ class LibraryExecutors(
         ChooseOnePerCategoryExecutor(predicateEvaluator = zones.predicateEvaluator),
         PutOnTopOrBottomOfLibraryExecutor(),
         StoreNumberExecutor(amountEvaluator = zones.predicateEvaluator.amounts),
+        StorePlayerExecutor(),
         StoreCardNameExecutor(),
         EmitScriedEventExecutor(),
         EmitClashedEventExecutor(),

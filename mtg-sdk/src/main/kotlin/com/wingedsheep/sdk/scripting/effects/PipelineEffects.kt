@@ -1996,6 +1996,27 @@ data class StoreNumberEffect(
 }
 
 /**
+ * Append the player [player] resolves to onto the pipeline collection [storeAs] — the player-side
+ * sibling of [StoreNumberEffect]. Players are entities, so a collection of them is an ordinary
+ * `storedCollections` entry; [com.wingedsheep.sdk.scripting.references.Player.InCollection] reads it
+ * back as "those players" for a later `ForEachPlayer`.
+ *
+ * Its use is recording *who did something* inside a per-player iteration, where [Player.You] is the
+ * iterated player: `ForEachPlayerCollecting(EachOpponent, May(StorePlayer("did")), "did" to "all")`
+ * collects every opponent who said yes — the tempting-offer tally — and
+ * `If(<no creature>, StorePlayer("cant"))` snapshots each player who can't sacrifice before anyone
+ * does (Plaguecrafter's "each player who can't").
+ */
+@SerialName("StorePlayer")
+@Serializable
+data class StorePlayerEffect(
+    val storeAs: String,
+    val player: Player = Player.You
+) : Effect {
+    override val description: String = "Note ${player.description}"
+}
+
+/**
  * Read the name of the first card in a stored collection and store it under [storeAs] in
  * pipeline `chosenValues`. Subsequent effects can match cards against it via
  * [com.wingedsheep.sdk.scripting.predicates.CardPredicate.NameEqualsChosen] (e.g.

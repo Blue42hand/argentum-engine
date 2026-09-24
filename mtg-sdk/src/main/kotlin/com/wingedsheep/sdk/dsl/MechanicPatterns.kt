@@ -38,6 +38,8 @@ import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
+import com.wingedsheep.sdk.scripting.effects.StorePlayerEffect
+import com.wingedsheep.sdk.scripting.effects.RepeatDynamicTimesEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -45,7 +47,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Named MTG keyword-mechanic recipes (Blight, Bolster, Empower Jace, Explore, Forage, Gift, Incubate,
- * Learn, Recruit).
+ * Learn, Recruit, Tempting offer).
  *
  * Reached through the [Patterns] index — `Patterns.Mechanic.blight(...)`. Each composes existing
  * atomic effects into the printed keyword behaviour; they live here (rather than a zone-based
@@ -89,6 +91,49 @@ object MechanicPatterns {
                 ),
                 AddCountersToCollectionEffect("blighted", CounterType.MINUS_ONE_MINUS_ONE, amount)
             )
+        )
+    }
+
+    /**
+     * Tempting offer (an ability word, CR 207.2c) — "[offer]. Then each opponent may [offer]. For each
+     * opponent who does, [offer] again for you." Tempt with Bunnies, Tempt with Discovery.
+     *
+     * Follows the cycle's ruling: you do [offer]; then every opponent decides, in turn order and
+     * knowing the earlier answers, whether to accept; *then* [offer] happens for each opponent who
+     * accepted (in APNAP order, each as that opponent's own "you"); then it happens again for you
+     * once per accepting opponent. No opponent acts before every opponent has answered.
+     *
+     * Composed from the player-recording primitives: a `ForEachPlayerCollecting` over
+     * [Player.EachOpponent] whose body is a yes/no that records the opponent
+     * ([StorePlayerEffect]), a `ForEachPlayer` over the recorded players
+     * ([Player.InCollection]), and a [RepeatDynamicTimesEffect] sized by the recorded count.
+     *
+     * @param offer What "you" do — written from the doer's point of view ([Player.You] / the
+     *   controller), since each accepting opponent runs it as themselves.
+     * @param description The printed text of the whole ability, which the composite's derived text
+     *   can't reproduce.
+     */
+    fun temptingOffer(offer: Effect, description: String): CompositeEffect {
+        val accepter = "temptingOfferAccepter"
+        val accepted = "temptingOfferAccepted"
+        return CompositeEffect(
+            listOf(
+                offer,
+                com.wingedsheep.sdk.scripting.effects.ForEachPlayerCollectingEffect(
+                    players = Player.EachOpponent,
+                    effects = listOf(
+                        Effects.May(
+                            StorePlayerEffect(storeAs = accepter),
+                            prompt = "Accept the tempting offer? (${offer.description})",
+                            descriptionOverride = "You may accept the tempting offer",
+                        )
+                    ),
+                    collectCollections = mapOf(accepter to accepted),
+                ),
+                com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect(Player.InCollection(accepted), listOf(offer)),
+                RepeatDynamicTimesEffect(DynamicAmount.DistinctEntitiesInCollections(listOf(accepted)), offer),
+            ),
+            descriptionOverride = description,
         )
     }
 

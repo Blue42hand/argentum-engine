@@ -2319,6 +2319,75 @@
     ]
 }
 
+// Ghirapur Orrery
+{
+    "name": "Ghirapur Orrery",
+    "manaCost": "{4}",
+    "typeLine": "Artifact",
+    "oracleText": "Each player may play an additional land on each of their turns.\nAt the beginning of each player's upkeep, if that player has no cards in hand, that player draws three cards.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Ghirapur Orrery:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP",
+                    "player": "Each"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "TriggeringPlayer"
+                    }
+                },
+                "interveningIf": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "Count",
+                        "player": "TriggeringPlayer",
+                        "zone": "Hand"
+                    },
+                    "operator": "EQ",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 0
+                    }
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantAdditionalLandDrop",
+                "affected": "Each"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "216",
+        "rarity": "RARE",
+        "artist": "Kirsten Zirngibl",
+        "flavorText": "This detailed model allows the edificers to examine the city from every angle.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/9/c9bff744-873b-4fa1-8088-5f28bbcdc7b8.jpg?1783937155",
+        "rulings": [
+            {
+                "date": "2016-09-20",
+                "text": "Ghirapur Orrery's first ability allows a player to play an additional land during their main phase. Doing so follows the normal timing rules for playing lands."
+            },
+            {
+                "date": "2016-09-20",
+                "text": "If the player has any cards in hand as Ghirapur Orrery's second ability resolves, the ability does nothing. Notably, a second Ghirapur Orrery won't have a player draw another three cards unless the player empties their hand after resolving the first one's trigger."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
 // Giant Spectacle
 {
     "name": "Giant Spectacle",

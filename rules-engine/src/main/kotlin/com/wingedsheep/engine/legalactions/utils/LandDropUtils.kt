@@ -115,22 +115,32 @@ object LandDropUtils {
         cardRegistry: CardRegistry,
         conditionEvaluator: ConditionEvaluator
     ): Int {
+        // Scans the whole battlefield, not just [playerId]'s permanents: a symmetric grant
+        // (`affected = Player.Each` — Rites of Flourishing) usually sits on someone else's side.
+        val projected = state.projectedState
         var bonus = 0
-        for (entityId in state.getBattlefield(playerId)) {
+        for (entityId in state.getBattlefield()) {
             val card = state.getEntity(entityId)?.get<CardComponent>() ?: continue
             val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
+            val sourceController = projected.getController(entityId) ?: continue
             for (ability in cardDef.script.staticAbilities) {
-                when (ability) {
-                    is GrantAdditionalLandDrop -> bonus += ability.count
+                val grant = when (ability) {
+                    is GrantAdditionalLandDrop -> ability
                     is ConditionalStaticAbility -> {
                         val inner = ability.ability as? GrantAdditionalLandDrop ?: continue
-                        val context = EffectContext(sourceId = entityId, controllerId = playerId)
-                        if (conditionEvaluator.evaluate(state, ability.condition, context)) {
-                            bonus += inner.count
-                        }
+                        val context = EffectContext(sourceId = entityId, controllerId = sourceController)
+                        if (!conditionEvaluator.evaluate(state, ability.condition, context)) continue
+                        inner
                     }
-                    else -> {}
+                    else -> continue
                 }
+                val grantsPlayer = when (grant.affected) {
+                    Player.Each -> true
+                    Player.EachOpponent -> playerId != sourceController &&
+                        playerId in state.getOpponents(sourceController)
+                    else -> playerId == sourceController
+                }
+                if (grantsPlayer) bonus += grant.count
             }
         }
         return bonus

@@ -322,8 +322,19 @@ object TargetResolutionUtils {
             // either to its first player is exactly the bug they exist to avoid, so neither gets a
             // single-player arm.
             Player.Each, Player.EachOpponent, Player.ActivePlayerFirst,
-            Player.EachTargetedPlayer, Player.OwnersOfLinkedExile -> null
+            Player.EachTargetedPlayer, Player.OwnersOfLinkedExile, is Player.InCollection -> null
         }
+    }
+
+    /**
+     * The players a `StorePlayer` step recorded in the pipeline collection [collection]
+     * ([Player.InCollection]), in APNAP order (CR 101.4), skipping anyone who has left the game.
+     * A missing or empty collection is nobody.
+     */
+    fun playersInCollection(state: GameState, context: EffectContext, collection: String): List<EntityId> {
+        val recorded = context.pipeline.storedCollections[collection].orEmpty().toSet()
+        if (recorded.isEmpty()) return emptyList()
+        return state.apnapOrder.filter { it in recorded }
     }
 
     /**

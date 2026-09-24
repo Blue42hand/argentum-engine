@@ -258,6 +258,11 @@ class ForEachExecutor(
             // "those players" — iterate every player among the chosen targets. Needs its own arm:
             // the `else` below routes through the single-player resolver, which deliberately
             // returns null for plural references, so a ForEach over them would silently do nothing.
+            // "those players" — the players a `StorePlayer` step recorded earlier in this
+            // resolution (tempting offer's accepters, Plaguecrafter's "each player who can't"),
+            // in APNAP order and skipping anyone who has left the game. A missing collection is
+            // nobody, not everybody.
+            is Player.InCollection -> TargetResolutionUtils.playersInCollection(state, context, player.collection)
             Player.EachTargetedPlayer -> context.targets
                 .filterIsInstance<com.wingedsheep.engine.state.components.stack.ChosenTarget.Player>()
                 .map { it.playerId }
