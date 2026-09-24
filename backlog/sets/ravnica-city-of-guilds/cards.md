@@ -301,7 +301,7 @@
 - [x] Peregrine Mask
 - [x] Plague Boiler
 - [x] Selesnya Signet
-- [ ] Spectral Searchlight
+- [x] Spectral Searchlight
 - [x] Sunforger
 - [x] Terrarion
 - [x] Voyager Staff
