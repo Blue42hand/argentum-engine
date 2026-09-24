@@ -43,12 +43,12 @@ val OldRutstein = card("Old Rutstein") {
         Patterns.Library.mill(1),
         // If a land card is milled this way, create a Treasure token.
         Effects.If(
-            condition = Conditions.CollectionContainsMatch("milled", GameObjectFilter.Land),
+            condition = Conditions.CollectionContainsMatch(Patterns.Library.milled, GameObjectFilter.Land),
             then = Effects.CreateTreasure()
         ),
         // If a creature card is milled this way, create a 1/1 green Insect creature token.
         Effects.If(
-            condition = Conditions.CollectionContainsMatch("milled", GameObjectFilter.Creature),
+            condition = Conditions.CollectionContainsMatch(Patterns.Library.milled, GameObjectFilter.Creature),
             then = Effects.CreateToken(
                 power = 1,
                 toughness = 1,
@@ -58,8 +58,7 @@ val OldRutstein = card("Old Rutstein") {
         ),
         // If a noncreature, nonland card is milled this way, create a Blood token.
         Effects.If(
-            condition = Conditions.CollectionContainsMatch(
-                "milled",
+            condition = Conditions.CollectionContainsMatch(Patterns.Library.milled,
                 GameObjectFilter.Noncreature and GameObjectFilter.Nonland
             ),
             then = Effects.CreateBlood()

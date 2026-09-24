@@ -53,13 +53,13 @@ val CultivatorColossus = card("Cultivator Colossus") {
                 Patterns.Hand.putFromHand(GameObjectFilter.Land, count = 1, entersTapped = true),
                 // "If you do, draw a card"
                 Effects.If(
-                    condition = Conditions.CollectionContainsMatch("putting", GameObjectFilter.Land),
+                    condition = Conditions.CollectionContainsMatch(Patterns.Hand.putFromHandCards, GameObjectFilter.Land),
                     then = Effects.DrawCards(1)
                 )
             ),
             // "and repeat this process" — continue only while a land was put this pass.
             repeatCondition = RepeatCondition.WhileCondition(
-                Conditions.CollectionContainsMatch("putting", GameObjectFilter.Land)
+                Conditions.CollectionContainsMatch(Patterns.Hand.putFromHandCards, GameObjectFilter.Land)
             )
         )
         description = "When this creature enters, you may put a land card from your hand onto the " +

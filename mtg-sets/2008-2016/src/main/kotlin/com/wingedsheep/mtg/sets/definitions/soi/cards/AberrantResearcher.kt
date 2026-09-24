@@ -52,7 +52,7 @@ private val AberrantResearcherFront = card("Aberrant Researcher") {
         effect = Effects.Composite(
             Patterns.Library.mill(1),
             Effects.If(
-                condition = Conditions.CollectionContainsMatch("milled", GameObjectFilter.InstantOrSorcery),
+                condition = Conditions.CollectionContainsMatch(Patterns.Library.milled, GameObjectFilter.InstantOrSorcery),
                 then = TransformEffect(EffectTarget.Self),
             ),
         )

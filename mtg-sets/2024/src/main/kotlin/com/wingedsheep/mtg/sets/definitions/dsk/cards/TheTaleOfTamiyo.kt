@@ -54,12 +54,12 @@ val TheTaleOfTamiyo = card("The Tale of Tamiyo") {
         body = Effects.Composite(
             Patterns.Library.mill(2),
             Effects.If(
-                condition = Conditions.CollectionSharesCardType("milled"),
+                condition = Conditions.CollectionSharesCardType(Patterns.Library.milled),
                 then = Effects.DrawCards(1),
             ),
         ),
         repeatCondition = RepeatCondition.WhileCondition(
-            Conditions.CollectionSharesCardType("milled")
+            Conditions.CollectionSharesCardType(Patterns.Library.milled)
         ),
     )
 

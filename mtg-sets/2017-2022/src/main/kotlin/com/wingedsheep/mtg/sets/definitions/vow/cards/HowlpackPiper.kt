@@ -68,8 +68,7 @@ private val HowlpackPiperFront = card("Howlpack Piper") {
         effect = Effects.Composite(
             Patterns.Hand.putFromHand(filter = GameObjectFilter.Creature, count = 1),
             Effects.If(
-                condition = Conditions.CollectionContainsMatch(
-                    "putting",
+                condition = Conditions.CollectionContainsMatch(Patterns.Hand.putFromHandCards,
                     GameObjectFilter.Creature.withAnySubtype("Wolf", "Werewolf"),
                 ),
                 then = Effects.Untap(EffectTarget.Self),

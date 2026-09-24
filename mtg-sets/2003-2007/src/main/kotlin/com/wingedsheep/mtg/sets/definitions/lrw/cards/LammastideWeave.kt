@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
@@ -47,11 +48,10 @@ val LammastideWeave = card("Lammastide Weave") {
             val weaveChosenName = chooseCardName(prompt = "Choose a card name")
             run(Patterns.Library.mill(1, EffectTarget.ContextTarget(0)))
             run(Effects.If(
-                condition = Conditions.CollectionContainsMatch(
-                    "milled",
+                condition = Conditions.CollectionContainsMatch(Patterns.Library.milled,
                     GameObjectFilter.Any.namedFromVariable(weaveChosenName),
                 ),
-                then = Effects.GainLife(DynamicAmount.ManaValueSumOfCollection("milled")),
+                then = Effects.GainLife(DynamicAmounts.manaValueSumOf(Patterns.Library.milled)),
             ))
             run(Effects.DrawCards(1))
         }

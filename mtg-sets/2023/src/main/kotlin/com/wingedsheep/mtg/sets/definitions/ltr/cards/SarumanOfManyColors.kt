@@ -96,7 +96,7 @@ val SarumanOfManyColors = card("Saruman of Many Colors") {
             optional = false,
             // Gate on "one or more cards milled this way": only exile/copy/cast if a card was milled.
             reflexiveEffect = Effects.If(
-                condition = Conditions.CollectionContainsMatch("milled"),
+                condition = Conditions.CollectionContainsMatch(Patterns.Library.milled),
                 then = Effects.Pipeline {
                     run(Effects.Move(exiledCard, Zone.EXILE))
                     val copy = copyCard(exiledCard)

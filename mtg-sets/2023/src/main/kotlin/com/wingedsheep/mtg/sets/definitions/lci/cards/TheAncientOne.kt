@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.lci.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
@@ -84,7 +85,7 @@ val TheAncientOne = card("The Ancient One") {
                 action = Patterns.Hand.discardCards(1),
                 optional = false,
                 reflexiveEffect = Patterns.Library.mill(
-                    DynamicAmount.StoredCardManaValue("discarded"),
+                    DynamicAmounts.manaValueOf(Patterns.Hand.discarded),
                     EffectTarget.ContextTarget(0)
                 ),
                 reflexiveTargetRequirements = listOf(Targets.Player)

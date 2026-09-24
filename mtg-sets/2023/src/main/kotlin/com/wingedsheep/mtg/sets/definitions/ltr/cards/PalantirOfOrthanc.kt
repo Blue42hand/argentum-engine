@@ -50,7 +50,7 @@ val PalantirOfOrthanc = card("Palantír of Orthanc") {
                     otherwise = Effects.Composite(
                         listOf(
                             Patterns.Library.mill(influenceCount, EffectTarget.Controller),
-                            Effects.LoseLife(DynamicAmounts.manaValueSumOf("milled"), opponent)
+                            Effects.LoseLife(DynamicAmounts.manaValueSumOf(Patterns.Library.milled), opponent)
                         )
                     )
                 )
