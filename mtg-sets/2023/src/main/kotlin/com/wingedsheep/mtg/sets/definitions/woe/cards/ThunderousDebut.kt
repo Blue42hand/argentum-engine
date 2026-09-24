@@ -65,14 +65,8 @@ val ThunderousDebut = card("Thunderous Debut") {
             run(
                 Effects.If(
                     condition = Conditions.WasBargained,
-                    then = MoveCollectionEffect(
-                        from = chosen.key,
-                        destination = CardDestination.ToZone(Zone.BATTLEFIELD),
-                    ),
-                    otherwise = MoveCollectionEffect(
-                        from = chosen.key,
-                        destination = CardDestination.ToZone(Zone.HAND),
-                    ),
+                    then = Effects.Pipeline { move(chosen, CardDestination.ToZone(Zone.BATTLEFIELD)) },
+                    otherwise = Effects.Pipeline { toHand(chosen) },
                 )
             )
             run(ShuffleLibraryEffect())

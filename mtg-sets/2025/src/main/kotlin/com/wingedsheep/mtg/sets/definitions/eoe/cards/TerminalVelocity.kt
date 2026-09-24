@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeTargetEffect
@@ -72,30 +71,15 @@ val TerminalVelocity = card("Terminal Velocity") {
             descriptionOverride = "At the beginning of your end step, sacrifice this permanent.",
         )
 
-        val grantClause = ConditionalOnCollectionEffect(
-            collection = "putting",
-            ifNotEmpty = Effects.Composite(
-                Effects.GrantKeyword(
-                    keyword = Keyword.HASTE,
-                    target = EffectTarget.PipelineTarget("putting", 0),
-                    duration = Duration.Permanent,
-                ),
-                GrantTriggeredAbilityEffect(
-                    ability = ltbDamage,
-                    target = EffectTarget.PipelineTarget("putting", 0),
-                    duration = Duration.Permanent,
-                ),
-                GrantTriggeredAbilityEffect(
-                    ability = endStepSacrifice,
-                    target = EffectTarget.PipelineTarget("putting", 0),
-                    duration = Duration.Permanent,
-                ),
-            ),
-        )
-
-        effect = Patterns.Hand.putFromHand(
-            filter = GameObjectFilter.Artifact or GameObjectFilter.Creature,
-        ) then grantClause
+        effect = Effects.Pipeline {
+            run(Patterns.Hand.putFromHand(filter = GameObjectFilter.Artifact or GameObjectFilter.Creature))
+            val put = Patterns.Hand.putFromHandCards
+            ifNotEmpty(put) {
+                run(Effects.GrantKeyword(keyword = Keyword.HASTE, target = put.asTarget, duration = Duration.Permanent))
+                run(GrantTriggeredAbilityEffect(ability = ltbDamage, target = put.asTarget, duration = Duration.Permanent))
+                run(GrantTriggeredAbilityEffect(ability = endStepSacrifice, target = put.asTarget, duration = Duration.Permanent))
+            }
+        }
     }
 
     metadata {

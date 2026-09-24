@@ -71,7 +71,6 @@ val QuestingDruid = card("Questing Druid") {
             effect = Patterns.Exile.impulse(
                 count = 2,
                 expiry = MayPlayExpiry.UntilNextEndStep,
-                storeAs = "seek_the_beast_exiled",
             )
         }
     }

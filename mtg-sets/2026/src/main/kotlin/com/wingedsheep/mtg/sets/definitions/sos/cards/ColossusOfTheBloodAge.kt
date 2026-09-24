@@ -61,7 +61,7 @@ val ColossusOfTheBloodAge = card("Colossus of the Blood Age") {
             run(
                 DrawCardsEffect(
                     DynamicAmount.Add(
-                        DynamicAmount.VariableReference("${discarded.key}_count"),
+                        discarded.count,
                         DynamicAmount.Fixed(1)
                     ),
                     EffectTarget.Controller

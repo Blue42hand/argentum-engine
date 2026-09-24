@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -72,7 +73,7 @@ val FaerieSlumberParty = card("Faerie Slumber Party") {
             run(
                 woeFaerieToken(
                     count = DynamicAmount.Multiply(
-                        DynamicAmount.DistinctEntitiesInCollections(listOf(controllers.key)),
+                        DynamicAmounts.distinctEntitiesIn(controllers),
                         2,
                     )
                 )

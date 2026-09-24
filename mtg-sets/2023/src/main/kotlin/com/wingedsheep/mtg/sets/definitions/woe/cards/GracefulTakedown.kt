@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -70,8 +69,8 @@ val GracefulTakedown = card("Graceful Takedown") {
             val chosen = gather(CardSource.ChosenTargets)
             val dealers = filter(chosen, GameObjectFilter.Creature.youControl())
             run(
-                ForEachInCollectionEffect(
-                    collection = dealers.key,
+                Effects.ForEachInCollection(
+                    collection = dealers,
                     effect = DealDamageEffect(
                         amount = DynamicAmount.EntityProperty(
                             EffectTarget.IterationEntity,

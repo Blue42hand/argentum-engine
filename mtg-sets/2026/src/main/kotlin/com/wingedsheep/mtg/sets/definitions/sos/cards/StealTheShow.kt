@@ -58,7 +58,7 @@ val StealTheShow = card("Steal the Show") {
                     )
                     run(
                         DrawCardsEffect(
-                            DynamicAmount.VariableReference("${discarded.key}_count"),
+                            discarded.count,
                             EffectTarget.ContextTarget(0)
                         )
                     )

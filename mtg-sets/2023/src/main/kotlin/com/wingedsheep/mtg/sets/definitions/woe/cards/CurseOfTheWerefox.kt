@@ -49,7 +49,7 @@ val CurseOfTheWerefox = card("Curse of the Werefox") {
                     action = Effects.CreateRoleToken("Monster Role", host),
                     optional = false,
                     reflexiveEffect = Effects.Fight(
-                        EffectTarget.PipelineTarget(enchanted.key),
+                        enchanted.asTarget,
                         EffectTarget.ContextTarget(0)
                     ),
                     reflexiveTargetRequirements = listOf(

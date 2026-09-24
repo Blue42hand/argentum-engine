@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.namedFromVariable
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -55,26 +56,24 @@ val LiarsPendulum = card("Liar's Pendulum") {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
         target("target opponent", Targets.Opponent)
 
-        effect = Effects.ChooseCardName(
-            storeAs = "pendulumName",
-            prompt = "Choose a card name"
-        )
-            .then(
+        effect = Effects.Pipeline {
+            val pendulumName = chooseCardName(prompt = "Choose a card name")
+            run(
                 Effects.PlayerGuessesCondition(
                     condition = Exists(
                         player = Player.You,
                         zone = Zone.HAND,
-                        filter = GameObjectFilter.Any.namedFromVariable("pendulumName")
+                        filter = GameObjectFilter.Any.namedFromVariable(pendulumName)
                     ),
                     // "your opponent" reads from the guesser's side; the decision also carries this
                     // artifact's name, so a multiplayer table can still tell whose hand is meant.
                     prompt = "Is a card named \"{name}\" in your opponent's hand?",
+                    promptName = pendulumName,
                     storeGuessedRightAs = "pendulumGuessedRight",
-                    guesser = Chooser.TargetPlayer,
-                    promptNameVariable = "pendulumName"
+                    guesser = Chooser.TargetPlayer
                 )
             )
-            .then(
+            run(
                 Effects.May(
                     effect = RevealHandEffect(EffectTarget.Controller)
                         .then(
@@ -91,6 +90,7 @@ val LiarsPendulum = card("Liar's Pendulum") {
                     descriptionOverride = "reveal your hand",
                 )
             )
+        }
 
         description = "Choose a card name. Target opponent guesses whether a card with that name " +
             "is in your hand. You may reveal your hand. If you do and your opponent guessed " +

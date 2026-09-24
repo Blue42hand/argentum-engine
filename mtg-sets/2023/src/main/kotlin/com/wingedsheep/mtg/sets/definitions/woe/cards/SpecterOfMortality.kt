@@ -77,7 +77,7 @@ val SpecterOfMortality = card("Specter of Mortality") {
                 destination = CardDestination.ToZone(Zone.EXILE)
             )
             ifNotEmpty(exiled) {
-                val exiledCount = DynamicAmount.VariableReference("exiledCreatures_count")
+                val exiledCount = exiled.count
                 run(
                     Patterns.Group.modifyStatsForAll(
                         power = DynamicAmount.Multiply(exiledCount, -1),

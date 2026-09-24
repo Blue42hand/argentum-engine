@@ -9,22 +9,21 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 // Create a token that's a copy of the card in this Saga's linked exile, except it isn't legendary
 // and is a Mutant in addition to its other types (the Mardu Siegebreaker gather→copy idiom).
-private fun cloneFromLinkedExile(): Effect =
-    GatherCardsEffect(source = CardSource.FromLinkedExile(), storeAs = "cloningExile")
-        .then(
-            Effects.CreateTokenCopyOfTarget(
-                target = EffectTarget.PipelineTarget("cloningExile"),
-                removedSupertypes = setOf(Supertype.LEGENDARY),
-                addedSubtypes = setOf(Subtype("Mutant"))
-            )
+private fun cloneFromLinkedExile(): Effect = Effects.Pipeline {
+    val exiled = gather(CardSource.FromLinkedExile())
+    run(
+        Effects.CreateTokenCopyOfTarget(
+            target = exiled.asTarget,
+            removedSupertypes = setOf(Supertype.LEGENDARY),
+            addedSubtypes = setOf(Subtype("Mutant"))
         )
+    )
+}
 
 /**
  * The Cloning of Shredder

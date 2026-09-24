@@ -47,7 +47,7 @@ val BorrowedKnowledge = card("Borrowed Knowledge") {
             mode("Discard your hand, then draw cards equal to the number of cards discarded this way") {
                 effect = Effects.Composite(
                     Patterns.Hand.discardHand(),
-                    Effects.DrawCards(DynamicAmount.VariableReference("discardedHand_count")),
+                    Effects.DrawCards(Patterns.Hand.discardedHand.count),
                 )
             }
         }

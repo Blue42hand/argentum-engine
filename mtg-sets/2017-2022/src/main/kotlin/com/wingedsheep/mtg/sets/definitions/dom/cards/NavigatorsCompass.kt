@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.AddSubtypeEffect
 import com.wingedsheep.sdk.scripting.effects.OptionType
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
@@ -39,11 +38,7 @@ val NavigatorsCompass = card("Navigator's Compass") {
         cost = AbilityCost.Tap
         effect = Effects.Pipeline {
             val chosenLandType = chooseOption(OptionType.BASIC_LAND_TYPE)
-            run(AddSubtypeEffect(
-                target = land,
-                duration = Duration.EndOfTurn,
-                fromChosenValueKey = chosenLandType.key
-            ))
+            run(Effects.AddSubtype(target = land, fromChosen = chosenLandType, duration = Duration.EndOfTurn))
         }
     }
 

@@ -65,20 +65,14 @@ val RotisserieElemental = card("Rotisserie Elemental") {
         effect = Effects.AddCounters(CounterType.SKEWER, 1, EffectTarget.Self)
             .then(
                 Effects.May(
-                    GatherCardsEffect(
-                        source = CardSource.TopOfLibrary(
-                            DynamicAmounts.countersOnSelf(CounterType.SKEWER)
-                        ),
-                        storeAs = "skeweredCards"
-                    )
-                        .then(SacrificeSelfEffect)
-                        .then(
-                            MoveCollectionEffect(
-                                from = "skeweredCards",
-                                destination = CardDestination.ToZone(Zone.EXILE)
-                            )
+                    Effects.Pipeline {
+                        val skeweredCards = gather(
+                            CardSource.TopOfLibrary(DynamicAmounts.countersOnSelf(CounterType.SKEWER))
                         )
-                        .then(GrantMayPlayFromExileEffect("skeweredCards")),
+                        run(SacrificeSelfEffect)
+                        exile(skeweredCards)
+                        run(Effects.GrantMayPlayFromExile(skeweredCards))
+                    },
                     descriptionOverride = "You may sacrifice Rotisserie Elemental to exile that " +
                         "many cards from the top of your library and play them this turn.",
                     sourceRequiredZone = Zone.BATTLEFIELD

@@ -66,15 +66,10 @@ val RalZarekGuestLecturer = card("Ral Zarek, Guest Lecturer") {
     // −7: Flip five coins. Target opponent skips their next X turns, where X is heads.
     loyaltyAbility(-7) {
         val opponent = target("target opponent", Targets.Opponent)
-        effect = Effects.Composite(
-            listOf(
-                Effects.FlipCoins(5, storeHeadsAs = "heads"),
-                Effects.SkipNextTurn(
-                    target = opponent,
-                    count = DynamicAmount.VariableReference("heads"),
-                ),
-            )
-        )
+        effect = Effects.Pipeline {
+            val heads = runStoringNumber { Effects.FlipCoins(5, storeHeadsAs = it) }
+            run(Effects.SkipNextTurn(target = opponent, count = heads.amount))
+        }
     }
 
     metadata {

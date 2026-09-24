@@ -11,10 +11,11 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Doom Reigns Supreme — Marvel Super Heroes #96
@@ -93,15 +94,13 @@ val DoomReignsSupreme = card("Doom Reigns Supreme") {
         effect = ReflexiveTriggerEffect(
             action = Effects.SacrificeTarget(EffectTarget.Self),
             optional = false,
-            reflexiveEffect = Effects.Composite(
-                Patterns.Library.exileTop(5, EffectTarget.PlayerRef(Player.TargetOpponent)),
-                FilterCollectionEffect(
-                    from = "exiled_top",
-                    filter = GameObjectFilter.Nonland,
-                    storeMatching = "castable",
-                ),
-                Effects.CastUpToNFromCollectionWithoutPayingCost("castable", maxCasts = 2),
-            ),
+            reflexiveEffect = Effects.Pipeline {
+                // Target opponent exiles the top five cards of their library.
+                val exiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(5), Player.TargetOpponent))
+                exile(exiled, Player.TargetOpponent)
+                val castable = filter(exiled, GameObjectFilter.Nonland)
+                run(Effects.CastUpToNFromCollectionWithoutPayingCost(castable, maxCasts = 2))
+            },
             reflexiveTargetRequirements = listOf(Targets.Opponent),
             descriptionOverride = "Sacrifice this enchantment. When you do, target opponent " +
                 "exiles the top five cards of their library. You may cast up to two spells from " +

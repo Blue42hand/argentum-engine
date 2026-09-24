@@ -109,7 +109,6 @@ val CloakAndDaggerEntwined = card("Cloak and Dagger, Entwined") {
                             effect = Patterns.Hand.revealHandAndExileChosen(
                                 target = opponent,
                                 filter = GameObjectFilter.Nonland,
-                                storeChosenAs = "cloakDaggerExiled",
                                 revealHand = false,
                                 linkToSource = true,
                             ),

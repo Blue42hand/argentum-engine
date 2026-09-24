@@ -18,7 +18,6 @@ import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The End — Wilds of Eldraine #87
@@ -79,7 +78,7 @@ val TheEnd = card("The End") {
                 run(ShuffleLibraryEffect(target = EffectTarget.Controller))
                 run(
                     Effects.DrawCards(
-                        DynamicAmount.VariableReference("${selectedFromHand.key}_count"),
+                        selectedFromHand.count,
                         EffectTarget.Controller
                     )
                 )

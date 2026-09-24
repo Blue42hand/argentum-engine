@@ -44,10 +44,12 @@ val SeasonOfGathering = card("Season of Gathering") {
                 // {P} — +1/+1 counter + vigilance + trample on a creature you control
                 BudgetMode(
                     cost = 1,
-                    effect = Effects.SelectTarget(Targets.CreatureYouControl, "chosenCreature")
-                        .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.PipelineTarget("chosenCreature")))
-                        .then(Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.PipelineTarget("chosenCreature")))
-                        .then(Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.PipelineTarget("chosenCreature"))),
+                    effect = Effects.Pipeline {
+                        val chosenCreature = selectTarget(Targets.CreatureYouControl)
+                        run(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, chosenCreature.asTarget))
+                        run(Effects.GrantKeyword(Keyword.VIGILANCE, chosenCreature.asTarget))
+                        run(Effects.GrantKeyword(Keyword.TRAMPLE, chosenCreature.asTarget))
+                    },
                     description = "Put a +1/+1 counter on a creature you control. It gains vigilance and trample until end of turn"
                 ),
                 // {P}{P} — Choose artifact or enchantment. Destroy all of that type.

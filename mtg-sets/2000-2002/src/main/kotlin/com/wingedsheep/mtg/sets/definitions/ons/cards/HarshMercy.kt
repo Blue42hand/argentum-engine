@@ -1,10 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.withoutSubtypeInStoredList
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.EachPlayerChoosesCreatureTypeEffect
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -21,15 +21,12 @@ val HarshMercy = card("Harsh Mercy") {
     oracleText = "Each player chooses a creature type. Destroy all creatures that aren't of a type chosen this way. They can't be regenerated."
 
     spell {
-        effect = EachPlayerChoosesCreatureTypeEffect(storeAs = "chosenTypes")
-            .then(Effects.Pipeline {
-                val destroyAllGathered = gather(CardSource.BattlefieldMatching(filter = GameObjectFilter.Creature))
-                val destroyAllFiltered = filter(
-                    destroyAllGathered,
-                    GameObjectFilter.Any.withoutSubtypeInStoredList("chosenTypes")
-                )
-                destroy(destroyAllFiltered, noRegenerate = true)
-            })
+        effect = Effects.Pipeline {
+            val chosenTypes = eachPlayerChoosesCreatureType()
+            val creatures = gather(CardSource.BattlefieldMatching(filter = GameObjectFilter.Creature))
+            val unchosen = filter(creatures, GameObjectFilter.Any.withoutSubtypeInStoredList(chosenTypes))
+            destroy(unchosen, noRegenerate = true)
+        }
     }
 
     metadata {

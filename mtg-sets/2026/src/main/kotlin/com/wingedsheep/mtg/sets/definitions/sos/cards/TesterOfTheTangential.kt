@@ -42,15 +42,17 @@ val TesterOfTheTangential = card("Tester of the Tangential") {
     triggeredAbility {
         trigger = Triggers.BeginCombat
         effect = Effects.MayPayX(
-            then = Effects.SelectTarget(TargetCreature(filter = TargetFilter.OtherCreature), "moveTarget")
-                .then(
+            then = Effects.Pipeline {
+                val moveTarget = selectTarget(TargetCreature(filter = TargetFilter.OtherCreature))
+                run(
                     Effects.MoveCounters(
                         counterType = CounterType.PLUS_ONE_PLUS_ONE,
                         amount = DynamicAmount.XValue,
                         source = EffectTarget.Self,
-                        destination = EffectTarget.PipelineTarget("moveTarget"),
+                        destination = moveTarget.asTarget,
                     )
                 )
+            }
         )
     }
 

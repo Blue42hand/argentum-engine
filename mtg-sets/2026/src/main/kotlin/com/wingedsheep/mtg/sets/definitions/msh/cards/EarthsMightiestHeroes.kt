@@ -9,10 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -52,46 +48,40 @@ val EarthsMightiestHeroes = card("Earth's Mightiest Heroes") {
     teamwork(5)
 
     spell {
-        fun selectAndMove(selection: SelectionMode, prompt: String) = Effects.Composite(
-            SelectFromCollectionEffect(
-                from = "revealed",
-                selection = selection,
-                filter = GameObjectFilter.Creature,
-                storeSelected = "selected",
-                storeRemainder = "rest",
-                prompt = prompt,
-                selectedLabel = "Put onto the battlefield",
-                remainderLabel = "Put into your graveyard",
-                showAllCards = true,
-            ),
-            MoveCollectionEffect(
-                from = "selected",
-                destination = CardDestination.ToZone(Zone.BATTLEFIELD),
-            ),
-            MoveCollectionEffect(
-                from = "rest",
-                destination = CardDestination.ToZone(Zone.GRAVEYARD),
-            ),
-        )
-
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(DynamicAmount.Fixed(8)),
-                storeAs = "revealed",
-                revealed = true,
-            ),
-            Effects.If(
-                condition = Conditions.TeamworkWasPaid,
-                then = selectAndMove(
-                    SelectionMode.ChooseAnyNumber,
-                    "Choose any number of creature cards to put onto the battlefield",
-                ),
-                otherwise = selectAndMove(
-                    SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                    "Choose a creature card to put onto the battlefield",
-                ),
-            ),
-        )
+        effect = Effects.Pipeline {
+            val revealed = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(8)), revealed = true)
+            fun putCreatures(anyNumber: Boolean, prompt: String) = Effects.Pipeline {
+                val (selected, rest) = if (anyNumber) {
+                    chooseAnyNumberSplit(
+                        from = revealed,
+                        filter = GameObjectFilter.Creature,
+                        prompt = prompt,
+                        selectedLabel = "Put onto the battlefield",
+                        remainderLabel = "Put into your graveyard",
+                        showAllCards = true
+                    )
+                } else {
+                    chooseUpToSplit(
+                        1,
+                        from = revealed,
+                        filter = GameObjectFilter.Creature,
+                        prompt = prompt,
+                        selectedLabel = "Put onto the battlefield",
+                        remainderLabel = "Put into your graveyard",
+                        showAllCards = true
+                    )
+                }
+                move(selected, CardDestination.ToZone(Zone.BATTLEFIELD))
+                toGraveyard(rest)
+            }
+            run(
+                Effects.If(
+                    condition = Conditions.TeamworkWasPaid,
+                    then = putCreatures(anyNumber = true, "Choose any number of creature cards to put onto the battlefield"),
+                    otherwise = putCreatures(anyNumber = false, "Choose a creature card to put onto the battlefield"),
+                )
+            )
+        }
     }
 
     metadata {

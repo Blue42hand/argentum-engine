@@ -147,7 +147,7 @@ private fun putArtifactFromHandAndAttach(): Effect = Effects.Pipeline {
     )
     run(
         Effects.AttachTargetEquipmentToCreature(
-            equipmentTarget = EffectTarget.PipelineTarget(equipment.key, 0),
+            equipmentTarget = equipment.asTarget,
             creatureTarget = EffectTarget.Self,
         )
     )

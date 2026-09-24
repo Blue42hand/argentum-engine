@@ -49,7 +49,6 @@ val JessicaJonesPrivateEye = card("Jessica Jones, Private Eye") {
         effect = Patterns.Exile.impulse(
             count = DynamicAmounts.sourcePower(),
             expiry = MayPlayExpiry.EndOfTurn,
-            storeAs = "jessicaJonesExiled",
         )
         description = "{T}, Put a stun counter on Jessica Jones: Exile the top X cards of your " +
             "library, where X is Jessica Jones's power. You may play those cards this turn."

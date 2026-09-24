@@ -59,18 +59,15 @@ val DaredevilManWithoutFear = card("Daredevil, Man Without Fear") {
     triggeredAbility {
         trigger = Triggers.YouAttack
         effect = Effects.May(
-            Effects.Composite(
-                listOf(
-                    Patterns.Exile.impulse(count = 1, storeAs = "daredevilExiled"),
+            Effects.Pipeline {
+                val exiled = runStoringCollection { Patterns.Exile.impulse(count = 1, storeAs = it) }
+                run(
                     Effects.If(
-                        condition = Conditions.CollectionContainsMatch(
-                            "daredevilExiled",
-                            GameObjectFilter.Any.withSubtype(Subtype.HERO),
-                        ),
+                        condition = whenMatches(exiled, GameObjectFilter.Any.withSubtype(Subtype.HERO)),
                         then = Effects.ModifyStats(2, 1, EffectTarget.Self),
-                    ),
-                ),
-            ),
+                    )
+                )
+            },
             descriptionOverride = "You may exile the top card of your library. If that card is a " +
                 "Hero card, Daredevil gets +2/+1 until end of turn. You may play that card this turn.",
         )

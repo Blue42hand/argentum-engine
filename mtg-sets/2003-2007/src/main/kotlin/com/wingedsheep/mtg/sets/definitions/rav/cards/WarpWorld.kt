@@ -8,13 +8,8 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerCollectingEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Warp World — Ravnica: City of Guilds #150
@@ -60,81 +55,26 @@ val WarpWorld = card("Warp World") {
         GameObjectFilter.Artifact or GameObjectFilter.Creature or GameObjectFilter.Land
 
     spell {
-        effect = Effects.Composite(
-            ForEachPlayerCollectingEffect(
-                players = Player.Each,
-                effects = listOf(
-                    GatherCardsEffect(
-                        source = CardSource.BattlefieldMatching(GameObjectFilter.Any.ownedByYou(), Player.Each),
-                        storeAs = "owned"
-                    ),
-                    FilterCollectionEffect(
-                        from = "owned",
-                        filter = GameObjectFilter.Any.token(),
-                        storeMatching = "ownedTokens",
-                        storeNonMatching = "ownedCards"
-                    ),
-                    MoveCollectionEffect(
-                        from = "ownedCards",
-                        destination = CardDestination.ToZone(Zone.LIBRARY, Player.You, ZonePlacement.Shuffled)
-                    ),
-                    MoveCollectionEffect(
-                        from = "ownedTokens",
-                        destination = CardDestination.ToZone(Zone.LIBRARY, Player.You, ZonePlacement.Bottom)
-                    ),
-                    GatherCardsEffect(
-                        source = CardSource.TopOfLibrary(DynamicAmount.VariableReference("owned_count")),
-                        storeAs = "revealed",
-                        revealed = true
-                    ),
-                    FilterCollectionEffect(
-                        from = "revealed",
-                        filter = GameObjectFilter.Any.nontoken(),
-                        storeMatching = "revealedCards"
-                    ),
-                    FilterCollectionEffect(
-                        from = "revealedCards",
-                        filter = artifactCreatureOrLand,
-                        storeMatching = "acl",
-                        storeNonMatching = "notAcl"
-                    ),
-                    FilterCollectionEffect(
-                        from = "notAcl",
-                        filter = GameObjectFilter.Enchantment,
-                        storeMatching = "enchantments",
-                        storeNonMatching = "rest"
-                    ),
-                    MoveCollectionEffect(
-                        from = "rest",
-                        destination = CardDestination.ToZone(Zone.LIBRARY, Player.You, ZonePlacement.Bottom),
-                        order = CardOrder.ControllerChooses
-                    )
-                ),
-                collectCollections = mapOf("acl" to "warpAcl", "enchantments" to "warpEnchantments")
-            ),
-            MoveCollectionEffect(
-                from = "warpAcl",
-                destination = CardDestination.ToZone(Zone.BATTLEFIELD),
-                underOwnersControl = true
-            ),
-            MoveCollectionEffect(
-                from = "warpEnchantments",
-                destination = CardDestination.ToZone(Zone.BATTLEFIELD),
-                underOwnersControl = true
-            ),
+        effect = Effects.Pipeline {
+            val (warpAcl, warpEnchantments) = forEachPlayerCollecting(Player.Each) {
+                val owned = gather(CardSource.BattlefieldMatching(GameObjectFilter.Any.ownedByYou(), Player.Each))
+                val (ownedTokens, ownedCards) = filterSplit(owned, GameObjectFilter.Any.token())
+                move(ownedCards, CardDestination.ToZone(Zone.LIBRARY, Player.You, ZonePlacement.Shuffled))
+                toLibraryBottom(ownedTokens, order = CardOrder.Preserve)
+                val revealed = gather(CardSource.TopOfLibrary(owned.count), revealed = true)
+                val revealedCards = filter(revealed, GameObjectFilter.Any.nontoken())
+                val (acl, notAcl) = filterSplit(revealedCards, artifactCreatureOrLand)
+                val (enchantments, rest) = filterSplit(notAcl, GameObjectFilter.Enchantment)
+                toLibraryBottom(rest)
+                listOf(acl, enchantments)
+            }
+            move(warpAcl, CardDestination.ToZone(Zone.BATTLEFIELD), underOwnersControl = true)
+            move(warpEnchantments, CardDestination.ToZone(Zone.BATTLEFIELD), underOwnersControl = true)
             // Read where each enchantment actually is rather than a moved-set: an Aura's enchant
             // choice pauses the move, and whatever didn't make it is simply not on the battlefield.
-            FilterCollectionEffect(
-                from = "warpEnchantments",
-                filter = GameObjectFilter.Any.onBattlefield(),
-                storeMatching = "warpEnchantmentsEntered",
-                storeNonMatching = "warpStranded"
-            ),
-            MoveCollectionEffect(
-                from = "warpStranded",
-                destination = CardDestination.ToZone(Zone.LIBRARY, Player.You, ZonePlacement.Bottom)
-            )
-        )
+            val (_, warpStranded) = filterSplit(warpEnchantments, GameObjectFilter.Any.onBattlefield())
+            toLibraryBottom(warpStranded, order = CardOrder.Preserve)
+        }
     }
 
     metadata {

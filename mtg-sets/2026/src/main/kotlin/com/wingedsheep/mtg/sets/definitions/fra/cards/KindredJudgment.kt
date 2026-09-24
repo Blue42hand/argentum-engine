@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.fra.cards
 
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.withoutSubtypeFromVariable
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.OptionType
@@ -19,12 +20,7 @@ val KindredJudgment = card("Kindred Judgment") {
     spell {
         effect = Effects.Pipeline {
             val chosenType = chooseOption(OptionType.CREATURE_TYPE)
-            run(Effects.DestroyAll(
-                GameObjectFilter.Creature.copy(
-                    cardPredicates = GameObjectFilter.Creature.cardPredicates +
-                        CardPredicate.Not(CardPredicate.HasSubtypeFromVariable(chosenType.key))
-                )
-            ))
+            run(Effects.DestroyAll(GameObjectFilter.Creature.withoutSubtypeFromVariable(chosenType)))
         }
     }
 

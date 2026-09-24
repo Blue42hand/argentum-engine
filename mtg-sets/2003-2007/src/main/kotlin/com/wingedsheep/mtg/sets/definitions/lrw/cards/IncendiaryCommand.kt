@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Incendiary Command
@@ -60,7 +59,7 @@ val IncendiaryCommand = card("Incendiary Command") {
                     players = Player.Each,
                     effects = listOf(
                         Patterns.Hand.discardHand(),
-                        Effects.DrawCards(DynamicAmount.VariableReference("discardedHand_count"))
+                        Effects.DrawCards(Patterns.Hand.discardedHand.count)
                     )
                 )
             }

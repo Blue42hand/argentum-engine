@@ -5,15 +5,9 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Heated Argument
@@ -40,24 +34,12 @@ val HeatedArgument = card("Heated Argument") {
         val creature = target("target creature", Targets.Creature)
         effect = Effects.DealDamage(6, creature) then Effects.May(
             Effects.IfYouDo(
-                action = Effects.Composite(
-                    listOf(
-                        GatherCardsEffect(
-                            source = CardSource.FromZone(zone = Zone.GRAVEYARD),
-                            storeAs = "graveyardCards",
-                        ),
-                        SelectFromCollectionEffect(
-                            from = "graveyardCards",
-                            selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                            storeSelected = "toExile",
-                            selectedLabel = "Exile",
-                        ),
-                        MoveCollectionEffect(
-                            from = "toExile",
-                            destination = CardDestination.ToZone(Zone.EXILE),
-                        ),
-                    ),
-                ),
+                action = Effects.Pipeline {
+                    val graveyardCards = gather(CardSource.FromZone(zone = Zone.GRAVEYARD))
+                    // Named: the success criterion below reads it from outside this pipeline.
+                    val toExile = chooseExactly(1, from = graveyardCards, selectedLabel = "Exile", name = "toExile")
+                    exile(toExile)
+                },
                 then = Effects.DealDamage(2, EffectTarget.TargetController),
                 successCriterion = SuccessCriterion.CollectionNonEmpty("toExile", min = 1),
             ),

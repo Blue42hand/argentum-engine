@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Balin, Loremaster
@@ -72,11 +71,11 @@ val BalinLoremaster = card("Balin, Loremaster") {
                 effect = Patterns.Hand.discardHand(),
                 descriptionOverride = "You may discard your hand.",
             ),
-            Effects.DrawCards(DynamicAmount.VariableReference("discardedHand_count")),
+            Effects.DrawCards(Patterns.Hand.discardedHand.count),
             Effects.If(
                 condition = Conditions.YouHaveEnduringStory,
                 then = DealDamageEffect(
-                    amount = DynamicAmount.VariableReference("discardedHand_count"),
+                    amount = Patterns.Hand.discardedHand.count,
                     target = EffectTarget.PlayerRef(Player.EachOpponent),
                 ),
             ),
