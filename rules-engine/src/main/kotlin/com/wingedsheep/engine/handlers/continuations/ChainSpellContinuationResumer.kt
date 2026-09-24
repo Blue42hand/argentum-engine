@@ -179,16 +179,20 @@ class ChainSpellContinuationResumer(
 
         // Build the copy effect with BoundVariable target — update both the outer
         // ChainCopyEffect.target and the inner action's target so the copy resolves
-        // against the new binding.
-        val newTarget = EffectTarget.BoundVariable("chainTarget")
+        // against the new binding. When the card named its target, the copy's target is bound
+        // under that same name, so every read of the handle inside the action — including a
+        // player-typed one (`handle.asPlayer`) that [replaceActionTarget] can't rewrite — sees
+        // the new target.
+        val bindingName = (effect.target as? EffectTarget.BoundVariable)?.name ?: "chainTarget"
+        val newTarget = EffectTarget.BoundVariable(bindingName)
         val updatedAction = replaceActionTarget(effect.action, newTarget)
         val copyEffect = effect.copy(target = newTarget, action = updatedAction)
 
         // Build the target requirement with the binding id
         val copyTargetReq = when (val req = effect.copyTargetRequirement) {
-            is TargetObject -> req.copy(id = "chainTarget")
-            is TargetPlayer -> req.copy(id = "chainTarget")
-            is AnyTarget -> req.copy(id = "chainTarget")
+            is TargetObject -> req.copy(id = bindingName)
+            is TargetPlayer -> req.copy(id = bindingName)
+            is AnyTarget -> req.copy(id = bindingName)
             else -> req
         }
 
