@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetSpell
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Hurl into History
@@ -31,7 +31,7 @@ val HurlIntoHistory = card("Hurl into History") {
             TargetSpell(filter = TargetFilter(GameObjectFilter.Artifact or GameObjectFilter.Creature, zone = Zone.STACK))
         )
         effect = Effects.CounterSpell() then Effects.Discover(
-            DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.ManaValue)
+            DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.ManaValue)
         )
     }
     metadata {

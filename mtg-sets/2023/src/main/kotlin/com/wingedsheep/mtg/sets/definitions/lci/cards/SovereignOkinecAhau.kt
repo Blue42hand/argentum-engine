@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Sovereign Okinec Ahau — The Lost Caverns of Ixalan #240 (canonical printing)
@@ -60,8 +59,8 @@ val SovereignOkinecAhau = card("Sovereign Okinec Ahau") {
             effect = Effects.AddDynamicCounters(
                 counterType = Counters.PLUS_ONE_PLUS_ONE,
                 amount = DynamicAmount.Subtract(
-                    DynamicAmount.EntityProperty(EntityReference.IterationEntity, EntityNumericProperty.Power),
-                    DynamicAmount.EntityProperty(EntityReference.IterationEntity, EntityNumericProperty.BasePower),
+                    DynamicAmount.EntityProperty(EffectTarget.IterationEntity, EntityNumericProperty.Power),
+                    DynamicAmount.EntityProperty(EffectTarget.IterationEntity, EntityNumericProperty.BasePower),
                 ),
                 target = EffectTarget.Self,
             ),

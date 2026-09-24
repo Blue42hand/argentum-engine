@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Mossborn Hydra
@@ -44,7 +43,7 @@ val MossbornHydra = card("Mossborn Hydra") {
         effect = Effects.AddDynamicCounters(
             counterType = Counters.PLUS_ONE_PLUS_ONE,
             amount = DynamicAmount.EntityProperty(
-                EntityReference.Source,
+                EffectTarget.Self,
                 EntityNumericProperty.CounterCount(CounterTypeFilter.PlusOnePlusOne)
             ),
             target = EffectTarget.Self

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Wojek Apothecary
@@ -20,7 +19,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * creature that shares a color with it this turn.
  *
  * Radiance with a prevention shield instead of damage: the target gets its own shield directly,
- * and every *other* creature sharing a color with it (`sharingColorWith(EntityReference.Target(0))`,
+ * and every *other* creature sharing a color with it (`sharingColorWith(EffectTarget.ContextTarget(0))`,
  * `otherThanTarget()`) is found as the ability resolves and gets a shield of its own. Each shield
  * is per-creature — 1 damage prevented on each, not 1 across the group — which is why this is a
  * `ForEachInGroup` around `PreventNextDamage` rather than a group-scoped prevention. A colorless
@@ -45,7 +44,7 @@ val WojekApothecary = card("Wojek Apothecary") {
         effect = Effects.PreventNextDamage(1, patient) then
             Effects.ForEachInGroup(
                 GroupFilter(
-                    GameObjectFilter.Creature.sharingColorWith(EntityReference.Target(0))
+                    GameObjectFilter.Creature.sharingColorWith(EffectTarget.ContextTarget(0))
                 ).otherThanTarget(),
                 Effects.PreventNextDamage(1, EffectTarget.Self)
             )

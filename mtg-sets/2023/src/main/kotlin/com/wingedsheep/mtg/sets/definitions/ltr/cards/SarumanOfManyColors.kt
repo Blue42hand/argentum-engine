@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Saruman of Many Colors — The Lord of the Rings: Tales of Middle-earth #223
@@ -36,7 +35,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *    collection being non-empty ("when one or more cards are milled this way") and chooses its
  *    target *after* the mill. The target — an enchantment/instant/sorcery card in an opponent's
  *    graveyard with mana value ≤ the triggering (second) spell — is expressed with
- *    `manaValueAtMostEntity(EntityReference.Triggering)`; the trigger's
+ *    `manaValueAtMostEntity(EffectTarget.TriggeringEntity)`; the trigger's
  *    `triggeringEntityId` is the second spell (still on the stack as the ability resolves above
  *    it), so its mana value is read directly.
  *  - **Copy-a-card-then-cast** via the [Effects.CopyCardIntoCollection] +
@@ -77,12 +76,12 @@ val SarumanOfManyColors = card("Saruman of Many Colors") {
         // The exile target is chosen when the reflexive trigger goes on the stack (after the
         // mill), so it is supplied as a reflexive target requirement — NOT an ability-level
         // target — and referenced as ContextTarget(0) in the reflexive effect (Wick's Patrol
-        // pattern). "that spell" is the triggering second spell (EntityReference.Triggering).
+        // pattern). "that spell" is the triggering second spell (EffectTarget.TriggeringEntity).
         val exiledCardTarget = TargetObject(
             filter = TargetFilter(
                 baseFilter = enchantmentInstantSorcery
                     .ownedByOpponent()
-                    .manaValueAtMostEntity(EntityReference.Triggering),
+                    .manaValueAtMostEntity(EffectTarget.TriggeringEntity),
                 zone = Zone.GRAVEYARD,
             )
         )

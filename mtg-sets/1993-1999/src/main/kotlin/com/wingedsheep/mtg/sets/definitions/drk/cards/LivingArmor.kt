@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Living Armor
@@ -33,7 +33,7 @@ val LivingArmor = card("Living Armor") {
         cost = Costs.Composite(Costs.Tap, Costs.SacrificeSelf)
         effect = Effects.AddDynamicCounters(
             Counters.PLUS_ZERO_PLUS_ONE,
-            DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.ManaValue),
+            DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.ManaValue),
             creature,
         )
     }

@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Sharp-Eyed Rookie — Murders at Karlov Manor #176
@@ -42,7 +41,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *
  * Both sides read projected power/toughness, so +1/+1 counters an entering creature brings with
  * it, and lords on either side, count. If the entering creature has left by resolution the
- * comparison uses last-known information (CR 608.2h) — the same [EntityReference.Triggering] read
+ * comparison uses last-known information (CR 608.2h) — the same [EffectTarget.TriggeringEntity] read
  * [HulklingBurgeoningBruiser] relies on.
  *
  * The counter and the Clue are one effect, not two abilities: they succeed or fail together.
@@ -68,14 +67,14 @@ val SharpEyedRookie = card("Sharp-Eyed Rookie") {
         )
         interveningIf = Conditions.Any(
             Compare(
-                DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.Power),
+                DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.Power),
                 ComparisonOperator.GT,
-                DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power)
+                DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power)
             ),
             Compare(
-                DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.Toughness),
+                DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.Toughness),
                 ComparisonOperator.GT,
-                DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Toughness)
+                DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Toughness)
             )
         )
         effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)

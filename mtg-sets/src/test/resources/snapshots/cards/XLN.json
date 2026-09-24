@@ -3720,7 +3720,7 @@
                                 "type": "TopOfLibrary",
                                 "count": {
                                     "type": "EntityProperty",
-                                    "entity": "Triggering",
+                                    "entity": "TriggeringEntity",
                                     "numericProperty": "ManaValue"
                                 }
                             },
@@ -3742,7 +3742,7 @@
                                     "IsNonland",
                                     {
                                         "type": "ManaValueAtMostEntity",
-                                        "reference": "Triggering"
+                                        "reference": "TriggeringEntity"
                                     }
                                 ]
                             },
@@ -4041,7 +4041,7 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": {
                                             "type": "CounterCount",
                                             "counterType": {

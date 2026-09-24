@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.BecomeArtifactEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Tom, Bert, and William
@@ -27,7 +26,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * When Tom, Bert, and William die, if they were a creature, return them to the battlefield.
  * They're an artifact. (They're no longer a creature.)
  *
- * The draw count is [EntityReference.Sacrificed] — whose LKI policy is `LIVE_THEN_LKI`, so the
+ * The draw count is [EffectTarget.SacrificedAsCost] — whose LKI policy is `LIVE_THEN_LKI`, so the
  * power read is the one the creature last had on the battlefield, per the card's ruling ("use the
  * sacrificed creature's power as it last existed on the battlefield"). A sacrificed 0-power
  * creature draws nothing but the discard still happens: "then discard a card" is not conditional.
@@ -67,7 +66,7 @@ val TomBertAndWilliam = card("Tom, Bert, and William") {
         effect = Effects.Composite(
             Effects.DrawCards(
                 DynamicAmount.EntityProperty(
-                    EntityReference.Sacrificed(),
+                    EffectTarget.SacrificedAsCost(),
                     EntityNumericProperty.Power
                 )
             ),

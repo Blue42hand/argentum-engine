@@ -22,7 +22,6 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Terminal Velocity {4}{R}{R}
@@ -36,7 +35,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * The two quoted clauses are granted as real [TriggeredAbility]s on the chosen permanent
  * (Duration.Permanent), not as delayed triggers anchored to the resolving sorcery. That
  * keeps them rules-faithful: the LTB damage reads the permanent's last-known mana value
- * via [EntityReference.Source], and the end-step sacrifice fires every "your end step"
+ * via [EffectTarget.Self], and the end-step sacrifice fires every "your end step"
  * for as long as the permanent persists (e.g. if the sacrifice trigger is countered, the
  * permanent keeps all three granted abilities — including the LTB clause).
  */
@@ -57,7 +56,7 @@ val TerminalVelocity = card("Terminal Velocity") {
                 filter = GroupFilter.AllCreatures,
                 effect = DealDamageEffect(
                     amount = DynamicAmount.EntityProperty(
-                        entity = EntityReference.Source,
+                        entity = EffectTarget.Self,
                         numericProperty = EntityNumericProperty.ManaValue,
                     ),
                     target = EffectTarget.Self,

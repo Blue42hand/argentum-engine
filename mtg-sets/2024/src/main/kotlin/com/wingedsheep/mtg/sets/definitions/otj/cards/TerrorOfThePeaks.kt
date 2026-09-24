@@ -12,7 +12,7 @@ import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 val TerrorOfThePeaks = card("Terror of the Peaks") {
     manaCost = "{3}{R}{R}"
@@ -35,7 +35,7 @@ val TerrorOfThePeaks = card("Terror of the Peaks") {
         trigger = Triggers.OtherCreatureEnters
         val anyTarget = target("any target", Targets.Any)
         effect = Effects.DealDamage(
-            DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.Power),
+            DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.Power),
             anyTarget
         )
     }

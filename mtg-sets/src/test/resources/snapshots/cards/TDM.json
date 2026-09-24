@@ -4209,12 +4209,18 @@
                     "type": "ModifyStats",
                     "powerModifier": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "toughnessModifier": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Toughness"
                     },
                     "target": {
@@ -4304,7 +4310,10 @@
                 "isEquipAbility": true,
                 "genericCostReduction": {
                     "type": "EntityProperty",
-                    "entity": "Target",
+                    "entity": {
+                        "type": "ContextTarget",
+                        "index": 0
+                    },
                     "numericProperty": "ColorCount"
                 }
             }
@@ -8507,7 +8516,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -8915,7 +8927,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -11090,7 +11105,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -11458,7 +11476,7 @@
                     "color": "GREEN",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     }
                 },
@@ -14362,7 +14380,7 @@
                                     "type": "Add",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Sacrificed",
+                                        "entity": "SacrificedAsCost",
                                         "numericProperty": "ManaValue"
                                     },
                                     "right": {
@@ -16899,7 +16917,7 @@
                     "type": "LoseLife",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Triggering",
+                        "entity": "TriggeringEntity",
                         "numericProperty": "ManaValue"
                     },
                     "target": "Controller"
@@ -18219,7 +18237,7 @@
                                 "type": "TopOfLibrary",
                                 "count": {
                                     "type": "EntityProperty",
-                                    "entity": "Source",
+                                    "entity": "Self",
                                     "numericProperty": "Power"
                                 },
                                 "player": {
@@ -18512,14 +18530,14 @@
                     "type": "Gated",
                     "gate": {
                         "type": "Gate.MayDecide",
-                        "hint": "Put it's the number of  counters +1/+1 counter(s) on that creature? If you don't, create a it's the number of  counters/it's the number of  counters white Spirit creature token."
+                        "hint": "Put this creature's the number of  counters +1/+1 counter(s) on that creature? If you don't, create a this creature's the number of  counters/this creature's the number of  counters white Spirit creature token."
                     },
                     "then": {
                         "type": "AddDynamicCounters",
                         "counterType": "+1/+1",
                         "amount": {
                             "type": "EntityProperty",
-                            "entity": "Source",
+                            "entity": "Self",
                             "numericProperty": {
                                 "type": "CounterCount",
                                 "counterType": "CounterAny"
@@ -18540,7 +18558,7 @@
                         "imageUri": "https://cards.scryfall.io/large/front/8/e/8ea4fc2f-95a4-49d0-b06e-b88d19637737.jpg?1743176763",
                         "dynamicPower": {
                             "type": "EntityProperty",
-                            "entity": "Source",
+                            "entity": "Self",
                             "numericProperty": {
                                 "type": "CounterCount",
                                 "counterType": "CounterAny"
@@ -18548,14 +18566,14 @@
                         },
                         "dynamicToughness": {
                             "type": "EntityProperty",
-                            "entity": "Source",
+                            "entity": "Self",
                             "numericProperty": {
                                 "type": "CounterCount",
                                 "counterType": "CounterAny"
                             }
                         }
                     },
-                    "descriptionOverride": "Put it's the number of  counters +1/+1 counter(s) on that creature. If you don't, create a it's the number of  counters/it's the number of  counters white Spirit creature token."
+                    "descriptionOverride": "Put this creature's the number of  counters +1/+1 counter(s) on that creature. If you don't, create a this creature's the number of  counters/this creature's the number of  counters white Spirit creature token."
                 },
                 "descriptionOverride": "Whenever another nontoken creature you control enters, it endures X, where X is the number of counters on this creature."
             }

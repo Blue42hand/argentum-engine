@@ -93,13 +93,13 @@ data class EffectContext(
      * validation (CR 608.2b). Populated on the spell-resolution path (and copied through
      * composite/iteration sub-effects); empty elsewhere, where it coincides with [targets].
      *
-     * Positional target references — [EffectTarget.ContextTarget], [EntityReference.Target],
+     * Positional target references — [EffectTarget.ContextTarget],
      * [com.wingedsheep.sdk.scripting.references.Player.ContextPlayer], and indexed conditions —
      * MUST resolve through [positionalTarget] so a now-illegal slot reads `null` (and the
      * sub-effect fizzles, CR 608.2b) instead of silently consuming the next still-legal target
      * whose position shifted forward in the compacted [targets] list. Diplomatic Relations is
      * the canonical case: "creature you control" dies in response, and without this the damage
-     * amount's `Target(0)` power read would land on the surviving opponent's creature.
+     * amount's `ContextTarget(0)` power read would land on the surviving opponent's creature.
      */
     val alignedTargets: List<ChosenTarget?> = emptyList(),
     /**
@@ -211,7 +211,7 @@ data class EffectContext(
      * Frozen projected P/T (and subtypes/supertypes) the source had the moment a self-exile /
      * self-sacrifice cost moved it off the battlefield (CR 113.7a / 608.2h — "as it last existed
      * on the battlefield"). Mirrors [lastKnownSourceCounters]. Read by [DynamicAmountEvaluator]
-     * when an `EntityProperty(EntityReference.Source, …)` power/toughness read resolves after the
+     * when an `EntityProperty(EffectTarget.Self, …)` power/toughness read resolves after the
      * source is gone, so "Sacrifice this creature: it deals damage equal to its power" reads the
      * pre-sacrifice power rather than zero (Blazing Bomb's Blow Up, Cinder Shade, Ghitu Fire-Eater).
      * Null when the cost did not sacrifice/exile the source.
@@ -233,7 +233,7 @@ data class EffectContext(
      * with `captureSnapshot = true`. Indexed by entity id via
      * [com.wingedsheep.engine.state.components.stack.snapshotFor]. Read by
      * [DynamicAmountEvaluator] when the `EntityProperty` path resolves an
-     * [com.wingedsheep.sdk.scripting.values.EntityReference.FromCostStorage].
+     * [com.wingedsheep.sdk.scripting.targets.EffectTarget.PipelineTarget].
      */
     val chosenEntitySnapshots: List<EntitySnapshot> = emptyList(),
     // --- Trigger state ---

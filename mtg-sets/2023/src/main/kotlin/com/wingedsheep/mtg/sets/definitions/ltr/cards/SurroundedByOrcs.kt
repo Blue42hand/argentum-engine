@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Surrounded by Orcs
@@ -34,7 +34,7 @@ val SurroundedByOrcs = card("Surrounded by Orcs") {
         effect = Effects.Composite(listOf(
             Effects.Amass(3, "Orc"),
             Patterns.Library.mill(
-                DynamicAmount.EntityProperty(EntityReference.AmassedArmy, EntityNumericProperty.Power),
+                DynamicAmount.EntityProperty(EffectTarget.AmassedArmy, EntityNumericProperty.Power),
                 player
             )
         ))

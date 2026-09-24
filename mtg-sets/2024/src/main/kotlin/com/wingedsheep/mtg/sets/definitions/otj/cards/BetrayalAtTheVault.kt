@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetOther
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Betrayal at the Vault — Outlaws of Thunder Junction #155
@@ -52,7 +51,7 @@ val BetrayalAtTheVault = card("Betrayal at the Vault") {
             TargetOther(baseRequirement = TargetObject(filter = TargetFilter.Creature))
         )
 
-        val sourcePower = DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.Power)
+        val sourcePower = DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.Power)
         effect = Effects.DealDamage(
             amount = sourcePower,
             target = EffectTarget.ContextTarget(1),

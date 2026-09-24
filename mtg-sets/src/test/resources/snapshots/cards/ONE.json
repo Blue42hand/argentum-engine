@@ -1166,7 +1166,7 @@
                             "type": "CreateToken",
                             "count": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "ManaValue"
                             },
                             "power": 1,

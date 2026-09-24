@@ -111,7 +111,7 @@
                                         },
                                         {
                                             "type": "CouldEnchant",
-                                            "reference": "Source"
+                                            "reference": "Self"
                                         }
                                     ]
                                 }
@@ -300,7 +300,10 @@
                                         "IsCreature",
                                         {
                                             "type": "SharesColorWith",
-                                            "entity": "Target"
+                                            "entity": {
+                                                "type": "ContextTarget",
+                                                "index": 0
+                                            }
                                         }
                                     ]
                                 },
@@ -681,7 +684,7 @@
                                     "cardPredicates": [
                                         {
                                             "type": "SharesNameWith",
-                                            "entity": "Triggering"
+                                            "entity": "TriggeringEntity"
                                         }
                                     ]
                                 }
@@ -760,7 +763,7 @@
                             "type": "LoseLife",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "CounterCount",
                                     "counterType": {
@@ -841,7 +844,10 @@
                         "type": "DealDamage",
                         "amount": {
                             "type": "EntityProperty",
-                            "entity": "Target",
+                            "entity": {
+                                "type": "ContextTarget",
+                                "index": 0
+                            },
                             "numericProperty": "Power"
                         },
                         "target": "TargetController"
@@ -1535,7 +1541,7 @@
                     "name": "number0",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "DamageDealtThisTurn"
                     }
                 },
@@ -1548,7 +1554,10 @@
                                 "IsCreature",
                                 {
                                     "type": "SharesColorWith",
-                                    "entity": "Target"
+                                    "entity": {
+                                        "type": "ContextTarget",
+                                        "index": 0
+                                    }
                                 }
                             ]
                         },
@@ -1582,7 +1591,7 @@
                         "type": "Subtract",
                         "left": {
                             "type": "EntityProperty",
-                            "entity": "Source",
+                            "entity": "Self",
                             "numericProperty": "DamageDealtThisTurn"
                         },
                         "right": {
@@ -2334,7 +2343,10 @@
                                     "IsCreature",
                                     {
                                         "type": "SharesColorWith",
-                                        "entity": "Target"
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        }
                                     }
                                 ]
                             },
@@ -2452,7 +2464,7 @@
                                         "IsPermanent",
                                         {
                                             "type": "SharesCardTypeWith",
-                                            "entity": "Triggering"
+                                            "entity": "TriggeringEntity"
                                         }
                                     ]
                                 },
@@ -6863,7 +6875,7 @@
                                         "statePredicates": [
                                             {
                                                 "type": "BlockedOrWasBlockedByEntityThisTurn",
-                                                "reference": "Triggering"
+                                                "reference": "TriggeringEntity"
                                             }
                                         ]
                                     }
@@ -8891,7 +8903,10 @@
                                     "IsCreature",
                                     {
                                         "type": "SharesColorWith",
-                                        "entity": "Target"
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        }
                                     }
                                 ]
                             },
@@ -9014,7 +9029,10 @@
                                     "type": "TopOfLibrary",
                                     "count": {
                                         "type": "EntityProperty",
-                                        "entity": "Target",
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        },
                                         "numericProperty": "ManaValue"
                                     },
                                     "player": {
@@ -9448,7 +9466,10 @@
                                     "IsEnchantment",
                                     {
                                         "type": "SharesColorWith",
-                                        "entity": "Target"
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        }
                                     }
                                 ]
                             },
@@ -10801,7 +10822,7 @@
                                             "type": "ManaValueEqualsDynamic",
                                             "amount": {
                                                 "type": "EntityProperty",
-                                                "entity": "Source",
+                                                "entity": "Self",
                                                 "numericProperty": {
                                                     "type": "CounterCount",
                                                     "counterType": "PlusOnePlusOne"
@@ -11803,7 +11824,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": {
@@ -12331,7 +12352,10 @@
                                     "IsCreature",
                                     {
                                         "type": "SharesColorWith",
-                                        "entity": "Target"
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        }
                                     }
                                 ]
                             },
@@ -14531,7 +14555,10 @@
                                     "IsCreature",
                                     {
                                         "type": "PowerAtMostEntity",
-                                        "reference": "Target"
+                                        "reference": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        }
                                     }
                                 ],
                                 "controllerPredicate": "ControlledByOpponent"
@@ -15305,7 +15332,10 @@
                                     "IsCreature",
                                     {
                                         "type": "SharesColorWith",
-                                        "entity": "Target"
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        }
                                     }
                                 ]
                             },
@@ -17850,7 +17880,10 @@
                                             "IsCreature",
                                             {
                                                 "type": "SharesColorWith",
-                                                "entity": "Target"
+                                                "entity": {
+                                                    "type": "ContextTarget",
+                                                    "index": 0
+                                                }
                                             }
                                         ]
                                     },
@@ -17931,7 +17964,10 @@
                                             "IsCreature",
                                             {
                                                 "type": "SharesColorWith",
-                                                "entity": "Target"
+                                                "entity": {
+                                                    "type": "ContextTarget",
+                                                    "index": 0
+                                                }
                                             }
                                         ]
                                     },
@@ -18008,7 +18044,10 @@
                                     "IsCreature",
                                     {
                                         "type": "SharesColorWith",
-                                        "entity": "Target"
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        }
                                     }
                                 ]
                             },

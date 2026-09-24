@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Wojek Embermage
@@ -21,7 +21,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *
  * The repeatable half of Cleansing Beam: one target, and a resolution-time group relative to it.
  * The target is damaged directly; the group is every *other* creature sharing a color with the
- * target — `sharingColorWith(EntityReference.Target(0))` for the colour test, `otherThanTarget()`
+ * target — `sharingColorWith(EffectTarget.ContextTarget(0))` for the colour test, `otherThanTarget()`
  * so the target isn't hit twice. The Embermage itself is red, so a red target catches it too;
  * "each other creature" is relative to the target, not to the source, and there is no
  * `excludeSelf` here. A colorless target shares a color with nothing, so only it is damaged.
@@ -42,7 +42,7 @@ val WojekEmbermage = card("Wojek Embermage") {
             Patterns.Group.dealDamageToAll(
                 1,
                 GroupFilter(
-                    GameObjectFilter.Creature.sharingColorWith(EntityReference.Target(0))
+                    GameObjectFilter.Creature.sharingColorWith(EffectTarget.ContextTarget(0))
                 ).otherThanTarget()
             )
     }

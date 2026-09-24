@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Tifa Lockhart
@@ -31,7 +30,7 @@ val TifaLockhart = card("Tifa Lockhart") {
     triggeredAbility {
         trigger = Triggers.LandYouControlEnters
         effect = ModifyStatsEffect(
-            powerModifier = DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power),
+            powerModifier = DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power),
             toughnessModifier = DynamicAmount.Fixed(0),
             target = EffectTarget.Self
         )

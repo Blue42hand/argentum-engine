@@ -423,13 +423,13 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "ManaSpent"
                             },
                             "operator": "GT",
                             "right": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Power"
                             }
                         },
@@ -437,13 +437,13 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "ManaSpent"
                             },
                             "operator": "GT",
                             "right": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Toughness"
                             }
                         }
@@ -730,7 +730,10 @@
                         "type": "TopOfLibrary",
                         "count": {
                             "type": "EntityProperty",
-                            "entity": "Target",
+                            "entity": {
+                                "type": "ContextTarget",
+                                "index": 0
+                            },
                             "numericProperty": "ExcessMarkedDamage"
                         }
                     },
@@ -1282,13 +1285,13 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "ManaSpent"
                             },
                             "operator": "GT",
                             "right": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Power"
                             }
                         },
@@ -1296,13 +1299,13 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "ManaSpent"
                             },
                             "operator": "GT",
                             "right": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Toughness"
                             }
                         }
@@ -1851,7 +1854,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -2589,7 +2595,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": {
@@ -2842,13 +2848,13 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "ManaSpent"
                             },
                             "operator": "GT",
                             "right": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Power"
                             }
                         },
@@ -2856,13 +2862,13 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "ManaSpent"
                             },
                             "operator": "GT",
                             "right": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Toughness"
                             }
                         }
@@ -3187,7 +3193,7 @@
                 },
                 "genericCostReduction": {
                     "type": "EntityProperty",
-                    "entity": "Source",
+                    "entity": "Self",
                     "numericProperty": {
                         "type": "CounterCount",
                         "counterType": {
@@ -4365,7 +4371,10 @@
                             "type": "GainLife",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
                                 "numericProperty": "Power"
                             },
                             "target": "TargetController"
@@ -6047,13 +6056,13 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "ManaSpent"
                             },
                             "operator": "GT",
                             "right": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Power"
                             }
                         },
@@ -6061,13 +6070,13 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "ManaSpent"
                             },
                             "operator": "GT",
                             "right": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Toughness"
                             }
                         }
@@ -6704,7 +6713,10 @@
                             "type": "LoseLife",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
                                 "numericProperty": "ManaValue"
                             },
                             "target": "Controller"
@@ -7486,13 +7498,13 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "ManaSpent"
                             },
                             "operator": "GT",
                             "right": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Power"
                             }
                         },
@@ -7500,13 +7512,13 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "ManaSpent"
                             },
                             "operator": "GT",
                             "right": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Toughness"
                             }
                         }
@@ -9252,7 +9264,10 @@
                             "type": "AddColorlessMana",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
                                 "numericProperty": "ManaSpent"
                             }
                         },
@@ -9959,14 +9974,14 @@
                                 "color": "RED",
                                 "amount": {
                                     "type": "EntityProperty",
-                                    "entity": "Source",
+                                    "entity": "Self",
                                     "numericProperty": "Power"
                                 }
                             }
                         }
                     ]
                 },
-                "descriptionOverride": "Opus — Whenever you cast an instant or sorcery spell, put 1 +1/+1 counter on this creature. If five or more mana was spent to cast that spell, add {R} for each it's power."
+                "descriptionOverride": "Opus — Whenever you cast an instant or sorcery spell, put 1 +1/+1 counter on this creature. If five or more mana was spent to cast that spell, add {R} for each this creature's power."
             }
         ]
     },
@@ -11014,13 +11029,13 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "ManaSpent"
                             },
                             "operator": "GT",
                             "right": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Power"
                             }
                         },
@@ -11028,13 +11043,13 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "ManaSpent"
                             },
                             "operator": "GT",
                             "right": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Toughness"
                             }
                         }
@@ -16282,7 +16297,7 @@
                                 "IsPermanent",
                                 {
                                     "type": "ManaValueAtMostColorsSpent",
-                                    "reference": "Source"
+                                    "reference": "Self"
                                 }
                             ],
                             "controllerPredicate": "ControlledByOpponent"
@@ -16820,13 +16835,13 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "ManaSpent"
                             },
                             "operator": "GT",
                             "right": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Power"
                             }
                         },
@@ -16834,13 +16849,13 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "ManaSpent"
                             },
                             "operator": "GT",
                             "right": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Toughness"
                             }
                         }
@@ -16934,13 +16949,13 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "ManaSpent"
                             },
                             "operator": "GT",
                             "right": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Power"
                             }
                         },
@@ -16948,13 +16963,13 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "ManaSpent"
                             },
                             "operator": "GT",
                             "right": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Toughness"
                             }
                         }
@@ -17428,13 +17443,13 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "ManaSpent"
                             },
                             "operator": "GT",
                             "right": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Power"
                             }
                         },
@@ -17442,13 +17457,13 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Triggering",
+                                "entity": "TriggeringEntity",
                                 "numericProperty": "ManaSpent"
                             },
                             "operator": "GT",
                             "right": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Toughness"
                             }
                         }
@@ -17466,7 +17481,7 @@
                     "color": "GREEN",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     }
                 },

@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Mausoleum Wanderer
@@ -26,7 +25,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * Sacrifice this creature: Counter target instant or sorcery spell unless its controller pays {X},
  * where X is this creature's power.
  *
- * X reads the source's power through [EntityReference.Source], which resolves with last-known
+ * X reads the source's power through [EffectTarget.Self], which resolves with last-known
  * information (CR 112.7a / 608.2h): the sacrifice-self cost has already moved the Wanderer to the
  * graveyard by the time the ability resolves, so the engine's pre-sacrifice snapshot supplies the
  * *pumped* power rather than the printed 1. That is the whole point of the card — flash in a Spirit,
@@ -58,7 +57,7 @@ val MausoleumWanderer = card("Mausoleum Wanderer") {
         val instantOrSorcerySpell = target("target instant or sorcery spell", Targets.InstantOrSorcerySpell)
         cost = Costs.SacrificeSelf
         effect = Effects.CounterUnlessDynamicPays(
-            DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power)
+            DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power)
         )
         description = "Counter target instant or sorcery spell unless its controller pays {X}, " +
             "where X is this creature's power."

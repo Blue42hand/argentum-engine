@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Quag Feast
@@ -47,7 +46,7 @@ val QuagFeast = card("Quag Feast") {
             Effects.If(
                 condition = Compare(
                     left = DynamicAmount.EntityProperty(
-                        EntityReference.Target(0),
+                        EffectTarget.ContextTarget(0),
                         EntityNumericProperty.ManaValue,
                     ),
                     operator = ComparisonOperator.LTE,

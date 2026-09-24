@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 import com.wingedsheep.sdk.dsl.Costs
 
 /**
@@ -51,7 +50,7 @@ val ChampionOfThePath = card("Champion of the Path") {
             binding = TriggerBinding.OTHER
         )
         effect = Effects.DealDamage(
-            amount = DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.Power),
+            amount = DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.Power),
             target = EffectTarget.PlayerRef(Player.EachOpponent),
             damageSource = EffectTarget.TriggeringEntity
         )

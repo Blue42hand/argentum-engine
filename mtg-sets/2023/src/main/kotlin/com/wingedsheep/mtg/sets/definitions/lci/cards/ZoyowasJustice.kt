@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Zoyowa's Justice
@@ -22,7 +22,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * spell's controller, so the whole action is wrapped in [Effects.ForEachPlayer] keyed to
  * [Player.OwnerOf] the target — the loop rebinds the resolution context's controller to the owner,
  * so the discover walks the owner's library and the cast/hand decision is presented to the owner.
- * X is read as the target's mana value ([EntityReference.Target] → [EntityNumericProperty.ManaValue]),
+ * X is read as the target's mana value ([EffectTarget.ContextTarget] → [EntityNumericProperty.ManaValue]),
  * an intrinsic characteristic that survives the shuffle (the entity keeps its id and CardComponent
  * across the zone change).
  */
@@ -46,7 +46,7 @@ val ZoyowasJustice = card("Zoyowa's Justice") {
             listOf(
                 Effects.ShuffleIntoLibrary(permanent),
                 Effects.Discover(
-                    DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.ManaValue)
+                    DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.ManaValue)
                 )
             )
         )

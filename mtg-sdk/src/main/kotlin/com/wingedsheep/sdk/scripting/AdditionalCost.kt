@@ -387,7 +387,7 @@ sealed interface AdditionalCost : TextReplaceable<AdditionalCost> {
      * is recorded in [AdditionalCostPayment.beheldCards] and surfaced to the
      * resolution context under [storeAs] via the spell's pipeline storage.
      * Downstream effects can reference the chosen entity via
-     * [com.wingedsheep.sdk.scripting.values.EntityReference.FromCostStorage].
+     * [com.wingedsheep.sdk.scripting.targets.EffectTarget.PipelineTarget].
      *
      * This is the silent sibling of [Behold]: same general shape (filter the
      * candidates, record one pick under a `storeAs` key) but **no reveal

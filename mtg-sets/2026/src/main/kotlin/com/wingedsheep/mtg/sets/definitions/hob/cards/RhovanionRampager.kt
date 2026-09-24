@@ -28,12 +28,12 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    [DynamicAmounts.sacrificedPower] reads 0 and no counters are placed — which is exactly
  *    what "If you do" gates. The sacrifice is a resolution-time action, not a cost.
  *  - "The sacrificed creature's power" is last-known information (CR 608.2h): the sacrifice
- *    records an `EntitySnapshot`, and `EntityReference.Sacrificed` is a `LIVE_THEN_LKI`
+ *    records an `EntitySnapshot`, and `EffectTarget.SacrificedAsCost` is a `LIVE_THEN_LKI`
  *    reference, so the amount reads the power the creature had as it left the battlefield —
  *    including any counters or pumps it was carrying.
  *  - The dies trigger's X is likewise this creature's *last-known* power, so counters it had
  *    accumulated from its own attack trigger still count. [DynamicAmounts.sourcePower] over
- *    `EntityReference.Source` is `LIVE_THEN_LKI` for the same reason.
+ *    `EffectTarget.Self` is `LIVE_THEN_LKI` for the same reason.
  */
 val RhovanionRampager = card("Rhovanion Rampager") {
     manaCost = "{2}{B}"

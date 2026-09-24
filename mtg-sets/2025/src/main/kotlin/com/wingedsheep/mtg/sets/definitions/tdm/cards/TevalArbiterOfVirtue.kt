@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GrantKeywordToOwnSpells
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Teval, Arbiter of Virtue — Tarkir: Dragonstorm #230
@@ -50,7 +49,7 @@ val TevalArbiterOfVirtue = card("Teval, Arbiter of Virtue") {
     triggeredAbility {
         trigger = Triggers.YouCastSpell
         effect = Effects.LoseLife(
-            DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.ManaValue),
+            DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.ManaValue),
             EffectTarget.Controller
         )
         description = "Whenever you cast a spell, you lose life equal to its mana value."

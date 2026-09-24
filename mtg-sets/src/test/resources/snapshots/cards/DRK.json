@@ -900,7 +900,7 @@
                     "type": "AddColorlessMana",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": {
@@ -1851,7 +1851,7 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": {
                                             "type": "CounterCount",
                                             "counterType": {
@@ -3400,7 +3400,10 @@
                     "counterType": "+0/+1",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "ManaValue"
                     },
                     "target": {
@@ -4234,7 +4237,7 @@
             "type": "Dynamic",
             "source": {
                 "type": "EntityProperty",
-                "entity": "Source",
+                "entity": "Self",
                 "numericProperty": "ValueChosenAsEntered"
             }
         },
@@ -4242,7 +4245,7 @@
             "type": "Dynamic",
             "source": {
                 "type": "EntityProperty",
-                "entity": "Source",
+                "entity": "Self",
                 "numericProperty": "ValueChosenAsEntered"
             }
         }
@@ -4787,7 +4790,10 @@
                                 "type": "Multiply",
                                 "amount": {
                                     "type": "EntityProperty",
-                                    "entity": "Target",
+                                    "entity": {
+                                        "type": "ContextTarget",
+                                        "index": 0
+                                    },
                                     "numericProperty": "ManaValue"
                                 },
                                 "multiplier": 2
@@ -6173,7 +6179,7 @@
                             "type": "DealDamage",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Power"
                             },
                             "target": {
@@ -6186,7 +6192,10 @@
                             "type": "DealDamage",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
                                 "numericProperty": "Power"
                             },
                             "target": "Self",

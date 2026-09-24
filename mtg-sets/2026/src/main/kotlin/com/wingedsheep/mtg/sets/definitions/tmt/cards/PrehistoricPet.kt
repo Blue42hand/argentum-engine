@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.CantBeBlockedBy
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Prehistoric Pet
@@ -32,7 +32,7 @@ val PrehistoricPet = card("Prehistoric Pet") {
     // this creature's own power.
     staticAbility {
         ability = CantBeBlockedBy(
-            GameObjectFilter.Creature.powerGreaterThanEntity(EntityReference.Source)
+            GameObjectFilter.Creature.powerGreaterThanEntity(EffectTarget.Self)
         )
     }
 

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Feed the Swarm
@@ -32,7 +31,7 @@ val FeedTheSwarm = card("Feed the Swarm") {
         effect = Effects.Composite(
             Effects.Destroy(t),
             Effects.LoseLife(
-                DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.ManaValue),
+                DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.ManaValue),
                 EffectTarget.Controller
             )
         )

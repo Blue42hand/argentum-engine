@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 val JackalGeniusGeneticist = card("Jackal, Genius Geneticist") {
     manaCost = "{G}{U}"
@@ -26,9 +25,9 @@ val JackalGeniusGeneticist = card("Jackal, Genius Geneticist") {
     triggeredAbility {
         trigger = Triggers.YouCastCreature
         triggerRestriction = Compare(
-            DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.ManaValue),
+            DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.ManaValue),
             ComparisonOperator.EQ,
-            DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power)
+            DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power)
         )
         effect = Effects.Composite(
             Effects.CopyTargetSpell(target = EffectTarget.TriggeringEntity, removeLegendary = true),

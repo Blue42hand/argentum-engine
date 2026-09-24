@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Stalactite Stalker — {B}
@@ -60,7 +59,7 @@ val StalactiteStalker = card("Stalactite Stalker") {
         cost = Costs.Composite(Costs.Mana("{2}{B}"), Costs.SacrificeSelf)
         val creature = target("target", Targets.Creature)
         val negativePower = DynamicAmount.Multiply(
-            DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power),
+            DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power),
             -1
         )
         effect = Effects.ModifyStats(negativePower, negativePower, creature)

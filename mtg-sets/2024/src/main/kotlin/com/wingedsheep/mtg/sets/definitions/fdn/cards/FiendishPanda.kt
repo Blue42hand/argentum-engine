@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Fiendish Panda
@@ -59,7 +58,7 @@ val FiendishPanda = card("Fiendish Panda") {
                     GameObjectFilter.Creature.ownedByYou()
                         .notSubtype(Subtype.BEAR)
                         .manaValueAtMostDynamic(
-                            DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power)
+                            DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power)
                         ),
                     zone = Zone.GRAVEYARD,
                 ).other()

@@ -958,7 +958,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -2007,7 +2010,7 @@
                 },
                 "powerBonus": {
                     "type": "EntityProperty",
-                    "entity": "Source",
+                    "entity": "Self",
                     "numericProperty": {
                         "type": "CounterCount",
                         "counterType": {
@@ -2920,7 +2923,7 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": {
                                             "type": "CounterCount",
                                             "counterType": {
@@ -8920,7 +8923,7 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -11700,7 +11703,7 @@
             "amount": {
                 "type": "EntityProperty",
                 "entity": {
-                    "type": "FromCostStorage",
+                    "type": "PipelineTarget",
                     "collectionName": "chosen"
                 },
                 "numericProperty": "Power"
@@ -12781,7 +12784,7 @@
                                     "type": "DealDamage",
                                     "amount": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": "Power"
                                     },
                                     "target": "Controller"
@@ -15035,7 +15038,7 @@
                                 "type": "TopOfLibrary",
                                 "count": {
                                     "type": "EntityProperty",
-                                    "entity": "Source",
+                                    "entity": "Self",
                                     "numericProperty": "Power"
                                 }
                             },
@@ -21202,7 +21205,10 @@
                         "type": "DealDamage",
                         "amount": {
                             "type": "EntityProperty",
-                            "entity": "Target",
+                            "entity": {
+                                "type": "ContextTarget",
+                                "index": 0
+                            },
                             "numericProperty": "Power"
                         },
                         "target": "Self",

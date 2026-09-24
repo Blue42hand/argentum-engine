@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Bathe in Light
@@ -23,7 +22,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * colour, so the whole radiance group is protected from the same colour (Scryfall ruling: the
  * chosen colour has nothing to do with the colour the creatures share). The **radiance group** is
  * the usual RAV shape: the target is granted directly, and every *other* creature sharing a colour
- * with it (`sharingColorWith(EntityReference.Target(0))`, `otherThanTarget()`) is gathered once at
+ * with it (`sharingColorWith(EffectTarget.ContextTarget(0))`, `otherThanTarget()`) is gathered once at
  * resolution and granted via [Effects.ForEachInGroup] with `EffectTarget.Self` bound to each
  * iterated creature — the documented `ChooseColorThen` + `ForEachInGroup` recipe.
  *
@@ -44,7 +43,7 @@ val BatheInLight = card("Bathe in Light") {
             Effects.GrantProtectionFromChosenColor(radiant) then
                 Effects.ForEachInGroup(
                     filter = GroupFilter(
-                        GameObjectFilter.Creature.sharingColorWith(EntityReference.Target(0))
+                        GameObjectFilter.Creature.sharingColorWith(EffectTarget.ContextTarget(0))
                     ).otherThanTarget(),
                     effect = Effects.GrantProtectionFromChosenColor(EffectTarget.Self)
                 )

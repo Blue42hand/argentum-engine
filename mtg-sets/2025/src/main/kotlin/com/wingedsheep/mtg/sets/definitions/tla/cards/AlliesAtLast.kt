@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Allies at Last
@@ -32,7 +31,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * [EffectTarget.ContextTarget] index 0 across the per-attacker loop) and up to two creatures you
  * control. At resolution we gather the chosen targets, filter to the creatures you control
  * (excludes the victim), then have each deal damage equal to its own power — read per-iteration via
- * [EntityReference.IterationEntity] — to the opponent's creature.
+ * [EffectTarget.IterationEntity] — to the opponent's creature.
  */
 val AlliesAtLast = card("Allies at Last") {
     manaCost = "{2}{G}"
@@ -73,7 +72,7 @@ val AlliesAtLast = card("Allies at Last") {
                 collection = "allies",
                 effect = Effects.DealDamage(
                     amount = DynamicAmount.EntityProperty(
-                        EntityReference.IterationEntity,
+                        EffectTarget.IterationEntity,
                         EntityNumericProperty.Power,
                     ),
                     target = EffectTarget.ContextTarget(0),

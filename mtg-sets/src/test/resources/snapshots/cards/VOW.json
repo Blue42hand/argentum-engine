@@ -2820,7 +2820,7 @@
                         "type": "LoseLife",
                         "amount": {
                             "type": "EntityProperty",
-                            "entity": "Sacrificed",
+                            "entity": "SacrificedAsCost",
                             "numericProperty": "Toughness"
                         },
                         "target": {
@@ -3926,7 +3926,7 @@
                                     "type": "DealDamage",
                                     "amount": {
                                         "type": "EntityProperty",
-                                        "entity": "Triggering",
+                                        "entity": "TriggeringEntity",
                                         "numericProperty": "ManaSpent"
                                     },
                                     "target": {
@@ -7112,7 +7112,7 @@
                                         "type": "Compare",
                                         "left": {
                                             "type": "EntityProperty",
-                                            "entity": "Source",
+                                            "entity": "Self",
                                             "numericProperty": {
                                                 "type": "CounterCount",
                                                 "counterType": {
@@ -7377,7 +7377,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": {
@@ -7402,7 +7402,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": {
@@ -7451,7 +7451,7 @@
                                         "type": "Compare",
                                         "left": {
                                             "type": "EntityProperty",
-                                            "entity": "Source",
+                                            "entity": "Self",
                                             "numericProperty": {
                                                 "type": "CounterCount",
                                                 "counterType": {
@@ -8122,7 +8122,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": {
@@ -8374,12 +8374,12 @@
                     ],
                     "dynamicPower": {
                         "type": "EntityProperty",
-                        "entity": "Sacrificed",
+                        "entity": "SacrificedAsCost",
                         "numericProperty": "Toughness"
                     },
                     "dynamicToughness": {
                         "type": "EntityProperty",
-                        "entity": "Sacrificed",
+                        "entity": "SacrificedAsCost",
                         "numericProperty": "Toughness"
                     }
                 },
@@ -9275,7 +9275,7 @@
                             "counterType": "+1/+1",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Power"
                             },
                             "target": {
@@ -12136,7 +12136,10 @@
                     "tokenType": "Blood",
                     "dynamicCount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "ExcessMarkedDamage"
                     }
                 }
@@ -12988,7 +12991,10 @@
                         "type": "DealDamage",
                         "amount": {
                             "type": "EntityProperty",
-                            "entity": "Target",
+                            "entity": {
+                                "type": "ContextTarget",
+                                "index": 0
+                            },
                             "numericProperty": "Power"
                         },
                         "target": {
@@ -13050,7 +13056,10 @@
                                 "type": "DealDamage",
                                 "amount": {
                                     "type": "EntityProperty",
-                                    "entity": "Target",
+                                    "entity": {
+                                        "type": "ContextTarget",
+                                        "index": 0
+                                    },
                                     "numericProperty": "Power"
                                 },
                                 "target": {
@@ -14798,7 +14807,7 @@
                     "type": "GainLife",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     }
                 }
@@ -18006,7 +18015,7 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": {
                                             "type": "CounterCount",
                                             "counterType": {
@@ -20055,7 +20064,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": {
@@ -20085,7 +20094,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": {
@@ -20115,7 +20124,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": {
@@ -21130,7 +21139,7 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": {
                                             "type": "CounterCount",
                                             "counterType": {
@@ -21696,7 +21705,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {

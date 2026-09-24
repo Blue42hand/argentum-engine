@@ -10,11 +10,10 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /** Sita Varma's power at resolution — read off the ability's source, not the iteration entity. */
 private val SitaVarmasPower: DynamicAmount = DynamicAmount.EntityProperty(
-    EntityReference.Source,
+    EffectTarget.Self,
     EntityNumericProperty.Power
 )
 
@@ -28,7 +27,7 @@ private val SitaVarmasPower: DynamicAmount = DynamicAmount.EntityProperty(
  *
  * Order is load-bearing and matches the printed "Then": the counters land first, so the power the
  * rest of the team copies is already `2 + X`. Inside the `ForEachInGroup` body, `EffectTarget.Self`
- * is the creature being set (the iteration entity) while `EntityReference.Source` is still Sita
+ * is the creature being set (the iteration entity) while `EffectTarget.Self` is still Sita
  * Varma — which is what lets one body both read her power and write each other creature's.
  *
  * `SetBasePowerAndToughness` sets Layer 7b, so each affected creature's own +1/+1 counters still

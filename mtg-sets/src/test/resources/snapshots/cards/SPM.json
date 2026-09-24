@@ -1163,7 +1163,7 @@
                                     "type": "AddColorlessMana",
                                     "amount": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": {
                                             "type": "CounterCount",
                                             "counterType": "CounterAny"
@@ -2094,7 +2094,7 @@
                                     "type": "DrawCards",
                                     "count": {
                                         "type": "EntityProperty",
-                                        "entity": "Sacrificed",
+                                        "entity": "SacrificedAsCost",
                                         "numericProperty": "ManaValue"
                                     }
                                 },
@@ -2127,7 +2127,7 @@
                                                     "type": "TotalManaValueAtMost",
                                                     "maxAmount": {
                                                         "type": "EntityProperty",
-                                                        "entity": "Sacrificed",
+                                                        "entity": "SacrificedAsCost",
                                                         "numericProperty": "ManaValue"
                                                     }
                                                 }
@@ -3952,13 +3952,13 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Triggering",
+                        "entity": "TriggeringEntity",
                         "numericProperty": "ManaValue"
                     },
                     "operator": "EQ",
                     "right": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     }
                 }
@@ -4402,7 +4402,7 @@
                                 "type": "ManaValueAtMost",
                                 "max": {
                                     "type": "EntityProperty",
-                                    "entity": "Source",
+                                    "entity": "Self",
                                     "numericProperty": {
                                         "type": "CounterCount",
                                         "counterType": {
@@ -9934,7 +9934,7 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -10154,7 +10154,7 @@
                                         "type": "TopOfLibrary",
                                         "count": {
                                             "type": "EntityProperty",
-                                            "entity": "Triggering",
+                                            "entity": "TriggeringEntity",
                                             "numericProperty": {
                                                 "type": "CounterCount",
                                                 "counterType": "CounterAny"
@@ -10170,7 +10170,7 @@
                                         "type": "ChooseUpTo",
                                         "count": {
                                             "type": "EntityProperty",
-                                            "entity": "Triggering",
+                                            "entity": "TriggeringEntity",
                                             "numericProperty": {
                                                 "type": "CounterCount",
                                                 "counterType": "CounterAny"
@@ -14075,7 +14075,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {

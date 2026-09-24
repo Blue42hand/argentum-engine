@@ -12,7 +12,7 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Chalice of the Void
@@ -41,7 +41,7 @@ val ChaliceOfTheVoid = card("Chalice of the Void") {
     triggeredAbility {
         trigger = Triggers.AnyPlayerCastsSpell
         triggerRestriction = Compare(
-            DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.ManaValue),
+            DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.ManaValue),
             ComparisonOperator.EQ,
             DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.CHARGE))
         )

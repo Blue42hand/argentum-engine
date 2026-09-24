@@ -142,7 +142,7 @@ data class SpellOnStackComponent(
      * when an [com.wingedsheep.sdk.scripting.AdditionalCost.ChooseEntity] step
      * has `captureSnapshot = true` — freezes the chosen entity's projected
      * power / toughness / subtypes / controller so downstream effects (e.g.
-     * `DynamicAmount.EntityProperty(EntityReference.FromCostStorage(…), …)`)
+     * `DynamicAmount.EntityProperty(EffectTarget.PipelineTarget(…), …)`)
      * can read "values as they last existed on the battlefield" at resolution.
      */
     val chosenEntitySnapshots: List<EntitySnapshot> = emptyList(),

@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Coordinated Clobbering
@@ -28,7 +27,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * At resolution we gather the chosen targets into two collections by controller. This avoids
  * relying on a positional target index when the one-or-two-creature group is flattened into the
  * cast action. We then tap the clobberers and have each deal damage equal to its own power — read
- * per-iteration via [EntityReference.IterationEntity] — to the opponent's creature.
+ * per-iteration via [EffectTarget.IterationEntity] — to the opponent's creature.
  */
 val CoordinatedClobbering = card("Coordinated Clobbering") {
     manaCost = "{G}"
@@ -76,7 +75,7 @@ val CoordinatedClobbering = card("Coordinated Clobbering") {
                 collection = "clobberers",
                 effect = Effects.DealDamage(
                     amount = DynamicAmount.EntityProperty(
-                        EntityReference.IterationEntity,
+                        EffectTarget.IterationEntity,
                         EntityNumericProperty.Power,
                     ),
                     target = EffectTarget.PipelineTarget("victim"),

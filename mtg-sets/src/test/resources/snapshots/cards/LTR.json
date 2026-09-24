@@ -91,7 +91,7 @@
                     "type": "LoseLife",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": {
@@ -133,7 +133,7 @@
                             "type": "DrawCards",
                             "count": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "CounterCount",
                                     "counterType": {
@@ -2008,7 +2008,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -3337,7 +3340,10 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Target",
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        },
                                         "numericProperty": "Power"
                                     },
                                     "operator": "LTE",
@@ -5713,7 +5719,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -5730,7 +5739,7 @@
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "Target",
+                            "type": "ContextTarget",
                             "index": 1
                         },
                         "numericProperty": "Power"
@@ -7523,7 +7532,7 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -9717,7 +9726,7 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -9868,7 +9877,10 @@
                             "tokenType": "Treasure",
                             "dynamicCount": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
                                 "numericProperty": "Power"
                             }
                         }
@@ -12664,7 +12676,7 @@
                                                     "type": "TopOfLibrary",
                                                     "count": {
                                                         "type": "EntityProperty",
-                                                        "entity": "Source",
+                                                        "entity": "Self",
                                                         "numericProperty": {
                                                             "type": "CounterCount",
                                                             "counterType": {
@@ -13108,7 +13120,10 @@
                     "name": "bouncedMv",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "ManaValue"
                     }
                 },
@@ -13427,7 +13442,7 @@
                                 "type": "TopOfLibrary",
                                 "count": {
                                     "type": "EntityProperty",
-                                    "entity": "Triggering",
+                                    "entity": "TriggeringEntity",
                                     "numericProperty": "ManaValue"
                                 }
                             },
@@ -13637,7 +13652,7 @@
                                 "IsCreature",
                                 {
                                     "type": "PowerLessThanEntity",
-                                    "reference": "Source"
+                                    "reference": "Self"
                                 }
                             ]
                         }
@@ -13823,7 +13838,7 @@
                             "type": "CreateToken",
                             "count": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Toughness"
                             },
                             "power": 1,
@@ -14817,7 +14832,7 @@
                                         },
                                         {
                                             "type": "ManaValueAtMostEntity",
-                                            "reference": "Triggering"
+                                            "reference": "TriggeringEntity"
                                         }
                                     ],
                                     "controllerPredicate": "OwnedByOpponent"
@@ -15658,7 +15673,7 @@
                                         "IsCreature",
                                         {
                                             "type": "PowerLessThanEntity",
-                                            "reference": "Source"
+                                            "reference": "Self"
                                         }
                                     ]
                                 }
@@ -15742,7 +15757,7 @@
                             "type": "Amass",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "AttachmentCount",
                                     "kind": "EQUIPMENT"
@@ -16811,7 +16826,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -17939,7 +17957,7 @@
                     "type": "LoseLife",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": {
@@ -17969,7 +17987,7 @@
                             "type": "DrawCards",
                             "count": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "CounterCount",
                                     "counterType": {
@@ -19811,7 +19829,10 @@
                             "type": "ForEach",
                             "space": {
                                 "type": "IterationSpace.ColorsOf",
-                                "source": "Target"
+                                "source": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                }
                             },
                             "body": {
                                 "type": "ForEach",
@@ -19851,7 +19872,7 @@
                                 "IsCreature",
                                 {
                                     "type": "PowerGreaterThanEntity",
-                                    "reference": "Source"
+                                    "reference": "Self"
                                 }
                             ],
                             "controllerPredicate": "ControlledByOpponent"

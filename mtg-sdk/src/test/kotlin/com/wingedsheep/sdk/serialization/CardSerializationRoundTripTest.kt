@@ -40,7 +40,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -516,7 +515,7 @@ class CardSerializationRoundTripTest : DescribeSpec({
                         modification = CostModification.ReduceGenericBy(
                             CostReductionSource.Dynamic(
                                 DynamicAmount.EntityProperty(
-                                    EntityReference.Source,
+                                    EffectTarget.Self,
                                     EntityNumericProperty.Power
                                 )
                             )
@@ -527,14 +526,14 @@ class CardSerializationRoundTripTest : DescribeSpec({
 
             val serialized = CardLoader.toJson(card)
             serialized shouldContain "\"Dynamic\""
-            serialized shouldContain "\"Source\""
+            serialized shouldContain "\"Self\""
             serialized shouldContain "\"Power\""
 
             val deserialized = CardLoader.fromJson(serialized)
             val ability = deserialized.script.staticAbilities.single() as ModifySpellCost
             val modification = ability.modification as CostModification.ReduceGenericBy
             modification.source shouldBe CostReductionSource.Dynamic(
-                DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power)
+                DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power)
             )
         }
 

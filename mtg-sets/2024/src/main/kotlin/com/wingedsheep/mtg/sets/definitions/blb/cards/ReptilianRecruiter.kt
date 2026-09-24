@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Reptilian Recruiter {3}{R}{R}
@@ -46,7 +45,7 @@ val ReptilianRecruiter = card("Reptilian Recruiter") {
                 listOf(
                     // Target creature's power is 2 or less
                     Compare(
-                        DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.Power),
+                        DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.Power),
                         ComparisonOperator.LTE,
                         DynamicAmount.Fixed(2)
                     ),

@@ -245,7 +245,10 @@
             "type": "DealDamage",
             "amount": {
                 "type": "EntityProperty",
-                "entity": "Target",
+                "entity": {
+                    "type": "ContextTarget",
+                    "index": 0
+                },
                 "numericProperty": "Power"
             },
             "target": {

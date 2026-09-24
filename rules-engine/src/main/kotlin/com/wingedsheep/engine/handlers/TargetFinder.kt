@@ -19,7 +19,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.targets.*
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Identifies the type of source that is doing the targeting.
@@ -50,7 +50,7 @@ class TargetFinder(
      * pipeline-derived fields (storedCollections, chosenValues, xValue, …) carried by
      * [pipelineContext]. Keeps the always-present `controllerId`/`sourceId`/`ownerId` from
      * the call site while letting resolution-time filters see the resolving effect's pipeline
-     * state — needed for "power <= the amassed Army's power" (EntityReference.AmassedArmy).
+     * state — needed for "power <= the amassed Army's power" (EffectTarget.AmassedArmy).
      */
     private fun targetingContext(
         controllerId: EntityId,
@@ -95,7 +95,7 @@ class TargetFinder(
          * Pipeline-derived predicate context (storedCollections, chosenValues, xValue, …) from the
          * resolving effect. Threaded so a target filter can compare candidates against a
          * resolution-time pipeline value — e.g. "power <= the amassed Army's power" reads
-         * [EntityReference.AmassedArmy] out of `pipelineContext.storedCollections`. Null for
+         * [EffectTarget.AmassedArmy] out of `pipelineContext.storedCollections`. Null for
          * cast-time targeting where no pipeline state exists yet.
          */
         pipelineContext: PredicateContext? = null

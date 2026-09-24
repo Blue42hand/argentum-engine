@@ -190,7 +190,7 @@ class ForEachExecutor(
             resolveGroup(state, space, context).map { ForEachItem.OfEntity(it) }
 
         is IterationSpace.ColorsOf -> {
-            val sourceId = TargetResolutionUtils.resolveEntityReference(space.source, context, state)
+            val sourceId = TargetResolutionUtils.resolveEntity(space.source, context, state)
             if (sourceId == null) {
                 emptyList()
             } else {

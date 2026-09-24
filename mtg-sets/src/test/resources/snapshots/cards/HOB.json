@@ -232,7 +232,10 @@
                                 "name": "azogTargetPower",
                                 "amount": {
                                     "type": "EntityProperty",
-                                    "entity": "Target",
+                                    "entity": {
+                                        "type": "ContextTarget",
+                                        "index": 0
+                                    },
                                     "numericProperty": "Power"
                                 }
                             },
@@ -280,7 +283,10 @@
                                 "name": "azogTargetPower",
                                 "amount": {
                                     "type": "EntityProperty",
-                                    "entity": "Target",
+                                    "entity": {
+                                        "type": "ContextTarget",
+                                        "index": 0
+                                    },
                                     "numericProperty": "Power"
                                 }
                             },
@@ -1697,7 +1703,7 @@
                                 "amount": {
                                     "type": "EntityProperty",
                                     "entity": {
-                                        "type": "FromCostStorage",
+                                        "type": "PipelineTarget",
                                         "collectionName": "bolgSacrifice"
                                     },
                                     "numericProperty": "Power"
@@ -1736,7 +1742,10 @@
                                     "type": "Amass",
                                     "amount": {
                                         "type": "EntityProperty",
-                                        "entity": "Target",
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        },
                                         "numericProperty": "ExcessMarkedDamage"
                                     },
                                     "subtype": "Goblin"
@@ -2603,7 +2612,7 @@
                     "counterType": "+1/+1",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Triggering",
+                        "entity": "TriggeringEntity",
                         "numericProperty": "ManaValue"
                     },
                     "target": {
@@ -4769,12 +4778,12 @@
                     },
                     "power": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "toughness": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Toughness"
                     },
                     "duration": "EndOfTurn"
@@ -5679,10 +5688,7 @@
                         },
                         {
                             "type": "AttachEquipment",
-                            "target": {
-                                "type": "PipelineTarget",
-                                "collectionName": "__amassed_army"
-                            }
+                            "target": "AmassedArmy"
                         }
                     ]
                 },
@@ -7542,7 +7548,7 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": {
                                             "type": "CounterCount",
                                             "counterType": {
@@ -9465,7 +9471,10 @@
             "type": "DealDamage",
             "amount": {
                 "type": "EntityProperty",
-                "entity": "Target",
+                "entity": {
+                    "type": "ContextTarget",
+                    "index": 0
+                },
                 "numericProperty": "Power"
             },
             "target": {
@@ -9962,7 +9971,7 @@
                             "counterType": "+1/+1",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Sacrificed",
+                                "entity": "SacrificedAsCost",
                                 "numericProperty": "Power"
                             },
                             "target": "Self"
@@ -9982,7 +9991,7 @@
                     "type": "Amass",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "subtype": "Goblin"
@@ -10931,7 +10940,10 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "ManaValue"
                     },
                     "operator": "LTE",
@@ -13783,7 +13795,7 @@
                             "type": "DrawCards",
                             "count": {
                                 "type": "EntityProperty",
-                                "entity": "Sacrificed",
+                                "entity": "SacrificedAsCost",
                                 "numericProperty": "Power"
                             }
                         },
@@ -14731,7 +14743,7 @@
                     "type": "AddManaOfChoice",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "restriction": {

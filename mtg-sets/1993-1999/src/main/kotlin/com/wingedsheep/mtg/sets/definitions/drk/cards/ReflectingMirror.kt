@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Reflecting Mirror
@@ -50,7 +50,7 @@ val ReflectingMirror = card("Reflecting Mirror") {
                 ComparisonOperator.GTE,
                 DynamicAmount.Multiply(
                     DynamicAmount.EntityProperty(
-                        EntityReference.Target(0),
+                        EffectTarget.ContextTarget(0),
                         EntityNumericProperty.ManaValue,
                     ),
                     multiplier = 2,

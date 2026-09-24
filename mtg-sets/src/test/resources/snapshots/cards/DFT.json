@@ -12785,7 +12785,10 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
                                 "numericProperty": "ManaValue"
                             },
                             "operator": "LTE",
@@ -13238,7 +13241,7 @@
                     "type": "AddManaOfChoice",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "restriction": "AbilityActivationOnly"
@@ -13482,7 +13485,7 @@
                                     "type": "Add",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Sacrificed",
+                                        "entity": "SacrificedAsCost",
                                         "numericProperty": "ManaValue"
                                     },
                                     "right": {
@@ -14584,7 +14587,10 @@
             "type": "DealDamage",
             "amount": {
                 "type": "EntityProperty",
-                "entity": "Target",
+                "entity": {
+                    "type": "ContextTarget",
+                    "index": 0
+                },
                 "numericProperty": "Power"
             },
             "target": {
@@ -14707,7 +14713,7 @@
                                     "type": "NumberMatches",
                                     "amount": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": {
                                             "type": "CounterCount",
                                             "counterType": "CounterAny"
@@ -14736,7 +14742,7 @@
                     "type": "NumberMatches",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": "CounterAny"
@@ -14751,7 +14757,7 @@
                     "type": "NumberMatches",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": "CounterAny"
@@ -15306,12 +15312,12 @@
                                     "target": "Self",
                                     "power": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": "Power"
                                     },
                                     "toughness": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": "Power"
                                     },
                                     "duration": "EndOfTurn"

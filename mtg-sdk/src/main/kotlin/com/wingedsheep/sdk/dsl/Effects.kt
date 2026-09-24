@@ -17,7 +17,6 @@ import com.wingedsheep.sdk.scripting.effects.AddAnyColorManaSpendOnChosenTypeEff
 import com.wingedsheep.sdk.scripting.effects.AddManaOfChoiceEffect
 import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
 import com.wingedsheep.sdk.scripting.effects.AddDynamicManaEffect
-import com.wingedsheep.sdk.scripting.values.EntityReference
 import com.wingedsheep.sdk.scripting.values.LandControllerScope
 import com.wingedsheep.sdk.scripting.values.ManaColorSet
 import com.wingedsheep.sdk.scripting.effects.AddOneManaOfEachColorAmongEffect
@@ -3365,7 +3364,7 @@ object Effects {
      * "[group] gain protection from each of [source]'s colors" (Éowyn, Fearless Knight) is:
      *
      *     Effects.ForEachColorOf(
-     *         source = EntityReference.Target(0),
+     *         source = EffectTarget.ContextTarget(0),
      *         effect = ForEachInGroupEffect(group, Effects.GrantProtectionFromChosenColor(EffectTarget.Self)),
      *     )
      *
@@ -3375,7 +3374,7 @@ object Effects {
      * exile/destroy step so its projected colors are still readable.
      */
     fun ForEachColorOf(
-        source: EntityReference,
+        source: EffectTarget.SingleEntity,
         effect: Effect
     ): Effect = ForEachColorOfEffect(source, effect)
 
@@ -5499,7 +5498,7 @@ object Effects {
         duration: Duration = Duration.EndOfTurn
     ): Effect {
         val manaValue = DynamicAmount.EntityProperty(
-            entity = com.wingedsheep.sdk.scripting.values.EntityReference.AffectedEntity,
+            entity = com.wingedsheep.sdk.scripting.targets.EffectTarget.AffectedEntity,
             numericProperty = com.wingedsheep.sdk.scripting.values.EntityNumericProperty.ManaValue
         )
         return BecomeCreatureEffect(

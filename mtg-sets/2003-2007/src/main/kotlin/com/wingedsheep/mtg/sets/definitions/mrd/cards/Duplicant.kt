@@ -14,7 +14,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Duplicant — Mirrodin #165
@@ -26,7 +26,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *
  * Modelling notes:
  * - The two halves are a *linked* pair (CR 607): `Effects.ExileLinkedToSource` writes the pile and
- *   both statics read it through [EntityReference.LinkedExiledCard]. The exiled *card* is what is
+ *   both statics read it through [EffectTarget.LinkedExiledCard]. The exiled *card* is what is
  *   read — not the permanent that was exiled — so a creature that dies out of exile, or an imprint
  *   the controller declined, simply leaves Duplicant a printed 2/4 Shapeshifter.
  * - "As long as a card exiled with this creature is a creature card" is the gate, not a card-level
@@ -72,7 +72,7 @@ val Duplicant = card("Duplicant") {
     staticAbility {
         ability = ConditionalStaticAbility(
             ability = HasCreatureTypesOf(
-                source = EntityReference.LinkedExiledCard(),
+                source = EffectTarget.LinkedExiledCard(),
                 retainedTypes = setOf("Shapeshifter")
             ),
             condition = Conditions.LinkedExiledCardMatches(Filters.Creature)
@@ -84,11 +84,11 @@ val Duplicant = card("Duplicant") {
         ability = ConditionalStaticAbility(
             ability = SetBasePowerToughnessDynamicStatic(
                 power = DynamicAmount.EntityProperty(
-                    EntityReference.LinkedExiledCard(),
+                    EffectTarget.LinkedExiledCard(),
                     EntityNumericProperty.Power
                 ),
                 toughness = DynamicAmount.EntityProperty(
-                    EntityReference.LinkedExiledCard(),
+                    EffectTarget.LinkedExiledCard(),
                     EntityNumericProperty.Toughness
                 )
             ),

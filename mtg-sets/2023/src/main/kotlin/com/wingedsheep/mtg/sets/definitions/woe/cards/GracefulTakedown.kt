@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetOther
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Graceful Takedown
@@ -75,7 +74,7 @@ val GracefulTakedown = card("Graceful Takedown") {
                     collection = dealers.key,
                     effect = DealDamageEffect(
                         amount = DynamicAmount.EntityProperty(
-                            EntityReference.IterationEntity,
+                            EffectTarget.IterationEntity,
                             EntityNumericProperty.Power
                         ),
                         target = victim,

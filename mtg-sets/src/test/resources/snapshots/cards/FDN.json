@@ -136,7 +136,7 @@
                                     "type": "ManaValueAtMostDynamic",
                                     "amount": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": "Power"
                                     }
                                 }
@@ -714,12 +714,12 @@
                             "type": "ModifyStats",
                             "powerModifier": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Power"
                             },
                             "toughnessModifier": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Power"
                             },
                             "target": {
@@ -769,7 +769,7 @@
                 },
                 "powerBonus": {
                     "type": "EntityProperty",
-                    "entity": "Source",
+                    "entity": "Self",
                     "numericProperty": {
                         "type": "CounterCount",
                         "counterType": {
@@ -780,7 +780,7 @@
                 },
                 "toughnessBonus": {
                     "type": "EntityProperty",
-                    "entity": "Source",
+                    "entity": "Self",
                     "numericProperty": {
                         "type": "CounterCount",
                         "counterType": {
@@ -1225,7 +1225,10 @@
             "type": "ModifyStats",
             "powerModifier": {
                 "type": "EntityProperty",
-                "entity": "Target",
+                "entity": {
+                    "type": "ContextTarget",
+                    "index": 0
+                },
                 "numericProperty": "Power"
             },
             "toughnessModifier": {
@@ -3321,7 +3324,10 @@
                     "type": "LoseLife",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "ManaValue"
                     },
                     "target": "Controller"
@@ -3430,7 +3436,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -3526,7 +3535,7 @@
                                     "type": "ManaValueAtMostDynamic",
                                     "amount": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": "Power"
                                     }
                                 }
@@ -3971,7 +3980,10 @@
                     "type": "CreateToken",
                     "count": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "ExcessMarkedDamage"
                     },
                     "power": 1,
@@ -6280,7 +6292,7 @@
                     "counterType": "+1/+1",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": "PlusOnePlusOne"
@@ -6534,7 +6546,7 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Triggering",
+                                        "entity": "TriggeringEntity",
                                         "numericProperty": {
                                             "type": "CounterCount",
                                             "counterType": "PlusOnePlusOne"
@@ -7668,7 +7680,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": {
@@ -7694,7 +7706,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": {

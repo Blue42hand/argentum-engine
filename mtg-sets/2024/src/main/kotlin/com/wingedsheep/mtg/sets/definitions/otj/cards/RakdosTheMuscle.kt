@@ -20,7 +20,6 @@ import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityReference
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
@@ -40,7 +39,7 @@ import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
  * - Flying/trample keywords.
  * - The sacrifice trigger ([Triggers.YouSacrificeOneOrMore] over creatures) targets a player and
  *   impulse-exiles the top X of that player's library, where X is the sacrificed creature's mana
- *   value — read via [EntityReference.Triggering] (the sacrificed creature is the triggering
+ *   value — read via [EffectTarget.TriggeringEntity] (the sacrificed creature is the triggering
  *   entity; its `CardComponent.manaValue` survives in the graveyard). It then grants a may-play
  *   permission expiring at the controller's next end step ([MayPlayExpiry.UntilNextEndStep]) with
  *   `withAnyManaType = true` — the same impulse-play-with-any-mana primitive Laughing Jasper Flint
@@ -50,7 +49,7 @@ import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
  *   ([ActivationRestriction.OncePerTurn]). Activating it also satisfies the sacrifice trigger above.
  */
 private val rakdosManaValueX: DynamicAmount =
-    DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.ManaValue)
+    DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.ManaValue)
 
 val RakdosTheMuscle = card("Rakdos, the Muscle") {
     manaCost = "{2}{B}{B}{R}"

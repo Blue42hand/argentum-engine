@@ -4,7 +4,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.text.TextReplacer
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -90,7 +90,7 @@ sealed interface IterationSpace {
      */
     @SerialName("IterationSpace.ColorsOf")
     @Serializable
-    data class ColorsOf(val source: EntityReference) : IterationSpace
+    data class ColorsOf(val source: EffectTarget.SingleEntity) : IterationSpace
 
     fun applyTextReplacement(replacer: TextReplacer): IterationSpace = when (this) {
         is Group -> {
@@ -273,5 +273,5 @@ fun ForEachInGroupEffect(
  * [IterationSpace.ColorsOf].
  */
 @Suppress("FunctionName")
-fun ForEachColorOfEffect(source: EntityReference, effect: Effect): ForEachEffect =
+fun ForEachColorOfEffect(source: EffectTarget.SingleEntity, effect: Effect): ForEachEffect =
     ForEachEffect(IterationSpace.ColorsOf(source), effect)

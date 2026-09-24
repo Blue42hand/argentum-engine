@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Costs
 
 /**
@@ -53,7 +53,7 @@ val CloseEncounter = card("Close Encounter") {
         val damaged = target("creature", Targets.Creature)
         effect = Effects.DealDamage(
             DynamicAmount.EntityProperty(
-                EntityReference.FromCostStorage("chosen"),
+                EffectTarget.PipelineTarget("chosen"),
                 EntityNumericProperty.Power,
             ),
             damaged,

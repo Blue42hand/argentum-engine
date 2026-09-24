@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Bolg of the North — The Hobbit #148
@@ -69,7 +68,7 @@ val BolgOfTheNorth = card("Bolg of the North") {
                     Effects.StoreNumber(
                         "bolgSacrificedPower",
                         DynamicAmount.EntityProperty(
-                            EntityReference.FromCostStorage("bolgSacrifice"),
+                            EffectTarget.PipelineTarget("bolgSacrifice"),
                             EntityNumericProperty.Power,
                         ),
                     ),
@@ -86,7 +85,7 @@ val BolgOfTheNorth = card("Bolg of the North") {
                     condition = Conditions.IfTargetTookExcessDamage(),
                     then = Effects.Amass(
                         DynamicAmount.EntityProperty(
-                            EntityReference.Target(0),
+                            EffectTarget.ContextTarget(0),
                             EntityNumericProperty.ExcessMarkedDamage,
                         ),
                         "Goblin",

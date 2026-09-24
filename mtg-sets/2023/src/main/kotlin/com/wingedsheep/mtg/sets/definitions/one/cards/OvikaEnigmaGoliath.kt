@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Ovika, Enigma Goliath
@@ -30,7 +29,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * - Ward—{3}, Pay 3 life is a single composite ward cost ([WardCost.Composite] of a mana
  *   part and a life part), the Gisa, the Hellraiser shape (CR 702.21a).
  * - The token count reads the triggering spell's mana value via
- *   [EntityReference.Triggering]; for {X} spells CR 202.3e fixes the X portion to the
+ *   [EffectTarget.TriggeringEntity]; for {X} spells CR 202.3e fixes the X portion to the
  *   chosen value while the spell is on the stack, matching the 2024-11-08 ruling.
  * - "They gain haste" iterates the [CREATED_TOKENS] pipeline collection the create-token
  *   executor publishes, so only the tokens made by this trigger are granted haste — and
@@ -59,7 +58,7 @@ val OvikaEnigmaGoliath = card("Ovika, Enigma Goliath") {
         effect = Effects.Composite(listOf(
             Effects.CreateToken(
                 count = DynamicAmount.EntityProperty(
-                    EntityReference.Triggering,
+                    EffectTarget.TriggeringEntity,
                     EntityNumericProperty.ManaValue,
                 ),
                 power = 1,

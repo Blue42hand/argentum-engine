@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * South Wind Avatar
@@ -48,7 +47,7 @@ val SouthWindAvatar = card("South Wind Avatar") {
             binding = TriggerBinding.OTHER
         )
         effect = Effects.GainLife(
-            DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.Toughness)
+            DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.Toughness)
         )
         description = "Whenever another creature you control dies, you gain life equal to its toughness."
     }

@@ -62,7 +62,6 @@ import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * The steps a spell performs — the pipeline family, and the rules that produce a `CardScript`
@@ -2585,7 +2584,7 @@ object Steps {
      */
     private fun lifeByProperty(
         possessive: Phrase<Unit>,
-        reference: EntityReference,
+        reference: EffectTarget.SingleEntity,
         tag: String,
     ): List<Phrase<CardScript>> {
         val characteristic = Amounts.propertyOf(possessive, reference, tag)
@@ -2605,7 +2604,7 @@ object Steps {
 
     /** "…equal to **~'s** power." — the source, which every position but a filtered trigger reads. */
     private val sourceLifeByProperty: List<Phrase<CardScript>> =
-        lifeByProperty(Primitives.selfPossessive, EntityReference.Source, "the source")
+        lifeByProperty(Primitives.selfPossessive, EffectTarget.Self, "the source")
 
     /**
      * "…equal to **its** mana value." after a clause has chosen something — what [Continuations]'
@@ -2615,7 +2614,7 @@ object Steps {
      * carry both this reading and [sourceLifeByProperty]'s.
      */
     private val targetLifeByProperty: List<Phrase<CardScript>> =
-        lifeByProperty(Primitives.targetPossessive, EntityReference.Target(), "the chosen object")
+        lifeByProperty(Primitives.targetPossessive, EffectTarget.ContextTarget(0), "the chosen object")
 
     /**
      * The filtered-trigger reading: the name still means the source, the pronoun means the object
@@ -2623,8 +2622,8 @@ object Steps {
      * [SelfSteps.triggering] offers its two.
      */
     private val triggeringLifeByProperty: List<Phrase<CardScript>> =
-        lifeByProperty(Primitives.selfNamedPossessive, EntityReference.Source, "the named source") +
-            lifeByProperty(Primitives.itsPronoun, EntityReference.Triggering, "the triggering permanent")
+        lifeByProperty(Primitives.selfNamedPossessive, EffectTarget.Self, "the named source") +
+            lifeByProperty(Primitives.itsPronoun, EffectTarget.TriggeringEntity, "the triggering permanent")
 
     private val nonAnaphoric: List<Phrase<CardScript>> =
         listOf(
@@ -2905,14 +2904,14 @@ object Steps {
         if (refersWithoutDeclaring && declarers != 1) return null
         // **A characteristic read off "the target" needs the target to *be* an object.**
         //
-        // `EntityReference.Target(0)` is an ordinal into the line's requirements, so unlike the
+        // `EffectTarget.ContextTarget(0)` is an ordinal into the line's requirements, so unlike the
         // pronoun it is invisible to [Slots.references] and the guard above never sees it. Two ways
         // it goes wrong, and the second is the one the differential caught. A line that declares no
         // target at all leaves the reference dangling. And a line that declares a *player* — "Target
         // opponent sacrifices a creature of their choice. You gain life equal to that creature's
         // toughness." (Tribute to Hunger) — reads the opponent's toughness, because the noun the
         // possessive names is the creature they sacrificed and the SDK spells that
-        // `EntityReference.Sacrificed`. Both round-trip byte-perfectly while meaning a different
+        // `EffectTarget.SacrificedAsCost`. Both round-trip byte-perfectly while meaning a different
         // object, which is the class of bug this module's fail-closed rule exists for.
         //
         // The list is an allow-list rather than a list of the player requirements, so a requirement

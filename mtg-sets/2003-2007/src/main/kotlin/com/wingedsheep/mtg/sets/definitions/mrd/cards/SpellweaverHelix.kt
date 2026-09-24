@@ -17,7 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * "…the same name as [the spell that was just cast]" — shared by the intervening-if gate and the
@@ -27,7 +27,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * a constant referenced by a card must be defined before it.
  */
 private val NAMED_AS_TRIGGERING_SPELL: GameObjectFilter =
-    GameObjectFilter.Any.sharingNameWith(EntityReference.Triggering)
+    GameObjectFilter.Any.sharingNameWith(EffectTarget.TriggeringEntity)
 
 /**
  * Spellweaver Helix — Mirrodin #247

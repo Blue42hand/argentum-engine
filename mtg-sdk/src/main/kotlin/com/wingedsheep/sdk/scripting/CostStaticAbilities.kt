@@ -735,7 +735,7 @@ sealed interface CostReductionSource {
      * The general variable-amount shape, and deliberately the same vocabulary
      * [ReduceActivatedAbilityCost.amount] already takes on the activated-ability rail, so both cost
      * rails read a number out of game state exactly one way:
-     *  - `Dynamic(DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power))`
+     *  - `Dynamic(DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power))`
      *    — The Scarlet Witch ("Instant and sorcery spells you cast with mana value 4 or greater cost
      *    {X} less to cast, where X is The Scarlet Witch's power"). This *self-referential* read is
      *    what the group aggregates above cannot express: two sources each discount by **their own**
@@ -746,7 +746,7 @@ sealed interface CostReductionSource {
      *    `Dynamic(DynamicAmount.LifeTotal(Player.You))` — "your life total". Under a property-only
      *    shape each of those would need its own member here.
      *
-     * `EntityReference.Source` resolves to the permanent the static lives on. The amount goes
+     * `EffectTarget.Self` resolves to the permanent the static lives on. The amount goes
      * through the engine's ordinary `DynamicAmountEvaluator`, so the whole vocabulary behaves as it
      * does everywhere else: `Power` / `Toughness` from projected state (CR 613 — counters, Auras,
      * and anthems on the source count), `BasePower` / `BaseToughness` / `ManaValue` from the printed
@@ -946,7 +946,7 @@ sealed interface CostReductionSource {
      *
      * The one [CostReductionSource] whose amount is a function of the spell rather than of the
      * board: it intersects the spell's card types (CR 205.2a) with the union of the card types in
-     * the source's linked-exile pile ([com.wingedsheep.sdk.scripting.values.EntityReference.LinkedExiledCard]'s
+     * the source's linked-exile pile ([com.wingedsheep.sdk.scripting.targets.EffectTarget.LinkedExiledCard]'s
      * pile, written by a `linkToSource = true` exile) and counts the intersection.
      *
      * Distinct types, both sides. Per the Cemetery Prowler ruling, two exiled *creature* cards
@@ -1089,7 +1089,7 @@ sealed interface UnlockCostTarget {
  *    artifact this Aura is attached to.
  *  - A "your creatures' activated abilities cost {X} less, where X is this creature's power" lord →
  *    `ReduceActivatedAbilityCost(GroupFilter(GameObjectFilter.Creature.youControl()),
- *    amount = DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power))`.
+ *    amount = DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power))`.
  *
  * Only the **generic** portion of the ability's mana cost is reduced; colored/hybrid/Phyrexian pips
  * are untouched (CR 118.7). [manaFloor] is the minimum *total* mana the cost may be reduced to: with

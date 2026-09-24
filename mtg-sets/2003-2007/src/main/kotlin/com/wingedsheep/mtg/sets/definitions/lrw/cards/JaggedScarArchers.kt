@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Jagged-Scar Archers
@@ -53,7 +52,7 @@ val JaggedScarArchers = card("Jagged-Scar Archers") {
         cost = Costs.Tap
         val flier = target("target creature with flying", Targets.CreatureWithKeyword(Keyword.FLYING))
         effect = Effects.DealDamage(
-            DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power),
+            DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power),
             flier,
             damageSource = EffectTarget.Self,
         )

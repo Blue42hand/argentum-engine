@@ -1005,8 +1005,21 @@ class ConditionEvaluator(
         }
         is EffectTarget.LinkedExiledCard ->
             evaluateLinkedExiledCardFilterMatch(state, condition.filter, entity.index, ctx)
+        // The object a ForEach loop is visiting ("…if it's a creature, …"), read like a target:
+        // projected characteristics while it is on the battlefield, printed ones elsewhere.
+        EffectTarget.IterationEntity ->
+            (ctx as? Resolution)?.let {
+                val iterationId = com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
+                    .resolveEntity(EffectTarget.IterationEntity, it.effectContext, state)
+                iterationId != null && PredicateEvaluator().matches(
+                    state, state.projectedState, iterationId, condition.filter,
+                    PredicateContext.fromEffectContext(it.effectContext)
+                )
+            } ?: false
         // Unsupported roles; the CardLinter rejects them at load. Listed rather than folded into
         // an `else` so that a new EffectTarget has to be placed on one side or the other.
+        EffectTarget.AffectedEntity,
+        EffectTarget.AmassedArmy,
         EffectTarget.AttachedToTriggeringPermanent,
         is EffectTarget.BoundVariable,
         EffectTarget.ChosenCreature,
@@ -1020,6 +1033,8 @@ class ConditionEvaluator(
         is EffectTarget.GroupRef,
         is EffectTarget.PipelineTarget,
         is EffectTarget.PlayerRef,
+        is EffectTarget.RingBearer,
+        is EffectTarget.SacrificedAsCost,
         is EffectTarget.SpecificEntity,
         is EffectTarget.TappedAsCost,
         EffectTarget.TargetController -> false

@@ -80,7 +80,7 @@
                                 "type": "TopOfLibrary",
                                 "count": {
                                     "type": "EntityProperty",
-                                    "entity": "Sacrificed",
+                                    "entity": "SacrificedAsCost",
                                     "numericProperty": "Power"
                                 },
                                 "player": {

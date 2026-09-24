@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Select single targets in order when a filter reads an earlier target — an object's
@@ -58,7 +57,7 @@ object DependentTargetSelection {
             is CardPredicate.SharesManaValueWith -> predicate.entity
             is CardPredicate.SharesNameWith -> predicate.entity
             else -> null
-        }) is EntityReference.Target
+        }) is EffectTarget.ContextTarget
     }
 
     /**

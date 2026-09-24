@@ -113,7 +113,7 @@
                     "color": "BLACK",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": {
@@ -390,12 +390,12 @@
                     "type": "ModifyStats",
                     "powerModifier": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "toughnessModifier": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -640,7 +640,7 @@
                 },
                 "powerBonus": {
                     "type": "EntityProperty",
-                    "entity": "Source",
+                    "entity": "Self",
                     "numericProperty": {
                         "type": "CounterCount",
                         "counterType": {
@@ -651,7 +651,7 @@
                 },
                 "toughnessBonus": {
                     "type": "EntityProperty",
-                    "entity": "Source",
+                    "entity": "Self",
                     "numericProperty": {
                         "type": "CounterCount",
                         "counterType": {
@@ -1155,7 +1155,7 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Sacrificed",
+                        "entity": "SacrificedAsCost",
                         "numericProperty": "ManaValue"
                     },
                     "target": {
@@ -1263,13 +1263,13 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Triggering",
+                        "entity": "TriggeringEntity",
                         "numericProperty": "ManaValue"
                     },
                     "operator": "EQ",
                     "right": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": {
@@ -1918,7 +1918,7 @@
                                 "IsPermanent",
                                 {
                                     "type": "SharesCardTypeWith",
-                                    "entity": "Triggering"
+                                    "entity": "TriggeringEntity"
                                 }
                             ],
                             "controllerPredicate": {
@@ -3827,7 +3827,7 @@
             "counterType": "+1/+1",
             "amount": {
                 "type": "EntityProperty",
-                "entity": "Sacrificed",
+                "entity": "SacrificedAsCost",
                 "numericProperty": "ManaValue"
             },
             "target": {
@@ -4189,7 +4189,10 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
                                 "numericProperty": "ManaValue"
                             },
                             "operator": "EQ",
@@ -4711,7 +4714,7 @@
                                 "type": "DealDamage",
                                 "amount": {
                                     "type": "EntityProperty",
-                                    "entity": "Sacrificed",
+                                    "entity": "SacrificedAsCost",
                                     "numericProperty": "Power"
                                 },
                                 "target": {
@@ -5631,7 +5634,7 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": {
@@ -6627,7 +6630,7 @@
                             "name": "removedChargeCounters",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "CounterCount",
                                     "counterType": {
@@ -6668,7 +6671,7 @@
                     "type": "Compare",
                     "left": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "CounterCount",
                             "counterType": {
@@ -7029,7 +7032,7 @@
                     "type": "Multiply",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "AttachmentCount",
                             "kind": "EQUIPMENT"
@@ -7041,7 +7044,7 @@
                     "type": "Multiply",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": {
                             "type": "AttachmentCount",
                             "kind": "EQUIPMENT"
@@ -8249,7 +8252,7 @@
                 },
                 "powerBonus": {
                     "type": "EntityProperty",
-                    "entity": "Source",
+                    "entity": "Self",
                     "numericProperty": {
                         "type": "AttachmentCount",
                         "kind": "EQUIPMENT"
@@ -8257,7 +8260,7 @@
                 },
                 "toughnessBonus": {
                     "type": "EntityProperty",
-                    "entity": "Source",
+                    "entity": "Self",
                     "numericProperty": {
                         "type": "AttachmentCount",
                         "kind": "EQUIPMENT"
@@ -8464,7 +8467,7 @@
                 "type": "CantAttackOrBlockUnlessPay",
                 "amount": {
                     "type": "EntityProperty",
-                    "entity": "Source",
+                    "entity": "Self",
                     "numericProperty": {
                         "type": "CounterCount",
                         "counterType": {
@@ -12801,7 +12804,7 @@
                                     "cardPredicates": [
                                         {
                                             "type": "SharesNameWith",
-                                            "entity": "Triggering"
+                                            "entity": "TriggeringEntity"
                                         }
                                     ]
                                 },
@@ -12832,7 +12835,7 @@
                                 "cardPredicates": [
                                     {
                                         "type": "SharesNameWith",
-                                        "entity": "Triggering"
+                                        "entity": "TriggeringEntity"
                                     }
                                 ]
                             }
@@ -12847,7 +12850,7 @@
                                 "cardPredicates": [
                                     {
                                         "type": "SharesNameWith",
-                                        "entity": "Triggering"
+                                        "entity": "TriggeringEntity"
                                     }
                                 ]
                             }
@@ -12981,7 +12984,7 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -15472,7 +15475,7 @@
                     "color": "GREEN",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     }
                 },

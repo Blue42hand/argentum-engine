@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Lacerate Flesh
@@ -36,7 +36,7 @@ val LacerateFlesh = card("Lacerate Flesh") {
             Effects.DealDamage(4, creature),
             Effects.CreateBlood(
                 count = DynamicAmount.EntityProperty(
-                    EntityReference.Target(0),
+                    EffectTarget.ContextTarget(0),
                     EntityNumericProperty.ExcessMarkedDamage
                 )
             )

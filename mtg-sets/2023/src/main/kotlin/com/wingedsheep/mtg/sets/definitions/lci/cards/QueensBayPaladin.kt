@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Queen's Bay Paladin
@@ -84,7 +83,7 @@ private fun TriggeredAbilityBuilder.returnVampireRider() {
         Effects.Move(returned, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
         AddCountersEffect(counterType = Counters.FINALITY, count = 1, target = returned),
         Effects.LoseLife(
-            DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.ManaValue),
+            DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.ManaValue),
             EffectTarget.Controller,
         ),
     )

@@ -18,7 +18,6 @@ import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Auratouched Mage
@@ -53,7 +52,7 @@ val AuratouchedMage = card("Auratouched Mage") {
                 source = CardSource.FromZone(
                     Zone.LIBRARY,
                     Player.You,
-                    GameObjectFilter.Enchantment.withSubtype("Aura").couldEnchant(EntityReference.Source)
+                    GameObjectFilter.Enchantment.withSubtype("Aura").couldEnchant(EffectTarget.Self)
                 ),
                 storeAs = "searchable"
             ),

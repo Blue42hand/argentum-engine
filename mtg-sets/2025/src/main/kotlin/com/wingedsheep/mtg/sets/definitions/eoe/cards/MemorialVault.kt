@@ -13,7 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Memorial Vault
@@ -37,7 +37,7 @@ val MemorialVault = card("Memorial Vault") {
                     DynamicAmount.Add(
                         DynamicAmount.Fixed(1),
                         DynamicAmount.EntityProperty(
-                            EntityReference.Sacrificed(),
+                            EffectTarget.SacrificedAsCost(),
                             EntityNumericProperty.ManaValue
                         )
                     )

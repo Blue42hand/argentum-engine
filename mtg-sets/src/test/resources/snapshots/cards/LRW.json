@@ -535,7 +535,7 @@
                                         "name": "ashlingRemovedCounters",
                                         "amount": {
                                             "type": "EntityProperty",
-                                            "entity": "Source",
+                                            "entity": "Self",
                                             "numericProperty": {
                                                 "type": "CounterCount",
                                                 "counterType": {
@@ -2129,7 +2129,7 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Sacrificed",
+                        "entity": "SacrificedAsCost",
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -3720,7 +3720,7 @@
                     "amount": {
                         "type": "EntityProperty",
                         "entity": {
-                            "type": "FromCostStorage",
+                            "type": "PipelineTarget",
                             "collectionName": "crushGiant"
                         },
                         "numericProperty": "Power"
@@ -7486,7 +7486,7 @@
                         "counterType": "+1/+1",
                         "amount": {
                             "type": "EntityProperty",
-                            "entity": "Triggering",
+                            "entity": "TriggeringEntity",
                             "numericProperty": "Power"
                         },
                         "target": "Self"
@@ -7607,7 +7607,10 @@
                     "type": "GainLife",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Toughness"
                     }
                 }
@@ -9518,7 +9521,7 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -14217,7 +14220,10 @@
                     "name": "scatteredManaValue",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "ManaValue"
                     }
                 },
@@ -18487,7 +18493,10 @@
                     "name": "strangledToughness",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Toughness"
                     }
                 },

@@ -1609,7 +1609,7 @@
                     "type": "ModifyStats",
                     "powerModifier": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "toughnessModifier": {
@@ -3139,7 +3139,7 @@
                                     "type": "Subtract",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Triggering",
+                                        "entity": "TriggeringEntity",
                                         "numericProperty": "ManaValue"
                                     },
                                     "right": {
@@ -5315,7 +5315,10 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Target",
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        },
                                         "numericProperty": "Power"
                                     },
                                     "operator": "LTE",
@@ -8073,7 +8076,7 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -8264,7 +8267,7 @@
                     "type": "AddManaOfChoice",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "restriction": {
@@ -8706,7 +8709,7 @@
                             "type": "DrawCards",
                             "count": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "CounterCount",
                                     "counterType": {
@@ -8967,7 +8970,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -9530,7 +9536,7 @@
                             "from": "graveyardCreatures",
                             "filter": {
                                 "type": "ExcludeEntity",
-                                "entity": "Triggering"
+                                "entity": "TriggeringEntity"
                             },
                             "storeMatching": "otherCreatures"
                         },
@@ -9543,7 +9549,7 @@
                                     "type": "Subtract",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Triggering",
+                                        "entity": "TriggeringEntity",
                                         "numericProperty": "ManaValue"
                                     },
                                     "right": {
@@ -10249,7 +10255,7 @@
                             "type": "Compare",
                             "left": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": "Power"
                             },
                             "operator": "GTE",
@@ -13829,7 +13835,10 @@
                 "type": "Multiply",
                 "amount": {
                     "type": "EntityProperty",
-                    "entity": "Target",
+                    "entity": {
+                        "type": "ContextTarget",
+                        "index": 0
+                    },
                     "numericProperty": "Power"
                 },
                 "multiplier": 2
@@ -14230,7 +14239,10 @@
             "type": "DealDamage",
             "amount": {
                 "type": "EntityProperty",
-                "entity": "Target",
+                "entity": {
+                    "type": "ContextTarget",
+                    "index": 0
+                },
                 "numericProperty": "Power"
             },
             "target": {
@@ -14299,7 +14311,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -14693,7 +14708,10 @@
                                     "type": "Compare",
                                     "left": {
                                         "type": "EntityProperty",
-                                        "entity": "Target",
+                                        "entity": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        },
                                         "numericProperty": "Power"
                                     },
                                     "operator": "LTE",
@@ -14919,7 +14937,7 @@
                             "type": "RepeatDynamicTimes",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "CounterCount",
                                     "counterType": {
@@ -15025,7 +15043,7 @@
                             "type": "RepeatDynamicTimes",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Source",
+                                "entity": "Self",
                                 "numericProperty": {
                                     "type": "CounterCount",
                                     "counterType": {
@@ -22088,7 +22106,7 @@
                             "type": "DealDamage",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Sacrificed",
+                                "entity": "SacrificedAsCost",
                                 "numericProperty": "Power"
                             },
                             "target": {
@@ -22100,7 +22118,7 @@
                             "type": "DrawCards",
                             "count": {
                                 "type": "EntityProperty",
-                                "entity": "Sacrificed",
+                                "entity": "SacrificedAsCost",
                                 "numericProperty": "Power"
                             }
                         }
@@ -22275,7 +22293,7 @@
                                 "type": "ManaValueEquals",
                                 "value": {
                                     "type": "EntityProperty",
-                                    "entity": "Source",
+                                    "entity": "Self",
                                     "numericProperty": {
                                         "type": "CounterCount",
                                         "counterType": {

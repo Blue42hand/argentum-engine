@@ -221,7 +221,7 @@
                     "counterType": "+1/+1",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "target": "Self"

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Railway Brawler
@@ -25,7 +24,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * The ETB trigger fires for any OTHER creature you control entering ([Triggers.OtherCreatureEnters],
  * OTHER binding) and addresses that entering creature via [EffectTarget.TriggeringEntity]. The counter
  * count "X is its power" reads the entering creature's power through
- * [DynamicAmount.EntityProperty]([EntityReference.Triggering], [EntityNumericProperty.Power]) — the same
+ * [DynamicAmount.EntityProperty]([EffectTarget.TriggeringEntity], [EntityNumericProperty.Power]) — the same
  * triggering-creature property idiom Terror of the Peaks uses. A 0- or negative-power creature yields
  * 0 counters (the dynamic-counter executor no-ops on amounts <= 0), matching CR intuition.
  *
@@ -50,7 +49,7 @@ val RailwayBrawler = card("Railway Brawler") {
         trigger = Triggers.OtherCreatureEnters
         effect = Effects.AddDynamicCounters(
             counterType = Counters.PLUS_ONE_PLUS_ONE,
-            amount = DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.Power),
+            amount = DynamicAmount.EntityProperty(EffectTarget.TriggeringEntity, EntityNumericProperty.Power),
             target = EffectTarget.TriggeringEntity
         )
         description = "Whenever another creature you control enters, put X +1/+1 counters on it, " +

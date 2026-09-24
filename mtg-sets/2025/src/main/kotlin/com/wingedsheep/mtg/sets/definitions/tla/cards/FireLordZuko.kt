@@ -18,7 +18,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Fire Lord Zuko
@@ -58,7 +57,7 @@ val FireLordZuko = card("Fire Lord Zuko") {
         trigger = Triggers.Attacks
         effect = AddManaEffect(
             Color.RED,
-            DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power),
+            DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power),
             expiry = ManaExpiry.END_OF_COMBAT,
         )
         description = "Firebending X, where X is Fire Lord Zuko's power. Whenever this creature " +

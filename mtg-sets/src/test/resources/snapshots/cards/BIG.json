@@ -24,7 +24,7 @@
                         "type": "GainLife",
                         "amount": {
                             "type": "EntityProperty",
-                            "entity": "Triggering",
+                            "entity": "TriggeringEntity",
                             "numericProperty": "ColorCount"
                         }
                     }

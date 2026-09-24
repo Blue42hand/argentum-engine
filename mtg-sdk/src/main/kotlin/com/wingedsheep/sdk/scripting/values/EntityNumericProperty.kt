@@ -151,7 +151,7 @@ sealed interface EntityNumericProperty {
      * five colors).
      *
      * Powers "for each color of [entity]" amounts — e.g. Dragonfire Blade's equip cost
-     * reduction reads `EntityProperty(EntityReference.Target(0), ColorCount)`.
+     * reduction reads `EntityProperty(EffectTarget.ContextTarget(0), ColorCount)`.
      */
     @SerialName("ColorCount")
     @Serializable
@@ -176,7 +176,7 @@ sealed interface EntityNumericProperty {
      *
      * Namor the Sub-Mariner: "Whenever you cast a noncreature spell with one or more blue mana
      * symbols in its mana cost, create that many 1/1 blue Merfolk creature tokens" is
-     * `EntityProperty(EntityReference.Triggering, ColoredManaSymbolCount(listOf(Color.BLUE)))`. The
+     * `EntityProperty(EffectTarget.TriggeringEntity, ColoredManaSymbolCount(listOf(Color.BLUE)))`. The
      * matching filter side is
      * [com.wingedsheep.sdk.scripting.predicates.CardPredicate.ColoredManaSymbolsAtLeast].
      */
@@ -196,7 +196,7 @@ sealed interface EntityNumericProperty {
      * Read it AFTER a deal-damage step in the same composite/pipeline resolution, so the marked
      * damage in scope is the damage that step just dealt — e.g. Hell to Pay: "deals X damage to
      * target creature. Create a number of tapped Treasure tokens equal to the amount of excess
-     * damage dealt to that creature this way." `EntityProperty(EntityReference.Target(0),
+     * damage dealt to that creature this way." `EntityProperty(EffectTarget.ContextTarget(0),
      * ExcessMarkedDamage)`. CompositeEffect resolves sub-effects sequentially with no interleaved
      * SBA pass, so for the canonical "deal N, then read excess" shape this equals "how much did
      * that deal-damage step push the target past lethal" — there is no other source of marked

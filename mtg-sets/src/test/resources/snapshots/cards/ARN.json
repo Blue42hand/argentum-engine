@@ -909,7 +909,7 @@
                                     "type": "PayDynamicManaCost",
                                     "amount": {
                                         "type": "EntityProperty",
-                                        "entity": "Source",
+                                        "entity": "Self",
                                         "numericProperty": {
                                             "type": "CounterCount",
                                             "counterType": {
@@ -936,7 +936,7 @@
                                             "type": "DealDamage",
                                             "amount": {
                                                 "type": "EntityProperty",
-                                                "entity": "Source",
+                                                "entity": "Self",
                                                 "numericProperty": {
                                                     "type": "CounterCount",
                                                     "counterType": {
@@ -958,7 +958,7 @@
                                             "type": "DealDamage",
                                             "amount": {
                                                 "type": "EntityProperty",
-                                                "entity": "Source",
+                                                "entity": "Self",
                                                 "numericProperty": {
                                                     "type": "CounterCount",
                                                     "counterType": {
@@ -1235,7 +1235,7 @@
                     "type": "GainLife",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Sacrificed",
+                        "entity": "SacrificedAsCost",
                         "numericProperty": "Toughness"
                     }
                 }
@@ -2968,7 +2968,7 @@
                 },
                 "right": {
                     "type": "EntityProperty",
-                    "entity": "Sacrificed",
+                    "entity": "SacrificedAsCost",
                     "numericProperty": "ManaValue"
                 }
             },
@@ -3237,7 +3237,7 @@
                                     "IsCreature",
                                     {
                                         "type": "PowerAtMostEntity",
-                                        "reference": "Source"
+                                        "reference": "Self"
                                     }
                                 ]
                             }

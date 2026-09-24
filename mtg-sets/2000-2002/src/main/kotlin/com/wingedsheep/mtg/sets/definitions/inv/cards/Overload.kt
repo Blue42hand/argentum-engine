@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Overload
@@ -25,7 +24,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
 private fun destroyIfManaValueAtMost(max: Int): Effect =
     Effects.If(
         condition = Compare(
-            left = DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.ManaValue),
+            left = DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.ManaValue),
             operator = ComparisonOperator.LTE,
             right = DynamicAmount.Fixed(max)
         ),

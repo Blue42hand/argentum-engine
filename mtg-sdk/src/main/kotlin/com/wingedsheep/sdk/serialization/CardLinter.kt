@@ -645,7 +645,6 @@ object CardLinter {
         put("ControllerOfPipelineTarget" to "collectionName", read(Space.COLLECTION))
         put("StoredCardManaValue" to "collectionName", read(Space.COLLECTION))
         put("ManaValueSumOfCollection" to "collectionName", read(Space.COLLECTION))
-        put("FromCostStorage" to "collectionName", read(Space.COLLECTION))
         put("RetargetChooser.OwnerOfStored" to "collectionName", read(Space.COLLECTION))
         put("TapUntapCollection" to "collectionName", read(Space.COLLECTION))
         put("AddCountersToCollection" to "collectionName", read(Space.COLLECTION))
@@ -718,15 +717,14 @@ object CardLinter {
                 type == "CreateTokenCopyOfTarget" || type == "CreateTokenCopyOfSource" ->
                 listOf(Kind.WRITE to (Space.COLLECTION to "createdTokens"))
             // Amass publishes the Army it chose under this well-known name (CR 701.47c), so a
-            // sibling step can address "the amassed Army" — either as
-            // DynamicAmount.EntityProperty(EntityReference.AmassedArmy, …) or, when it needs it
-            // as a target, EffectTarget.PipelineTarget(AmassedArmy.STORAGE_KEY) (Goblin Plate
-            // Mail's "then attach this Equipment to the amassed Army").
+            // sibling step can address "the amassed Army" as EffectTarget.AmassedArmy — to read
+            // it (Foray of Orcs' damage equal to its power) or to act on it (Goblin Plate Mail's
+            // "then attach this Equipment to the amassed Army").
             type == "Amass" ->
                 listOf(
                     Kind.WRITE to (
-                        Space.COLLECTION to com.wingedsheep.sdk.scripting.values
-                            .EntityReference.AmassedArmy.STORAGE_KEY
+                        Space.COLLECTION to com.wingedsheep.sdk.scripting.targets
+                            .EffectTarget.AmassedArmy.STORAGE_KEY
                         ),
                 )
             // The scry / surveil macros are opaque nodes on the card, but the engine expands each
@@ -891,7 +889,7 @@ object CardLinter {
 
     private data class TargetRef(
         val nodeType: String,
-        val index: Int?, // ContextTarget / EntityReference.Target
+        val index: Int?, // ContextTarget
         val boundName: String?, // BoundVariable
     )
 
@@ -1225,6 +1223,7 @@ object CardLinter {
         "EquippedCreature",
         "ContextTarget",
         "TriggeringEntity",
+        "IterationEntity",
         "DiscardedAsCost",
         "LibraryTop",
         "LinkedExiledCard",
@@ -1236,8 +1235,6 @@ object CardLinter {
 
         when (type) {
             "ContextTarget" -> (obj["index"] as? JsonPrimitive)?.contentOrNull?.toIntOrNull()
-                ?.let { scope.targetRefs.add(TargetRef(type, it, null)) }
-            "Target" -> (obj["index"] as? JsonPrimitive)?.contentOrNull?.toIntOrNull()
                 ?.let { scope.targetRefs.add(TargetRef(type, it, null)) }
             "BoundVariable" -> (obj["name"] as? JsonPrimitive)?.contentOrNull
                 ?.let { scope.targetRefs.add(TargetRef(type, null, it)) }

@@ -12,7 +12,7 @@ import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Kitsa, Otterball Elite
@@ -54,7 +54,7 @@ val KitsaOtterballElite = card("Kitsa, Otterball Elite") {
         restrictions = listOf(
             ActivationRestriction.OnlyIfCondition(
                 Compare(
-                    left = DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power),
+                    left = DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power),
                     operator = ComparisonOperator.GTE,
                     right = DynamicAmount.Fixed(3)
                 )

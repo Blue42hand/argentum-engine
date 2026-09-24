@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Necroplasm
@@ -28,7 +27,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *
  * The destroy filter reads the counter count off the source at resolution
  * (`manaValueEqualsDynamic` over an [EntityNumericProperty.CounterCount] on
- * [EntityReference.Source]) rather than baking a number in — the whole point of the card is that
+ * [EffectTarget.Self]) rather than baking a number in — the whole point of the card is that
  * the number moves. Necroplasm's own mana value is 3, so a third counter includes it in its own
  * sweep; nothing special is needed for that, it simply matches its own filter.
  *
@@ -59,7 +58,7 @@ val Necroplasm = card("Necroplasm") {
         effect = Effects.DestroyAll(
             GameObjectFilter.Creature.manaValueEqualsDynamic(
                 DynamicAmount.EntityProperty(
-                    EntityReference.Source,
+                    EffectTarget.Self,
                     EntityNumericProperty.CounterCount(CounterTypeFilter.PlusOnePlusOne)
                 )
             )

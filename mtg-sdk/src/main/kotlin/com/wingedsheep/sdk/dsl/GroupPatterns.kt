@@ -28,7 +28,6 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Effect patterns for bulk operations on filtered groups of permanents:
@@ -259,7 +258,7 @@ object GroupPatterns {
      *
      * Each affected creature gets +X/+Y where X is its power and Y its toughness *as the
      * effect begins to apply* — read per-entity from projected state via
-     * [EntityReference.IterationEntity]. Because it resolves to a fixed +X/+Y modification,
+     * [EffectTarget.IterationEntity]. Because it resolves to a fixed +X/+Y modification,
      * the bonus is locked in when the effect resolves (it does not re-double as P/T later
      * changes), and negative power doubles correctly (a -2/3 creature gets -2/+0). This
      * applies as a power/toughness *modification* in layer 7 (the +N/+N sublayer), not a
@@ -273,8 +272,8 @@ object GroupPatterns {
         duration: Duration = Duration.EndOfTurn
     ): ForEachEffect =
         modifyStatsForAll(
-            power = DynamicAmount.EntityProperty(EntityReference.IterationEntity, EntityNumericProperty.Power),
-            toughness = DynamicAmount.EntityProperty(EntityReference.IterationEntity, EntityNumericProperty.Toughness),
+            power = DynamicAmount.EntityProperty(EffectTarget.IterationEntity, EntityNumericProperty.Power),
+            toughness = DynamicAmount.EntityProperty(EffectTarget.IterationEntity, EntityNumericProperty.Toughness),
             filter = filter,
             duration = duration
         )

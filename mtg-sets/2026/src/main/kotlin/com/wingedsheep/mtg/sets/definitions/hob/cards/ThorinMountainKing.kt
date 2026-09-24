@@ -20,7 +20,6 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Thorin, Mountain-king
@@ -51,7 +50,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *    `optional = false` (nothing here is a "may"). Its damage is dealt *by the equipped creature*,
  *    not by Thorin, so the payoff is a one-iteration [ForEachInCollectionEffect] over the creature
  *    collection: `EffectTarget.Self` makes the creature the damage source (lifelink, deathtouch and
- *    "dealt damage by a creature" reactions all see the creature) and `EntityReference.IterationEntity`
+ *    "dealt damage by a creature" reactions all see the creature) and `EffectTarget.IterationEntity`
  *    reads *its* power, at reflexive-resolution time. The collection reaches the reflexive because
  *    the executor carries the action's pipeline onto the reflexive event.
  *  - **The "one or more" guard** is the [Effects.If] wrapping the whole reflexive: both the
@@ -120,7 +119,7 @@ val ThorinMountainKing = card("Thorin, Mountain-king") {
                             collection = creature.key,
                             effect = DealDamageEffect(
                                 amount = DynamicAmount.EntityProperty(
-                                    EntityReference.IterationEntity,
+                                    EffectTarget.IterationEntity,
                                     EntityNumericProperty.Power
                                 ),
                                 target = EffectTarget.ContextTarget(0),

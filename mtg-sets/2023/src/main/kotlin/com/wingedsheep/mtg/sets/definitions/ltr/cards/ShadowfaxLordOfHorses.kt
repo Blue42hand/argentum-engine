@@ -10,7 +10,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Shadowfax, Lord of Horses
@@ -57,7 +57,7 @@ val ShadowfaxLordOfHorses = card("Shadowfax, Lord of Horses") {
     triggeredAbility {
         trigger = Triggers.Attacks
         effect = Patterns.Hand.putFromHand(
-            filter = GameObjectFilter.Creature.powerLessThanEntity(EntityReference.Source),
+            filter = GameObjectFilter.Creature.powerLessThanEntity(EffectTarget.Self),
             entersAttacking = true
         )
     }

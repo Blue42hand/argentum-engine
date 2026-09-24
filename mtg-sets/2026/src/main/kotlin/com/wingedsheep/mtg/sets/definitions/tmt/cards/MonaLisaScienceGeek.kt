@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Mona Lisa, Science Geek
@@ -32,7 +32,7 @@ val MonaLisaScienceGeek = card("Mona Lisa, Science Geek") {
     activatedAbility {
         cost = Costs.Tap
         effect = Effects.AddAnyColorMana(
-            DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.Power)
+            DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power)
         )
         manaAbility = true
         timing = TimingRule.ManaAbility

@@ -27,7 +27,7 @@ private const val SCATTERED_MANA_VALUE = "scatteredManaValue"
  * Three time-shifts stack up here, and each one is a place the amount can silently read zero:
  *
  *  1. **"That spell" is already gone.** The counter moves it to its owner's graveyard before the
- *     clash even begins, and [com.wingedsheep.sdk.scripting.values.EntityReference.Target] is
+ *     clash even begins, and [com.wingedsheep.sdk.scripting.targets.EffectTarget.ContextTarget] is
  *     `LIVE_ONLY` by design (CR 608.2b) with no target LKI behind it. So the mana value is frozen
  *     up front with [Effects.StoreNumber] and read back through
  *     [DynamicAmount.VariableReference] — the same shape Weed Strangle uses for a destroyed

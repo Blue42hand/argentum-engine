@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Excalibur II
@@ -28,7 +27,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  *     once regardless of how much life it represents, which is exactly how YouGainLife fires.
  *   - A [GrantDynamicStatsEffect] (Layer 7c bonus) on [GroupFilter.attachedCreature] reads
  *     the live charge-counter count off the source via
- *     [EntityReference.Source] + [EntityNumericProperty.CounterCount], so the bonus tracks
+ *     [EffectTarget.Self] + [EntityNumericProperty.CounterCount], so the bonus tracks
  *     the counter total continuously.
  */
 val ExcaliburII = card("Excalibur II") {
@@ -46,7 +45,7 @@ val ExcaliburII = card("Excalibur II") {
 
     staticAbility {
         val chargeCounters = DynamicAmount.EntityProperty(
-            EntityReference.Source,
+            EffectTarget.Self,
             EntityNumericProperty.CounterCount(CounterTypeFilter.Named(Counters.CHARGE))
         )
         ability = GrantDynamicStatsEffect(

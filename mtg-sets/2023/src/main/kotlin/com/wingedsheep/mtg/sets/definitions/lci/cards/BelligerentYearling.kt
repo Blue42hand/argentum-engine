@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Belligerent Yearling
@@ -54,7 +53,7 @@ val BelligerentYearling = card("Belligerent Yearling") {
             effect = Effects.SetBasePower(
                 target = EffectTarget.Self,
                 power = DynamicAmount.EntityProperty(
-                    EntityReference.Triggering,
+                    EffectTarget.TriggeringEntity,
                     EntityNumericProperty.Power
                 ),
                 duration = Duration.EndOfTurn

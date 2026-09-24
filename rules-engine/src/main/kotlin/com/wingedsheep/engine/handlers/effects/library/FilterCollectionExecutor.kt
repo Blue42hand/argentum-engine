@@ -127,7 +127,7 @@ class FilterCollectionExecutor : EffectExecutor<FilterCollectionEffect> {
             }
 
             is CollectionFilter.ExcludeEntity -> {
-                val excludedId = TargetResolutionUtils.resolveEntityReference(filter.entity, context, state)
+                val excludedId = TargetResolutionUtils.resolveEntity(filter.entity, context, state)
                 cards.partition { it != excludedId }
             }
 

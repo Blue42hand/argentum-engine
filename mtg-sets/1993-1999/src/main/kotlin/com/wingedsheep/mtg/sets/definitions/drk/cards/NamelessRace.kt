@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.OnEnterRunEffect
 import com.wingedsheep.sdk.scripting.effects.PayAnyAmountOfLifeAsEntersEffect
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
@@ -52,7 +52,7 @@ val NamelessRace = card("Nameless Race") {
 
     dynamicStats(
         DynamicAmount.EntityProperty(
-            EntityReference.Source,
+            EffectTarget.Self,
             EntityNumericProperty.ValueChosenAsEntered
         )
     )

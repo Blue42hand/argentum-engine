@@ -489,7 +489,7 @@ sealed interface WardCost {
      * ([com.wingedsheep.sdk.dsl.DynamicAmounts.sourcePower]). The amount is evaluated when the
      * ward triggered ability *resolves* (CR 702.21b), reading the source's power at that time,
      * or its last-known value if the source has left the battlefield (CR 113.7a) — both handled
-     * by [com.wingedsheep.sdk.scripting.values.EntityReference.Source]'s last-known-information
+     * by [com.wingedsheep.sdk.scripting.targets.EffectTarget.Self]'s last-known-information
      * fallback. The fixed-Int [Life] stays the common case; this variant covers only costs that
      * read live game state.
      */

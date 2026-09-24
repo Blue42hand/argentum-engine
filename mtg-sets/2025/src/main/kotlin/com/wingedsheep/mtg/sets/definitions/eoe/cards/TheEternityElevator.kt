@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.station
 
@@ -46,7 +46,7 @@ val TheEternityElevator = card("The Eternity Elevator") {
         cost = Costs.Tap
         effect = Effects.AddAnyColorMana(
             amount = DynamicAmount.EntityProperty(
-                entity = EntityReference.Source,
+                entity = EffectTarget.Self,
                 numericProperty = EntityNumericProperty.CounterCount(CounterTypeFilter.Named(Counters.CHARGE))
             )
         )

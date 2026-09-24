@@ -340,7 +340,7 @@ object Primitives {
      * position can have chosen a *card* ("Return target creature card from your graveyard to the
      * battlefield. You gain life equal to **its** mana value.") or a *spell* ("Counter target spell.
      * … **that spell's** mana value"), and Oracle names those with the noun rather than the
-     * permanent word. All four denote `EntityReference.Target`; the noun is printed shape.
+     * permanent word. All four denote `EffectTarget.ContextTarget`; the noun is printed shape.
      *
      * Which spelling is canonical is [targetPronoun]'s measurement, re-taken for the possessive over
      * the Oracle bulk: "its ⟨characteristic⟩" 525 lines against the demonstratives' 149 together. So

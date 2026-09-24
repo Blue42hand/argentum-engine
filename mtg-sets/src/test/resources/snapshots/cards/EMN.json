@@ -736,7 +736,10 @@
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Target",
+                        "entity": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
                         "numericProperty": "Power"
                     },
                     "target": {
@@ -1825,7 +1828,7 @@
                                         },
                                         "right": {
                                             "type": "EntityProperty",
-                                            "entity": "Sacrificed",
+                                            "entity": "SacrificedAsCost",
                                             "numericProperty": "ManaValue"
                                         }
                                     }
@@ -3333,7 +3336,7 @@
                         "type": "CounterCondition.UnlessPaysDynamic",
                         "amount": {
                             "type": "EntityProperty",
-                            "entity": "Source",
+                            "entity": "Self",
                             "numericProperty": "Power"
                         }
                     }
@@ -4115,12 +4118,18 @@
                             ],
                             "dynamicPower": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
                                 "numericProperty": "Power"
                             },
                             "dynamicToughness": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
                                 "numericProperty": "Toughness"
                             }
                         }

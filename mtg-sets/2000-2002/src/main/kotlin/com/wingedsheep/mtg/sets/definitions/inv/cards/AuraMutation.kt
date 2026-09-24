@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Aura Mutation
@@ -34,7 +34,7 @@ val AuraMutation = card("Aura Mutation") {
         val t = target("target", Targets.Enchantment)
         effect = Effects.Destroy(t) then CreateTokenEffect(
             count = DynamicAmount.EntityProperty(
-                entity = EntityReference.Target(0),
+                entity = EffectTarget.ContextTarget(0),
                 numericProperty = EntityNumericProperty.ManaValue
             ),
             power = 1,

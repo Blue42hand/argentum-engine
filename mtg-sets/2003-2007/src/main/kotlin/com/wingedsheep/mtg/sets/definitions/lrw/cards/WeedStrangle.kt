@@ -20,7 +20,7 @@ private const val STRANGLED_TOUGHNESS = "strangledToughness"
  * creature's toughness.
  *
  * The life gain reads a creature that the spell's own earlier step already destroyed, so the
- * toughness has to be **frozen before the move**: [com.wingedsheep.sdk.scripting.values.EntityReference.Target]
+ * toughness has to be **frozen before the move**: [com.wingedsheep.sdk.scripting.targets.EffectTarget.ContextTarget]
  * is deliberately `LIVE_ONLY` (a departed target reads as absent, CR 608.2b), and there is no
  * target LKI snapshot to fall back on. [Effects.StoreNumber] evaluates
  * [DynamicAmounts.targetToughness] once, up front, and the win rider reads it back through

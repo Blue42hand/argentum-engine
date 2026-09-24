@@ -20,7 +20,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Terrific Team-Up
@@ -35,7 +34,7 @@ import com.wingedsheep.sdk.scripting.values.EntityReference
  * [EffectTarget.ContextTarget] index 0 across the per-creature loop) and one or two creatures you
  * control. At resolution we gather the chosen targets, filter to the creatures you control (excludes
  * the victim), pump each +1/+0 until end of turn, then have each deal damage equal to its own
- * (boosted) power — read per-iteration via [EntityReference.IterationEntity] — to the opponent's
+ * (boosted) power — read per-iteration via [EffectTarget.IterationEntity] — to the opponent's
  * creature.
  */
 val TerrificTeamUp = card("Terrific Team-Up") {
@@ -93,7 +92,7 @@ val TerrificTeamUp = card("Terrific Team-Up") {
                 collection = "team",
                 effect = Effects.DealDamage(
                     amount = DynamicAmount.EntityProperty(
-                        EntityReference.IterationEntity,
+                        EffectTarget.IterationEntity,
                         EntityNumericProperty.Power,
                     ),
                     target = EffectTarget.ContextTarget(0),

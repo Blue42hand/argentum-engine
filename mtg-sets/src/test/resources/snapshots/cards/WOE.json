@@ -125,7 +125,7 @@
                 },
                 "amount": {
                     "type": "EntityProperty",
-                    "entity": "Source",
+                    "entity": "Self",
                     "numericProperty": "Power"
                 },
                 "manaFloor": 1
@@ -2817,7 +2817,10 @@
                             "type": "DealDamage",
                             "amount": {
                                 "type": "EntityProperty",
-                                "entity": "Target",
+                                "entity": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
                                 "numericProperty": "Power"
                             },
                             "target": {
@@ -6034,7 +6037,10 @@
                         "type": "DealDamage",
                         "amount": {
                             "type": "EntityProperty",
-                            "entity": "Target",
+                            "entity": {
+                                "type": "ContextTarget",
+                                "index": 0
+                            },
                             "numericProperty": "Power"
                         },
                         "target": {
@@ -7590,7 +7596,7 @@
                         "counterType": "+1/+1",
                         "amount": {
                             "type": "EntityProperty",
-                            "entity": "Source",
+                            "entity": "Self",
                             "numericProperty": "Power"
                         },
                         "target": "Self"
@@ -9064,7 +9070,7 @@
                         "IsCreature",
                         {
                             "type": "PowerGreaterThanEntity",
-                            "reference": "Source"
+                            "reference": "Self"
                         }
                     ]
                 }
@@ -9479,7 +9485,7 @@
                 },
                 "powerBonus": {
                     "type": "EntityProperty",
-                    "entity": "Source",
+                    "entity": "Self",
                     "numericProperty": "AttachmentCount"
                 },
                 "toughnessBonus": {
@@ -14106,7 +14112,7 @@
                                             "type": "TopOfLibrary",
                                             "count": {
                                                 "type": "EntityProperty",
-                                                "entity": "Source",
+                                                "entity": "Self",
                                                 "numericProperty": {
                                                     "type": "CounterCount",
                                                     "counterType": {
@@ -16851,7 +16857,7 @@
                     "type": "GainLife",
                     "amount": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     }
                 },
@@ -21037,12 +21043,12 @@
                     "type": "ModifyStats",
                     "powerModifier": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "toughnessModifier": {
                         "type": "EntityProperty",
-                        "entity": "Source",
+                        "entity": "Self",
                         "numericProperty": "Power"
                     },
                     "target": {

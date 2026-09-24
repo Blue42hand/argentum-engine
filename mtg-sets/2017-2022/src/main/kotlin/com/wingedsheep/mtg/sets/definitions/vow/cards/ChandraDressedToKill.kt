@@ -20,7 +20,6 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayerOrPlaneswalker
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * Chandra, Dressed to Kill — Innistrad: Crimson Vow #149
@@ -122,7 +121,7 @@ val ChandraDressedToKill = card("Chandra, Dressed to Kill") {
                         binding = TriggerBinding.ANY,
                         effect = Effects.DealDamage(
                             DynamicAmount.EntityProperty(
-                                EntityReference.Triggering,
+                                EffectTarget.TriggeringEntity,
                                 EntityNumericProperty.ManaSpent
                             ),
                             EffectTarget.ContextTarget(0)

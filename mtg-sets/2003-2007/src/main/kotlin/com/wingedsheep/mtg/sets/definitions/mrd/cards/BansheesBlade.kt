@@ -23,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * The Withering Hex shape, on an Equipment instead of an Aura: a [GrantDynamicStatsEffect] over
  * [GroupFilter.attachedCreature] whose bonus reads the charge counters off the *Equipment*
- * ([DynamicAmounts.countersOnSelf] — `EntityReference.Source` is the permanent bearing the static,
+ * ([DynamicAmounts.countersOnSelf] — `EffectTarget.Self` is the permanent bearing the static,
  * not the creature it buffs). It recomputes continuously, so the bonus tracks counters as they
  * accrue and follows the Blade when it moves.
  *

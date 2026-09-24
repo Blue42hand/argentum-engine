@@ -13,7 +13,7 @@ import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Archaic's Agony
@@ -53,7 +53,7 @@ val ArchaicsAgony = card("Archaic's Agony") {
             GatherCardsEffect(
                 source = CardSource.TopOfLibrary(
                     count = DynamicAmount.EntityProperty(
-                        EntityReference.Target(0),
+                        EffectTarget.ContextTarget(0),
                         EntityNumericProperty.ExcessMarkedDamage,
                     ),
                     player = Player.You,

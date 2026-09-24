@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
 
 /**
  * City of Shadows
@@ -50,7 +49,7 @@ val CityOfShadows = card("City of Shadows") {
         manaAbility = true
         effect = Effects.AddColorlessMana(
             DynamicAmount.EntityProperty(
-                EntityReference.Source,
+                EffectTarget.Self,
                 EntityNumericProperty.CounterCount(CounterTypeFilter.Named(Counters.STORAGE)),
             )
         )

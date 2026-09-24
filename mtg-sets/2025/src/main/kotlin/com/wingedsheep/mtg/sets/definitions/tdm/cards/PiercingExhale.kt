@@ -16,7 +16,7 @@ import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.values.EntityReference
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Piercing Exhale
@@ -65,7 +65,7 @@ val PiercingExhale = card("Piercing Exhale") {
                 ),
                 RevealCollectionEffect(from = "beheld"),
                 Effects.DealDamage(
-                    amount = DynamicAmount.EntityProperty(EntityReference.Target(0), EntityNumericProperty.Power),
+                    amount = DynamicAmount.EntityProperty(EffectTarget.ContextTarget(0), EntityNumericProperty.Power),
                     target = victim,
                     damageSource = myCreature
                 ),
