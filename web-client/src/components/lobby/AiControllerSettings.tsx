@@ -14,12 +14,19 @@ import styles from '../ui/GameUI.module.css'
  * configuration. Provider profile IDs stay opaque: labels and optional deck summaries come entirely
  * from the server catalog, and mutations send the selected AiControllerSpec back unchanged.
  */
-export function AiControllerSettings({ view }: { view: UnifiedLobbyView }) {
+export function AiControllerSettings({
+  view,
+  seatId,
+}: {
+  view: UnifiedLobbyView
+  /** Optional single-seat filter for an AI seat modal. Omit to render every configurable AI seat. */
+  seatId?: string
+}) {
   const catalog = useAiControllerStore((state) => state.catalog)
   const requestCatalog = useAiControllerStore((state) => state.requestCatalog)
   const setQuickGameController = useAiControllerStore((state) => state.setQuickGameController)
   const setLobbyController = useAiControllerStore((state) => state.setLobbyController)
-  const aiSeats = view.players.filter((player) => player.isAi)
+  const aiSeats = view.players.filter((player) => player.isAi && (seatId === undefined || player.playerId === seatId))
 
   const supportedShape =
     view.kind === 'QUICK' ||
