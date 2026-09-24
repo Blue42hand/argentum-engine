@@ -11716,6 +11716,12 @@ restriction matches the spell context.
   spent to" rather than "spend only to"; the positive composition
   `AnyOf(CardTypeSpellsOrAbilitiesOnly(X), AbilityActivationOnly)` is strictly narrower and
   silently rejects the non-cast spends. Backed by `SpellPaymentContext.isSpellCast`.
+- `ManaRestriction.CannotCastSpellsFromHand` — the other negative restriction: "This mana can't be
+  spent to cast spells from your hand" (Heartwood Crafter). Blocks only a spell cast from the
+  caster's hand; casts from exile / graveyard / library / command zone (a prepare-spell copy
+  included), ability activations, and every non-cast payment are allowed. Not the same as
+  `CastFromNonHandOnly`, which is a spell-cast whitelist and rejects ability activations. Backed by
+  `SpellPaymentContext.isSpellCast` and `isFromHand`.
 - `ManaRestriction.AnyOf(restrictions)` — disjunction; the mana is spendable in any context that
   satisfies *any* listed restriction. Compose atomic restrictions for multi-option mana — e.g.
   Creeping Peeper's "cast an enchantment spell, unlock a door, or turn a permanent face up" is
