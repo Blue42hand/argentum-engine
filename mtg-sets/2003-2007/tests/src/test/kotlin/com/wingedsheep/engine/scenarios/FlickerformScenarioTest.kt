@@ -1,11 +1,14 @@
 package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.ActivateAbility
+import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
+import com.wingedsheep.engine.state.components.identity.TokenComponent
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.mtg.sets.definitions.rav.cards.Flickerform
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.core.Zone
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 
@@ -74,6 +77,65 @@ class FlickerformScenarioTest : ScenarioTestBase() {
                 withClue("both Auras apply again: 2/2 +1/+2 +2/+1") {
                     game.state.projectedState.getPower(bears) shouldBe 5
                     game.state.projectedState.getToughness(bears) shouldBe 5
+                }
+            }
+
+            test("a token host ceases to exist in exile, so its Auras stay exiled") {
+                val game = scenario()
+                    .withPlayers("Alice", "Bob")
+                    .withCardOnBattlefield(1, "Grizzly Bears")
+                    .withCardAttachedTo(1, "Flickerform", "Grizzly Bears")
+                    .withCardAttachedTo(1, "Holy Strength", "Grizzly Bears")
+                    .withLandsOnBattlefield(1, "Plains", 4)
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+                val bears = game.findPermanent("Grizzly Bears")!!
+                game.state = game.state.updateEntity(bears) { it.with(TokenComponent) }
+
+                val flickerform = game.findPermanent("Flickerform")!!
+                game.execute(ActivateAbility(playerId = game.player1Id, sourceId = flickerform, abilityId = abilityId))
+                    .error shouldBe null
+                game.resolveStack()
+                game.checkStateBasedActions()
+
+                game.passUntilPhase(Phase.ENDING, Step.END)
+                game.resolveStack()
+                game.checkStateBasedActions()
+
+                withClue("nothing returns: the token is gone and the Auras have no host") {
+                    game.isOnBattlefield("Grizzly Bears") shouldBe false
+                    game.isInExile(1, "Flickerform") shouldBe true
+                    game.isInExile(1, "Holy Strength") shouldBe true
+                }
+            }
+
+            test("a card that left exile before the end step is a new object and isn't returned") {
+                val game = scenario()
+                    .withPlayers("Alice", "Bob")
+                    .withCardOnBattlefield(1, "Grizzly Bears")
+                    .withCardAttachedTo(1, "Flickerform", "Grizzly Bears")
+                    .withLandsOnBattlefield(1, "Plains", 4)
+                    .withActivePlayer(1)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    .build()
+                val bears = game.findPermanent("Grizzly Bears")!!
+                val flickerform = game.findPermanent("Flickerform")!!
+                game.execute(ActivateAbility(playerId = game.player1Id, sourceId = flickerform, abilityId = abilityId))
+                    .error shouldBe null
+                game.resolveStack()
+
+                // The exiled creature card moves to its owner's graveyard before the end step (CR 603.7c).
+                game.state = ZoneTransitionService.moveToZone(game.state, bears, Zone.GRAVEYARD).state
+
+                game.passUntilPhase(Phase.ENDING, Step.END)
+                game.resolveStack()
+                game.checkStateBasedActions()
+
+                withClue("the creature card stays in the graveyard, and Flickerform stays exiled") {
+                    game.isInGraveyard(1, "Grizzly Bears") shouldBe true
+                    game.isOnBattlefield("Grizzly Bears") shouldBe false
+                    game.isInExile(1, "Flickerform") shouldBe true
                 }
             }
 

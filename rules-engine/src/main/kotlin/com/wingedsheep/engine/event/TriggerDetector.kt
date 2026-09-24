@@ -564,8 +564,7 @@ class TriggerDetector(
                     triggeringEntityId = delayed.fireOnPlayerId,
                     triggeringPlayerId = delayed.fireOnPlayerId
                 ),
-                carriedPipeline = delayed.carriedCollections.takeIf { it.isNotEmpty() }
-                    ?.let { com.wingedsheep.engine.handlers.PipelineState(storedCollections = it) }
+                carriedPipeline = delayed.carriedPipelineFor(state)
             )
         }
         val consumedIds = matching.filterNot { it.repeatAtEachMatchingStep }.map { it.id }.toSet()
@@ -948,8 +947,7 @@ class TriggerDetector(
                                 controllerId = delayed.controllerId,
                                 triggerContext = TriggerContext.fromEvent(event).copy(triggeringEntityId = attackerId),
                                 consumesDelayedTriggerId = if (delayed.fireOnce) delayed.id else null,
-                                carriedPipeline = delayed.carriedCollections.takeIf { it.isNotEmpty() }
-                                    ?.let { com.wingedsheep.engine.handlers.PipelineState(storedCollections = it) }
+                                carriedPipeline = delayed.carriedPipelineFor(state)
                             )
                         )
                     }
@@ -995,8 +993,7 @@ class TriggerDetector(
                                 controllerId = delayed.controllerId,
                                 triggerContext = TriggerContext(triggeringEntityId = partnerId),
                                 consumesDelayedTriggerId = if (delayed.fireOnce) delayed.id else null,
-                                carriedPipeline = delayed.carriedCollections.takeIf { it.isNotEmpty() }
-                                    ?.let { com.wingedsheep.engine.handlers.PipelineState(storedCollections = it) }
+                                carriedPipeline = delayed.carriedPipelineFor(state)
                             )
                         )
                     }
@@ -1022,8 +1019,7 @@ class TriggerDetector(
                                 ?: TriggerContext.fromEvent(event).triggeringEntityId
                         ),
                         consumesDelayedTriggerId = if (delayed.fireOnce) delayed.id else null,
-                        carriedPipeline = delayed.carriedCollections.takeIf { it.isNotEmpty() }
-                            ?.let { com.wingedsheep.engine.handlers.PipelineState(storedCollections = it) }
+                        carriedPipeline = delayed.carriedPipelineFor(state)
                     )
                 )
             }

@@ -161,8 +161,10 @@ class CreateDelayedTriggerExecutor : EffectExecutor<CreateDelayedTriggerEffect> 
             targetRequirement = effect.targetRequirement,
             additionalTargetRequirements = effect.additionalTargetRequirements,
             fireOnPlayerId = fireOnPlayerId,
-            carriedCollections = effect.carryCollections.associateWith {
-                context.pipeline.storedCollections[it] ?: emptyList()
+            carriedCollections = effect.carryCollections.associateWith { name ->
+                (context.pipeline.storedCollections[name] ?: emptyList()).map { id ->
+                    com.wingedsheep.engine.handlers.CapturedObjectBinding(id, state.objectRef(id))
+                }
             }
         )
 

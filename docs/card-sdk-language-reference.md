@@ -6582,7 +6582,8 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   the data-side facade. `carryCollections` names pipeline collections of the creating effect that the
   delayed ability remembers ("return **those cards**" — CR 603.7c): their entity ids are frozen onto
   the `DelayedTriggeredAbility` and seeded into the pipeline its `effect` resolves in, under the same
-  names, so the effect can `MoveCollection(from = "<name>")` or `PipelineTarget("<name>")` them
+  names, so the effect can `MoveCollection(from = "<name>")` or `PipelineTarget("<name>")` them; an
+  object that has since changed zones (a new object) or ceased to exist is dropped when it fires
   (Flickerform). Two orthogonal axes control *whose / which* turn fires the trigger:
   - `fireOnPlayer: EffectTarget?` — the single "whose turn" gate. Resolved to a concrete player
     at scheduling time; only matches when that player is active. Defaults to `null` (no player
