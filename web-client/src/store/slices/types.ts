@@ -1091,6 +1091,7 @@ export type GameStore = {
   followAction: boolean
   overviewMode: boolean
   collapsedSeats: readonly EntityId[]
+  expandedStackCardIds: ReadonlySet<EntityId>
   eliminatedSpectating: boolean
   eliminatedBottomSeatId: EntityId | null
   spectatorBottomSeatId: EntityId | null
@@ -1102,6 +1103,7 @@ export type GameStore = {
   toggleFollowAction: () => void
   toggleOverviewMode: () => void
   toggleSeatCollapsed: (playerId: EntityId) => void
+  setStackExpanded: (cardIds: readonly EntityId[], expanded: boolean) => void
   enterEliminatedSpectate: () => void
   setEliminatedBottomSeat: (playerId: EntityId | null) => void
   followViewTo: (playerId: EntityId) => void

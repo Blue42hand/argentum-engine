@@ -5,7 +5,7 @@ import { useGameStore } from '@/store/gameStore.ts'
 import { useInteraction } from '@/hooks/useInteraction.ts'
 import { ResponsiveContext, PooledBattlefieldLayoutContext, useResponsiveContext, useSlotSizedResponsive, handleImageError, attachmentStackLayout } from './shared'
 import { useBoardGroups } from './useBoardGroups'
-import { DIVIDER_STRIP_HEIGHT, dividerMarginFor, rowMinHeightFor } from './battlefieldLayout'
+import { dividerFor, rowMinHeightFor } from './battlefieldLayout'
 import type { ResponsiveSizes } from '@/hooks/useResponsive'
 import { styles } from './styles'
 import { CardStack } from '../card'
@@ -72,7 +72,7 @@ export function Battlefield({ isOpponent, playerId, spectatorMode = false }: {
   // layout and size themselves from their own slot.
   const pooledLayout = useContext(PooledBattlefieldLayoutContext)
   const pooled = pooledLayout ? (isOpponent ? pooledLayout.opponent : pooledLayout.player) : null
-  const { sizes, backSizes, frontRowLines, backRowLines } = useSlotSizedResponsive(slotRef, stats, pooled)
+  const { sizes, backSizes, frontRowLines, backRowLines, compact } = useSlotSizedResponsive(slotRef, stats, pooled)
   return (
     <div
       ref={slotRef}
@@ -102,6 +102,7 @@ export function Battlefield({ isOpponent, playerId, spectatorMode = false }: {
           frontRowLines={frontRowLines}
           backRowLines={backRowLines}
           backSizes={backSizes}
+          compact={compact}
         />
       </ResponsiveContext.Provider>
     </div>
@@ -118,6 +119,7 @@ function BattlefieldContent({
   frontRowLines,
   backRowLines,
   backSizes,
+  compact,
 }: {
   isOpponent: boolean
   spectatorMode?: boolean
@@ -130,6 +132,8 @@ function BattlefieldContent({
   backRowLines: number
   /** Sizes for the back row — the context sizes unless BACK_ROW_SCALE renders lands smaller. */
   backSizes: ResponsiveSizes
+  /** Render the compact spacing the solver budgeted for a crowded board (see `SlotLayout.compact`). */
+  compact: boolean
 }) {
   const { attachmentsByCardId } = useBattlefieldCards()
   const responsive = useResponsiveContext()
@@ -468,15 +472,15 @@ function BattlefieldContent({
       : <ResponsiveContext.Provider value={rowSizes}>{rowElement}</ResponsiveContext.Provider>
   }
 
-  // Scales with the card actually rendered (see dividerMarginFor) — the fixed
-  // base-card margin used to cost 36 px around a 92 px-tall card.
-  const dividerMargin = dividerMarginFor(responsive.battlefieldCardHeight)
+  // Scales with the card actually rendered, and collapses to a plain line gap on
+  // a crowded board — exactly what the solver budgeted (see dividerFor).
+  const divider = dividerFor(responsive.battlefieldCardHeight, compact)
   const renderDivider = () => showDivider ? (
     <div
       style={{
         width: '70%',
-        height: DIVIDER_STRIP_HEIGHT,
-        margin: `${dividerMargin}px 0`,
+        height: divider.strip,
+        margin: `${divider.margin}px 0`,
         background: 'radial-gradient(ellipse at center, rgba(120, 140, 180, 0.12) 0%, rgba(120, 140, 180, 0.04) 45%, transparent 75%)',
         pointerEvents: 'none',
       }}
@@ -493,7 +497,7 @@ function BattlefieldContent({
   // An empty row reserves nothing (rowMinHeightFor) — it costs no line, so a
   // lands-only turn-1 board renders its lands at the full slot height.
   const rowMinHeight = (lines: number, rowSizes: ResponsiveSizes) =>
-    rowMinHeightFor(lines, rowSizes.battlefieldCardHeight, rowSizes.cardGap)
+    rowMinHeightFor(lines, rowSizes.battlefieldCardHeight, rowSizes.cardGap, compact)
   const frontRow = renderGridRow(
     groupedCreatures,
     groupedPlaneswalkers,
