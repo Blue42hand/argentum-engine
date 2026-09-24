@@ -5,7 +5,7 @@ on:
     branches: ["codex/issue-19-steel-overseer"]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   validate:
@@ -103,6 +103,19 @@ jobs:
             steel-overseer-printings.json
             steel-overseer-modified/
           if-no-files-found: error
+
+      - name: Commit generated snapshot
+        shell: bash
+        run: |
+          if git diff --quiet -- mtg-sets/src/test/resources/snapshots/cards/M11.json; then
+            echo "M11 snapshot already current"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mtg-sets/src/test/resources/snapshots/cards/M11.json
+          git commit -m "test: rebless M11 card snapshot"
+          git push origin HEAD:codex/issue-19-steel-overseer
 
       - name: Build with reblessed snapshot
         run: just build
