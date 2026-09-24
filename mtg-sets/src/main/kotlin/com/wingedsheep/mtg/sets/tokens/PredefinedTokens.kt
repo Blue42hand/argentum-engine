@@ -993,6 +993,27 @@ object PredefinedTokens {
     }
 
     /**
+     * Lotus — the colorless artifact token of Reality Fracture (Kwia Vigorbloom):
+     * "{T}, Sacrifice this token: Add three mana of any one color." A token Black Lotus; it has
+     * no subtype, only the name.
+     */
+    val Lotus = card("Lotus") {
+        typeLine = "Artifact"
+        oracleText = "{T}, Sacrifice this token: Add three mana of any one color."
+
+        activatedAbility {
+            cost = Costs.Composite(Costs.Tap, Costs.SacrificeSelf)
+            effect = Effects.AddAnyColorMana(3)
+            manaAbility = true
+        }
+
+        metadata {
+            imageUri = "https://cards.scryfall.io/normal/front/c/5/c59b7223-00a9-4c0d-896d-1cd463860c40.jpg?1789734772"
+            artist = "Alex V. Ngo"
+        }
+    }
+
+    /**
      * All predefined token definitions.
      * Register these in the CardRegistry so token abilities are resolved.
      */
@@ -1033,6 +1054,7 @@ object PredefinedTokens {
         SturdyShield,
         Axe,
         Jace,
-        Heartwood
+        Heartwood,
+        Lotus
     )
 }

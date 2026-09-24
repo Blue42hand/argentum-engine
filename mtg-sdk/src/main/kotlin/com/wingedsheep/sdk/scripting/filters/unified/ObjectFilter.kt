@@ -989,6 +989,15 @@ data class GameObjectFilter(
     )
 
     /**
+     * Must have dealt *combat* damage (to any recipient) at least once since entering the
+     * battlefield — [hasDealtDamage] narrowed to combat damage. `Conditions.SourceHasDealtCombatDamage`
+     * is this predicate under `SourceMatches` (Ruric Thar, Magecrusher).
+     */
+    fun hasDealtCombatDamage() = copy(
+        statePredicates = statePredicates + StatePredicate.HasDealtDamage(combatOnly = true)
+    )
+
+    /**
      * Must be in the same combat band as the effect's source (the source itself, or a band-mate
      * sharing its band id — CR 702.22). Source-relative; only matches while the source attacks.
      */

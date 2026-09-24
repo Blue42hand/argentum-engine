@@ -410,16 +410,26 @@ sealed interface StatePredicate {
      * no memory), which is what "that dealt damage this turn" asks for: the object in front of you
      * must be the one that dealt it.
      *
-     * Damage *type* is not an axis here — combat and noncombat damage both count, matching the
-     * printed wording. "Dealt combat damage" specifically has its own predicates
-     * ([HasDealtCombatDamageToPlayer], [DealtCombatDamageToSourceControllerThisTurn]) because those
-     * also scope by recipient.
+     * [combatOnly] narrows the damage *type*: `false` (default) counts combat and noncombat damage
+     * alike, matching the bare "dealt damage" wording; `true` counts only combat damage, to any
+     * recipient — "Ruric Thar has hexproof as long as they haven't dealt combat damage yet" (Ruric
+     * Thar, Magecrusher), via `Conditions.SourceHasDealtCombatDamage`. The same marker records the
+     * turn of the most recent *combat* damage beside the turn of the most recent damage of any kind,
+     * so both windows work for both types. The recipient-scoped combat predicates
+     * ([HasDealtCombatDamageToPlayer], [DealtCombatDamageToSourceControllerThisTurn]) stay separate
+     * because they also scope by who was dealt the damage.
      */
     @SerialName("HasDealtDamage")
     @Serializable
-    data class HasDealtDamage(val thisTurnOnly: Boolean = false) : History {
-        override val description: String =
-            if (thisTurnOnly) "dealt damage this turn" else "has dealt damage"
+    data class HasDealtDamage(
+        val thisTurnOnly: Boolean = false,
+        val combatOnly: Boolean = false
+    ) : History {
+        override val description: String = buildString {
+            append(if (thisTurnOnly) "dealt " else "has dealt ")
+            append(if (combatOnly) "combat damage" else "damage")
+            if (thisTurnOnly) append(" this turn")
+        }
     }
 
     /** Has dealt combat damage to a player (ever, since entering the battlefield) */

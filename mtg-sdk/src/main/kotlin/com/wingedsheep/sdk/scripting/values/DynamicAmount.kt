@@ -1179,6 +1179,13 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
      *   This expresses "the total number of <kind> counters among <filter> you control" — e.g. Tom
      *   Bombadil's "four or more lore counters among Sagas you control". Takes precedence over
      *   [property] when both are present.
+     * @param excludeTriggeringEntity Leave the trigger's *triggering entity* out of the tally — the
+     *   "other" of "Whenever a Forest you control enters, if you control at least five other
+     *   Forests" (Roiling Canopy), where "other" is relative to the permanent that entered rather
+     *   than to the ability's source. Distinct from [excludeSelf] because the two differ whenever
+     *   the source isn't the thing that triggered it. Counting the whole group against one more
+     *   is not equivalent: it breaks once the entering permanent leaves (or stops matching) before
+     *   the intervening "if" is rechecked on resolution. Has no effect outside a trigger context.
      */
     @SerialName("AggregateBattlefield")
     @Serializable
@@ -1188,7 +1195,8 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
         val aggregation: Aggregation = Aggregation.COUNT,
         val property: CardNumericProperty? = null,
         val excludeSelf: Boolean = false,
-        val counterType: CounterTypeFilter? = null
+        val counterType: CounterTypeFilter? = null,
+        val excludeTriggeringEntity: Boolean = false
     ) : DynamicAmount {
         override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount {
             val newFilter = filter.applyTextReplacement(replacer)
@@ -1198,64 +1206,64 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
             when (aggregation) {
                 Aggregation.COUNT -> {
                     append("the number of ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.MAX -> {
                     append("the greatest ${property?.description ?: "value"} among ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.MIN -> {
                     append("the least ${property?.description ?: "value"} among ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.SUM -> {
                     val what = counterType?.let { "${it.description} counters" } ?: (property?.description ?: "value")
                     append("the total $what ")
                     append(if (counterType != null) "among " else "of ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.DISTINCT_TYPES -> {
                     append("the number of card types among ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.DISTINCT_PERMANENT_TYPES -> {
                     append("the number of permanent types among ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.DISTINCT_COLORS -> {
                     append("the number of colors among ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.DISTINCT_COLOR_PAIRS -> {
                     append("the number of different color pairs among ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.DISTINCT_NAMES -> {
                     append("the number of differently named ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.DISTINCT_BASIC_LAND_SUBTYPES -> {
                     append("the number of basic land types among ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.DISTINCT_COUNTER_TYPES -> {
                     append("the number of different kinds of counters among ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
                 Aggregation.DISTINCT_VALUES -> {
                     append("the number of different ${property?.description ?: "value"} among ")
-                    if (excludeSelf) append("other ")
+                    if (excludeSelf || excludeTriggeringEntity) append("other ")
                     append(pluralize(filter.description))
                 }
             }

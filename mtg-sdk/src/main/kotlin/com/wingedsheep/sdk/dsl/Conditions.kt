@@ -428,6 +428,23 @@ object Conditions {
         )
 
     /**
+     * If you control [count] or more permanents matching [filter] **other than the one that
+     * triggered this ability** — the intervening "if" of Roiling Canopy's "Whenever a Forest you
+     * control enters, if you control at least five other Forests".
+     *
+     * [YouControlOtherAtLeast] drops the ability's *source*; this drops the trigger's *triggering
+     * entity* ([DynamicAmount.AggregateBattlefield.excludeTriggeringEntity]). Counting the group
+     * against `count + 1` is not the same: once the entering permanent has left (or stopped
+     * matching) by the resolution-time recheck, the "other" permanents are the whole group.
+     */
+    fun YouControlAtLeastOtherThanTriggering(count: Int, filter: GameObjectFilter): ConditionInterface =
+        Compare(
+            DynamicAmount.AggregateBattlefield(Player.You, filter, excludeTriggeringEntity = true),
+            ComparisonOperator.GTE,
+            DynamicAmount.Fixed(count)
+        )
+
+    /**
      * If you control [count] or fewer **other** permanents matching [filter] — the fast lands'
      * "unless you control two or fewer other lands", and [YouControlOtherAtLeast]'s mirror.
      */
@@ -1157,6 +1174,14 @@ object Conditions {
     /** If this creature has dealt damage at least once since entering the battlefield. */
     val SourceHasDealtDamage: ConditionInterface =
         SourceMatches(com.wingedsheep.sdk.scripting.GameObjectFilter.Any.hasDealtDamage())
+
+    /**
+     * If this creature has dealt combat damage — to a player, creature, planeswalker, or battle — at
+     * least once since entering the battlefield. Negate it for "as long as it hasn't dealt combat
+     * damage yet" (Ruric Thar, Magecrusher).
+     */
+    val SourceHasDealtCombatDamage: ConditionInterface =
+        SourceMatches(com.wingedsheep.sdk.scripting.GameObjectFilter.Any.hasDealtCombatDamage())
 
     /** If this creature has dealt combat damage to a player (Saboteur-style payoffs). */
     val SourceHasDealtCombatDamageToPlayer: ConditionInterface =

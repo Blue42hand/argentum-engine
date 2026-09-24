@@ -2987,6 +2987,17 @@ object Effects {
         CreatePredefinedTokenEffect("Heartwood", count, controller, tapped)
 
     /**
+     * Create Lotus artifact tokens (Reality Fracture — Kwia Vigorbloom).
+     * A colorless "Artifact" named Lotus with "{T}, Sacrifice this token: Add three mana of any
+     * one color."
+     *
+     * @param count Number of tokens to create
+     * @param controller Who controls the tokens (null = spell controller)
+     */
+    fun CreateLotus(count: Int = 1, controller: EffectTarget? = null): Effect =
+        CreatePredefinedTokenEffect("Lotus", count, controller)
+
+    /**
      * Create Mutavault land tokens.
      * "{T}: Add {C}."
      * "{1}: This token becomes a 2/2 creature with all creature types until end of turn.

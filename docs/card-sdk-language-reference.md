@@ -2006,6 +2006,8 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `CreateMutavault(count?, tapped?, controller?)` — Mutavault tokens.
 - `CreateHeartwood(count?, tapped?, controller?)` — Heartwood tokens (Reality Fracture): a red and
   green "Artifact — Heartwood" with "{T}: Add {R} or {G}."
+- `CreateLotus(count?, controller?)` — Lotus tokens (Reality Fracture, Kwia Vigorbloom): a colorless
+  "Artifact" named Lotus with "{T}, Sacrifice this token: Add three mana of any one color."
 - `CreateEverywhere(count?, tapped?, controller?)` — Everywhere land tokens (Overlord of the Hauntwoods):
   a colorless land token with all five basic land subtypes (Plains/Island/Swamp/Mountain/Forest) that
   taps for any color — i.e. the mana ability of each basic land type, without the basic supertype. The
@@ -4689,8 +4691,14 @@ This is the player-arm prerequisite for the planned composable mixed `TargetUnio
   window and whose recorded turn number answers the per-turn one. Nothing is cleared at end of turn —
   the stamp just stops matching — and every damage-dealing path records both windows in one write, so
   neither can silently drift from the other. Combat and noncombat damage both count, to any recipient
-  (player, creature, planeswalker, battle); "dealt **combat** damage" specifically has its own
-  recipient-scoped predicates below. Both windows reset when the permanent changes zones (CR 400.7).
+  (player, creature, planeswalker, battle); "dealt **combat** damage" to a *specific* recipient has its
+  own recipient-scoped predicates below. Both windows reset when the permanent changes zones (CR 400.7).
+- `.hasDealtCombatDamage()` — the same predicate narrowed to **combat** damage, to any recipient:
+  `StatePredicate.HasDealtDamage(combatOnly = true)`. The marker keeps a separate combat stamp beside
+  the any-damage one, carried forward across later noncombat damage, so a fight or a ping does not
+  count and cannot erase earlier combat damage. `combatOnly` combines with `thisTurnOnly` for "dealt
+  combat damage this turn". The source-scoped view is `Conditions.SourceHasDealtCombatDamage` —
+  negated for Ruric Thar, Magecrusher's "has hexproof as long as they haven't dealt combat damage yet".
   `.hasDealtDamageThisTurn()` is also on `TargetFilter` — "destroy target creature an opponent controls
   that dealt damage this turn" (Red Guardian, Super-Soldier) is
   `TargetFilter.Creature.hasDealtDamageThisTurn().opponentControls()`. The source-scoped view of the
@@ -7250,6 +7258,18 @@ staticAbility {
     dropping a creature drops exactly its own charge.
   - Because a non-zero tax *pauses* declaration rather than rejecting it, a scenario test proves the
     charge by asserting a pending decision — not by expecting an error.
+- `CanAttackDespiteDefender(condition = null, filter = GroupFilter.source())` — creatures matching
+  `filter` can attack as though they didn't have defender (lifting CR 702.3b's restriction), as long
+  as `condition` holds (always when null). Self scope is the printed-on-the-creature form ("As long
+  as an artifact entered the battlefield under your control this turn, this creature can attack as
+  though it didn't have defender" — Shipwreck Sentry: `CanAttackDespiteDefender(Conditions.ArtifactEnteredBattlefieldThisTurn)`).
+  Battlefield scope is the lord form — Ghalta the Immovable's "Creatures you control can attack as
+  though they didn't have defender" is `CanAttackDespiteDefender(filter = GroupFilter.AllCreaturesYouControl)`;
+  the filter is matched against the would-be attacker with the carrying permanent as predicate
+  source and its controller as "you", and face-down carriers contribute nothing. Read at attack
+  declaration by `DefenderBypass` (shared by `DefenderAttackRule` and the client's "Can attack
+  despite defender" badge), never through projection. The turn-scoped, granted counterpart is
+  `Effects.CanAttackDespiteDefenderThisTurn`.
 - `CantBeAttackedBy(attackerFilter)` — the general **defender-side** attack restriction (CR
   508.1c): creatures matching `attackerFilter` can't attack the controller of the permanent carrying
   it. Resolved by `CantBeAttackedByDefenderRule`, which scans the *defending* player's projected
@@ -9945,6 +9965,14 @@ answer it and would silently return `false`.
   battlefield when the condition is checked — true of a land testing lands, and of nothing the
   signature promises. Self-exclusion is a property of the *count*, not a predicate on the filter,
   which is why it is a separate entry and not a `GameObjectFilter` modifier.
+- `YouControlAtLeastOtherThanTriggering(count, filter)` — the same tally with the trigger's
+  **triggering entity** left out instead of the source, i.e. `AggregateBattlefield(...,
+  excludeTriggeringEntity = true)` (reads `EffectContext.triggeringEntityId`; no effect outside a
+  trigger). The "other" of an intervening "if" that refers back to the permanent that entered —
+  Roiling Canopy's "Whenever a Forest you control enters, if you control at least five other Forests"
+  → `YouControlAtLeastOtherThanTriggering(5, Filters.ForestCard)`. Not the same as counting the
+  whole group against six: at the resolution recheck (CR 603.4) the entering Forest may have left,
+  and then all remaining Forests are "other" ones.
 - `ControlCreature` — you control any creature.
 - `AnyPlayerControls(filter, negate = false, excludeSelf = false)` — at least one permanent matching
   `filter` is on the battlefield **under anyone's control**; the controller-blind sibling of
@@ -10379,6 +10407,9 @@ that works in both resolution and static-ability (projection) contexts.
   `SourceMatches(GameObjectFilter.Any.hasDealtDamage())`, i.e. the source-scoped view of
   `StatePredicate.HasDealtDamage()`. For the per-turn window of the same predicate, put
   `.hasDealtDamageThisTurn()` on the filter directly.
+- `SourceHasDealtCombatDamage` — source has dealt combat damage (to any recipient) since entering the
+  battlefield; `SourceMatches(GameObjectFilter.Any.hasDealtCombatDamage())`. Noncombat damage doesn't
+  count. `Conditions.Not(SourceHasDealtCombatDamage)` gates Ruric Thar, Magecrusher's hexproof.
 - `SourceHasDealtCombatDamageToPlayer` — saboteur-style payoff gate.
 - `SourceIsModified` — has counters, attached Equipment, or controller-owned Aura
   attached (CR 700.4). Kept as a dedicated condition because the controller-of-Aura
