@@ -1,23 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.CollectionFilter
-import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * The target opponent's creatures and planeswalkers are gathered, narrowed to those tied for the
@@ -33,34 +24,24 @@ val BreakUnderPressure = card("Break Under Pressure") {
 
     spell {
         target("target opponent", Targets.Opponent)
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.ControlledPermanents(
+        effect = Effects.Pipeline {
+            val candidates = gather(
+                CardSource.ControlledPermanents(
                     player = Player.ContextPlayer(0),
                     filter = GameObjectFilter.CreatureOrPlaneswalker
-                ),
-                storeAs = "candidates"
-            ),
-            FilterCollectionEffect(
-                from = "candidates",
-                collectionFilter = CollectionFilter.GreatestManaValue,
-                storeMatching = "greatest"
-            ),
-            SelectFromCollectionEffect(
-                from = "greatest",
-                selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
+                )
+            )
+            val greatest = filter(candidates, CollectionFilter.GreatestManaValue)
+            val sacrificed = chooseExactly(
+                1,
+                from = greatest,
                 chooser = Chooser.TargetPlayer,
-                storeSelected = "sacrificed",
                 prompt = "Choose a creature or planeswalker with the greatest mana value to sacrifice",
                 useTargetingUI = true
-            ),
-            MoveCollectionEffect(
-                from = "sacrificed",
-                destination = CardDestination.ToZone(Zone.GRAVEYARD),
-                moveType = MoveType.Sacrifice
-            ),
-            Effects.GainLife(2)
-        )
+            )
+            sacrifice(sacrificed)
+            run(Effects.GainLife(2))
+        }
     }
 
     metadata {

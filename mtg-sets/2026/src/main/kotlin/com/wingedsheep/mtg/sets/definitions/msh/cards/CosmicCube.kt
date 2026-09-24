@@ -1,22 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CastFromCollectionWithoutPayingCostEffect
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.Aggregation
 import com.wingedsheep.sdk.scripting.values.CardNumericProperty
@@ -73,40 +65,28 @@ val CosmicCube = card("Cosmic Cube") {
             aggregation = Aggregation.MAX,
             property = CardNumericProperty.POWER
         )
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(
-                        count = DynamicAmount.Fixed(6),
-                        player = Player.You
-                    ),
-                    storeAs = "cosmicCubeLooked"
-                ),
-                SelectFromCollectionEffect(
-                    from = "cosmicCubeLooked",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                    chooser = Chooser.Controller,
-                    filter = GameObjectFilter.Nonland
-                        .manaValueAtMostDynamic(greatestAttackingPower),
-                    storeSelected = "cosmicCubeChosen",
-                    storeRemainder = "cosmicCubeToBottom",
-                    showAllCards = true,
-                    prompt = "You may cast a spell from among these cards without paying its " +
-                        "mana cost.",
-                    selectedLabel = "Cast for free",
-                    remainderLabel = "Put on the bottom"
-                ),
-                MoveCollectionEffect(
-                    from = "cosmicCubeToBottom",
-                    destination = CardDestination.ToZone(
-                        Zone.LIBRARY,
-                        placement = ZonePlacement.Bottom
-                    ),
-                    order = CardOrder.Random
-                ),
-                CastFromCollectionWithoutPayingCostEffect(from = "cosmicCubeChosen")
+        effect = Effects.Pipeline {
+            val cosmicCubeLooked = gather(
+                CardSource.TopOfLibrary(
+                    count = DynamicAmount.Fixed(6),
+                    player = Player.You
+                )
             )
-        )
+            val (cosmicCubeChosen, cosmicCubeToBottom) = chooseUpToSplit(
+                1,
+                from = cosmicCubeLooked,
+                chooser = Chooser.Controller,
+                filter = GameObjectFilter.Nonland
+                    .manaValueAtMostDynamic(greatestAttackingPower),
+                showAllCards = true,
+                prompt = "You may cast a spell from among these cards without paying its " +
+                    "mana cost.",
+                selectedLabel = "Cast for free",
+                remainderLabel = "Put on the bottom"
+            )
+            toLibraryBottom(cosmicCubeToBottom, order = CardOrder.Random)
+            run(Effects.CastFromCollectionWithoutPayingCost(from = cosmicCubeChosen))
+        }
     }
 
     metadata {

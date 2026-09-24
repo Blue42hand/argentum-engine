@@ -9,9 +9,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AddCountersToCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -30,23 +28,22 @@ val CommandTheStage = card("Command the Stage") {
         "At the beginning of each upkeep, if an opponent was dealt noncombat damage last turn, return this card from your graveyard to your hand."
 
     spell {
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.BattlefieldMatching(
+        effect = Effects.Pipeline {
+            val otherWizardTokens = gather(
+                CardSource.BattlefieldMatching(
                     GameObjectFilter.Any.token().withSubtype("Wizard"),
                     player = Player.You
-                ),
-                storeAs = "otherWizardTokens"
-            ),
-            Effects.CreateToken(
+                )
+            )
+            run(Effects.CreateToken(
                 power = 2,
                 toughness = 2,
                 name = "Cadet",
                 creatureTypes = setOf("Wizard", "Soldier"),
                 imageUri = "https://cards.scryfall.io/normal/front/8/f/8f4534d8-2783-484f-8ebf-a47b1cc4c6df.jpg?1789734318"
-            ),
-            AddCountersToCollectionEffect("otherWizardTokens", CounterType.PLUS_ONE_PLUS_ONE, 1)
-        )
+            ))
+            run(Effects.AddCountersToCollection(otherWizardTokens, CounterType.PLUS_ONE_PLUS_ONE, 1))
+        }
     }
 
     triggeredAbility {

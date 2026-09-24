@@ -32,16 +32,16 @@ val RiseOfTheDeathbringer = card("Rise of the Deathbringer") {
         val drawnThisTurn = DynamicAmount.TurnTracking(Player.You, TurnTracker.CARDS_DRAWN)
         effect = ModalEffect.chooseOne(
             Mode(
-                effect = Effects.Composite(
-                    Effects.StoreNumber("drawnBefore", drawnThisTurn),
-                    Effects.DrawCards(
+                effect = Effects.Pipeline {
+                    val drawnBefore = storeNumber(drawnThisTurn)
+                    run(Effects.DrawCards(
                         DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature).maxPower()
-                    ),
-                    Effects.LoseLife(
-                        DynamicAmount.Subtract(drawnThisTurn, DynamicAmount.VariableReference("drawnBefore")),
+                    ))
+                    run(Effects.LoseLife(
+                        DynamicAmount.Subtract(drawnThisTurn, drawnBefore.amount),
                         EffectTarget.Controller
-                    )
-                ),
+                    ))
+                },
                 description = "Draw cards equal to the greatest power among creatures you control. You lose " +
                     "life equal to the number of cards drawn this way."
             ),

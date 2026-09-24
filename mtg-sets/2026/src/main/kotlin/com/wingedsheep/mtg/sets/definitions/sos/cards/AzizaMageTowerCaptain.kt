@@ -6,13 +6,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.TapUntapCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Aziza, Mage Tower Captain — Secrets of Strixhaven #174
@@ -40,25 +35,21 @@ val AzizaMageTowerCaptain = card("Aziza, Mage Tower Captain") {
 
     triggeredAbility {
         trigger = Triggers.YouCastInstantOrSorcery
-        val tapCost = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.ControlledPermanents(
-                        player = Player.You,
-                        filter = GameObjectFilter.Creature.untapped(),
-                    ),
-                    storeAs = "azizaTapPool",
-                ),
-                SelectFromCollectionEffect(
-                    from = "azizaTapPool",
-                    selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(3)),
-                    storeSelected = "azizaToTap",
-                    prompt = "Tap three untapped creatures you control",
-                    useTargetingUI = true,
-                ),
-                TapUntapCollectionEffect("azizaToTap", tap = true),
-            ),
-        )
+        val tapCost = Effects.Pipeline {
+            val azizaTapPool = gather(
+                CardSource.ControlledPermanents(
+                    player = Player.You,
+                    filter = GameObjectFilter.Creature.untapped(),
+                )
+            )
+            val azizaToTap = chooseExactly(
+                3,
+                from = azizaTapPool,
+                prompt = "Tap three untapped creatures you control",
+                useTargetingUI = true
+            )
+            run(Effects.TapCollection(azizaToTap, tap = true))
+        }
         effect = Effects.MayPay(
             cost = tapCost,
             then = Effects.CopyTargetSpell(target = EffectTarget.TriggeringEntity),

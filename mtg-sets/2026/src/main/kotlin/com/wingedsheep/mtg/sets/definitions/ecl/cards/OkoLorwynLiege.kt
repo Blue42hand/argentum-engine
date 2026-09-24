@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.ecl.cards
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -12,15 +11,10 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ChooseCreatureTypeEffect
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -65,33 +59,20 @@ private val OkoShadowmoorScion = card("Oko, Shadowmoor Scion") {
 
     // −1: Mill three cards. You may put a permanent card from among them into your hand.
     loyaltyAbility(-1) {
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(3)),
-                    storeAs = "milled"
-                ),
-                SelectFromCollectionEffect(
-                    from = "milled",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                    filter = GameObjectFilter.Permanent,
-                    showAllCards = true,
-                    storeSelected = "toHand",
-                    storeRemainder = "toGraveyard",
-                    prompt = "You may put a permanent card from among them into your hand",
-                    selectedLabel = "Put into your hand",
-                    remainderLabel = "Mill (graveyard)"
-                ),
-                MoveCollectionEffect(
-                    from = "toHand",
-                    destination = CardDestination.ToZone(Zone.HAND)
-                ),
-                MoveCollectionEffect(
-                    from = "toGraveyard",
-                    destination = CardDestination.ToZone(Zone.GRAVEYARD)
-                )
+        effect = Effects.Pipeline {
+            val milled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(3)))
+            val (toHandCards, toGraveyardCards) = chooseUpToSplit(
+                1,
+                from = milled,
+                filter = GameObjectFilter.Permanent,
+                showAllCards = true,
+                prompt = "You may put a permanent card from among them into your hand",
+                selectedLabel = "Put into your hand",
+                remainderLabel = "Mill (graveyard)"
             )
-        )
+            toHand(toHandCards)
+            toGraveyard(toGraveyardCards)
+        }
     }
 
     // −3: Create two 3/3 green Elk creature tokens.

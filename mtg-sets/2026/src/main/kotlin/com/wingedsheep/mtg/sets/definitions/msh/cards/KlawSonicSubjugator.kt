@@ -7,14 +7,8 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -50,42 +44,29 @@ val KlawSonicSubjugator = card("Klaw, Sonic Subjugator") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         target("target player", Targets.Player)
-        effect = Effects.Composite(
-            listOf(
-                // 1. Gather the target player's hand.
-                GatherCardsEffect(
-                    source = CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)),
-                    storeAs = "klawHand"
-                ),
-                // 2. That player reveals 1 + creature cards in your graveyard of them.
-                SelectFromCollectionEffect(
-                    from = "klawHand",
-                    selection = SelectionMode.ChooseExactly(
-                        DynamicAmount.Add(
-                            DynamicAmount.Fixed(1),
-                            DynamicAmount.Count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Creature)
-                        )
+        effect = Effects.Pipeline {
+            // 1. Gather the target player's hand.
+            val klawHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            // 2. That player reveals 1 + creature cards in your graveyard of them.
+            val klawRevealed = chooseExactly(
+                DynamicAmount.Add(
+                        DynamicAmount.Fixed(1),
+                        DynamicAmount.Count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Creature)
                     ),
-                    chooser = Chooser.TargetPlayer,
-                    storeSelected = "klawRevealed",
-                    prompt = "Choose cards to reveal"
-                ),
-                // 3. Klaw's controller chooses one of the revealed cards.
-                SelectFromCollectionEffect(
-                    from = "klawRevealed",
-                    selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                    chooser = Chooser.Controller,
-                    storeSelected = "klawChosen",
-                    prompt = "Choose a card that player discards"
-                ),
-                // 4. That player discards it.
-                MoveCollectionEffect(
-                    from = "klawChosen",
-                    destination = CardDestination.ToZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),
-                    moveType = MoveType.Discard
-                )
+                from = klawHand,
+                chooser = Chooser.TargetPlayer,
+                prompt = "Choose cards to reveal"
             )
-        )
+            // 3. Klaw's controller chooses one of the revealed cards.
+            val klawChosen = chooseExactly(
+                1,
+                from = klawRevealed,
+                chooser = Chooser.Controller,
+                prompt = "Choose a card that player discards"
+            )
+            // 4. That player discards it.
+            discard(klawChosen, Player.ContextPlayer(0))
+        }
         description = "Sonic Attack — When Klaw enters, target player reveals a number of cards " +
             "from their hand equal to one plus the number of creature cards in your graveyard. " +
             "You choose one of them. That player discards that card."

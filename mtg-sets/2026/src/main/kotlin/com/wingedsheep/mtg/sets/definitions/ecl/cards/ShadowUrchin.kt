@@ -1,17 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.dsl.Effects
@@ -50,17 +45,13 @@ val ShadowUrchin = card("Shadow Urchin") {
             ComparisonOperator.GTE,
             DynamicAmount.Fixed(1)
         )
-        effect = Effects.Composite(listOf(
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(DynamicAmount.ContextProperty(ContextPropertyKey.LAST_KNOWN_TOTAL_COUNTER_COUNT)),
-                storeAs = "exiledCards"
-            ),
-            MoveCollectionEffect(
-                from = "exiledCards",
-                destination = CardDestination.ToZone(Zone.EXILE)
-            ),
-            GrantMayPlayFromExileEffect("exiledCards", MayPlayExpiry.UntilNextEndStep)
-        ))
+        effect = Effects.Pipeline {
+            val exiledCards = gather(
+                CardSource.TopOfLibrary(DynamicAmount.ContextProperty(ContextPropertyKey.LAST_KNOWN_TOTAL_COUNTER_COUNT))
+            )
+            exile(exiledCards)
+            run(Effects.GrantMayPlayFromExile(exiledCards, MayPlayExpiry.UntilNextEndStep))
+        }
     }
 
     metadata {

@@ -12,8 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -53,16 +51,12 @@ val KoyaDeathFromAbove = card("Koya, Death from Above") {
                     step = Step.END,
                     effect = PayOrSufferEffect(
                         cost = Costs.pay.Mana("{3}{B}"),
-                        suffer = Effects.Composite(
-                            GatherCardsEffect(source = CardSource.FromLinkedExile(), storeAs = "koyaExile"),
-                            MoveCollectionEffect(
-                                from = "koyaExile",
-                                destination = CardDestination.ToZone(Zone.BATTLEFIELD),
-                                // The exiled creature returns under its *owner's* control, not Koya's
-                                // controller's — it may be a creature an opponent owns.
-                                underOwnersControl = true
-                            )
-                        )
+                        suffer = Effects.Pipeline {
+                            val koyaExile = gather(CardSource.FromLinkedExile())
+                            // The exiled creature returns under its *owner's* control, not Koya's
+                            // controller's — it may be a creature an opponent owns.
+                            move(koyaExile, CardDestination.ToZone(Zone.BATTLEFIELD), underOwnersControl = true)
+                        }
                     )
                 )
             )

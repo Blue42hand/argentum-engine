@@ -1,17 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 
 /**
  * Moonstone, Harsh Mistress — Marvel Super Heroes #107
@@ -51,22 +46,14 @@ val MoonstoneHarshMistress = card("Moonstone, Harsh Mistress") {
     triggeredAbility {
         trigger = Triggers.YouDiscard
         effect = Effects.May(
-            Effects.Composite(
-                listOf(
-                    GatherCardsEffect(
-                        source = CardSource.TriggeringEntity,
-                        storeAs = "moonstoneDiscarded"
-                    ),
-                    MoveCollectionEffect(
-                        from = "moonstoneDiscarded",
-                        destination = CardDestination.ToZone(Zone.EXILE)
-                    ),
-                    GrantMayPlayFromExileEffect(
-                        "moonstoneDiscarded",
-                        MayPlayExpiry.UntilEndOfNextTurn
-                    )
-                )
-            ),
+            Effects.Pipeline {
+                val moonstoneDiscarded = gather(CardSource.TriggeringEntity)
+                exile(moonstoneDiscarded)
+                run(Effects.GrantMayPlayFromExile(
+                    moonstoneDiscarded,
+                    MayPlayExpiry.UntilEndOfNextTurn
+                ))
+            },
             descriptionOverride = "Exile that card from your graveyard? You may play it until the " +
                 "end of your next turn."
         )

@@ -1,41 +1,24 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CastFromCollectionWithoutPayingCostEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 // Each opponent exiles from the top of their library until a nonland card, all linked to Krang &
 // Shredder so the Disappear ability can cast them. Shared by the enter and attack triggers.
 private fun krangExileEachOpponent(): Effect =
     Effects.ForEachPlayer(
         Player.EachOpponent,
-        listOf(
-            GatherUntilMatchEffect(
-                filter = GameObjectFilter.Nonland,
-                storeMatch = "krangMatch",
-                storeRevealed = "krangRevealed"
-            ),
-            MoveCollectionEffect(
-                from = "krangRevealed",
-                destination = CardDestination.ToZone(Zone.EXILE),
-                linkToSource = true
-            )
-        )
+        Effects.Pipeline {
+            val (_, krangRevealed) = gatherUntilMatch(GameObjectFilter.Nonland)
+            exile(krangRevealed, linkToSource = true)
+        }
     )
 
 /**
@@ -79,23 +62,20 @@ val KrangAndShredder = card("Krang & Shredder") {
         trigger = Triggers.YourEndStep
         interveningIf = Conditions.YouHadPermanentLeaveBattlefieldThisTurn
         effect = Effects.May(
-            Effects.Composite(
-                listOf(
-                    GatherCardsEffect(source = CardSource.FromLinkedExile(), storeAs = "krangCastable"),
-                    // "you may CAST a card" — lands are played, not cast (CR 601/305), so the
-                    // exiled lands (Krang exiles down *to* a nonland) can never be chosen here.
-                    // Per the official ruling the chosen card is cast while this ability resolves,
-                    // ignoring timing; only nonland cards are eligible to cast.
-                    SelectFromCollectionEffect(
-                        from = "krangCastable",
-                        selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                        filter = GameObjectFilter.Nonland,
-                        storeSelected = "krangChosen",
-                        prompt = "Choose a card exiled with Krang & Shredder to cast without paying its mana cost"
-                    ),
-                    CastFromCollectionWithoutPayingCostEffect(from = "krangChosen")
+            Effects.Pipeline {
+                val krangCastable = gather(CardSource.FromLinkedExile())
+                // "you may CAST a card" — lands are played, not cast (CR 601/305), so the
+                // exiled lands (Krang exiles down *to* a nonland) can never be chosen here.
+                // Per the official ruling the chosen card is cast while this ability resolves,
+                // ignoring timing; only nonland cards are eligible to cast.
+                val krangChosen = chooseUpTo(
+                    1,
+                    from = krangCastable,
+                    filter = GameObjectFilter.Nonland,
+                    prompt = "Choose a card exiled with Krang & Shredder to cast without paying its mana cost"
                 )
-            )
+                run(Effects.CastFromCollectionWithoutPayingCost(from = krangChosen))
+            }
         )
         description = "Disappear — At the beginning of your end step, if a permanent left the battlefield under your control this turn, you may cast a card exiled with Krang & Shredder without paying its mana cost."
     }

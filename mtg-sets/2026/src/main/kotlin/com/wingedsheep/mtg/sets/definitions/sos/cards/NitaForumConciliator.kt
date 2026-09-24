@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -66,20 +65,20 @@ val NitaForumConciliator = card("Nita, Forum Conciliator") {
             Costs.SacrificeAnother(GameObjectFilter.Creature),
         )
         timing = TimingRule.SorcerySpeed
-        effect = Effects.Composite(
+        effect = Effects.Pipeline {
             // Exile the targeted card from the opponent's graveyard.
-            Effects.Move(target, Zone.EXILE),
+            run(Effects.Move(target, Zone.EXILE))
             // Gather it back into a named collection so the may-play grant can key off it.
-            GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "borrowed"),
+            val borrowed = gather(CardSource.ChosenTargets)
             // "You may cast it this turn, mana of any type" + "if it would be put into a graveyard,
             // exile it instead."
-            Effects.GrantMayPlayFromExile(
-                from = "borrowed",
+            run(Effects.GrantMayPlayFromExile(
+                from = borrowed,
                 expiry = MayPlayExpiry.EndOfTurn,
                 withAnyManaType = true,
                 exileAfterResolve = true,
-            ),
-        )
+            ))
+        }
         description = "{2}, Sacrifice another creature: Exile target instant or sorcery card from an " +
             "opponent's graveyard. You may cast it this turn, and mana of any type can be spent to cast " +
             "that spell. If that spell would be put into a graveyard, exile it instead. Activate only as a sorcery."

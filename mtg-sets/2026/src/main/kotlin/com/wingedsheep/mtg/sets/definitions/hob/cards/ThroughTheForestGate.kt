@@ -7,10 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
@@ -42,28 +38,20 @@ val ThroughTheForestGate = card("Through the Forest Gate") {
         "among them onto the battlefield tapped, then shuffle. You gain 8 life."
 
     spell {
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(DynamicAmount.Fixed(20), player = Player.You),
-                storeAs = "looked"
-            ),
-            SelectFromCollectionEffect(
-                from = "looked",
-                selection = SelectionMode.ChooseAnyNumber,
+        effect = Effects.Pipeline {
+            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(20), player = Player.You))
+            val toBattlefield = chooseAnyNumber(
+                from = looked,
                 filter = GameObjectFilter.Land,
                 showAllCards = true,
-                storeSelected = "toBattlefield",
                 prompt = "Put any number of land cards onto the battlefield tapped",
                 selectedLabel = "Onto the battlefield tapped",
                 remainderLabel = "Leave in your library"
-            ),
-            MoveCollectionEffect(
-                from = "toBattlefield",
-                destination = CardDestination.ToZone(Zone.BATTLEFIELD, Player.You, ZonePlacement.Tapped)
-            ),
-            ShuffleLibraryEffect(),
-            Effects.GainLife(8)
-        )
+            )
+            move(toBattlefield, CardDestination.ToZone(Zone.BATTLEFIELD, Player.You, ZonePlacement.Tapped))
+            run(ShuffleLibraryEffect())
+            run(Effects.GainLife(8))
+        }
     }
 
     metadata {

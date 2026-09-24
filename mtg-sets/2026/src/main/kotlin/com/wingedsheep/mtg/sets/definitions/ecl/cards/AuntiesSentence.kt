@@ -6,18 +6,11 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Auntie's Sentence
@@ -41,30 +34,20 @@ val AuntiesSentence = card("Auntie's Sentence") {
         modal(chooseCount = 1) {
             mode("Target opponent reveals their hand, discard a nonland permanent card") {
                 val opponent = target("target opponent", TargetOpponent())
-                effect = Effects.Composite(
-                    listOf(
-                        RevealHandEffect(opponent),
-                        GatherCardsEffect(
-                            source = CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)),
-                            storeAs = "hand"
-                        ),
-                        SelectFromCollectionEffect(
-                            from = "hand",
-                            selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                            chooser = Chooser.Controller,
-                            filter = GameObjectFilter.NonlandPermanent,
-                            storeSelected = "toDiscard",
-                            prompt = "Choose a nonland permanent card to discard",
-                            alwaysPrompt = true,
-                            showAllCards = true
-                        ),
-                        MoveCollectionEffect(
-                            from = "toDiscard",
-                            destination = CardDestination.ToZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),
-                            moveType = MoveType.Discard
-                        )
+                effect = Effects.Pipeline {
+                    run(RevealHandEffect(opponent))
+                    val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+                    val toDiscard = chooseExactly(
+                        1,
+                        from = hand,
+                        chooser = Chooser.Controller,
+                        filter = GameObjectFilter.NonlandPermanent,
+                        prompt = "Choose a nonland permanent card to discard",
+                        alwaysPrompt = true,
+                        showAllCards = true
                     )
-                )
+                    discard(toDiscard, Player.ContextPlayer(0))
+                }
             }
             mode("Target creature gets -2/-2 until end of turn") {
                 val creature = target("target creature", Targets.Creature)

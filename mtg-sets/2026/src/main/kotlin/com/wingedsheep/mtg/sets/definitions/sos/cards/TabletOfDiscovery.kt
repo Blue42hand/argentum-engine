@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -9,12 +8,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.AddManaEffect
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -41,17 +36,11 @@ val TabletOfDiscovery = card("Tablet of Discovery") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.Composite(listOf(
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1)),
-                storeAs = "milledThisWay"
-            ),
-            MoveCollectionEffect(
-                from = "milledThisWay",
-                destination = CardDestination.ToZone(Zone.GRAVEYARD)
-            ),
-            GrantMayPlayFromExileEffect("milledThisWay")
-        ))
+        effect = Effects.Pipeline {
+            val milledThisWay = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            toGraveyard(milledThisWay)
+            run(Effects.GrantMayPlayFromExile(milledThisWay))
+        }
     }
 
     activatedAbility {

@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -39,22 +37,19 @@ val TurtlesInTime = card("Turtles in Time") {
                     Player.Each,
                     listOf(
                         Effects.May(
-                            Effects.Composite(
-                                listOf(
-                                    GatherCardsEffect(
-                                        source = CardSource.FromMultipleZones(
-                                            zones = listOf(Zone.HAND, Zone.GRAVEYARD),
-                                            player = Player.You
-                                        ),
-                                        storeAs = "turtlesInTimeShuffle"
-                                    ),
-                                    MoveCollectionEffect(
-                                        from = "turtlesInTimeShuffle",
-                                        destination = CardDestination.ToZone(Zone.LIBRARY, Player.You, ZonePlacement.Shuffled)
-                                    ),
-                                    Effects.DrawCards(7)
+                            Effects.Pipeline {
+                                val turtlesInTimeShuffle = gather(
+                                    CardSource.FromMultipleZones(
+                                        zones = listOf(Zone.HAND, Zone.GRAVEYARD),
+                                        player = Player.You
+                                    )
                                 )
-                            )
+                                move(
+                                    turtlesInTimeShuffle,
+                                    CardDestination.ToZone(Zone.LIBRARY, Player.You, ZonePlacement.Shuffled)
+                                )
+                                run(Effects.DrawCards(7))
+                            }
                         )
                     )
                 )

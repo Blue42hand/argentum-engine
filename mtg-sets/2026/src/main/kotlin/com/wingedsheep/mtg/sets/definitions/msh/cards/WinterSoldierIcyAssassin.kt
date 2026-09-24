@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -79,20 +78,19 @@ val WinterSoldierIcyAssassin = card("Winter Soldier, Icy Assassin") {
             Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
             AddCountersEffect(counterType = CounterType.FINALITY, count = 1, target = EffectTarget.Self),
             Effects.May(
-                effect = Effects.Composite(
-                    SelectTargetEffect(
-                        requirement = TargetObject(
+                effect = Effects.Pipeline {
+                    val winterSoldierEquipment = selectTarget(
+                        TargetObject(
                             filter = TargetFilter(
                                 GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()
                             )
-                        ),
-                        storeAs = "winterSoldierEquipment"
-                    ),
-                    Effects.AttachTargetEquipmentToCreature(
-                        equipmentTarget = EffectTarget.PipelineTarget("winterSoldierEquipment"),
-                        creatureTarget = EffectTarget.Self
+                        )
                     )
-                ),
+                    run(Effects.AttachTargetEquipmentToCreature(
+                        equipmentTarget = winterSoldierEquipment.asTarget,
+                        creatureTarget = EffectTarget.Self
+                    ))
+                },
                 descriptionOverride = "You may attach an Equipment you control to Winter Soldier.",
                 feasibility = FeasibilityCheck.ControlsPermanentMatching(
                     GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT)

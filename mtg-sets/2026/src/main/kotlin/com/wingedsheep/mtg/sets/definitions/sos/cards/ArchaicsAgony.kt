@@ -6,10 +6,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
@@ -48,24 +45,20 @@ val ArchaicsAgony = card("Archaic's Agony") {
 
     spell {
         val creature = target("target creature", Targets.Creature)
-        effect = Effects.Composite(
-            Effects.DealDamage(DynamicAmount.DistinctColorsManaSpent, creature),
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(
+        effect = Effects.Pipeline {
+            run(Effects.DealDamage(DynamicAmount.DistinctColorsManaSpent, creature))
+            val exiledByAgony = gather(
+                CardSource.TopOfLibrary(
                     count = DynamicAmount.EntityProperty(
                         EffectTarget.ContextTarget(0),
                         EntityNumericProperty.ExcessMarkedDamage,
                     ),
                     player = Player.You,
-                ),
-                storeAs = "exiledByAgony",
-            ),
-            MoveCollectionEffect(
-                from = "exiledByAgony",
-                destination = CardDestination.ToZone(com.wingedsheep.sdk.core.Zone.EXILE),
-            ),
-            GrantMayPlayFromExileEffect("exiledByAgony", MayPlayExpiry.UntilEndOfNextTurn),
-        )
+                )
+            )
+            move(exiledByAgony, CardDestination.ToZone(com.wingedsheep.sdk.core.Zone.EXILE))
+            run(Effects.GrantMayPlayFromExile(exiledByAgony, MayPlayExpiry.UntilEndOfNextTurn))
+        }
     }
 
     metadata {

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -48,15 +47,10 @@ val KillmongerScourgeOfWakanda = card("Killmonger, Scourge of Wakanda") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = ReflexiveTriggerEffect(
-            action = Effects.Composite(
-                listOf(
-                    SelectTargetEffect(
-                        requirement = TargetObject(filter = TargetFilter.CreatureYouControl.other()),
-                        storeAs = "killmongerSacrifice",
-                    ),
-                    Effects.SacrificeTarget(EffectTarget.PipelineTarget("killmongerSacrifice")),
-                ),
-            ),
+            action = Effects.Pipeline {
+                val killmongerSacrifice = selectTarget(TargetObject(filter = TargetFilter.CreatureYouControl.other()))
+                run(Effects.SacrificeTarget(killmongerSacrifice.asTarget))
+            },
             optional = true,
             reflexiveEffect = Effects.Destroy(EffectTarget.ContextTarget(0)),
             reflexiveTargetRequirements = listOf(

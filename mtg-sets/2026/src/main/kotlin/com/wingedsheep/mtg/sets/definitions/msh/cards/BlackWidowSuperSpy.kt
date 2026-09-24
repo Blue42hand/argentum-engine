@@ -2,16 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
-import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -58,28 +54,23 @@ val BlackWidowSuperSpy = card("Black Widow, Super Spy") {
 
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = Effects.Composite(
-            GatherUntilMatchEffect(
-                player = Player.TriggeringPlayer,
-                filter = GameObjectFilter.Nonland,
-                storeMatch = "widowNonland",
-                storeRevealed = "widowExiled",
-            ),
-            MoveCollectionEffect(
-                from = "widowExiled",
-                destination = CardDestination.ToZone(Zone.EXILE, Player.TriggeringPlayer),
-            ),
-            Effects.May(
+        effect = Effects.Pipeline {
+            val (widowNonland, widowExiled) = gatherUntilMatch(
+                GameObjectFilter.Nonland,
+                player = Player.TriggeringPlayer
+            )
+            exile(widowExiled, Player.TriggeringPlayer)
+            run(Effects.May(
                 effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                 descriptionOverride = "Put a +1/+1 counter on Black Widow",
                 otherwise = Effects.GrantMayPlayFromExile(
-                    from = "widowNonland",
+                    from = widowNonland,
                     expiry = MayPlayExpiry.EndOfTurn,
                     withAnyManaType = true,
                     nonLandOnly = true,
                 ),
-            ),
-        )
+            ))
+        }
         description = "Whenever Black Widow deals combat damage to a player, that player exiles " +
             "cards from the top of their library until they exile a nonland card. You may put a " +
             "+1/+1 counter on Black Widow. If you don't, you may cast the exiled nonland card " +

@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -9,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.LookAtTopOfLibrary
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -48,22 +46,13 @@ val IronLadDivergingDestiny = card("Iron Lad, Diverging Destiny") {
 
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1)),
-                    storeAs = "ironLadRevealed",
-                    revealed = true,
-                ),
-                Effects.If(
-                    condition = Conditions.CollectionContainsMatch(
-                        "ironLadRevealed",
-                        GameObjectFilter.Artifact,
-                    ),
-                    then = Effects.DrawCards(1),
-                ),
-            )
-        )
+        effect = Effects.Pipeline {
+            val ironLadRevealed = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)), revealed = true)
+            run(Effects.If(
+                condition = whenMatches(ironLadRevealed, GameObjectFilter.Artifact),
+                then = Effects.DrawCards(1),
+            ))
+        }
         description = "{T}: Reveal the top card of your library. If it's an artifact card, draw a card."
     }
 

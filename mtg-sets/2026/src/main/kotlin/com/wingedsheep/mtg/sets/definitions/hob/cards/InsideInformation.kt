@@ -1,15 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.hob.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -35,22 +31,16 @@ val InsideInformation = card("Inside Information") {
 
     spell {
         target("target opponent", Targets.Opponent)
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(DynamicAmount.XValue, Player.TargetOpponent),
-                storeAs = "insideInformationExiled",
-            ),
-            MoveCollectionEffect(
-                from = "insideInformationExiled",
-                destination = CardDestination.ToZone(Zone.EXILE, Player.TargetOpponent),
-            ),
-            Effects.GrantMayPlayFromExile("insideInformationExiled"),
-            Effects.GrantPlayWithoutPayingCost("insideInformationExiled"),
-            Effects.GrantPlayWithAdditionalCost(
-                from = "insideInformationExiled",
+        effect = Effects.Pipeline {
+            val insideInformationExiled = gather(CardSource.TopOfLibrary(DynamicAmount.XValue, Player.TargetOpponent))
+            exile(insideInformationExiled, Player.TargetOpponent)
+            run(Effects.GrantMayPlayFromExile(insideInformationExiled))
+            run(Effects.GrantPlayWithoutPayingCost(insideInformationExiled))
+            run(Effects.GrantPlayWithAdditionalCost(
+                from = insideInformationExiled,
                 additionalCost = Costs.additional.PayLifeEqualToManaValueOfSpell,
-            ),
-        )
+            ))
+        }
     }
 
     metadata {

@@ -2,15 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.hob.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -43,20 +40,14 @@ val MirkwoodNurturer = card("Mirkwood Nurturer") {
             "other permanent you control",
             TargetPermanent(optional = true, filter = TargetFilter.PermanentYouControl.other())
         )
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "bounceTarget"),
-                MoveCollectionEffect(
-                    from = "bounceTarget",
-                    destination = CardDestination.ToZone(Zone.HAND),
-                    storeMovedAs = "returned"
-                ),
-                Effects.If(
-                    condition = Conditions.CollectionContainsMatch("returned"),
-                    then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-                )
-            )
-        )
+        effect = Effects.Pipeline {
+            val bounceTarget = gather(CardSource.ChosenTargets)
+            val returned = moveTracked(bounceTarget, CardDestination.ToZone(Zone.HAND))
+            run(Effects.If(
+                condition = whenMatches(returned),
+                then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            ))
+        }
     }
 
     metadata {
