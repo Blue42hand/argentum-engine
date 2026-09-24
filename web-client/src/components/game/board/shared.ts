@@ -133,6 +133,8 @@ export interface SlotSizedLayout {
   backSizes: ResponsiveSizes
   frontRowLines: number
   backRowLines: number
+  /** The solve traded the full-size between-rows divider for card size (see `dividerFor`). */
+  compactDivider: boolean
 }
 
 /**
@@ -194,11 +196,23 @@ export function useSlotSizedResponsive(
     // in a consistent frame the two agree and the pooled width wins as-is.
     const layout = pooled !== null && own !== null && own.cardWidth < pooled.cardWidth ? own : (pooled ?? own)
     if (layout === null) {
-      return { sizes: base, backSizes: base, frontRowLines: front.count > 0 ? 1 : 0, backRowLines: back.count > 0 ? 1 : 0 }
+      return {
+        sizes: base,
+        backSizes: base,
+        frontRowLines: front.count > 0 ? 1 : 0,
+        backRowLines: back.count > 0 ? 1 : 0,
+        compactDivider: false,
+      }
     }
     const sizes = sizesForCardWidth(base, layout.cardWidth)
     const backSizes = layout.backCardWidth === layout.cardWidth ? sizes : sizesForCardWidth(base, layout.backCardWidth)
-    return { sizes, backSizes, frontRowLines: layout.frontLines, backRowLines: layout.backLines }
+    return {
+      sizes,
+      backSizes,
+      frontRowLines: layout.frontLines,
+      backRowLines: layout.backLines,
+      compactDivider: layout.compact,
+    }
     // Keyed on the stats' numbers, not the objects, so an unrelated store
     // update that rebuilds equal stats doesn't produce a fresh sizes identity.
   }, [base, slotSize, pooled, front.count, front.tapped, front.stackedExtra, back.count, back.tapped, back.stackedExtra])
