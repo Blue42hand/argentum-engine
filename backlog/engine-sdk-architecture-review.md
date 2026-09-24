@@ -174,7 +174,28 @@ unevenly.
 Enumerators generate candidates and filter them through it, and the view layer reads the result
 instead of recomputing it.
 
-## 4. Break up the god-methods — [MED–HIGH]
+## 4. Break up the god-methods — [MED–HIGH] ✅ Done (except activation cost plug-ins)
+
+> **Done (2026-09-24).**
+> - **Cost plug-ins.** Every `AdditionalCost` subtype (and every `CostAtom` it can carry) is a
+>   `SpellCostKind` with `canPay` / `enumerate` / `candidates` / `present` / `validate` / `lifeToPay` /
+>   `pay` hooks, dispatched only through `SpellCosts` (`mechanics/cost/spell/`).
+>   `SpellCostKindCoverageTest` fails the build on an unregistered subtype.
+>   `SelectionCostPresentation` is folded into the kinds.
+> - **Casting as stages.** `CastSpellHandler.execute` is announce → total cost (`CastCostTotaller`) →
+>   pay (`CastCostPayer`) → record and put on the stack (`CastRecords`) → cast triggers
+>   (`CastTriggers`); `validate` lives in `CastValidator`, one function per legality question. Unifying
+>   the total-cost stage fixed two validate/execute drifts: splice mana was validated but never
+>   charged, and per-mode mana was charged but never validated.
+> - **Activation.** `executeActivation` is staged collaborators (`handlers/actions/ability/`), and one
+>   `ActivationRestrictionKernel` replaces the handler's, `CastPermissionUtils`'s and `ManaSolver`'s
+>   copies. **Not done:** activation still pays `AbilityCost` through `CostHandler`, not the spell
+>   cost kinds — sharing them means unifying the atom payers across the two cost contexts.
+> - **`StackResolver`** is a façade over `SpellCaster`, `PermanentSpellResolver`, `PermanentEntry`,
+>   `NonPermanentSpellResolver`, `AbilityResolver`, `ResolutionTargetValidator`, `SpellCounterer`.
+> - **`ClientStateTransformer`** is an orchestrator over per-concern projectors in
+>   `view/projection/`. Delirium and graveyard thresholds are derived properties on
+>   `CardDefinition` (`deliriumThreshold`, `graveyardThreshold`), no longer a JSON walk.
 
 **Problem.** The issue is methods, not just files. Every feature passes through these, so they attract
 merge conflicts and slow compiles:
@@ -362,6 +383,6 @@ other "target" Oracle text scripted without a target requirement. That can becom
 2. **Medium:**
    - ~~`ResolutionContext` and the sealed result type (§2)~~ (done);
    - the legality kernel (§3);
-   - the staged casting pipeline with cost plug-ins (§4).
+   - ~~the staged casting pipeline with cost plug-ins (§4)~~ (done).
 3. **Large, codemod-driven:** SDK consolidation (§5), then generation (§6).
 4. **When gym throughput matters:** persistent collections and incremental projection.
