@@ -1233,6 +1233,7 @@ object CardLinter {
         "EnchantedCreature",
         "EquippedCreature",
         "ContextTarget",
+        "BoundVariable",
         "TriggeringEntity",
         "IterationEntity",
         "DiscardedAsCost",

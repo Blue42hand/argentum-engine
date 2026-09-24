@@ -920,8 +920,9 @@ class ConditionEvaluator(
      *   static-ability projection).
      * - [EffectTarget.EnchantedPermanent] / [EffectTarget.EnchantedCreature] /
      *   [EffectTarget.EquippedCreature]: live match against the source's attachment; dual-mode.
-     * - [EffectTarget.ContextTarget]: resolution-only; resolve the chosen target to a game object
-     *   (false for a player target) and match live.
+     * - [EffectTarget.ContextTarget] / [EffectTarget.BoundVariable]: resolution-only; resolve the
+     *   chosen target (by position / by name) to a game object (false for a player target) and
+     *   match live.
      * - [EffectTarget.TriggeringEntity]: resolution-only; match the triggering spell by its static
      *   cast characteristics so the answer survives the spell leaving the stack (CR 603.4).
      *
@@ -943,7 +944,16 @@ class ConditionEvaluator(
             evaluateAttachmentFilterMatch(state, condition.filter, ctx)
         is EffectTarget.ContextTarget ->
             (ctx as? Resolution)?.let {
-                evaluateTargetFilterMatch(state, condition.filter, entity.index, it.effectContext)
+                evaluateTargetFilterMatch(
+                    state, condition.filter, it.effectContext.positionalTarget(entity.index), it.effectContext
+                )
+            } ?: false
+        // A named target handle ("if that creature is legendary") — the same match, keyed by name.
+        is EffectTarget.BoundVariable ->
+            (ctx as? Resolution)?.let {
+                evaluateTargetFilterMatch(
+                    state, condition.filter, it.effectContext.pipeline.namedTargets[entity.name], it.effectContext
+                )
             } ?: false
         is EffectTarget.TriggeringEntity ->
             (ctx as? Resolution)?.let {
@@ -1019,7 +1029,6 @@ class ConditionEvaluator(
         EffectTarget.AffectedEntity,
         EffectTarget.AmassedArmy,
         EffectTarget.AttachedToTriggeringPermanent,
-        is EffectTarget.BoundVariable,
         EffectTarget.ChosenCreature,
         EffectTarget.Controller,
         EffectTarget.ControllerOfDamageSource,
@@ -1966,10 +1975,10 @@ class ConditionEvaluator(
     private fun evaluateTargetFilterMatch(
         state: GameState,
         filter: GameObjectFilter,
-        targetIndex: Int,
+        target: com.wingedsheep.engine.state.components.stack.ChosenTarget?,
         context: EffectContext
     ): Boolean {
-        val target = context.positionalTarget(targetIndex) ?: return false
+        if (target == null) return false
         val entityId = when (target) {
             is com.wingedsheep.engine.state.components.stack.ChosenTarget.Permanent -> target.entityId
             is com.wingedsheep.engine.state.components.stack.ChosenTarget.Player -> return false

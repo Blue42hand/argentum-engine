@@ -57,7 +57,7 @@ object DependentTargetSelection {
             is CardPredicate.SharesManaValueWith -> predicate.entity
             is CardPredicate.SharesNameWith -> predicate.entity
             else -> null
-        }) is EffectTarget.ContextTarget
+        }).let { it is EffectTarget.ContextTarget || it is EffectTarget.BoundVariable }
     }
 
     /**

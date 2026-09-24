@@ -12909,25 +12909,16 @@
                     "change": -2
                 },
                 "effect": {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "MoveToZone",
-                            "target": {
-                                "type": "BoundVariable",
-                                "name": "creature you control"
-                            },
-                            "destination": "Exile"
+                    "type": "ForEach",
+                    "space": "IterationSpace.Targets",
+                    "body": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
                         },
-                        {
-                            "type": "MoveToZone",
-                            "target": {
-                                "type": "BoundVariable",
-                                "name": "creature that player controls"
-                            },
-                            "destination": "Exile"
-                        }
-                    ]
+                        "destination": "Exile"
+                    }
                 },
                 "targetRequirements": [
                     {

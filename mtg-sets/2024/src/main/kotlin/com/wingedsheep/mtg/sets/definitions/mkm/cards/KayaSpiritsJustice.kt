@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CopyExceptions
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -154,8 +155,8 @@ val KayaSpiritsJustice = card("Kaya, Spirits' Justice") {
     // -2: Exile target creature you control. For each other player, exile up to one target creature
     // that player controls.
     loyaltyAbility(-2) {
-        val creatureYouControl = target("creature you control", TargetCreature(filter = TargetFilter.CreatureYouControl))
-        val creatureThatPlayerControls = target(
+        target("creature you control", TargetCreature(filter = TargetFilter.CreatureYouControl))
+        target(
             "creature that player controls",
             TargetCreature(
                 filter = TargetFilter.CreatureOpponentControls,
@@ -165,12 +166,8 @@ val KayaSpiritsJustice = card("Kaya, Spirits' Justice") {
                 id = "one target creature each other player controls",
             ),
         )
-        effect = Effects.Composite(
-            listOf(
-                Effects.Exile(creatureYouControl),
-                Effects.Exile(creatureThatPlayerControls),
-            )
-        )
+        // Every chosen target is exiled — yours and one per other player — so exile each of them.
+        effect = Effects.ForEachTarget(Effects.Exile(EffectTarget.ContextTarget(0)))
         description = "Exile target creature you control. For each other player, exile up to one " +
             "target creature that player controls."
     }
