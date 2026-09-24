@@ -2838,6 +2838,44 @@
     ]
 }
 
+// Cruel Calculations
+{
+    "name": "Cruel Calculations",
+    "manaCost": "{2}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Draw X cards, where X is the number of cards that were put into target player's graveyard from their library this turn.",
+    "script": {
+        "spellEffect": {
+            "type": "DrawCards",
+            "count": {
+                "type": "TurnTracking",
+                "player": {
+                    "type": "ContextPlayer",
+                    "index": 0
+                },
+                "tracker": "CARDS_PUT_INTO_GRAVEYARD_FROM_LIBRARY"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetPlayer",
+                "id": "target player"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "26",
+        "rarity": "RARE",
+        "artist": "Lindsey Look",
+        "flavorText": "\"There is no curve. Either you succeeded, or you did not. Either way, this will be informative.\"\n—Uldaros Theorix",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/7/f76c4d8e-3e1f-4264-99af-1b8adb9a06be.jpg?1789127482",
+        "inBooster": false
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Cryotheory Adept
 {
     "name": "Cryotheory Adept",

@@ -10704,6 +10704,12 @@ default to "you" so card authors don't need to pass it explicitly.
   cards were put into graveyards from anywhere this turn". Same tracker, so the same two rulings apply:
   it reads the card's own type line (what the card *is in the graveyard*, so a creature card that was a
   noncreature permanent counts and an animated noncreature card doesn't), and tokens never count.
+- `DynamicAmounts.cardsPutIntoGraveyardFromLibraryThisTurn(player)` /
+  `TurnTracker.CARDS_PUT_INTO_GRAVEYARD_FROM_LIBRARY` — the number of cards put into `player`'s graveyard
+  from their library this turn: mill, surveil, and every other library → graveyard move. Backed by the
+  per-player `CardsPutIntoGraveyardFromLibraryThisTurnComponent`, incremented in `ZoneTransitionService`
+  (keyed on the owner) and cleared at end of turn. Turn history — a card that later leaves the graveyard
+  still counts. Cruel Calculations: `DrawCards(cardsPutIntoGraveyardFromLibraryThisTurn(Player.ContextPlayer(0)))`.
 - `SourcesYouControlledDealtDamageThisTurn(atLeast)` — at least `atLeast` **distinct sources** you
   controlled dealt damage this turn (`TurnTracker.DAMAGE_SOURCES`). Case of the Burning Masks. Counts
   source *objects* at the moment they dealt damage, which is what the printed rulings require: a source
@@ -11843,6 +11849,9 @@ this turn").
   cards you've drawn this turn" via `dynamicPower = CharacteristicValue.dynamic(TurnTracking(You, CARDS_DRAWN))`.
 - `CARDS_PUT_INTO_EXILE` — number of cards put into exile this turn, keyed on each card's owner
   (backed by `CardsPutIntoExileThisTurnComponent`, incremented at the central zone-transition for
+- `CARDS_PUT_INTO_GRAVEYARD_FROM_LIBRARY` — number of cards put into a player's graveyard from their
+  library this turn (mill, surveil, …); recorded by the same `ZoneTransitionService` hook, keyed on the
+  owner. Facade `DynamicAmounts.cardsPutIntoGraveyardFromLibraryThisTurn(player)` (Cruel Calculations).
   any non-token card entering exile from another zone, reset to 0 for every player at turn start).
   Summed across all players (via `Player.Each`) it gives the game-wide count of cards put into
   exile this turn. Powers Ennis, Debate Moderator's "if one or more cards were put into exile this

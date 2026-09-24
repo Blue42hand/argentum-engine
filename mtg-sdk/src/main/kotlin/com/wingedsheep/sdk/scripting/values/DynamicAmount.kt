@@ -157,6 +157,13 @@ enum class TurnTracker {
      */
     CREATURE_CARDS_PUT_INTO_GRAVEYARD,
     /**
+     * Number of cards put into the player's graveyard **from their library** this turn — mill,
+     * surveil, and any other library → graveyard move, keyed on the card's owner. Backed by
+     * `CardsPutIntoGraveyardFromLibraryThisTurnComponent`, cleared at end of turn. Turn history:
+     * a card that later leaves the graveyard still counts. Cruel Calculations draws this many.
+     */
+    CARDS_PUT_INTO_GRAVEYARD_FROM_LIBRARY,
+    /**
      * Number of cards the player has drawn this turn (CR 120). Backed by
      * `CardsDrawnThisTurnComponent`, reset to 0 for every player at the start of each turn.
      * Powers "equal to the number of cards you've drawn this turn" (Duelist of the Mind).
@@ -275,6 +282,8 @@ enum class TurnTracker {
         DESCENDED -> "the number of times ${player.description} descended this turn"
         CREATURE_CARDS_PUT_INTO_GRAVEYARD ->
             "the number of creature cards put into ${player.possessive} graveyard this turn"
+        CARDS_PUT_INTO_GRAVEYARD_FROM_LIBRARY ->
+            "the number of cards that were put into ${player.possessive} graveyard from their library this turn"
         CARDS_DRAWN -> "the number of cards ${player.description} have drawn this turn"
         CARDS_DISCARDED -> "the number of cards ${player.description} have discarded this turn"
         CARDS_PUT_INTO_EXILE -> "the number of cards put into exile this turn"

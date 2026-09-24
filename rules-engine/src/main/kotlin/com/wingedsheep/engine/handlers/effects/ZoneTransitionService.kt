@@ -48,6 +48,7 @@ import com.wingedsheep.engine.state.components.player.PermanentLeftBattlefieldTh
 import com.wingedsheep.engine.state.components.player.CreatureLeftBattlefieldThisTurnComponent
 import com.wingedsheep.engine.state.components.player.PermanentsSacrificedThisTurnComponent
 import com.wingedsheep.engine.state.components.player.CreatureCardsPutIntoGraveyardThisTurnComponent
+import com.wingedsheep.engine.state.components.player.CardsPutIntoGraveyardFromLibraryThisTurnComponent
 import com.wingedsheep.engine.state.components.player.PlayerDescendedThisTurnComponent
 import com.wingedsheep.engine.state.components.player.SacrificedArtifactThisTurnComponent
 import com.wingedsheep.engine.state.components.player.SacrificedFoodThisTurnComponent
@@ -1009,6 +1010,17 @@ class ZoneTransitionService(
                 val existing = playerContainer.get<CreatureCardsPutIntoGraveyardThisTurnComponent>()
                     ?: CreatureCardsPutIntoGraveyardThisTurnComponent()
                 playerContainer.with(CreatureCardsPutIntoGraveyardThisTurnComponent(existing.count + 1))
+            }
+        }
+
+        // 8d3. "Cards put into [a player's] graveyard from their library this turn" (Cruel
+        // Calculations) — mill, surveil, and every other library → graveyard move. Keyed on the
+        // owner, whose library and graveyard these are. Turn history, like 8d2.
+        if (actualDestZone == Zone.GRAVEYARD && fromZone == Zone.LIBRARY) {
+            newState = newState.updateEntity(ownerId) { playerContainer ->
+                val existing = playerContainer.get<CardsPutIntoGraveyardFromLibraryThisTurnComponent>()
+                    ?: CardsPutIntoGraveyardFromLibraryThisTurnComponent()
+                playerContainer.with(CardsPutIntoGraveyardFromLibraryThisTurnComponent(existing.count + 1))
             }
         }
 
