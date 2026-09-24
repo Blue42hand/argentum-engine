@@ -371,6 +371,180 @@
     ]
 }
 
+// Ajani Unrelenting
+{
+    "name": "Ajani Unrelenting",
+    "manaCost": "{4}{R}{R}",
+    "typeLine": "Legendary Planeswalker — Ajani",
+    "oracleText": "Whenever you activate a loyalty ability, create a 2/2 colorless Wizard Soldier creature token named Cadet.\n+1: Creatures you control get +1/+0 and gain haste until end of turn.\n−2: Discard your hand, then draw a card for each creature you control.\n−3: Ajani deals 4 damage to each creature except for tokens you control.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "AbilityActivatedEvent",
+                    "requireLoyalty": true
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 2,
+                    "toughness": 2,
+                    "colors": [],
+                    "creatureTypes": [
+                        "Wizard",
+                        "Soldier"
+                    ],
+                    "name": "Cadet",
+                    "imageUri": "https://cards.scryfall.io/normal/front/8/f/8f4534d8-2783-484f-8ebf-a47b1cc4c6df.jpg?1789734318"
+                },
+                "descriptionOverride": "Whenever you activate a loyalty ability, create a 2/2 colorless Wizard Soldier creature token named Cadet."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 1
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "ModifyStats",
+                                "powerModifier": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                },
+                                "toughnessModifier": {
+                                    "type": "Fixed",
+                                    "amount": 0
+                                },
+                                "target": "Self"
+                            },
+                            {
+                                "type": "GrantKeyword",
+                                "keyword": "HASTE",
+                                "target": "Self"
+                            }
+                        ]
+                    }
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true,
+                "descriptionOverride": "Creatures you control get +1/+0 and gain haste until end of turn."
+            },
+            {
+                "id": "ability_3",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -2
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand"
+                                    },
+                                    "storeAs": "discardedHand"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "discardedHand",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    },
+                                    "moveType": "Discard"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "AggregateBattlefield",
+                                "player": "You",
+                                "filter": "creature"
+                            }
+                        }
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true,
+                "descriptionOverride": "Discard your hand, then draw a card for each creature you control."
+            },
+            {
+                "id": "ability_4",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -3
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": {
+                                "anyOf": [
+                                    {
+                                        "cardPredicates": [
+                                            "IsCreature",
+                                            "IsNontoken"
+                                        ]
+                                    },
+                                    {
+                                        "cardPredicates": [
+                                            "IsCreature"
+                                        ],
+                                        "controllerPredicate": "ControlledByOpponent"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "body": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 4
+                        },
+                        "target": "Self"
+                    }
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true,
+                "descriptionOverride": "Ajani deals 4 damage to each creature except for tokens you control."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "242",
+        "rarity": "MYTHIC",
+        "artist": "Tyler Jacobson",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/c/bc3c096f-7f6c-474c-a2c8-75d3e6ddd6f5.jpg?1788329317",
+        "inBooster": false
+    },
+    "startingLoyalty": 5,
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Ajani's Anguish
 {
     "name": "Ajani's Anguish",
@@ -1848,6 +2022,190 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Chandra, Chill of Compliance
+{
+    "name": "Chandra, Chill of Compliance",
+    "manaCost": "{1}{U}{U}",
+    "typeLine": "Legendary Planeswalker — Chandra",
+    "oracleText": "+1: Surveil 1. If you put a noncreature, nonland card into your graveyard this way, put that card into your hand.\n+1: Add {U}. Spend this mana only to cast a noncreature spell.\n−X: Tap target artifact or creature. Put X stun counters on it.\n−6: You get an emblem with \"Whenever you cast a spell, draw a card.\"",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ability_1",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 1
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeAs": "surveiled"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "surveiled",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "toGraveyard",
+                            "storeRemainder": "toTop",
+                            "selectedLabel": "Put in graveyard",
+                            "remainderLabel": "Put on top"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "toGraveyard",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "storeMovedAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "toTop",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "placement": "Top"
+                            },
+                            "order": "ControllerChooses"
+                        },
+                        "EmitSurveiledEvent",
+                        {
+                            "type": "FilterCollection",
+                            "from": "milled",
+                            "filter": {
+                                "type": "MatchesFilter",
+                                "filter": "noncreature nonland"
+                            },
+                            "storeMatching": "returned"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "returned",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            }
+                        }
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true,
+                "descriptionOverride": "Surveil 1. If you put a noncreature, nonland card into your graveyard this way, put that card into your hand."
+            },
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 1
+                },
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLUE",
+                    "restriction": {
+                        "type": "CardTypeSpellsOrAbilitiesOnly",
+                        "cardType": "CREATURE",
+                        "negated": true
+                    }
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true,
+                "descriptionOverride": "Add {U}. Spend this mana only to cast a noncreature spell."
+            },
+            {
+                "id": "ability_3",
+                "cost": "CostLoyaltyX",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "TapUntap",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target artifact or creature"
+                            }
+                        },
+                        {
+                            "type": "AddDynamicCounters",
+                            "counterType": "stun",
+                            "amount": "XValue",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "target artifact or creature"
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature|artifact"
+                        },
+                        "id": "target artifact or creature"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true,
+                "descriptionOverride": "Tap target artifact or creature. Put X stun counters on it."
+            },
+            {
+                "id": "ability_4",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -6
+                },
+                "effect": {
+                    "type": "CreateGlobalTriggeredAbility",
+                    "ability": {
+                        "id": "ability_5",
+                        "trigger": "SpellCastEvent",
+                        "binding": "ANY",
+                        "effect": {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        "descriptionOverride": "Whenever you cast a spell, draw a card."
+                    },
+                    "descriptionOverride": "Whenever you cast a spell, draw a card."
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true,
+                "descriptionOverride": "You get an emblem with \"Whenever you cast a spell, draw a card.\""
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "212",
+        "rarity": "MYTHIC",
+        "artist": "Kieran Yanner",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/4/240f58ab-944c-4f4c-9df9-5f40b132bf3e.jpg?1788329242",
+        "inBooster": false
+    },
+    "startingLoyalty": 3,
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -4716,6 +5074,162 @@
         "imageUri": "https://cards.scryfall.io/normal/front/9/3/930b89c3-4433-48de-829f-20fc3dbfced9.jpg?1789644837",
         "inBooster": false
     },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Garruk, Curse Breaker
+{
+    "name": "Garruk, Curse Breaker",
+    "manaCost": "{3}{G}{G}",
+    "typeLine": "Legendary Planeswalker — Garruk",
+    "oracleText": "Whenever a creature you control with power 4 or greater enters, draw a card.\n+2: Untap up to two target lands.\n−3: Create a 4/4 green Beast creature token with trample.\n−4: Until your next turn, whenever one or more creatures attack one of your opponents, those creatures get +2/+2 and gain trample until end of turn.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature pow>=4 ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "Whenever a creature you control with power 4 or greater enters, draw a card."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ability_2",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 2
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": "IterationSpace.Targets",
+                    "body": {
+                        "type": "TapUntap",
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
+                        "tap": false
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "count": 2,
+                        "optional": true,
+                        "filter": {
+                            "baseFilter": "land"
+                        },
+                        "id": "up to two target lands"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true,
+                "descriptionOverride": "Untap up to two target lands."
+            },
+            {
+                "id": "ability_3",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -3
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 4,
+                    "toughness": 4,
+                    "colors": [
+                        "GREEN"
+                    ],
+                    "creatureTypes": [
+                        "Beast"
+                    ],
+                    "keywords": [
+                        "TRAMPLE"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/8/5/859bda9a-fa90-4ad3-b0c1-6fc62e27c12f.jpg?1789736256"
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true,
+                "descriptionOverride": "Create a 4/4 green Beast creature token with trample."
+            },
+            {
+                "id": "ability_4",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -4
+                },
+                "effect": {
+                    "type": "CreateDelayedTrigger",
+                    "effect": {
+                        "type": "ForEach",
+                        "space": {
+                            "type": "IterationSpace.Group",
+                            "filter": {
+                                "baseFilter": {
+                                    "cardPredicates": [
+                                        "IsCreature"
+                                    ],
+                                    "statePredicates": [
+                                        "IsAttackingAnOpponent"
+                                    ]
+                                }
+                            }
+                        },
+                        "body": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "ModifyStats",
+                                    "powerModifier": {
+                                        "type": "Fixed",
+                                        "amount": 2
+                                    },
+                                    "toughnessModifier": {
+                                        "type": "Fixed",
+                                        "amount": 2
+                                    },
+                                    "target": "Self"
+                                },
+                                {
+                                    "type": "GrantKeyword",
+                                    "keyword": "TRAMPLE",
+                                    "target": "Self"
+                                }
+                            ]
+                        }
+                    },
+                    "trigger": {
+                        "event": "CreaturesAttackYourOpponentEvent",
+                        "binding": "ANY"
+                    },
+                    "expiry": "DelayedTriggerExpiry.UntilControllersNextTurn"
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true,
+                "descriptionOverride": "Until your next turn, whenever one or more creatures attack one of your opponents, those creatures get +2/+2 and gain trample until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "259",
+        "rarity": "MYTHIC",
+        "artist": "Victor Adame Minguez",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/0/90ca5812-ceb5-46bd-b049-aed7ff10e6af.jpg?1788329370",
+        "inBooster": false
+    },
+    "startingLoyalty": 5,
     "colorIdentityOverride": [
         "GREEN"
     ]

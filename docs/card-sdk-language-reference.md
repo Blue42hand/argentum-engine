@@ -6662,7 +6662,11 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   delayed ability fires whenever a matching *event* occurs, staying resident until `expiry`
   (`DelayedTriggerExpiry.EndOfTurn`) removes it. Supported events include `DealsDamageEvent`,
   `ZoneChangeEvent`, the internal `DamagePreventedEvent`, and the attack-declaration events
-  `YouAttackEvent` / `AttackEvent`. There are two ways to scope which events match:
+  `YouAttackEvent` / `AttackEvent` and the defender-side batch events `CreaturesAttackYouEvent` /
+  `CreaturesAttackYourOpponentEvent` (Garruk, Curse Breaker's −4: `trigger =
+  Triggers.CreaturesAttackYourOpponent, expiry = UntilControllersNextTurn`, paying off "those
+  creatures" with a `GroupFilter(Creature.attackingAnOpponent())` sweep). There are two ways to scope
+  which events match:
   - **Entity-scoped** — set `watchedTarget` to bind the trigger to one concrete entity (resolved at
     creation time): "when **that** creature deals combat damage / dies this turn" (Long River Lurker,
     Deflecting Palm). Only `DealsDamageEvent` (scoped on the damage source) and `ZoneChangeEvent`
@@ -6686,7 +6690,8 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
     `trigger = Triggers.entersBattlefield(GameObjectFilter.Creature.youControl(), binding = ANY)`.
     Matching delegates to the same `TriggerMatcher` the battlefield triggers use, so the filter's
     type **and** controller predicates are honored — it fires only for *your* creatures, not every
-    permanent that enters. (`YouAttackEvent` / `AttackEvent` are always filter-scoped this way.)
+    permanent that enters. (`YouAttackEvent` / `AttackEvent` / `CreaturesAttackYouEvent` /
+    `CreaturesAttackYourOpponentEvent` are always filter-scoped this way.)
   - `fireOnce = true` makes it a **one-shot**: it's consumed the first time it fires, then gone —
     "when you **next** [event] this turn". Combine with `trigger = Triggers.YouAttack` for the
     common "when you next attack this turn, …" template (All-Out Assault: untap each creature you

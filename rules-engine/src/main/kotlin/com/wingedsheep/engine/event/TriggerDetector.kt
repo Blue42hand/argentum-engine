@@ -1058,9 +1058,13 @@ class TriggerDetector(
             // Attack-declaration triggers are player-/filter-scoped, not entity-scoped, so they
             // reuse the canonical matcher rather than the watched-entity narrowing above.
             // Powers "when you next attack this turn, …" (YouAttackEvent) and the general
-            // "when a [filtered] creature next attacks" (AttackEvent).
+            // "when a [filtered] creature next attacks" (AttackEvent), and the defender-side
+            // "until your next turn, whenever one or more creatures attack one of your opponents"
+            // (Garruk, Curse Breaker) / "…attack you" batch forms.
             is com.wingedsheep.sdk.scripting.EventPattern.YouAttackEvent,
-            is com.wingedsheep.sdk.scripting.EventPattern.AttackEvent ->
+            is com.wingedsheep.sdk.scripting.EventPattern.AttackEvent,
+            is com.wingedsheep.sdk.scripting.EventPattern.CreaturesAttackYouEvent,
+            is com.wingedsheep.sdk.scripting.EventPattern.CreaturesAttackYourOpponentEvent ->
                 matcher.matchesTrigger(specEvent, spec.binding, event, sourceId, controllerId, state)
             // Spell-cast delayed triggers ("whenever you cast a [filtered] spell this turn, …",
             // Rediscover the Way chapter III) are filter-scoped: delegate to the canonical
