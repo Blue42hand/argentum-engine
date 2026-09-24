@@ -258,15 +258,28 @@ object Effects {
      * Deal damage to a target.
      * No default — every damage effect must explicitly declare its target.
      */
-    fun DealDamage(amount: Int, target: EffectTarget, damageSource: EffectTarget? = null): Effect =
-        DealDamageEffect(amount, target, damageSource = damageSource)
+    fun DealDamage(
+        amount: Int,
+        target: EffectTarget,
+        damageSource: EffectTarget? = null,
+        excessDamageVariable: String? = null
+    ): Effect =
+        DealDamageEffect(
+            DynamicAmount.Fixed(amount), target,
+            damageSource = damageSource, excessDamageVariable = excessDamageVariable
+        )
 
     /**
      * Deal dynamic damage to a target.
      * Used for effects like "deal damage equal to the number of lands you control".
      */
-    fun DealDamage(amount: DynamicAmount, target: EffectTarget, damageSource: EffectTarget? = null): Effect =
-        DealDamageEffect(amount, target, damageSource = damageSource)
+    fun DealDamage(
+        amount: DynamicAmount,
+        target: EffectTarget,
+        damageSource: EffectTarget? = null,
+        excessDamageVariable: String? = null
+    ): Effect =
+        DealDamageEffect(amount, target, damageSource = damageSource, excessDamageVariable = excessDamageVariable)
 
     /**
      * Deal damage to a creature, dealing any excess (CR 120.4a — damage beyond lethal) to that
@@ -2870,8 +2883,9 @@ object Effects {
      */
     fun Behold(
         filter: com.wingedsheep.sdk.scripting.GameObjectFilter,
-        ifBeheld: Effect? = null
-    ): Effect = com.wingedsheep.sdk.scripting.effects.BeholdEffect(filter, ifBeheld)
+        ifBeheld: Effect? = null,
+        otherwise: Effect? = null
+    ): Effect = com.wingedsheep.sdk.scripting.effects.BeholdEffect(filter, ifBeheld, otherwise)
 
     /**
      * Create Meteorite artifact tokens (Roxanne, Starfall Savant).

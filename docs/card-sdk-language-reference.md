@@ -1012,7 +1012,13 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 
 ### Damage
 
-- `DealDamage(amount, target)` — deal fixed/dynamic damage.
+- `DealDamage(amount, target, damageSource?, excessDamageVariable?)` — deal fixed/dynamic damage.
+  When `excessDamageVariable` is set, the excess damage (CR 120.4a) dealt to the single permanent
+  target — above lethal for a creature (marked damage and deathtouch aware), above loyalty for a
+  planeswalker, above defense for a battle — is stored into that pipeline number variable, read off
+  the actual `DamageDealtEvent` (so prevention is accounted for; 0 when no excess). Gate the payoff
+  with `Conditions.CompareAmounts(VariableReference(name), GT, Fixed(0))` — Violent Echoes: "If
+  excess damage was dealt to that permanent this way, empower Jace X, where X is that excess damage."
 - `DealDamageExcessToController(amount, target)` — deal damage to a creature; any amount beyond
   lethal (CR 120.4a) is dealt to that creature's controller instead (the creature is marked only with
   the lethal portion). Backed by `DealDamageEffect.excessToController`. Used by Gandalf's Sanction.
@@ -1381,11 +1387,14 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   express "if you don't, X" riders — e.g. SOI shadow lands wrap this in
   `OnEnterRunEffect(...)` with `otherwise = Effects.Tap(EffectTarget.Self)` for the
   "this land enters tapped" branch.
-- `Effects.Behold(filter, ifBeheld?)` — resolution-time **behold** (`BeholdEffect`): "you may
-  behold a `filter`. If you do, `ifBeheld`." The behold itself is optional — the controller may
+- `Effects.Behold(filter, ifBeheld?, otherwise?)` — resolution-time **behold** (`BeholdEffect`): "you may
+  behold a `filter`. If you do, `ifBeheld`. If you don't, `otherwise`." The behold itself is optional — the controller may
   choose a matching permanent they control **or** reveal a matching card from hand (revealing emits
   `CardsRevealedEvent`; battlefield permanents are merely chosen). If they decline, or control no
-  matching permanent and hold no matching card, `ifBeheld` does not run. Distinct from the cast-time
+  matching permanent and hold no matching card, `ifBeheld` does not run and `otherwise` does.
+  Theorist's Sanctum's "As this land enters, you may behold a Jace. If you don't, this land enters
+  tapped" is `OnEnterRunEffect(Effects.Behold(Any.withSubtype("Jace"), otherwise = Effects.Tap(Self)))`
+  — the reveal-land shape with behold's wider pool (CR 701.4a). Distinct from the cast-time
   `AdditionalCost.Behold` (on its own or as an `AdditionalCost.OrPay` leg — beholding as a casting
   cost). Sarkhan,
   Dragon Ascendant ETB: `Effects.Behold(GameObjectFilter.Any.withSubtype(Subtype.DRAGON),
@@ -6598,6 +6607,8 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   `CostGating.NthOfTypePerTurn` and the `nthOfTypePerTurn` flash gate read) instead of the flat
   `playerSpellsCastThisTurn` total, so it counts **casts, not resolutions**: a matching spell that was countered
   still closes the window for that turn. Without a filter it is the flat total, the Hearthborn Battler shape.
+  Like any triggered ability of a permanent card it functions only on the battlefield (CR 113.6): a card that
+  is *itself* the Nth spell cast doesn't trigger off its own cast (Hearthborn Battler, Plan for All Outcomes).
 - `WhenYouCastThisSpell()` — a "cast trigger" that fires on the spell's **own** cast while it is on
   the stack (`EventPattern.CastThisSpellEvent`, `binding = SELF`). Distinct from a battlefield
   `SpellCast`/`NthSpellCast` trigger that observes *other* spells: this one travels with the spell
