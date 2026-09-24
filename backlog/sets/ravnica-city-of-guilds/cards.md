@@ -2,7 +2,7 @@
 
 **Set Size:** 291 cards
 **Release Date:** October 7, 2005
-**Implemented:** 275 / 291
+**Implemented:** 279 / 291
 | Section    | Total | Done |
 |------------|-------|------|
 | White      | 37    | 33   |
@@ -25,8 +25,8 @@
 - [x] Blazing Archon
 - [x] Boros Fury-Shield
 - [x] Caregiver
-- [ ] Chant of Vitu-Ghazi
-- [ ] Concerted Effort
+- [x] Chant of Vitu-Ghazi
+- [x] Concerted Effort
 - [x] Conclave Equenaut
 - [x] Conclave Phalanx
 - [x] Conclave's Blessing
@@ -239,7 +239,7 @@
 - [x] Drooling Groodion
 - [x] Firemane Angel
 - [x] Flame-Kin Zealot
-- [ ] Gaze of the Gorgon
+- [x] Gaze of the Gorgon
 - [x] Glare of Subdual
 - [x] Gleancrawler
 - [x] Glimpse the Unthinkable
@@ -274,7 +274,7 @@
 - [x] Sisters of Stone Death
 - [x] Skyknight Legionnaire
 - [x] Sunhome Enforcer
-- [ ] Szadek, Lord of Secrets
+- [x] Szadek, Lord of Secrets
 - [x] Thundersong Trumpeter
 - [x] Tolsimir Wolfblood
 - [x] Twisted Justice

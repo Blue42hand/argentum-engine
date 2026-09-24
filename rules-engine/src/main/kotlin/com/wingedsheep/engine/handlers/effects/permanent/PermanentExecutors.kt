@@ -51,6 +51,7 @@ import com.wingedsheep.engine.handlers.effects.permanent.protection.ChooseColorT
 import com.wingedsheep.engine.handlers.effects.permanent.protection.GrantCantBeBlockedByChosenColorExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.protection.GrantHexproofFromChosenColorExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.protection.GrantProtectionFromChosenColorExecutor
+import com.wingedsheep.engine.handlers.effects.permanent.protection.GrantProtectionsSharedByGroupExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.protection.GrantProtectionFromChosenCardTypeExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.stats.ModifyStatsExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.stats.SwitchPowerToughnessExecutor
@@ -253,6 +254,7 @@ class PermanentExecutors(
         ChooseColorThenExecutor(decisionHandler),
         GrantHexproofFromChosenColorExecutor(),
         GrantProtectionFromChosenColorExecutor(),
+        GrantProtectionsSharedByGroupExecutor(),
         GrantProtectionFromChosenCardTypeExecutor(),
         GrantCantBeBlockedByChosenColorExecutor()
     )

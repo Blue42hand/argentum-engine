@@ -614,6 +614,9 @@ internal class AffectsFilterResolver {
         StatePredicate.PutIntoGraveyardFromBattlefieldThisTurn -> false
         StatePredicate.BlockedOrWasBlockedByLegendaryThisTurn ->
             container.has<com.wingedsheep.engine.state.components.combat.BlockedOrWasBlockedByLegendaryThisTurnComponent>()
+        // Relative to a referenced entity a static's affected-set has no way to name; no static
+        // uses it, so projection matches nothing rather than guessing.
+        is StatePredicate.BlockedOrWasBlockedByEntityThisTurn -> false
         StatePredicate.IsFaceDown -> isFaceDown
         StatePredicate.IsFaceUp -> !isFaceDown
         // "Creature with a morph ability" (Backslide) means *morph* specifically — a manifested,

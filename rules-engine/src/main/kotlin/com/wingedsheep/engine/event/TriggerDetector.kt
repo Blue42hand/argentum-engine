@@ -561,7 +561,11 @@ class TriggerDetector(
                 controllerId = delayed.controllerId,
                 triggerContext = TriggerContext(
                     step = step,
-                    triggeringEntityId = delayed.fireOnPlayerId,
+                    // A step-based trigger has no event to name a triggering entity, so the one it
+                    // was told to watch stands in — "destroy all creatures that blocked or were
+                    // blocked by *it* this turn" (Gaze of the Gorgon) reads the watched creature
+                    // through EntityReference.Triggering.
+                    triggeringEntityId = delayed.fireOnPlayerId ?: delayed.watchedEntityId,
                     triggeringPlayerId = delayed.fireOnPlayerId
                 )
             )

@@ -3276,6 +3276,17 @@ object Effects {
     ): Effect = GrantProtectionFromChosenColorEffect(target, duration)
 
     /**
+     * [target] gains every protection ability some permanent in [group] has, read at resolution
+     * — the protection clause of Concerted Effort. Fan it over the group with [ForEachInGroup]
+     * and [EffectTarget.Self]. See [GrantProtectionsSharedByGroupEffect].
+     */
+    fun GrantProtectionsSharedByGroup(
+        group: com.wingedsheep.sdk.scripting.filters.unified.GroupFilter,
+        target: EffectTarget = EffectTarget.Self,
+        duration: Duration = Duration.EndOfTurn
+    ): Effect = com.wingedsheep.sdk.scripting.effects.GrantProtectionsSharedByGroupEffect(group, target, duration)
+
+    /**
      * Grant "protection from the card type of your choice" to a target (CR 702.16). The
      * executor presents the fixed protectable card-type choice and grants a floating
      * `PROTECTION_FROM_CARDTYPE_<TYPE>` keyword. Self-contained — unlike [GrantProtectionFromChosenColor]
@@ -4620,6 +4631,27 @@ object Effects {
             scope = PreventionScope.CombatOnly,
             direction = PreventionDirection.FromTarget,
             sourceFilter = PreventionSourceFilter.FromGroup(source),
+            duration = duration
+        )
+
+    /**
+     * Prevent **all** damage — combat and noncombat — that would be dealt by sources matching
+     * [source] this turn: "prevent all damage that would be dealt by creatures this turn" (Ethereal
+     * Haze). The all-damage sibling of [PreventCombatDamageFrom]; the group is re-evaluated against
+     * projected state each time damage would be dealt, so a creature that enters later is covered.
+     *
+     * [gainLifeFromPrevented] adds "you gain life equal to the damage prevented this way" (Chant of
+     * Vitu-Ghazi): each time the shield prevents damage, its controller gains that much life.
+     */
+    fun PreventAllDamageFrom(
+        source: com.wingedsheep.sdk.scripting.filters.unified.GroupFilter,
+        gainLifeFromPrevented: Boolean = false,
+        duration: Duration = Duration.EndOfTurn
+    ): Effect =
+        PreventDamageEffect(
+            direction = PreventionDirection.FromTarget,
+            sourceFilter = PreventionSourceFilter.FromGroup(source),
+            gainLifeFromPrevented = gainLifeFromPrevented,
             duration = duration
         )
 

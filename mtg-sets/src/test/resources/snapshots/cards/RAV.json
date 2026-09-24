@@ -1778,6 +1778,45 @@
     ]
 }
 
+// Chant of Vitu-Ghazi
+{
+    "name": "Chant of Vitu-Ghazi",
+    "manaCost": "{6}{W}{W}",
+    "typeLine": "Instant",
+    "oracleText": "Convoke (Your creatures can help cast this spell. Each creature you tap while casting this spell pays for {1} or one mana of that creature's color.)\nPrevent all damage that would be dealt by creatures this turn. You gain life equal to the damage prevented this way.",
+    "keywords": [
+        "CONVOKE"
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "PreventDamageShield",
+            "direction": "FromTarget",
+            "sourceFilter": {
+                "type": "FromGroup",
+                "filter": {
+                    "baseFilter": "creature"
+                }
+            },
+            "gainLifeFromPrevented": true
+        }
+    },
+    "metadata": {
+        "collectorNumber": "7",
+        "rarity": "UNCOMMON",
+        "artist": "Stephen Tappin",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/3/23c22d01-1d14-4f73-a2db-a77f96a9a0e3.jpg?1783943705",
+        "rulings": [
+            {
+                "date": "2005-10-01",
+                "text": "The damage prevention shield lasts for the rest of the turn, and you gain life each time that shield prevents 1 or more damage."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Char
 {
     "name": "Char",
@@ -2547,6 +2586,409 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Concerted Effort
+{
+    "name": "Concerted Effort",
+    "manaCost": "{2}{W}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "At the beginning of each upkeep, creatures you control gain flying until end of turn if a creature you control has flying. The same is true for fear, first strike, double strike, landwalk, protection, trample, and vigilance.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "ability_1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP",
+                    "player": "Each"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "Exists",
+                                    "player": "You",
+                                    "zone": "Battlefield",
+                                    "filter": "creature kw:flying"
+                                }
+                            },
+                            "then": {
+                                "type": "ForEach",
+                                "space": {
+                                    "type": "IterationSpace.Group",
+                                    "filter": {
+                                        "baseFilter": "creature ctrl:you"
+                                    }
+                                },
+                                "body": {
+                                    "type": "GrantKeyword",
+                                    "keyword": "FLYING",
+                                    "target": "Self"
+                                }
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "Exists",
+                                    "player": "You",
+                                    "zone": "Battlefield",
+                                    "filter": "creature kw:fear"
+                                }
+                            },
+                            "then": {
+                                "type": "ForEach",
+                                "space": {
+                                    "type": "IterationSpace.Group",
+                                    "filter": {
+                                        "baseFilter": "creature ctrl:you"
+                                    }
+                                },
+                                "body": {
+                                    "type": "GrantKeyword",
+                                    "keyword": "FEAR",
+                                    "target": "Self"
+                                }
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "Exists",
+                                    "player": "You",
+                                    "zone": "Battlefield",
+                                    "filter": "creature kw:first_strike"
+                                }
+                            },
+                            "then": {
+                                "type": "ForEach",
+                                "space": {
+                                    "type": "IterationSpace.Group",
+                                    "filter": {
+                                        "baseFilter": "creature ctrl:you"
+                                    }
+                                },
+                                "body": {
+                                    "type": "GrantKeyword",
+                                    "keyword": "FIRST_STRIKE",
+                                    "target": "Self"
+                                }
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "Exists",
+                                    "player": "You",
+                                    "zone": "Battlefield",
+                                    "filter": "creature kw:double_strike"
+                                }
+                            },
+                            "then": {
+                                "type": "ForEach",
+                                "space": {
+                                    "type": "IterationSpace.Group",
+                                    "filter": {
+                                        "baseFilter": "creature ctrl:you"
+                                    }
+                                },
+                                "body": {
+                                    "type": "GrantKeyword",
+                                    "keyword": "DOUBLE_STRIKE",
+                                    "target": "Self"
+                                }
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "Exists",
+                                    "player": "You",
+                                    "zone": "Battlefield",
+                                    "filter": "creature kw:swampwalk"
+                                }
+                            },
+                            "then": {
+                                "type": "ForEach",
+                                "space": {
+                                    "type": "IterationSpace.Group",
+                                    "filter": {
+                                        "baseFilter": "creature ctrl:you"
+                                    }
+                                },
+                                "body": {
+                                    "type": "GrantKeyword",
+                                    "keyword": "SWAMPWALK",
+                                    "target": "Self"
+                                }
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "Exists",
+                                    "player": "You",
+                                    "zone": "Battlefield",
+                                    "filter": "creature kw:forestwalk"
+                                }
+                            },
+                            "then": {
+                                "type": "ForEach",
+                                "space": {
+                                    "type": "IterationSpace.Group",
+                                    "filter": {
+                                        "baseFilter": "creature ctrl:you"
+                                    }
+                                },
+                                "body": {
+                                    "type": "GrantKeyword",
+                                    "keyword": "FORESTWALK",
+                                    "target": "Self"
+                                }
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "Exists",
+                                    "player": "You",
+                                    "zone": "Battlefield",
+                                    "filter": "creature kw:islandwalk"
+                                }
+                            },
+                            "then": {
+                                "type": "ForEach",
+                                "space": {
+                                    "type": "IterationSpace.Group",
+                                    "filter": {
+                                        "baseFilter": "creature ctrl:you"
+                                    }
+                                },
+                                "body": {
+                                    "type": "GrantKeyword",
+                                    "keyword": "ISLANDWALK",
+                                    "target": "Self"
+                                }
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "Exists",
+                                    "player": "You",
+                                    "zone": "Battlefield",
+                                    "filter": "creature kw:mountainwalk"
+                                }
+                            },
+                            "then": {
+                                "type": "ForEach",
+                                "space": {
+                                    "type": "IterationSpace.Group",
+                                    "filter": {
+                                        "baseFilter": "creature ctrl:you"
+                                    }
+                                },
+                                "body": {
+                                    "type": "GrantKeyword",
+                                    "keyword": "MOUNTAINWALK",
+                                    "target": "Self"
+                                }
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "Exists",
+                                    "player": "You",
+                                    "zone": "Battlefield",
+                                    "filter": "creature kw:plainswalk"
+                                }
+                            },
+                            "then": {
+                                "type": "ForEach",
+                                "space": {
+                                    "type": "IterationSpace.Group",
+                                    "filter": {
+                                        "baseFilter": "creature ctrl:you"
+                                    }
+                                },
+                                "body": {
+                                    "type": "GrantKeyword",
+                                    "keyword": "PLAINSWALK",
+                                    "target": "Self"
+                                }
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "Exists",
+                                    "player": "You",
+                                    "zone": "Battlefield",
+                                    "filter": "creature kw:desertwalk"
+                                }
+                            },
+                            "then": {
+                                "type": "ForEach",
+                                "space": {
+                                    "type": "IterationSpace.Group",
+                                    "filter": {
+                                        "baseFilter": "creature ctrl:you"
+                                    }
+                                },
+                                "body": {
+                                    "type": "GrantKeyword",
+                                    "keyword": "DESERTWALK",
+                                    "target": "Self"
+                                }
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "Exists",
+                                    "player": "You",
+                                    "zone": "Battlefield",
+                                    "filter": "creature kw:nonbasic_landwalk"
+                                }
+                            },
+                            "then": {
+                                "type": "ForEach",
+                                "space": {
+                                    "type": "IterationSpace.Group",
+                                    "filter": {
+                                        "baseFilter": "creature ctrl:you"
+                                    }
+                                },
+                                "body": {
+                                    "type": "GrantKeyword",
+                                    "keyword": "NONBASIC_LANDWALK",
+                                    "target": "Self"
+                                }
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "Exists",
+                                    "player": "You",
+                                    "zone": "Battlefield",
+                                    "filter": "creature kw:trample"
+                                }
+                            },
+                            "then": {
+                                "type": "ForEach",
+                                "space": {
+                                    "type": "IterationSpace.Group",
+                                    "filter": {
+                                        "baseFilter": "creature ctrl:you"
+                                    }
+                                },
+                                "body": {
+                                    "type": "GrantKeyword",
+                                    "keyword": "TRAMPLE",
+                                    "target": "Self"
+                                }
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "Exists",
+                                    "player": "You",
+                                    "zone": "Battlefield",
+                                    "filter": "creature kw:vigilance"
+                                }
+                            },
+                            "then": {
+                                "type": "ForEach",
+                                "space": {
+                                    "type": "IterationSpace.Group",
+                                    "filter": {
+                                        "baseFilter": "creature ctrl:you"
+                                    }
+                                },
+                                "body": {
+                                    "type": "GrantKeyword",
+                                    "keyword": "VIGILANCE",
+                                    "target": "Self"
+                                }
+                            }
+                        },
+                        {
+                            "type": "ForEach",
+                            "space": {
+                                "type": "IterationSpace.Group",
+                                "filter": {
+                                    "baseFilter": "creature ctrl:you"
+                                }
+                            },
+                            "body": {
+                                "type": "GrantProtectionsSharedByGroup",
+                                "group": {
+                                    "baseFilter": "creature ctrl:you"
+                                }
+                            }
+                        }
+                    ],
+                    "descriptionOverride": "Creatures you control gain flying until end of turn if a creature you control has flying. The same is true for fear, first strike, double strike, landwalk, protection, trample, and vigilance."
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "8",
+        "rarity": "RARE",
+        "artist": "Michael Sutfin",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/a/4afa3367-eb7e-4c92-96a1-2b6865b24f52.jpg?1783943704",
+        "rulings": [
+            {
+                "date": "2006-05-01",
+                "text": "In Two-Headed Giant, triggers only once per upkeep, not once for each player."
+            },
+            {
+                "date": "2005-10-01",
+                "text": "For example, a player controls three creatures when Concerted Effort’s ability resolves: one creature with flying and protection from red, one with islandwalk and protection from green; and one with vigilance. All three creatures will have flying, islandwalk, vigilance, protection from red, and protection from green until the end of the turn."
+            },
+            {
+                "date": "2005-10-01",
+                "text": "Creatures keep all abilities granted this way until the end of the turn, even if Concerted Effort or the original creature with that ability leaves the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
@@ -5961,6 +6403,94 @@
         "imageUri": "https://cards.scryfall.io/normal/front/9/3/93311f80-0d0e-4005-ba43-5dbfe438d127.jpg?1783943638"
     },
     "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Gaze of the Gorgon
+{
+    "name": "Gaze of the Gorgon",
+    "manaCost": "{3}{B/G}",
+    "typeLine": "Instant",
+    "oracleText": "({B/G} can be paid with either {B} or {G}.)\nRegenerate target creature. At this turn's next end of combat, destroy all creatures that blocked or were blocked by it this turn.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "Regenerate",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "target creature"
+                    }
+                },
+                {
+                    "type": "CreateDelayedTrigger",
+                    "step": "END_COMBAT",
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "BattlefieldMatching",
+                                    "filter": {
+                                        "cardPredicates": [
+                                            "IsCreature"
+                                        ],
+                                        "statePredicates": [
+                                            {
+                                                "type": "BlockedOrWasBlockedByEntityThisTurn",
+                                                "reference": "Triggering"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "storeAs": "destroyAll_gathered"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "destroyAll_gathered",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                },
+                                "moveType": "Destroy"
+                            }
+                        ]
+                    },
+                    "watchedTarget": {
+                        "type": "BoundVariable",
+                        "name": "target creature"
+                    },
+                    "timing": "ThisTurnOnly"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "target creature"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "246",
+        "artist": "Stephen Tappin",
+        "flavorText": "Even the dead give way to the mineral gaze of the gorgon.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/6/16c9e772-5213-4c28-9b6c-1cfa6675ee8f.jpg?1783943604",
+        "rulings": [
+            {
+                "date": "2005-10-01",
+                "text": "At the next end of combat step in the turn, all creatures that had blocked the targeted creature at any point during the turn will be destroyed. This includes creatures that blocked it before Gaze of the Gorgon was cast. It doesn’t matter whether the targeted creature is still on the battlefield at that point."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK",
         "GREEN"
     ]
 }
@@ -14234,6 +14764,52 @@
     "colorIdentityOverride": [
         "BLACK",
         "GREEN"
+    ]
+}
+
+// Szadek, Lord of Secrets
+{
+    "name": "Szadek, Lord of Secrets",
+    "manaCost": "{3}{U}{U}{B}{B}",
+    "typeLine": "Legendary Creature — Vampire",
+    "oracleText": "Flying\nIf Szadek would deal combat damage to a player, instead put that many +1/+1 counters on Szadek and that player mills that many cards.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "replacementEffects": [
+            {
+                "type": "ReplaceDamageWithCounters",
+                "counterType": "+1/+1",
+                "appliesTo": {
+                    "type": "DamageEvent",
+                    "recipient": "AnyPlayer",
+                    "source": "SourceSelf",
+                    "damageType": "DamageCombat"
+                },
+                "damagedPlayerMills": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "234",
+        "rarity": "RARE",
+        "artist": "Donato Giancola",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/8/2882793e-5d7d-47f0-9308-652a5e036c2c.jpg?1783943610",
+        "rulings": [
+            {
+                "date": "2005-10-01",
+                "text": "If another effect would prevent Szadek's combat damage from being dealt to the defending player or replace it with something else, that player chooses which effect applies first. For example, the player can choose to first have Mending Hands prevent 4 of the damage and then apply Szadek's ability so that it gets only one counter."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK"
     ]
 }
 

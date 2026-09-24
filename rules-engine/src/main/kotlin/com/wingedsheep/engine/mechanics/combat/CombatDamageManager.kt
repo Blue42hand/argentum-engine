@@ -276,6 +276,18 @@ internal class CombatDamageManager(
         // the whole simultaneous batch and drops the assignments whose damage it prevents, so the
         // downstream steps (redirect consumption, lifelink) never see prevented damage.
         val events = mutableListOf<GameEvent>()
+
+        // Phase 2a: source-side group shields ("prevent all damage that would be dealt by creatures
+        // this turn" — Ethereal Haze, Chant of Vitu-Ghazi). Every covered assignment is dropped; a
+        // life-gaining shield credits its controller with the total it prevented across the whole
+        // simultaneous step as one gain (CR 510.2 — one combat damage event). Runs after the
+        // optional-redirect pause above, which re-derives phases 1–2 on resume, so the life is
+        // gained exactly once.
+        val groupShieldResult = applyGroupPreventionShieldsToCombatDamage(newState, finalAssignments)
+        newState = groupShieldResult.first
+        finalAssignments = groupShieldResult.second
+        events.addAll(groupShieldResult.third)
+
         val shieldResult = applyShieldCountersToCombatDamage(newState, finalAssignments)
         newState = shieldResult.first
         finalAssignments = shieldResult.second
@@ -890,6 +902,51 @@ internal class CombatDamageManager(
                 state, assignment.sourceId, assignment.targetId, amplifiedAmount, events, healProcessedTargets
             )
         }
+    }
+
+    /**
+     * Source-side group prevention shields ([SerializableModification.PreventAllDamageFromGroup]) over
+     * a whole combat damage step. Every assignment whose source a shield covers is dropped (unless
+     * damage can't be prevented for that source/recipient pair), and each life-gaining shield's
+     * controller gains the sum of what it prevented as a single gain — the step is one simultaneous
+     * damage event (CR 510.2), and the Chant of Vitu-Ghazi ruling gains life "each time that shield
+     * prevents 1 or more damage".
+     *
+     * @return the state after life gain, the surviving assignments, and the life-gain events.
+     */
+    private fun applyGroupPreventionShieldsToCombatDamage(
+        state: GameState,
+        assignments: List<CombatDamageAssignment>,
+    ): Triple<GameState, List<CombatDamageAssignment>, List<GameEvent>> {
+        if (state.floatingEffects.none { it.effect.modification is SerializableModification.PreventAllDamageFromGroup }) {
+            return Triple(state, assignments, emptyList())
+        }
+        val gainsByController = linkedMapOf<EntityId, Int>()
+        val surviving = assignments.filter { assignment ->
+            if (DamageUtils.isDamagePreventionDisabled(state, assignment.targetId, assignment.sourceId)) {
+                return@filter true
+            }
+            val (controllerId, gainsLife) = DamageUtils.groupPreventionShieldController(
+                state, assignment.sourceId, isCombatDamage = true
+            ) ?: return@filter true
+            // Credit what would actually have been dealt — after the same static amplification
+            // (Furnace of Rath and friends) the apply phase would have run — not the raw power.
+            val prevented = DamageUtils.applyStaticDamageAmplification(
+                state, assignment.targetId, assignment.amount, assignment.sourceId, isCombatDamage = true
+            )
+            if (gainsLife && prevented > 0) {
+                gainsByController[controllerId] = (gainsByController[controllerId] ?: 0) + prevented
+            }
+            false
+        }
+        var newState = state
+        val events = mutableListOf<GameEvent>()
+        for ((controllerId, amount) in gainsByController) {
+            val (gainedState, gainEvent) = DamageUtils.gainLife(newState, controllerId, amount)
+            newState = gainedState
+            gainEvent?.let { events.add(it) }
+        }
+        return Triple(newState, surviving, events)
     }
 
     /**

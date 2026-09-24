@@ -573,6 +573,7 @@ val engineSerializersModule = SerializersModule {
         subclass(AttackedThisCombatComponent::class)
         subclass(BlockedThisCombatComponent::class)
         subclass(BlockedThisTurnComponent::class)
+        subclass(com.wingedsheep.engine.state.components.combat.CombatPartnersThisTurnComponent::class)
         subclass(DamageAssignmentComponent::class)
         subclass(DamageAssignmentOrderComponent::class)
         subclass(AttackerOrderComponent::class)
