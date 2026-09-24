@@ -63,18 +63,18 @@ val KaervekThePunisher = card("Kaervek, the Punisher") {
                 )
             )
         )
-        effect = Effects.Composite(
-            Effects.Move(exiledCard, Zone.EXILE),
-            Effects.CopyCardIntoCollection(exiledCard, storeAs = "copy"),
-            Effects.May(
+        effect = Effects.Pipeline {
+            run(Effects.Move(exiledCard, Zone.EXILE))
+            val copy = copyCard(exiledCard)
+            run(Effects.May(
                 Effects.IfYouDo(
-                    action = Effects.CastFromCollection("copy", storeCastTo = "kaervekCast"),
+                    action = Effects.CastFromCollection(copy, storeCastTo = "kaervekCast"),
                     then = Effects.LoseLife(2, EffectTarget.Controller),
                     successCriterion = SuccessCriterion.CollectionNonEmpty("kaervekCast"),
                 ),
                 descriptionOverride = "You may cast the copy. If you do, you lose 2 life.",
-            ),
-        )
+            ))
+        }
     }
 
     metadata {

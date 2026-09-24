@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.big.cards
 
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -13,17 +12,9 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
-import com.wingedsheep.sdk.scripting.effects.GrantPlayWithoutPayingCostEffect
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.CardNumericProperty
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -62,37 +53,23 @@ val CollectorsCage = card("Collector's Cage") {
     // Hideaway 5 — ETB look at top 5, exile one face down linked to this artifact, bottom-randomize rest.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(
-                        count = DynamicAmount.Fixed(5),
-                        player = Player.You
-                    ),
-                    storeAs = "hideawayTop"
-                ),
-                SelectFromCollectionEffect(
-                    from = "hideawayTop",
-                    selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                    storeSelected = "hideawayPicked",
-                    storeRemainder = "hideawayRest",
-                    prompt = "Choose a card to exile face down",
-                    selectedLabel = "Exile face down",
-                    remainderLabel = "Put on bottom of library"
-                ),
-                MoveCollectionEffect(
-                    from = "hideawayPicked",
-                    destination = CardDestination.ToZone(Zone.EXILE),
-                    faceDown = FaceDownMode.HIDDEN,
-                    linkToSource = true
-                ),
-                MoveCollectionEffect(
-                    from = "hideawayRest",
-                    destination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom),
-                    order = CardOrder.Random
+        effect = Effects.Pipeline {
+            val hideawayTop = gather(
+                CardSource.TopOfLibrary(
+                    count = DynamicAmount.Fixed(5),
+                    player = Player.You
                 )
             )
-        )
+            val (hideawayPicked, hideawayRest) = chooseExactlySplit(
+                1,
+                from = hideawayTop,
+                prompt = "Choose a card to exile face down",
+                selectedLabel = "Exile face down",
+                remainderLabel = "Put on bottom of library"
+            )
+            exile(hideawayPicked, faceDown = FaceDownMode.HIDDEN, linkToSource = true)
+            toLibraryBottom(hideawayRest, order = CardOrder.Random)
+        }
     }
 
     // {1}, {T}: +1/+1 on target creature you control; then, if you control 3+ creatures with
@@ -111,16 +88,11 @@ val CollectorsCage = card("Collector's Cage") {
                         DynamicAmount.Fixed(3)
                     ),
                     then = Effects.May(
-                        Effects.Composite(
-                            listOf(
-                                GatherCardsEffect(
-                                    source = CardSource.FromLinkedExile(),
-                                    storeAs = "hideawayLinked"
-                                ),
-                                GrantMayPlayFromExileEffect("hideawayLinked"),
-                                GrantPlayWithoutPayingCostEffect("hideawayLinked")
-                            )
-                        ),
+                        Effects.Pipeline {
+                            val hideawayLinked = gather(CardSource.FromLinkedExile())
+                            run(Effects.GrantMayPlayFromExile(hideawayLinked))
+                            run(Effects.GrantPlayWithoutPayingCost(hideawayLinked))
+                        },
                         descriptionOverride = "Play the exiled card without paying its mana cost"
                     )
                 )

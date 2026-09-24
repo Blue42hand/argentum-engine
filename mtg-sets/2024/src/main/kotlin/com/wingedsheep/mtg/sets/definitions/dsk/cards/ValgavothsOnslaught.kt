@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.RepeatDynamicTimesEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -46,23 +45,18 @@ val ValgavothsOnslaught = card("Valgavoth's Onslaught") {
         "up any time for its mana cost if it's a creature card.)"
 
     spell {
-        effect = Effects.Composite(
-            listOf(
-                RepeatDynamicTimesEffect(
-                    amount = DynamicAmount.XValue,
-                    body = Patterns.Library.manifestDread(markEntered = true)
-                ),
-                GatherCardsEffect(
-                    source = CardSource.EnteredViaThisResolution,
-                    storeAs = "valgavothManifested"
-                ),
-                Effects.AddCountersToCollection(
-                    collectionName = "valgavothManifested",
-                    counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                    amount = DynamicAmount.XValue
-                )
-            )
-        )
+        effect = Effects.Pipeline {
+            run(RepeatDynamicTimesEffect(
+                amount = DynamicAmount.XValue,
+                body = Patterns.Library.manifestDread(markEntered = true)
+            ))
+            val valgavothManifested = gather(CardSource.EnteredViaThisResolution)
+            run(Effects.AddCountersToCollection(
+                collection = valgavothManifested,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
+                amount = DynamicAmount.XValue
+            ))
+        }
     }
 
     metadata {

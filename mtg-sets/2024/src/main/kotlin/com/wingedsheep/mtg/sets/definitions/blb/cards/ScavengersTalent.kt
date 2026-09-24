@@ -9,17 +9,10 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AddCountersToCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Scavenger's Talent {B}
@@ -79,29 +72,22 @@ val ScavengersTalent = card("Scavenger's Talent") {
                     count = 3,
                     excludeSource = true
                 ),
-                then = Effects.Composite(
-                    listOf(
-                        GatherCardsEffect(
-                            source = CardSource.FromZone(
-                                Zone.GRAVEYARD,
-                                Player.You,
-                                GameObjectFilter.Creature
-                            ),
-                            storeAs = "eligible"
-                        ),
-                        SelectFromCollectionEffect(
-                            from = "eligible",
-                            selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                            storeSelected = "chosen",
-                            prompt = "Choose a creature card to return to the battlefield"
-                        ),
-                        MoveCollectionEffect(
-                            from = "chosen",
-                            destination = CardDestination.ToZone(Zone.BATTLEFIELD)
-                        ),
-                        AddCountersToCollectionEffect("chosen", CounterType.FINALITY, 1)
+                then = Effects.Pipeline {
+                    val eligible = gather(
+                        CardSource.FromZone(
+                            Zone.GRAVEYARD,
+                            Player.You,
+                            GameObjectFilter.Creature
+                        )
                     )
-                )
+                    val chosen = chooseExactly(
+                        1,
+                        from = eligible,
+                        prompt = "Choose a creature card to return to the battlefield"
+                    )
+                    move(chosen, CardDestination.ToZone(Zone.BATTLEFIELD))
+                    run(Effects.AddCountersToCollection(chosen, CounterType.FINALITY, 1))
+                }
             )
         }
     }

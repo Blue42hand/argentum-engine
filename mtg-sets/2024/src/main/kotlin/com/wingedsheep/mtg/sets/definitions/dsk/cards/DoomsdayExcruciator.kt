@@ -7,13 +7,9 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.LookAudience
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -63,21 +59,16 @@ val DoomsdayExcruciator = card("Doomsday Excruciator") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         interveningIf = Conditions.WasCast
-        effect = ForEachPlayerEffect(
+        effect = Effects.ForEachPlayer(
             players = Player.Each,
-            effects = listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(allButBottomSix),
-                    storeAs = "doomsdayExiled",
+            Effects.Pipeline {
+                val doomsdayExiled = gather(
+                    CardSource.TopOfLibrary(allButBottomSix),
                     revealed = false,
                     lookAudience = LookAudience.None
-                ),
-                MoveCollectionEffect(
-                    from = "doomsdayExiled",
-                    destination = CardDestination.ToZone(Zone.EXILE),
-                    faceDown = FaceDownMode.HIDDEN
                 )
-            )
+                exile(doomsdayExiled, faceDown = FaceDownMode.HIDDEN)
+            }
         )
         description = "When this creature enters, if it was cast, each player exiles all but the " +
             "bottom six cards of their library face down."

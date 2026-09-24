@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -52,22 +50,21 @@ val StepBetweenWorlds = card("Step Between Worlds") {
             effects = listOf(
                 Effects.May(
                     decisionMaker = EffectTarget.Controller,
-                    effect = Effects.Composite(
-                        GatherCardsEffect(
-                            source = CardSource.FromMultipleZones(
+                    effect = Effects.Pipeline {
+                        val stepBetweenWorldsShuffle = gather(
+                            CardSource.FromMultipleZones(
                                 zones = listOf(Zone.HAND, Zone.GRAVEYARD),
                                 player = Player.You
-                            ),
-                            storeAs = "stepBetweenWorldsShuffle"
-                        ),
-                        MoveCollectionEffect(
-                            from = "stepBetweenWorldsShuffle",
-                            destination = CardDestination.ToZone(
+                            )
+                        )
+                        move(
+                            stepBetweenWorldsShuffle,
+                            CardDestination.ToZone(
                                 Zone.LIBRARY, Player.You, ZonePlacement.Shuffled
                             )
-                        ),
-                        Effects.DrawCards(7)
-                    )
+                        )
+                        run(Effects.DrawCards(7))
+                    }
                 )
             )
         )

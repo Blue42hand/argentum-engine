@@ -10,12 +10,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CastFromCollectionWithoutPayingCostEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.references.Player
@@ -65,37 +59,24 @@ val TheKeyToTheVault = card("The Key to the Vault") {
             binding = TriggerBinding.ATTACHED
         )
         val damageDealt = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT)
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(count = damageDealt, player = Player.You),
-                    storeAs = "keyLooked",
-                    revealed = false
-                ),
-                SelectFromCollectionEffect(
-                    from = "keyLooked",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                    filter = GameObjectFilter.Nonland,
-                    showAllCards = true,
-                    storeSelected = "keyChosen",
-                    storeRemainder = "keyToBottom",
-                    prompt = "You may exile a nonland card to cast for free.",
-                    selectedLabel = "Exile",
-                    remainderLabel = "Put on the bottom of your library"
-                ),
-                MoveCollectionEffect(
-                    from = "keyChosen",
-                    destination = CardDestination.ToZone(Zone.EXILE, Player.You),
-                    storeMovedAs = "keyExiled"
-                ),
-                MoveCollectionEffect(
-                    from = "keyToBottom",
-                    destination = CardDestination.ToZone(Zone.LIBRARY, Player.You, ZonePlacement.Bottom),
-                    order = CardOrder.Random
-                ),
-                CastFromCollectionWithoutPayingCostEffect(from = "keyExiled")
+        effect = Effects.Pipeline {
+            val keyLooked = gather(
+                CardSource.TopOfLibrary(count = damageDealt, player = Player.You),
+                revealed = false
             )
-        )
+            val (keyChosen, keyToBottom) = chooseUpToSplit(
+                1,
+                from = keyLooked,
+                filter = GameObjectFilter.Nonland,
+                showAllCards = true,
+                prompt = "You may exile a nonland card to cast for free.",
+                selectedLabel = "Exile",
+                remainderLabel = "Put on the bottom of your library"
+            )
+            val keyExiled = moveTracked(keyChosen, CardDestination.ToZone(Zone.EXILE, Player.You))
+            toLibraryBottom(keyToBottom, order = CardOrder.Random)
+            run(Effects.CastFromCollectionWithoutPayingCost(from = keyExiled))
+        }
     }
 
     equipAbility("{2}{U}")

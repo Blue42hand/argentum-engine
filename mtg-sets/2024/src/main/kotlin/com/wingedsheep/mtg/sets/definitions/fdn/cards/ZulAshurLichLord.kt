@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -57,18 +55,13 @@ val ZulAshurLichLord = card("Zul Ashur, Lich Lord") {
                 )
             )
         )
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.ChosenTargets,
-                    storeAs = "zulAshurTarget",
-                ),
-                GrantMayPlayFromExileEffect(
-                    from = "zulAshurTarget",
-                    expiry = MayPlayExpiry.EndOfTurn,
-                ),
-            )
-        )
+        effect = Effects.Pipeline {
+            val zulAshurTarget = gather(CardSource.ChosenTargets)
+            run(Effects.GrantMayPlayFromExile(
+                from = zulAshurTarget,
+                expiry = MayPlayExpiry.EndOfTurn,
+            ))
+        }
     }
 
     metadata {

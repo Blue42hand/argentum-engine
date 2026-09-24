@@ -1,18 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -45,19 +40,11 @@ val OutlawsFury = card("Outlaws' Fury") {
                 // If you control an outlaw, exile the top card and let it be played until your next turn ends.
                 Effects.If(
                     Conditions.YouControl(Filters.OutlawCreature),
-                    Effects.Composite(
-                        listOf(
-                            GatherCardsEffect(
-                                source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1)),
-                                storeAs = "exiledCard",
-                            ),
-                            MoveCollectionEffect(
-                                from = "exiledCard",
-                                destination = CardDestination.ToZone(Zone.EXILE),
-                            ),
-                            GrantMayPlayFromExileEffect("exiledCard", MayPlayExpiry.UntilEndOfNextTurn),
-                        )
-                    ),
+                    Effects.Pipeline {
+                        val exiledCard = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+                        exile(exiledCard)
+                        run(Effects.GrantMayPlayFromExile(exiledCard, MayPlayExpiry.UntilEndOfNextTurn))
+                    },
                 ),
             )
         )

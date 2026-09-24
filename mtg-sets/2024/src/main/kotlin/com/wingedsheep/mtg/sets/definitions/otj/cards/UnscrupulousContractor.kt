@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -45,13 +44,10 @@ val UnscrupulousContractor = card("Unscrupulous Contractor") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = ReflexiveTriggerEffect(
-            action = Effects.Composite(listOf(
-                SelectTargetEffect(
-                    requirement = TargetObject(filter = TargetFilter.CreatureYouControl),
-                    storeAs = "creatureToSacrifice"
-                ),
-                Effects.SacrificeTarget(EffectTarget.PipelineTarget("creatureToSacrifice"))
-            )),
+            action = Effects.Pipeline {
+                val creatureToSacrifice = selectTarget(TargetObject(filter = TargetFilter.CreatureYouControl))
+                run(Effects.SacrificeTarget(creatureToSacrifice.asTarget))
+            },
             optional = true,
             reflexiveEffect = Effects.Composite(listOf(
                 Effects.DrawCards(2, EffectTarget.ContextTarget(0)),

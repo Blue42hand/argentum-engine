@@ -9,10 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
@@ -58,26 +54,21 @@ val KellanTheKid = card("Kellan, the Kid") {
             requires = setOf(SpellCastPredicate.CastFromZoneOtherThan(Zone.HAND)),
         )
         effect = Effects.IfYouDo(
-            action = Effects.Composite(
-                GatherCardsEffect(
-                    CardSource.FromZone(Zone.HAND, filter = GameObjectFilter.Permanent),
-                    storeAs = "kellanCandidates",
-                ),
-                FilterCollectionEffect(
-                    from = "kellanCandidates",
-                    filter = GameObjectFilter.Any.manaValueAtMostDynamic(
+            action = Effects.Pipeline {
+                val kellanCandidates = gather(CardSource.FromZone(Zone.HAND, filter = GameObjectFilter.Permanent))
+                val kellanEligible = filter(
+                    kellanCandidates,
+                    GameObjectFilter.Any.manaValueAtMostDynamic(
                         DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGERING_SPELL_MANA_VALUE),
-                    ),
-                    storeMatching = "kellanEligible",
-                ),
-                SelectFromCollectionEffect(
-                    from = "kellanEligible",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                    storeSelected = "kellanChosen",
-                    selectedLabel = "Cast without paying its mana cost",
-                ),
-                Effects.CastFromCollectionWithoutPayingCost("kellanChosen", storeCastTo = "kellanCast"),
-            ),
+                    )
+                )
+                val kellanChosen = chooseUpTo(
+                    1,
+                    from = kellanEligible,
+                    selectedLabel = "Cast without paying its mana cost"
+                )
+                run(Effects.CastFromCollectionWithoutPayingCost(kellanChosen, storeCastTo = "kellanCast"))
+            },
             then = Effects.Composite(emptyList()),
             otherwise = Patterns.Hand.putFromHand(GameObjectFilter.Land),
             successCriterion = SuccessCriterion.CollectionNonEmpty("kellanCast"),

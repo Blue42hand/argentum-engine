@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -12,12 +11,7 @@ import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -73,34 +67,22 @@ val GreenhouseRicketyGazebo = card("Greenhouse // Rickety Gazebo") {
 
         triggeredAbility {
             trigger = Triggers.OnDoorUnlocked
-            effect = Effects.Composite(
-                listOf(
-                    // Mill four: gather the top four, move them to the graveyard.
-                    GatherCardsEffect(
-                        source = CardSource.TopOfLibrary(DynamicAmount.Fixed(4)),
-                        storeAs = "milled"
-                    ),
-                    MoveCollectionEffect(
-                        from = "milled",
-                        destination = CardDestination.ToZone(Zone.GRAVEYARD)
-                    ),
-                    // Return up to two permanent cards from among the milled cards to your hand.
-                    SelectFromCollectionEffect(
-                        from = "milled",
-                        selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(2)),
-                        filter = GameObjectFilter.Permanent,
-                        storeSelected = "selected",
-                        showAllCards = true,
-                        prompt = "Return up to two permanent cards to your hand",
-                        selectedLabel = "Return to hand",
-                        remainderLabel = "Leave in graveyard"
-                    ),
-                    MoveCollectionEffect(
-                        from = "selected",
-                        destination = CardDestination.ToZone(Zone.HAND)
-                    )
+            effect = Effects.Pipeline {
+                // Mill four: gather the top four, move them to the graveyard.
+                val milled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(4)))
+                toGraveyard(milled)
+                // Return up to two permanent cards from among the milled cards to your hand.
+                val selected = chooseUpTo(
+                    2,
+                    from = milled,
+                    filter = GameObjectFilter.Permanent,
+                    showAllCards = true,
+                    prompt = "Return up to two permanent cards to your hand",
+                    selectedLabel = "Return to hand",
+                    remainderLabel = "Leave in graveyard"
                 )
-            )
+                toHand(selected)
+            }
             description = "When you unlock this door, mill four cards, then return up to two " +
                 "permanent cards from among them to your hand."
         }

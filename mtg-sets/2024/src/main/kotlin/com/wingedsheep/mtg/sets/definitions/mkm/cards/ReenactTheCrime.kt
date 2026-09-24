@@ -37,14 +37,14 @@ val ReenactTheCrime = card("Reenact the Crime") {
                 )
             )
         )
-        effect = Effects.Composite(
-            Effects.Move(reenacted, Zone.EXILE, fromZone = Zone.GRAVEYARD),
-            Effects.CopyCardIntoCollection(reenacted, storeAs = "copy"),
-            Effects.May(
-                Effects.CastFromCollectionWithoutPayingCost("copy"),
+        effect = Effects.Pipeline {
+            run(Effects.Move(reenacted, Zone.EXILE, fromZone = Zone.GRAVEYARD))
+            val copy = copyCard(reenacted)
+            run(Effects.May(
+                Effects.CastFromCollectionWithoutPayingCost(copy),
                 descriptionOverride = "You may cast the copy without paying its mana cost."
-            )
-        )
+            ))
+        }
     }
 
     metadata {

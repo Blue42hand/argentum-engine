@@ -1,17 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -51,30 +48,21 @@ val CausticBronco = card("Caustic Bronco") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.You),
-                    storeAs = "revealed"
+        effect = Effects.Pipeline {
+            val revealed = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1), Player.You))
+            toHand(revealed, revealed = true)
+            run(Effects.If(
+                condition = Conditions.SourceIsSaddled,
+                then = LoseLifeEffect(
+                    DynamicAmounts.manaValueOf(revealed),
+                    EffectTarget.PlayerRef(Player.EachOpponent)
                 ),
-                MoveCollectionEffect(
-                    from = "revealed",
-                    destination = CardDestination.ToZone(Zone.HAND, Player.You),
-                    revealed = true
-                ),
-                Effects.If(
-                    condition = Conditions.SourceIsSaddled,
-                    then = LoseLifeEffect(
-                        DynamicAmount.StoredCardManaValue("revealed"),
-                        EffectTarget.PlayerRef(Player.EachOpponent)
-                    ),
-                    otherwise = LoseLifeEffect(
-                        DynamicAmount.StoredCardManaValue("revealed"),
-                        EffectTarget.Controller
-                    )
+                otherwise = LoseLifeEffect(
+                    DynamicAmounts.manaValueOf(revealed),
+                    EffectTarget.Controller
                 )
-            )
-        )
+            ))
+        }
     }
 
     metadata {

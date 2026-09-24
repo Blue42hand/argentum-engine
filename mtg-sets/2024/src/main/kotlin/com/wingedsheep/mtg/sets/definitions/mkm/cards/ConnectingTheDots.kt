@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -8,11 +7,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -55,20 +51,10 @@ val ConnectingTheDots = card("Connecting the Dots") {
             filter = GameObjectFilter.Creature.youControl(),
             binding = TriggerBinding.ANY
         )
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(count = DynamicAmount.Fixed(1), player = Player.You),
-                    storeAs = "clue"
-                ),
-                MoveCollectionEffect(
-                    from = "clue",
-                    destination = CardDestination.ToZone(Zone.EXILE),
-                    faceDown = FaceDownMode.HIDDEN,
-                    linkToSource = true
-                )
-            )
-        )
+        effect = Effects.Pipeline {
+            val clue = gather(CardSource.TopOfLibrary(count = DynamicAmount.Fixed(1), player = Player.You))
+            exile(clue, faceDown = FaceDownMode.HIDDEN, linkToSource = true)
+        }
         description = "Whenever a creature you control attacks, exile the top card of your " +
             "library face down."
     }

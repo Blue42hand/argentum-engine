@@ -11,16 +11,11 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.AddCountersToCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -66,29 +61,22 @@ val KastralTheWindcrested = card("Kastral, the Windcrested") {
             // Mode 1: Put a Bird creature card from your hand or graveyard onto the battlefield
             // with a finality counter on it (optional — "you may")
             Mode.noTarget(
-                Effects.Composite(
-                    listOf(
-                        GatherCardsEffect(
-                            source = CardSource.FromMultipleZones(
-                                zones = listOf(Zone.HAND, Zone.GRAVEYARD),
-                                player = Player.You,
-                                filter = GameObjectFilter.Creature.withSubtype("Bird")
-                            ),
-                            storeAs = "birds"
-                        ),
-                        SelectFromCollectionEffect(
-                            from = "birds",
-                            selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                            storeSelected = "chosen",
-                            prompt = "Choose a Bird creature card to put onto the battlefield"
-                        ),
-                        MoveCollectionEffect(
-                            from = "chosen",
-                            destination = CardDestination.ToZone(Zone.BATTLEFIELD)
-                        ),
-                        AddCountersToCollectionEffect("chosen", CounterType.FINALITY, 1)
+                Effects.Pipeline {
+                    val birds = gather(
+                        CardSource.FromMultipleZones(
+                            zones = listOf(Zone.HAND, Zone.GRAVEYARD),
+                            player = Player.You,
+                            filter = GameObjectFilter.Creature.withSubtype("Bird")
+                        )
                     )
-                ),
+                    val chosen = chooseUpTo(
+                        1,
+                        from = birds,
+                        prompt = "Choose a Bird creature card to put onto the battlefield"
+                    )
+                    move(chosen, CardDestination.ToZone(Zone.BATTLEFIELD))
+                    run(Effects.AddCountersToCollection(chosen, CounterType.FINALITY, 1))
+                },
                 "Put a Bird creature card from your hand or graveyard onto the battlefield with a finality counter on it"
             ),
             // Mode 2: Put a +1/+1 counter on each Bird you control

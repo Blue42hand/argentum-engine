@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
@@ -70,19 +68,14 @@ val TinybonesThePickpocket = card("Tinybones, the Pickpocket") {
                 )
             )
         )
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.ChosenTargets,
-                    storeAs = "stolenCard",
-                ),
-                GrantMayPlayFromExileEffect(
-                    from = "stolenCard",
-                    expiry = MayPlayExpiry.EndOfTurn,
-                    withAnyManaType = true,
-                ),
-            )
-        )
+        effect = Effects.Pipeline {
+            val stolenCard = gather(CardSource.ChosenTargets)
+            run(Effects.GrantMayPlayFromExile(
+                from = stolenCard,
+                expiry = MayPlayExpiry.EndOfTurn,
+                withAnyManaType = true,
+            ))
+        }
     }
 
     metadata {

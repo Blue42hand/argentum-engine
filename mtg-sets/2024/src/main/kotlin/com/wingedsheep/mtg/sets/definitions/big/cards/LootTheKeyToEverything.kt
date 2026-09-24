@@ -1,18 +1,13 @@
 package com.wingedsheep.mtg.sets.definitions.big.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.Aggregation
@@ -49,24 +44,20 @@ val LootTheKeyToEverything = card("Loot, the Key to Everything") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = Effects.Composite(listOf(
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(
+        effect = Effects.Pipeline {
+            val exiledCards = gather(
+                CardSource.TopOfLibrary(
                     DynamicAmount.AggregateBattlefield(
                         player = Player.You,
                         filter = GameObjectFilter.NonlandPermanent,
                         aggregation = Aggregation.DISTINCT_TYPES,
                         excludeSelf = true
                     )
-                ),
-                storeAs = "exiledCards"
-            ),
-            MoveCollectionEffect(
-                from = "exiledCards",
-                destination = CardDestination.ToZone(Zone.EXILE)
-            ),
-            GrantMayPlayFromExileEffect("exiledCards", MayPlayExpiry.EndOfTurn)
-        ))
+                )
+            )
+            exile(exiledCards)
+            run(Effects.GrantMayPlayFromExile(exiledCards, MayPlayExpiry.EndOfTurn))
+        }
     }
 
     metadata {

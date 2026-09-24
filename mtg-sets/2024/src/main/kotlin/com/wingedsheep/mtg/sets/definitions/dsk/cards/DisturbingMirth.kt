@@ -6,9 +6,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -43,17 +41,14 @@ val DisturbingMirth = card("Disturbing Mirth") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = ReflexiveTriggerEffect(
-            action = Effects.Composite(
-                listOf(
-                    SelectTargetEffect(
-                        requirement = TargetObject(
-                            filter = TargetFilter.CreatureOrEnchantment.youControl().other()
-                        ),
-                        storeAs = "permanentToSacrifice"
-                    ),
-                    Effects.SacrificeTarget(EffectTarget.PipelineTarget("permanentToSacrifice"))
+            action = Effects.Pipeline {
+                val permanentToSacrifice = selectTarget(
+                    TargetObject(
+                        filter = TargetFilter.CreatureOrEnchantment.youControl().other()
+                    )
                 )
-            ),
+                run(Effects.SacrificeTarget(permanentToSacrifice.asTarget))
+            },
             optional = true,
             reflexiveEffect = Effects.DrawCards(2),
             descriptionOverride = "You may sacrifice another enchantment or creature. If you do, draw two cards."

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.CardLayout
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -58,20 +57,15 @@ val MolderingGymWeightRoom = card("Moldering Gym // Weight Room") {
 
         triggeredAbility {
             trigger = Triggers.OnDoorUnlocked
-            effect = Effects.Composite(
-                listOf(
-                    Patterns.Library.manifestDread(markEntered = true),
-                    GatherCardsEffect(
-                        source = CardSource.EnteredViaThisResolution,
-                        storeAs = "weightRoomManifested"
-                    ),
-                    Effects.AddCountersToCollection(
-                        collectionName = "weightRoomManifested",
-                        counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                        amount = DynamicAmount.Fixed(3)
-                    )
-                )
-            )
+            effect = Effects.Pipeline {
+                run(Patterns.Library.manifestDread(markEntered = true))
+                val weightRoomManifested = gather(CardSource.EnteredViaThisResolution)
+                run(Effects.AddCountersToCollection(
+                    collection = weightRoomManifested,
+                    counterType = CounterType.PLUS_ONE_PLUS_ONE,
+                    amount = DynamicAmount.Fixed(3)
+                ))
+            }
         }
     }
 

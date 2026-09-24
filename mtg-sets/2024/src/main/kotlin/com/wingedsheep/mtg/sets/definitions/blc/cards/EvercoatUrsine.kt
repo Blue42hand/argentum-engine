@@ -11,8 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
-import com.wingedsheep.sdk.scripting.effects.GrantPlayWithoutPayingCostEffect
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -70,16 +68,11 @@ val EvercoatUrsine = card("Evercoat Ursine") {
 
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.FromLinkedExile(),
-                    storeAs = "hideawayLinked"
-                ),
-                GrantMayPlayFromExileEffect("hideawayLinked"),
-                GrantPlayWithoutPayingCostEffect("hideawayLinked")
-            )
-        )
+        effect = Effects.Pipeline {
+            val hideawayLinked = gather(CardSource.FromLinkedExile())
+            run(Effects.GrantMayPlayFromExile(hideawayLinked))
+            run(Effects.GrantPlayWithoutPayingCost(hideawayLinked))
+        }
     }
 
     metadata {

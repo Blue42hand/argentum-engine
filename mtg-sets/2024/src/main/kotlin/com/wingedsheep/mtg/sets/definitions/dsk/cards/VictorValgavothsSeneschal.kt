@@ -13,13 +13,8 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Victor, Valgavoth's Seneschal — Duskmourn: House of Horror #238
@@ -107,22 +102,17 @@ private fun eerieEscalation(): Effect = Effects.Composite(
     // 3rd time — put a creature card from a graveyard onto the battlefield under your control.
     Effects.If(
         condition = Conditions.SourceAbilityResolvedNTimes(3),
-        then = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.FromZone(Zone.GRAVEYARD, Player.Each, GameObjectFilter.Creature),
-                storeAs = "victorReanimatable",
-            ),
-            SelectFromCollectionEffect(
-                from = "victorReanimatable",
-                selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                storeSelected = "victorReanimated",
+        then = Effects.Pipeline {
+            val victorReanimatable = gather(
+                CardSource.FromZone(Zone.GRAVEYARD, Player.Each, GameObjectFilter.Creature)
+            )
+            val victorReanimated = chooseExactly(
+                1,
+                from = victorReanimatable,
                 showAllCards = true,
-                prompt = "Put a creature card from a graveyard onto the battlefield under your control",
-            ),
-            MoveCollectionEffect(
-                from = "victorReanimated",
-                destination = CardDestination.ToZone(Zone.BATTLEFIELD),
-            ),
-        ),
+                prompt = "Put a creature card from a graveyard onto the battlefield under your control"
+            )
+            move(victorReanimated, CardDestination.ToZone(Zone.BATTLEFIELD))
+        },
     ),
 )

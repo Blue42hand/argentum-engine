@@ -15,9 +15,7 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.LookAudience
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
 import com.wingedsheep.sdk.scripting.effects.TurnFaceUpEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
@@ -129,21 +127,16 @@ val EtrataDeadlyFugitive = card("Etrata, Deadly Fugitive") {
             sourceFilter = GameObjectFilter.Creature.withSubtype(Subtype.ASSASSIN).youControl(),
             binding = TriggerBinding.ANY,
         )
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(
+        effect = Effects.Pipeline {
+            val etrataCloaked = gather(
+                CardSource.TopOfLibrary(
                     count = DynamicAmount.Fixed(1),
                     player = Player.TriggeringPlayer,
                 ),
-                storeAs = "etrataCloaked",
-                lookAudience = LookAudience.None,
-            ),
-            MoveCollectionEffect(
-                from = "etrataCloaked",
-                destination = CardDestination.ToZone(Zone.BATTLEFIELD),
-                faceDown = FaceDownMode.CLOAK,
-            ),
-        )
+                lookAudience = LookAudience.None
+            )
+            move(etrataCloaked, CardDestination.ToZone(Zone.BATTLEFIELD), faceDown = FaceDownMode.CLOAK)
+        }
         description = "Whenever an Assassin you control deals combat damage to an opponent, " +
             "cloak the top card of that player's library."
     }

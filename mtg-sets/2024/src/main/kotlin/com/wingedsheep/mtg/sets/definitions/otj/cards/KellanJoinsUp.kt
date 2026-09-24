@@ -9,17 +9,10 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MakePlottedEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Kellan Joins Up
@@ -47,21 +40,17 @@ val KellanJoinsUp = card("Kellan Joins Up") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.FromZone(Zone.HAND, Player.You),
-                storeAs = "kju_hand"
-            ),
-            SelectFromCollectionEffect(
-                from = "kju_hand",
-                selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
+        effect = Effects.Pipeline {
+            val kjuHand = gather(CardSource.FromZone(Zone.HAND, Player.You))
+            val kjuToPlot = chooseUpTo(
+                1,
+                from = kjuHand,
                 filter = GameObjectFilter.Nonland.manaValueAtMost(3),
-                storeSelected = "kju_toPlot",
                 selectedLabel = "Exile and plot"
-            ),
-            MoveCollectionEffect(from = "kju_toPlot", destination = CardDestination.ToZone(Zone.EXILE)),
-            MakePlottedEffect(from = "kju_toPlot")
-        )
+            )
+            exile(kjuToPlot)
+            run(Effects.MakePlotted(from = kjuToPlot))
+        }
     }
 
     triggeredAbility {

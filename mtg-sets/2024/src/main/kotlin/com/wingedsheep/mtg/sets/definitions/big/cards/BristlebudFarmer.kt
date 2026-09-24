@@ -1,18 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.big.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -63,34 +57,22 @@ val BristlebudFarmer = card("Bristlebud Farmer") {
                 count = 1,
                 target = EffectTarget.Controller
             ).then(
-                Effects.Composite(
-                    listOf(
-                        // Mill three cards.
-                        GatherCardsEffect(
-                            source = CardSource.TopOfLibrary(DynamicAmount.Fixed(3)),
-                            storeAs = "milled"
-                        ),
-                        MoveCollectionEffect(
-                            from = "milled",
-                            destination = CardDestination.ToZone(Zone.GRAVEYARD)
-                        ),
-                        // You may put a permanent card from among them into your hand.
-                        SelectFromCollectionEffect(
-                            from = "milled",
-                            selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                            filter = GameObjectFilter.Permanent,
-                            storeSelected = "toHand",
-                            showAllCards = true,
-                            prompt = "You may put a permanent card into your hand",
-                            selectedLabel = "Put in hand",
-                            remainderLabel = "Leave in graveyard"
-                        ),
-                        MoveCollectionEffect(
-                            from = "toHand",
-                            destination = CardDestination.ToZone(Zone.HAND)
-                        )
+                Effects.Pipeline {
+                    // Mill three cards.
+                    val milled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(3)))
+                    toGraveyard(milled)
+                    // You may put a permanent card from among them into your hand.
+                    val toHandCards = chooseUpTo(
+                        1,
+                        from = milled,
+                        filter = GameObjectFilter.Permanent,
+                        showAllCards = true,
+                        prompt = "You may put a permanent card into your hand",
+                        selectedLabel = "Put in hand",
+                        remainderLabel = "Leave in graveyard"
                     )
-                )
+                    toHand(toHandCards)
+                }
             )
         )
         description = "You may sacrifice a Food. If you do, mill three cards. You may put a " +

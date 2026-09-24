@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.AfterResolveDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -55,15 +54,15 @@ val WishingWell = card("Wishing Well") {
                     )
                 )
             ),
-            reflexiveEffect = Effects.Composite(
-                GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "wishedSpell"),
-                Effects.May(
+            reflexiveEffect = Effects.Pipeline {
+                val wishedSpell = gather(CardSource.ChosenTargets)
+                run(Effects.May(
                     Effects.CastFromCollectionWithoutPayingCost(
-                        from = "wishedSpell",
+                        from = wishedSpell,
                         insteadOfGraveyard = AfterResolveDestination.EXILE
                     )
-                )
-            ),
+                ))
+            },
             descriptionOverride = "Put a coin counter on this artifact. When you do, you may cast " +
                 "target instant or sorcery card with mana value equal to the number of coin counters " +
                 "on this artifact from your graveyard without paying its mana cost. If that spell " +

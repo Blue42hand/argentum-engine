@@ -2,7 +2,6 @@ package com.wingedsheep.mtg.sets.definitions.otj.cards
 
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -11,12 +10,8 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -69,26 +64,20 @@ val RakdosTheMuscle = card("Rakdos, the Muscle") {
     triggeredAbility {
         trigger = Triggers.YouSacrificeOneOrMore(GameObjectFilter.Creature)
         val targetPlayer = target("target player", Targets.Player)
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(
-                        count = rakdosManaValueX,
-                        player = Player.ContextPlayer(0),
-                    ),
-                    storeAs = "rakdosExiled",
-                ),
-                MoveCollectionEffect(
-                    from = "rakdosExiled",
-                    destination = CardDestination.ToZone(Zone.EXILE, Player.ContextPlayer(0)),
-                ),
-                GrantMayPlayFromExileEffect(
-                    from = "rakdosExiled",
-                    expiry = MayPlayExpiry.UntilNextEndStep,
-                    withAnyManaType = true,
-                ),
+        effect = Effects.Pipeline {
+            val rakdosExiled = gather(
+                CardSource.TopOfLibrary(
+                    count = rakdosManaValueX,
+                    player = Player.ContextPlayer(0),
+                )
             )
-        )
+            exile(rakdosExiled, Player.ContextPlayer(0))
+            run(Effects.GrantMayPlayFromExile(
+                from = rakdosExiled,
+                expiry = MayPlayExpiry.UntilNextEndStep,
+                withAnyManaType = true,
+            ))
+        }
         description = "Whenever you sacrifice another creature, exile cards equal to its mana value " +
             "from the top of target player's library. Until your next end step, you may play those " +
             "cards, and mana of any type can be spent to cast those spells."

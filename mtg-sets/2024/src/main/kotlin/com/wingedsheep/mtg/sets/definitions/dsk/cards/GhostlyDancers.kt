@@ -11,15 +11,9 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -61,28 +55,23 @@ val GhostlyDancers = card("Ghostly Dancers") {
         trigger = Triggers.EntersBattlefield
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
-                Effects.Composite(
-                    GatherCardsEffect(
-                        source = CardSource.FromZone(
+                Effects.Pipeline {
+                    val ghostlyDancersReturnable = gather(
+                        CardSource.FromZone(
                             Zone.GRAVEYARD,
                             Player.You,
                             GameObjectFilter.Enchantment,
-                        ),
-                        storeAs = "ghostlyDancersReturnable",
-                    ),
-                    SelectFromCollectionEffect(
-                        from = "ghostlyDancersReturnable",
-                        selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                        storeSelected = "ghostlyDancersToReturn",
+                        )
+                    )
+                    val ghostlyDancersToReturn = chooseExactly(
+                        1,
+                        from = ghostlyDancersReturnable,
                         showAllCards = true,
                         prompt = "Return an enchantment card from your graveyard to your hand",
-                        selectedLabel = "Return to hand",
-                    ),
-                    MoveCollectionEffect(
-                        from = "ghostlyDancersToReturn",
-                        destination = CardDestination.ToZone(Zone.HAND),
-                    ),
-                ),
+                        selectedLabel = "Return to hand"
+                    )
+                    toHand(ghostlyDancersToReturn)
+                },
                 "Return an enchantment card from your graveyard to your hand",
             ),
             Mode.withTarget(

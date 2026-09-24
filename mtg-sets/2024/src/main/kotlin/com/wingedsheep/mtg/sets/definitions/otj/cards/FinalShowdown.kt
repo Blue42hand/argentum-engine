@@ -7,15 +7,9 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.ForEachEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.IterationSpace
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Final Showdown {W}
@@ -61,27 +55,23 @@ val FinalShowdown = card("Final Showdown") {
                     additionalManaCost = "{1}"
                 ),
                 Mode(
-                    effect = Effects.Composite(
-                        listOf(
-                            GatherCardsEffect(
-                                source = CardSource.ControlledPermanents(
-                                    filter = GameObjectFilter.Creature
-                                ),
-                                storeAs = "chooseIndestructible"
-                            ),
-                            SelectFromCollectionEffect(
-                                from = "chooseIndestructible",
-                                selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                                storeSelected = "indestructibleChosen",
-                                useTargetingUI = true,
-                                prompt = "Choose a creature you control to gain indestructible"
-                            ),
-                            ForEachEffect(
-                                space = IterationSpace.Collection("indestructibleChosen"),
-                                body = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)
+                    effect = Effects.Pipeline {
+                        val chooseIndestructible = gather(
+                            CardSource.ControlledPermanents(
+                                filter = GameObjectFilter.Creature
                             )
                         )
-                    ),
+                        val indestructibleChosen = chooseExactly(
+                            1,
+                            from = chooseIndestructible,
+                            useTargetingUI = true,
+                            prompt = "Choose a creature you control to gain indestructible"
+                        )
+                        run(Effects.ForEachInCollection(
+                            indestructibleChosen,
+                            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)
+                        ))
+                    },
                     description = "+ {1} — Choose a creature you control. It gains indestructible until end of turn.",
                     additionalManaCost = "{1}"
                 ),
