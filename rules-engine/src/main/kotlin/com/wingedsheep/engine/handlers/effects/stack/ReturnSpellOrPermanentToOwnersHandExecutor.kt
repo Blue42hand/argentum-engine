@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.stack
 
+import com.wingedsheep.engine.handlers.TargetFinder
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.ZoneChangeEvent
 import com.wingedsheep.engine.handlers.EffectContext
@@ -33,7 +34,8 @@ import kotlin.reflect.KClass
  */
 class ReturnSpellOrPermanentToOwnersHandExecutor(
     private val zones: ZoneTransitionService,
-    private val cardRegistry: CardRegistry
+    private val cardRegistry: CardRegistry,
+    private val targetFinder: TargetFinder
 ) : EffectExecutor<ReturnSpellOrPermanentToOwnersHandEffect> {
 
     override val effectType: KClass<ReturnSpellOrPermanentToOwnersHandEffect> =
@@ -48,7 +50,8 @@ class ReturnSpellOrPermanentToOwnersHandExecutor(
         cardRegistry,
         effectExecutor = { _, _, _ ->
             error("ReturnSpellOrPermanentToOwnersHandExecutor bounces to hand; nothing enters the battlefield")
-        }
+        },
+        targetFinder = targetFinder
     )
 
     override fun execute(

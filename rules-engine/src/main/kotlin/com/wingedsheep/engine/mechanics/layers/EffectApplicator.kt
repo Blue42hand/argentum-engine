@@ -5,35 +5,32 @@ import com.wingedsheep.engine.state.components.battlefield.chosenColor
 import com.wingedsheep.engine.state.components.battlefield.chosenCreatureType
 import com.wingedsheep.engine.handlers.ConditionEvaluationContext
 import com.wingedsheep.engine.handlers.ConditionEvaluator
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
-import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.effects.linkedexile.LinkedExileLookup
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ProtectionComponent
-import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.model.EntityId
-import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 
 /**
  * Applies continuous effects and counters to mutable projected values.
  */
 internal class EffectApplicator(
-    private val dynamicAmountEvaluator: DynamicAmountEvaluator
+    /**
+     * Source conditions are evaluated while the projection is still being built, so this is
+     * [StateProjector]'s non-reentrant evaluator: reaching for the canonical lazy
+     * GameState.projectedState here would re-enter the projector's initializer and recurse until
+     * the stack overflows (e.g. a Layer-7 conditional P/T static ability whose source condition
+     * counts creatures via a battlefield aggregate). Its empty default projection falls back to
+     * base CardComponent values, exactly as CDA resolution does.
+     */
+    private val conditionEvaluator: ConditionEvaluator
 ) {
-
-    // Source conditions are evaluated while the projection is still being built. Hand the
-    // ConditionEvaluator a non-reentrant projection (mirroring StateProjector's own evaluator):
-    // reaching for the canonical lazy GameState.projectedState here would re-enter our own
-    // initializer and recurse until the stack overflows (e.g. a Layer-7 conditional P/T static
-    // ability whose source condition counts creatures via a battlefield aggregate). The empty
-    // projection falls back to base CardComponent values, exactly as CDA resolution does.
-    private val conditionEvaluator = ConditionEvaluator(defaultProjection = { ProjectedState(it, emptyMap()) })
+    private val dynamicAmountEvaluator = conditionEvaluator.amounts
 
     fun applyEffect(
         effect: ContinuousEffect,

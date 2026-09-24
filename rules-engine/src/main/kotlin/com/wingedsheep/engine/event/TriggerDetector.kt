@@ -74,12 +74,11 @@ import com.wingedsheep.sdk.dsl.decayed
 class TriggerDetector(
     private val cardRegistry: CardRegistry,
     private val abilityRegistry: AbilityRegistry = AbilityRegistry(),
-    private val conditionEvaluator: ConditionEvaluator = ConditionEvaluator(),
-    private val predicateEvaluator: PredicateEvaluator = PredicateEvaluator()
+    private val predicateEvaluator: PredicateEvaluator,
+    private val conditionEvaluator: ConditionEvaluator
 ) {
-
     private val matcher = TriggerMatcher(predicateEvaluator, conditionEvaluator)
-    private val abilityResolver = TriggerAbilityResolver(cardRegistry, abilityRegistry)
+    private val abilityResolver = TriggerAbilityResolver(cardRegistry, abilityRegistry, predicateEvaluator = predicateEvaluator)
     private val deathAndLeaveDetector = DeathAndLeaveTriggerDetector(abilityResolver, matcher)
     private val damageDetector = DamageTriggerDetector(abilityResolver, matcher)
     private val attachmentDetector = AttachmentTriggerDetector(abilityResolver, matcher)
@@ -104,7 +103,7 @@ class TriggerDetector(
         // needs — the grant providers it already collected, plus the ward grants, ward suppressors
         // and attachments-by-target that each of the N calls used to re-scan for individually
         // (see BattlefieldStaticsIndex).
-        val statics = BattlefieldStaticsIndex.build(state, cardRegistry)
+        val statics = BattlefieldStaticsIndex.build(state, cardRegistry, predicateEvaluator = predicateEvaluator)
         val grantProviders = statics.triggerGrantProviders
 
         // Phase 2: Index each battlefield entity by trigger categories

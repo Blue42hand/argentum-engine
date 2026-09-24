@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.view.ClientStateTransformer
 import com.wingedsheep.engine.support.GameTestDriver
@@ -94,7 +95,7 @@ class PoliticalTriumphScenarioTest : FunSpec({
         d.settle()
         d.planCounters(triumph) shouldBe 1
 
-        val view = ClientStateTransformer(d.cardRegistry).transform(d.state, d.player1)
+        val view = ClientStateTransformer(d.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null)).transform(d.state, d.player1)
         val badge = view.cards.getValue(triumph)
             .activeEffects.first { effect -> effect.effectId == "condition_compare" }
         badge.name shouldBe "1/4"

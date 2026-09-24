@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActionProcessor
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.handlers.EffectContext
@@ -71,7 +72,7 @@ class LinkedExileCastPermissionProjectionTest : FunSpec({
     )
 
     fun GameTestDriver.shownCastable(viewer: EntityId, card: EntityId): Boolean =
-        ClientStateTransformer(cardRegistry).transform(state, viewer).cards[card]?.playableFromExile == true
+        ClientStateTransformer(cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null)).transform(state, viewer).cards[card]?.playableFromExile == true
 
     test("Rona's controller is offered the exiled card, may cast it, and sees it as castable") {
         val d = driver()

@@ -5,7 +5,6 @@ import com.wingedsheep.engine.handlers.DecisionHandler
 import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
-import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.TargetFinder
 import com.wingedsheep.engine.handlers.effects.BattlefieldFilterUtils
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
@@ -60,12 +59,11 @@ class ReflexiveTriggerEffectExecutor(
     private val targetFinder: TargetFinder,
     private val decisionHandler: DecisionHandler,
     private val cardRegistry: CardRegistry,
-    private val amountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator()
+    private val amountEvaluator: DynamicAmountEvaluator
 ) : EffectExecutor<ReflexiveTriggerEffect> {
+    private val predicateEvaluator = amountEvaluator.predicates
 
     override val effectType: KClass<ReflexiveTriggerEffect> = ReflexiveTriggerEffect::class
-
-    private val predicateEvaluator = PredicateEvaluator()
 
     override fun execute(
         state: GameState,
@@ -173,11 +171,12 @@ class ReflexiveTriggerEffectExecutor(
             // SacrificeExecutor.findValidPermanents). Fewer than `count` → can't pay → infeasible.
             val excludeId = if (action.excludeSource) context.sourceId else null
             BattlefieldFilterUtils.findMatchingOnBattlefield(
-                state, action.filter.youControl(), context, excludeSelfId = excludeId
+                state, action.filter.youControl(), context, excludeSelfId = excludeId,
+                predicateEvaluator = predicateEvaluator
             ).size >= action.count
         }
         is ChooseActionEffect -> action.choices.any { choice ->
-            checkFeasibility(state, context.controllerId, choice.feasibilityCheck)
+            checkFeasibility(state, context.controllerId, choice.feasibilityCheck, predicateEvaluator = predicateEvaluator)
         }
         is SelectFromCollectionEffect -> {
             val available = gathered?.get(action.from)
@@ -222,7 +221,8 @@ class ReflexiveTriggerEffectExecutor(
         // prompt and then fail on every answer.
         is com.wingedsheep.sdk.scripting.effects.PayManaCostRepeatedlyEffect ->
             PayManaCostRepeatedlyExecutor.affordableRepetitions(
-                state, context.controllerId, action.cost, action.maxTimes, cardRegistry
+                state, context.controllerId, action.cost, action.maxTimes, cardRegistry,
+                predicateEvaluator = predicateEvaluator
             ) >= 1
         // "You may collect evidence 3" (Sample Collector) — CR 701.59b is explicit that a player
         // unable to exile cards totalling N *can't choose to collect evidence*, so the option must
@@ -232,7 +232,7 @@ class ReflexiveTriggerEffectExecutor(
             val playerId = com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
                 .resolvePlayerRef(action.player, context, state)
             playerId != null && com.wingedsheep.engine.handlers.costs.CollectEvidenceResolver
-                .canCollect(state, playerId, action.amount)
+                .canCollect(state, playerId, action.amount, predicateEvaluator = predicateEvaluator)
         }
         // "You may collect evidence X" (Incinerator of the Guilty) — always feasible, unlike its
         // fixed-N sibling above. The player picks X themself and X = 0 is a legal collection that

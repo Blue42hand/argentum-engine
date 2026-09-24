@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.player
 
+import com.wingedsheep.engine.mechanics.cost.CostPaymentService
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.handlers.DecisionHandler
 import com.wingedsheep.engine.handlers.EffectContext
@@ -21,21 +22,27 @@ class PlayerExecutors(
     private val effectExecutor: (GameState, Effect, EffectContext) -> EffectResult,
     private val zones: ZoneTransitionService,
     private val decisionHandler: DecisionHandler = DecisionHandler(),
-    private val cardRegistry: CardRegistry
+    private val cardRegistry: CardRegistry,
+    private val costPaymentService: () -> CostPaymentService
 ) : ExecutorModule {
-    private val payOrSufferExecutor = PayOrSufferExecutor(zones, cardRegistry = cardRegistry, executeEffect = effectExecutor)
+    private val payOrSufferExecutor = PayOrSufferExecutor(
+        zones,
+        cardRegistry = cardRegistry,
+        executeEffect = effectExecutor,
+        costPaymentService = costPaymentService
+    )
 
     private val openLifeBidExecutor = OpenLifeBidExecutor(executeEffect = effectExecutor)
 
     override fun executors(): List<EffectExecutor<*>> = listOf(
-        AmassExecutor(effectExecutor),
+        AmassExecutor(effectExecutor, amountEvaluator = zones.predicateEvaluator.amounts),
         CollectEvidenceExecutor(zones, decisionHandler),
-        CollectEvidenceChosenAmountExecutor(),
-        AddAdditionalUpkeepStepsExecutor(),
-        AddAdditionalEndStepsExecutor(),
+        CollectEvidenceChosenAmountExecutor(predicateEvaluator = zones.predicateEvaluator),
+        AddAdditionalUpkeepStepsExecutor(amountEvaluator = zones.predicateEvaluator.amounts),
+        AddAdditionalEndStepsExecutor(amountEvaluator = zones.predicateEvaluator.amounts),
         AddCombatPhaseExecutor(),
         AddMainPhaseExecutor(),
-        AnyPlayerMayPayExecutor(executeEffect = effectExecutor),
+        AnyPlayerMayPayExecutor(executeEffect = effectExecutor, predicateEvaluator = zones.predicateEvaluator),
         CantActivateLoyaltyAbilitiesExecutor(),
         CantCastSpellsExecutor(),
         CantSearchLibrariesExecutor(),
@@ -49,9 +56,9 @@ class PlayerExecutors(
         EachPlayerChoosesCreatureTypeExecutor(),
         EndTheTurnExecutor(),
         GainCitysBlessingExecutor(),
-        ChangeSpeedExecutor(),
+        ChangeSpeedExecutor(amountEvaluator = zones.predicateEvaluator.amounts),
         RemoveMaximumHandSizeExecutor(),
-        ReduceMaximumHandSizeExecutor(),
+        ReduceMaximumHandSizeExecutor(amountEvaluator = zones.predicateEvaluator.amounts),
         GiftGivenExecutor(),
         ForagedExecutor(),
         GrantCastCreaturesFromGraveyardWithForageExecutor(),
@@ -65,8 +72,8 @@ class PlayerExecutors(
         ControlCombatDeclarationsExecutor(),
         LockLifeGainExecutor(),
         openLifeBidExecutor,
-        LoseGameExecutor(),
-        WinGameExecutor(),
+        LoseGameExecutor(predicateEvaluator = zones.predicateEvaluator),
+        WinGameExecutor(predicateEvaluator = zones.predicateEvaluator),
         payOrSufferExecutor,
         PlayAdditionalLandsExecutor(),
         PreventLandPlaysThisTurnExecutor(),
@@ -75,8 +82,8 @@ class PlayerExecutors(
         SkipCombatPhasesExecutor(),
         SkipNextDrawStepExecutor(),
         SkipStepOrPhaseThisTurnExecutor(),
-        PayAnyAmountOfLifeAsEntersExecutor(),
-        SkipNextTurnExecutor(),
+        PayAnyAmountOfLifeAsEntersExecutor(amountEvaluator = zones.predicateEvaluator.amounts),
+        SkipNextTurnExecutor(amountEvaluator = zones.predicateEvaluator.amounts),
         SkipUntapExecutor(),
         TakeExtraTurnExecutor(),
         TheRingTemptsYouExecutor()

@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.legalactions.enumerators
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.state.components.battlefield.chosenCreatureType
 
 import com.wingedsheep.engine.core.ActivateAbility
@@ -45,7 +46,9 @@ import com.wingedsheep.sdk.scripting.values.ManaColorSet
  * This handles Tap, TapAttachedCreature, TapPermanents, Sacrifice,
  * SacrificeChosenCreatureType, and Composite mana ability costs.
  */
-class ManaAbilityEnumerator : ActionEnumerator {
+class ManaAbilityEnumerator(
+    private val predicateEvaluator: PredicateEvaluator
+) : ActionEnumerator {
 
     override fun enumerate(context: EnumerationContext): List<LegalAction> {
         val result = mutableListOf<LegalAction>()
@@ -525,6 +528,7 @@ class ManaAbilityEnumerator : ActionEnumerator {
             sourceId = sourceId,
             controllerId = playerId,
             cardRegistry = context.cardRegistry,
+            predicateEvaluator = predicateEvaluator
         ).toList()
     }
 

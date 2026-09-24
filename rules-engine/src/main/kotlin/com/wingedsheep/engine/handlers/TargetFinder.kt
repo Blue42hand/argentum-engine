@@ -42,9 +42,8 @@ enum class TargetingSourceType {
  * and returns a list of valid target EntityIds.
  */
 class TargetFinder(
+    private val predicateEvaluator: PredicateEvaluator
 ) {
-    private val predicateEvaluator = PredicateEvaluator()
-
     /**
      * Build the per-candidate [PredicateContext] for filter evaluation, folding in any
      * pipeline-derived fields (storedCollections, chosenValues, xValue, …) carried by
@@ -144,7 +143,7 @@ class TargetFinder(
             state.hasEntity(playerId) &&
                 (ignoreTargetingRestrictions ||
                     (!playerHasShroud(state, playerId) && !playerHasHexproofAgainst(state, playerId, controllerId))) &&
-                PlayerTargetRestriction.isSatisfied(state, requirement.restriction, playerId, controllerId, sourceId)
+                PlayerTargetRestriction.isSatisfied(state, requirement.restriction, playerId, controllerId, sourceId, predicateEvaluator = predicateEvaluator)
         }
     }
 
@@ -157,7 +156,7 @@ class TargetFinder(
     ): List<EntityId> {
         return state.turnOrder.filter { it != controllerId && state.hasEntity(it) &&
             (ignoreTargetingRestrictions || (!playerHasShroud(state, it) && !playerHasHexproof(state, it))) &&
-            PlayerTargetRestriction.isSatisfied(state, requirement.restriction, it, controllerId, sourceId) }
+            PlayerTargetRestriction.isSatisfied(state, requirement.restriction, it, controllerId, sourceId, predicateEvaluator = predicateEvaluator) }
     }
 
     /**
@@ -187,7 +186,7 @@ class TargetFinder(
         // For ABILITY source type, always blocked. For ANY (unknown), conservatively block since
         // we don't know the source type. Read through ControllerGrants so a gated form of the
         // ability switches off with its condition instead of sticking on.
-        return ControllerGrants.isActiveOn<CantBeTargetedByOpponentAbilitiesComponent>(state, entityId)
+        return ControllerGrants.isActiveOn<CantBeTargetedByOpponentAbilitiesComponent>(state, entityId, predicateEvaluator = predicateEvaluator)
     }
 
     private fun findOpponentOrPlaneswalkerTargets(
@@ -602,7 +601,7 @@ class TargetFinder(
      * or Gilded Light's "You gain shroud until end of turn").
      */
     private fun playerHasShroud(state: GameState, playerId: EntityId): Boolean =
-        ControllerShroud.appliesTo(state, playerId)
+        ControllerShroud.appliesTo(state, playerId, predicateEvaluator = predicateEvaluator)
 
     /**
      * Check if a player has hexproof (from a permanent like Shalai, Voice of Plenty).
@@ -610,7 +609,7 @@ class TargetFinder(
      * target themselves.
      */
     private fun playerHasHexproof(state: GameState, playerId: EntityId): Boolean =
-        ControllerHexproof.appliesTo(state, playerId)
+        ControllerHexproof.appliesTo(state, playerId, predicateEvaluator = predicateEvaluator)
 
     /**
      * Check if a player has hexproof against a specific controller.

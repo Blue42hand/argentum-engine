@@ -27,7 +27,7 @@ import kotlin.reflect.KClass
  * If one target becomes illegal, the counters that would have gone on it are lost.
  */
 class DistributeCountersAmongTargetsExecutor(
-    private val amountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator()
+    private val amountEvaluator: DynamicAmountEvaluator
 ) : EffectExecutor<DistributeCountersAmongTargetsEffect> {
 
     override val effectType: KClass<DistributeCountersAmongTargetsEffect> = DistributeCountersAmongTargetsEffect::class
@@ -65,7 +65,8 @@ class DistributeCountersAmongTargetsExecutor(
             if (countersForTarget <= 0) continue
 
             val modifiedCount = ReplacementEffectUtils.applyCounterPlacementModifiers(
-                currentState, targetId, counterType, countersForTarget, placerId = context.controllerId
+                currentState, targetId, counterType, countersForTarget, placerId = context.controllerId,
+                predicateEvaluator = amountEvaluator.predicates
             )
 
             val current = currentState.getEntity(targetId)?.get<CountersComponent>() ?: CountersComponent()

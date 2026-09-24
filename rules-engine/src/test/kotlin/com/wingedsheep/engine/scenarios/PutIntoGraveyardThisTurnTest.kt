@@ -42,7 +42,7 @@ class PutIntoGraveyardThisTurnTest : FunSpec({
     }
 
     fun GameTestDriver.matchesAnyOrigin(entityId: EntityId): Boolean =
-        PredicateEvaluator().matchesStatePredicate(
+        PredicateEvaluator(cardRegistry = null).matchesStatePredicate(
             state = state,
             entityId = entityId,
             predicate = StatePredicate.PutIntoGraveyardThisTurn,
@@ -50,7 +50,7 @@ class PutIntoGraveyardThisTurnTest : FunSpec({
         )
 
     fun GameTestDriver.matchesFromBattlefield(entityId: EntityId): Boolean =
-        PredicateEvaluator().matchesStatePredicate(
+        PredicateEvaluator(cardRegistry = null).matchesStatePredicate(
             state = state,
             entityId = entityId,
             predicate = StatePredicate.PutIntoGraveyardFromBattlefieldThisTurn,

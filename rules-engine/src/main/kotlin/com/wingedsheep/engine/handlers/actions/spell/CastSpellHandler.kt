@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.handlers.actions.spell
+import com.wingedsheep.engine.handlers.TargetFinder
 import com.wingedsheep.engine.handlers.TargetingSourceType
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.sdk.dsl.Patterns
@@ -46,10 +47,8 @@ import com.wingedsheep.engine.event.PendingTrigger
 import com.wingedsheep.engine.event.TriggerContext
 import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.CostHandler
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
-import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.actions.ActionHandler
 import com.wingedsheep.engine.handlers.effects.DamageUtils
 import com.wingedsheep.engine.handlers.effects.bend.BendEvents
@@ -161,11 +160,11 @@ class CastSpellHandler(
     private val conditionEvaluator: ConditionEvaluator,
     private val manaAbilitySideEffectExecutor: com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor,
     private val legality: LegalityKernel,
-    private val targetFinder: com.wingedsheep.engine.handlers.TargetFinder = com.wingedsheep.engine.handlers.TargetFinder(),
+    private val targetFinder: TargetFinder
 ) : ActionHandler<CastSpell> {
     override val actionType: KClass<CastSpell> = CastSpell::class
+    private val predicateEvaluator = conditionEvaluator.predicates
 
-    private val predicateEvaluator = PredicateEvaluator()
     private val zoneResolver = CastZoneResolver(cardRegistry, conditionEvaluator, legality)
     private val castPermissionUtils = com.wingedsheep.engine.legalactions.utils.CastPermissionUtils(
         cardRegistry, predicateEvaluator, conditionEvaluator
@@ -277,7 +276,7 @@ class CastSpellHandler(
         // payment was announced while the source was on the battlefield (CR 601.2b), so sacrificing
         // that source to another cost of this same spell doesn't take the counters back.
         val additionalEntryCounters = if (action.additionalManaForCounters > 0) {
-            AdditionalManaForCounters.applicableGrant(announcedState, action.playerId, action.cardId, cardRegistry)
+            AdditionalManaForCounters.applicableGrant(announcedState, action.playerId, action.cardId, cardRegistry, predicateEvaluator = predicateEvaluator)
                 ?.let { AdditionalEntryCounters(it.counterType, action.additionalManaForCounters) }
         } else null
 
@@ -1054,7 +1053,7 @@ class CastSpellHandler(
             return xValue ?: unboundedFallback
         }
         return try {
-            DynamicAmountEvaluator().evaluate(
+            conditionEvaluator.amounts.evaluate(
                 state,
                 dyn,
                 EffectContext(sourceId = cardId, controllerId = casterId, xValue = xValue)

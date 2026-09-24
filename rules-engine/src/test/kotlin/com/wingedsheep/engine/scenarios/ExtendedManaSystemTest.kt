@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.PaymentStrategy
 import com.wingedsheep.engine.mechanics.mana.CostCalculator
@@ -139,7 +140,7 @@ class ExtendedManaSystemTest : FunSpec({
             val registry = CardRegistry()
             registry.register(TestCards.all)
 
-            val calculator = CostCalculator(registry)
+            val calculator = CostCalculator(registry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             val ghalta = registry.requireCard("Ghalta, Primal Hunger")
 
             // Ghalta costs {10}{G}{G} = 12 total, 10 generic
@@ -178,7 +179,7 @@ class ExtendedManaSystemTest : FunSpec({
             val registry = CardRegistry()
             registry.register(TestCards.all)
 
-            val calculator = CostCalculator(registry)
+            val calculator = CostCalculator(registry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             val frogmite = registry.requireCard("Frogmite")
 
             // Frogmite costs {4} with Affinity for artifacts
@@ -214,7 +215,7 @@ class ExtendedManaSystemTest : FunSpec({
             val registry = CardRegistry()
             registry.register(TestCards.all)
 
-            val calculator = CostCalculator(registry)
+            val calculator = CostCalculator(registry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             val ghalta = registry.requireCard("Ghalta, Primal Hunger")
 
             val driver = createDriver()

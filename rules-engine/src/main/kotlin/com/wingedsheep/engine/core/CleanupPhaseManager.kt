@@ -92,7 +92,6 @@ import com.wingedsheep.engine.state.components.player.SpellsCantBeCounteredCompo
 import com.wingedsheep.engine.state.components.player.PlayerTurnHijackedComponent
 import com.wingedsheep.engine.state.components.player.SkippedTurnPartsComponent
 import com.wingedsheep.engine.handlers.ConditionEvaluator
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
@@ -116,13 +115,13 @@ import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
  */
 class CleanupPhaseManager(
     private val cardRegistry: CardRegistry,
-    private val decisionHandler: DecisionHandler
+    private val decisionHandler: DecisionHandler,
+    private val conditionEvaluator: ConditionEvaluator
 ) {
 
     // Stateless evaluators (default projection) used to read SetMaximumHandSize abilities and
     // their ConditionalStaticAbility gates at cleanup time (delegated to [MaximumHandSize]).
-    private val conditionEvaluator = ConditionEvaluator()
-    private val dynamicAmountEvaluator = DynamicAmountEvaluator(conditionEvaluator)
+    private val dynamicAmountEvaluator = conditionEvaluator.amounts
 
     /**
      * Perform cleanup step actions.

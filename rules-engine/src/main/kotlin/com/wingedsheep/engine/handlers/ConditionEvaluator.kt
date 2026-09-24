@@ -216,10 +216,13 @@ internal fun compareAmounts(left: Int, operator: ComparisonOperator, right: Int)
  * initializer and recurses until the stack overflows.
  */
 class ConditionEvaluator(
+    /** The predicate evaluator this one is built over — see [PredicateEvaluator.conditions]. */
+    val predicates: PredicateEvaluator,
     defaultProjection: (GameState) -> ProjectedState = { it.projectedState }
 ) {
 
-    private val dynamicAmountEvaluator = DynamicAmountEvaluator(this, defaultProjection)
+    /** The dynamic-amount evaluator over this condition evaluator. */
+    val amounts = DynamicAmountEvaluator(this, defaultProjection)
 
     /**
      * Evaluate a condition at resolution time, when a full [EffectContext] is available.
@@ -250,8 +253,8 @@ class ConditionEvaluator(
         val ctx = Resolution(context)
         return when (condition) {
             is Compare -> CountProgress(
-                current = dynamicAmountEvaluator.evaluate(state, condition.left, context),
-                required = dynamicAmountEvaluator.evaluate(state, condition.right, context),
+                current = amounts.evaluate(state, condition.left, context),
+                required = amounts.evaluate(state, condition.right, context),
                 operator = condition.operator
             )
 
@@ -872,8 +875,8 @@ class ConditionEvaluator(
             is Resolution -> ctx.effectContext
             is Projection -> syntheticEffectContext(state, ctx) ?: return false
         }
-        val left = dynamicAmountEvaluator.evaluate(state, condition.left, effectCtx)
-        val right = dynamicAmountEvaluator.evaluate(state, condition.right, effectCtx)
+        val left = amounts.evaluate(state, condition.left, effectCtx)
+        val right = amounts.evaluate(state, condition.right, effectCtx)
         return compareAmounts(left, condition.operator, right)
     }
 
@@ -892,7 +895,7 @@ class ConditionEvaluator(
             is Resolution -> ctx.effectContext
             is Projection -> syntheticEffectContext(state, ctx) ?: return false
         }
-        val value = dynamicAmountEvaluator.evaluate(state, condition.amount, effectCtx)
+        val value = amounts.evaluate(state, condition.amount, effectCtx)
         return when (val property = condition.property) {
             NumberProperty.Prime -> isPrime(value)
             NumberProperty.Even -> value % 2 == 0
@@ -955,7 +958,7 @@ class ConditionEvaluator(
                     // watching "that Equipment"). Match against projected state so state predicates
                     // (attachment) and the controller predicate ("a creature you control") resolve;
                     // "you" is the ability's controller carried in the effect context.
-                    PredicateEvaluator().matches(
+                    predicates.matches(
                         state,
                         state.projectedState,
                         triggeringId,
@@ -971,7 +974,7 @@ class ConditionEvaluator(
                     // (e.g. IsAttacking, which reads the battlefield-exit snapshot) resolve there,
                     // whereas the static-card-characteristics path below can't see them at all and
                     // would vacuously match. Garna, Bloodfist of Keld's "if it was attacking".
-                    PredicateEvaluator().matches(
+                    predicates.matches(
                         state,
                         state.projectedState,
                         triggeringId,
@@ -998,7 +1001,7 @@ class ConditionEvaluator(
                 val projected = ctx.projectedStateFor(state)
                 val cardId = com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
                     .resolveLibraryTop(entity.player, it, state, projected)
-                cardId != null && PredicateEvaluator().matches(
+                cardId != null && predicates.matches(
                     state, projected, cardId, condition.filter, PredicateContext.fromEffectContext(it)
                 )
             } ?: false
@@ -1050,7 +1053,7 @@ class ConditionEvaluator(
             is Projection -> ctx.controllerId?.let { PredicateContext(controllerId = it, sourceId = sourceId) }
                 ?: PredicateContext(controllerId = sourceId, sourceId = sourceId)
         }
-        return PredicateEvaluator().matches(
+        return predicates.matches(
             state, ctx.projectedStateFor(state), exiledId, filter, predicateContext
         )
     }
@@ -1069,9 +1072,8 @@ class ConditionEvaluator(
         context: EffectContext
     ): Boolean {
         val cardId = context.discardedAsCostCards.getOrNull(index) ?: return false
-        val predicateEvaluator = PredicateEvaluator()
         val predicateContext = PredicateContext.fromEffectContext(context)
-        return predicateEvaluator.matches(state, state.projectedState, cardId, filter, predicateContext)
+        return predicates.matches(state, state.projectedState, cardId, filter, predicateContext)
     }
 
     private fun evaluateSourceFilterMatch(
@@ -1086,7 +1088,7 @@ class ConditionEvaluator(
             is Projection -> ctx.controllerId?.let { PredicateContext(controllerId = it) }
                 ?: PredicateContext(controllerId = sourceId)
         }
-        return PredicateEvaluator().matches(state, projected, sourceId, filter, predicateContext)
+        return predicates.matches(state, projected, sourceId, filter, predicateContext)
     }
 
     private fun evaluateExistsCtx(
@@ -1111,7 +1113,6 @@ class ConditionEvaluator(
         cap: Int
     ): Int {
         if (cap <= 0) return 0
-        val predicateEvaluator = PredicateEvaluator()
         val controllerId = ctx.controllerId
         val projected = ctx.projectedStateFor(state)
         val predicateContext = when (ctx) {
@@ -1157,7 +1158,7 @@ class ConditionEvaluator(
             }
             for (entityId in entities) {
                 if (condition.filter == GameObjectFilter.Any ||
-                    predicateEvaluator.matches(state, projected, entityId, condition.filter, predicateContext)
+                    predicates.matches(state, projected, entityId, condition.filter, predicateContext)
                 ) {
                     matches++
                     if (matches >= cap) return matches
@@ -1182,7 +1183,6 @@ class ConditionEvaluator(
     ): Boolean {
         val playerId = resolvePlayer(state, condition.player, ctx) ?: return false
         val projected = ctx.projectedStateFor(state)
-        val predicateEvaluator = PredicateEvaluator()
         val predicateContext = when (ctx) {
             is Resolution -> PredicateContext.fromEffectContext(ctx.effectContext)
             is Projection -> PredicateContext(controllerId = playerId, sourceId = ctx.sourceId)
@@ -1190,7 +1190,7 @@ class ConditionEvaluator(
 
         val counts = state.getBattlefield()
             .filter { entityId ->
-                predicateEvaluator.matches(state, projected, entityId, condition.filter, predicateContext)
+                predicates.matches(state, projected, entityId, condition.filter, predicateContext)
             }
             .groupingBy { entityId -> projected.getController(entityId) }
             .eachCount()
@@ -1312,7 +1312,7 @@ class ConditionEvaluator(
                 PredicateContext(controllerId = controller)
             }
         }
-        return PredicateEvaluator().matches(state, projected, permanentId, filter, predicateContext)
+        return predicates.matches(state, projected, permanentId, filter, predicateContext)
     }
 
     /**
@@ -1392,7 +1392,6 @@ class ConditionEvaluator(
                 ?: emptySet()
         }
         if (attackerIds.isEmpty()) return 0
-        val predicateEvaluator = PredicateEvaluator()
         val predicateContext = when (ctx) {
             is Resolution -> PredicateContext.fromEffectContext(ctx.effectContext)
             // The filter's own "you control" clauses are relative to the ability's controller,
@@ -1404,7 +1403,7 @@ class ConditionEvaluator(
         val projected = ctx.projectedStateFor(state)
         var matches = 0
         for (id in attackerIds) {
-            if (predicateEvaluator.matches(state, projected, id, condition.filter, predicateContext)) {
+            if (predicates.matches(state, projected, id, condition.filter, predicateContext)) {
                 matches++
                 if (matches >= cap) return matches
             }
@@ -1448,7 +1447,7 @@ class ConditionEvaluator(
         if (cap <= 0) return 0
         val playerId = resolvePlayer(state, condition.player, ctx) ?: return 0
         val records = state.spellsCastThisTurnByPlayer[playerId] ?: return 0
-        val evaluator = PredicateEvaluator()
+        val evaluator = predicates
         // Cast-history filters can reference a name captured earlier in this same resolution
         // (`GameObjectFilter.namedFromVariable`), so the record matcher needs the pipeline's
         // chosen values. Only a Resolution context has a pipeline; a static/projection evaluation
@@ -1963,10 +1962,9 @@ class ConditionEvaluator(
             is com.wingedsheep.engine.state.components.stack.ChosenTarget.Spell -> target.spellEntityId
             is com.wingedsheep.engine.state.components.stack.ChosenTarget.Card -> target.cardId
         }
-        val predicateEvaluator = PredicateEvaluator()
         val predicateContext = PredicateContext.fromEffectContext(context)
         val projected = state.projectedState
-        return predicateEvaluator.matches(state, projected, entityId, filter, predicateContext)
+        return predicates.matches(state, projected, entityId, filter, predicateContext)
     }
 
     /**
@@ -2159,7 +2157,7 @@ class ConditionEvaluator(
             isFaceDown = entity.has<com.wingedsheep.engine.state.components.identity.FaceDownComponent>(),
             name = card.name
         )
-        return PredicateEvaluator().matchesFilter(triggeringRecord, filter)
+        return predicates.matchesFilter(triggeringRecord, filter)
     }
 
     private fun evaluateFirstSpellPaidWithTreasureMana(
@@ -2191,10 +2189,9 @@ class ConditionEvaluator(
         val collection = context.pipeline.storedCollections[condition.collection] ?: return false
         if (collection.isEmpty()) return false
         if (condition.filter == GameObjectFilter.Any) return true
-        val predicateEvaluator = PredicateEvaluator()
         val predicateContext = PredicateContext.fromEffectContext(context)
         return collection.any { entityId ->
-            predicateEvaluator.matches(state, state.projectedState, entityId, condition.filter, predicateContext)
+            predicates.matches(state, state.projectedState, entityId, condition.filter, predicateContext)
         }
     }
 

@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.PaymentStrategy
 import com.wingedsheep.engine.legalactions.EnumerationMode
@@ -95,7 +96,7 @@ class WeftwalkingScenarioTest : FunSpec({
         // Pre-cast sanity: the static is detected, and the active player has cast zero spells
         // this turn — the cost calculator should expose the {0} free-cast alternative.
         (driver.state.playerSpellsCastThisTurn[player] ?: 0) shouldBe 0
-        val costCalculator = CostCalculator(driver.cardRegistry)
+        val costCalculator = CostCalculator(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         costCalculator.hasFreeCastPermission(driver.state, player) shouldBe true
 
         // Cast Grizzly Bears for free via the dedicated flag — pool is empty, paid nothing.
@@ -122,7 +123,7 @@ class WeftwalkingScenarioTest : FunSpec({
 
         // After one spell has resolved this turn, the gate is shut.
         ((driver.state.playerSpellsCastThisTurn[player] ?: 0) >= 1) shouldBe true
-        val costCalculator = CostCalculator(driver.cardRegistry)
+        val costCalculator = CostCalculator(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         costCalculator.hasFreeCastPermission(driver.state, player) shouldBe false
 
         // A second free-cast attempt fails — the gate is closed.
@@ -163,7 +164,7 @@ class WeftwalkingScenarioTest : FunSpec({
         // Active player is still `controller` here — flip to confirm the gate keys to whose
         // turn it actually is. The simplest way is to verify the cost-calculator predicate
         // returns false when queried for a non-active player.
-        val costCalculator = CostCalculator(driver.cardRegistry)
+        val costCalculator = CostCalculator(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         costCalculator.hasFreeCastPermission(driver.state, opponent) shouldBe false
     }
 
@@ -195,7 +196,7 @@ class WeftwalkingScenarioTest : FunSpec({
         // is irrelevant when controllerOnly = false. Opponent's Weftwalking still benefits us.
         driver.putPermanentOnBattlefield(opponent, "Weftwalking")
 
-        val costCalculator = CostCalculator(driver.cardRegistry)
+        val costCalculator = CostCalculator(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         costCalculator.hasFreeCastPermission(driver.state, activePlayer) shouldBe true
 
         val bears = driver.putCardInHand(activePlayer, "Grizzly Bears")

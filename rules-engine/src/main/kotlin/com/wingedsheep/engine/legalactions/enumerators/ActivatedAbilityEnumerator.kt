@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.legalactions.enumerators
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.handlers.effects.composite.asConditional
 import com.wingedsheep.engine.handlers.effects.permanent.counters.resolveCounterType
@@ -30,7 +31,9 @@ import com.wingedsheep.sdk.scripting.effects.*
  * 1. Own permanents: non-mana activated abilities (own + granted + static)
  * 2. Opponent permanents: "any player may activate" abilities
  */
-class ActivatedAbilityEnumerator : ActionEnumerator {
+class ActivatedAbilityEnumerator(
+    private val predicateEvaluator: PredicateEvaluator
+) : ActionEnumerator {
 
     override fun enumerate(context: EnumerationContext): List<LegalAction> {
         val result = mutableListOf<LegalAction>()
@@ -164,7 +167,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                     context.castPermissionUtils.applyFreeFirstEquipDiscount(
                         context.castPermissionUtils.applyEquipCostReduction(
                             context.castPermissionUtils.applyActivatedAbilityCostReduction(
-                                AbilityCostReduction.apply(costWithDefinedX, ability, state, entityId, playerId, context.targetUtils),
+                                AbilityCostReduction.apply(costWithDefinedX, ability, state, entityId, playerId, context.targetUtils, predicateEvaluator = predicateEvaluator),
                                 state, entityId, ability.isExhaust, ability.isPowerUp, ability.isManaAbility
                             ),
                             ability, state, playerId, abilitySourceId = entityId
@@ -336,6 +339,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                                     state, playerId,
                                     com.wingedsheep.engine.handlers.costs.CostAtomAmounts
                                         .evaluate(state, atom.amount),
+                                    predicateEvaluator = context.predicateEvaluator,
                                 )
                                 ?: continue
                         }
@@ -344,7 +348,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                         // entirely rather than offered and rejected at payment.
                         is CostAtom.ExileFromGraveyardForTotal -> {
                             prebuiltCostInfo = com.wingedsheep.engine.handlers.costs
-                                .GraveyardTotalExileResolver.costInfo(state, playerId, atom)
+                                .GraveyardTotalExileResolver.costInfo(state, playerId, atom, predicateEvaluator = context.predicateEvaluator)
                                 ?: continue
                         }
                         // Pay-life / reveal carry no enumeration-time selection or affordability gate
@@ -536,6 +540,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                                                 state, playerId,
                                                 com.wingedsheep.engine.handlers.costs
                                                     .CostAtomAmounts.evaluate(state, atom.amount),
+                                                predicateEvaluator = context.predicateEvaluator,
                                             )
                                         if (prebuiltCostInfo == null) {
                                             costCanBePaid = false
@@ -546,7 +551,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                                     is CostAtom.ExileFromGraveyardForTotal -> {
                                         prebuiltCostInfo = com.wingedsheep.engine.handlers.costs
                                             .GraveyardTotalExileResolver
-                                            .costInfo(state, playerId, atom)
+                                            .costInfo(state, playerId, atom, predicateEvaluator = context.predicateEvaluator)
                                         if (prebuiltCostInfo == null) {
                                             costCanBePaid = false
                                             break

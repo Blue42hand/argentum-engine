@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CardsSelectedResponse
 import com.wingedsheep.engine.core.CombatResolutionDecision
 import com.wingedsheep.engine.core.SelectCardsDecision
@@ -113,7 +114,7 @@ class TheRingScenarioTest : FunSpec({
         val ogre = driver.putCreatureOnBattlefield(active, "Big Ogre")
         driver.tempt(active, bear)
 
-        val view = ClientStateTransformer(cardRegistry = driver.cardRegistry)
+        val view = ClientStateTransformer(cardRegistry = driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             .transform(driver.state, viewingPlayerId = active)
         view.cards[bear]?.isRingBearer shouldBe true
         view.cards[ogre]?.isRingBearer shouldBe false

@@ -45,7 +45,7 @@ import io.kotest.matchers.shouldNotBe
 class DevoidKeywordScenarioTest : FunSpec({
 
     val projector = StateProjector()
-    val predicateEvaluator = PredicateEvaluator()
+    val predicateEvaluator = PredicateEvaluator(cardRegistry = null)
 
     /** Ulamog's Nullifier's shape: coloured pips, devoid, colorless. */
     val DevoidEldrazi = CardDefinition.creature(

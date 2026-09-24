@@ -87,7 +87,7 @@ class AvenInterrupterTaxTest : ScenarioTestBase() {
                     .withCardInGraveyard(2, "Grizzly Bears")
                     .build()
 
-                val calc = CostCalculator(cardRegistry)
+                val calc = CostCalculator(cardRegistry, predicateEvaluator = services.predicateEvaluator)
                 val cost = calc.calculateEffectiveCost(
                     game.state,
                     cardRegistry.requireCard("Grizzly Bears"),
@@ -106,7 +106,7 @@ class AvenInterrupterTaxTest : ScenarioTestBase() {
                     .withCardInExile(2, "Grizzly Bears")
                     .build()
 
-                val calc = CostCalculator(cardRegistry)
+                val calc = CostCalculator(cardRegistry, predicateEvaluator = services.predicateEvaluator)
                 val cost = calc.calculateEffectiveCost(
                     game.state,
                     cardRegistry.requireCard("Grizzly Bears"),
@@ -123,7 +123,7 @@ class AvenInterrupterTaxTest : ScenarioTestBase() {
                     .withCardInHand(2, "Grizzly Bears")
                     .build()
 
-                val calc = CostCalculator(cardRegistry)
+                val calc = CostCalculator(cardRegistry, predicateEvaluator = services.predicateEvaluator)
                 val cost = calc.calculateEffectiveCost(
                     game.state,
                     cardRegistry.requireCard("Grizzly Bears"),
@@ -140,7 +140,7 @@ class AvenInterrupterTaxTest : ScenarioTestBase() {
                     .withCardInGraveyard(1, "Grizzly Bears")
                     .build()
 
-                val calc = CostCalculator(cardRegistry)
+                val calc = CostCalculator(cardRegistry, predicateEvaluator = services.predicateEvaluator)
                 val cost = calc.calculateEffectiveCost(
                     game.state,
                     cardRegistry.requireCard("Grizzly Bears"),

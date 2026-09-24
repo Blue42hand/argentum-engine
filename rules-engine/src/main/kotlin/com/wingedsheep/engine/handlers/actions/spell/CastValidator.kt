@@ -167,7 +167,7 @@ internal class CastSource(
      * disturb's printed keyword, the modal-DFC face choice, and a may-play permission granted with
      * `castTransformed` (CR 310.12b — "exile it, then you may cast it transformed").
      */
-    val transformedFace: CardDefinition?,
+    val transformedFace: CardDefinition?
 ) {
     val inHand: Boolean get() = route == CastSourceRoute.HAND
 }
@@ -195,7 +195,7 @@ internal class CastValidator(
     private val castCostPayer: CastCostPayer,
     private val grantedKeywordResolver: com.wingedsheep.engine.mechanics.mana.GrantedKeywordResolver,
     private val predicateEvaluator: PredicateEvaluator,
-    private val legality: com.wingedsheep.engine.legality.LegalityKernel,
+    private val legality: com.wingedsheep.engine.legality.LegalityKernel
 ) {
 
     fun validate(state: GameState, action: CastSpell): String? {
@@ -636,7 +636,7 @@ internal class CastValidator(
         if (action.additionalManaForCounters < 0) return "Additional mana paid can't be negative"
         if (action.additionalManaForCounters > 0) {
             if (action.castFaceDown) return "Additional mana for counters can't be paid for a face-down spell"
-            com.wingedsheep.engine.mechanics.mana.AdditionalManaForCounters.applicableGrant(state, action.playerId, action.cardId, cardRegistry)
+            com.wingedsheep.engine.mechanics.mana.AdditionalManaForCounters.applicableGrant(state, action.playerId, action.cardId, cardRegistry, predicateEvaluator = predicateEvaluator)
                 ?: return "No permanent you control lets you pay additional mana for this spell"
         }
 

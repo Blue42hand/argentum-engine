@@ -44,7 +44,10 @@ import com.wingedsheep.sdk.scripting.predicates.StatePredicate
 /**
  * Resolves which entities are affected by continuous effects based on AffectsFilter.
  */
-internal class AffectsFilterResolver {
+internal class AffectsFilterResolver(
+    /** [StateProjector]'s registry-free evaluator, for the relational predicates. */
+    private val relationalEvaluator: com.wingedsheep.engine.handlers.PredicateEvaluator
+) {
 
     /**
      * Check if an entity is a creature, preferring projected types over base types.
@@ -305,7 +308,6 @@ internal class AffectsFilterResolver {
         // Relational predicates need the source and the intermediate projection, not base cards.
         // Build the snapshot only when such a predicate is actually encountered, once per filter.
         val relationalProjection by lazy { buildIntermediateProjectedState(state, projectedValues) }
-        val relationalEvaluator by lazy { com.wingedsheep.engine.handlers.PredicateEvaluator() }
         val relationalContext by lazy {
             controller?.let { com.wingedsheep.engine.handlers.PredicateContext(controllerId = it, sourceId = sourceId) }
         }

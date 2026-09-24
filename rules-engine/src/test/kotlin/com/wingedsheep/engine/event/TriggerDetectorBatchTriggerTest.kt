@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.event
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CardsDiscardedEvent
 import com.wingedsheep.engine.core.ControlChangedEvent
 import com.wingedsheep.engine.core.DamageDealtEvent
@@ -117,7 +118,7 @@ class TriggerDetectorBatchTriggerTest : FunSpec({
     }
 
     fun detectorFor(driver: GameTestDriver): TriggerDetector =
-        TriggerDetector(driver.cardRegistry)
+        TriggerDetector(driver.cardRegistry, conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
     // --- detectLibraryToGraveyardBatchTriggers ----------------------------------
 

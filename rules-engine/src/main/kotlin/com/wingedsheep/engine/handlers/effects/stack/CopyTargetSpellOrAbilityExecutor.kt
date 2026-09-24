@@ -40,14 +40,14 @@ import kotlin.reflect.KClass
  * copies at all.
  */
 class CopyTargetSpellOrAbilityExecutor(
-    private val targetFinder: TargetFinder = TargetFinder()
+    private val dynamicAmountEvaluator: DynamicAmountEvaluator,
+    private val targetFinder: TargetFinder
 ) : EffectExecutor<CopyTargetSpellOrAbilityEffect> {
 
     override val effectType: KClass<CopyTargetSpellOrAbilityEffect> =
         CopyTargetSpellOrAbilityEffect::class
 
-    private val spellExecutor = CopyTargetSpellExecutor(targetFinder)
-    private val dynamicAmountEvaluator = DynamicAmountEvaluator()
+    private val spellExecutor = CopyTargetSpellExecutor(dynamicAmountEvaluator, targetFinder)
 
     override fun execute(
         state: GameState,

@@ -32,9 +32,8 @@ import kotlin.reflect.KClass
  */
 class ForceSacrificeExecutor(
     private val zones: ZoneTransitionService,
-    private val decisionHandler: DecisionHandler = DecisionHandler(),
-    private val dynamicAmountEvaluator: com.wingedsheep.engine.handlers.DynamicAmountEvaluator =
-        com.wingedsheep.engine.handlers.DynamicAmountEvaluator()
+    private val dynamicAmountEvaluator: com.wingedsheep.engine.handlers.DynamicAmountEvaluator,
+    private val decisionHandler: DecisionHandler = DecisionHandler()
 ) : EffectExecutor<ForceSacrificeEffect> {
 
     override val effectType: KClass<ForceSacrificeEffect> = ForceSacrificeEffect::class
@@ -62,7 +61,7 @@ class ForceSacrificeExecutor(
         // anyone is prompted — they are never offered the choice (CR 101.2).
         val effectControllerId = context.effectControllerId ?: context.controllerId
         val eligiblePlayers = playerIds.filterNot {
-            SacrificeImmunity.appliesTo(state, it, effectControllerId)
+            SacrificeImmunity.appliesTo(state, it, effectControllerId, predicateEvaluator = zones.predicateEvaluator)
         }
 
         return processPlayers(state, eligiblePlayers, effect.filter, count, context.sourceId)
@@ -130,7 +129,8 @@ class ForceSacrificeExecutor(
         // DealtCombatDamageToSourceControllerThisTurn — Witch-king of Angmar) resolve against
         // the edict's source rather than the sacrificing player.
         return BattlefieldFilterUtils.findMatchingOnBattlefield(
-            state, filter.youControl(), PredicateContext(controllerId = playerId, sourceId = sourceId)
+            state, filter.youControl(), PredicateContext(controllerId = playerId, sourceId = sourceId),
+            predicateEvaluator = zones.predicateEvaluator
         )
     }
 

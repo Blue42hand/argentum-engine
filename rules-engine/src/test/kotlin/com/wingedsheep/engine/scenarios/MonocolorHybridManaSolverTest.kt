@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -44,7 +45,7 @@ class MonocolorHybridManaSolverTest : FunSpec({
         driver.putPermanentOnBattlefield(player, "Forest")
         driver.putPermanentOnBattlefield(player, "Island")
 
-        ManaSolver(driver.cardRegistry)
+        ManaSolver(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             .canPay(driver.state, player, ManaCost.parse("{2/B}{2/G}{2/U}")) shouldBe true
     }
 
@@ -56,7 +57,7 @@ class MonocolorHybridManaSolverTest : FunSpec({
 
         repeat(6) { driver.putPermanentOnBattlefield(player, "Mountain") }
 
-        ManaSolver(driver.cardRegistry)
+        ManaSolver(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             .canPay(driver.state, player, ManaCost.parse("{2/B}{2/G}{2/U}")) shouldBe true
     }
 
@@ -68,7 +69,7 @@ class MonocolorHybridManaSolverTest : FunSpec({
 
         repeat(5) { driver.putPermanentOnBattlefield(player, "Mountain") }
 
-        ManaSolver(driver.cardRegistry)
+        ManaSolver(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             .canPay(driver.state, player, ManaCost.parse("{2/B}{2/G}{2/U}")) shouldBe false
     }
 

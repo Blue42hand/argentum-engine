@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.state
 
+import com.wingedsheep.engine.handlers.TargetFinder
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ZoneChangeEvent
 import com.wingedsheep.engine.core.ZoneTransitionCause
 import com.wingedsheep.engine.core.engineSerializersModule
@@ -37,7 +39,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 
 class ObjectIdentityTest : FunSpec({
-    val zones = ZoneTransitionService(CardRegistry())
+    val zones = ZoneTransitionService(CardRegistry(), predicateEvaluator = PredicateEvaluator(cardRegistry = null))
     val owner = EntityId.generate()
     val other = EntityId.generate()
     val cardId = EntityId.generate()
@@ -237,7 +239,8 @@ class ObjectIdentityTest : FunSpec({
         val initial = inZone(Zone.BATTLEFIELD, setOf(Keyword.INDESTRUCTIBLE))
         val executor = MoveToZoneEffectExecutor(zones, CardRegistry(), effectExecutor = { _, _, _ ->
             error("unexpected entry effect")
-        })
+        },
+            targetFinder = TargetFinder(PredicateEvaluator(cardRegistry = null)))
         val result = executor.execute(initial,
             MoveToZoneEffect(EffectTarget.ContextTarget(0), Zone.GRAVEYARD, byDestruction = true),
             EffectContext(sourceId = null, controllerId = owner, targets = listOf(ChosenTarget.Permanent(cardId))))
@@ -285,7 +288,7 @@ class ObjectIdentityTest : FunSpec({
         copiedFixture.objectIdentities shouldBe raw.objectIdentities
     }
     test("draw emits the exact library and hand objects and empty draws allocate nothing") {
-        val primitive = com.wingedsheep.engine.handlers.effects.drawing.DrawCardPrimitive(CardRegistry())
+        val primitive = com.wingedsheep.engine.handlers.effects.drawing.DrawCardPrimitive(CardRegistry(), predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         val initial = inZone(Zone.LIBRARY)
         val drawn = primitive.drawOne(initial, owner)
         val event = drawn.events.filterIsInstance<ZoneChangeEvent>().single()
@@ -321,7 +324,7 @@ class ObjectIdentityTest : FunSpec({
 
     test("ordered library continuation stamps arrivals but preserves library members") {
         val services = com.wingedsheep.engine.core.EngineServices(CardRegistry())
-        val resumer = com.wingedsheep.engine.handlers.continuations.LibraryAndZoneContinuationResumer(services)
+        val resumer = com.wingedsheep.engine.handlers.continuations.LibraryAndZoneContinuationResumer(services, targetFinder = TargetFinder(PredicateEvaluator(cardRegistry = null)))
         for (origin in listOf(Zone.HAND, Zone.STACK, Zone.BATTLEFIELD)) {
         var initial = inZone(origin).withEntity(secondId, card())
             .addToZone(ZoneKey(owner, Zone.LIBRARY), secondId)

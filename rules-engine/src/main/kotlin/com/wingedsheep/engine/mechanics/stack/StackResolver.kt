@@ -42,15 +42,17 @@ class StackResolver(
     private val effects: EffectExecutorRegistry,
     private val spellCounterer: SpellCounterer,
     private val predicateEvaluator: PredicateEvaluator,
+    /** The cast-time target validator, which re-validates a spliced card's own targets (CR 702.47d). */
+    private val spliceTargetValidator: com.wingedsheep.engine.mechanics.targeting.TargetValidator,
     private val staticAbilityHandler: StaticAbilityHandler = StaticAbilityHandler(cardRegistry)
 ) {
     private val spellCaster = SpellCaster(
-        cardRegistry, staticAbilityHandler, EventPresentationFactory(Visibility(cardRegistry))
+        cardRegistry, staticAbilityHandler, EventPresentationFactory(Visibility(cardRegistry, conditionEvaluator = predicateEvaluator.conditions))
     )
     private val targetValidator = ResolutionTargetValidator(predicateEvaluator)
     private val entersWithChoicePrompt = EntersWithChoicePrompt(cardRegistry)
-    private val permanentEntry = PermanentEntry(cardRegistry, staticAbilityHandler)
-    private val nonPermanentSpellResolver = NonPermanentSpellResolver(zones, cardRegistry, effects, predicateEvaluator)
+    private val permanentEntry = PermanentEntry(cardRegistry, staticAbilityHandler, conditionEvaluator = predicateEvaluator.conditions)
+    private val nonPermanentSpellResolver = NonPermanentSpellResolver(zones, cardRegistry, effects, predicateEvaluator, spliceTargetValidator)
     private val spellResolver = SpellResolver(
         cardRegistry = cardRegistry,
         predicateEvaluator = predicateEvaluator,
@@ -60,7 +62,7 @@ class StackResolver(
         ),
         nonPermanentSpellResolver = nonPermanentSpellResolver
     )
-    private val abilityResolver = AbilityResolver(effects, targetValidator)
+    private val abilityResolver = AbilityResolver(effects, targetValidator, conditionEvaluator = predicateEvaluator.conditions)
 
     // =========================================================================
     // Putting objects on the stack

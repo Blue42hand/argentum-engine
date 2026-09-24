@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.engine.view.ClientStateTransformer
@@ -39,7 +40,7 @@ class IAmIronManScenarioTest : FunSpec({
         d.castSpell(d.player1, spell, listOf(bear)).outcome shouldBe Outcome.Done
         repeat(6) { if (d.state.pendingDecision != null) d.autoResolveDecision() else d.bothPass() }
 
-        val card = ClientStateTransformer(d.cardRegistry).transform(d.state, d.player1)
+        val card = ClientStateTransformer(d.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null)).transform(d.state, d.player1)
             .cards.getValue(bear)
 
         withClue("cardTypes=${card.cardTypes} typeLine=${card.typeLine}") {

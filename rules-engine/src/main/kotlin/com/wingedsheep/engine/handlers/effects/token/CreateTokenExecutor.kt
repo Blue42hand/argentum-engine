@@ -52,7 +52,7 @@ import kotlin.reflect.KClass
  * Supports both fixed and dynamic counts via [DynamicAmountEvaluator].
  */
 class CreateTokenExecutor(
-    private val amountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator(),
+    private val amountEvaluator: DynamicAmountEvaluator,
     private val staticAbilityHandler: StaticAbilityHandler? = null,
     private val cardRegistry: CardRegistry? = null,
     private val tokenArtRegistry: TokenArtRegistry? = null
@@ -115,7 +115,8 @@ class CreateTokenExecutor(
 
         // Check for token creation replacement effects (e.g., Mirrormind Crown)
         val replacementResult = TokenCreationReplacementHelper.checkReplacement(
-            state, effect, context, count, tokenControllerId, cardRegistry, staticAbilityHandler
+            state, effect, context, count, tokenControllerId, cardRegistry, staticAbilityHandler,
+            predicateEvaluator = amountEvaluator.predicates
         )
         if (replacementResult != null) return replacementResult
 
@@ -276,6 +277,7 @@ class CreateTokenExecutor(
             newState = EnterTappedReplacements.applyCreatedTokenEntryTap(
                 newState, tokenId, tokenControllerId,
                 definedTapped = effect.tapped, attacking = effect.attacking,
+                predicateEvaluator = amountEvaluator.predicates
             )
         }
 
@@ -284,7 +286,8 @@ class CreateTokenExecutor(
         val counterEvents = mutableListOf<com.wingedsheep.engine.core.GameEvent>()
         for (tokenId in createdTokens) {
             val (nextState, events) = EntersWithReplacements.applyGlobal(
-                newState, tokenId, tokenControllerId, cardRegistry
+                newState, tokenId, tokenControllerId, cardRegistry,
+                predicateEvaluator = amountEvaluator.predicates
             )
             newState = nextState
             counterEvents.addAll(events)
@@ -440,7 +443,7 @@ class CreateTokenExecutor(
         val (afterAdditional, additionalEvents) = TokenCreationReplacementHelper
             .applyAdditionalTokenReplacements(
                 newState, tokenControllerId, createdTokens, effect.tapped,
-                cardRegistry, staticAbilityHandler
+                cardRegistry, staticAbilityHandler, amountEvaluator.predicates
             )
         newState = afterAdditional
 

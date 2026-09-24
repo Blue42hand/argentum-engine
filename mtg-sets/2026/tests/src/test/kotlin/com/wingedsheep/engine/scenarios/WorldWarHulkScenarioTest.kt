@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.ChooseTargetsDecision
 import com.wingedsheep.engine.core.PaymentStrategy
@@ -161,7 +162,7 @@ class WorldWarHulkScenarioTest : FunSpec({
     test("chapter I: a red creature spell qualifies too, and a blue one does not") {
         val driver = createDriver()
         val controller = driver.activePlayer!!
-        val costCalculator = CostCalculator(driver.cardRegistry)
+        val costCalculator = CostCalculator(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
         driver.castSaga(controller)
 
@@ -210,7 +211,7 @@ class WorldWarHulkScenarioTest : FunSpec({
     test("chapter I: a matching spell cast for full price is 'the next' one and spends the grant") {
         val driver = createDriver()
         val controller = driver.activePlayer!!
-        val costCalculator = CostCalculator(driver.cardRegistry)
+        val costCalculator = CostCalculator(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
         driver.castSaga(controller)
 

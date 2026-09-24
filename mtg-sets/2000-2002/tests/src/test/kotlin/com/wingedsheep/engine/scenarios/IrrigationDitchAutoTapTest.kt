@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.legalactions.LegalActionEnumerator
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.support.GameTestDriver
@@ -53,7 +54,7 @@ class IrrigationDitchAutoTapTest : FunSpec({
 
         // Affordable: the only green comes from "{T}, Sacrifice: Add {G}{U}", but the spell is
         // still a legal play (the player can opt into the sacrifice), so canPay reports true...
-        val solver = ManaSolver(driver.cardRegistry)
+        val solver = ManaSolver(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         solver.canPay(driver.state, activePlayer, ManaCost.parse("{1}{G}")) shouldBe true
 
         // ...and it surfaces as a legal cast action for the player to choose.

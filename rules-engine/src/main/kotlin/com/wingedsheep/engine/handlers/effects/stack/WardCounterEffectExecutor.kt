@@ -17,10 +17,8 @@ import com.wingedsheep.engine.core.SelectManaSourcesDecision
 import com.wingedsheep.engine.core.WaterbendPermanentChoice
 import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.handlers.DecisionHandler
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
-import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.costs.CollectEvidenceResolver
 import com.wingedsheep.engine.handlers.effects.BattlefieldFilterUtils
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
@@ -80,6 +78,7 @@ class WardCounterEffectExecutor(
     private val cardRegistry: CardRegistry,
     private val counterer: SpellCounterer
 ) : EffectExecutor<WardCounterEffect> {
+    private val predicateEvaluator = zones.predicateEvaluator
     override val effectType: KClass<WardCounterEffect> = WardCounterEffect::class
 
     override fun execute(
@@ -135,7 +134,7 @@ class WardCounterEffectExecutor(
         context: EffectContext
     ): WardCost = when (cost) {
         is WardCost.DynamicLife ->
-            WardCost.Life(DynamicAmountEvaluator().evaluate(state, cost.amount, context).coerceAtLeast(0))
+            WardCost.Life(zones.predicateEvaluator.amounts.evaluate(state, cost.amount, context).coerceAtLeast(0))
         is WardCost.Composite ->
             WardCost.Composite(cost.parts.map { resolveDynamicLife(state, it, context) })
         is WardCost.Choice ->
@@ -240,15 +239,15 @@ class WardCounterEffectExecutor(
             // Resolved to a fixed Life before it ever reaches here; treat as free defensively.
             is WardCost.DynamicLife -> true
             is WardCost.Discard ->
-                eligibleDiscardCount(state, payingPlayerId, cost.filter) >= cost.count
+                eligibleDiscardCount(state, zones, payingPlayerId, cost.filter) >= cost.count
             is WardCost.Sacrifice ->
-                !SacrificeImmunity.appliesTo(state, payingPlayerId, controllerId) &&
-                    sacrificeCandidates(state, payingPlayerId, cost.filter).size >= cost.count
+                !SacrificeImmunity.appliesTo(state, payingPlayerId, controllerId, predicateEvaluator = zones.predicateEvaluator) &&
+                    sacrificeCandidates(state, zones, payingPlayerId, cost.filter).size >= cost.count
             // CR 701.59b fails closed — a graveyard that can't reach the total means the payer
             // can't choose to collect evidence at all. Same resolver gate [handleCollectEvidenceCost]
             // applies, so the two can't drift.
             is WardCost.CollectEvidence ->
-                CollectEvidenceResolver.candidates(state, payingPlayerId).canReach(cost.amount)
+                CollectEvidenceResolver.candidates(state, payingPlayerId, predicateEvaluator = zones.predicateEvaluator).canReach(cost.amount)
             is WardCost.PlayerCounters -> true
             is WardCost.Composite ->
                 cost.parts.all { canPayWardCost(state, zones, it, payingPlayerId, controllerId) }
@@ -371,10 +370,12 @@ class WardCounterEffectExecutor(
          */
         private fun sacrificeCandidates(
             state: GameState,
+            zones: ZoneTransitionService,
             payingPlayerId: EntityId,
             filter: GameObjectFilter
         ): List<EntityId> = BattlefieldFilterUtils.findMatchingOnBattlefield(
-            state, filter.youControl(), PredicateContext(controllerId = payingPlayerId)
+            state, filter.youControl(), PredicateContext(controllerId = payingPlayerId),
+            predicateEvaluator = zones.predicateEvaluator
         )
 
         /**
@@ -385,12 +386,13 @@ class WardCounterEffectExecutor(
          */
         private fun eligibleDiscardCount(
             state: GameState,
+            zones: ZoneTransitionService,
             payingPlayerId: EntityId,
             filter: GameObjectFilter?
         ): Int {
             if (filter == null) return state.getHand(payingPlayerId).size
             val predicateContext = PredicateContext(controllerId = payingPlayerId)
-            val predicateEvaluator = PredicateEvaluator()
+            val predicateEvaluator = zones.predicateEvaluator
             return state.getHand(payingPlayerId).count { cardId ->
                 predicateEvaluator.matches(state, state.projectedState, cardId, filter, predicateContext)
             }
@@ -413,12 +415,12 @@ class WardCounterEffectExecutor(
             payingPlayerId: EntityId,
             manaCost: ManaCost,
             waterbend: Boolean,
-            manaSolver: ManaSolver = ManaSolver(zones.cardRegistry),
+            manaSolver: ManaSolver = ManaSolver(zones.cardRegistry, zones.predicateEvaluator),
             waterbendPermanents: List<TapForGenericPermanentData>? = null
         ): Boolean {
             if (manaSolver.canPay(state, payingPlayerId, manaCost)) return true
             if (!waterbend) return false
-            val costUtils = costEnumerationUtils(zones.cardRegistry)
+            val costUtils = costEnumerationUtils(zones)
             val permanents = waterbendPermanents
                 ?: costUtils.findTapForGenericPermanents(state, payingPlayerId, TapForGeneric.WATERBEND)
             return costUtils.canAffordWithTapForGeneric(state, payingPlayerId, manaCost, permanents)
@@ -456,7 +458,7 @@ class WardCounterEffectExecutor(
                 return counterSpellOrAbility(state, counterer, spellEntityId, controllerId)
             }
 
-            val validPermanents = sacrificeCandidates(state, payingPlayerId, filter)
+            val validPermanents = sacrificeCandidates(state, zones, payingPlayerId, filter)
 
             val fodderLabel = filter.description
             val prompt = if (count == 1) {
@@ -527,7 +529,7 @@ class WardCounterEffectExecutor(
             wardSourceId: EntityId?,
             controllerId: EntityId?
         ): EffectResult {
-            val candidates = CollectEvidenceResolver.candidates(state, payingPlayerId)
+            val candidates = CollectEvidenceResolver.candidates(state, payingPlayerId, predicateEvaluator = zones.predicateEvaluator)
             if (!candidates.canReach(amount)) {
                 return counterSpellOrAbility(state, counterer, spellEntityId, controllerId)
             }
@@ -634,14 +636,14 @@ class WardCounterEffectExecutor(
         ): EffectResult {
             val manaCost = ManaCost.parse(manaCostString)
 
-            val manaSolver = ManaSolver(zones.cardRegistry)
+            val manaSolver = ManaSolver(zones.cardRegistry, zones.predicateEvaluator)
 
             // Ward—Waterbend (Avatar: The Last Airbender): the controller may tap their untapped
             // artifacts and creatures to help pay the generic, each paying {1}. Reuse the same
             // eligibility discovery as the activated-ability/spell waterbend surfaces so the rule
             // stays single-sourced. Found once and shared with the affordability check below.
             val waterbendPermanents = if (waterbend) {
-                costEnumerationUtils(zones.cardRegistry)
+                costEnumerationUtils(zones)
                     .findTapForGenericPermanents(state, payingPlayerId, TapForGeneric.WATERBEND)
             } else {
                 emptyList()
@@ -763,12 +765,12 @@ class WardCounterEffectExecutor(
          * waterbend eligibility discovery / affordability check (the same surface activated-ability
          * and spell waterbend use) when a Ward—Waterbend cost is being paid.
          */
-        private fun costEnumerationUtils(cardRegistry: CardRegistry) =
+        private fun costEnumerationUtils(zones: ZoneTransitionService) =
             CostEnumerationUtils(
-                ManaSolver(cardRegistry),
-                CostCalculator(cardRegistry),
-                PredicateEvaluator(),
-                cardRegistry
+                ManaSolver(zones.cardRegistry, zones.predicateEvaluator),
+                CostCalculator(zones.cardRegistry, zones.predicateEvaluator),
+                zones.predicateEvaluator,
+                zones.cardRegistry
             )
 
         private fun counterSpellOrAbility(

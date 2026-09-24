@@ -121,7 +121,6 @@ class TriggerMatcher(
                 val filter = trigger.attackerFilter
                 if (filter != null) {
                     // Count attackers matching the filter
-                    val predicateEvaluator = PredicateEvaluator()
                     val projected = state.projectedState
                     val predicateContext = com.wingedsheep.engine.handlers.PredicateContext(
                         controllerId = controllerId,
@@ -343,7 +342,7 @@ class TriggerMatcher(
                         controllerId = controllerId,
                         sourceId = sourceId
                     )
-                    if (!PredicateEvaluator().matches(
+                    if (!predicateEvaluator.matches(
                             state, state.projectedState, event.sourceId, sourceFilter, predicateContext
                         )
                     ) return false
@@ -369,7 +368,7 @@ class TriggerMatcher(
                         controllerId = controllerId,
                         sourceId = sourceId
                     )
-                    if (!PredicateEvaluator().matches(
+                    if (!predicateEvaluator.matches(
                             state, state.projectedState, event.sourceId, sourceFilter, predicateContext
                         )
                     ) return false
@@ -408,7 +407,7 @@ class TriggerMatcher(
                         controllerId = controllerId,
                         sourceId = sourceId
                     )
-                    PredicateEvaluator().matches(
+                    predicateEvaluator.matches(
                         state, state.projectedState, event.entityId, trigger.filter, predicateContext
                     )
                 } else true
@@ -424,7 +423,7 @@ class TriggerMatcher(
                         controllerId = controllerId,
                         sourceId = sourceId
                     )
-                    PredicateEvaluator().matches(
+                    predicateEvaluator.matches(
                         state, state.projectedState, event.entityId, trigger.filter, predicateContext
                     )
                 } else true
@@ -452,7 +451,7 @@ class TriggerMatcher(
                     sourceId = sourceId,
                 )
                 if (trigger.attachmentFilter != GameObjectFilter.Any &&
-                    !PredicateEvaluator().matches(
+                    !predicateEvaluator.matches(
                         state, state.projectedState, event.attachmentId, trigger.attachmentFilter, attachmentCtx
                     )
                 ) return false
@@ -465,7 +464,7 @@ class TriggerMatcher(
                         sourceId = sourceId,
                         triggeringEntityId = event.attachmentId,
                     )
-                    PredicateEvaluator().matches(
+                    predicateEvaluator.matches(
                         state, state.projectedState, event.attachedToId, trigger.attachedToFilter, attachedToCtx
                     )
                 } else true
@@ -482,7 +481,7 @@ class TriggerMatcher(
                     sourceId = sourceId,
                 )
                 if (trigger.attachmentFilter != GameObjectFilter.Any &&
-                    !PredicateEvaluator().matches(
+                    !predicateEvaluator.matches(
                         state, state.projectedState, event.attachmentId, trigger.attachmentFilter, attachmentCtx
                     )
                 ) return false
@@ -497,7 +496,7 @@ class TriggerMatcher(
                         sourceId = sourceId,
                         triggeringEntityId = event.attachmentId,
                     )
-                    PredicateEvaluator().matches(
+                    predicateEvaluator.matches(
                         state, state.projectedState, event.attachedToId, trigger.unattachedFromFilter, hostCtx
                     )
                 } else true
@@ -539,7 +538,6 @@ class TriggerMatcher(
                 }
                 val filter = trigger.filter
                 if (filter != null) {
-                    val predicateEvaluator = PredicateEvaluator()
                     val predicateContext = com.wingedsheep.engine.handlers.PredicateContext(
                         controllerId = controllerId,
                         sourceId = sourceId
@@ -557,7 +555,6 @@ class TriggerMatcher(
                 if (binding == TriggerBinding.SELF && event.entityId != sourceId) return false
                 val filter = trigger.filter
                 if (filter != null) {
-                    val predicateEvaluator = PredicateEvaluator()
                     val predicateContext = com.wingedsheep.engine.handlers.PredicateContext(
                         controllerId = controllerId,
                         sourceId = sourceId
@@ -588,7 +585,6 @@ class TriggerMatcher(
                 if (!matchesPlayer(state, trigger.player, event.tapperId, controllerId)) return false
                 val filter = trigger.landFilter
                 if (filter != null) {
-                    val predicateEvaluator = PredicateEvaluator()
                     val predicateContext = com.wingedsheep.engine.handlers.PredicateContext(
                         controllerId = controllerId,
                         sourceId = sourceId
@@ -878,7 +874,6 @@ class TriggerMatcher(
                         controllerId = controllerId,
                         sourceId = sourceId
                     )
-                    val predicateEvaluator = PredicateEvaluator()
                     if (!predicateEvaluator.matches(state, projected, event.entityId, trigger.filter, predicateContext)) {
                         return false
                     }
@@ -1535,7 +1530,7 @@ class TriggerMatcher(
             val sourceContainer = state.getEntity(event.sourceEntityId) ?: return false
             if (!sourceContainer.has<CardComponent>()) return false
             val sourcePredicateContext = PredicateContext(controllerId = controllerId, sourceId = sourceId)
-            if (!PredicateEvaluator().matches(
+            if (!predicateEvaluator.matches(
                     state, state.projectedState, event.sourceEntityId, sourceFilter, sourcePredicateContext
                 )) return false
         }
@@ -1562,7 +1557,7 @@ class TriggerMatcher(
             val targetContainer = state.getEntity(event.targetEntityId) ?: return false
             if (!targetContainer.has<CardComponent>()) return false
             val predicateContext = PredicateContext(controllerId = controllerId, sourceId = sourceId)
-            if (!PredicateEvaluator().matches(
+            if (!predicateEvaluator.matches(
                     state, state.projectedState, event.targetEntityId, trigger.targetFilter, predicateContext
                 )) return false
         }
@@ -1987,7 +1982,6 @@ class TriggerMatcher(
         sourceId: EntityId,
         controllerId: EntityId
     ): List<EntityId> {
-        val predicateEvaluator = PredicateEvaluator()
         val predicateContext = PredicateContext(
             controllerId = controllerId,
             sourceId = sourceId

@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.state.components.battlefield.SolvedComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -111,7 +112,7 @@ class TriggerConditionProgressBadgeTest : FunSpec({
 
     /** The progress badges the first player's client would render on [id]. */
     fun GameTestDriver.progressBadges(id: EntityId): List<ClientCardEffect> =
-        ClientStateTransformer(cardRegistry)
+        ClientStateTransformer(cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             .transform(state, player1)
             .cards.getValue(id)
             .activeEffects

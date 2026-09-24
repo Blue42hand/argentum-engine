@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.AlternativeCostType
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.PaymentStrategy
@@ -159,7 +160,7 @@ class DisturbKeywordTest : FunSpec({
         val player = driver.activePlayer!!
 
         val geist = driver.putCardInGraveyard(player, "Test Geist")
-        val view = ClientStateTransformer(driver.cardRegistry).transform(driver.state, player).cards.getValue(geist)
+        val view = ClientStateTransformer(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null)).transform(driver.state, player).cards.getValue(geist)
 
         // The card itself is still the front face — it is lying in the graveyard face up.
         view.name shouldBe "Test Geist"

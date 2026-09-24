@@ -14,7 +14,7 @@ import kotlin.reflect.KClass
  * "Add {C}{C}" or "Add an amount of {C} equal to..."
  */
 class AddColorlessManaExecutor(
-    private val amountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator()
+    private val amountEvaluator: DynamicAmountEvaluator
 ) : EffectExecutor<AddColorlessManaEffect> {
 
     override val effectType: KClass<AddColorlessManaEffect> = AddColorlessManaEffect::class

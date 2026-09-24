@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.mechanics.layers.StateProjector
 import com.wingedsheep.engine.mechanics.mana.CostCalculator
 import com.wingedsheep.engine.registry.CardRegistry
@@ -116,7 +117,7 @@ class GoblinWarchiefTest : FunSpec({
         registry.register(TestCards.all)
         registry.register(GoblinWarchief)
 
-        val calculator = CostCalculator(registry)
+        val calculator = CostCalculator(registry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
         val driver = createDriver()
         driver.initMirrorMatch(
@@ -141,7 +142,7 @@ class GoblinWarchiefTest : FunSpec({
         registry.register(TestCards.all)
         registry.register(GoblinWarchief)
 
-        val calculator = CostCalculator(registry)
+        val calculator = CostCalculator(registry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
         val driver = createDriver()
         driver.initMirrorMatch(
@@ -167,7 +168,7 @@ class GoblinWarchiefTest : FunSpec({
         registry.register(TestCards.all)
         registry.register(GoblinWarchief)
 
-        val calculator = CostCalculator(registry)
+        val calculator = CostCalculator(registry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
         val driver = createDriver()
         driver.initMirrorMatch(
@@ -192,7 +193,7 @@ class GoblinWarchiefTest : FunSpec({
         registry.register(TestCards.all)
         registry.register(GoblinWarchief)
 
-        val calculator = CostCalculator(registry)
+        val calculator = CostCalculator(registry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
         val driver = createDriver()
         driver.initMirrorMatch(

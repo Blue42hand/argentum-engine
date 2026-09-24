@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.triggers
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.DamageDealtEvent
 import com.wingedsheep.engine.event.TriggerDetector
 import com.wingedsheep.engine.state.components.identity.TokenComponent
@@ -63,7 +64,7 @@ class FilterTriggerSourceToNontokenCreaturesYouControlTest : FunSpec({
     }
 
     fun detectorFor(driver: GameTestDriver): TriggerDetector =
-        TriggerDetector(driver.cardRegistry)
+        TriggerDetector(driver.cardRegistry, conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
     context("'nontoken creature you control' source predicate in combat-damage batch trigger") {
 

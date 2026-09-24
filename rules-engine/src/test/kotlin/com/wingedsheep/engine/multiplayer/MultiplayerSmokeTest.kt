@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.multiplayer
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.DeclareAttackers
 import com.wingedsheep.engine.core.DeclareBlockers
 import com.wingedsheep.engine.core.GameConfig
@@ -216,7 +217,7 @@ class MultiplayerSmokeTest : FunSpec({
             target = EffectTarget.PlayerRef(Player.EachOpponent)
         )
         val context = EffectContext(sourceId = null, controllerId = players[0])
-        val result = LoseLifeExecutor().execute(state, effect, context)
+        val result = LoseLifeExecutor(amountEvaluator = PredicateEvaluator(cardRegistry = null).amounts).execute(state, effect, context)
 
         fun life(s: GameState, p: EntityId) = s.getEntity(p)?.get<LifeTotalComponent>()?.life
         life(result.state, players[0]) shouldBe 20

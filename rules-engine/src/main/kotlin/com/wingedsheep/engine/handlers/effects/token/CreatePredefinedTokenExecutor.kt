@@ -36,7 +36,7 @@ import kotlin.reflect.KClass
 class CreatePredefinedTokenExecutor(
     private val cardRegistry: CardRegistry,
     private val staticAbilityHandler: StaticAbilityHandler? = null,
-    private val amountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator(),
+    private val amountEvaluator: DynamicAmountEvaluator,
     private val tokenArtRegistry: TokenArtRegistry? = null
 ) : EffectExecutor<CreatePredefinedTokenEffect> {
 
@@ -67,7 +67,8 @@ class CreatePredefinedTokenExecutor(
 
         // Check for token creation replacement effects (e.g., Mirrormind Crown)
         val replacementResult = TokenCreationReplacementHelper.checkReplacement(
-            state, effect, context, tokenCount, tokenControllerId, cardRegistry, staticAbilityHandler
+            state, effect, context, tokenCount, tokenControllerId, cardRegistry, staticAbilityHandler,
+            predicateEvaluator = amountEvaluator.predicates
         )
         if (replacementResult != null) return replacementResult
 
@@ -156,6 +157,7 @@ class CreatePredefinedTokenExecutor(
             newState = com.wingedsheep.engine.handlers.effects.EnterTappedReplacements
                 .applyCreatedTokenEntryTap(
                     newState, tokenId, tokenControllerId, definedTapped = effect.tapped,
+                    predicateEvaluator = amountEvaluator.predicates
                 )
         }
 
@@ -177,7 +179,7 @@ class CreatePredefinedTokenExecutor(
         val (afterAdditional, additionalEvents) = TokenCreationReplacementHelper
             .applyAdditionalTokenReplacements(
                 newState, tokenControllerId, createdTokenIds, effect.tapped,
-                cardRegistry, staticAbilityHandler
+                cardRegistry, staticAbilityHandler, amountEvaluator.predicates
             )
         newState = afterAdditional
         events.addAll(additionalEvents)

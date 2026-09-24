@@ -1,5 +1,6 @@
 package com.wingedsheep.gameserver.session
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.view.ClientEvent
 import com.wingedsheep.engine.view.ClientEventTransformer
 import com.wingedsheep.engine.view.ClientGameState
@@ -48,7 +49,7 @@ private val logger = LoggerFactory.getLogger(GameSession::class.java)
 class GameSession(
     val sessionId: String = UUID.randomUUID().toString(),
     private val services: EngineServices,
-    private val stateTransformer: ClientStateTransformer = ClientStateTransformer(services.cardRegistry),
+    private val stateTransformer: ClientStateTransformer = ClientStateTransformer(services.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null)),
     private val useHandSmoother: Boolean = false,
     /**
      * Number of seats this session fills before it is [isReady] to start. Defaults to 2 (the
@@ -61,13 +62,13 @@ class GameSession(
     constructor(
         sessionId: String = UUID.randomUUID().toString(),
         cardRegistry: CardRegistry,
-        stateTransformer: ClientStateTransformer = ClientStateTransformer(cardRegistry),
+        stateTransformer: ClientStateTransformer = ClientStateTransformer(cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null)),
         useHandSmoother: Boolean = false,
         debugMode: Boolean = false,
         printingRegistry: com.wingedsheep.engine.registry.PrintingRegistry? = null,
         maxPlayers: Int = 2,
         tokenArtRegistry: com.wingedsheep.engine.registry.TokenArtRegistry? = null,
-    ) : this(sessionId, EngineServices(cardRegistry, printingRegistry, tokenArtRegistry), if (debugMode) ClientStateTransformer(cardRegistry, debugMode = true) else stateTransformer, useHandSmoother, maxPlayers)
+    ) : this(sessionId, EngineServices(cardRegistry, printingRegistry, tokenArtRegistry), if (debugMode) ClientStateTransformer(cardRegistry, debugMode = true, predicateEvaluator = PredicateEvaluator(cardRegistry = null)) else stateTransformer, useHandSmoother, maxPlayers)
 
     private val cardRegistry: CardRegistry get() = services.cardRegistry
     // Lock for synchronizing state modifications to prevent lost updates

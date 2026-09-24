@@ -359,7 +359,7 @@ other "target" Oracle text scripted without a target requirement. That can becom
     cards take it as a parameter, and the executors, resumers and checks that call them receive it
     by injection. `CardPredicate.CouldEnchant` reads the registry `PredicateEvaluator` was built
     with. `EngineServicesIsolationTest` pins the two-engines case._
-- **Object graphs rebuilt during execution.**
+- ✅ **Object graphs rebuilt during execution.** — DONE
   - `StackResolver(cardRegistry = …)` is constructed ad hoc at 14 sites outside `EngineServices`,
     including `CounterEffectExecutor`, `StormCopyEffectExecutor`, `ExileTargetSpellExecutor` and
     `TurnManager`.
@@ -369,6 +369,19 @@ other "target" Oracle text scripted without a target requirement. That can becom
   - Likewise `PredicateEvaluator()` and `ConditionEvaluator()` are newed up in over 100 places.
   - The late two-phase wiring (`libraryExecutors.initialize(this)`, `initializeRecursion(::recurse)`)
     is a symptom of the circular dependency between executors and the cast pipeline.
+  - _Done: nothing outside `EngineServices` builds a `StackResolver`. The counter / exile-a-spell
+    executors and `TurnManager` take the per-engine `SpellCounterer`; the copy executors call the
+    stateless `StackPlacement` directly. `EffectHandler` (a pass-through whose fallback built a
+    second registry) is gone. `CastSpellHandler`, `PlayLandHandler`, `CostPaymentService` and
+    `LegalActionEnumerator` are single engine services, where they used to be rebuilt per consumer
+    (`PayOrSufferExecutor` built a whole `EngineServices`). Executor modules get the registry's
+    `recurse` at construction, and the one real cycle (executors ↔ cast pipeline) is a set of
+    providers handed in at construction, not `initialize(...)` setters.
+    `PredicateEvaluator(cardRegistry)` is the root of one predicate / condition / amount knot
+    (`.conditions`, `.amounts`); `EngineServices` owns it and it is injected everywhere, with
+    `ZoneTransitionService` carrying it for the zone, replacement and damage helpers. None of the
+    three evaluators has a no-arg constructor any more. The only registry-free evaluator is the
+    layer projector's, because `GameState.projectedState` has no engine to ask._
 - **The CR 613.8 doc overstates the code.**
   - `docs/continuous-effect-dependency-system.md` and AGENTS.md describe dependency detection by
     trial application. `EffectSorter.dependsOn` is actually a hard-coded list of type-changing

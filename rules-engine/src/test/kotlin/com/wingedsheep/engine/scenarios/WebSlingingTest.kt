@@ -1,10 +1,10 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.AlternativeCostType
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.PaymentStrategy
-import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.legalactions.LegalActionEnumerator
 import com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent
@@ -212,7 +212,7 @@ class WebSlingingTest : FunSpec({
         val perm = driver.findPermanent(player, "Web Vanilla")
         perm.shouldNotBeNull()
         driver.state.getEntity(perm)?.get<CastChoicesComponent>()?.chosen?.containsKey(ChoiceSlot.WEB_SLUNG) shouldBe true
-        ConditionEvaluator().evaluate(
+        PredicateEvaluator(cardRegistry = null).conditions.evaluate(
             driver.state,
             WebSlungCostWasPaid,
             EffectContext(sourceId = perm, controllerId = player)
@@ -311,7 +311,7 @@ class WebSlingingTest : FunSpec({
         driver.assertLifeTotal(player, 20)
         val normalPerm = driver.findPermanent(player, "Web Payoff")
         normalPerm.shouldNotBeNull()
-        ConditionEvaluator().evaluate(
+        PredicateEvaluator(cardRegistry = null).conditions.evaluate(
             driver.state,
             WebSlungCostWasPaid,
             EffectContext(sourceId = normalPerm, controllerId = player)

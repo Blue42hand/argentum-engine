@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.triggers
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.BecomesTargetEvent
 import com.wingedsheep.engine.core.ExecutionResult
@@ -357,7 +358,7 @@ class BecomesTargetPlayerAndAbilityAxesTest : FunSpec({
         )
 
         fun firings(driver: GameTestDriver, event: BecomesTargetEvent, observerId: EntityId) =
-            TriggerDetector(driver.cardRegistry)
+            TriggerDetector(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null), conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions)
                 .detectTriggers(driver.state, listOf(event))
                 .filter { it.ability.trigger is EventPattern.BecomesTargetEvent && it.sourceId == observerId }
 

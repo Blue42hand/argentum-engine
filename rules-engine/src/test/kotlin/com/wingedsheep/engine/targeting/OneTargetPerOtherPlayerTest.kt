@@ -1,6 +1,5 @@
 package com.wingedsheep.engine.targeting
 
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.TargetingSourceType
@@ -66,7 +65,7 @@ class OneTargetPerOtherPlayerTest : FunSpec({
 
         test("counts the opponents at the table, not the whole table") {
             val fourSeats = driverWith(4)
-            val evaluator = DynamicAmountEvaluator()
+            val evaluator = PredicateEvaluator(cardRegistry = null).amounts
             val context = EffectContext(sourceId = null, controllerId = fourSeats.player1)
 
             withClue("three other players in a four-player game") {
@@ -87,7 +86,7 @@ class OneTargetPerOtherPlayerTest : FunSpec({
 
         test("a two-player game leaves exactly one target available") {
             val heads = driverWith(2)
-            DynamicAmountEvaluator().evaluate(
+            PredicateEvaluator(cardRegistry = null).amounts.evaluate(
                 heads.state,
                 DynamicAmount.PlayerCount(Player.EachOpponent),
                 EffectContext(sourceId = null, controllerId = heads.player1),
@@ -102,7 +101,7 @@ class OneTargetPerOtherPlayerTest : FunSpec({
             val seats = driver.state.activePlayers
             seats.drop(1).forEach { driver.putCreatureOnBattlefield(it, "Per Player Target Bear") }
 
-            val info = TargetEnumerationUtils(PredicateEvaluator())
+            val info = TargetEnumerationUtils(PredicateEvaluator(cardRegistry = null))
                 .buildTargetInfos(driver.state, driver.player1, listOf(perOtherPlayer))
                 .single()
 
@@ -114,7 +113,7 @@ class OneTargetPerOtherPlayerTest : FunSpec({
     context("differentControllers (CR 601.2c)") {
 
         fun validate(driver: GameTestDriver, targets: List<ChosenTarget>) =
-            TargetValidator().validateTargets(
+            TargetValidator(PredicateEvaluator(cardRegistry = null)).validateTargets(
                 state = driver.state,
                 targets = targets,
                 requirements = listOf(perOtherPlayer),

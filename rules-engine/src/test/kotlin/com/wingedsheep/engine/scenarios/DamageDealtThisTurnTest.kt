@@ -1,12 +1,12 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.engineSerializersModule
 import com.wingedsheep.engine.state.Component
 import com.wingedsheep.engine.state.components.battlefield.DamageDealtThisTurnComponent
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.DamageUtils
 import com.wingedsheep.engine.support.GameTestDriver
@@ -26,7 +26,7 @@ class DamageDealtThisTurnTest : FunSpec({
         initMirrorMatch(Deck.of("Mountain" to 40), skipMulligans = true, startingPlayer = 0)
         passPriorityUntil(Step.PRECOMBAT_MAIN)
     }
-    fun GameTestDriver.dealt(source: EntityId): Int = DynamicAmountEvaluator().evaluate(
+    fun GameTestDriver.dealt(source: EntityId): Int = PredicateEvaluator(cardRegistry = null).amounts.evaluate(
         state,
         DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.DamageDealtThisTurn),
         EffectContext(sourceId = source, controllerId = player1)

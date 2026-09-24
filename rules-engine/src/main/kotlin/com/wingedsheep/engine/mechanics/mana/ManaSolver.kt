@@ -3,8 +3,6 @@ import com.wingedsheep.engine.legality.LegalityKernel
 import com.wingedsheep.engine.state.components.battlefield.chosenCreatureType
 import com.wingedsheep.engine.state.components.battlefield.chosenColor
 
-import com.wingedsheep.engine.handlers.ConditionEvaluator
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
@@ -299,11 +297,10 @@ data class ManaProduction(
  */
 class ManaSolver(
     private val cardRegistry: CardRegistry,
-    private val dynamicAmountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator()
+    private val predicateEvaluator: PredicateEvaluator
 ) {
-
-    private val predicateEvaluator = PredicateEvaluator()
-    private val conditionEvaluator = ConditionEvaluator()
+    private val conditionEvaluator = predicateEvaluator.conditions
+    private val dynamicAmountEvaluator = predicateEvaluator.amounts
 
     // Auto-tap asks the same kernel the enumerators and ActivateAbilityHandler do, so it never taps
     // a mana ability they would refuse (or skips one they would allow).
@@ -1313,6 +1310,7 @@ class ManaSolver(
                             sourceId = entityId,
                             controllerId = playerId,
                             cardRegistry = cardRegistry,
+                            predicateEvaluator = predicateEvaluator
                         )
                         combinedColors.addAll(resolved)
                         effectColors.addAll(resolved)
@@ -2453,7 +2451,8 @@ class ManaSolver(
             sourceId = sourceId,
             // The source pays its own cost unless the atom's own `excludeSelf` says otherwise
             // (CR 601.2h); canAfford reads that flag itself.
-            manaSolver = this
+            manaSolver = this,
+            predicateEvaluator = predicateEvaluator
         )
         is AbilityCost.Composite -> cost.costs.all {
             nonManaAbilityCostIsPayable(state, playerId, sourceId, it)

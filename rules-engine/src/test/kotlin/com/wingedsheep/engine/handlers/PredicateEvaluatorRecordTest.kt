@@ -24,7 +24,7 @@ import io.kotest.matchers.shouldBe
  */
 class PredicateEvaluatorRecordTest : FunSpec({
 
-    val evaluator = PredicateEvaluator()
+    val evaluator = PredicateEvaluator(cardRegistry = null)
 
     fun record(
         typeLine: TypeLine,

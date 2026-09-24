@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects
 
+import com.wingedsheep.engine.mechanics.targeting.TargetValidator
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.Outcome
 import com.wingedsheep.engine.handlers.DecisionHandler
@@ -43,7 +44,6 @@ import kotlin.reflect.KClass
  */
 class EffectExecutorRegistry(
     private val zones: ZoneTransitionService,
-    private val amountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator(),
     private val decisionHandler: DecisionHandler = DecisionHandler(),
     private val cardRegistry: com.wingedsheep.engine.registry.CardRegistry,
     private val tokenArtRegistry: com.wingedsheep.engine.registry.TokenArtRegistry? = null,
@@ -51,13 +51,19 @@ class EffectExecutorRegistry(
     spellCounterer: SpellCounterer,
     /**
      * The engine's cast and land-play pipelines, for the "cast / play it without paying its mana
-     * cost" executors. Providers, because those pipelines are built from the whole engine graph —
-     * this registry included — so [com.wingedsheep.engine.core.EngineServices] builds them last.
+     * cost" executors, and its cost-payment service, for "pay or suffer". Providers, because those
+     * are built from the whole engine graph — this registry included — so
+     * [com.wingedsheep.engine.core.EngineServices] builds them last.
      */
     castSpellHandler: () -> CastSpellHandler,
     playLandHandler: () -> PlayLandHandler,
+    costPaymentService: () -> com.wingedsheep.engine.mechanics.cost.CostPaymentService,
+    private val targetFinder: TargetFinder,
+    private val targetValidator: TargetValidator
 ) {
+    private val predicateEvaluator = zones.predicateEvaluator
     private val executors = mutableMapOf<KClass<out Effect>, EffectExecutor<*>>()
+    private val amountEvaluator: DynamicAmountEvaluator = predicateEvaluator.amounts
 
     init {
         // Every module that runs sub-effects receives [recurse] at construction; the reference is
@@ -66,18 +72,18 @@ class EffectExecutorRegistry(
         registerModule(DamageExecutors(zones, amountEvaluator, decisionHandler))
         registerModule(PermanentExecutors(::recurse, zones, decisionHandler, amountEvaluator, cardRegistry))
         registerModule(ManaExecutors(amountEvaluator, cardRegistry))
-        registerModule(TokenExecutors(zones, amountEvaluator, StaticAbilityHandler(cardRegistry), cardRegistry, tokenArtRegistry))
+        registerModule(TokenExecutors(zones, amountEvaluator, StaticAbilityHandler(cardRegistry), cardRegistry, tokenArtRegistry, targetFinder = targetFinder))
         registerModule(
-            LibraryExecutors(::recurse, zones, cardRegistry, castSpellHandler, playLandHandler, TargetFinder())
+            LibraryExecutors(::recurse, zones, cardRegistry, castSpellHandler, playLandHandler, targetFinder)
         )
-        registerModule(StackExecutors(zones, amountEvaluator, cardRegistry, spellCounterer))
+        registerModule(StackExecutors(zones, amountEvaluator, cardRegistry, spellCounterer, targetFinder = targetFinder))
         registerModule(InformationExecutors())
         registerModule(CombatExecutors(amountEvaluator, cardRegistry))
-        registerModule(ZonesExecutors(::recurse, zones, cardRegistry))
+        registerModule(ZonesExecutors(::recurse, zones, cardRegistry, targetFinder = targetFinder))
         registerModule(LinkedExileExecutors(zones))
         registerModule(RegenerationExecutors())
         registerModule(BendExecutors())
-        registerModule(CompositeExecutors(::recurse, cardRegistry, TargetFinder(), decisionHandler))
+        registerModule(CompositeExecutors(::recurse, cardRegistry, targetFinder, decisionHandler, amountEvaluator = amountEvaluator, targetValidator = targetValidator))
         registerModule(
             DrawingExecutors(
                 ::recurse,
@@ -85,11 +91,12 @@ class EffectExecutorRegistry(
                 amountEvaluator,
                 decisionHandler,
                 cardRegistry = cardRegistry,
-                replacementProcessor = replacementProcessor
+                replacementProcessor = replacementProcessor,
+                targetFinder = targetFinder
             )
         )
-        registerModule(PlayerExecutors(::recurse, zones, decisionHandler, cardRegistry))
-        registerModule(ChainExecutors(::recurse))
+        registerModule(PlayerExecutors(::recurse, zones, decisionHandler, cardRegistry, costPaymentService))
+        registerModule(ChainExecutors(::recurse, targetFinder = targetFinder, predicateEvaluator = predicateEvaluator))
     }
 
     /**

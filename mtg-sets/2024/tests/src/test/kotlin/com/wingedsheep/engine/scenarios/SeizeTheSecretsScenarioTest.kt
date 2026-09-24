@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.mechanics.mana.CostCalculator
 import com.wingedsheep.engine.support.GameTestDriver
@@ -35,7 +36,7 @@ class SeizeTheSecretsScenarioTest : FunSpec({
         val registry = CardRegistry()
         registry.register(TestCards.all)
         registry.register(SeizeTheSecrets)
-        val calculator = CostCalculator(registry)
+        val calculator = CostCalculator(registry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
         val driver = createDriver()
         driver.initMirrorMatch(deck = Deck.of("Island" to 40))
@@ -50,7 +51,7 @@ class SeizeTheSecretsScenarioTest : FunSpec({
         val registry = CardRegistry()
         registry.register(TestCards.all)
         registry.register(SeizeTheSecrets)
-        val calculator = CostCalculator(registry)
+        val calculator = CostCalculator(registry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
         val driver = createDriver()
         driver.initMirrorMatch(deck = Deck.of("Island" to 40))
@@ -76,7 +77,7 @@ class SeizeTheSecretsScenarioTest : FunSpec({
         val registry = CardRegistry()
         registry.register(TestCards.all)
         registry.register(SeizeTheSecrets)
-        val calculator = CostCalculator(registry)
+        val calculator = CostCalculator(registry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
         val driver = createDriver()
         driver.initMirrorMatch(deck = Deck.of("Island" to 40))

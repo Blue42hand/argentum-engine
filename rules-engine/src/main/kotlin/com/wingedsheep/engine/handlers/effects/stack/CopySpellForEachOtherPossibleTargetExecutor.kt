@@ -48,8 +48,8 @@ import com.wingedsheep.engine.core.Outcome
  * A spell flagged can't-be-copied (CR 707.10) yields no copies at all.
  */
 class CopySpellForEachOtherPossibleTargetExecutor(
-    private val targetFinder: TargetFinder = TargetFinder(),
-    private val predicateEvaluator: PredicateEvaluator = PredicateEvaluator()
+    private val targetFinder: TargetFinder,
+    private val predicateEvaluator: PredicateEvaluator
 ) : EffectExecutor<CopySpellForEachOtherPossibleTargetEffect> {
 
     override val effectType: KClass<CopySpellForEachOtherPossibleTargetEffect> =

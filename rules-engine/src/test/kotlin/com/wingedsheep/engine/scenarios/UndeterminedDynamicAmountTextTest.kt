@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.engine.view.ClientStateTransformer
@@ -91,7 +93,7 @@ class UndeterminedDynamicAmountTextTest : FunSpec({
         d.submitTargetSelection(active, listOf(bruiser))
 
         val stackId = d.state.stack.first()
-        val stackCard = ClientStateTransformer(cardRegistry = d.cardRegistry)
+        val stackCard = ClientStateTransformer(cardRegistry = d.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             .transform(d.state, viewingPlayerId = active)
             .cards[stackId]
         stackCard.shouldNotBeNull()
@@ -130,7 +132,7 @@ class UndeterminedDynamicAmountTextTest : FunSpec({
         d.submitTargetSelection(active, listOf(zeroPower))
 
         val stackId = d.state.stack.first()
-        val stackCard = ClientStateTransformer(cardRegistry = d.cardRegistry)
+        val stackCard = ClientStateTransformer(cardRegistry = d.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             .transform(d.state, viewingPlayerId = active)
             .cards[stackId]
         stackCard.shouldNotBeNull()

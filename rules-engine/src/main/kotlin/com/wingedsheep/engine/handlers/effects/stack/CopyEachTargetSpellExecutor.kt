@@ -29,7 +29,7 @@ import kotlin.reflect.KClass
  * targets for the copies." (Display of Power).
  */
 class CopyEachTargetSpellExecutor(
-    private val targetFinder: TargetFinder = TargetFinder()
+    private val targetFinder: TargetFinder
 ) : EffectExecutor<CopyEachTargetSpellEffect> {
 
     override val effectType: KClass<CopyEachTargetSpellEffect> = CopyEachTargetSpellEffect::class

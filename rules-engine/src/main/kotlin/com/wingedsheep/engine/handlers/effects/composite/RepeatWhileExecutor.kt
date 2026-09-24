@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.composite
 
+import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.DecisionHandler
 import com.wingedsheep.engine.handlers.EffectContext
@@ -30,7 +31,8 @@ import kotlin.reflect.KClass
  * and either starts another iteration or completes.
  */
 class RepeatWhileExecutor(
-    private val effectExecutor: (GameState, Effect, EffectContext) -> EffectResult
+    private val effectExecutor: (GameState, Effect, EffectContext) -> EffectResult,
+    private val conditionEvaluator: ConditionEvaluator
 ) : EffectExecutor<RepeatWhileEffect> {
 
     override val effectType: KClass<RepeatWhileEffect> = RepeatWhileEffect::class
@@ -60,7 +62,8 @@ class RepeatWhileExecutor(
             context = context,
             sourceName = sourceName,
             effectExecutor = effectExecutor,
-            priorEvents = emptyList()
+            priorEvents = emptyList(),
+            conditionEvaluator = conditionEvaluator
         )
     }
 
@@ -79,7 +82,8 @@ class RepeatWhileExecutor(
             context: EffectContext,
             sourceName: String?,
             effectExecutor: (GameState, Effect, EffectContext) -> EffectResult,
-            priorEvents: List<GameEvent>
+            priorEvents: List<GameEvent>,
+            conditionEvaluator: ConditionEvaluator
         ): EffectResult {
             // Pre-push AFTER_BODY continuation
             val afterBodyContinuation = RepeatWhileContinuation(
@@ -135,6 +139,7 @@ class RepeatWhileExecutor(
                     numbers = result.updatedStoredNumbers,
                     chosenValues = result.updatedChosenValues,
                 ),
+                conditionEvaluator = conditionEvaluator
             )
         }
 
@@ -167,7 +172,7 @@ class RepeatWhileExecutor(
             sourceName: String?,
             effectExecutor: (GameState, Effect, EffectContext) -> EffectResult,
             priorEvents: List<GameEvent>,
-            conditionEvaluator: com.wingedsheep.engine.handlers.ConditionEvaluator? = null,
+            conditionEvaluator: com.wingedsheep.engine.handlers.ConditionEvaluator,
             bodyOutputs: BodyOutputs = BodyOutputs(),
         ): EffectResult {
             return when (repeatCondition) {
@@ -183,7 +188,7 @@ class RepeatWhileExecutor(
                     )
                 }
                 is RepeatCondition.WhileCondition -> {
-                    val evaluator = conditionEvaluator ?: com.wingedsheep.engine.handlers.ConditionEvaluator()
+                    val evaluator = conditionEvaluator
                     val conditionContext = if (bodyOutputs.isEmpty) context else context.copy(
                         pipeline = context.pipeline.copy(
                             storedCollections = context.pipeline.storedCollections + bodyOutputs.collections,
@@ -206,7 +211,8 @@ class RepeatWhileExecutor(
                             context = context.copy(resolutionDepth = context.resolutionDepth + 1),
                             sourceName = sourceName,
                             effectExecutor = effectExecutor,
-                            priorEvents = priorEvents
+                            priorEvents = priorEvents,
+                            conditionEvaluator = conditionEvaluator
                         )
                     } else {
                         EffectResult.success(state, priorEvents)

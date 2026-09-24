@@ -2,7 +2,6 @@ package com.wingedsheep.engine.handlers.effects.library
 
 import com.wingedsheep.engine.core.CardsRevealedEvent
 import com.wingedsheep.engine.core.EffectResult
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
@@ -36,13 +35,12 @@ import kotlin.reflect.KClass
  * pipeline steps (SelectFromCollection, MoveCollection).
  */
 class GatherCardsExecutor(
-    cardRegistry: com.wingedsheep.engine.registry.CardRegistry? = null
+    private val predicateEvaluator: PredicateEvaluator
 ) : EffectExecutor<GatherCardsEffect> {
 
     override val effectType: KClass<GatherCardsEffect> = GatherCardsEffect::class
 
-    private val amountEvaluator = DynamicAmountEvaluator()
-    private val predicateEvaluator = PredicateEvaluator(cardRegistry)
+    private val amountEvaluator = predicateEvaluator.amounts
 
     override fun execute(
         state: GameState,
@@ -58,7 +56,7 @@ class GatherCardsExecutor(
                     // For a mill, apply ModifyMillAmount replacement effects to the announced
                     // count per milling player (CR 701.13 — "mill that many plus four instead").
                     val effectiveCount = if (source.isMill) {
-                        MillAmountModifier.apply(state, playerId, count)
+                        MillAmountModifier.apply(state, playerId, count, predicateEvaluator = predicateEvaluator)
                     } else {
                         count
                     }
@@ -155,7 +153,8 @@ class GatherCardsExecutor(
                     if (resolvedPlayerId != null) it.copy(controllerId = resolvedPlayerId) else it
                 }
                 val matched = BattlefieldFilterUtils.findMatchingOnBattlefield(
-                    state, baseFilter, predicateContext, excludeSelfId
+                    state, baseFilter, predicateContext, excludeSelfId,
+                    predicateEvaluator = predicateEvaluator
                 )
                 val afterTriggering = if (source.excludeTriggering) {
                     matched.filter { it != context.triggeringEntityId }
@@ -215,7 +214,7 @@ class GatherCardsExecutor(
                     emptyList()
                 } else {
                     val matching = BattlefieldFilterUtils
-                        .findMatchingOnBattlefield(state, source.filter, context)
+                        .findMatchingOnBattlefield(state, source.filter, context, predicateEvaluator = predicateEvaluator)
                         .toSet()
                     attachedIds.filter { it in matching }
                 }

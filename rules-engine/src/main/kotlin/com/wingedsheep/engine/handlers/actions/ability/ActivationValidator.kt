@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.actions.ability
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.PaymentStrategy
 import com.wingedsheep.engine.core.SelectManaSourcesDecision
@@ -64,6 +65,7 @@ internal class ActivationValidator(
     private val abilityResolver: ActivatedAbilityResolver,
     private val costTotaller: ActivationCostTotaller,
     private val legality: LegalityKernel,
+    private val predicateEvaluator: PredicateEvaluator
 ) {
 
     fun validate(state: GameState, action: ActivateAbility): String? {
@@ -311,7 +313,8 @@ internal class ActivationValidator(
         if (submitted.isEmpty()) return null
         val resolver = GraveyardTotalExileResolver
         val candidates = resolver.candidates(
-            state, action.playerId, atom.measure, atom.filter
+            state, action.playerId, atom.measure, atom.filter,
+            predicateEvaluator = predicateEvaluator
         )
         return if (!resolver.isLegalSelection(candidates, atom.minTotal, submitted)) {
             "Those cards don't pay this cost: ${atom.description}"

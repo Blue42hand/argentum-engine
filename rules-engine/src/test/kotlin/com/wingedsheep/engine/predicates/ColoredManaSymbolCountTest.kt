@@ -45,8 +45,8 @@ import io.kotest.matchers.shouldBe
  */
 class ColoredManaSymbolCountTest : FunSpec({
 
-    val predicateEvaluator = PredicateEvaluator()
-    val amountEvaluator = DynamicAmountEvaluator()
+    val predicateEvaluator = PredicateEvaluator(cardRegistry = null)
+    val amountEvaluator = predicateEvaluator.amounts
     val player = EntityId.generate()
 
     /** A battlefield permanent whose only interesting characteristic is its printed cost. */

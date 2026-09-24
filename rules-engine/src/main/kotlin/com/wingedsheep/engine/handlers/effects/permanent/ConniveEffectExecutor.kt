@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.permanent
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
@@ -45,7 +46,8 @@ import kotlin.reflect.KClass
  *   `PermanentExecutors.initializeRecursion`).
  */
 class ConniveEffectExecutor(
-    private val recurse: (GameState, Effect, EffectContext) -> EffectResult
+    private val recurse: (GameState, Effect, EffectContext) -> EffectResult,
+    private val predicateEvaluator: PredicateEvaluator
 ) : EffectExecutor<ConniveEffect> {
 
     override val effectType: KClass<ConniveEffect> = ConniveEffect::class
@@ -66,7 +68,8 @@ class ConniveEffectExecutor(
 
         if (!effect.replacementsApplied) {
             val prefixEffects = KeywordActionReplacements.collectPrefixes(
-                state, connivingId, ReplaceableKeywordAction.CONNIVE
+                state, connivingId, ReplaceableKeywordAction.CONNIVE,
+                predicateEvaluator = predicateEvaluator
             )
             if (prefixEffects.isNotEmpty()) {
                 val composite = CompositeEffect(

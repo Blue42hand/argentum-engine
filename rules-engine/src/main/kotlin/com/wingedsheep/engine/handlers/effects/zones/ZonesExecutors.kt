@@ -24,7 +24,7 @@ class ZonesExecutors(
     private val recursion: (GameState, Effect, EffectContext) -> EffectResult,
     private val zones: ZoneTransitionService,
     private val cardRegistry: CardRegistry,
-    private val targetFinder: TargetFinder = TargetFinder()
+    private val targetFinder: TargetFinder
 ) : ExecutorModule {
 
 
@@ -34,7 +34,7 @@ class ZonesExecutors(
         WarpExileExecutor(zones),
         MoveTrackedBattlefieldObjectExecutor(zones),
         ForceExileMultiZoneExecutor(zones),
-        ForceSacrificeExecutor(zones),
+        ForceSacrificeExecutor(zones, dynamicAmountEvaluator = zones.predicateEvaluator.amounts),
         SacrificeExecutor(zones),
         SacrificeSelfExecutor(zones),
         SacrificeTargetExecutor(zones),

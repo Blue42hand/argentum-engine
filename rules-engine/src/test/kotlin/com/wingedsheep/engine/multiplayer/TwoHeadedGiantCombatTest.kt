@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.multiplayer
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActionProcessor
 import com.wingedsheep.engine.core.DeclareAttackers
 import com.wingedsheep.engine.core.DeclareBlockers
@@ -57,7 +58,7 @@ class TwoHeadedGiantCombatTest : FunSpec({
     )
 
     fun registry() = CardRegistry().also { it.register(bear) }
-    val zones = ZoneTransitionService(registry())
+    val zones = ZoneTransitionService(registry(), predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
     fun init2hg(): Pair<GameState, List<EntityId>> {
         val deck = Deck(cards = List(40) { bear.name })

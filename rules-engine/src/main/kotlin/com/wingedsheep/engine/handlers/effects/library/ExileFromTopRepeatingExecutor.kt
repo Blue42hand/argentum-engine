@@ -5,7 +5,6 @@ import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.GameEvent as EngineGameEvent
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
-import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
 import com.wingedsheep.engine.handlers.effects.DamageUtils
@@ -37,10 +36,9 @@ import com.wingedsheep.engine.core.Outcome
  * - No nonland card found: process stops (no card put in hand for that iteration)
  */
 class ExileFromTopRepeatingExecutor(private val zones: ZoneTransitionService) : EffectExecutor<ExileFromTopRepeatingEffect> {
+    private val predicateEvaluator = zones.predicateEvaluator
 
     override val effectType: KClass<ExileFromTopRepeatingEffect> = ExileFromTopRepeatingEffect::class
-
-    private val predicateEvaluator = PredicateEvaluator()
 
     override fun execute(
         state: GameState,

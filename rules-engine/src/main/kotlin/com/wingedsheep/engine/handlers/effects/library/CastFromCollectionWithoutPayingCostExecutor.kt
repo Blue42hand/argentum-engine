@@ -57,7 +57,7 @@ import kotlin.reflect.KClass
 class CastFromCollectionWithoutPayingCostExecutor(
     private val castSpellHandlerProvider: () -> CastSpellHandler,
     private val cardRegistry: CardRegistry,
-    private val targetFinder: TargetFinder = TargetFinder(),
+    private val targetFinder: TargetFinder
 ) : EffectExecutor<CastFromCollectionWithoutPayingCostEffect> {
 
     override val effectType: KClass<CastFromCollectionWithoutPayingCostEffect> =

@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.SelectCardsDecision
 import com.wingedsheep.engine.core.YesNoDecision
@@ -150,7 +151,7 @@ class SourceZoneIdentityTest : FunSpec({
         val current = context.withCurrentObjectReferences(d.state)
         current.resolveTarget(EffectTarget.TriggeringEntity, d.state) shouldBe null
         current.resolveTarget(EffectTarget.ControllerOfTriggeringEntity, d.state) shouldBe d.player1
-        com.wingedsheep.engine.handlers.DynamicAmountEvaluator().evaluate(d.state, DynamicAmounts.triggeringPower(), current) shouldBe 7
+        PredicateEvaluator(cardRegistry = null).amounts.evaluate(d.state, DynamicAmounts.triggeringPower(), current) shouldBe 7
         for (cardSource in listOf(com.wingedsheep.sdk.scripting.effects.CardSource.Self,
             com.wingedsheep.sdk.scripting.effects.CardSource.TriggeringEntity)) {
             val gathered = d.services.effectExecutorRegistry.execute(d.state,
@@ -220,7 +221,7 @@ class SourceZoneIdentityTest : FunSpec({
             Effects.DestroyAll(com.wingedsheep.sdk.dsl.Filters.Creature),
             EffectContext(sourceId = null, controllerId = d.player1))
         result.error shouldBe null
-        val triggers = com.wingedsheep.engine.event.TriggerDetector(d.cardRegistry)
+        val triggers = com.wingedsheep.engine.event.TriggerDetector(d.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null), conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions)
             .detectTriggers(result.state, result.events)
         val observed = triggers.single { it.sourceId == source && it.triggerContext.triggeringEntityId == other }
         observed.objectReferences.origin shouldBe origin

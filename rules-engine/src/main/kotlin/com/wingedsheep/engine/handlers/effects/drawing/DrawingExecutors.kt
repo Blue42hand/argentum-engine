@@ -21,12 +21,11 @@ class DrawingExecutors(
     /** The registry's re-entrant entry point, for the executors that run sub-effects. */
     private val effectExecutor: (GameState, Effect, EffectContext) -> EffectResult,
     private val zones: ZoneTransitionService,
-    private val amountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator(),
+    private val amountEvaluator: DynamicAmountEvaluator,
     private val decisionHandler: DecisionHandler = DecisionHandler(),
-    private val targetFinder: TargetFinder = TargetFinder(),
+    private val targetFinder: TargetFinder,
     private val cardRegistry: com.wingedsheep.engine.registry.CardRegistry,
-    private val replacementProcessor: com.wingedsheep.engine.replacement.ReplacementEffectProcessor =
-        com.wingedsheep.engine.replacement.ReplacementEffectProcessor()
+    private val replacementProcessor: com.wingedsheep.engine.replacement.ReplacementEffectProcessor
 ) : ExecutorModule {
     private val drawCardsExecutor = DrawCardsExecutor(amountEvaluator, cardRegistry, effectExecutor, replacementProcessor)
 

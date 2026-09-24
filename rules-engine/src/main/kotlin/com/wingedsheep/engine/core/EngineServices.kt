@@ -6,6 +6,7 @@ import com.wingedsheep.engine.event.TriggerProcessor
 import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.ContinuationHandler
 import com.wingedsheep.engine.handlers.CostHandler
+import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.MulliganHandler
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.TargetFinder
@@ -50,15 +51,27 @@ class EngineServices(
      * art printed by the set of the card that created it. Null is fine — tokens then fall back to
      * the engine-wide generic art for their creature type.
      */
-    val tokenArtRegistry: TokenArtRegistry? = null,
+    val tokenArtRegistry: TokenArtRegistry? = null
 ) {
     /**
+     * The engine's one predicate / condition / dynamic-amount evaluator, built as a unit (see
+     * [PredicateEvaluator.conditions]) over this engine's card registry, and handed to everything
+     * below that evaluates a filter, a condition or an amount.
+     */
+    val predicateEvaluator = PredicateEvaluator(cardRegistry)
+    val conditionEvaluator: ConditionEvaluator = predicateEvaluator.conditions
+    val dynamicAmountEvaluator: DynamicAmountEvaluator = predicateEvaluator.amounts
+    val targetFinder = TargetFinder(predicateEvaluator)
+    val targetValidator = TargetValidator(predicateEvaluator)
+
+    /**
      * The one zone-transition service for this engine. It carries the card and token-art
-     * registries every zone move needs (battlefield-entry setup, a zone-change rider's token), so
+     * registries and the evaluator every zone move needs (battlefield-entry setup, replacement
+     * checks, a zone-change rider's token), so
      * it is threaded through the graph rather than parked in a global — two engines in one JVM
      * (server plus gym, parallel tests) each keep their own.
      */
-    val zones = ZoneTransitionService(cardRegistry, tokenArtRegistry)
+    val zones = ZoneTransitionService(cardRegistry, predicateEvaluator, tokenArtRegistry)
 
     /**
      * The one replacement-effect processor for this game. Declared before anything that
@@ -67,9 +80,7 @@ class EngineServices(
      * each constructing its own. The processor is stateless today; keeping it single is what
      * makes it safe for it to stop being so.
      */
-    val replacementEffectProcessor = ReplacementEffectProcessor()
-    val conditionEvaluator = ConditionEvaluator()
-    val predicateEvaluator = PredicateEvaluator(cardRegistry)
+    val replacementEffectProcessor = ReplacementEffectProcessor(conditionEvaluator)
 
     /**
      * Counters and exiles stack objects. Shared by [stackResolver] and the counter / exile-a-spell
@@ -78,10 +89,10 @@ class EngineServices(
     val spellCounterer = SpellCounterer(cardRegistry, predicateEvaluator)
 
     /**
-     * The one effect-executor registry. The cast and land-play pipelines it needs (to cast a card
-     * "without paying its mana cost") are built from this whole graph, so it receives them as
-     * providers of [castSpellHandler] and [playLandHandler], which are only read once an effect
-     * executes.
+     * The one effect-executor registry. The cast and land-play pipelines and the cost-payment
+     * service it needs (to cast a card "without paying its mana cost", to pay or suffer) are built
+     * from this whole graph, so it receives them as providers of [castSpellHandler],
+     * [playLandHandler] and [costPaymentService], which are only read once an effect executes.
      */
     val effectExecutorRegistry = EffectExecutorRegistry(
         zones,
@@ -90,7 +101,10 @@ class EngineServices(
         replacementProcessor = replacementEffectProcessor,
         spellCounterer = spellCounterer,
         castSpellHandler = { castSpellHandler },
-        playLandHandler = { playLandHandler }
+        playLandHandler = { playLandHandler },
+        costPaymentService = { costPaymentService },
+        targetFinder = targetFinder,
+        targetValidator = targetValidator
     )
     val manaAbilitySideEffectExecutor = ManaAbilitySideEffectExecutor(
         zones,
@@ -98,24 +112,23 @@ class EngineServices(
         effectExecutor = effectExecutorRegistry::execute
     )
     val combatManager = CombatManager(zones, cardRegistry, manaAbilitySideEffectExecutor)
-    val triggerDetector = TriggerDetector(cardRegistry)
-    val stateTriggerPoller = com.wingedsheep.engine.event.StateTriggerPoller(cardRegistry)
+    val triggerDetector = TriggerDetector(cardRegistry, predicateEvaluator = predicateEvaluator, conditionEvaluator = conditionEvaluator)
+    val stateTriggerPoller = com.wingedsheep.engine.event.StateTriggerPoller(cardRegistry, conditionEvaluator = conditionEvaluator)
     val stackResolver = StackResolver(
         zones,
         cardRegistry = cardRegistry,
         effects = effectExecutorRegistry,
         spellCounterer = spellCounterer,
-        predicateEvaluator = predicateEvaluator
+        predicateEvaluator = predicateEvaluator,
+        spliceTargetValidator = targetValidator
     )
-    val triggerProcessor = TriggerProcessor(cardRegistry = cardRegistry, stackResolver = stackResolver)
-    val manaSolver = ManaSolver(cardRegistry)
-    val costCalculator = CostCalculator(cardRegistry)
+    val triggerProcessor = TriggerProcessor(cardRegistry = cardRegistry, stackResolver = stackResolver, amountEvaluator = dynamicAmountEvaluator, targetFinder = targetFinder)
+    val manaSolver = ManaSolver(cardRegistry, predicateEvaluator)
+    val costCalculator = CostCalculator(cardRegistry, predicateEvaluator)
     val grantedKeywordResolver = GrantedKeywordResolver(cardRegistry)
     val alternativePaymentHandler = AlternativePaymentHandler(grantedKeywordResolver)
     val costHandler = CostHandler(zones)
     val mulliganHandler = MulliganHandler(cardRegistry)
-    val targetValidator = TargetValidator()
-    val targetFinder = TargetFinder()
     val castPermissionUtils = CastPermissionUtils(cardRegistry, predicateEvaluator, conditionEvaluator)
     val legalityKernel = LegalityKernel(cardRegistry, conditionEvaluator)
     val sbaChecker = StateBasedActionChecker(zones, cardRegistry = cardRegistry)
@@ -140,4 +153,7 @@ class EngineServices(
     /** The cast pipeline (CR 601.2). Built last: it draws on nearly every service above. */
     val castSpellHandler: CastSpellHandler = CastSpellHandler.create(this)
     val playLandHandler: PlayLandHandler = PlayLandHandler.create(this)
+
+    /** Pays [com.wingedsheep.sdk.scripting.costs.PayCost]s — for "pay or suffer" executors and resumers alike. */
+    val costPaymentService = com.wingedsheep.engine.mechanics.cost.CostPaymentService(this)
 }

@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.engine.core.ActivateAbility
@@ -73,7 +74,7 @@ class VariableLoyaltyCostTest : FunSpec({
         val source = d.putPermanentOnBattlefield(me, walker.name).also {
             d.addComponent(it, CountersComponent(mapOf(CounterType.LOYALTY to 3)))
         }
-        val menu = ClientStateTransformer(cardRegistry = d.cardRegistry)
+        val menu = ClientStateTransformer(cardRegistry = d.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             .transform(d.state, viewingPlayerId = me).cards[source]!!.planeswalkerAbilities!!
         menu.single().loyaltyX shouldBe true
         menu.single().description shouldBe "Draw X cards."

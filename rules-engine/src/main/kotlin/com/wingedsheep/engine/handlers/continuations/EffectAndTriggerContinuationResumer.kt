@@ -26,6 +26,7 @@ class EffectAndTriggerContinuationResumer(
     private val services: com.wingedsheep.engine.core.EngineServices,
     private val effectRunner: EffectContinuationRunner
 ) : ContinuationResumerModule {
+    private val amountEvaluator = services.dynamicAmountEvaluator
 
     override fun resumers(): List<ContinuationResumer<*>> = listOf(
         resumer(TriggeredAbilityContinuation::class, ::resumeTriggeredAbility),
@@ -76,7 +77,7 @@ class EffectAndTriggerContinuationResumer(
                     storedStringLists = pipeline?.storedStringLists ?: emptyMap(),
                     storedSubtypeGroups = pipeline?.storedSubtypeGroups ?: emptyMap(),
                 )
-                val legal = DependentTargetSelection.legalNext(state, requirements, chosen, context)
+                val legal = DependentTargetSelection.legalNext(state, requirements, chosen, context, targetFinder = services.targetFinder)
                 return com.wingedsheep.engine.handlers.DecisionHandler().createTargetDecision(
                     state, continuation.controllerId, continuation.sourceId, continuation.sourceName,
                     requirements = listOf(TargetRequirementInfo(
@@ -152,7 +153,7 @@ class EffectAndTriggerContinuationResumer(
         val effect = continuation.effect
         if (effect is DividedDamageEffect && selectedTargets.size > 1) {
             val total = effect.dynamicTotal?.let {
-                com.wingedsheep.engine.handlers.DynamicAmountEvaluator().evaluate(
+                amountEvaluator.evaluate(
                     state,
                     it,
                     com.wingedsheep.engine.handlers.EffectContext(

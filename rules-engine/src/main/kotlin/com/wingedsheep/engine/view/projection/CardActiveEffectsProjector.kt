@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.view.projection
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.DamageUtils
 import com.wingedsheep.engine.mechanics.combat.rules.DefenderBypass
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
@@ -33,6 +34,7 @@ internal class CardActiveEffectsProjector(
     private val cardRegistry: CardRegistry,
     private val visibility: Visibility,
     private val conditionBadges: ConditionBadgeProjector,
+    private val predicateEvaluator: PredicateEvaluator
 ) {
 
     /**
@@ -122,7 +124,7 @@ internal class CardActiveEffectsProjector(
      * unequipped.
      */
     private fun outgoingDamageDoublerBadges(state: GameState, entityId: EntityId): List<ClientCardEffect> =
-        DamageUtils.damageDoublersAffectingSource(state, entityId).map { doubler ->
+        DamageUtils.damageDoublersAffectingSource(state, entityId, predicateEvaluator = predicateEvaluator).map { doubler ->
             val scope = when (doubler.damageType) {
                 is DamageType.Combat -> "Combat damage"
                 is DamageType.NonCombat -> "Noncombat damage"
@@ -746,7 +748,7 @@ internal class CardActiveEffectsProjector(
     ): List<ClientCardEffect> {
         val restrictionController = state.projectedState.getController(entityId) ?: return emptyList()
         if (!state.projectedState.hasKeyword(entityId, Keyword.DEFENDER)) return emptyList()
-        if (!DefenderBypass.isActive(state, entityId, restrictionController, cardRegistry)) return emptyList()
+        if (!DefenderBypass.isActive(state, entityId, restrictionController, cardRegistry, predicateEvaluator = predicateEvaluator)) return emptyList()
         val description = "Can attack despite defender"
         if (!seenDescriptions.add(description)) return emptyList()
         return listOf(

@@ -33,11 +33,11 @@ class LibraryTopReferenceTest : FunSpec({
         val creature = d.putCreatureOnBattlefield(d.player1, "Grizzly Bears")
         val ctx = EffectContext(sourceId = null, controllerId = d.player1, targets = listOf(ChosenTarget.Player(d.player2)))
         TargetResolutionUtils.resolveTarget(EffectTarget.LibraryTop(Player.TargetPlayer), ctx, d.state) shouldBe top
-        PredicateEvaluator().matches(d.state, d.state.projectedState, creature,
+        PredicateEvaluator(cardRegistry = null).matches(d.state, d.state.projectedState, creature,
             GameObjectFilter.Creature.sharingColorWith(EntityReference.LibraryTop(Player.TargetPlayer)),
             PredicateContext.fromEffectContext(ctx)) shouldBe true
         d.putCardOnTopOfLibrary(d.player2, "Lightning Bolt")
-        PredicateEvaluator().matches(d.state, d.state.projectedState, creature,
+        PredicateEvaluator(cardRegistry = null).matches(d.state, d.state.projectedState, creature,
             GameObjectFilter.Creature.sharingColorWith(EntityReference.LibraryTop(Player.TargetPlayer)),
             PredicateContext.fromEffectContext(ctx)) shouldBe false
     }

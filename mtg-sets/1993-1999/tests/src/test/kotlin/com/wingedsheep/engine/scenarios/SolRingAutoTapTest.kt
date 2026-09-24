@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.engine.support.GameTestDriver
@@ -52,7 +53,7 @@ class SolRingAutoTapTest : FunSpec({
         val player = setup(driver)
         driver.putPermanentOnBattlefield(player, "Sol Ring")
 
-        ManaSolver(driver.cardRegistry)
+        ManaSolver(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             .canPay(driver.state, player, ManaCost.parse("{2}")) shouldBe true
     }
 
@@ -61,7 +62,7 @@ class SolRingAutoTapTest : FunSpec({
         val player = setup(driver)
         driver.putPermanentOnBattlefield(player, "Sol Ring")
 
-        ManaSolver(driver.cardRegistry)
+        ManaSolver(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             .canPay(driver.state, player, ManaCost.parse("{3}")) shouldBe false
     }
 
@@ -70,7 +71,7 @@ class SolRingAutoTapTest : FunSpec({
         val player = setup(driver)
         driver.putPermanentOnBattlefield(player, "Sol Ring")
 
-        ManaSolver(driver.cardRegistry)
+        ManaSolver(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             .canPay(driver.state, player, ManaCost.parse("{C}{C}")) shouldBe true
     }
 

@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.permanent.protection
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.KeywordGrantedEvent
 import com.wingedsheep.engine.handlers.EffectContext
@@ -25,7 +26,9 @@ import kotlin.reflect.KClass
  * grant for the effect's duration. Snapshotting at resolution is the printed ruling: the gained
  * protections stay even if the creature that supplied them leaves.
  */
-class GrantProtectionsSharedByGroupExecutor : EffectExecutor<GrantProtectionsSharedByGroupEffect> {
+class GrantProtectionsSharedByGroupExecutor(
+    private val predicateEvaluator: PredicateEvaluator
+) : EffectExecutor<GrantProtectionsSharedByGroupEffect> {
 
     override val effectType: KClass<GrantProtectionsSharedByGroupEffect> =
         GrantProtectionsSharedByGroupEffect::class
@@ -40,7 +43,7 @@ class GrantProtectionsSharedByGroupExecutor : EffectExecutor<GrantProtectionsSha
         val cardComponent = state.getEntity(targetId)?.get<CardComponent>() ?: return EffectResult.success(state)
 
         val projected = state.projectedState
-        val members = BattlefieldFilterUtils.findMatchingOnBattlefield(state, effect.group.baseFilter, context)
+        val members = BattlefieldFilterUtils.findMatchingOnBattlefield(state, effect.group.baseFilter, context, predicateEvaluator = predicateEvaluator)
         val protections = members
             .flatMap { projected.getKeywords(it) }
             .filter { it.startsWith(PROTECTION_PREFIX) }

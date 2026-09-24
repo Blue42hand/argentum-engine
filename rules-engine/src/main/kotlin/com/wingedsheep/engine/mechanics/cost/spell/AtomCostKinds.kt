@@ -6,7 +6,6 @@ import com.wingedsheep.engine.core.ZoneChangeEvent
 import com.wingedsheep.engine.core.tap
 import com.wingedsheep.engine.handlers.CostHandler
 import com.wingedsheep.engine.handlers.PredicateContext
-import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.costs.CollectEvidenceResolver
 import com.wingedsheep.engine.handlers.costs.CostAtomAmounts
 import com.wingedsheep.engine.handlers.costs.GraveyardTotalExileResolver
@@ -327,7 +326,7 @@ internal object CollectEvidenceCostKind : SpellCostKind<CostAtom.CollectEvidence
     // ruling describes.
     override fun canPay(state: GameState, payerId: EntityId, cost: CostAtom.CollectEvidence, costHandler: CostHandler) =
         CostAtomAmounts.dependsOnTargets(cost.amount) ||
-            CollectEvidenceResolver.canCollect(state, payerId, CostAtomAmounts.evaluate(state, cost.amount))
+            CollectEvidenceResolver.canCollect(state, payerId, CostAtomAmounts.evaluate(state, cost.amount), predicateEvaluator = costHandler.predicateEvaluator)
 
     override fun enumerate(env: SpellCostEnumeration, cost: CostAtom.CollectEvidence, offer: SpellCostOffer): Boolean {
         offer.collectEvidenceCost = cost
@@ -341,6 +340,7 @@ internal object CollectEvidenceCostKind : SpellCostKind<CostAtom.CollectEvidence
                 env.state, env.playerId,
                 CostAtomAmounts.evaluate(env.state, cost.amount),
                 excludeCardId = env.castCardId,
+                predicateEvaluator = env.predicateEvaluator
             )
     }
 
@@ -348,7 +348,7 @@ internal object CollectEvidenceCostKind : SpellCostKind<CostAtom.CollectEvidence
     // a summed measure, not a count — so `selectionCount` can't express it and `canPayFrom`
     // consults the resolver instead of counting candidates.
     override fun candidates(env: SpellCostEnumeration, cost: CostAtom.CollectEvidence) =
-        CollectEvidenceResolver.candidates(env.state, env.playerId, excludeCardId = env.castCardId).cards
+        CollectEvidenceResolver.candidates(env.state, env.playerId, excludeCardId = env.castCardId, predicateEvaluator = env.predicateEvaluator).cards
 
     override fun selectionCount(cost: CostAtom.CollectEvidence) = cost.selectionCount
 
@@ -357,6 +357,7 @@ internal object CollectEvidenceCostKind : SpellCostKind<CostAtom.CollectEvidence
             env.state, env.playerId,
             CostAtomAmounts.evaluate(env.state, cost.amount),
             excludeCardId = env.castCardId,
+            predicateEvaluator = env.predicateEvaluator
         )
 
     // Collect evidence names its amount, because the amount *is* the choice — "Collect evidence
@@ -366,6 +367,7 @@ internal object CollectEvidenceCostKind : SpellCostKind<CostAtom.CollectEvidence
             env.state, env.playerId,
             CostAtomAmounts.evaluate(env.state, cost.amount),
             excludeCardId = env.castCardId,
+            predicateEvaluator = env.predicateEvaluator,
         ) ?: return null
         // This rail is an *alternative* cast cost (Conspiracy Unraveler), enumerated before any
         // target is announced, so a target-derived threshold would price at 0 here. Nothing prints
@@ -385,7 +387,7 @@ internal object CollectEvidenceCostKind : SpellCostKind<CostAtom.CollectEvidence
         // can't reach it, the caster can't choose to collect evidence at all, so this rejection
         // *is* the 601.2e illegal-cast rewind rather than a discount.
         val required = CostAtomAmounts.evaluate(check.state, cost.amount, check.action.xValue, check.action.targets)
-        if (!CollectEvidenceResolver.isLegalSelection(check.state, check.playerId, required, exiled)) {
+        if (!CollectEvidenceResolver.isLegalSelection(check.state, check.playerId, required, exiled, predicateEvaluator = check.predicateEvaluator)) {
             return "You must exile cards with total mana value $required or " +
                 "greater from your graveyard to collect evidence $required"
         }
@@ -427,16 +429,16 @@ internal object ExileFromGraveyardForTotalCostKind : SpellCostKind<CostAtom.Exil
 
     override fun candidates(env: SpellCostEnumeration, cost: CostAtom.ExileFromGraveyardForTotal) =
         GraveyardTotalExileResolver
-            .candidates(env.state, env.playerId, cost.measure, cost.filter, excludeCardId = env.castCardId).cards
+            .candidates(env.state, env.playerId, cost.measure, cost.filter, excludeCardId = env.castCardId, predicateEvaluator = env.predicateEvaluator).cards
 
     override fun selectionCount(cost: CostAtom.ExileFromGraveyardForTotal) = cost.selectionCount
 
     override fun canPayFrom(env: SpellCostEnumeration, cost: CostAtom.ExileFromGraveyardForTotal, candidates: List<EntityId>) =
         GraveyardTotalExileResolver
-            .canPay(env.state, env.playerId, cost.measure, cost.minTotal, cost.filter, excludeCardId = env.castCardId)
+            .canPay(env.state, env.playerId, cost.measure, cost.minTotal, cost.filter, excludeCardId = env.castCardId, predicateEvaluator = env.predicateEvaluator)
 
     override fun present(env: SpellCostEnumeration, cost: CostAtom.ExileFromGraveyardForTotal, candidates: List<EntityId>): Pair<String, AdditionalCostData>? {
-        val info = GraveyardTotalExileResolver.costInfo(env.state, env.playerId, cost, excludeCardId = env.castCardId)
+        val info = GraveyardTotalExileResolver.costInfo(env.state, env.playerId, cost, excludeCardId = env.castCardId, predicateEvaluator = env.predicateEvaluator)
             ?: return null
         return "Exile from graveyard" to info
     }
@@ -596,7 +598,7 @@ internal object VariablePermanentsCostKind : SpellCostKind<CostAtom.VariablePerm
     // a *spell's* additional cost has no source permanent on the battlefield to exclude (teamwork
     // sets `excludeSelf = false` anyway).
     override fun canPay(state: GameState, payerId: EntityId, cost: CostAtom.VariablePermanents, costHandler: CostHandler) =
-        VariablePermanentsCost.canPay(state, payerId, cost)
+        VariablePermanentsCost.canPay(state, payerId, cost, predicateEvaluator = costHandler.predicateEvaluator)
 
     override fun selectionSupplied(cost: CostAtom.VariablePermanents, payment: AdditionalCostPayment) =
         payment.variableCostPermanents.isNotEmpty()
@@ -771,8 +773,6 @@ internal object RevealFromHandCostKind : SpellCostKind<CostAtom.RevealFromHand> 
  * types come off each creature.
  */
 internal object RemoveCountersCostKind : SpellCostKind<CostAtom.RemoveCounters> {
-    private val evaluator = PredicateEvaluator()
-
     private fun fixedCount(cost: CostAtom.RemoveCounters): Int = (cost.count as? DynamicAmount.Fixed)?.amount ?: 0
 
     override fun canPay(state: GameState, payerId: EntityId, cost: CostAtom.RemoveCounters, costHandler: CostHandler): Boolean {
@@ -782,7 +782,7 @@ internal object RemoveCountersCostKind : SpellCostKind<CostAtom.RemoveCounters> 
         val projected = state.projectedState
         val ctx = PredicateContext(controllerId = payerId)
         val total = projected.getBattlefieldControlledBy(payerId).sumOf { entityId ->
-            if (!evaluator.matches(state, projected, entityId, cost.filter, ctx)) return@sumOf 0
+            if (!costHandler.predicateEvaluator.matches(state, projected, entityId, cost.filter, ctx)) return@sumOf 0
             val counters = state.getEntity(entityId)?.get<CountersComponent>() ?: return@sumOf 0
             if (counterType != null) counters.getCount(counterType) else counters.counters.values.sum()
         }

@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.mechanics.mana
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -80,7 +81,7 @@ class ConditionalManaAbilityAutoTapTest : FunSpec({
         val src = driver.putCreatureOnBattlefield(player, "Raucous Tester")
         driver.removeSummoningSickness(src)
 
-        val solution = ManaSolver(createRegistry()).solve(driver.state, player, ManaCost.parse("{G}"))
+        val solution = ManaSolver(createRegistry(), predicateEvaluator = PredicateEvaluator(cardRegistry = null)).solve(driver.state, player, ManaCost.parse("{G}"))
 
         solution.shouldNotBeNull()
         solution.sources shouldHaveSize 1
@@ -97,7 +98,7 @@ class ConditionalManaAbilityAutoTapTest : FunSpec({
         // Controlling a 5/5 flips the condition → the ability now yields {G}{G} from one tap.
         driver.putCreatureOnBattlefield(player, "Big Bruiser")
 
-        val solution = ManaSolver(createRegistry()).solve(driver.state, player, ManaCost.parse("{G}{G}"))
+        val solution = ManaSolver(createRegistry(), predicateEvaluator = PredicateEvaluator(cardRegistry = null)).solve(driver.state, player, ManaCost.parse("{G}{G}"))
 
         solution.shouldNotBeNull()
         // A single tap of Raucous Tester covers both green — no other green source needed.

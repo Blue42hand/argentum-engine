@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.ChooseTargetsDecision
 import com.wingedsheep.engine.handlers.EffectContext
@@ -219,7 +220,7 @@ class ModalCopyPreservationTest : FunSpec({
             controllerId = p1,
         )
 
-        val executor = StormCopyEffectExecutor(targetFinder = TargetFinder())
+        val executor = StormCopyEffectExecutor(targetFinder = TargetFinder(PredicateEvaluator(cardRegistry = null)))
         val result = executor.execute(state, stormEffect, context)
         result.outcome shouldBe Outcome.Done
 

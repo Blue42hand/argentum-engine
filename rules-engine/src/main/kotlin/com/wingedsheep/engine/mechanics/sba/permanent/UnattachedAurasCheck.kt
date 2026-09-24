@@ -1,7 +1,7 @@
 package com.wingedsheep.engine.mechanics.sba.permanent
 
+import com.wingedsheep.engine.mechanics.targeting.TargetValidator
 import com.wingedsheep.engine.core.ExecutionResult
-import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.ZoneMovementUtils.unattachEmittingEvent
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
@@ -52,10 +52,9 @@ class UnattachedAurasCheck(
     private val zones: ZoneTransitionService,
     private val cardRegistry: CardRegistry
 ) : StateBasedActionCheck {
+    private val predicateEvaluator = zones.predicateEvaluator
     override val name = "704.5m/n/p Unattached Auras"
     override val order = SbaOrder.UNATTACHED_AURAS
-
-    private val predicateEvaluator = PredicateEvaluator()
 
     override fun check(state: GameState): ExecutionResult {
         var newState = state

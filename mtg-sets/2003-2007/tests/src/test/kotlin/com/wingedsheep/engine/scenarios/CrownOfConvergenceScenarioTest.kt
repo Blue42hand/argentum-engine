@@ -1,11 +1,11 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.permanent.types.ChangeColorExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.control.GainControlExecutor
 import com.wingedsheep.sdk.scripting.effects.ChangeColorEffect
 import com.wingedsheep.sdk.scripting.effects.GainControlEffect
 import com.wingedsheep.engine.core.ActivateAbility
-import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
 import com.wingedsheep.engine.state.ZoneKey
@@ -100,7 +100,7 @@ class CrownOfConvergenceScenarioTest : FunSpec({
         val crown = d.putCreatureOnBattlefield(d.player1, "Crown of Convergence")
         val top = d.putCardOnTopOfLibrary(d.player1, "Watchwolf")
         val hidden = d.putCardOnTopOfLibrary(d.player2, "Courier Hawk")
-        val transformer = ClientStateTransformer(cardRegistry = d.cardRegistry)
+        val transformer = ClientStateTransformer(cardRegistry = d.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         for (viewer in listOf(d.player1, d.player2)) {
             val view = transformer.transform(d.state, viewingPlayerId = viewer)
             view.cards.keys shouldContain top
@@ -139,9 +139,9 @@ class CrownOfConvergenceScenarioTest : FunSpec({
             EffectContext(sourceId = null, controllerId = d.player2)).state)
         d.state.projectedState.getPower(mine) shouldBe 3
         d.state.projectedState.getPower(theirs) shouldBe 2
-        ClientStateTransformer(cardRegistry = d.cardRegistry)
+        ClientStateTransformer(cardRegistry = d.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             .transform(d.state, viewingPlayerId = d.player1).cards.keys shouldContain top
-        ClientStateTransformer(cardRegistry = d.cardRegistry)
+        ClientStateTransformer(cardRegistry = d.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             .transform(d.state, viewingPlayerId = d.player2).cards.keys shouldNotContain oldTop
     }
 
@@ -151,7 +151,7 @@ class CrownOfConvergenceScenarioTest : FunSpec({
         val ctx = EffectContext(sourceId = null, controllerId = d.player1)
         TargetResolutionUtils.resolveEntityReference(EntityReference.LibraryTop(Player.AnOpponent), ctx, d.state) shouldBe top
         TargetResolutionUtils.resolveTarget(EffectTarget.LibraryTop(Player.AnOpponent), ctx, d.state) shouldBe top
-        ConditionEvaluator().evaluate(d.state,
+        PredicateEvaluator(cardRegistry = null).conditions.evaluate(d.state,
             Conditions.EntityMatches(EffectTarget.LibraryTop(Player.AnOpponent), GameObjectFilter.Creature), ctx) shouldBe true
     }
 })

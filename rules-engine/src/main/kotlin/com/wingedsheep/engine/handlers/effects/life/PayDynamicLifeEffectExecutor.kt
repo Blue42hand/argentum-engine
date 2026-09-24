@@ -21,7 +21,7 @@ import kotlin.reflect.KClass
  */
 class PayDynamicLifeEffectExecutor(
     private val zones: ZoneTransitionService,
-    private val amountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator()
+    private val amountEvaluator: DynamicAmountEvaluator
 ) : EffectExecutor<PayDynamicLifeEffect> {
 
     override val effectType: KClass<PayDynamicLifeEffect> = PayDynamicLifeEffect::class

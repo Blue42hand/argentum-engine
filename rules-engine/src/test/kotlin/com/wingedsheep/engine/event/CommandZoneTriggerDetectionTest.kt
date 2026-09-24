@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.event
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.SpellCastEvent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -99,7 +100,7 @@ class CommandZoneTriggerDetectionTest : FunSpec({
         return driver
     }
 
-    fun detectorFor(driver: GameTestDriver): TriggerDetector = TriggerDetector(driver.cardRegistry)
+    fun detectorFor(driver: GameTestDriver): TriggerDetector = TriggerDetector(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null), conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions)
 
     /** A cast event for a Vampire spell put on the stack by [caster]. */
     fun castVampire(driver: GameTestDriver, caster: EntityId): SpellCastEvent {

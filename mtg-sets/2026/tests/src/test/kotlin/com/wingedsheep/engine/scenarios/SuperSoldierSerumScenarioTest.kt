@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.engine.view.ClientStateTransformer
@@ -38,7 +39,7 @@ class SuperSoldierSerumScenarioTest : FunSpec({
         d.castSpell(d.player1, aura, listOf(bear)).outcome shouldBe Outcome.Done
         repeat(6) { if (d.state.pendingDecision != null) d.autoResolveDecision() else d.bothPass() }
 
-        val card = ClientStateTransformer(d.cardRegistry)
+        val card = ClientStateTransformer(d.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             .transform(d.state, d.player1)
             .cards
             .getValue(bear)

@@ -149,7 +149,7 @@ internal class ResolutionTargetValidator(
             is TargetOpponent -> requirement.restriction
             else -> null
         }
-        return PlayerTargetRestriction.isSatisfied(state, restriction, target.playerId, controllerId, sourceId)
+        return PlayerTargetRestriction.isSatisfied(state, restriction, target.playerId, controllerId, sourceId, predicateEvaluator = predicateEvaluator)
     }
 
     private fun isPermanentTargetLegal(
@@ -210,7 +210,7 @@ internal class ResolutionTargetValidator(
         }
 
         // Check hexproof — can't be targeted by opponents (Rule 702.11)
-        val hexproofSuppressed = HexproofSuppression.isSuppressedForCaster(state, projected, target.entityId, controllerId)
+        val hexproofSuppressed = HexproofSuppression.isSuppressedForCaster(state, projected, target.entityId, controllerId, predicateEvaluator = predicateEvaluator)
         if (!hexproofSuppressed && projected.hasKeyword(target.entityId, "HEXPROOF") && entityController != controllerId) return false
 
         // Check hexproof from color (Rule 702.11b)
@@ -240,6 +240,7 @@ internal class ResolutionTargetValidator(
             if (ControllerGrants.isActiveOn<CantBeTargetedByOpponentAbilitiesComponent>(
                     state,
                     target.entityId,
+                    predicateEvaluator = predicateEvaluator
                 )
             ) {
                 return false

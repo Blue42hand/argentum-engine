@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.drawing
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CardRevealedFromDrawEvent
 import com.wingedsheep.engine.core.DrawFailedEvent
 import com.wingedsheep.engine.core.GameEvent
@@ -35,10 +36,9 @@ import com.wingedsheep.sdk.scripting.RevealFirstDrawEachTurn
  * draw ([com.wingedsheep.engine.core.DrawPhaseManager]) call into.
  */
 class DrawCardPrimitive(
-    private val cardRegistry: CardRegistry
+    private val cardRegistry: CardRegistry,
+    private val predicateEvaluator: PredicateEvaluator
 ) {
-    private val predicateEvaluator = com.wingedsheep.engine.handlers.PredicateEvaluator()
-
     /**
      * Result of a single [drawOne] call.
      *
@@ -53,7 +53,7 @@ class DrawCardPrimitive(
         val events: List<GameEvent>,
         val drawnCardId: EntityId?,
         val failed: Boolean
-    )
+)
 
     /**
      * Draw one card from the top of [playerId]'s library into their hand.
@@ -78,7 +78,7 @@ class DrawCardPrimitive(
             // unless a controlled permanent grants "can't lose the game" (Platinum Angel).
             // Shared with the other loss checks so the gate on a conditional grant and the
             // CR 810.8a team reach are applied identically wherever a player would lose.
-            val cantLose = playerCantLoseGame(state, playerId)
+            val cantLose = playerCantLoseGame(state, playerId, predicateEvaluator = predicateEvaluator)
             val lostState = if (cantLose) {
                 state
             } else {

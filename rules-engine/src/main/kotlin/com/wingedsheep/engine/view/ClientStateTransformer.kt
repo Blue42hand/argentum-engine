@@ -1,6 +1,5 @@
 package com.wingedsheep.engine.view
 
-import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.legalactions.utils.CastPermissionUtils
 import com.wingedsheep.engine.registry.CardRegistry
@@ -38,29 +37,30 @@ import com.wingedsheep.sdk.model.EntityId
  */
 class ClientStateTransformer(
     private val cardRegistry: CardRegistry,
-    private val debugMode: Boolean = false
+    private val debugMode: Boolean = false,
+    private val predicateEvaluator: PredicateEvaluator
 ) {
+    private val conditionEvaluator = predicateEvaluator.conditions
 
-    private val conditionEvaluator = ConditionEvaluator()
-    private val visibility = Visibility(cardRegistry, debugMode)
+    private val visibility = Visibility(cardRegistry, debugMode, conditionEvaluator = conditionEvaluator)
     private val stackText = StackTextRenderer(conditionEvaluator, visibility)
     private val conditionBadges = ConditionBadgeProjector(cardRegistry, conditionEvaluator)
     private val cardProjector = CardProjector(
         cardRegistry = cardRegistry,
         visibility = visibility,
         conditionEvaluator = conditionEvaluator,
-        activeEffects = CardActiveEffectsProjector(cardRegistry, visibility, conditionBadges),
+        activeEffects = CardActiveEffectsProjector(cardRegistry, visibility, conditionBadges, predicateEvaluator = predicateEvaluator),
         conditionBadges = conditionBadges,
         spellOnStackProjector = SpellOnStackProjector(stackText),
         // Finds loyalty abilities granted by statics so the planeswalker menu can list them.
         facesProjector = CardFacesProjector(
             cardRegistry,
-            CastPermissionUtils(cardRegistry, PredicateEvaluator(), conditionEvaluator),
+            CastPermissionUtils(cardRegistry, predicateEvaluator, conditionEvaluator),
             stackText
         ),
     )
     private val stackItemProjector = StackItemProjector(cardRegistry, visibility, stackText)
-    private val playerProjector = PlayerProjector(cardRegistry, conditionEvaluator, PlayerActiveEffectsProjector())
+    private val playerProjector = PlayerProjector(cardRegistry, conditionEvaluator, PlayerActiveEffectsProjector(predicateEvaluator = predicateEvaluator))
     private val combatProjector = CombatProjector()
     private val deckListProjector = DeckListProjector(cardRegistry, visibility)
 

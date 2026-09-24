@@ -81,7 +81,7 @@ abstract class ScenarioTestBase : FunSpec() {
 
     /** The engine's zone service — for tests that move a card the way an effect would. */
     protected val zones get() = services.zones
-    protected val stateTransformer = ClientStateTransformer(cardRegistry)
+    protected val stateTransformer = ClientStateTransformer(cardRegistry, predicateEvaluator = services.predicateEvaluator)
 
     /**
      * Builder for constructing test scenarios with specific game states.

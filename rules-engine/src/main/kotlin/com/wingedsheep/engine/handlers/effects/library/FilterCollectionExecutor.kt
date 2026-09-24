@@ -1,7 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.library
 
 import com.wingedsheep.engine.core.EffectResult
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
@@ -21,12 +20,12 @@ import kotlin.reflect.KClass
  * Splits a named collection into matching and non-matching subsets based on
  * a [CollectionFilter]. This is a purely automatic filter with no player choice.
  */
-class FilterCollectionExecutor : EffectExecutor<FilterCollectionEffect> {
+class FilterCollectionExecutor(
+    private val predicateEvaluator: PredicateEvaluator
+) : EffectExecutor<FilterCollectionEffect> {
+    private val amountEvaluator = predicateEvaluator.amounts
 
     override val effectType: KClass<FilterCollectionEffect> = FilterCollectionEffect::class
-
-    private val predicateEvaluator = PredicateEvaluator()
-    private val amountEvaluator = DynamicAmountEvaluator()
 
     override fun execute(
         state: GameState,

@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ChooseTargetsDecision
 import com.wingedsheep.engine.handlers.TargetingSourceType
 import com.wingedsheep.engine.mechanics.targeting.TargetValidator
@@ -146,7 +147,7 @@ class NivMizzetGuildpactScenarioTest : FunSpec({
 
         val niv = driver.putCreatureOnBattlefield(me, "Niv-Mizzet, Guildpact")
 
-        val validator = TargetValidator()
+        val validator = TargetValidator(PredicateEvaluator(cardRegistry = null))
         val target = listOf<ChosenTarget>(ChosenTarget.Permanent(niv))
         val req = listOf(TargetCreature())
 
@@ -176,7 +177,7 @@ class NivMizzetGuildpactScenarioTest : FunSpec({
         ).shouldBeNull()
 
         // The client DTO carries the quality so the FE renders the shield chip.
-        val view = ClientStateTransformer(cardRegistry = driver.cardRegistry).transform(driver.state, viewingPlayerId = opponent)
+        val view = ClientStateTransformer(cardRegistry = driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null)).transform(driver.state, viewingPlayerId = opponent)
         view.cards[niv]?.hexproofFromMulticolored shouldBe true
     }
 })

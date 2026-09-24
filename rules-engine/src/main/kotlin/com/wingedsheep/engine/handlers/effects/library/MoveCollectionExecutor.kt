@@ -47,6 +47,7 @@ class MoveCollectionExecutor(
     private val cardRegistry: CardRegistry,
     private val targetFinder: TargetFinder? = null
 ) : EffectExecutor<MoveCollectionEffect> {
+    private val predicateEvaluator = zones.predicateEvaluator
 
     override val effectType: KClass<MoveCollectionEffect> = MoveCollectionEffect::class
 
@@ -61,7 +62,6 @@ class MoveCollectionExecutor(
         // Optional per-card filter: only move cards matching it; the rest stay put. Lets a single
         // gathered pile be split by type across multiple MoveCollection steps.
         val cards = if (effect.filter != null) {
-            val predicateEvaluator = com.wingedsheep.engine.handlers.PredicateEvaluator()
             val predicateContext = com.wingedsheep.engine.handlers.PredicateContext(
                 controllerId = context.controllerId,
                 sourceId = context.sourceId
@@ -151,7 +151,6 @@ class MoveCollectionExecutor(
         val (auras, others) = cards.partition { state.getEntity(it)?.get<CardComponent>()?.isAura == true }
         val hostId = context.resolveTarget(attachTo, state)?.takeIf { it in state.getBattlefield() }
         val defaultControllerId = resolvePlayer(destination.player, context, state) ?: context.controllerId
-        val predicateEvaluator = com.wingedsheep.engine.handlers.PredicateEvaluator()
         var newState = state
         val events = mutableListOf<GameEvent>()
         val moved = mutableListOf<EntityId>()
@@ -921,7 +920,8 @@ class MoveCollectionExecutor(
             // cards. See docs/card-sdk-language-reference.md, OnEnterRunEffect "Scope today".
             if (destZone == Zone.BATTLEFIELD && faceDown == null) {
                 val (counterState, counterEvents) = EntersWithReplacements.applyOnEntry(
-                    newState, cardId, actualDestPlayerId, cardRegistry
+                    newState, cardId, actualDestPlayerId, cardRegistry,
+                    predicateEvaluator = predicateEvaluator
                 )
                 newState = counterState
                 events.addAll(counterEvents)

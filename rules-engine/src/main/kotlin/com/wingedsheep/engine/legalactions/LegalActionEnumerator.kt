@@ -33,7 +33,7 @@ class LegalActionEnumerator(
         PassPriorityEnumerator(),
         PlayLandEnumerator(),
         MorphCastEnumerator(),
-        CastSpellEnumerator(),
+        CastSpellEnumerator(predicateEvaluator = predicateEvaluator),
         SneakCastEnumerator(),
         EmergeCastEnumerator(),
         WebSlingingCastEnumerator(),
@@ -41,15 +41,15 @@ class LegalActionEnumerator(
         PlotEnumerator(),
         ForetellEnumerator(),
         SuspendEnumerator(),
-        CastFromZoneEnumerator(),
-        ManaAbilityEnumerator(),
-        TurnFaceUpEnumerator(),
+        CastFromZoneEnumerator(predicateEvaluator = predicateEvaluator),
+        ManaAbilityEnumerator(predicateEvaluator = predicateEvaluator),
+        TurnFaceUpEnumerator(predicateEvaluator = predicateEvaluator),
         UnlockRoomDoorEnumerator(),
-        ActivatedAbilityEnumerator(),
+        ActivatedAbilityEnumerator(predicateEvaluator = predicateEvaluator),
         CrewEnumerator(),
         SaddleEnumerator(),
-        ZoneActivatedAbilityEnumerator(Zone.GRAVEYARD),
-        ZoneActivatedAbilityEnumerator(Zone.HAND),
+        ZoneActivatedAbilityEnumerator(Zone.GRAVEYARD, predicateEvaluator = predicateEvaluator),
+        ZoneActivatedAbilityEnumerator(Zone.HAND, predicateEvaluator = predicateEvaluator),
         CommandZoneAbilityEnumerator()
     )
 
@@ -86,7 +86,7 @@ class LegalActionEnumerator(
 
         // Normal priority: enumerate all action categories
         return com.wingedsheep.engine.legalactions.enumerators.AdditionalManaForCountersOffer
-            .annotate(context, enumerators.flatMap { it.enumerate(context) })
+            .annotate(context, enumerators.flatMap { it.enumerate(context) }, predicateEvaluator = predicateEvaluator)
     }
 
     /**
@@ -100,7 +100,7 @@ class LegalActionEnumerator(
         state: GameState,
         playerId: EntityId,
         mode: EnumerationMode = EnumerationMode.FULL
-    ): List<LegalAction> = ManaAbilityEnumerator().enumerate(
+    ): List<LegalAction> = ManaAbilityEnumerator(predicateEvaluator = predicateEvaluator).enumerate(
         EnumerationContext(
             state = state,
             playerId = playerId,

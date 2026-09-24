@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.event
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ZoneChangeEvent
 import com.wingedsheep.engine.state.components.stack.EntitySnapshot
 import com.wingedsheep.engine.support.GameTestDriver
@@ -64,7 +65,7 @@ class TriggerMatcherIsPermanentTest : FunSpec({
     }
 
     fun zoneChanges(driver: GameTestDriver, event: ZoneChangeEvent) =
-        TriggerDetector(driver.cardRegistry)
+        TriggerDetector(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null), conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions)
             .detectTriggers(driver.state, listOf(event))
             .filter { it.ability.trigger is EventPattern.ZoneChangeEvent }
 

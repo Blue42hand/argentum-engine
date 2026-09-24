@@ -1,8 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.composite
 
 import com.wingedsheep.engine.core.*
-import com.wingedsheep.engine.handlers.ConditionEvaluator
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
@@ -68,15 +66,15 @@ import kotlin.reflect.KClass
  */
 class GatedEffectExecutor(
     private val cardRegistry: CardRegistry,
-    private val effectExecutor: (GameState, Effect, EffectContext) -> EffectResult
+    private val effectExecutor: (GameState, Effect, EffectContext) -> EffectResult,
+    private val predicateEvaluator: PredicateEvaluator
 ) : EffectExecutor<GatedEffect> {
+    private val dynamicAmountEvaluator = predicateEvaluator.amounts
+    private val conditionEvaluator = predicateEvaluator.conditions
 
     override val effectType: KClass<GatedEffect> = GatedEffect::class
 
-    private val manaSolver = ManaSolver(cardRegistry)
-    private val conditionEvaluator = ConditionEvaluator()
-    private val dynamicAmountEvaluator = DynamicAmountEvaluator()
-    private val predicateEvaluator = PredicateEvaluator()
+    private val manaSolver = ManaSolver(cardRegistry, predicateEvaluator)
 
     override fun execute(
         state: GameState,
@@ -134,7 +132,7 @@ class GatedEffectExecutor(
             // A ChooseActionEffect payoff with no feasible choice — don't ask the may question at all.
             val then = effect.then
             if (then is ChooseActionEffect &&
-                then.choices.none { checkFeasibility(state, context.controllerId, it.feasibilityCheck) }
+                then.choices.none { checkFeasibility(state, context.controllerId, it.feasibilityCheck, predicateEvaluator = predicateEvaluator) }
             ) {
                 return EffectResult.success(state)
             }
@@ -148,7 +146,7 @@ class GatedEffectExecutor(
                     .resolvePlayerRef(then.player, context, state)
                 if (collector == null ||
                     !com.wingedsheep.engine.handlers.costs.CollectEvidenceResolver
-                        .canCollect(state, collector, then.amount)
+                        .canCollect(state, collector, then.amount, predicateEvaluator = predicateEvaluator)
                 ) {
                     return EffectResult.success(state)
                 }
@@ -171,7 +169,7 @@ class GatedEffectExecutor(
             // analogue of a targeted "may" with no legal targets falling to its else branch (e.g.
             // "you may sacrifice an artifact. If you don't, …" with no artifact taps you out).
             gate.feasibility?.let { check ->
-                if (!checkFeasibility(state, context.controllerId, check)) {
+                if (!checkFeasibility(state, context.controllerId, check, predicateEvaluator = predicateEvaluator)) {
                     return effect.otherwise
                         ?.let { effectExecutor(state, it, context) }
                         ?: EffectResult.success(state)
@@ -335,7 +333,7 @@ class GatedEffectExecutor(
         context: EffectContext
     ): EffectResult {
         val costUtils = CostEnumerationUtils(
-            manaSolver, CostCalculator(cardRegistry), PredicateEvaluator(), cardRegistry
+            manaSolver, CostCalculator(cardRegistry, predicateEvaluator), predicateEvaluator, cardRegistry
         )
         val waterbendPermanents = costUtils.findTapForGenericPermanents(state, playerId, TapForGeneric.WATERBEND)
         val affordable = manaSolver.canPay(state, playerId, manaCost) ||
@@ -597,13 +595,14 @@ class GatedEffectExecutor(
             // (the cost would then error and `stopOnError` would swallow the whole payoff). Mirrors
             // ReflexiveTriggerEffectExecutor.isActionFeasible, which scores the same shape.
             is PayManaCostRepeatedlyEffect -> PayManaCostRepeatedlyExecutor.affordableRepetitions(
-                state, playerId, cost.cost, cost.maxTimes, cardRegistry
+                state, playerId, cost.cost, cost.maxTimes, cardRegistry,
+                predicateEvaluator = predicateEvaluator
             ) >= 1
             // Resolution-time collect evidence is also a payable action (Izoni): the player may
             // choose it only when their graveyard can meet the full mana-value threshold.
             is CollectEvidenceEffect -> {
                 val collector = TargetResolutionUtils.resolvePlayerRef(cost.player, context, state)
-                collector != null && CollectEvidenceResolver.canCollect(state, collector, cost.amount)
+                collector != null && CollectEvidenceResolver.canCollect(state, collector, cost.amount, predicateEvaluator = predicateEvaluator)
             }
             is CompositeEffect -> cost.effects.all { canAfford(state, playerId, it, context) }
             // "You may sacrifice [filter]" — payable only if the player controls enough matching
@@ -612,7 +611,8 @@ class GatedEffectExecutor(
             // no Food still lets you choose "Sacrifice a Food" and wrongly take the +4/+4 branch.
             is com.wingedsheep.sdk.scripting.effects.SacrificeEffect -> cost.any || run {
                 val fodder = BattlefieldFilterUtils.findMatchingOnBattlefield(
-                    state, cost.filter.youControl(), PredicateContext(controllerId = playerId)
+                    state, cost.filter.youControl(), PredicateContext(controllerId = playerId),
+                    predicateEvaluator = predicateEvaluator
                 ).filterNot { cost.excludeSource && it == context.sourceId }
                 fodder.size >= cost.count
             }

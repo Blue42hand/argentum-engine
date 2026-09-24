@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.actions.ability
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.LoyaltyChangedEvent
@@ -75,6 +76,7 @@ internal class ActivationCostPayer(
     private val manaSolver: ManaSolver,
     private val alternativePaymentHandler: AlternativePaymentHandler,
     private val autoTapper: ActivationAutoTapper,
+    private val predicateEvaluator: PredicateEvaluator
 ) {
 
     fun pay(
@@ -370,7 +372,8 @@ internal class ActivationCostPayer(
         val resolver = GraveyardTotalExileResolver
         return resolver.resolveSelection(
             resolver.candidates(
-                state, action.playerId, totalExileAtom.measure, totalExileAtom.filter
+                state, action.playerId, totalExileAtom.measure, totalExileAtom.filter,
+                predicateEvaluator = predicateEvaluator
             ),
             totalExileAtom.minTotal,
             action.costPayment?.exiledCards ?: emptyList(),

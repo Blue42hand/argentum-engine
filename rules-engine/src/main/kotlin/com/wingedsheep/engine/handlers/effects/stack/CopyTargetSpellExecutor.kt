@@ -24,12 +24,11 @@ import kotlin.reflect.KClass
  * whose resumer walks the remaining copies).
  */
 class CopyTargetSpellExecutor(
-    private val targetFinder: TargetFinder = TargetFinder()
+    private val dynamicAmountEvaluator: com.wingedsheep.engine.handlers.DynamicAmountEvaluator,
+    private val targetFinder: TargetFinder
 ) : EffectExecutor<CopyTargetSpellEffect> {
 
     override val effectType: KClass<CopyTargetSpellEffect> = CopyTargetSpellEffect::class
-
-    private val dynamicAmountEvaluator = com.wingedsheep.engine.handlers.DynamicAmountEvaluator()
 
     override fun execute(
         state: GameState,

@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CombatResolutionDecision
 import com.wingedsheep.engine.handlers.effects.DamageUtils
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
@@ -109,25 +110,29 @@ class FatedFirepowerScenarioTest : FunSpec({
         withClue("your source dealing 3 to an opponent → 3 + 2 = 5") {
             DamageUtils.applyStaticDamageAmplification(
                 driver.zones.cardRegistry,
-                driver.state, targetId = opponent, amount = 3, sourceId = myCreature
+                driver.state, targetId = opponent, amount = 3, sourceId = myCreature,
+                predicateEvaluator = PredicateEvaluator(cardRegistry = null)
             ) shouldBe 5
         }
         withClue("your source dealing 3 to a permanent an opponent controls → 3 + 2 = 5") {
             DamageUtils.applyStaticDamageAmplification(
                 driver.zones.cardRegistry,
-                driver.state, targetId = theirCreature, amount = 3, sourceId = myCreature
+                driver.state, targetId = theirCreature, amount = 3, sourceId = myCreature,
+                predicateEvaluator = PredicateEvaluator(cardRegistry = null)
             ) shouldBe 5
         }
         withClue("your source dealing 3 to your OWN creature is NOT amplified") {
             DamageUtils.applyStaticDamageAmplification(
                 driver.zones.cardRegistry,
-                driver.state, targetId = myOtherCreature, amount = 3, sourceId = myCreature
+                driver.state, targetId = myOtherCreature, amount = 3, sourceId = myCreature,
+                predicateEvaluator = PredicateEvaluator(cardRegistry = null)
             ) shouldBe 3
         }
         withClue("an opponent's source dealing 3 to you is NOT amplified") {
             DamageUtils.applyStaticDamageAmplification(
                 driver.zones.cardRegistry,
-                driver.state, targetId = active, amount = 3, sourceId = theirCreature
+                driver.state, targetId = active, amount = 3, sourceId = theirCreature,
+                predicateEvaluator = PredicateEvaluator(cardRegistry = null)
             ) shouldBe 3
         }
     }
@@ -145,7 +150,8 @@ class FatedFirepowerScenarioTest : FunSpec({
         withClue("3 fire counters → 3 + 3 = 6") {
             DamageUtils.applyStaticDamageAmplification(
                 driver.zones.cardRegistry,
-                driver.state, targetId = opponent, amount = 3, sourceId = myCreature
+                driver.state, targetId = opponent, amount = 3, sourceId = myCreature,
+                predicateEvaluator = PredicateEvaluator(cardRegistry = null)
             ) shouldBe 6
         }
 
@@ -155,7 +161,8 @@ class FatedFirepowerScenarioTest : FunSpec({
         withClue("1 fire counter → 3 + 1 = 4") {
             DamageUtils.applyStaticDamageAmplification(
                 driver.zones.cardRegistry,
-                driver.state, targetId = opponent, amount = 3, sourceId = myCreature
+                driver.state, targetId = opponent, amount = 3, sourceId = myCreature,
+                predicateEvaluator = PredicateEvaluator(cardRegistry = null)
             ) shouldBe 4
         }
     }

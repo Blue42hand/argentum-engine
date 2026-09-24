@@ -2,7 +2,6 @@ package com.wingedsheep.engine.legalactions.utils
 
 import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.registry.CardRegistry
@@ -634,7 +633,7 @@ class CastPermissionUtils(
     ): Int? {
         val amount = ability.xDefinedAs ?: return null
         val context = EffectContext(sourceId = sourceId, controllerId = controllerId)
-        return DynamicAmountEvaluator().evaluate(state, amount, context).coerceAtLeast(0)
+        return predicateEvaluator.amounts.evaluate(state, amount, context).coerceAtLeast(0)
     }
 
     /**
@@ -799,7 +798,7 @@ class CastPermissionUtils(
     ): Pair<Int, Int> {
         var net = 0
         var floor = 0
-        val evaluator = DynamicAmountEvaluator()
+        val evaluator = predicateEvaluator.amounts
         for (entityId in state.getBattlefield()) {
             val card = state.getEntity(entityId)?.get<CardComponent>() ?: continue
             val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue

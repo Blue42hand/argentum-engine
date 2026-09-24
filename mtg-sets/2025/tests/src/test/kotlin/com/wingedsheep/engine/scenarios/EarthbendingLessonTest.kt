@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.mechanics.layers.StateProjector
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -161,7 +162,7 @@ class EarthbendingLessonTest : FunSpec({
         driver.state.grantedTriggeredAbilities.count { it.entityId == forest } shouldBe 2
 
         // …but the client view collapses them to one badge.
-        val transformer = com.wingedsheep.engine.view.ClientStateTransformer(driver.cardRegistry)
+        val transformer = com.wingedsheep.engine.view.ClientStateTransformer(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         val card = transformer.transform(driver.state, you).cards[forest]!!
         card.activeEffects.count { it.icon == "granted-ability" } shouldBe 1
     }

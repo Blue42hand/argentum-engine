@@ -27,7 +27,7 @@ class LibraryExecutors(
      */
     private val castSpellHandler: () -> CastSpellHandler,
     private val playLandHandler: () -> PlayLandHandler,
-    private val targetFinder: TargetFinder = TargetFinder(),
+    private val targetFinder: TargetFinder
 ) : ExecutorModule {
 
     override fun executors(): List<EffectExecutor<*>> = listOf(
@@ -41,7 +41,7 @@ class LibraryExecutors(
         GrantPlayWithCostIncreaseExecutor(),
         GrantPlayWithAdditionalCostExecutor(),
         GrantFreeCastTargetFromExileExecutor(),
-        GatherUntilMatchExecutor(),
+        GatherUntilMatchExecutor(predicateEvaluator = zones.predicateEvaluator),
         RevealCollectionExecutor(),
         ExileFromTopRepeatingExecutor(zones),
         ExileLibraryUntilManaValueExecutor(zones),
@@ -65,18 +65,18 @@ class LibraryExecutors(
         ChooseCreatureTypePipelineExecutor(),
         ChooseOptionPipelineExecutor(cardRegistry = cardRegistry),
         NoteCreatureTypePipelineExecutor(),
-        GatherCardsExecutor(cardRegistry),
+        GatherCardsExecutor(zones.predicateEvaluator),
         CopyCardIntoCollectionExecutor(),
         CopyCollectionIntoCollectionExecutor(),
         GrantSuspendExecutor(),
-        SelectFromCollectionExecutor(cardRegistry = cardRegistry),
+        SelectFromCollectionExecutor(cardRegistry = cardRegistry, predicateEvaluator = zones.predicateEvaluator),
         ChoosePileExecutor(),
         SelectTargetPipelineExecutor(targetFinder = targetFinder),
         MoveCollectionExecutor(zones, cardRegistry = cardRegistry, targetFinder = targetFinder),
-        FilterCollectionExecutor(),
-        ChooseOnePerCategoryExecutor(),
+        FilterCollectionExecutor(predicateEvaluator = zones.predicateEvaluator),
+        ChooseOnePerCategoryExecutor(predicateEvaluator = zones.predicateEvaluator),
         PutOnTopOrBottomOfLibraryExecutor(),
-        StoreNumberExecutor(),
+        StoreNumberExecutor(amountEvaluator = zones.predicateEvaluator.amounts),
         StoreCardNameExecutor(),
         EmitScriedEventExecutor(),
         EmitClashedEventExecutor(),

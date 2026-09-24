@@ -66,7 +66,8 @@ class ExploreEffectExecutor(
         // Composite ahead of the guarded explore so a pausing prefix (Scry) sequences correctly.
         if (!effect.replacementsApplied) {
             val prefixEffects = KeywordActionReplacements.collectPrefixes(
-                state, exploringCreatureId, ReplaceableKeywordAction.EXPLORE
+                state, exploringCreatureId, ReplaceableKeywordAction.EXPLORE,
+                predicateEvaluator = zones.predicateEvaluator
             )
             if (prefixEffects.isNotEmpty()) {
                 val composite = CompositeEffect(
@@ -184,7 +185,8 @@ class ExploreEffectExecutor(
         }
         val current = state.getEntity(creatureId)?.get<CountersComponent>() ?: CountersComponent()
         val count = ReplacementEffectUtils.applyCounterPlacementModifiers(
-            state, creatureId, CounterType.PLUS_ONE_PLUS_ONE, 1, placerId = context.controllerId
+            state, creatureId, CounterType.PLUS_ONE_PLUS_ONE, 1, placerId = context.controllerId,
+            predicateEvaluator = zones.predicateEvaluator
         )
         val updated = state.updateEntity(creatureId) {
             it.with(current.withAdded(CounterType.PLUS_ONE_PLUS_ONE, count))

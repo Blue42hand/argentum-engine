@@ -57,8 +57,9 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
 class TriggerProcessor(
     private val cardRegistry: CardRegistry,
     private val stackResolver: StackResolver,
-    private val targetFinder: TargetFinder = TargetFinder(),
-    private val decisionHandler: DecisionHandler = DecisionHandler()
+    private val decisionHandler: DecisionHandler = DecisionHandler(),
+    private val amountEvaluator: DynamicAmountEvaluator,
+    private val targetFinder: TargetFinder
 ) {
 
     /**
@@ -535,7 +536,7 @@ class TriggerProcessor(
         val manaCost = ability.effect.asOptionalManaPayment()!!.cost
 
         // Check if the player can pay the mana cost
-        val manaSolver = ManaSolver(cardRegistry)
+        val manaSolver = ManaSolver(cardRegistry, amountEvaluator.predicates)
         if (!manaSolver.canPay(state, trigger.controllerId, manaCost)) {
             // Can't pay - skip silently
             return ExecutionResult.success(state)
@@ -647,7 +648,8 @@ class TriggerProcessor(
         for ((index, req) in visibleRequirements.withIndex()) {
             val legalTargets = if (sequential) {
                 DependentTargetSelection.legalNext(
-                    state, allRequirements, emptyList(), targetingContext
+                    state, allRequirements, emptyList(), targetingContext,
+                    targetFinder = targetFinder
                 )
             } else targetFinder.findLegalTargets(
                 state = state,
@@ -755,7 +757,7 @@ class TriggerProcessor(
         // Resolve dynamic amounts so the player sees concrete values
         // (e.g., Gloom Ripper showing "+3/+0" instead of "+X/+0").
         val effectHint = try {
-            val evaluator = DynamicAmountEvaluator()
+            val evaluator = amountEvaluator
             val context = EffectContext(
                 sourceId = trigger.sourceId,
             objectReferences = trigger.objectReferences,
@@ -896,7 +898,7 @@ class TriggerProcessor(
     ): Pair<Int, Int> {
         val dynamic = modal.dynamicChooseCount
             ?: return modal.chooseCount to modal.minChooseCount
-        val evaluated = DynamicAmountEvaluator().evaluate(
+        val evaluated = amountEvaluator.evaluate(
             state,
             dynamic,
             EffectContext.forTriggeredAbility(ability)
@@ -1278,7 +1280,7 @@ class TriggerProcessor(
             objectReferences = trigger.objectReferences,
             controllerId = trigger.controllerId,
         )
-        return DynamicAmountEvaluator().evaluate(state, resolvedAmount, context)
+        return amountEvaluator.evaluate(state, resolvedAmount, context)
     }
 
     /**
@@ -1457,7 +1459,7 @@ class TriggerProcessor(
                         // (e.g. `VariableReference("discarded_count")`, Amass's army reference).
                         pipeline = trigger.carriedPipeline ?: com.wingedsheep.engine.handlers.PipelineState.EMPTY,
                     )
-                    DynamicAmountEvaluator().evaluate(state, dyn, context)
+                    amountEvaluator.evaluate(state, dyn, context)
                 } catch (_: Exception) {
                     requirement.count
                 }
@@ -1498,7 +1500,7 @@ class TriggerProcessor(
                 triggerContext = trigger.triggerContext,
                 pipeline = trigger.carriedPipeline ?: com.wingedsheep.engine.handlers.PipelineState.EMPTY,
             )
-            DynamicAmountEvaluator().evaluate(state, dyn, context).coerceAtLeast(0)
+            amountEvaluator.evaluate(state, dyn, context).coerceAtLeast(0)
         } catch (_: Exception) {
             null
         }

@@ -1,7 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.ActivateAbility
-import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.legalactions.utils.CastPermissionUtils
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
@@ -46,7 +45,7 @@ class ResonatingLuteScenarioTest : FunSpec({
     }
 
     fun makeCastPermissionUtils(driver: GameTestDriver): CastPermissionUtils =
-        CastPermissionUtils(driver.cardRegistry, PredicateEvaluator(), ConditionEvaluator())
+        CastPermissionUtils(driver.cardRegistry, PredicateEvaluator(cardRegistry = null), PredicateEvaluator(cardRegistry = null).conditions)
 
     test("grants each land you control a {T}: add two mana of one color ability") {
         val driver = createDriver()

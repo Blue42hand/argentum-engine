@@ -3,7 +3,6 @@ package com.wingedsheep.engine.scenarios
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.PlayLand
 import com.wingedsheep.engine.handlers.PredicateContext
-import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.DoubleFacedComponent
 import com.wingedsheep.engine.state.components.identity.TokenComponent
@@ -78,7 +77,7 @@ class DoubleFacedEntryAndPredicateTest : ScenarioTestBase() {
         get() = cardRegistry.getCard("Test Flip Land Front")!!.script.activatedAbilities[0].id
 
     private fun TestGame.isDoubleFaced(entityId: EntityId, controllerId: EntityId): Boolean =
-        PredicateEvaluator().matches(
+        services.predicateEvaluator.matches(
             state,
             state.projectedState,
             entityId,

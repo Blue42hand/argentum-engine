@@ -351,7 +351,8 @@ class MiscContinuationResumer(
             context = context,
             sourceName = continuation.sourceName,
             effectExecutor = services.effectExecutorRegistry::execute,
-            priorEvents = emptyList()
+            priorEvents = emptyList(),
+            conditionEvaluator = services.conditionEvaluator
         )
 
         if (result.outcome is Outcome.Paused) {
@@ -790,7 +791,8 @@ class MiscContinuationResumer(
         for ((targetId, amount) in distribution) {
             if (amount > 0) {
                 val modifiedAmount = ReplacementEffectUtils.applyCounterPlacementModifiers(
-                    newState, targetId, counterType, amount, placerId = continuation.controllerId
+                    newState, targetId, counterType, amount, placerId = continuation.controllerId,
+                    predicateEvaluator = services.predicateEvaluator
                 )
                 val targetCounters = newState.getEntity(targetId)
                     ?.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
@@ -963,7 +965,8 @@ class MiscContinuationResumer(
                 // Add them to the destination (honoring counter-placement replacements).
                 val modified = ReplacementEffectUtils.applyCounterPlacementModifiers(
                     newState, continuation.destinationId, counterType, actuallyRemovable,
-                    placerId = continuation.controllerId
+                    placerId = continuation.controllerId,
+                    predicateEvaluator = services.predicateEvaluator
                 )
                 if (modified > 0) {
                     val destCounters = newState.getEntity(continuation.destinationId)
@@ -1095,7 +1098,7 @@ class MiscContinuationResumer(
         // Same placement rule as the targeted form of the effect (Powerful Broker) — only the
         // way the recipients were chosen differs.
         val (newState, events) =
-            ProliferateExecutor.addOneOfEachKind(state, chosen, continuation.controllerId)
+            ProliferateExecutor.addOneOfEachKind(state, chosen, continuation.controllerId, predicateEvaluator = services.predicateEvaluator)
 
         return checkForMore(newState, events)
     }

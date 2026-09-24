@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.state.components.stack.ActivatedAbilityOnStackComponent
 import com.wingedsheep.engine.support.GameTestDriver
@@ -67,7 +68,7 @@ class SelfNounRenderingTest : FunSpec({
         val stackId = driver.state.stack.first {
             driver.state.getEntity(it)?.has<ActivatedAbilityOnStackComponent>() == true
         }
-        return ClientStateTransformer(driver.cardRegistry)
+        return ClientStateTransformer(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             .transform(driver.state, player).cards[stackId]!!.oracleText
     }
 

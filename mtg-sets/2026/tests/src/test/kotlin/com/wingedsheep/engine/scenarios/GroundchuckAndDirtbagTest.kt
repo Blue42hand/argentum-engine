@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.registry.CardRegistry
@@ -94,7 +95,7 @@ class GroundchuckAndDirtbagTest : FunSpec({
         driver.putCreatureOnBattlefield(activePlayer, "Groundchuck & Dirtbag")
         driver.putLandOnBattlefield(activePlayer, "Tap-for-Green Land")
 
-        val solver = ManaSolver(createRegistry())
+        val solver = ManaSolver(createRegistry(), predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         // 1 from the land + 1 bonus from Groundchuck = 2 green available
         solver.canPay(driver.state, activePlayer, ManaCost.parse("{G}{G}")) shouldBe true
         solver.canPay(driver.state, activePlayer, ManaCost.parse("{G}{G}{G}")) shouldBe false

@@ -47,6 +47,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetRequirement
 internal class ActivationChoicePauses(
     private val costHandler: CostHandler,
     private val manaSolver: ManaSolver,
+    private val targetFinder: TargetFinder
 ) {
 
     /**
@@ -469,7 +470,7 @@ internal class ActivationChoicePauses(
         val controllerTargetReqsExec = activation.targetRequirements.filter { it.chooser == TargetChooser.Controller }
         if (controllerTargetReqsExec.none { it.effectiveMinCount > 0 }) return null
         val xForTargets = activation.effectiveXValue ?: 0
-        val finder = TargetFinder()
+        val finder = targetFinder
         val pipelineContext = PredicateContext(
             controllerId = action.playerId,
             sourceId = action.sourceId,
@@ -608,7 +609,7 @@ internal class ActivationChoicePauses(
             return ExecutionResult.error(state, "Chosen player is not an opponent")
         }
 
-        val finder = TargetFinder()
+        val finder = targetFinder
         val legalTargets = mutableMapOf<Int, List<EntityId>>()
         val requirementInfos = opponentReqs.mapIndexed { index, req ->
             val legal = finder.findLegalTargets(state, req, action.playerId, action.sourceId)

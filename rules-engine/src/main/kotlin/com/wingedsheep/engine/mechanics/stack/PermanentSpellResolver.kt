@@ -28,6 +28,7 @@ internal class PermanentSpellResolver(
     private val permanentEntry: PermanentEntry,
     private val entersWithChoicePrompt: EntersWithChoicePrompt
 ) {
+    private val amountEvaluator = predicateEvaluator.amounts
     /**
      * Resolve a permanent spell - put it on the battlefield.
      * May pause for player input (e.g., Clone choosing a creature to copy).
@@ -267,7 +268,7 @@ internal class PermanentSpellResolver(
                     state, state.projectedState, cardId, exileCountersEffect.filter, predicateContext
                 )
             }
-            val maxCards = com.wingedsheep.engine.handlers.DynamicAmountEvaluator().evaluate(
+            val maxCards = amountEvaluator.evaluate(
                 state,
                 exileCountersEffect.maxCards,
                 EffectContext(
@@ -323,7 +324,7 @@ internal class PermanentSpellResolver(
             .filterIsInstance<com.wingedsheep.sdk.scripting.EntersWithDevour>().firstOrNull()
         if (devourEffect != null) {
             val candidates = com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements
-                .devourSacrificeCandidates(state, controllerId, devourEffect, enteringId = spellId)
+                .devourSacrificeCandidates(state, controllerId, devourEffect, enteringId = spellId, predicateEvaluator = predicateEvaluator)
 
             if (candidates.isNotEmpty()) {
                 val devourLabel = devourEffect.description.substringBefore(" (")

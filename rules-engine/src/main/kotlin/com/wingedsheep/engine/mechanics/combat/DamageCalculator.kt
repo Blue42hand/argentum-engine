@@ -32,9 +32,8 @@ import com.wingedsheep.sdk.scripting.events.RecipientFilter
  */
 class DamageCalculator(
     private val cardRegistry: CardRegistry? = null,
+    private val predicateEvaluator: PredicateEvaluator
 ) {
-
-    private val predicateEvaluator = PredicateEvaluator()
 
     /**
      * Result of calculating lethal damage for a creature.
@@ -123,7 +122,7 @@ class DamageCalculator(
 
         // Use projected values for power and keywords (includes floating effects like +4/+4)
         val projected = state.projectedState
-        val attackerPower = CombatDamageUtils.getAssignedCombatDamage(state, projected, attackerId, cardRegistry)
+        val attackerPower = CombatDamageUtils.getAssignedCombatDamage(state, projected, attackerId, cardRegistry, predicateEvaluator = predicateEvaluator)
         if (attackerPower <= 0) {
             return DamageDistribution(emptyMap(), 0, 0)
         }
@@ -254,7 +253,7 @@ class DamageCalculator(
             ?: return DamageDistribution(emptyMap(), 0, 0)
 
         val projected = state.projectedState
-        val blockerPower = CombatDamageUtils.getAssignedCombatDamage(state, projected, blockerId, cardRegistry)
+        val blockerPower = CombatDamageUtils.getAssignedCombatDamage(state, projected, blockerId, cardRegistry, predicateEvaluator = predicateEvaluator)
         if (blockerPower <= 0) {
             return DamageDistribution(emptyMap(), 0, 0)
         }

@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.CardsSelectedResponse
 import com.wingedsheep.engine.core.SelectCardsDecision
@@ -227,7 +228,7 @@ class EmpowerJaceScenarioTest : FunSpec({
         driver.cast(me, "Empower Three")
         val jace = driver.jaceTokens(me).single()
 
-        val view = ClientStateTransformer(driver.cardRegistry).transform(driver.state, me)
+        val view = ClientStateTransformer(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null)).transform(driver.state, me)
         val menu = view.cards[jace]!!.planeswalkerAbilities!!
         menu.map { it.loyaltyChange }.toSet() shouldBe setOf(-1, -3, -2)
         menu.single { it.loyaltyChange == -2 }.description shouldBe "You gain 3 life."

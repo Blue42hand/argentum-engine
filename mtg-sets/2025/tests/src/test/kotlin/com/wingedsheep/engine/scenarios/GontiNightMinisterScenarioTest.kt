@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -160,7 +161,7 @@ class GontiNightMinisterScenarioTest : FunSpec({
         val (driver, players, stolen) = stealScenario()
         val (gontiController, thief, victim) = players
 
-        val transformer = ClientStateTransformer(driver.cardRegistry)
+        val transformer = ClientStateTransformer(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
         fun viewOf(playerId: EntityId) =
             transformer.transform(driver.state, viewingPlayerId = playerId).cards[stolen].shouldNotBeNull()
 

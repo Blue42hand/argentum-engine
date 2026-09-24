@@ -78,7 +78,8 @@ private val CREATURE_TYPE_NAMES: Set<String> = Subtype.ALL_CREATURE_TYPES.toSet(
  * "the number of creatures you control" or "your life total".
  */
 class DynamicAmountEvaluator(
-    private val conditionEvaluator: ConditionEvaluator? = null,
+    /** The condition evaluator that owns this one — see [ConditionEvaluator.amounts]. */
+    val conditions: ConditionEvaluator,
     /**
      * Projection used for battlefield reads when the caller doesn't pass one. Default reads
      * the canonical [GameState.projectedState]; the [com.wingedsheep.engine.mechanics.layers.StateProjector]
@@ -479,7 +480,7 @@ class DynamicAmountEvaluator(
             }
 
             is DynamicAmount.Conditional -> {
-                val eval = conditionEvaluator ?: ConditionEvaluator()
+                val eval = conditions
                 val met = eval.evaluate(state, amount.condition, context)
                 if (met) evaluate(state, amount.ifTrue, context, projectedState)
                 else evaluate(state, amount.ifFalse, context, projectedState)
@@ -491,7 +492,7 @@ class DynamicAmountEvaluator(
             is DynamicAmount.PlayerCount -> resolveUnifiedPlayerIds(state, amount.scope, context).size
 
             is DynamicAmount.CountPlayersWith -> {
-                val eval = conditionEvaluator ?: ConditionEvaluator()
+                val eval = conditions
                 val playerIds = resolveUnifiedPlayerIds(state, amount.scope, context)
                 playerIds.count { playerId ->
                     eval.evaluate(state, amount.condition, context.copy(controllerId = playerId))
@@ -980,7 +981,9 @@ class DynamicAmountEvaluator(
     // Unified Filter Evaluation
     // =========================================================================
 
-    private val predicateEvaluator = PredicateEvaluator()
+    /** The predicate evaluator [conditions] is built over. */
+    val predicates: PredicateEvaluator get() = conditions.predicates
+    private val predicateEvaluator get() = predicates
 
     private fun controllerOf(state: GameState, projection: ProjectedState, entityId: EntityId): EntityId? =
         projection.getController(entityId)
@@ -1340,7 +1343,7 @@ class DynamicAmountEvaluator(
         val controller = state.projectedState.getController(entityId)
             ?: fallbackControllerId
             ?: return false
-        return ControllerGrants.grantedTo<GrantsStationUsingToughnessComponent>(state, controller)
+        return ControllerGrants.grantedTo<GrantsStationUsingToughnessComponent>(state, controller, predicateEvaluator = predicateEvaluator)
     }
 
     // =========================================================================

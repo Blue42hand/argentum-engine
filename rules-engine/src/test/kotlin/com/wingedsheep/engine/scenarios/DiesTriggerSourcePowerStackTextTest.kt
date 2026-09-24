@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -87,7 +88,7 @@ class DiesTriggerSourcePowerStackTextTest : FunSpec({
 
         // The triggered ability is now on the stack — render it and assert the resolved power.
         val stackId = d.state.stack.first()
-        val view = ClientStateTransformer(cardRegistry = d.cardRegistry)
+        val view = ClientStateTransformer(cardRegistry = d.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
             .transform(d.state, viewingPlayerId = active)
         val stackCard = view.cards[stackId]
         stackCard.shouldNotBeNull()

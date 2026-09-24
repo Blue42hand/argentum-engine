@@ -86,8 +86,6 @@ import com.wingedsheep.sdk.scripting.references.Player
  */
 object PermanentEntryReplacements {
 
-    private val predicateEvaluator = PredicateEvaluator()
-
     /**
      * Models the "look at an opponent's hand" clause of an [EntersWithChoice] with
      * [EntersWithChoice.lookAtOpponentHand] set (Sorcerous Spyglass). Reveals the first opponent's
@@ -149,6 +147,7 @@ object PermanentEntryReplacements {
         controllerId: EntityId,
         devour: EntersWithDevour,
         enteringId: EntityId?,
+        predicateEvaluator: PredicateEvaluator
     ): List<EntityId> {
         val predicateContext = PredicateContext(controllerId = controllerId, sourceId = enteringId)
         return state.getBattlefield().filter { entityId ->
@@ -235,6 +234,7 @@ object PermanentEntryReplacements {
         entityId: EntityId,
         controllerId: EntityId,
         effect: EntersAsCopy,
+        predicateEvaluator: PredicateEvaluator
     ): List<EntityId> {
         val pool = if (effect.copyFromZone == Zone.GRAVEYARD) {
             state.turnOrder.flatMap { state.getGraveyard(it) }
@@ -277,9 +277,10 @@ object PermanentEntryReplacements {
         carryEvents: List<GameEvent> = emptyList(),
         entryOldObject: com.wingedsheep.engine.state.ObjectRef? = null,
         entryNewObject: com.wingedsheep.engine.state.ObjectRef? = state.objectRef(entityId),
+        predicateEvaluator: PredicateEvaluator
     ): ExecutionResult? {
         val copyFromGraveyard = effect.copyFromZone == Zone.GRAVEYARD
-        val candidates = entersAsCopyCandidates(state, entityId, controllerId, effect)
+        val candidates = entersAsCopyCandidates(state, entityId, controllerId, effect, predicateEvaluator = predicateEvaluator)
         if (candidates.isEmpty()) return null
 
         val filterDesc = effect.copyFilter.description

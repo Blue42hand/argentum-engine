@@ -28,7 +28,7 @@ import kotlin.reflect.KClass
  * to <= 0.
  */
 class AddCountersUpToExecutor(
-    private val amountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator()
+    private val amountEvaluator: DynamicAmountEvaluator
 ) : EffectExecutor<AddCountersUpToEffect> {
 
     override val effectType: KClass<AddCountersUpToEffect> = AddCountersUpToEffect::class

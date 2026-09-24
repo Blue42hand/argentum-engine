@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.handlers.effects.chain
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
+import com.wingedsheep.engine.handlers.TargetFinder
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
@@ -15,9 +17,11 @@ import com.wingedsheep.sdk.scripting.effects.Effect
  */
 class ChainExecutors(
     /** The registry's re-entrant entry point, for the chain copy's sub-effects. */
-    private val effectExecutor: (GameState, Effect, EffectContext) -> EffectResult
+    private val effectExecutor: (GameState, Effect, EffectContext) -> EffectResult,
+    private val targetFinder: TargetFinder,
+    private val predicateEvaluator: PredicateEvaluator
 ) : ExecutorModule {
-    private val chainCopyExecutor = ChainCopyExecutor(effectExecutor = effectExecutor)
+    private val chainCopyExecutor = ChainCopyExecutor(effectExecutor = effectExecutor, targetFinder = targetFinder, predicateEvaluator = predicateEvaluator)
 
     override fun executors(): List<EffectExecutor<*>> = listOf(
         chainCopyExecutor

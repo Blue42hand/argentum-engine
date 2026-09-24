@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.PaymentStrategy
 import com.wingedsheep.engine.mechanics.mana.CostCalculator
@@ -134,7 +135,7 @@ class GrantNextSpellFreeCastTest : FunSpec({
     test("the rider is consumed by the next matching cast even when the free cast isn't taken") {
         val driver = createDriver()
         val player = driver.activePlayer!!
-        val costCalculator = CostCalculator(driver.cardRegistry)
+        val costCalculator = CostCalculator(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
         driver.castRitual(player, "Free Cast Ritual")
 
@@ -162,7 +163,7 @@ class GrantNextSpellFreeCastTest : FunSpec({
         val driver = createDriver()
         val player = driver.activePlayer!!
         val opponent = driver.getOpponent(player)
-        val costCalculator = CostCalculator(driver.cardRegistry)
+        val costCalculator = CostCalculator(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
         driver.castRitual(player, "Creature Free Cast Ritual")
 
@@ -222,7 +223,7 @@ class GrantNextSpellFreeCastTest : FunSpec({
         val driver = createDriver()
         val player = driver.activePlayer!!
         val opponent = driver.getOpponent(player)
-        val costCalculator = CostCalculator(driver.cardRegistry)
+        val costCalculator = CostCalculator(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null))
 
         driver.castRitual(player, "Free Cast Ritual")
 

@@ -71,13 +71,14 @@ object DependentTargetSelection {
         requirements: List<TargetRequirement>,
         chosen: List<EntityId>,
         context: PredicateContext,
+        targetFinder: TargetFinder
     ): List<EntityId> {
         require(requirements.all { req ->
             req.count == 1 && !req.unlimited && (req !is TargetObject || req.filter.zone == Zone.BATTLEFIELD)
         }) {
             "Dependent target selection requires single-target slots over players or permanents"
         }
-        val finder = TargetFinder()
+        val finder = targetFinder
         fun candidates(prefix: List<EntityId>): List<EntityId> = finder.findLegalTargets(
             state, requirements[prefix.size], context.controllerId,
             sourceId = context.sourceId,

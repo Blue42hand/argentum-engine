@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.permanent.counters
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.CountersAddedEvent
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.handlers.EffectContext
@@ -28,7 +29,9 @@ import kotlin.reflect.KClass
  * snapshotted before any placement, so counters added by this very effect are never
  * re-doubled.
  */
-class DoubleCountersExecutor : EffectExecutor<DoubleCountersEffect> {
+class DoubleCountersExecutor(
+    private val predicateEvaluator: PredicateEvaluator
+) : EffectExecutor<DoubleCountersEffect> {
 
     override val effectType: KClass<DoubleCountersEffect> = DoubleCountersEffect::class
 
@@ -68,7 +71,8 @@ class DoubleCountersExecutor : EffectExecutor<DoubleCountersEffect> {
         for ((counterType, existing) in toDouble) {
             // Doubling places `existing` additional counters; honor placement replacements.
             val added = ReplacementEffectUtils.applyCounterPlacementModifiers(
-                newState, targetId, counterType, existing, placerId = context.controllerId
+                newState, targetId, counterType, existing, placerId = context.controllerId,
+                predicateEvaluator = predicateEvaluator
             )
             if (added <= 0) continue
 

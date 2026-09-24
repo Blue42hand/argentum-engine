@@ -10,7 +10,6 @@ import com.wingedsheep.engine.core.SelectCardsDecision
 import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
-import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.mechanics.layers.Layer
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
@@ -39,6 +38,7 @@ import kotlin.reflect.KClass
 class PreventDamageExecutor(
     private val amountEvaluator: DynamicAmountEvaluator
 ) : EffectExecutor<PreventDamageEffect> {
+    private val predicateEvaluator = amountEvaluator.predicates
 
     override val effectType: KClass<PreventDamageEffect> = PreventDamageEffect::class
 
@@ -79,7 +79,7 @@ class PreventDamageExecutor(
         // the eligibility filter are offered, evaluated against projected battlefield state and
         // (via base-state fallback) stack spells.
         val matchFilter = (effect.sourceFilter as? PreventionSourceFilter.ChosenSourceMatching)?.filter
-        val predicateEvaluator = if (matchFilter != null) PredicateEvaluator() else null
+        val predicateEvaluator = if (matchFilter != null) predicateEvaluator else null
         // The eligibility filter is evaluated *relative to the ability's source*, so it can name the
         // source itself or something hanging off it — "a source that shares a color with the card
         // exiled with this artifact" (Mourner's Shield). Without `sourceId` every such predicate

@@ -9,9 +9,9 @@ class PlayerSbaModule(private val zones: ZoneTransitionService) : StateBasedActi
         StartYourEnginesCheck(),
         AscendCitysBlessingCheck(),
         StoriedEnduringStoryCheck(),
-        PlayerLifeLossCheck(),
-        CommanderDamageLossCheck(),
-        PoisonLossCheck(),
+        PlayerLifeLossCheck(predicateEvaluator = zones.predicateEvaluator),
+        CommanderDamageLossCheck(predicateEvaluator = zones.predicateEvaluator),
+        PoisonLossCheck(predicateEvaluator = zones.predicateEvaluator),
         TeamLossPropagationCheck(),
         PlayerLeavesGameCheck(zones)
     )

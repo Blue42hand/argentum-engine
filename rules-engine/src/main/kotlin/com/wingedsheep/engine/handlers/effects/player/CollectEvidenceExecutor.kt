@@ -48,7 +48,7 @@ class CollectEvidenceExecutor(
         val playerId = TargetResolutionUtils.resolvePlayerRef(effect.player, context, state)
             ?: return EffectResult.error(state, "CollectEvidence: could not resolve collecting player")
 
-        val candidates = CollectEvidenceResolver.candidates(state, playerId)
+        val candidates = CollectEvidenceResolver.candidates(state, playerId, predicateEvaluator = zones.predicateEvaluator)
         // CR 701.59b — defense in depth. The "may" that leads here is only offered when this holds.
         if (!candidates.canReach(effect.amount)) {
             return EffectResult.success(state, emptyList())

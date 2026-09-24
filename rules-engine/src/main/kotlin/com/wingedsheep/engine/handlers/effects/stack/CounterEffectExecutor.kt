@@ -6,7 +6,6 @@ import com.wingedsheep.engine.handlers.DecisionHandler
 import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
-import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.mechanics.stack.SpellCounterer
@@ -36,12 +35,11 @@ class CounterEffectExecutor(
     private val cardRegistry: CardRegistry,
     private val counterer: SpellCounterer
 ) : EffectExecutor<CounterEffect> {
+    private val predicateEvaluator = amountEvaluator.predicates
 
     override val effectType: KClass<CounterEffect> = CounterEffect::class
 
     private val decisionHandler = DecisionHandler()
-    private val predicateEvaluator = PredicateEvaluator()
-
     override fun execute(
         state: GameState,
         effect: CounterEffect,
@@ -125,7 +123,7 @@ class CounterEffectExecutor(
         val payingPlayerId = getSpellCasterId(state, spellEntityId)
             ?: return EffectResult.error(state, "Spell not found on stack")
 
-        val manaSolver = ManaSolver(cardRegistry)
+        val manaSolver = ManaSolver(cardRegistry, predicateEvaluator)
         if (!manaSolver.canPay(state, payingPlayerId, cost)) {
             return performCounter(state, effect, spellEntityId, context)
         }
@@ -153,7 +151,7 @@ class CounterEffectExecutor(
 
         val manaCost = ManaCost(listOf(ManaSymbol.Generic(totalGenericCost)))
 
-        val manaSolver = ManaSolver(cardRegistry)
+        val manaSolver = ManaSolver(cardRegistry, predicateEvaluator)
         if (!manaSolver.canPay(state, payingPlayerId, manaCost)) {
             return performCounter(state, effect, spellEntityId, context)
         }

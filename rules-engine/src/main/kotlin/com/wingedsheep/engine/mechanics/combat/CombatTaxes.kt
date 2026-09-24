@@ -1,7 +1,6 @@
 package com.wingedsheep.engine.mechanics.combat
 
-import com.wingedsheep.engine.handlers.ConditionEvaluator
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
@@ -32,9 +31,6 @@ import com.wingedsheep.sdk.scripting.CantAttackOrBlockUnlessPay
  */
 object CombatTaxes {
 
-    private val dynamicAmountEvaluator = DynamicAmountEvaluator()
-    private val conditionEvaluator = ConditionEvaluator()
-
     /** [total] generic mana, the shape every combat tax is paid in. */
     fun genericCost(total: Int): ManaCost = ManaCost(List(total) { ManaSymbol.generic(1) })
 
@@ -52,6 +48,7 @@ object CombatTaxes {
         cardRegistry: CardRegistry,
         attackers: Map<EntityId, EntityId>,
         projected: ProjectedState,
+        predicateEvaluator: PredicateEvaluator
     ): Int {
         if (attackers.isEmpty()) return 0
         // Per taxing player: attackers aimed at them directly, and attackers aimed at a planeswalker
@@ -82,18 +79,18 @@ object CombatTaxes {
                     val ctx = EffectContext(sourceId = entityId, controllerId = defenderId)
                     // Gate on the source's state (e.g. Archangel of Tithes — only while untapped).
                     val condition = ability.condition
-                    if (condition != null && !conditionEvaluator.evaluate(state, condition, ctx)) {
+                    if (condition != null && !predicateEvaluator.conditions.evaluate(state, condition, ctx)) {
                         continue
                     }
                     val taxPerAttacker =
-                        maxOf(0, dynamicAmountEvaluator.evaluate(state, ability.amountPerAttacker, ctx, projected))
+                        maxOf(0, predicateEvaluator.amounts.evaluate(state, ability.amountPerAttacker, ctx, projected))
                     totalGenericTax += taxPerAttacker * attackerCount
                 }
             }
         }
 
         return totalGenericTax + perCreatureTax(state, attackers.keys, projected) +
-            selfTax(state, cardRegistry, attackers.keys, projected, taxingBlockers = false)
+            selfTax(state, cardRegistry, attackers.keys, projected, taxingBlockers = false, predicateEvaluator = predicateEvaluator)
     }
 
     /**
@@ -108,6 +105,7 @@ object CombatTaxes {
         cardRegistry: CardRegistry,
         blockerIds: Set<EntityId>,
         projected: ProjectedState,
+        predicateEvaluator: PredicateEvaluator
     ): Int {
         if (blockerIds.isEmpty()) return 0
         var totalTax = 0
@@ -120,16 +118,16 @@ object CombatTaxes {
                 val controllerId = projected.getController(entityId) ?: continue
                 val ctx = EffectContext(sourceId = entityId, controllerId = controllerId)
                 val condition = ability.condition
-                if (condition != null && !conditionEvaluator.evaluate(state, condition, ctx)) {
+                if (condition != null && !predicateEvaluator.conditions.evaluate(state, condition, ctx)) {
                     continue
                 }
                 val taxPerBlocker =
-                    maxOf(0, dynamicAmountEvaluator.evaluate(state, ability.amountPerBlocker, ctx, projected))
+                    maxOf(0, predicateEvaluator.amounts.evaluate(state, ability.amountPerBlocker, ctx, projected))
                 totalTax += taxPerBlocker * blockerIds.size
             }
         }
         return totalTax + perCreatureTax(state, blockerIds, projected) +
-            selfTax(state, cardRegistry, blockerIds, projected, taxingBlockers = true)
+            selfTax(state, cardRegistry, blockerIds, projected, taxingBlockers = true, predicateEvaluator = predicateEvaluator)
     }
 
     /**
@@ -150,6 +148,7 @@ object CombatTaxes {
         creatureIds: Set<EntityId>,
         projected: ProjectedState,
         taxingBlockers: Boolean,
+        predicateEvaluator: PredicateEvaluator
     ): Int {
         var totalTax = 0
         for (creatureId in creatureIds) {
@@ -179,7 +178,7 @@ object CombatTaxes {
                 // "Can't attack unless …" (Brainwash) charges nothing to block.
                 if (taxingBlockers && !ability.appliesToBlocking) continue
                 val ctx = EffectContext(sourceId = creatureId, controllerId = controllerId)
-                totalTax += maxOf(0, dynamicAmountEvaluator.evaluate(state, ability.amount, ctx, projected))
+                totalTax += maxOf(0, predicateEvaluator.amounts.evaluate(state, ability.amount, ctx, projected))
             }
         }
         return totalTax

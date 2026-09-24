@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.engine.view.ClientStateTransformer
@@ -59,7 +60,7 @@ class CantBeBlockedExceptByFilterScenarioTest : FunSpec({
             else return@repeat
         }
 
-        val card = ClientStateTransformer(d.cardRegistry).transform(d.state, d.player1)
+        val card = ClientStateTransformer(d.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null)).transform(d.state, d.player1)
             .cards.getValue(runner)
 
         withClue("activeEffects=${card.activeEffects.map { it.effectId to it.description }}") {

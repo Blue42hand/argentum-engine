@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.mechanics.stack
 
+import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutorRegistry
@@ -20,11 +21,10 @@ import com.wingedsheep.sdk.scripting.targets.*
  */
 internal class AbilityResolver(
     private val effects: EffectExecutorRegistry,
-    private val targetValidator: ResolutionTargetValidator
+    private val targetValidator: ResolutionTargetValidator,
+    private val conditionEvaluator: ConditionEvaluator
 ) {
     /** Evaluates a triggered ability's intervening-"if" as it resolves (CR 603.4). */
-    private val conditionEvaluator = com.wingedsheep.engine.handlers.ConditionEvaluator()
-
     /**
      * Resolve a triggered ability.
      */

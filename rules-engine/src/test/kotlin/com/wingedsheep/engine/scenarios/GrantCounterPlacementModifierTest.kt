@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.handlers.DecisionHandler
 import com.wingedsheep.engine.handlers.effects.ReplacementEffectUtils
@@ -93,7 +94,8 @@ class GrantCounterPlacementModifierTest : FunSpec({
             targetId = myCreature,
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 3,
-            placerId = activePlayer
+            placerId = activePlayer,
+            predicateEvaluator = PredicateEvaluator(cardRegistry = null)
         )
         modified shouldBe 4
     }
@@ -110,7 +112,8 @@ class GrantCounterPlacementModifierTest : FunSpec({
             targetId = theirCreature,
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 3,
-            placerId = activePlayer
+            placerId = activePlayer,
+            predicateEvaluator = PredicateEvaluator(cardRegistry = null)
         )
         modified shouldBe 3
     }
@@ -125,7 +128,8 @@ class GrantCounterPlacementModifierTest : FunSpec({
             targetId = myCreature,
             counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 3,
-            placerId = opponent
+            placerId = opponent,
+            predicateEvaluator = PredicateEvaluator(cardRegistry = null)
         )
         modified shouldBe 3
     }
@@ -139,7 +143,8 @@ class GrantCounterPlacementModifierTest : FunSpec({
             targetId = myCreature,
             counterType = CounterType.MINUS_ONE_MINUS_ONE,
             count = 3,
-            placerId = activePlayer
+            placerId = activePlayer,
+            predicateEvaluator = PredicateEvaluator(cardRegistry = null)
         )
         modified shouldBe 3
     }
@@ -150,12 +155,13 @@ class GrantCounterPlacementModifierTest : FunSpec({
 
         // Sanity: active while present.
         ReplacementEffectUtils.applyCounterPlacementModifiers(
-            driver.state, myCreature, CounterType.PLUS_ONE_PLUS_ONE, 3, placerId = activePlayer
+            driver.state, myCreature, CounterType.PLUS_ONE_PLUS_ONE, 3, placerId = activePlayer,
+            predicateEvaluator = PredicateEvaluator(cardRegistry = null)
         ) shouldBe 4
 
         // Run the real end-of-turn cleanup.
         val cleanup = com.wingedsheep.engine.core.CleanupPhaseManager(
-            driver.cardRegistry, DecisionHandler()
+            driver.cardRegistry, DecisionHandler(), conditionEvaluator = driver.services.conditionEvaluator
         )
         val cleaned = cleanup.cleanupEndOfTurn(driver.state)
         driver.replaceState(cleaned)
@@ -164,7 +170,8 @@ class GrantCounterPlacementModifierTest : FunSpec({
             driver.state.activeCounterPlacementModifiers.isEmpty() shouldBe true
         }
         ReplacementEffectUtils.applyCounterPlacementModifiers(
-            driver.state, myCreature, CounterType.PLUS_ONE_PLUS_ONE, 3, placerId = activePlayer
+            driver.state, myCreature, CounterType.PLUS_ONE_PLUS_ONE, 3, placerId = activePlayer,
+            predicateEvaluator = PredicateEvaluator(cardRegistry = null)
         ) shouldBe 3
     }
 })

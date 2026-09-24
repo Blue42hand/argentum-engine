@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.state.components.combat.AttackingComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
@@ -98,7 +99,7 @@ class ShipwreckSentryScenarioTest : FunSpec({
     // declare-attackers step. That early reveal is the whole point: the player sees the Defender can
     // now attack right after playing an artifact.
     fun hasCanAttackBadge(driver: GameTestDriver, viewer: com.wingedsheep.sdk.model.EntityId, card: com.wingedsheep.sdk.model.EntityId): Boolean =
-        ClientStateTransformer(driver.cardRegistry).transform(driver.state, viewer)
+        ClientStateTransformer(driver.cardRegistry, predicateEvaluator = PredicateEvaluator(cardRegistry = null)).transform(driver.state, viewer)
             .cards[card]?.activeEffects
             ?.any { it.description == "Can attack despite defender" } ?: false
 

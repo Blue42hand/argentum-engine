@@ -39,7 +39,8 @@ object ZoneReturnService {
             transitions.addAll(result.transitions.map { it.copy(cause = ZoneTransitionCause.DURATION_RETURN) })
             if (result.actualDestination == Zone.BATTLEFIELD) {
                 val (entered, entryEvents) = EntersWithReplacements.applyOnEntry(
-                    newState, id, owner, zones.cardRegistry
+                    newState, id, owner, zones.cardRegistry,
+                    predicateEvaluator = zones.predicateEvaluator
                 )
                 newState = entered
                 events.addAll(entryEvents)

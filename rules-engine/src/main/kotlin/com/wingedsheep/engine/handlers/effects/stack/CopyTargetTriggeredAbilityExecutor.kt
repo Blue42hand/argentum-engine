@@ -26,7 +26,7 @@ import kotlin.reflect.KClass
  * that created it."
  */
 class CopyTargetTriggeredAbilityExecutor(
-    private val targetFinder: TargetFinder = TargetFinder()
+    private val targetFinder: TargetFinder
 ) : EffectExecutor<CopyTargetTriggeredAbilityEffect> {
 
     override val effectType: KClass<CopyTargetTriggeredAbilityEffect> =

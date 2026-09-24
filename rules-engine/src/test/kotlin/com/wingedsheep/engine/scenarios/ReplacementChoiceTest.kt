@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.ChooseOptionDecision
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.replacement.PendingGameEvent
@@ -104,7 +105,7 @@ class ReplacementChoiceTest : FunSpec({
             me, "Replacer B", ReplaceDrawWithEffect(replacementEffect = DrawCardsEffect(2))
         )
 
-        val processor = ReplacementEffectProcessor()
+        val processor = ReplacementEffectProcessor(conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions)
         val result = processor.process(state, PendingGameEvent.DrawPending(me, 1), EffectContext(EntityId.generate(), me))
 
         result.shouldBeInstanceOf<ProcessorResult.Paused>()
@@ -128,7 +129,7 @@ class ReplacementChoiceTest : FunSpec({
             me, "Riddler B", ModifyDrawAmount(modifier = 1, appliesTo = EventPattern.DrawCardsEvent())
         )
 
-        val result = ReplacementEffectProcessor().process(
+        val result = ReplacementEffectProcessor(conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions).process(
             state, PendingGameEvent.DrawAmountPending(me, 1), EffectContext(EntityId.generate(), me)
         )
 
@@ -153,7 +154,7 @@ class ReplacementChoiceTest : FunSpec({
             me, "Riddler", ModifyDrawAmount(multiplier = 3, appliesTo = EventPattern.DrawCardsEvent())
         )
 
-        val result = ReplacementEffectProcessor().process(
+        val result = ReplacementEffectProcessor(conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions).process(
             state, PendingGameEvent.DrawAmountPending(me, 2), EffectContext(EntityId.generate(), me)
         )
 
@@ -180,7 +181,7 @@ class ReplacementChoiceTest : FunSpec({
             me, "Replacer B", ReplaceDrawWithEffect(replacementEffect = DrawCardsEffect(2))
         )
 
-        val result = ReplacementEffectProcessor().process(
+        val result = ReplacementEffectProcessor(conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions).process(
             state, PendingGameEvent.DrawPending(me, 1), EffectContext(EntityId.generate(), me)
         )
         result.shouldBeInstanceOf<ProcessorResult.Paused>()
@@ -205,7 +206,7 @@ class ReplacementChoiceTest : FunSpec({
             me, "Replacer B", ReplaceDrawWithEffect(replacementEffect = DrawCardsEffect(2))
         )
 
-        val result = ReplacementEffectProcessor().process(state, PendingGameEvent.DrawPending(me, 1), EffectContext(EntityId.generate(), me))
+        val result = ReplacementEffectProcessor(conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions).process(state, PendingGameEvent.DrawPending(me, 1), EffectContext(EntityId.generate(), me))
         result.shouldBeInstanceOf<ProcessorResult.Paused>()
         val decision = result.decision
         decision.shouldBeInstanceOf<ChooseOptionDecision>()

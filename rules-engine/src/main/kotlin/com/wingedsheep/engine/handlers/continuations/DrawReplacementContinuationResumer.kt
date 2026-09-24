@@ -90,7 +90,8 @@ class DrawReplacementContinuationResumer(
             val singleDrawExecutor = DrawCardsExecutor(
                 cardRegistry = services.cardRegistry,
                 effectExecutor = services.effectExecutorRegistry::execute,
-                replacementProcessor = services.replacementEffectProcessor
+                replacementProcessor = services.replacementEffectProcessor,
+                amountEvaluator = services.dynamicAmountEvaluator
             )
             // announce = false: this is one card of a draw instruction that already went
             // through the CR 121.2a announcement before it paused on the prompt.

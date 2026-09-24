@@ -45,8 +45,8 @@ class ManaAbilityResolutionPipeline(
     private val cardRegistry: CardRegistry,
     private val conditionEvaluator: ConditionEvaluator,
     private val effectExecutorRegistry: EffectExecutorRegistry,
-    private val predicateEvaluator: PredicateEvaluator = PredicateEvaluator(),
-    private val dynamicAmountEvaluator: DynamicAmountEvaluator = DynamicAmountEvaluator(),
+    private val predicateEvaluator: PredicateEvaluator,
+    private val dynamicAmountEvaluator: DynamicAmountEvaluator
 ) {
 
     private val tappedForManaBonusResolver =

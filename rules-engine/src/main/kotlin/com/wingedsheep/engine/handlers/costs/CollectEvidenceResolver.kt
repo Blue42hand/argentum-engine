@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.costs
 
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.EvidenceCollectedEvent
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
@@ -75,9 +76,10 @@ object CollectEvidenceResolver {
      * itself still in the graveyard at enumeration time and so can't help pay its own cost (the
      * graveyard-cast shape; mirrors [ForageCostResolver.candidates]).
      */
-    fun candidates(state: GameState, playerId: EntityId, excludeCardId: EntityId? = null): Candidates {
+    fun candidates(state: GameState, playerId: EntityId, excludeCardId: EntityId? = null, predicateEvaluator: PredicateEvaluator): Candidates {
         val shared = GraveyardTotalExileResolver.candidates(
-            state, playerId, MEASURE, excludeCardId = excludeCardId
+            state, playerId, MEASURE, excludeCardId = excludeCardId,
+            predicateEvaluator = predicateEvaluator
         )
         return Candidates(shared.cards, shared.weightById)
     }
@@ -93,7 +95,8 @@ object CollectEvidenceResolver {
         playerId: EntityId,
         amount: Int,
         excludeCardId: EntityId? = null,
-    ): Boolean = candidates(state, playerId, excludeCardId).canReach(amount)
+        predicateEvaluator: PredicateEvaluator
+    ): Boolean = candidates(state, playerId, excludeCardId, predicateEvaluator = predicateEvaluator).canReach(amount)
 
     /**
      * The legal-action cost payload for a collect-evidence cost, or null when the graveyard can't
@@ -128,7 +131,8 @@ object CollectEvidenceResolver {
         playerId: EntityId,
         amount: Int,
         excludeCardId: EntityId? = null,
-    ): AdditionalCostData? = costInfo(candidates(state, playerId, excludeCardId), amount)
+        predicateEvaluator: PredicateEvaluator
+    ): AdditionalCostData? = costInfo(candidates(state, playerId, excludeCardId, predicateEvaluator = predicateEvaluator), amount)
 
     /** Outcome of collecting evidence. */
     sealed interface Result {
@@ -173,7 +177,7 @@ object CollectEvidenceResolver {
         excludeCardId: EntityId? = null,
         linkToSourceId: EntityId? = null,
     ): Result {
-        val candidates = candidates(state, playerId, excludeCardId)
+        val candidates = candidates(state, playerId, excludeCardId, predicateEvaluator = zones.predicateEvaluator)
         if (!candidates.canReach(amount)) {
             return Result.Failure(
                 "Cannot collect evidence $amount: graveyard totals only ${candidates.totalManaValue}"
@@ -227,7 +231,8 @@ object CollectEvidenceResolver {
         amount: Int,
         chosenCards: List<EntityId>,
         excludeCardId: EntityId? = null,
+        predicateEvaluator: PredicateEvaluator
     ): Boolean = GraveyardTotalExileResolver.isLegalSelection(
-        candidates(state, playerId, excludeCardId).shared, amount, chosenCards
+        candidates(state, playerId, excludeCardId, predicateEvaluator = predicateEvaluator).shared, amount, chosenCards
     )
 }

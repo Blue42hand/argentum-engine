@@ -1,7 +1,6 @@
 package com.wingedsheep.engine.legality
 
 import com.wingedsheep.engine.handlers.ConditionEvaluator
-import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.actions.spell.CastZoneResolver
 import com.wingedsheep.engine.mechanics.OnceOnlyActivationAllowance
@@ -46,7 +45,7 @@ import com.wingedsheep.sdk.scripting.StaticAbility
  */
 class LegalityKernel(
     private val cardRegistry: CardRegistry,
-    private val conditionEvaluator: ConditionEvaluator,
+    private val conditionEvaluator: ConditionEvaluator
 ) {
 
     // =========================================================================
@@ -250,7 +249,7 @@ class LegalityKernel(
         }
         if (usableNow) {
             val cap = grant.maxManaValue?.let { amount ->
-                DynamicAmountEvaluator().evaluate(state, amount, EffectContext(sourceId = granter.granterId, controllerId = playerId))
+                conditionEvaluator.amounts.evaluate(state, amount, EffectContext(sourceId = granter.granterId, controllerId = playerId))
             }
             if (cap != null && card.manaCost.cmc > cap) return false
         }

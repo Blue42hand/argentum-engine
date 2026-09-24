@@ -1,7 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.ActivateAbility
-import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.legalactions.utils.TargetEnumerationUtils
 import com.wingedsheep.engine.state.components.player.LifeLostThisTurnComponent
 import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
@@ -83,7 +82,7 @@ class PlayerTargetRestrictionScenarioTest : ScenarioTestBase() {
 
     // Enumerate legal player targets the same way the legal-action layer does — through
     // TargetEnumerationUtils, the path that feeds the client's selectable-target list.
-    private val targetEnumerator = TargetEnumerationUtils(PredicateEvaluator())
+    private val targetEnumerator = TargetEnumerationUtils(services.predicateEvaluator)
 
     init {
         cardRegistry.register(drainer)

@@ -44,7 +44,8 @@ class TokenContinuationResumer(
                 context.controllerId,
                 continuation.tokenCount,
                 cardRegistry = services.cardRegistry,
-                staticAbilityHandler = StaticAbilityHandler(services.cardRegistry)
+                staticAbilityHandler = StaticAbilityHandler(services.cardRegistry),
+                predicateEvaluator = services.predicateEvaluator
             )
             if (result.outcome is Outcome.Paused) return result.toExecutionResult()
             return checkForMore(result.state, result.events)

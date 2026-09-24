@@ -22,7 +22,7 @@ import kotlin.reflect.KClass
  * then uses StormCopyTargetContinuation for remaining copies.
  */
 class StormCopyEffectExecutor(
-    private val targetFinder: TargetFinder = TargetFinder()
+    private val targetFinder: TargetFinder
 ) : EffectExecutor<StormCopyEffect> {
 
     override val effectType: KClass<StormCopyEffect> = StormCopyEffect::class

@@ -24,12 +24,11 @@ import com.wingedsheep.sdk.scripting.LegendRuleDoesNotApplyTo
  */
 class LegendRuleCheck(
     private val decisionHandler: DecisionHandler,
-    private val cardRegistry: CardRegistry
+    private val cardRegistry: CardRegistry,
+    private val predicateEvaluator: PredicateEvaluator
 ) : StateBasedActionCheck {
     override val name = "704.5j Legend Rule"
     override val order = SbaOrder.LEGEND_RULE
-
-    private val predicateEvaluator = PredicateEvaluator()
 
     /**
      * The filters of every [LegendRuleDoesNotApplyTo] static among [permanents] (a single player's

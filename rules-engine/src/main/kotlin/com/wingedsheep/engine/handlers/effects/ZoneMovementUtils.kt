@@ -111,8 +111,6 @@ data class ZoneChangeRedirectResult(
  */
 object ZoneMovementUtils {
 
-    private val predicateEvaluator = PredicateEvaluator()
-
     /**
      * Destinations that the commander zone-change replacement can intercept (CR 903.9).
      * Battlefield, stack, and command itself are intentionally excluded — commanders enter
@@ -186,7 +184,8 @@ object ZoneMovementUtils {
         state: GameState,
         entityId: EntityId,
         controllerId: EntityId,
-        cardRegistry: CardRegistry
+        cardRegistry: CardRegistry,
+        predicateEvaluator: PredicateEvaluator
     ): Pair<GameState, List<EngineGameEvent>> {
         val container = state.getEntity(entityId) ?: return state to emptyList()
         if (container.has<FaceDownComponent>()) return state to emptyList()
@@ -201,7 +200,8 @@ object ZoneMovementUtils {
         if (amount == null) return state to emptyList()
 
         return EntersWithReplacements.placeEntryCounters(
-            state, entityId, filter, amount, controllerId, cardComponent.name
+            state, entityId, filter, amount, controllerId, cardComponent.name,
+            predicateEvaluator = predicateEvaluator
         )
     }
 
@@ -676,10 +676,11 @@ object ZoneMovementUtils {
         entityId: EntityId,
         container: ComponentContainer,
         fromZone: Zone?,
-        toZone: Zone
+        toZone: Zone,
+        predicateEvaluator: PredicateEvaluator
     ): ManaCost? =
         if (fromZone == Zone.HAND && toZone == Zone.GRAVEYARD) {
-            MadnessGrants.effectiveMadnessCost(state, entityId, container)
+            MadnessGrants.effectiveMadnessCost(state, entityId, container, predicateEvaluator = predicateEvaluator)
         } else {
             null
         }
@@ -704,7 +705,8 @@ object ZoneMovementUtils {
         entityId: EntityId,
         fromZone: Zone?,
         toZone: Zone,
-        battlefieldSourceState: GameState = state
+        battlefieldSourceState: GameState = state,
+        predicateEvaluator: PredicateEvaluator
     ): ZoneChangeRedirectResult {
         val container = state.getEntity(entityId) ?: return ZoneChangeRedirectResult(toZone)
 
@@ -736,7 +738,7 @@ object ZoneMovementUtils {
         // exiles it instead of putting it into their graveyard." Card-intrinsic like the
         // self-redirect above (it functions from hand), and unqualified by cause: it applies to an
         // opponent's Mind Rot, a cycling cost, and the cleanup-step hand-size discard alike.
-        if (madnessDiscardExile(state, entityId, container, fromZone, toZone) != null) {
+        if (madnessDiscardExile(state, entityId, container, fromZone, toZone, predicateEvaluator = predicateEvaluator) != null) {
             return ZoneChangeRedirectResult(Zone.EXILE)
         }
 
@@ -989,7 +991,7 @@ object ZoneMovementUtils {
             val cid = controllerId ?: return state to emptyList()
             val amount = (effect.amount as? com.wingedsheep.sdk.scripting.values.DynamicAmount.Fixed)?.amount
                 ?: return state to emptyList()
-            val (newState, event) = DamageUtils.gainLife(state, cid, amount)
+            val (newState, event) = DamageUtils.gainLife(state, cid, amount, predicateEvaluator = zones.predicateEvaluator)
             return newState to listOfNotNull(event)
         }
         if (effect is com.wingedsheep.sdk.scripting.effects.CreateTokenEffect) {

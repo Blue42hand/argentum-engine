@@ -47,8 +47,8 @@ object LandDropUtils {
         state: GameState,
         playerId: EntityId,
         cardRegistry: CardRegistry,
-        conditionEvaluator: ConditionEvaluator = ConditionEvaluator(),
-        landCardId: EntityId? = null,
+        conditionEvaluator: ConditionEvaluator,
+        landCardId: EntityId? = null
     ): Boolean {
         val projected = state.projectedState
         for (entityId in state.getBattlefield()) {
@@ -76,7 +76,7 @@ object LandDropUtils {
                 // A filtered lock only bites on a named candidate; the blanket probe skips it.
                 if (lock.landFilter != GameObjectFilter.Any) {
                     if (landCardId == null) continue
-                    if (!predicateEvaluator.matches(
+                    if (!conditionEvaluator.predicates.matches(
                             state, projected, landCardId, lock.landFilter,
                             PredicateContext(controllerId = playerId)
                         )
@@ -109,13 +109,11 @@ object LandDropUtils {
             } == true
         }
 
-    private val predicateEvaluator = PredicateEvaluator()
-
     fun getAdditionalLandDrops(
         state: GameState,
         playerId: EntityId,
         cardRegistry: CardRegistry,
-        conditionEvaluator: ConditionEvaluator = ConditionEvaluator(),
+        conditionEvaluator: ConditionEvaluator
     ): Int {
         var bonus = 0
         for (entityId in state.getBattlefield(playerId)) {
