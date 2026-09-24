@@ -618,6 +618,7 @@ object CardLinter {
         // --- Writers -------------------------------------------------------------------------
         put("GatherCards" to "storeAs", write(Space.COLLECTION))
         put("CaptureControllers" to "storeAs", write(Space.COLLECTION))
+        put("StorePlayer" to "storeAs", write(Space.COLLECTION))
         put("GatherSubtypes" to "storeAs", write(Space.SUBTYPE_GROUPS))
         put("GatherUntilMatch" to "storeMatch", write(Space.COLLECTION))
         put("GatherUntilMatch" to "storeRevealed", write(Space.COLLECTION))
@@ -682,6 +683,7 @@ object CardLinter {
         put("ForEachCapturedController" to "originalCollection", read(Space.COLLECTION))
         put("ForEachCapturedController" to "controllerSnapshot", read(Space.COLLECTION))
         put("IterationSpace.Collection" to "collection", read(Space.COLLECTION))
+        put("InCollection" to "collection", read(Space.COLLECTION)) // Player.InCollection
         put("ConditionalOnCollection" to "collection", read(Space.COLLECTION))
         put("CollectionContainsMatch" to "collection", read(Space.COLLECTION))
         put("CollectionSharesCardType" to "collection", read(Space.COLLECTION))
