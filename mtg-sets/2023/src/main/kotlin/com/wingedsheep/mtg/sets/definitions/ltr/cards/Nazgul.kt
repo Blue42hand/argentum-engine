@@ -41,7 +41,7 @@ val Nazgul = card("Nazgûl") {
     triggeredAbility {
         trigger = Triggers.you.isTemptedByTheRing()
         effect = Effects.ForEachInGroup(
-            filter = GroupFilter.allCreaturesWithSubtype("Wraith").youControl(),
+            filter = GroupFilter.allPermanentsWithSubtype("Wraith").youControl(),
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
         )
     }

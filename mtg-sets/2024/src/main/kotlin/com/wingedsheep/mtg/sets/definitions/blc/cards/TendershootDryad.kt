@@ -46,7 +46,7 @@ val TendershootDryad = card("Tendershoot Dryad") {
             ability = ModifyStats(
                 powerBonus = 2,
                 toughnessBonus = 2,
-                filter = GroupFilter.allCreaturesWithSubtype("Saproling").youControl()
+                filter = GroupFilter.allPermanentsWithSubtype("Saproling").youControl()
             ),
             condition = Conditions.YouHaveCitysBlessing
         )

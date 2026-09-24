@@ -11903,7 +11903,7 @@
                     "space": {
                         "type": "IterationSpace.Group",
                         "filter": {
-                            "baseFilter": "creature Wraith ctrl:you"
+                            "baseFilter": "permanent Wraith ctrl:you"
                         }
                     },
                     "body": {
