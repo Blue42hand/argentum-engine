@@ -215,7 +215,7 @@ class PredicateEvaluator {
             matchesRecipient(state, projected, entityId, it, context, lastKnown)
         }
         is Recipient.Player ->
-            entityId in state.turnOrder && matchesPlayerReference(state, projected, recipient.player, entityId, context)
+            entityId in state.turnOrder && matchesPlayer(state, projected, recipient.player, entityId, context)
         is Recipient.Object -> when {
             entityId in state.turnOrder -> false
             lastKnown != null && entityId !in state.getBattlefield() ->
@@ -224,8 +224,12 @@ class PredicateEvaluator {
         }
     }
 
-    /** Whether [playerId] is the player [player] names, read relative to [context]. */
-    private fun matchesPlayerReference(
+    /**
+     * Whether [playerId] is the player [player] names, read relative to [context] — the player half
+     * of [matchesRecipient], also used on its own where an event names a player symbolically (the
+     * player a token is being created under).
+     */
+    fun matchesPlayer(
         state: GameState,
         projected: ProjectedState,
         player: Player,

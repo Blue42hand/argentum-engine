@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.scripting.CreateAdditionalToken
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.events.ControllerFilter
+import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -41,7 +41,7 @@ val WorldwalkerHelm = card("Worldwalker Helm") {
             // original tokens and the added Map.
             inheritTapped = true,
             appliesTo = EventPattern.TokenCreationEvent(
-                controller = ControllerFilter.You,
+                controller = Player.You,
                 tokenFilter = GameObjectFilter.Artifact,
             ),
         )

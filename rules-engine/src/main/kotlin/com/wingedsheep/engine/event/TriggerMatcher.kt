@@ -1002,12 +1002,7 @@ class TriggerMatcher(
 
         // Controller of the freshly-created token (owner == controller at creation; prefer projected).
         val tokenController = state.projectedState.getController(event.entityId) ?: event.ownerId
-        val controllerMatches = when (trigger.controller) {
-            is ControllerFilter.You -> tokenController == controllerId
-            is ControllerFilter.Opponent -> tokenController != controllerId
-            is ControllerFilter.Any -> true
-        }
-        if (!controllerMatches) return false
+        if (!matchesPlayer(state, trigger.controller, tokenController, controllerId)) return false
 
         val filter = trigger.tokenFilter
         if (filter != null && !predicateEvaluator.matches(

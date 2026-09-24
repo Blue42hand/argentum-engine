@@ -202,36 +202,6 @@ sealed interface AmountFilter {
 }
 
 // =============================================================================
-// Controller Filters
-// =============================================================================
-
-/**
- * Controller/owner filters.
- */
-@Serializable
-sealed interface ControllerFilter {
-    val description: String
-
-    @SerialName("ControllerYou")
-    @Serializable
-    data object You : ControllerFilter {
-        override val description = "under your control"
-    }
-
-    @SerialName("ControllerOpponent")
-    @Serializable
-    data object Opponent : ControllerFilter {
-        override val description = "under an opponent's control"
-    }
-
-    @SerialName("ControllerAny")
-    @Serializable
-    data object Any : ControllerFilter {
-        override val description = ""
-    }
-}
-
-// =============================================================================
 // Damage Predicates - extensible facts about a damage event the trigger requires
 // =============================================================================
 

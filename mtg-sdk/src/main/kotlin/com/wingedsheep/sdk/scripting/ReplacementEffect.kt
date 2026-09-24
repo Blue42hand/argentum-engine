@@ -29,7 +29,7 @@ import kotlinx.serialization.Serializable
  * ```kotlin
  * // Doubling Season (tokens) — factor defaults to 2; Ojer Taq passes factor = 3
  * MultiplyTokenCreation(
- *     appliesTo = EventPattern.TokenCreationEvent(controller = ControllerFilter.You)
+ *     appliesTo = EventPattern.TokenCreationEvent(controller = Player.You)
  * )
  *
  * // Hardened Scales

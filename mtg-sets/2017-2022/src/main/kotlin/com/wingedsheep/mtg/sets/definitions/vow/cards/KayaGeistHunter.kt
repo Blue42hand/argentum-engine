@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.events.ControllerFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -98,7 +97,7 @@ val KayaGeistHunter = card("Kaya, Geist Hunter") {
         effect = Effects.GrantReplacementEffect(
             MultiplyTokenCreation(
                 factor = 2,
-                appliesTo = EventPattern.TokenCreationEvent(controller = ControllerFilter.You)
+                appliesTo = EventPattern.TokenCreationEvent(controller = Player.You)
             )
         )
         description = "Until end of turn, if one or more tokens would be created under your " +

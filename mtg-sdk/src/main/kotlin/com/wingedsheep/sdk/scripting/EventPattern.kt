@@ -54,8 +54,7 @@ enum class ExploreReveal { ANY, LAND, NONLAND }
  * ```
  *
  * Supporting filter types are organized in the events/ subdirectory:
- * - EventFilters.kt - Recipient, DamageType,
- *                     ControllerFilter, Player
+ * - EventFilters.kt - Recipient, DamageType, AmountFilter and the per-event predicate sets
  * - Zone.kt - Zone enumeration
  */
 @Serializable
@@ -227,13 +226,17 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
      * When tokens would be created.
      *
      * Examples:
-     * - "tokens under your control" → TokenCreationEvent(controller = ControllerFilter.You)
-     * - "any tokens" → TokenCreationEvent(controller = ControllerFilter.Any)
+     * - "tokens under your control" → TokenCreationEvent(controller = Player.You)
+     * - "tokens under an opponent's control" → TokenCreationEvent(controller = Player.EachOpponent)
+     * - "any tokens" → TokenCreationEvent(controller = Player.Any)
+     *
+     * [controller] names the player the tokens are created under, read relative to the observing
+     * ability's controller — the same [Player] vocabulary as [LifeLossEvent.player].
      */
     @SerialName("TokenCreationEvent")
     @Serializable
     data class TokenCreationEvent(
-        val controller: ControllerFilter = ControllerFilter.You,
+        val controller: Player = Player.You,
         val tokenFilter: GameObjectFilter? = null
     ) : EventPattern {
         override val description: String = buildString {
@@ -243,9 +246,11 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
                 append(" ")
             }
             append("tokens would be created")
-            if (controller != ControllerFilter.Any) {
-                append(" ")
-                append(controller.description)
+            when (controller) {
+                Player.Any, Player.Each -> {}
+                Player.You -> append(" under your control")
+                Player.EachOpponent -> append(" under an opponent's control")
+                else -> append(" under ${controller.description}'s control")
             }
         }
 

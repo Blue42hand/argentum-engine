@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
-import com.wingedsheep.sdk.scripting.events.ControllerFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -34,7 +33,7 @@ val MirkwoodBats = card("Mirkwood Bats") {
     // Whenever you create a token, each opponent loses 1 life.
     triggeredAbility {
         trigger = TriggerSpec(
-            event = EventPattern.TokenCreationEvent(controller = ControllerFilter.You),
+            event = EventPattern.TokenCreationEvent(controller = Player.You),
             binding = TriggerBinding.ANY
         )
         effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent))
