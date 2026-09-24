@@ -2431,7 +2431,12 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   steps — e.g. revealed lands → battlefield tapped, the rest → graveyard/library (Sméagol, Galadriel
   of Lothlórien, The Ring Goes South). (Equivalent to a `FilterCollection` partition; the inline
   filter just avoids naming an intermediate collection.) `storeMovedAs = "<key>"` captures the
-  resulting entity ids under a pipeline collection; `markEnteredViaSourceAbility = true` stamps each
+  resulting entity ids under a pipeline collection; `attachTo = <EffectTarget>` (battlefield
+  destination only) puts every **Aura** in the collection onto the battlefield attached to that
+  permanent with no enchant choice — "put that Aura card onto the battlefield attached to it"
+  (Auratouched Mage), "return the other cards … attached to that creature" (Flickerform). An Aura the
+  host can't legally enchant, or every Aura when the host isn't on the battlefield, stays where it is
+  (CR 303.4g); non-Aura cards move normally. `markEnteredViaSourceAbility = true` stamps each
   card that lands on the battlefield with `EnteredViaAbilityComponent(this source)` so a later
   `GatherCards(CardSource.EnteredViaThisResolution)` can re-collect them from live battlefield state.
   `lookableInExile = true` is the "**You may look at that card for as long as it remains exiled**"
@@ -4502,6 +4507,12 @@ This is the player-arm prerequisite for the planned composable mixed `TargetUnio
   by `.manaValueAtMostX()`), and activation-time validation plus the CR 608.2b resolution-time re-check reject
   any card whose mana value isn't exactly X.
 - `.manaValueAtMostEntity(ref)` — mana value ≤ a referenced entity's mana value (e.g. Kodama of the East Tree).
+- `.couldEnchant(ref)` (`CardPredicate.CouldEnchant`) — an Aura card whose printed enchant restriction
+  (`auraTarget`) the referenced permanent satisfies — "search your library for an Aura card that could
+  enchant it" (Auratouched Mage: `Enchantment.withSubtype("Aura").couldEnchant(EntityReference.Source)`).
+  Only the enchant filter is read (the same reading as the enchant SBA, `EnchantRestriction`), never
+  targeting legality; "you" in the restriction is the evaluating controller. Non-Auras never match.
+  Known gap: a host that has left the battlefield is judged by its current card, not last-known info.
 - `.powerEqualsX()` — **projected power exactly equal** to the X chosen for the source spell/ability — the power
   analogue of `.manaValueEqualsX()`. Available on both the object-filter builders and on `TargetFilter`. Used by an
   X-cost activated ability that targets "a creature with power X" (Ent-Draught Basin: `{X}, {T}: Put a +1/+1
@@ -6567,8 +6578,12 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
 - `DelayedTriggeredAbility` — registered now, fires at a specific future step (Astral Slide).
 - `Effects.GrantTriggeredAbilityEffect` — grant a triggered ability for a duration; `GrantTriggeredAbilityExecutor` uses
   projected state and supports leaves-battlefield-to-zone triggers.
-- `CreateDelayedTriggerEffect(step, effect, fireOnPlayer, timing, …)` —
-  the data-side facade. Two orthogonal axes control *whose / which* turn fires the trigger:
+- `CreateDelayedTriggerEffect(step, effect, fireOnPlayer, timing, …, carryCollections = [])` —
+  the data-side facade. `carryCollections` names pipeline collections of the creating effect that the
+  delayed ability remembers ("return **those cards**" — CR 603.7c): their entity ids are frozen onto
+  the `DelayedTriggeredAbility` and seeded into the pipeline its `effect` resolves in, under the same
+  names, so the effect can `MoveCollection(from = "<name>")` or `PipelineTarget("<name>")` them
+  (Flickerform). Two orthogonal axes control *whose / which* turn fires the trigger:
   - `fireOnPlayer: EffectTarget?` — the single "whose turn" gate. Resolved to a concrete player
     at scheduling time; only matches when that player is active. Defaults to `null` (no player
     gate — fires on the next matching step of *any* turn). Two common shapes:

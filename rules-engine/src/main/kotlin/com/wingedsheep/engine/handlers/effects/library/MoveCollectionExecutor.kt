@@ -89,6 +89,11 @@ class MoveCollectionExecutor(
             return EffectResult.success(state)
         }
 
+        val attachTo = effect.attachTo
+        if (attachTo != null && destination is CardDestination.ToZone && destination.zone == Zone.BATTLEFIELD) {
+            return moveAurasAttachedTo(state, context, cards, destination, attachTo, effect)
+        }
+
         var result = when (destination) {
             is CardDestination.ToZone ->
                 moveToZone(state, context, cards, destination, effect.order, effect.revealed, effect.moveType, effect.faceDown, effect.noRegenerate, effect.storeMovedAs, effect.underOwnersControl, effect.revealToSelf)
@@ -125,6 +130,60 @@ class MoveCollectionExecutor(
             result = markEnteredViaSourceAbility(result, context, cards)
         }
         return result
+    }
+
+    /**
+     * [MoveCollectionEffect.attachTo]: every Aura in [cards] enters the battlefield attached to the
+     * named host — no enchant choice, the effect specifies it (CR 303.4f). An Aura the host can't
+     * legally carry, or every Aura when the host has left the battlefield, stays where it is
+     * (CR 303.4g). The rest of the collection then moves through the ordinary path.
+     */
+    private fun moveAurasAttachedTo(
+        state: GameState,
+        context: EffectContext,
+        cards: List<EntityId>,
+        destination: CardDestination.ToZone,
+        attachTo: com.wingedsheep.sdk.scripting.targets.EffectTarget,
+        effect: MoveCollectionEffect
+    ): EffectResult {
+        val (auras, others) = cards.partition { state.getEntity(it)?.get<CardComponent>()?.isAura == true }
+        val hostId = context.resolveTarget(attachTo, state)?.takeIf { it in state.getBattlefield() }
+        val defaultControllerId = resolvePlayer(destination.player, context, state) ?: context.controllerId
+        val predicateEvaluator = com.wingedsheep.engine.handlers.PredicateEvaluator()
+        var newState = state
+        val events = mutableListOf<GameEvent>()
+        val moved = mutableListOf<EntityId>()
+        if (hostId != null) {
+            for (auraId in auras) {
+                val container = newState.getEntity(auraId) ?: continue
+                val card = container.get<CardComponent>() ?: continue
+                val controllerId = if (effect.underOwnersControl) {
+                    container.get<OwnerComponent>()?.playerId ?: card.ownerId ?: defaultControllerId
+                } else defaultControllerId
+                val requirement = cardRegistry.getCard(card.cardDefinitionId)?.script?.auraTarget ?: continue
+                val legal = com.wingedsheep.engine.handlers.predicates.EnchantRestriction.hostSatisfies(
+                    newState, newState.projectedState, predicateEvaluator, requirement, hostId, controllerId, auraId
+                ) == true
+                if (!legal || hostId !in newState.getBattlefield()) continue
+                val (afterMove, moveEvents) = moveAuraToBattlefield(newState, auraId, hostId, controllerId)
+                newState = afterMove
+                events.addAll(moveEvents)
+                moved.add(auraId)
+            }
+        }
+        val storeMovedAs = effect.storeMovedAs
+        if (others.isEmpty()) {
+            val collections = if (storeMovedAs != null) mapOf(storeMovedAs to moved.toList()) else emptyMap()
+            return EffectResult.success(newState, events).copy(updatedCollections = collections)
+        }
+        val rest = moveToZone(
+            newState, context, others, destination, effect.order, effect.revealed, effect.moveType,
+            effect.faceDown, effect.noRegenerate, storeMovedAs, effect.underOwnersControl, effect.revealToSelf
+        )
+        val collections = if (storeMovedAs != null) {
+            rest.updatedCollections + (storeMovedAs to (moved + (rest.updatedCollections[storeMovedAs] ?: emptyList())))
+        } else rest.updatedCollections
+        return rest.copy(events = events + rest.events, updatedCollections = collections)
     }
 
     /**

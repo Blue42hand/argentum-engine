@@ -237,31 +237,13 @@ class UnattachedAurasCheck(
         hostId: EntityId
     ): Boolean {
         val requirement = cardRegistry.getCard(auraCard.cardDefinitionId)?.script?.auraTarget ?: return false
-        val filter = enchantFilter(requirement) ?: return false
         // "you" in "Enchant creature you control" is the Aura's controller, read from the
         // projection so a control-changing effect on the Aura itself is honored.
         val controllerId = projected.getController(auraId) ?: return false
-        val context = PredicateContext(controllerId = controllerId, sourceId = auraId)
-        // A cross-zone union requirement is satisfied by any one clause; only battlefield clauses
-        // can describe a host an Aura is attached to.
-        val battlefieldClauses = filter.clauses().filter { it.zone == Zone.BATTLEFIELD }
-        if (battlefieldClauses.isEmpty()) return false
-        return battlefieldClauses.none {
-            predicateEvaluator.matches(state, projected, hostId, it.baseFilter, context)
-        }
-    }
-
-    /**
-     * The battlefield filter behind an Aura's `auraTarget`, or null when the requirement isn't one
-     * we can re-check against a permanent host (an "enchant player" [TargetRequirement], say).
-     */
-    private fun enchantFilter(
-        requirement: TargetRequirement
-    ): com.wingedsheep.sdk.scripting.filters.unified.TargetFilter? = when (requirement) {
-        is TargetObject -> requirement.filter
-        // "Enchant another …" — the distinctness rule is targeting-only; the filter is the base's.
-        is TargetOther -> enchantFilter(requirement.baseRequirement)
-        else -> null
+        val satisfied = com.wingedsheep.engine.handlers.predicates.EnchantRestriction.hostSatisfies(
+            state, projected, predicateEvaluator, requirement, hostId, controllerId, auraId
+        ) ?: return false
+        return !satisfied
     }
 
     /**

@@ -255,7 +255,7 @@ These are source-backed leads, not claims that every card needs a new executor.
 | Chant of Vitu-Ghazi | Turn-long prevention from all creatures, with life gained from actual prevented damage. |
 | Concerted Effort | Propagation of actual protection and landwalk variants as well as ordinary keywords. |
 | Belltower Sphinx | Retain damage-source controller information for its self-damaged trigger. |
-| Auratouched Mage, Flickerform | Legal attachment search, owner-controlled Aura return, and source-left fallback. |
+| Auratouched Mage, Flickerform | **Resolved** — `couldEnchant(ref)`, `MoveCollectionEffect.attachTo`, and `CreateDelayedTriggerEffect.carryCollections`. |
 | Eye of the Storm | Linked spell-card exile, copy choices controlled by the triggering caster, and repeated optional casts. |
 | Spawnbroker | Existing ExchangeControl plus cross-target power filtering; prove both-target legality and exchange atomicity. |
 | Sins of the Past | Targeted graveyard casting permission with duration and exile replacement, without moving the card prematurely. |

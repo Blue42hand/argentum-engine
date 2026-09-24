@@ -2,7 +2,7 @@
 
 **Set Size:** 291 cards
 **Release Date:** October 7, 2005
-**Implemented:** 277 / 291
+**Implemented:** 279 / 291
 | Section    | Total | Done |
 |------------|-------|------|
 | White      | 37    | 33   |
@@ -19,7 +19,7 @@
 ---
 
 ### White
-- [ ] Auratouched Mage
+- [x] Auratouched Mage
 - [x] Bathe in Light
 - [x] Benevolent Ancestor
 - [x] Blazing Archon
@@ -36,7 +36,7 @@
 - [x] Dromad Purebred
 - [x] Faith's Fetters
 - [x] Festival of the Guildpact
-- [ ] Flickerform
+- [x] Flickerform
 - [x] Gate Hound
 - [x] Ghosts of the Innocent
 - [x] Hour of Reckoning

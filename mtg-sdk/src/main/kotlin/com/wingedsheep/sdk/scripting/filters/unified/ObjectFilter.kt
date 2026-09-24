@@ -558,6 +558,11 @@ data class GameObjectFilter(
         cardPredicates = cardPredicates + CardPredicate.PowerLessThanEntity(reference)
     )
 
+    /** An Aura card whose enchant restriction the referenced permanent satisfies (Auratouched Mage). */
+    fun couldEnchant(reference: EntityReference) = copy(
+        cardPredicates = cardPredicates + CardPredicate.CouldEnchant(reference)
+    )
+
     fun powerAtMostEntity(reference: EntityReference) = copy(
         cardPredicates = cardPredicates + CardPredicate.PowerAtMostEntity(reference)
     )

@@ -38,6 +38,7 @@ import com.wingedsheep.sdk.scripting.effects.StoreCardNameEffect
 import com.wingedsheep.sdk.scripting.effects.StoreNumberEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -666,7 +667,8 @@ class PipelineBuilder private constructor(private val shared: Shared) {
         noRegenerate: Boolean = false,
         underOwnersControl: Boolean = false,
         addCounterType: CounterType? = null,
-        markEnteredViaSourceAbility: Boolean = false
+        markEnteredViaSourceAbility: Boolean = false,
+        attachTo: EffectTarget? = null
     ) {
         nextIndex()
         steps += MoveCollectionEffect(
@@ -682,7 +684,8 @@ class PipelineBuilder private constructor(private val shared: Shared) {
             noRegenerate = noRegenerate,
             underOwnersControl = underOwnersControl,
             addCounterType = addCounterType,
-            markEnteredViaSourceAbility = markEnteredViaSourceAbility
+            markEnteredViaSourceAbility = markEnteredViaSourceAbility,
+            attachTo = attachTo
         )
     }
 
