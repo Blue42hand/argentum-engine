@@ -26,8 +26,7 @@ val UnchartedVoyage = card("Uncharted Voyage") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.PutOnTopOrBottomOfLibrary(creature)
-            .then(Effects.Surveil(1))
+        effect = Effects.PutOnTopOrBottomOfLibrary(creature) then Effects.Surveil(1)
     }
 
     metadata {

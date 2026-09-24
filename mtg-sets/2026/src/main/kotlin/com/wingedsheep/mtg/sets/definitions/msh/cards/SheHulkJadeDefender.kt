@@ -44,10 +44,8 @@ val SheHulkJadeDefender = card("She-Hulk, Jade Defender") {
         isPowerUp = true
         cost = Costs.Mana("{4}{G}{G}")
         val victim = target(TargetFilter.ArtifactOrEnchantment, optional = true)
-        effect = Effects.Composite(
-            Effects.Destroy(victim),
+        effect = Effects.Destroy(victim) then
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-        )
     }
 
     metadata {

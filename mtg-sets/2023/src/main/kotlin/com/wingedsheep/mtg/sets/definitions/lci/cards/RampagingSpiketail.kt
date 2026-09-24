@@ -32,10 +32,7 @@ val RampagingSpiketail = card("Rampaging Spiketail") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter.Creature.youControl())
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, t),
-            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
-        )
+        effect = Effects.ModifyStats(2, 0, t) then Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
     }
     keywordAbility(KeywordAbility.typecycling("Swamp", ManaCost.parse("{2}")))
     metadata {

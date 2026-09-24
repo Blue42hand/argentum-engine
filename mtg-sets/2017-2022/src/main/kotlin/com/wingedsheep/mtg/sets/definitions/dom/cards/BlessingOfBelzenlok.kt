@@ -22,12 +22,10 @@ val BlessingOfBelzenlok = card("Blessing of Belzenlok") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(2, 1, t)
-            .then(
-                Effects.If(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary(), t),
-                    then = Effects.GrantKeyword(com.wingedsheep.sdk.core.Keyword.LIFELINK, t)
-                )
+        effect = Effects.ModifyStats(2, 1, t) then
+            Effects.If(
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary(), t),
+                then = Effects.GrantKeyword(com.wingedsheep.sdk.core.Keyword.LIFELINK, t)
             )
     }
 

@@ -24,12 +24,10 @@ val GimlisFury = card("Gimli's Fury") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(+3, +2, creature)
-            .then(
-                Effects.If(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary(), creature),
-                    then = Effects.GrantKeyword(Keyword.TRAMPLE, creature)
-                )
+        effect = Effects.ModifyStats(+3, +2, creature) then
+            Effects.If(
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary(), creature),
+                then = Effects.GrantKeyword(Keyword.TRAMPLE, creature)
             )
     }
 

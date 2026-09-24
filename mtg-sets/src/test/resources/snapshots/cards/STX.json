@@ -602,32 +602,27 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "ModifyStats",
-                            "powerModifier": {
-                                "type": "Fixed",
-                                "amount": 2
-                            },
-                            "toughnessModifier": {
-                                "type": "Fixed",
-                                "amount": 2
-                            },
-                            "target": {
-                                "type": "BoundVariable",
-                                "name": "t0"
-                            }
-                        },
-                        {
-                            "type": "GrantKeyword",
-                            "keyword": "REACH",
-                            "target": {
-                                "type": "BoundVariable",
-                                "name": "t0"
-                            }
-                        }
-                    ]
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "GrantKeyword",
+                    "keyword": "REACH",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
                 },
                 {
                     "type": "AddCounters",
@@ -4475,7 +4470,7 @@
                         "keyword": "INDESTRUCTIBLE",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -4484,7 +4479,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target creature gains indestructible until end of turn."
@@ -4685,7 +4680,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -4696,7 +4691,7 @@
                             "filter": {
                                 "baseFilter": "artifact|enchantment"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target artifact or enchantment"
@@ -5336,7 +5331,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -5347,7 +5342,7 @@
                             "filter": {
                                 "baseFilter": "artifact"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target artifact"
@@ -5636,7 +5631,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -5647,7 +5642,7 @@
                             "filter": {
                                 "baseFilter": "artifact"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target artifact."

@@ -48,24 +48,23 @@ val ThassasOracle = card("Thassa's Oracle") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.Pipeline {
-                val looked = gather(
-                    CardSource.TopOfLibrary(
-                        count = DynamicAmounts.devotionTo(Color.BLUE),
-                        player = Player.You
-                    )
+        effect = Effects.Pipeline {
+            val looked = gather(
+                CardSource.TopOfLibrary(
+                    count = DynamicAmounts.devotionTo(Color.BLUE),
+                    player = Player.You
                 )
-                val split = chooseUpToSplit(
-                    count = 1,
-                    from = looked,
-                    prompt = "Put up to one card on top of your library",
-                    selectedLabel = "Put on top of library",
-                    remainderLabel = "Put on the bottom in a random order"
-                )
-                toLibraryTop(split.selected)
-                toLibraryBottom(split.remainder, order = CardOrder.Random)
-            },
+            )
+            val split = chooseUpToSplit(
+                count = 1,
+                from = looked,
+                prompt = "Put up to one card on top of your library",
+                selectedLabel = "Put on top of library",
+                remainderLabel = "Put on the bottom in a random order"
+            )
+            toLibraryTop(split.selected)
+            toLibraryBottom(split.remainder, order = CardOrder.Random)
+        } then
             Effects.If(
                 condition = Conditions.CompareAmounts(
                     DynamicAmounts.devotionTo(Color.BLUE),
@@ -77,7 +76,6 @@ val ThassasOracle = card("Thassa's Oracle") {
                         "in your library."
                 )
             )
-        )
     }
 
     metadata {

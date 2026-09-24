@@ -23,13 +23,11 @@ val EnterTheAvatarState = card("Enter the Avatar State") {
 
     spell {
         val t = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.AddCreatureType("Avatar", t, Duration.EndOfTurn),
-            Effects.GrantKeyword(Keyword.FLYING, t, Duration.EndOfTurn),
-            Effects.GrantKeyword(Keyword.FIRST_STRIKE, t, Duration.EndOfTurn),
-            Effects.GrantKeyword(Keyword.LIFELINK, t, Duration.EndOfTurn),
+        effect = Effects.AddCreatureType("Avatar", t, Duration.EndOfTurn) then
+            Effects.GrantKeyword(Keyword.FLYING, t, Duration.EndOfTurn) then
+            Effects.GrantKeyword(Keyword.FIRST_STRIKE, t, Duration.EndOfTurn) then
+            Effects.GrantKeyword(Keyword.LIFELINK, t, Duration.EndOfTurn) then
             Effects.GrantKeyword(Keyword.HEXPROOF, t, Duration.EndOfTurn)
-        )
     }
 
     metadata {

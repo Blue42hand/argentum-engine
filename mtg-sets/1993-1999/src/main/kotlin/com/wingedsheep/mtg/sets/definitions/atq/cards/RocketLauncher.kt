@@ -36,13 +36,11 @@ val RocketLauncher = card("Rocket Launcher") {
     activatedAbility {
         cost = Costs.Mana("{2}")
         val t = target(Targets.Any)
-        effect = Effects.Composite(
-            Effects.DealDamage(1, t),
+        effect = Effects.DealDamage(1, t) then
             Effects.CreateDelayedTrigger(
                 step = Step.END,
                 effect = Effects.Destroy(EffectTarget.Self)
             )
-        )
         restrictions = listOf(ActivationRestriction.ControlledSinceYourMostRecentTurn)
         description = "{2}: Rocket Launcher deals 1 damage to any target. Destroy it at the beginning " +
             "of the next end step. Activate only if you've controlled it continuously since your most recent turn began."

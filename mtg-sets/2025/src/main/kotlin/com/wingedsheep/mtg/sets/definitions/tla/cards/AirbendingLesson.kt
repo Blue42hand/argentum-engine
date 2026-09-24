@@ -25,10 +25,7 @@ val AirbendingLesson = card("Airbending Lesson") {
 
     spell {
         target(TargetFilter.NonlandPermanent)
-        effect = Effects.Composite(
-            Effects.Airbend(),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.Airbend() then Effects.DrawCards(1)
     }
 
     metadata {

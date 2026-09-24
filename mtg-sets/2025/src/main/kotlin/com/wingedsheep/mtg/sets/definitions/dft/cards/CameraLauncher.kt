@@ -30,8 +30,7 @@ val CameraLauncher = card("Camera Launcher") {
     activatedAbility {
         cost = Costs.Mana("{3}")
         isExhaust = true
-        effect = Effects.Composite(
-            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self),
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self) then
             Effects.CreateToken(
                 power = 1,
                 toughness = 1,
@@ -39,7 +38,6 @@ val CameraLauncher = card("Camera Launcher") {
                 keywords = setOf(Keyword.FLYING),
                 artifactToken = true
             )
-        )
     }
     metadata {
         rarity = Rarity.COMMON

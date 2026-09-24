@@ -33,8 +33,8 @@ class TargetDistinctnessScenarioTest : FunSpec({
         oracleText = "Test Twin Ping deals 1 damage to each of two target creatures."
         spell {
             targets(TargetFilter.Creature, count = 2)
-            effect = Effects.DealDamage(1, EffectTarget.ContextTarget(0))
-                .then(Effects.DealDamage(1, EffectTarget.ContextTarget(1)))
+            effect = Effects.DealDamage(1, EffectTarget.ContextTarget(0)) then
+                Effects.DealDamage(1, EffectTarget.ContextTarget(1))
         }
         metadata {
             rarity = Rarity.COMMON

@@ -47,7 +47,7 @@ val ThrowFromTheSaddle = card("Throw from the Saddle") {
             damageSource = mine
         )
 
-        effect = boost.then(damage)
+        effect = boost then damage
     }
 
     metadata {

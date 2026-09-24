@@ -58,8 +58,8 @@ val TheMightyThorJaneFoster = card("The Mighty Thor, Jane Foster") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val blinked = target(TargetFilter(GameObjectFilter.CreatureOrArtifact.nontoken()), optional = true)
-        effect = Effects.Move(blinked, Zone.EXILE)
-            .then(Effects.Move(blinked, Zone.BATTLEFIELD, placement = ZonePlacement.Tapped))
+        effect = Effects.Move(blinked, Zone.EXILE) then
+            Effects.Move(blinked, Zone.BATTLEFIELD, placement = ZonePlacement.Tapped)
         description = "Whenever The Mighty Thor attacks, exile up to one target nontoken artifact " +
             "or creature, then return that card to the battlefield tapped under its owner's control."
     }

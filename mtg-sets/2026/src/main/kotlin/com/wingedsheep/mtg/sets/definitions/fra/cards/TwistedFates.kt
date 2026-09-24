@@ -19,13 +19,11 @@ val TwistedFates = card("Twisted Fates") {
     spell {
         val permanent = target(TargetFilter.NonlandPermanent)
         val player = target(Targets.Player)
-        effect = Effects.Composite(
-            Effects.Destroy(permanent),
+        effect = Effects.Destroy(permanent) then
             Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.targetPlayerControls(player)),
                 effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
             )
-        )
     }
 
     metadata {

@@ -4,9 +4,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
@@ -23,12 +20,7 @@ val RadiantStrike = card("Radiant Strike") {
 
     spell {
         val t = target(TargetFilter(GameObjectFilter.Artifact or GameObjectFilter.Creature.tapped()))
-        effect = Effects.Composite(
-                    listOf(
-                        Effects.Destroy(t),
-                        Effects.GainLife(3)
-                    )
-                )
+        effect = Effects.Destroy(t) then Effects.GainLife(3)
     }
     metadata {
         rarity = Rarity.COMMON

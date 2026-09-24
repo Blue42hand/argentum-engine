@@ -31,12 +31,8 @@ val EntrailsFeaster = card("Entrails Feaster") {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
         optional = true
         val t = target(TargetFilter.CreatureInGraveyard)
-        effect = Effects.Composite(
-            listOf(
-                Effects.Move(t, Zone.EXILE),
-                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-            )
-        )
+        effect = Effects.Move(t, Zone.EXILE) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         elseEffect = Effects.Tap(EffectTarget.Self)
     }
 

@@ -31,10 +31,7 @@ val LoomingSpires = card("Looming Spires") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 1, creature),
-            Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature),
-        )
+        effect = Effects.ModifyStats(1, 1, creature) then Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature)
     }
 
     activatedAbility {

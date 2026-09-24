@@ -31,12 +31,7 @@ val AlBhedSalvagers = card("Al Bhed Salvagers") {
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.CreatureOrArtifact.youControl()).dies()
         val opponent = target(Targets.Opponent)
-        effect = Effects.Composite(
-            listOf(
-                Effects.LoseLife(1, opponent),
-                Effects.GainLife(1)
-            )
-        )
+        effect = Effects.LoseLife(1, opponent) then Effects.GainLife(1)
         description = "Whenever this creature or another creature or artifact you control dies, " +
             "target opponent loses 1 life and you gain 1 life."
     }

@@ -40,16 +40,14 @@ val DelifsCone = card("Delif's Cone") {
             trigger = Triggers.a().attacksAndIsntBlocked(),
             watchedTarget = t,
             effect = Effects.May(
-                Effects.Composite(
-                    Effects.GainLife(
-                        DynamicAmounts.triggeringPower()
-                    ),
+                Effects.GainLife(
+                    DynamicAmounts.triggeringPower()
+                ) then
                     Effects.GrantKeyword(
                         AbilityFlag.ASSIGNS_NO_COMBAT_DAMAGE,
                         EffectTarget.TriggeringEntity,
                         Duration.EndOfTurn,
                     ),
-                ),
                 descriptionOverride = "gain life equal to that creature's power. If you do, it assigns no combat damage this turn",
             ),
             expiry = DelayedTriggerExpiry.EndOfTurn,

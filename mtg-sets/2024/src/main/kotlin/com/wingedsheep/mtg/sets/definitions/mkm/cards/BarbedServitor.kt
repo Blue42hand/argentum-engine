@@ -55,10 +55,7 @@ val BarbedServitor = card("Barbed Servitor") {
 
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Effects.LoseLife(1, EffectTarget.Controller),
-        )
+        effect = Effects.DrawCards(1) then Effects.LoseLife(1, EffectTarget.Controller)
         description = "Whenever this creature deals combat damage to a player, you draw a card " +
             "and you lose 1 life."
     }

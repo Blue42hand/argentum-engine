@@ -25,10 +25,8 @@ val PedalToTheMetal = card("Pedal to the Metal") {
     oracleText = "Target creature gets +X/+0 and gains first strike until end of turn."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(DynamicAmounts.xValue(), DynamicAmounts.fixed(0), t),
+        effect = Effects.ModifyStats(DynamicAmounts.xValue(), DynamicAmounts.fixed(0), t) then
             Effects.GrantKeyword(Keyword.FIRST_STRIKE, t)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

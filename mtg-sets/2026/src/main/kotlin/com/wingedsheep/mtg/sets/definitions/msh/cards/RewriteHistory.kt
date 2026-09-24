@@ -44,11 +44,9 @@ val RewriteHistory = card("Rewrite History") {
 
     triggeredAbility {
         trigger = Triggers.oneOrMore(GameObjectFilter.Creature.youControl()).becomeTapped()
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Effects.Discard(1),
-            Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self),
-        )
+        effect = Effects.DrawCards(1) then
+            Effects.Discard(1) then
+            Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self)
         description = "Whenever one or more creatures you control become tapped, draw a card, " +
             "then discard a card and put a plan counter on this enchantment."
     }

@@ -24,10 +24,7 @@ val FleetingDistraction = card("Fleeting Distraction") {
     oracleText = "Target creature gets -1/-0 until end of turn.\nDraw a card."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(-1, 0, t),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.ModifyStats(-1, 0, t) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

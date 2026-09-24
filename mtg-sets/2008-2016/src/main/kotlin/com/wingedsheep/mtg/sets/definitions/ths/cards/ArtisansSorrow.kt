@@ -21,10 +21,7 @@ val ArtisansSorrow = card("Artisan's Sorrow") {
 
     spell {
         val t = target(TargetFilter.ArtifactOrEnchantment)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            Effects.Scry(2),
-        )
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then Effects.Scry(2)
     }
 
     metadata {

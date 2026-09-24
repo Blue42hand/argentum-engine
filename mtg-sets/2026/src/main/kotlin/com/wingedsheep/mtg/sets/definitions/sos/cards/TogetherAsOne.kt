@@ -34,15 +34,13 @@ val TogetherAsOne = card("Together as One") {
     spell {
         val player = target(Targets.Player)
         val anyTarget = target(Targets.Any)
-        effect = Effects.DrawCards(DynamicAmounts.colorsOfManaSpent(), player)
-            .then(
-                Effects.DealDamage(
-                    DynamicAmounts.colorsOfManaSpent(),
-                    anyTarget,
-                    damageSource = EffectTarget.Self,
-                ),
-            )
-            .then(Effects.GainLife(DynamicAmounts.colorsOfManaSpent()))
+        effect = Effects.DrawCards(DynamicAmounts.colorsOfManaSpent(), player) then
+            Effects.DealDamage(
+                DynamicAmounts.colorsOfManaSpent(),
+                anyTarget,
+                damageSource = EffectTarget.Self,
+            ) then
+            Effects.GainLife(DynamicAmounts.colorsOfManaSpent())
     }
 
     metadata {

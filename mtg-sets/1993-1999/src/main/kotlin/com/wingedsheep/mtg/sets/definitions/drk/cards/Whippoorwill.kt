@@ -47,9 +47,8 @@ val Whippoorwill = card("Whippoorwill") {
     activatedAbility {
         val creature = target(TargetFilter.Creature)
         cost = Costs.Composite(Costs.Mana("{G}{G}"), Costs.Tap)
-        effect = Effects.Composite(
-            Effects.CantBeRegenerated(creature),
-            Effects.DamageCantBePreventedThisTurn(creature),
+        effect = Effects.CantBeRegenerated(creature) then
+            Effects.DamageCantBePreventedThisTurn(creature) then
             Effects.GrantReplacementEffect(
                 replacement = RedirectZoneChange(
                     newDestination = Zone.EXILE,
@@ -61,8 +60,7 @@ val Whippoorwill = card("Whippoorwill") {
                 ),
                 target = creature,
                 duration = Duration.EndOfTurn,
-            ),
-        )
+            )
         description = "{G}{G}, {T}: Target creature can't be regenerated this turn. Damage that " +
             "would be dealt to that creature this turn can't be prevented or dealt instead to " +
             "another permanent or player. When the creature dies this turn, exile the creature."

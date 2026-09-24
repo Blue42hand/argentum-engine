@@ -32,13 +32,11 @@ val RendingFlame = card("Rending Flame") {
 
     spell {
         val permanent = target(Targets.CreatureOrPlaneswalker)
-        effect = Effects.Composite(
-            Effects.DealDamage(5, permanent),
+        effect = Effects.DealDamage(5, permanent) then
             Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.withSubtype(Subtype.SPIRIT), permanent),
                 then = Effects.DealDamage(2, EffectTarget.TargetController)
             )
-        )
     }
 
     metadata {

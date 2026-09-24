@@ -44,14 +44,12 @@ val LowlandOaf = card("Lowland Oaf") {
     activatedAbility {
         cost = Costs.Tap
         val goblin = target(TargetFilter.Creature.withSubtype(Subtype.GOBLIN).youControl())
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, goblin),
-            Effects.GrantKeyword(Keyword.FLYING, goblin, Duration.EndOfTurn),
+        effect = Effects.ModifyStats(1, 0, goblin) then
+            Effects.GrantKeyword(Keyword.FLYING, goblin, Duration.EndOfTurn) then
             Effects.CreateDelayedTrigger(
                 step = Step.END,
                 effect = Effects.SacrificeTarget(goblin)
             )
-        )
         description = "Target Goblin creature you control gets +1/+0 and gains flying until end of " +
             "turn. Sacrifice that creature at the beginning of the next end step."
     }

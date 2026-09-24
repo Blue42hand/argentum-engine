@@ -23,18 +23,13 @@ val BagelAndSchmear = card("Bagel and Schmear") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{W}"), Costs.Tap, Costs.SacrificeSelf)
         val t = target(TargetFilter.Creature, optional = true)
-        effect = Effects.Composite(
-            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t) then
             Effects.DrawCards(1)
-        )
         timing = TimingRule.SorcerySpeed
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap, Costs.SacrificeSelf)
-        effect = Effects.Composite(
-            Effects.GainLife(3),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.GainLife(3) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

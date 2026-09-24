@@ -14,9 +14,9 @@ val TethermagesAdvantage = card("Tethermage's Advantage") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(2, 2, creature)
-            .then(Effects.GrantKeyword(Keyword.REACH, creature))
-            .then(Effects.Untap(creature))
+        effect = Effects.ModifyStats(2, 2, creature) then
+            Effects.GrantKeyword(Keyword.REACH, creature) then
+            Effects.Untap(creature)
     }
 
     metadata {

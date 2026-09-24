@@ -33,14 +33,14 @@ val NocturnalHunger = card("Nocturnal Hunger") {
             // Mode 1: No gift — destroy target creature, you lose 2 life
             mode("Don't promise a gift — destroy target creature, you lose 2 life") {
                 val creature = target(TargetFilter.Creature)
-                effect = Effects.Destroy(creature).then(Effects.LoseLife(2, EffectTarget.Controller))
+                effect = Effects.Destroy(creature) then Effects.LoseLife(2, EffectTarget.Controller)
             },
             // Mode 2: Gift a Food — opponent creates Food token, then destroy target creature
             mode("Promise a gift — opponent creates a Food token, then destroy target creature") {
                 val creature = target(TargetFilter.Creature)
-                effect = Effects.CreateFood(1, EffectTarget.PlayerRef(Player.ChosenOpponent))
-                    .then(Effects.Destroy(creature))
-                    .then(Effects.GiftGiven())
+                effect = Effects.CreateFood(1, EffectTarget.PlayerRef(Player.ChosenOpponent)) then
+                    Effects.Destroy(creature) then
+                    Effects.GiftGiven()
             }
         )
     }

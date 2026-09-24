@@ -34,8 +34,8 @@ class OssificationScenarioTest : ScenarioTestBase() {
             manaCost = "{0}"
             typeLine = "Instant"
             spell {
-                effect = Effects.DestroyAll(GameObjectFilter.Enchantment)
-                    .then(Effects.DestroyAll(GameObjectFilter.Creature))
+                effect = Effects.DestroyAll(GameObjectFilter.Enchantment) then
+                    Effects.DestroyAll(GameObjectFilter.Creature)
             }
         })
 

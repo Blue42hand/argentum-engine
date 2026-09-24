@@ -17,15 +17,13 @@ val Goatnap = card("Goatnap") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GainControl(t, Duration.EndOfTurn),
-            Effects.Untap(t),
-            Effects.GrantKeyword(Keyword.HASTE, t),
+        effect = Effects.GainControl(t, Duration.EndOfTurn) then
+            Effects.Untap(t) then
+            Effects.GrantKeyword(Keyword.HASTE, t) then
             Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.withSubtype("Goat"), t),
                 then = Effects.ModifyStats(3, 0, t)
             )
-        )
     }
 
     metadata {

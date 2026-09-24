@@ -31,13 +31,11 @@ val OrbitalPlunge = card("Orbital Plunge") {
 
     spell {
         val damaged = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.DealDamage(6, damaged),
+        effect = Effects.DealDamage(6, damaged) then
             Effects.If(
                 condition = Conditions.IfTargetTookExcessDamage(),
                 then = Effects.CreateLander(),
-            ),
-        )
+            )
     }
 
     metadata {

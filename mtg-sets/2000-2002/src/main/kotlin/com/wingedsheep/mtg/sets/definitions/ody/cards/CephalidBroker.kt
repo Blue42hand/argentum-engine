@@ -29,10 +29,7 @@ val CephalidBroker = card("Cephalid Broker") {
     activatedAbility {
         cost = Costs.Tap
         val t = target(Targets.Player)
-        effect = Effects.Composite(
-            Effects.DrawCards(2, t),
-            Patterns.Hand.discardCards(2, t)
-        )
+        effect = Effects.DrawCards(2, t) then Patterns.Hand.discardCards(2, t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

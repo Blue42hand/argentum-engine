@@ -25,10 +25,7 @@ val BanishingBetrayal = card("Banishing Betrayal") {
     oracleText = "Return target nonland permanent to its owner's hand. Surveil 1. (Look at the top card of your library. You may put it into your graveyard.)"
     spell {
         val t = target(TargetFilter.NonlandPermanent)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.HAND),
-            Patterns.Library.surveil(1)
-        )
+        effect = Effects.Move(t, Zone.HAND) then Patterns.Library.surveil(1)
     }
     metadata {
         rarity = Rarity.COMMON

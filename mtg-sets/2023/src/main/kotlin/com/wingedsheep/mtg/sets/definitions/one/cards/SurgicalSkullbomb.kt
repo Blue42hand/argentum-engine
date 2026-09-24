@@ -30,10 +30,7 @@ val SurgicalSkullbomb = card("Surgical Skullbomb") {
     activatedAbility {
         val creature = target(TargetFilter.Creature)
         cost = Costs.Composite(Costs.Mana("{2}{U}"), Costs.SacrificeSelf)
-        effect = Effects.Composite(
-            Effects.ReturnToHand(creature),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.ReturnToHand(creature) then Effects.DrawCards(1)
         timing = TimingRule.SorcerySpeed
     }
 

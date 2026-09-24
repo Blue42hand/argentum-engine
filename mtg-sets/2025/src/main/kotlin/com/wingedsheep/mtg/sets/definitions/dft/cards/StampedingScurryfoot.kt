@@ -30,15 +30,13 @@ val StampedingScurryfoot = card("Stampeding Scurryfoot") {
     activatedAbility {
         cost = Costs.Mana("{3}{G}")
         isExhaust = true
-        effect = Effects.Composite(
-            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self),
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self) then
             Effects.CreateToken(
                 power = 3,
                 toughness = 3,
                 colors = setOf(Color.GREEN),
                 creatureTypes = setOf("Elephant")
             )
-        )
     }
     metadata {
         rarity = Rarity.COMMON

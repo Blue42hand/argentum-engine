@@ -84,8 +84,6 @@ private fun transform(creature: EffectTarget, power: Int, toughness: Int): Effec
         ),
         descriptionOverride = "When this creature dies, return it to the battlefield tapped under its owner's control."
     )
-    return Effects.Composite(
-        Effects.SetBasePowerAndToughness(power, toughness, creature, Duration.EndOfTurn),
+    return Effects.SetBasePowerAndToughness(power, toughness, creature, Duration.EndOfTurn) then
         Effects.GrantTriggeredAbility(diesReturnTapped, creature, Duration.EndOfTurn)
-    )
 }

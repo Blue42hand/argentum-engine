@@ -22,8 +22,8 @@ val RideDown = card("Ride Down") {
     spell {
         val blocker = target(TargetFilter.BlockingCreature)
         // Grant trample before destroy so combat relationships are still intact
-        effect = Effects.GrantKeywordToAttackersBlockedBy(Keyword.TRAMPLE, blocker)
-            .then(Effects.Destroy(blocker))
+        effect = Effects.GrantKeywordToAttackersBlockedBy(Keyword.TRAMPLE, blocker) then
+            Effects.Destroy(blocker)
     }
 
     metadata {

@@ -20,10 +20,7 @@ val BattlewiseValor = card("Battlewise Valor") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 2, target = creature),
-            Effects.Scry(1),
-        )
+        effect = Effects.ModifyStats(2, 2, target = creature) then Effects.Scry(1)
     }
 
     metadata {

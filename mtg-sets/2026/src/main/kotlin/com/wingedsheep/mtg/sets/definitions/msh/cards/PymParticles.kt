@@ -30,11 +30,9 @@ val PymParticles = card("Pym Particles") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.VIGILANCE, t),
-            Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t),
+        effect = Effects.GrantKeyword(Keyword.VIGILANCE, t) then
+            Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t) then
             Effects.DrawCards(1)
-        )
     }
 
     metadata {

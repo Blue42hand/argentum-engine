@@ -42,22 +42,20 @@ val WallCrawl = card("Wall Crawl") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                power = 2,
-                toughness = 1,
-                colors = setOf(Color.GREEN),
-                creatureTypes = setOf("Spider"),
-                keywords = setOf(Keyword.REACH),
-                imageUri = "https://cards.scryfall.io/normal/front/4/a/4a40f6e1-3545-4503-af3e-f0acfb735e3a.jpg?1757379309"
-            ),
+        effect = Effects.CreateToken(
+            power = 2,
+            toughness = 1,
+            colors = setOf(Color.GREEN),
+            creatureTypes = setOf("Spider"),
+            keywords = setOf(Keyword.REACH),
+            imageUri = "https://cards.scryfall.io/normal/front/4/a/4a40f6e1-3545-4503-af3e-f0acfb735e3a.jpg?1757379309"
+        ) then
             Effects.GainLife(
                 DynamicAmounts.battlefield(
                     Player.You,
                     GameObjectFilter.Creature.withSubtype("Spider")
                 ).count()
             )
-        )
     }
 
     // "Spiders you control get +1/+1" — Layer 7c anthem over the Spider group.

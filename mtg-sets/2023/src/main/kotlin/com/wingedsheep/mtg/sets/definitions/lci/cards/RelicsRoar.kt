@@ -29,15 +29,13 @@ val RelicsRoar = card("Relic's Roar") {
 
     spell {
         val t = target(TargetFilter.CreatureOrArtifact)
-        effect = Effects.Composite(
-            Effects.BecomeCreature(
-                target = t,
-                power = 4,
-                toughness = 3,
-                addTypes = setOf("ARTIFACT")
-            ),
+        effect = Effects.BecomeCreature(
+            target = t,
+            power = 4,
+            toughness = 3,
+            addTypes = setOf("ARTIFACT")
+        ) then
             Effects.AddSubtype("DINOSAUR", target = t)
-        )
     }
 
     metadata {

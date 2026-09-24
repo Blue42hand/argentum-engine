@@ -22,7 +22,7 @@ val EbonyHorse = card("Ebony Horse") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
         val creature = target(TargetFilter(GameObjectFilter.Creature.attacking().youControl()))
-        effect = Effects.Untap(creature).then(Effects.PreventCombatDamageToAndBy(creature))
+        effect = Effects.Untap(creature) then Effects.PreventCombatDamageToAndBy(creature)
     }
 
     metadata {

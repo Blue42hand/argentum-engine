@@ -111,16 +111,15 @@ val KitesailLarcenist = card("Kitesail Larcenist") {
         val yours = target(TargetFilter.CreatureOrArtifact.youControl().other(), optional = true)
         val theirs = target(TargetFilter.CreatureOrArtifact.opponentControls(), optional = true)
 
-        effect = Effects.Composite(
-            Effects.BecomeArtifact(
-                target = yours,
-                cardTypes = setOf("ARTIFACT"),
-                subtypes = setOf("Treasure"),
-                colors = null,
-                loseAllAbilities = true,
-                grantedAbility = treasureManaAbility,
-                duration = whileKitesailRemains
-            ),
+        effect = Effects.BecomeArtifact(
+            target = yours,
+            cardTypes = setOf("ARTIFACT"),
+            subtypes = setOf("Treasure"),
+            colors = null,
+            loseAllAbilities = true,
+            grantedAbility = treasureManaAbility,
+            duration = whileKitesailRemains
+        ) then
             Effects.BecomeArtifact(
                 target = theirs,
                 cardTypes = setOf("ARTIFACT"),
@@ -130,7 +129,6 @@ val KitesailLarcenist = card("Kitesail Larcenist") {
                 grantedAbility = treasureManaAbility,
                 duration = whileKitesailRemains
             )
-        )
         description = "When this creature enters, for each player, choose up to one other target " +
             "artifact or creature that player controls. For as long as this creature remains on " +
             "the battlefield, the chosen permanents become Treasure artifacts with \"{T}, " +

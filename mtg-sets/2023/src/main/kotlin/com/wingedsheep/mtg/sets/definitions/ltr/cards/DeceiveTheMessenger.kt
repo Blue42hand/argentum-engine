@@ -23,8 +23,7 @@ val DeceiveTheMessenger = card("Deceive the Messenger") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(-3, 0, creature)
-            .then(Effects.Amass(1, "Orc"))
+        effect = Effects.ModifyStats(-3, 0, creature) then Effects.Amass(1, "Orc")
     }
 
     metadata {

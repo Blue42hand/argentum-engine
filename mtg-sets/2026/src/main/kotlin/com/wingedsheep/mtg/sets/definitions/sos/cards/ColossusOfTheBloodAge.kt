@@ -38,10 +38,7 @@ val ColossusOfTheBloodAge = card("Colossus of the Blood Age") {
         trigger = Triggers.self.enters()
         // No explicit damageSource: the engine attributes the damage to the ability's source
         // (Colossus itself) by default, matching the "it deals damage" self-source convention.
-        effect = Effects.Composite(
-            Effects.DealDamage(3, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.GainLife(3)
-        )
+        effect = Effects.DealDamage(3, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(3)
     }
 
     triggeredAbility {

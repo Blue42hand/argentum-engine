@@ -35,10 +35,7 @@ val MeneldorSwiftSavior = card("Meneldor, Swift Savior") {
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         val creature = target(TargetFilter(GameObjectFilter.Creature.ownedByYou()), optional = true)
-        effect = Effects.Composite(listOf(
-            Effects.Move(creature, Zone.EXILE),
-            Effects.Move(creature, Zone.BATTLEFIELD)
-        ))
+        effect = Effects.Move(creature, Zone.EXILE) then Effects.Move(creature, Zone.BATTLEFIELD)
     }
 
     metadata {

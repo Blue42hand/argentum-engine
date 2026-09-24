@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.events.Recipient
 
@@ -45,8 +44,7 @@ val HerdHeirloom = card("Herd Heirloom") {
     activatedAbility {
         cost = Costs.Tap
         val creature = target(TargetFilter.CreatureYouControl.powerAtLeast(4))
-        effect = Effects.Composite(listOf(
-            Effects.GrantKeyword(Keyword.TRAMPLE, creature, Duration.EndOfTurn),
+        effect = Effects.GrantKeyword(Keyword.TRAMPLE, creature, Duration.EndOfTurn) then
             Effects.GrantTriggeredAbility(
                 ability = TriggeredAbility.create(
                     trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer),
@@ -56,7 +54,6 @@ val HerdHeirloom = card("Herd Heirloom") {
                 target = creature,
                 duration = Duration.EndOfTurn
             )
-        ))
     }
 
     metadata {

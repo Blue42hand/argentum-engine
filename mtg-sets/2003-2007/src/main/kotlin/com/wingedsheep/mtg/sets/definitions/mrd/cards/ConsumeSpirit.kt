@@ -38,10 +38,7 @@ val ConsumeSpirit = card("Consume Spirit") {
     spell {
         val anyTarget = target(Targets.Any)
         xManaRestriction = setOf(Color.BLACK)
-        effect = Effects.Composite(
-            Effects.DealXDamage(anyTarget),
-            Effects.GainLife(DynamicAmounts.xValue())
-        )
+        effect = Effects.DealXDamage(anyTarget) then Effects.GainLife(DynamicAmounts.xValue())
     }
 
     metadata {

@@ -37,7 +37,7 @@ val FearOfMissingOut = card("Fear of Missing Out") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Discard(1).then(Effects.DrawCards(1))
+        effect = Effects.Discard(1) then Effects.DrawCards(1)
         description = "When this creature enters, discard a card, then draw a card."
     }
 
@@ -45,10 +45,7 @@ val FearOfMissingOut = card("Fear of Missing Out") {
         trigger = Triggers.self.attacks(setOf(AttackPredicate.FirstTimeEachTurn))
         interveningIf = Conditions.Delirium(4)
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Untap(t),
-            Effects.AddCombatPhase,
-        )
+        effect = Effects.Untap(t) then Effects.AddCombatPhase
         description = "Delirium — Whenever this creature attacks for the first time each turn, if " +
             "there are four or more card types among cards in your graveyard, untap target " +
             "creature. After this phase, there is an additional combat phase."

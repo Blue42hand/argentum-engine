@@ -25,13 +25,11 @@ val RushTheRoom = card("Rush the Room") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(1, 0, creature)
-            .then(Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature))
-            .then(
-                Effects.If(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withAnySubtype("Goblin", "Orc"), creature),
-                    then = Effects.GrantKeyword(Keyword.HASTE, creature)
-                )
+        effect = Effects.ModifyStats(1, 0, creature) then
+            Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature) then
+            Effects.If(
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withAnySubtype("Goblin", "Orc"), creature),
+                then = Effects.GrantKeyword(Keyword.HASTE, creature)
             )
     }
 

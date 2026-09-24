@@ -95,8 +95,7 @@ private val DelugeOfTheDead = card("Deluge of the Dead") {
     activatedAbility {
         cost = Costs.Mana(ManaCost.parse("{2}{B}"))
         val exiled = target(TargetFilter.CardInGraveyard)
-        effect = Effects.Composite(
-            Effects.Exile(exiled),
+        effect = Effects.Exile(exiled) then
             // Reads the exiled card's printed type in exile, so it is true only when the card that
             // left the graveyard was a creature card — the Scavenging Ooze shape.
             Effects.If(
@@ -107,8 +106,7 @@ private val DelugeOfTheDead = card("Deluge of the Dead") {
                     colors = setOf(Color.BLACK),
                     creatureTypes = setOf("Zombie"),
                 ),
-            ),
-        )
+            )
         description = "{2}{B}: Exile target card from a graveyard. If it was a creature card, " +
             "create a 2/2 black Zombie creature token."
     }

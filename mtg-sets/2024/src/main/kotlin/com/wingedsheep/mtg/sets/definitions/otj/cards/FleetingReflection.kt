@@ -46,17 +46,13 @@ val FleetingReflection = card("Fleeting Reflection") {
                     filter = TargetFilter(GameObjectFilter.Creature)
                 )
             ))
-        effect = Effects.Composite(
-            listOf(
-                Effects.GrantHexproof(creatureYouControl, Duration.EndOfTurn),
-                Effects.Untap(creatureYouControl),
-                Effects.EachPermanentBecomesCopyOfTarget(
-                    target = otherCreature,
-                    duration = Duration.EndOfTurn,
-                    affected = creatureYouControl,
-                )
+        effect = Effects.GrantHexproof(creatureYouControl, Duration.EndOfTurn) then
+            Effects.Untap(creatureYouControl) then
+            Effects.EachPermanentBecomesCopyOfTarget(
+                target = otherCreature,
+                duration = Duration.EndOfTurn,
+                affected = creatureYouControl,
             )
-        )
     }
 
     metadata {

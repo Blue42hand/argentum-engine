@@ -33,7 +33,7 @@ val Unravel = card("Unravel") {
                 operator = ComparisonOperator.LT,
                 right = DynamicAmounts.manaValueOf(spell)
             ),
-            then = Effects.CounterSpell().then(Effects.DrawCards(1)),
+            then = Effects.CounterSpell() then Effects.DrawCards(1),
             otherwise = Effects.CounterSpell()
         )
     }

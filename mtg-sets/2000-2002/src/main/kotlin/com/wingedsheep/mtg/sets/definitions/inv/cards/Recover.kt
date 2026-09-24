@@ -20,8 +20,7 @@ val Recover = card("Recover") {
 
     spell {
         val target = target(TargetFilter.CreatureInYourGraveyard)
-        effect = Effects.ReturnToHand(target)
-            .then(Effects.DrawCards(1))
+        effect = Effects.ReturnToHand(target) then Effects.DrawCards(1)
     }
 
     metadata {

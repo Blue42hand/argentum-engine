@@ -33,10 +33,8 @@ val SeymourFlux = card("Seymour Flux") {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
         effect = Effects.MayPay(
             cost = Effects.PayLife(1),
-            then = Effects.Composite(
-                Effects.DrawCards(1),
+            then = Effects.DrawCards(1) then
                 Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-            )
         )
     }
 

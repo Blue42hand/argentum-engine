@@ -27,9 +27,9 @@ val TakeUpTheShield = card("Take Up the Shield") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
-            .then(Effects.GrantKeyword(Keyword.LIFELINK, t))
-            .then(Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t) then
+            Effects.GrantKeyword(Keyword.LIFELINK, t) then
+            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
     }
 
     metadata {

@@ -235,25 +235,21 @@ object Graveyard {
      */
     private val shuffleChosenTypeFromGraveyard: Phrase<CardScript> = run {
         val script = CardScript(
-            spellEffect = Effects.Composite(
-                listOf(
-                    ChooseCreatureTypeEffect,
-                    GatherCardsEffect(
-                        source = CardSource.FromZone(Zone.GRAVEYARD, Player.You, GameObjectFilter.Creature),
-                        storeAs = "graveyardCreatures",
-                    ),
-                    SelectFromCollectionEffect(
-                        from = "graveyardCreatures",
-                        selection = SelectionMode.All,
-                        matchChosenCreatureType = true,
-                        storeSelected = "chosen",
-                    ),
-                    MoveCollectionEffect(
-                        from = "chosen",
-                        destination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Shuffled),
-                    ),
+            spellEffect = ChooseCreatureTypeEffect then
+                GatherCardsEffect(
+                    source = CardSource.FromZone(Zone.GRAVEYARD, Player.You, GameObjectFilter.Creature),
+                    storeAs = "graveyardCreatures",
+                ) then
+                SelectFromCollectionEffect(
+                    from = "graveyardCreatures",
+                    selection = SelectionMode.All,
+                    matchChosenCreatureType = true,
+                    storeSelected = "chosen",
+                ) then
+                MoveCollectionEffect(
+                    from = "chosen",
+                    destination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Shuffled),
                 )
-            )
         )
         phrase(
             "choose a creature type. shuffle all creature cards of that type from your graveyard " +
@@ -296,16 +292,14 @@ object Graveyard {
         val suffix = if (tapped) " tapped" else ""
         val placement = if (tapped) ZonePlacement.Tapped else ZonePlacement.Default
         fun scriptFor(filter: GameObjectFilter) = CardScript(
-            spellEffect = Effects.Composite(
-                GatherCardsEffect(
-                    source = CardSource.FromZone(Zone.GRAVEYARD, Player.You, filter),
-                    storeAs = COLLECTED,
-                ),
+            spellEffect = GatherCardsEffect(
+                source = CardSource.FromZone(Zone.GRAVEYARD, Player.You, filter),
+                storeAs = COLLECTED,
+            ) then
                 MoveCollectionEffect(
                     from = COLLECTED,
                     destination = CardDestination.ToZone(Zone.BATTLEFIELD, placement = placement),
-                ),
-            )
+                )
         )
         return phrase(
             "return all {filter} from your graveyard to the battlefield$suffix",

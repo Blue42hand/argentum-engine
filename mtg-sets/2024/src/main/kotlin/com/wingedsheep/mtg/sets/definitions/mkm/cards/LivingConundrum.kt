@@ -43,7 +43,7 @@ val LivingConundrum = card("Living Conundrum") {
 
     replacementEffect(
         ReplaceDrawWith(
-            replacementEffect = Effects.Composite(),
+            replacementEffect = Effects.Nothing,
             restrictions = listOf(emptyLibrary),
         )
     )

@@ -52,9 +52,9 @@ val CallASurpriseWitness = card("Call a Surprise Witness") {
                 zone = Zone.GRAVEYARD,
             ),
         )
-        effect = Effects.PutOntoBattlefield(witness)
-            .then(Effects.AddCounters(CounterType.FLYING, 1, witness))
-            .then(Effects.AddSubtype("Spirit", target = witness, duration = Duration.Permanent))
+        effect = Effects.PutOntoBattlefield(witness) then
+            Effects.AddCounters(CounterType.FLYING, 1, witness) then
+            Effects.AddSubtype("Spirit", target = witness, duration = Duration.Permanent)
     }
 
     metadata {

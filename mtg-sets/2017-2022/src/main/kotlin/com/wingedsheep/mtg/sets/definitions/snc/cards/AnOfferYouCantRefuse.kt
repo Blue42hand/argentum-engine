@@ -25,8 +25,8 @@ val AnOfferYouCantRefuse = card("An Offer You Can't Refuse") {
         // Resolve the Treasures while the spell is still on the stack so `TargetController`
         // can read its controller (same pattern as Undermine). The tokens are created even
         // if the spell itself can't be countered.
-        effect = Effects.CreateTreasure(2, controller = EffectTarget.TargetController)
-            .then(Effects.CounterSpell())
+        effect = Effects.CreateTreasure(2, controller = EffectTarget.TargetController) then
+            Effects.CounterSpell()
     }
 
     metadata {

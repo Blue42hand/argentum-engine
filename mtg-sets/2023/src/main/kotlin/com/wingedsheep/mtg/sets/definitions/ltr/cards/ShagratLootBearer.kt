@@ -40,10 +40,8 @@ val ShagratLootBearer = card("Shagrat, Loot Bearer") {
         // "up to one target Equipment" — any Equipment; control doesn't change, so it's not
         // restricted to Equipment you control.
         val equipment = target(TargetFilter(GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT)), optional = true)
-        effect = Effects.Composite(
-            Effects.AttachTargetEquipmentToCreature(equipment, EffectTarget.Self),
+        effect = Effects.AttachTargetEquipmentToCreature(equipment, EffectTarget.Self) then
             Effects.Amass(DynamicAmounts.equipmentAttachedToSelf(), "Orc")
-        )
     }
 
     metadata {

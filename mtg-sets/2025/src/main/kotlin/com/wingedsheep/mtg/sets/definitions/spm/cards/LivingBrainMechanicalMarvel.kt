@@ -30,15 +30,13 @@ val LivingBrainMechanicalMarvel = card("Living Brain, Mechanical Marvel") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val artifact = target(TargetFilter(GameObjectFilter.Artifact.notSubtype(Subtype.EQUIPMENT).youControl()))
-        effect = Effects.Composite(
-            Effects.BecomeCreature(
-                target = artifact,
-                power = 3,
-                toughness = 3,
-                duration = Duration.EndOfTurn
-            ),
+        effect = Effects.BecomeCreature(
+            target = artifact,
+            power = 3,
+            toughness = 3,
+            duration = Duration.EndOfTurn
+        ) then
             Effects.Untap(artifact)
-        )
     }
 
     metadata {

@@ -33,8 +33,7 @@ val GurmagRakshasa = card("Gurmag Rakshasa") {
         trigger = Triggers.self.enters()
         val opponentCreature = target(TargetFilter.CreatureOpponentControls)
         val yourCreature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.ModifyStats(-2, -2, opponentCreature)
-            .then(Effects.ModifyStats(2, 2, yourCreature))
+        effect = Effects.ModifyStats(-2, -2, opponentCreature) then Effects.ModifyStats(2, 2, yourCreature)
     }
 
     metadata {

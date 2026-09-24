@@ -23,10 +23,7 @@ val EssenceCapture = card("Essence Capture") {
     spell {
         target(TargetFilter.CreatureSpellOnStack)
         val ally = target(TargetFilter.CreatureYouControl, optional = true)
-        effect = Effects.Composite(listOf(
-            Effects.CounterSpell(),
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, ally)
-        ))
+        effect = Effects.CounterSpell() then Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, ally)
     }
 
     metadata {

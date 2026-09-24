@@ -21,8 +21,8 @@ val Honor = card("Honor") {
     // Spell effect: put +1/+1 counter on target creature and draw a card
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.AddCounters(com.wingedsheep.sdk.core.CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
-            .then(Effects.DrawCards(1))
+        effect = Effects.AddCounters(com.wingedsheep.sdk.core.CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
+            Effects.DrawCards(1)
     }
 
     metadata {

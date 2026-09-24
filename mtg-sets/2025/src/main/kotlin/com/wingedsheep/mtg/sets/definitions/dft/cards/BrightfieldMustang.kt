@@ -32,10 +32,8 @@ val BrightfieldMustang = card("Brightfield Mustang") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         triggerRestriction = Conditions.SourceIsSaddled
-        effect = Effects.Composite(
-            Effects.Untap(EffectTarget.Self),
+        effect = Effects.Untap(EffectTarget.Self) then
             Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
-        )
     }
     keywordAbility(KeywordAbility.saddle(1))
     metadata {

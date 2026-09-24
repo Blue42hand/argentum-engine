@@ -31,10 +31,7 @@ val ClashOfElements = card("Clash of Elements") {
         val permanent = target(TargetFilter.NonlandPermanent)
         val owner = EffectTarget.PlayerRef(Player.OwnerOf("target nonland permanent"))
         effect = Effects.May(
-            effect = Effects.Composite(
-                Effects.PutOnTopOfLibrary(permanent),
-                Effects.DealDamage(2, owner),
-            ),
+            effect = Effects.PutOnTopOfLibrary(permanent) then Effects.DealDamage(2, owner),
             descriptionOverride = "Put it on the top of your library? If you do, Clash of Elements " +
                 "deals 2 damage to you. Otherwise it goes on the bottom of your library.",
             decisionMaker = owner,

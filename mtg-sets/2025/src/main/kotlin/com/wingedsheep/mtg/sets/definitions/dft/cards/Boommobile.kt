@@ -56,10 +56,8 @@ val Boommobile = card("Boommobile") {
         cost = Costs.Mana("{X}{2}{R}")
         isExhaust = true
         val victim = target(Targets.Any)
-        effect = Effects.Composite(
-            Effects.DealXDamage(victim),
+        effect = Effects.DealXDamage(victim) then
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-        )
         description = "This Vehicle deals X damage to any target. Put a +1/+1 counter on this Vehicle."
     }
 

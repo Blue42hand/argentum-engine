@@ -39,10 +39,7 @@ val UnderhandedDesigns = card("Underhanded Designs") {
         trigger = Triggers.a(GameObjectFilter.Artifact.youControl()).enters()
         effect = Effects.MayPay(
             ManaCost.parse("{1}"),
-            Effects.Composite(
-                Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-                Effects.GainLife(1),
-            ),
+            Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(1),
         )
     }
 

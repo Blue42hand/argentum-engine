@@ -24,10 +24,7 @@ val SwallowingPlague = card("Swallowing Plague") {
     oracleText = "Swallowing Plague deals X damage to target creature and you gain X life."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.DealDamage(DynamicAmounts.xValue(), t),
-            Effects.GainLife(DynamicAmounts.xValue())
-        )
+        effect = Effects.DealDamage(DynamicAmounts.xValue(), t) then Effects.GainLife(DynamicAmounts.xValue())
     }
     metadata {
         rarity = Rarity.UNCOMMON

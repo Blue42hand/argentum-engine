@@ -20,10 +20,7 @@ val GetThePoint = card("Get the Point") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(listOf(
-            Effects.Destroy(creature),
-            Effects.Scry(1)
-        ))
+        effect = Effects.Destroy(creature) then Effects.Scry(1)
     }
 
     metadata {

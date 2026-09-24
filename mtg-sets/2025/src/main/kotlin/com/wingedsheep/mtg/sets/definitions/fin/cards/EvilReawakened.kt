@@ -22,8 +22,8 @@ val EvilReawakened = card("Evil Reawakened") {
     spell {
         val t = target(TargetFilter.CreatureInYourGraveyard)
         // Return it to the battlefield, then put two additional +1/+1 counters on it.
-        effect = Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
-            .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t))
+        effect = Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

@@ -54,10 +54,8 @@ private val ShivaWardenOfIce = card("Shiva, Warden of Ice") {
 
     // III — Cold Snap — Tap all lands your opponents control, then flip Shiva back to Jill.
     sagaChapter(3) {
-        effect = Effects.Composite(
-            Patterns.Group.tapAll(GroupFilter(GameObjectFilter.Land.opponentControls())),
-            Effects.ExileAndReturnTransformed(EffectTarget.Self, ReturnFace.FRONT),
-        )
+        effect = Patterns.Group.tapAll(GroupFilter(GameObjectFilter.Land.opponentControls())) then
+            Effects.ExileAndReturnTransformed(EffectTarget.Self, ReturnFace.FRONT)
     }
 
     metadata {

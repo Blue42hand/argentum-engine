@@ -48,12 +48,10 @@ val AdditiveEvolution = card("Additive Evolution") {
             colors = setOf(Color.GREEN, Color.BLUE),
             creatureTypes = setOf("Fractal"),
             imageUri = "https://cards.scryfall.io/normal/front/d/e/de564776-9d88-4533-8717-842eecdd0594.jpg?1775828279"
-        ).then(
-            Effects.AddCounters(
-                CounterType.PLUS_ONE_PLUS_ONE,
-                3,
-                EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
-            )
+        ) then Effects.AddCounters(
+            CounterType.PLUS_ONE_PLUS_ONE,
+            3,
+            EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
         )
         description = "When this enchantment enters, create a 0/0 green and blue Fractal creature " +
             "token. Put three +1/+1 counters on it."
@@ -62,8 +60,8 @@ val AdditiveEvolution = card("Additive Evolution") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
-            .then(Effects.GrantKeyword(Keyword.VIGILANCE, creature))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
+            Effects.GrantKeyword(Keyword.VIGILANCE, creature)
         description = "At the beginning of combat on your turn, put a +1/+1 counter on target " +
             "creature you control. It gains vigilance until end of turn."
     }

@@ -26,8 +26,7 @@ val BrothersOfFire = card("Brothers of Fire") {
     activatedAbility {
         cost = Costs.Mana("{1}{R}{R}")
         val target = target(Targets.Any)
-        effect = Effects.DealDamage(1, target)
-            .then(Effects.DealDamage(1, EffectTarget.PlayerRef(Player.You)))
+        effect = Effects.DealDamage(1, target) then Effects.DealDamage(1, EffectTarget.PlayerRef(Player.You))
     }
 
     metadata {

@@ -27,21 +27,19 @@ val SendInThePest = card("Send in the Pest") {
         "token with \"Whenever this token attacks, you gain 1 life.\""
 
     spell {
-        effect = Effects.EachOpponentDiscards(1)
-            .then(
-                Effects.CreateToken(
-                    power = 1,
-                    toughness = 1,
-                    colors = setOf(Color.BLACK, Color.GREEN),
-                    creatureTypes = setOf("Pest"),
-                    triggeredAbilities = listOf(
-                        TriggeredAbility.create(
-                            trigger = Triggers.self.attacks(),
-                            effect = Effects.GainLife(1)
-                        )
-                    ),
-                    imageUri = "https://cards.scryfall.io/normal/front/b/a/ba854032-6ad2-4654-990a-64006e7f92fd.jpg?1777982237"
-                )
+        effect = Effects.EachOpponentDiscards(1) then
+            Effects.CreateToken(
+                power = 1,
+                toughness = 1,
+                colors = setOf(Color.BLACK, Color.GREEN),
+                creatureTypes = setOf("Pest"),
+                triggeredAbilities = listOf(
+                    TriggeredAbility.create(
+                        trigger = Triggers.self.attacks(),
+                        effect = Effects.GainLife(1)
+                    )
+                ),
+                imageUri = "https://cards.scryfall.io/normal/front/b/a/ba854032-6ad2-4654-990a-64006e7f92fd.jpg?1777982237"
             )
     }
 

@@ -36,10 +36,7 @@ val SorceressSchemes = card("Sorceress's Schemes") {
         val union = TargetFilter.InstantOrSorceryInGraveyard.ownedByYou()
             .or(TargetFilter(GameObjectFilter.Any).withKeyword(Keyword.FLASHBACK).ownedByYou().inZone(Zone.EXILE))
         val t = target(union)
-        effect = Effects.Composite(
-            Effects.ReturnToHand(t),
-            Effects.AddMana(Color.RED)
-        )
+        effect = Effects.ReturnToHand(t) then Effects.AddMana(Color.RED)
     }
 
     keywordAbility(KeywordAbility.flashback("{4}{R}"))

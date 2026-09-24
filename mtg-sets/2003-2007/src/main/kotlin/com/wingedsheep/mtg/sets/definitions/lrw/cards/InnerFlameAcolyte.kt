@@ -30,10 +30,7 @@ val InnerFlameAcolyte = card("Inner-Flame Acolyte") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, creature),
-            Effects.GrantKeyword(Keyword.HASTE, creature)
-        )
+        effect = Effects.ModifyStats(2, 0, creature) then Effects.GrantKeyword(Keyword.HASTE, creature)
         description = "target creature gets +2/+0 and gains haste until end of turn."
     }
 

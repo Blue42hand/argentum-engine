@@ -23,10 +23,7 @@ val ElspethsSmite = card("Elspeth's Smite") {
     oracleText = "Elspeth's Smite deals 3 damage to target attacking or blocking creature. If that creature would die this turn, exile it instead."
     spell {
         val t = target(TargetFilter.AttackingOrBlockingCreature)
-        effect = Effects.Composite(
-            Effects.DealDamage(3, t),
-            Effects.MarkExileOnDeath(t)
-        )
+        effect = Effects.DealDamage(3, t) then Effects.MarkExileOnDeath(t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

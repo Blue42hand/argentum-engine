@@ -34,8 +34,7 @@ val Oliphaunt = card("Oliphaunt") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val other = target(TargetFilter.OtherCreatureYouControl)
-        effect = Effects.ModifyStats(2, 0, other)
-            .then(Effects.GrantKeyword(Keyword.TRAMPLE, other))
+        effect = Effects.ModifyStats(2, 0, other) then Effects.GrantKeyword(Keyword.TRAMPLE, other)
     }
 
     keywordAbility(KeywordAbility.typecycling("Mountain", ManaCost.parse("{1}")))

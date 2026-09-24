@@ -34,8 +34,8 @@ val LashOut = card("Lash Out") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.DealDamage(3, creature)
-            .then(Patterns.Mechanic.clash(Effects.DealDamage(3, EffectTarget.TargetController)))
+        effect = Effects.DealDamage(3, creature) then
+            Patterns.Mechanic.clash(Effects.DealDamage(3, EffectTarget.TargetController))
     }
 
     metadata {

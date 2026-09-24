@@ -29,8 +29,7 @@ val CavalryDrillmaster = card("Cavalry Drillmaster") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(2, 0, creature)
-            .then(Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature))
+        effect = Effects.ModifyStats(2, 0, creature) then Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature)
         description = "When this creature enters, target creature gets +2/+0 and gains first strike until end of turn."
     }
 

@@ -52,8 +52,8 @@ val ThranduilsCompany = card("Thranduil's Company") {
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         val t = target(TargetFilter.CreatureYouControl)
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t)
-            .then(Effects.GrantKeyword(Keyword.VIGILANCE, t))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t) then
+            Effects.GrantKeyword(Keyword.VIGILANCE, t)
         description = "Landfall — Whenever a land you control enters, put two +1/+1 counters on " +
             "target creature you control. It gains vigilance until end of turn."
     }

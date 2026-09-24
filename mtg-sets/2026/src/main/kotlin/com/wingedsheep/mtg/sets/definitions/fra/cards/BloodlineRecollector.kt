@@ -58,10 +58,7 @@ val BloodlineRecollector = card("Bloodline Recollector") {
         oracleText = "Target player draws three cards and loses 3 life."
         spell {
             val player = target(Targets.Player)
-            effect = Effects.Composite(
-                Effects.DrawCards(3, player),
-                Effects.LoseLife(3, player),
-            )
+            effect = Effects.DrawCards(3, player) then Effects.LoseLife(3, player)
         }
     }
 

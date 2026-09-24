@@ -1673,7 +1673,7 @@
                                 "type": "MoveToZone",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 },
                                 "destination": "Exile"
                             },
@@ -1683,7 +1683,7 @@
                                     "filter": {
                                         "baseFilter": "artifact|enchantment"
                                     },
-                                    "id": "t0"
+                                    "id": "t1"
                                 }
                             ],
                             "description": "Impound — Exile target artifact or enchantment."
@@ -2545,7 +2545,7 @@
                                 "type": "TapUntap",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 },
                                 "tap": false
                             },
@@ -2555,7 +2555,7 @@
                                     "filter": {
                                         "baseFilter": "creature"
                                     },
-                                    "id": "t0"
+                                    "id": "t1"
                                 }
                             ],
                             "description": "Hero Worship — Untap target creature."
@@ -2788,39 +2788,34 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "FromZone",
-                                        "zone": "Hand"
-                                    },
-                                    "storeAs": "hand"
-                                },
-                                {
-                                    "type": "SelectFromCollection",
-                                    "from": "hand",
-                                    "selection": {
-                                        "type": "ChooseExactly",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 1
-                                        }
-                                    },
-                                    "storeSelected": "discarded",
-                                    "prompt": "Choose 1 card to discard"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "discarded",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard"
-                                    },
-                                    "moveType": "Discard"
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand"
+                            },
+                            "storeAs": "hand"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "hand",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
                                 }
-                            ]
+                            },
+                            "storeSelected": "discarded",
+                            "prompt": "Choose 1 card to discard"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "discarded",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Discard"
                         },
                         {
                             "type": "DrawCards",
@@ -4281,7 +4276,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
@@ -4289,7 +4284,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:you"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             },
             {
@@ -4298,7 +4293,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t2"
                     },
                     "destination": "Hand"
                 },
@@ -4308,7 +4303,7 @@
                         "baseFilter": "creature own:you",
                         "zone": "Graveyard"
                     },
-                    "id": "t0"
+                    "id": "t2"
                 }
             }
         ]
@@ -6231,7 +6226,7 @@
                     "keyword": "DOUBLE_STRIKE",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
@@ -6239,7 +6234,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:you"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]
@@ -8622,7 +8617,7 @@
                                 ],
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 },
                                 "duration": "EndOfTurn"
                             },
@@ -8630,7 +8625,7 @@
                                 "type": "SetBaseStats",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 },
                                 "power": {
                                     "type": "Fixed",
@@ -8647,7 +8642,7 @@
                                 "keyword": "FLYING",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             {
@@ -8655,7 +8650,7 @@
                                 "keyword": "VIGILANCE",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             }
                         ]
@@ -8666,7 +8661,7 @@
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Reveal — Until end of turn, target creature you control becomes a Hero with base power and toughness 3/4 and gains flying and vigilance."
@@ -9197,7 +9192,7 @@
                     "keyword": "LIFELINK",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
@@ -9213,7 +9208,7 @@
                             "controllerPredicate": "ControlledByYou"
                         }
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]
@@ -9487,7 +9482,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -9498,7 +9493,7 @@
                             "filter": {
                                 "baseFilter": "creature pow>=4"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target creature with power 4 or greater"
@@ -11197,7 +11192,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -11208,7 +11203,7 @@
                         "filter": {
                             "baseFilter": "artifact"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ],
                 "activateFromZone": "Hand"
@@ -12437,7 +12432,7 @@
                 "targetRequirement": {
                     "type": "TargetPlayer",
                     "unlimited": true,
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]
@@ -12906,39 +12901,34 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "FromZone",
-                                        "zone": "Hand"
-                                    },
-                                    "storeAs": "hand"
-                                },
-                                {
-                                    "type": "SelectFromCollection",
-                                    "from": "hand",
-                                    "selection": {
-                                        "type": "ChooseExactly",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 1
-                                        }
-                                    },
-                                    "storeSelected": "discarded",
-                                    "prompt": "Choose 1 card to discard"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "discarded",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard"
-                                    },
-                                    "moveType": "Discard"
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand"
+                            },
+                            "storeAs": "hand"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "hand",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
                                 }
-                            ]
+                            },
+                            "storeSelected": "discarded",
+                            "prompt": "Choose 1 card to discard"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "discarded",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Discard"
                         },
                         {
                             "type": "CreatePredefinedToken",

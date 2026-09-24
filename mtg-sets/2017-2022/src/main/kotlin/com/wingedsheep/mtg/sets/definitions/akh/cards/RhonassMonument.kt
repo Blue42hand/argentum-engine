@@ -38,10 +38,7 @@ val RhonassMonument = card("Rhonas's Monument") {
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Creature)
         val t = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 2, t),
-            Effects.GrantKeyword(Keyword.TRAMPLE, t),
-        )
+        effect = Effects.ModifyStats(2, 2, t) then Effects.GrantKeyword(Keyword.TRAMPLE, t)
     }
 
     metadata {

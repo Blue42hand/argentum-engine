@@ -31,10 +31,7 @@ val FalkenrathNoble = card("Falkenrath Noble") {
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature).dies()
         val player = target(Targets.Player)
-        effect = Effects.Composite(
-            Effects.LoseLife(1, player),
-            Effects.GainLife(1, EffectTarget.Controller),
-        )
+        effect = Effects.LoseLife(1, player) then Effects.GainLife(1, EffectTarget.Controller)
     }
 
     metadata {

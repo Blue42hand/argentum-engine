@@ -21,10 +21,7 @@ val CunningManeuver = card("Cunning Maneuver") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(3, 1, t),
-            Effects.CreateClue()
-        )
+        effect = Effects.ModifyStats(3, 1, t) then Effects.CreateClue()
     }
 
     metadata {

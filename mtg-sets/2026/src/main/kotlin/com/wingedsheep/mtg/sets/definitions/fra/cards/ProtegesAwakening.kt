@@ -13,7 +13,7 @@ val ProtegesAwakening = card("Protege's Awakening") {
         "Draw a card."
 
     spell {
-        effect = Patterns.Mechanic.empowerJace(6).then(Effects.DrawCards(1))
+        effect = Patterns.Mechanic.empowerJace(6) then Effects.DrawCards(1)
     }
 
     metadata {

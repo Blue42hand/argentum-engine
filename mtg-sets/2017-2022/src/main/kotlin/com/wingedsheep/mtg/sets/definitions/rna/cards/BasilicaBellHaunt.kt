@@ -23,10 +23,7 @@ val BasilicaBellHaunt = card("Basilica Bell-Haunt") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(listOf(
-            Patterns.Hand.eachOpponentDiscards(1),
-            Effects.GainLife(3)
-        ))
+        effect = Patterns.Hand.eachOpponentDiscards(1) then Effects.GainLife(3)
     }
 
     metadata {

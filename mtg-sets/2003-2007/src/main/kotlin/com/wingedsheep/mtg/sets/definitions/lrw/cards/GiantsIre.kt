@@ -24,13 +24,11 @@ val GiantsIre = card("Giant's Ire") {
 
     spell {
         val recipient = target(Targets.PlayerOrPlaneswalker)
-        effect = Effects.Composite(
-            Effects.DealDamage(4, recipient),
+        effect = Effects.DealDamage(4, recipient) then
             Effects.If(
                 condition = Conditions.ControlPermanentOfType(Subtype.GIANT),
                 then = Effects.DrawCards(1)
             )
-        )
     }
 
     metadata {

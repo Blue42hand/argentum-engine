@@ -25,13 +25,11 @@ val YipYip = card("Yip Yip!") {
 
     spell {
         val t = target(TargetFilter.Creature.youControl())
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 2, t),
+        effect = Effects.ModifyStats(2, 2, t) then
             Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.withSubtype(Subtype.ALLY), t),
                 then = Effects.GrantKeyword(Keyword.FLYING, t),
-            ),
-        )
+            )
     }
 
     metadata {

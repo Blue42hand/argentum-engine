@@ -52,8 +52,8 @@ val SamwiseTheStouthearted = card("Samwise the Stouthearted") {
             ),
             optional = true,
         )
-        effect = Effects.Move(returnTarget, Zone.HAND, fromZone = Zone.GRAVEYARD)
-            .then(Effects.TheRingTemptsYou())
+        effect = Effects.Move(returnTarget, Zone.HAND, fromZone = Zone.GRAVEYARD) then
+            Effects.TheRingTemptsYou()
     }
 
     metadata {

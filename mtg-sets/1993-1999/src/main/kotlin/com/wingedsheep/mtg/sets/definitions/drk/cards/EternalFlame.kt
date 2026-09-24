@@ -38,13 +38,11 @@ val EternalFlame = card("Eternal Flame") {
         val mountains = DynamicAmounts
             .battlefield(Player.You, GameObjectFilter.Land.withSubtype(Subtype.MOUNTAIN))
             .count()
-        effect = Effects.Composite(
-            Effects.DealDamage(mountains, victim),
+        effect = Effects.DealDamage(mountains, victim) then
             Effects.DealDamage(
                 mountains divRoundedUp 2,
                 EffectTarget.PlayerRef(Player.You),
-            ),
-        )
+            )
     }
 
     metadata {

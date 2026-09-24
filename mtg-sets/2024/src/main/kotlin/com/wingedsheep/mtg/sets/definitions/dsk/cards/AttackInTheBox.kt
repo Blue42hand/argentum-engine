@@ -32,13 +32,11 @@ val AttackInTheBox = card("Attack-in-the-Box") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         effect = Effects.May(
-            Effects.Composite(
-                Effects.ModifyStats(4, 0, EffectTarget.Self),
+            Effects.ModifyStats(4, 0, EffectTarget.Self) then
                 Effects.CreateDelayedTrigger(
                     step = Step.END,
                     effect = Effects.SacrificeTarget(EffectTarget.Self),
                 ),
-            ),
             descriptionOverride = "Have Attack-in-the-Box get +4/+0 until end of turn? " +
                 "(If you do, sacrifice it at the beginning of the next end step.)",
         )

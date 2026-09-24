@@ -30,17 +30,11 @@ val SummonShiva = card("Summon: Shiva") {
 
     sagaChapter(1) {
         val t = target(TargetFilter.CreatureOpponentControls)
-        effect = Effects.Composite(
-            Effects.Tap(t),
-            Effects.AddCounters(CounterType.STUN, 1, t),
-        )
+        effect = Effects.Tap(t) then Effects.AddCounters(CounterType.STUN, 1, t)
     }
     sagaChapter(2) {
         val t = target(TargetFilter.CreatureOpponentControls)
-        effect = Effects.Composite(
-            Effects.Tap(t),
-            Effects.AddCounters(CounterType.STUN, 1, t),
-        )
+        effect = Effects.Tap(t) then Effects.AddCounters(CounterType.STUN, 1, t)
     }
     sagaChapter(3) {
         effect = Effects.DrawCards(

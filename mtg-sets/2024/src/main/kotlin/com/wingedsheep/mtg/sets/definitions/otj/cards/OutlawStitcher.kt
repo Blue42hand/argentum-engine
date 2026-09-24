@@ -52,20 +52,18 @@ val OutlawStitcher = card("Outlaw Stitcher") {
             DynamicAmounts.fixed(0)
         )
         val counterAmount = otherThanFirst * 2
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                power = 2,
-                toughness = 2,
-                colors = setOf(Color.BLUE, Color.BLACK),
-                creatureTypes = setOf("Zombie", "Rogue"),
-                imageUri = "https://cards.scryfall.io/normal/front/7/4/74c7a0bd-6011-495a-b56c-8fa707dd7f12.jpg?1712316777"
-            ),
+        effect = Effects.CreateToken(
+            power = 2,
+            toughness = 2,
+            colors = setOf(Color.BLUE, Color.BLACK),
+            creatureTypes = setOf("Zombie", "Rogue"),
+            imageUri = "https://cards.scryfall.io/normal/front/7/4/74c7a0bd-6011-495a-b56c-8fa707dd7f12.jpg?1712316777"
+        ) then
             Effects.AddDynamicCounters(
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = counterAmount,
                 target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
             )
-        )
         description = "When this creature enters, create a 2/2 blue and black Zombie Rogue creature token, " +
             "then put two +1/+1 counters on that token for each spell you've cast this turn other than the first."
     }

@@ -53,7 +53,7 @@ val BitterChill = card("Bitter Chill") {
         trigger = Triggers.self.dies()
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
-            then = Patterns.Library.scry(1).then(Effects.DrawCards(1))
+            then = Patterns.Library.scry(1) then Effects.DrawCards(1)
         )
     }
 

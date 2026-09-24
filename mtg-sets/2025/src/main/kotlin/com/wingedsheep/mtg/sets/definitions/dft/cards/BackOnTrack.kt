@@ -22,14 +22,12 @@ val BackOnTrack = card("Back on Track") {
 
     spell {
         val returned = target(TargetFilter(GameObjectFilter.CreatureOrVehicle.ownedByYou(), zone = Zone.GRAVEYARD))
-        effect = Effects.Move(returned, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD).then(
-            Effects.CreateToken(
-                power = 1,
-                toughness = 1,
-                creatureTypes = setOf("Pilot"),
-                imageUri = "https://cards.scryfall.io/normal/front/8/6/8672d795-04f9-4089-9c92-6d6ff628da12.jpg?1783907682",
-                staticAbilities = listOf(CrewSaddleContribution(modifier = 2))
-            )
+        effect = Effects.Move(returned, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then Effects.CreateToken(
+            power = 1,
+            toughness = 1,
+            creatureTypes = setOf("Pilot"),
+            imageUri = "https://cards.scryfall.io/normal/front/8/6/8672d795-04f9-4089-9c92-6d6ff628da12.jpg?1783907682",
+            staticAbilities = listOf(CrewSaddleContribution(modifier = 2))
         )
     }
 

@@ -37,11 +37,9 @@ val MagitekScythe = card("Magitek Scythe") {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter.Creature.youControl())
         effect = Effects.May(
-            Effects.Composite(
-                Effects.AttachEquipment(t),
-                Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),
+            Effects.AttachEquipment(t) then
+                Effects.GrantKeyword(Keyword.FIRST_STRIKE, t) then
                 Effects.MustBeBlocked(t, allCreatures = false)
-            )
         )
     }
 

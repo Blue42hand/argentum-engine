@@ -24,10 +24,7 @@ val GiveInToViolence = card("Give In to Violence") {
     oracleText = "Target creature gets +2/+2 and gains lifelink until end of turn."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 2, t),
-            Effects.GrantKeyword(Keyword.LIFELINK, t)
-        )
+        effect = Effects.ModifyStats(2, 2, t) then Effects.GrantKeyword(Keyword.LIFELINK, t)
     }
     metadata {
         rarity = Rarity.COMMON

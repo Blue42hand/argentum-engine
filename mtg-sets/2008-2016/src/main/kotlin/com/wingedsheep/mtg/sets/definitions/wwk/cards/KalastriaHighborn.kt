@@ -41,10 +41,7 @@ val KalastriaHighborn = card("Kalastria Highborn") {
         val player = target(Targets.Player)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{B}"),
-            then = Effects.Composite(
-                Effects.LoseLife(2, player),
-                Effects.GainLife(2, EffectTarget.Controller),
-            ),
+            then = Effects.LoseLife(2, player) then Effects.GainLife(2, EffectTarget.Controller),
         )
     }
 

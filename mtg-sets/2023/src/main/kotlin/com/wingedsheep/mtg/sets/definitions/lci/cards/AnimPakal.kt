@@ -44,9 +44,8 @@ val AnimPakal = card("Anim Pakal, Thousandth Moon") {
 
     triggeredAbility {
         trigger = Triggers.you.attacks(GameObjectFilter.Creature.notSubtype(Subtype.GNOME))
-        effect = Effects.Composite(
-            // Step 1: put a +1/+1 counter on Anim Pakal.
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+        // Step 1: put a +1/+1 counter on Anim Pakal.
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
             // Step 2: create X tapped-and-attacking 1/1 colorless Gnome artifact creature tokens,
             // where X = +1/+1 counters on Anim Pakal — evaluated after step 1.
             Effects.CreateToken(
@@ -60,7 +59,6 @@ val AnimPakal = card("Anim Pakal, Thousandth Moon") {
                 artifactToken = true,
                 imageUri = "https://cards.scryfall.io/normal/front/6/d/6def709a-53b3-4520-9544-74ab6472d256.jpg?1783913604",
             )
-        )
     }
 
     metadata {

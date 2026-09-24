@@ -31,10 +31,7 @@ val BattlesongBerserker = card("Battlesong Berserker") {
     triggeredAbility {
         trigger = Triggers.you.attacks()
         val t = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, t),
-            Effects.GrantKeyword(Keyword.MENACE, t),
-        )
+        effect = Effects.ModifyStats(1, 0, t) then Effects.GrantKeyword(Keyword.MENACE, t)
         description = "Whenever you attack, target creature you control gets +1/+0 and gains menace until end of turn."
     }
 

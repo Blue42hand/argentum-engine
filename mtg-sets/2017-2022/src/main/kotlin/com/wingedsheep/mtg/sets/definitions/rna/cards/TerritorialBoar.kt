@@ -28,10 +28,8 @@ val TerritorialBoar = card("Territorial Boar") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.powerAtLeast(4).youControl()).enters()
-        effect = Effects.Composite(listOf(
-            Effects.ModifyStats(1, 1, EffectTarget.Self),
+        effect = Effects.ModifyStats(1, 1, EffectTarget.Self) then
             Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.Self)
-        ))
     }
 
     metadata {

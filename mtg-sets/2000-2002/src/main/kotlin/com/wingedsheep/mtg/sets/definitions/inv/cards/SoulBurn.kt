@@ -34,10 +34,8 @@ val SoulBurn = card("Soul Burn") {
     spell {
         val anyTarget = target(Targets.Any)
         xManaRestriction = setOf(Color.BLACK, Color.RED)
-        effect = Effects.Composite(
-            Effects.DealXDamage(anyTarget),
+        effect = Effects.DealXDamage(anyTarget) then
             Effects.GainLife(DynamicAmounts.manaSpentOnX(Color.BLACK))
-        )
     }
 
     metadata {

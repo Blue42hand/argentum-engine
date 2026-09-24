@@ -37,8 +37,8 @@ val ReigningVictor = card("Reigning Victor") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(1, 0, creature)
-            .then(Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature))
+        effect = Effects.ModifyStats(1, 0, creature) then
+            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature)
         description = "When this creature enters, target creature gets +1/+0 and gains indestructible until end of turn."
     }
 

@@ -25,13 +25,11 @@ val GiftOfGrowth = card("Gift of Growth") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Untap(t)
-            .then(
-                Effects.If(
-                    condition = WasKicked,
-                    then = Effects.ModifyStats(4, 4, t),
-                    otherwise = Effects.ModifyStats(2, 2, t)
-                )
+        effect = Effects.Untap(t) then
+            Effects.If(
+                condition = WasKicked,
+                then = Effects.ModifyStats(4, 4, t),
+                otherwise = Effects.ModifyStats(2, 2, t)
             )
     }
 

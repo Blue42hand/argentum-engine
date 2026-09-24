@@ -32,8 +32,7 @@ val RoughshodDuo = card("Roughshod Duo") {
     triggeredAbility {
         trigger = Triggers.you.expends(4)
         val t = target(TargetFilter.CreatureYouControl)
-        effect = Effects.ModifyStats(1, 1, t)
-            .then(Effects.GrantKeyword(Keyword.TRAMPLE, t))
+        effect = Effects.ModifyStats(1, 1, t) then Effects.GrantKeyword(Keyword.TRAMPLE, t)
     }
 
     metadata {

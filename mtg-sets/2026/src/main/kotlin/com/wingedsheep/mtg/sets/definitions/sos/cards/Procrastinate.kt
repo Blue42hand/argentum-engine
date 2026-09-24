@@ -28,13 +28,11 @@ val Procrastinate = card("Procrastinate") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Tap(creature)
-            .then(
-                Effects.AddDynamicCounters(
-                    CounterType.STUN,
-                    DynamicAmounts.xValue() * 2,
-                    creature
-                )
+        effect = Effects.Tap(creature) then
+            Effects.AddDynamicCounters(
+                CounterType.STUN,
+                DynamicAmounts.xValue() * 2,
+                creature
             )
     }
 

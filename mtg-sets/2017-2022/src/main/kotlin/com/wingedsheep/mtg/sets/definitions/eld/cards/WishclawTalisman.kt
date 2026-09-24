@@ -55,17 +55,15 @@ val WishclawTalisman = card("Wishclaw Talisman") {
             Costs.Tap,
             Costs.RemoveCounterFromSelf(CounterType.WISH, 1)
         )
-        effect = Effects.Composite(
-            Patterns.Library.searchLibrary(
-                filter = GameObjectFilter.Any,
-                destination = SearchDestination.HAND
-            ),
-            Effects.ChooseOpponent("Choose an opponent to gain control of Wishclaw Talisman"),
+        effect = Patterns.Library.searchLibrary(
+            filter = GameObjectFilter.Any,
+            destination = SearchDestination.HAND
+        ) then
+            Effects.ChooseOpponent("Choose an opponent to gain control of Wishclaw Talisman") then
             Effects.GiveControl(
                 permanent = EffectTarget.Self,
                 newController = EffectTarget.PlayerRef(Player.ChosenOpponent)
             )
-        )
         restrictions = listOf(ActivationRestriction.OnlyDuringYourTurn)
     }
 

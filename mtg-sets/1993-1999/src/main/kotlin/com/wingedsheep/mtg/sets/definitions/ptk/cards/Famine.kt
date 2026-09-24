@@ -27,16 +27,14 @@ val Famine = card("Famine") {
     oracleText = "Famine deals 3 damage to each creature and each player."
 
     spell {
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter(GameObjectFilter.Creature),
-                Effects.DealDamage(3, EffectTarget.IterationEntity)
-            ),
+        effect = Effects.ForEachInGroup(
+            GroupFilter(GameObjectFilter.Creature),
+            Effects.DealDamage(3, EffectTarget.IterationEntity)
+        ) then
             Effects.ForEachPlayer(
                 Player.Each,
                 listOf(Effects.DealDamage(3, EffectTarget.Controller))
             )
-        )
     }
 
     metadata {

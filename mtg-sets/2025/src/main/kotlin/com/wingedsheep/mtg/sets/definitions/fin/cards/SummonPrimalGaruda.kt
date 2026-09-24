@@ -40,18 +40,12 @@ val SummonPrimalGaruda = card("Summon: Primal Garuda") {
 
     sagaChapter(2) {
         val ally = target(TargetFilter.OtherCreatureYouControl)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, ally),
-            Effects.GrantKeyword(Keyword.FLYING, ally),
-        )
+        effect = Effects.ModifyStats(1, 0, ally) then Effects.GrantKeyword(Keyword.FLYING, ally)
     }
 
     sagaChapter(3) {
         val ally = target(TargetFilter.OtherCreatureYouControl)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, ally),
-            Effects.GrantKeyword(Keyword.FLYING, ally),
-        )
+        effect = Effects.ModifyStats(1, 0, ally) then Effects.GrantKeyword(Keyword.FLYING, ally)
     }
 
     metadata {

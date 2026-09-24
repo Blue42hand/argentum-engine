@@ -28,8 +28,7 @@ val Quickchange = card("Quickchange") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ChooseColorsThen(Effects.ChangeColorToChosen(creature)) then
-            Effects.DrawCards(1)
+        effect = Effects.ChooseColorsThen(Effects.ChangeColorToChosen(creature)) then Effects.DrawCards(1)
     }
 
     metadata {

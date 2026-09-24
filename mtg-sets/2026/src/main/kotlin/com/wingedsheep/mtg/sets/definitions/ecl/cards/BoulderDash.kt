@@ -22,8 +22,7 @@ val BoulderDash = card("Boulder Dash") {
     spell {
         val first = target(AnyTarget(descriptionOverride = "any target (takes 2 damage)"))
         val second = target(TargetOther(AnyTarget(descriptionOverride = "any other target (takes 1 damage)")))
-        effect = Effects.DealDamage(2, first)
-            .then(Effects.DealDamage(1, second))
+        effect = Effects.DealDamage(2, first) then Effects.DealDamage(1, second)
     }
 
     metadata {

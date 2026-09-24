@@ -46,8 +46,8 @@ val EowynLadyOfRohan = card("Éowyn, Lady of Rohan") {
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.equipped(), creature),
             // Target is equipped: it gains first strike AND vigilance.
-            then = Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature, Duration.EndOfTurn)
-                .then(Effects.GrantKeyword(Keyword.VIGILANCE, creature, Duration.EndOfTurn)),
+            then = Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature, Duration.EndOfTurn) then
+                Effects.GrantKeyword(Keyword.VIGILANCE, creature, Duration.EndOfTurn),
             // Otherwise: choose first strike OR vigilance.
             otherwise = ModalEffect.chooseOne(
                 Mode.noTarget(

@@ -25,10 +25,7 @@ val EnterTheEnigma = card("Enter the Enigma") {
     oracleText = "Target creature can't be blocked this turn.\nDraw a card."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

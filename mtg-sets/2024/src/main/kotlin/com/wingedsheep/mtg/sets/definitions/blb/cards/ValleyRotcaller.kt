@@ -45,12 +45,8 @@ val ValleyRotcaller = card("Valley Rotcaller") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        effect = Effects.Composite(
-            listOf(
-                Effects.LoseLife(xAmount, EffectTarget.PlayerRef(Player.EachOpponent)),
-                Effects.GainLife(xAmount, EffectTarget.Controller)
-            )
-        )
+        effect = Effects.LoseLife(xAmount, EffectTarget.PlayerRef(Player.EachOpponent)) then
+            Effects.GainLife(xAmount, EffectTarget.Controller)
     }
 
     metadata {

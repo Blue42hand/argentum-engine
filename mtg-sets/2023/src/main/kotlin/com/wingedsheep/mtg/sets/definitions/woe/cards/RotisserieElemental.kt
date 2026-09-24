@@ -63,21 +63,19 @@ val RotisserieElemental = card("Rotisserie Elemental") {
 
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
-        effect = Effects.AddCounters(CounterType.SKEWER, 1, EffectTarget.Self)
-            .then(
-                Effects.May(
-                    Effects.Pipeline {
-                        val skeweredCards = gather(
-                            CardSource.TopOfLibrary(DynamicAmounts.countersOnSelf(CounterType.SKEWER))
-                        )
-                        run(SacrificeSelfEffect)
-                        exile(skeweredCards)
-                        run(Effects.GrantMayPlayFromExile(skeweredCards))
-                    },
-                    descriptionOverride = "You may sacrifice Rotisserie Elemental to exile that " +
-                        "many cards from the top of your library and play them this turn.",
-                    sourceRequiredZone = Zone.BATTLEFIELD
-                )
+        effect = Effects.AddCounters(CounterType.SKEWER, 1, EffectTarget.Self) then
+            Effects.May(
+                Effects.Pipeline {
+                    val skeweredCards = gather(
+                        CardSource.TopOfLibrary(DynamicAmounts.countersOnSelf(CounterType.SKEWER))
+                    )
+                    run(SacrificeSelfEffect)
+                    exile(skeweredCards)
+                    run(Effects.GrantMayPlayFromExile(skeweredCards))
+                },
+                descriptionOverride = "You may sacrifice Rotisserie Elemental to exile that " +
+                    "many cards from the top of your library and play them this turn.",
+                sourceRequiredZone = Zone.BATTLEFIELD
             )
         description = "Whenever this creature deals combat damage to a player, put a skewer " +
             "counter on this creature. Then you may sacrifice it. If you do, exile the top X " +

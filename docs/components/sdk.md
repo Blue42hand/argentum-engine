@@ -115,7 +115,7 @@ val FlametongueKavu = card("Flametongue Kavu") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         effect = Effects.DealDamage(4)
-        target = Targets.Creature
+        target = TargetObject(filter = TargetFilter.Creature)
     }
 }
 

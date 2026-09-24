@@ -57,10 +57,7 @@ val LazavWearerOfFaces = card("Lazav, Wearer of Faces") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val graveyardCard = target(TargetFilter.CardInGraveyard)
-        effect = Effects.Composite(
-            Effects.Move(graveyardCard, Zone.EXILE, linkToSource = true),
-            Effects.Investigate(),
-        )
+        effect = Effects.Move(graveyardCard, Zone.EXILE, linkToSource = true) then Effects.Investigate()
         description = "Whenever Lazav attacks, exile target card from a graveyard, then investigate."
     }
 

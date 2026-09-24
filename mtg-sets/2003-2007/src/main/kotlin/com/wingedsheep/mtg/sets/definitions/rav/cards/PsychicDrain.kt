@@ -28,10 +28,8 @@ val PsychicDrain = card("Psychic Drain") {
 
     spell {
         val player = target(Targets.Player)
-        effect = Effects.Composite(
-            Patterns.Library.mill(DynamicAmounts.xValue(), player),
+        effect = Patterns.Library.mill(DynamicAmounts.xValue(), player) then
             Effects.GainLife(DynamicAmounts.xValue())
-        )
     }
 
     metadata {

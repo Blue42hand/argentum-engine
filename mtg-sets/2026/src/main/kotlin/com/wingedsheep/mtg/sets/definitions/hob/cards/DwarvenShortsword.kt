@@ -33,7 +33,7 @@ val DwarvenShortsword = card("Dwarven Shortsword") {
             toughness = 2,
             colors = setOf(Color.RED),
             creatureTypes = setOf("Dwarf"),
-        ).then(Effects.AttachEquipment(EffectTarget.PipelineTarget(CREATED_TOKENS, 0)))
+        ) then Effects.AttachEquipment(EffectTarget.PipelineTarget(CREATED_TOKENS, 0))
     }
 
     staticAbility {

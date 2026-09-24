@@ -74,10 +74,8 @@ private val BallistaWielder = card("Ballista Wielder") {
     activatedAbility {
         cost = Costs.Mana("{2}{R}")
         val anyTarget = target(Targets.Any)
-        effect = Effects.Composite(
-            Effects.DealDamage(1, anyTarget, damageSource = EffectTarget.Self),
-            Effects.CantBlock(anyTarget),
-        )
+        effect = Effects.DealDamage(1, anyTarget, damageSource = EffectTarget.Self) then
+            Effects.CantBlock(anyTarget)
         description = "This creature deals 1 damage to any target. A creature dealt damage this way " +
             "can't block this turn."
     }

@@ -24,10 +24,7 @@ val SoulShred = card("Soul Shred") {
     oracleText = "Soul Shred deals 3 damage to target nonblack creature. You gain 3 life."
     spell {
         val t = target(TargetFilter.Creature.notColor(Color.BLACK))
-        effect = Effects.Composite(
-            Effects.DealDamage(3, t),
-            Effects.GainLife(3)
-        )
+        effect = Effects.DealDamage(3, t) then Effects.GainLife(3)
     }
     metadata {
         rarity = Rarity.COMMON

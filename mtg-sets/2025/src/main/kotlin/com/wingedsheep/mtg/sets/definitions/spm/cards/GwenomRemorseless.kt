@@ -44,21 +44,19 @@ val GwenomRemorseless = card("Gwenom, Remorseless") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        effect = Effects.Composite(
-            Effects.GrantStaticAbility(
-                ability = PlayFromTopWithAlternativeCost(
-                    withoutPayingManaCost = true,
-                    additionalCost = Costs.additional.PayLifeEqualToManaValueOfSpell,
-                ),
-                target = EffectTarget.Self,
-                duration = Duration.EndOfTurn,
+        effect = Effects.GrantStaticAbility(
+            ability = PlayFromTopWithAlternativeCost(
+                withoutPayingManaCost = true,
+                additionalCost = Costs.additional.PayLifeEqualToManaValueOfSpell,
             ),
+            target = EffectTarget.Self,
+            duration = Duration.EndOfTurn,
+        ) then
             Effects.GrantStaticAbility(
                 ability = LookAtTopOfLibrary,
                 target = EffectTarget.Self,
                 duration = Duration.EndOfTurn,
-            ),
-        )
+            )
         description = "Whenever Gwenom attacks, until end of turn, you may look at the top card of " +
             "your library any time and you may play cards from the top of your library. If you " +
             "cast a spell this way, pay life equal to its mana value rather than pay its mana cost."

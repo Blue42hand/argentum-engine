@@ -70,16 +70,12 @@ private val BrasssTunnelGrinderFront = card("Brass's Tunnel-Grinder") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.YouDescendedThisTurn()
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.BORE, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.BORE, 1, EffectTarget.Self) then
             Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(CounterType.BORE, 3),
-                then = Effects.Composite(
-                    Effects.RemoveCounters(CounterType.BORE, 3, EffectTarget.Self),
+                then = Effects.RemoveCounters(CounterType.BORE, 3, EffectTarget.Self) then
                     Effects.Transform(EffectTarget.Self),
-                ),
-            ),
-        )
+            )
         description = "At the beginning of your end step, if you descended this turn, put a bore " +
             "counter on Brass's Tunnel-Grinder. Then if there are three or more bore counters on " +
             "it, remove those counters and transform it."

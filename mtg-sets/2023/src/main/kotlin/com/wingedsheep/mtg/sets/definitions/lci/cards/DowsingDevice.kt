@@ -53,14 +53,12 @@ private val DowsingDeviceFront = card("Dowsing Device") {
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Artifact.youControl()).enters()
         val creature = target(TargetFilter.Creature.youControl(), optional = true)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, creature),
-            Effects.GrantKeyword(Keyword.HASTE, creature),
+        effect = Effects.ModifyStats(1, 0, creature) then
+            Effects.GrantKeyword(Keyword.HASTE, creature) then
             Effects.If(
                 condition = Conditions.YouControlAtLeast(4, GameObjectFilter.Artifact),
                 then = Effects.Transform(EffectTarget.Self),
-            ),
-        )
+            )
     }
 
     metadata {
@@ -91,14 +89,12 @@ private val GeodeGrotto = card("Geode Grotto") {
         cost = Costs.Composite(Costs.Mana("{2}{R}"), Costs.Tap)
         timing = TimingRule.SorcerySpeed
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.HASTE, creature),
+        effect = Effects.GrantKeyword(Keyword.HASTE, creature) then
             Effects.ModifyStats(
                 DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count(),
                 DynamicAmounts.fixed(0),
                 creature,
-            ),
-        )
+            )
     }
 
     metadata {

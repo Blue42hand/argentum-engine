@@ -49,16 +49,14 @@ val EowynFearlessKnight = card("Éowyn, Fearless Knight") {
         // Grant before exile so the target's projected colors are read while it's still on the
         // battlefield. ForEachColorOf runs the inner grant once per color of the exiled creature,
         // feeding each color to GrantProtectionFromChosenColor via the chosen-color context.
-        effect = Effects.Composite(
-            Effects.ForEachColorOf(
-                source = victim,
-                effect = Effects.ForEachInGroup(
-                    GroupFilter(GameObjectFilter.Creature.legendary().youControl()),
-                    Effects.GrantProtectionFromChosenColor(EffectTarget.IterationEntity)
-                )
-            ),
+        effect = Effects.ForEachColorOf(
+            source = victim,
+            effect = Effects.ForEachInGroup(
+                GroupFilter(GameObjectFilter.Creature.legendary().youControl()),
+                Effects.GrantProtectionFromChosenColor(EffectTarget.IterationEntity)
+            )
+        ) then
             Effects.Exile(victim)
-        )
     }
 
     metadata {

@@ -31,8 +31,8 @@ val InfiniteCoursework = card("Infinite Coursework") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Tap(EffectTarget.EnchantedCreature)
-            .then(Effects.Unprepare(EffectTarget.EnchantedCreature))
+        effect = Effects.Tap(EffectTarget.EnchantedCreature) then
+            Effects.Unprepare(EffectTarget.EnchantedCreature)
         description = "When this Aura enters, tap enchanted creature. It becomes unprepared."
     }
 

@@ -25,10 +25,7 @@ val PhyrexianArena = card("Phyrexian Arena") {
     oracleText = "At the beginning of your upkeep, you draw a card and you lose 1 life."
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Effects.LoseLife(1, EffectTarget.Controller)
-        )
+        effect = Effects.DrawCards(1) then Effects.LoseLife(1, EffectTarget.Controller)
     }
     metadata {
         rarity = Rarity.RARE

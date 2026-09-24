@@ -52,11 +52,11 @@ val AzureBeastbinder = card("Azure Beastbinder") {
             ),
             optional = true,
         )
-        effect = Effects.RemoveAllAbilities(t, Duration.UntilYourNextTurn)
-            .then(Effects.If(
+        effect = Effects.RemoveAllAbilities(t, Duration.UntilYourNextTurn) then
+            Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature, t),
                 then = Effects.SetBasePowerAndToughness(2, 2, t, Duration.UntilYourNextTurn)
-            ))
+            )
     }
 
     metadata {

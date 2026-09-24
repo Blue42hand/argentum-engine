@@ -21,13 +21,11 @@ val Peppersmoke = card("Peppersmoke") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(-1, -1, creature),
+        effect = Effects.ModifyStats(-1, -1, creature) then
             Effects.If(
                 condition = Conditions.ControlPermanentOfType(Subtype.FAERIE),
                 then = Effects.DrawCards(1)
             )
-        )
     }
 
     metadata {

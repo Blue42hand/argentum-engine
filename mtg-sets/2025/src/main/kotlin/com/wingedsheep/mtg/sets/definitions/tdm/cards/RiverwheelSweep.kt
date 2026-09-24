@@ -34,23 +34,21 @@ val RiverwheelSweep = card("Riverwheel Sweep") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Tap(creature)
-            .then(Effects.AddCounters(CounterType.STUN, 3, creature))
-            .then(
-                Effects.Pipeline {
-                    val exiled = gather(CardSource.TopOfLibrary(2))
-                    exile(exiled)
-                    val chosen = chooseExactly(
-                        1,
-                        from = exiled,
-                        prompt = "Choose a card you may play until the end of your next turn"
-                    )
-                    run(Effects.GrantMayPlayFromExile(
-                        from = chosen,
-                        expiry = MayPlayExpiry.UntilEndOfNextTurn
-                    ))
-                }
-            )
+        effect = Effects.Tap(creature) then
+            Effects.AddCounters(CounterType.STUN, 3, creature) then
+            Effects.Pipeline {
+                val exiled = gather(CardSource.TopOfLibrary(2))
+                exile(exiled)
+                val chosen = chooseExactly(
+                    1,
+                    from = exiled,
+                    prompt = "Choose a card you may play until the end of your next turn"
+                )
+                run(Effects.GrantMayPlayFromExile(
+                    from = chosen,
+                    expiry = MayPlayExpiry.UntilEndOfNextTurn
+                ))
+            }
     }
 
     metadata {

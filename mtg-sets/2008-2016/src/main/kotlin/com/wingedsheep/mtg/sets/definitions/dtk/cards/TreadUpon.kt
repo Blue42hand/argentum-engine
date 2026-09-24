@@ -25,10 +25,7 @@ val TreadUpon = card("Tread Upon") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 2, t),
-            Effects.GrantKeyword(Keyword.TRAMPLE, t)
-        )
+        effect = Effects.ModifyStats(2, 2, t) then Effects.GrantKeyword(Keyword.TRAMPLE, t)
     }
 
     metadata {

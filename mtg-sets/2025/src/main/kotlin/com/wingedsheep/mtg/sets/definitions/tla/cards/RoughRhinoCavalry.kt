@@ -36,10 +36,8 @@ val RoughRhinoCavalry = card("Rough Rhino Cavalry") {
     activatedAbility {
         isExhaust = true
         cost = Costs.Mana("{8}")
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self),
-            Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self),
-        )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self) then
+            Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self)
     }
 
     metadata {

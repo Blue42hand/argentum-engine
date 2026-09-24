@@ -19,10 +19,7 @@ val Sanctify = card("Sanctify") {
     oracleText = "Destroy target artifact or enchantment. You gain 3 life."
     spell {
         val t = target(TargetFilter.ArtifactOrEnchantment)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            Effects.GainLife(3)
-        )
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then Effects.GainLife(3)
     }
     metadata {
         rarity = Rarity.COMMON

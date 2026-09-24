@@ -50,26 +50,22 @@ val PresumedDead = card("Presumed Dead") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, creature, Duration.EndOfTurn),
+        effect = Effects.ModifyStats(2, 0, creature, Duration.EndOfTurn) then
             Effects.GrantTriggeredAbility(
                 ability = TriggeredAbility.create(
                     trigger = Triggers.self.dies(),
-                    effect = Effects.Composite(
-                        Effects.Move(
-                            target = EffectTarget.Self,
-                            destination = Zone.BATTLEFIELD,
-                            fromZone = Zone.GRAVEYARD
-                        ),
+                    effect = Effects.Move(
+                        target = EffectTarget.Self,
+                        destination = Zone.BATTLEFIELD,
+                        fromZone = Zone.GRAVEYARD
+                    ) then
                         Effects.Suspect(EffectTarget.Self),
-                    ),
                     descriptionOverride = "When this creature dies, return it to the battlefield " +
                         "under its owner's control and suspect it."
                 ),
                 target = creature,
                 duration = Duration.EndOfTurn
-            ),
-        )
+            )
     }
 
     metadata {

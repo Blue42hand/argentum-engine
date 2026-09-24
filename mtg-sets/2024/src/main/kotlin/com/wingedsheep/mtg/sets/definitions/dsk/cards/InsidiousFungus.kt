@@ -51,10 +51,8 @@ val InsidiousFungus = card("Insidious Fungus") {
                 effect = Effects.Destroy(enchantment)
             },
             Mode.noTarget(
-                Effects.Composite(
-                    Effects.DrawCards(1),
-                    Patterns.Hand.putFromHand(GameObjectFilter.Land, entersTapped = true)
-                ),
+                Effects.DrawCards(1) then
+                    Patterns.Hand.putFromHand(GameObjectFilter.Land, entersTapped = true),
                 "Draw a card. Then you may put a land card from your hand onto the battlefield tapped"
             )
         )

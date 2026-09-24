@@ -70,8 +70,7 @@ val TheMindStone = card("The Mind Stone") {
         trigger = Triggers.you.beginningOf(Step.END)
         triggerRestriction = Conditions.SourceHasCounter(CounterType.HARNESS)
         val permanent = target(TargetFilter.NonlandPermanent.youControl().other(), optional = true)
-        effect = Effects.Move(permanent, Zone.EXILE)
-            .then(Effects.Move(permanent, Zone.BATTLEFIELD))
+        effect = Effects.Move(permanent, Zone.EXILE) then Effects.Move(permanent, Zone.BATTLEFIELD)
         description = "∞ — At the beginning of your end step, exile up to one other target " +
             "nonland permanent you control, then return that card to the battlefield under its " +
             "owner's control."

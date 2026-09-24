@@ -25,10 +25,8 @@ val StrokeOfMidnight = card("Stroke of Midnight") {
     oracleText = "Destroy target nonland permanent. Its controller creates a 1/1 white Human creature token."
     spell {
         val t = target(TargetFilter.NonlandPermanent)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then
             woeHumanToken(controller = EffectTarget.TargetController)
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

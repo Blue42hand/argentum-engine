@@ -42,7 +42,7 @@ val LivingLectern = card("Living Lectern") {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.SacrificeSelf)
         timing = TimingRule.SorcerySpeed
         val host = target(TargetFilter.OtherCreatureYouControl, optional = true)
-        effect = Effects.DrawCards(1).then(Effects.CreateRoleToken("Sorcerer Role", host))
+        effect = Effects.DrawCards(1) then Effects.CreateRoleToken("Sorcerer Role", host)
         description = "Draw a card. Create a Sorcerer Role token attached to up to one other " +
             "target creature you control."
     }

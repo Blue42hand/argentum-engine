@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
@@ -29,29 +28,25 @@ val EndBlazeEpiphany = card("End-Blaze Epiphany") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            listOf(
-                Effects.DealDamage(DynamicAmounts.xValue(), creature),
-                Effects.CreateDelayedTrigger(
-                    trigger = Triggers.self.dies(),
-                    watchedTarget = creature,
-                    expiry = DelayedTriggerExpiry.EndOfTurn,
-                    effect = Effects.Pipeline {
-                        val exiled = gather(
-                            CardSource.TopOfLibrary(
-                                count = DynamicAmounts.triggeringPower()
-                            )
+        effect = Effects.DealDamage(DynamicAmounts.xValue(), creature) then
+            Effects.CreateDelayedTrigger(
+                trigger = Triggers.self.dies(),
+                watchedTarget = creature,
+                expiry = DelayedTriggerExpiry.EndOfTurn,
+                effect = Effects.Pipeline {
+                    val exiled = gather(
+                        CardSource.TopOfLibrary(
+                            count = DynamicAmounts.triggeringPower()
                         )
-                        exile(exiled)
-                        val chosen = chooseExactly(1, from = exiled, prompt = "Choose a card you may play")
-                        run(Effects.GrantMayPlayFromExile(
-                            from = chosen,
-                            expiry = MayPlayExpiry.UntilEndOfNextTurn
-                        ))
-                    }
-                )
+                    )
+                    exile(exiled)
+                    val chosen = chooseExactly(1, from = exiled, prompt = "Choose a card you may play")
+                    run(Effects.GrantMayPlayFromExile(
+                        from = chosen,
+                        expiry = MayPlayExpiry.UntilEndOfNextTurn
+                    ))
+                }
             )
-        )
     }
 
     metadata {

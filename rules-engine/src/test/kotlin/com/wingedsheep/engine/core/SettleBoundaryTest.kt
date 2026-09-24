@@ -45,7 +45,7 @@ class SettleBoundaryTest : FunSpec({
         manaCost = "{0}"
         typeLine = "Sorcery"
         spell {
-            effect = Effects.Composite(Effects.May(Effects.GainLife(2)), Effects.EndTheTurn)
+            effect = Effects.May(Effects.GainLife(2)) then Effects.EndTheTurn
         }
     }
 

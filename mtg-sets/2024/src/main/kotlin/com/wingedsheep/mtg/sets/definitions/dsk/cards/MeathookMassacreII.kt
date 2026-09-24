@@ -131,16 +131,14 @@ val MeathookMassacreII = card("Meathook Massacre II") {
  * (CR 122.6). The move is a no-op for tokens or for a card that has
  * already left the graveyard, exactly as the printed rulings require.
  */
-private fun returnDeadCreatureUnderYourControl() = Effects.Composite(
-    Effects.Move(
-        target = EffectTarget.TriggeringEntity,
-        destination = Zone.BATTLEFIELD,
-        fromZone = Zone.GRAVEYARD,
-        controllerOverride = EffectTarget.Controller
-    ),
+private fun returnDeadCreatureUnderYourControl() = Effects.Move(
+    target = EffectTarget.TriggeringEntity,
+    destination = Zone.BATTLEFIELD,
+    fromZone = Zone.GRAVEYARD,
+    controllerOverride = EffectTarget.Controller
+) then
     Effects.AddCounters(
         counterType = CounterType.FINALITY,
         count = 1,
         target = EffectTarget.TriggeringEntity
     )
-)

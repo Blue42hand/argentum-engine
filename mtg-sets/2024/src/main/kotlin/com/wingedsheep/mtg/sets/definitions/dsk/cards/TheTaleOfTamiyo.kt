@@ -49,13 +49,11 @@ val TheTaleOfTamiyo = card("The Tale of Tamiyo") {
 
     // I, II, III — mill two, and while the two milled cards share a card type, draw and repeat.
     val millRepeat = Effects.RepeatWhile(
-        body = Effects.Composite(
-            Patterns.Library.mill(2),
+        body = Patterns.Library.mill(2) then
             Effects.If(
                 condition = Conditions.CollectionSharesCardType(Patterns.Library.milled),
                 then = Effects.DrawCards(1),
             ),
-        ),
         repeatCondition = RepeatCondition.WhileCondition(
             Conditions.CollectionSharesCardType(Patterns.Library.milled)
         ),

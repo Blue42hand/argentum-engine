@@ -23,10 +23,7 @@ val Alarum = card("Alarum") {
     oracleText = "Untap target nonattacking creature. It gets +1/+3 until end of turn."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Untap(t),
-            Effects.ModifyStats(1, 3, t)
-        )
+        effect = Effects.Untap(t) then Effects.ModifyStats(1, 3, t)
     }
     metadata {
         rarity = Rarity.COMMON

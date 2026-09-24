@@ -40,8 +40,7 @@ val HovelHurler = card("Hovel Hurler") {
             Costs.RemoveCounterFromSelf(CounterType.MINUS_ONE_MINUS_ONE)
         )
         val creature = target(TargetFilter.OtherCreatureYouControl)
-        effect = Effects.ModifyStats(1, 0, creature)
-            .then(Effects.GrantKeyword(Keyword.FLYING, creature))
+        effect = Effects.ModifyStats(1, 0, creature) then Effects.GrantKeyword(Keyword.FLYING, creature)
         timing = TimingRule.SorcerySpeed
     }
 

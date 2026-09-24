@@ -31,8 +31,7 @@ val GoblinNegotiation = card("Goblin Negotiation") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.DealXDamage(creature),
+        effect = Effects.DealXDamage(creature) then
             Effects.CreateToken(
                 count = DynamicAmounts.propertyOf(creature, EntityNumericProperty.ExcessMarkedDamage),
                 power = 1,
@@ -41,7 +40,6 @@ val GoblinNegotiation = card("Goblin Negotiation") {
                 creatureTypes = setOf("Goblin"),
                 imageUri = "https://cards.scryfall.io/normal/front/7/0/70f8a1de-cd4c-4afa-bf03-0245d375d42e.jpg?1782727474"
             )
-        )
     }
 
     metadata {

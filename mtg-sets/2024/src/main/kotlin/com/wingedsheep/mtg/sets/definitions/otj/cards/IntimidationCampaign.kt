@@ -32,13 +32,9 @@ val IntimidationCampaign = card("Intimidation Campaign") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            listOf(
-                Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-                Effects.GainLife(1, EffectTarget.Controller),
-                Effects.DrawCards(1),
-            ),
-        )
+        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then
+            Effects.GainLife(1, EffectTarget.Controller) then
+            Effects.DrawCards(1)
         description = "When this enchantment enters, each opponent loses 1 life, you gain 1 life, " +
             "and you draw a card."
     }

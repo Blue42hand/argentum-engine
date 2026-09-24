@@ -20,10 +20,7 @@ val SparkJolt = card("Spark Jolt") {
 
     spell {
         val t = target(Targets.Any)
-        effect = Effects.Composite(
-            Effects.DealDamage(1, t),
-            Effects.Scry(1),
-        )
+        effect = Effects.DealDamage(1, t) then Effects.Scry(1)
     }
 
     metadata {

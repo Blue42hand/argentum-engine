@@ -36,11 +36,9 @@ val WingsOfVelisVel = card("Wings of Velis Vel") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.SetBasePowerAndToughness(4, 4, creature),
-            Effects.GrantKeyword(Keyword.CHANGELING, creature),
-            Effects.GrantKeyword(Keyword.FLYING, creature),
-        )
+        effect = Effects.SetBasePowerAndToughness(4, 4, creature) then
+            Effects.GrantKeyword(Keyword.CHANGELING, creature) then
+            Effects.GrantKeyword(Keyword.FLYING, creature)
     }
 
     metadata {

@@ -23,18 +23,13 @@ val TakeOutTheTrash = card("Take Out the Trash") {
 
     spell {
         val creatureOrPw = target(Targets.CreatureOrPlaneswalker)
-        effect = Effects.Composite(listOf(
-            Effects.DealDamage(3, creatureOrPw),
+        effect = Effects.DealDamage(3, creatureOrPw) then
             Effects.If(
                 condition = Conditions.ControlCreatureOfType(Subtype("Raccoon")),
                 then = Effects.May(
-                    Effects.Composite(listOf(
-                        Patterns.Hand.discardCards(1),
-                        Effects.DrawCards(1)
-                    ))
+                    Patterns.Hand.discardCards(1) then Effects.DrawCards(1)
                 )
             )
-        ))
     }
 
     metadata {

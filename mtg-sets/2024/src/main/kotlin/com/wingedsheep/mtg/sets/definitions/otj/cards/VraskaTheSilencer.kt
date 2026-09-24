@@ -56,14 +56,13 @@ val VraskaTheSilencer = card("Vraska, the Silencer") {
         trigger = Triggers.a(GameObjectFilter.Creature.nontoken().opponentControls()).dies()
         effect = Effects.MayPay(
             cost = ManaCost.parse("{1}"),
-            then = Effects.Composite(
-                // Return that card to the battlefield tapped under your control.
-                Effects.Move(
-                    target = EffectTarget.TriggeringEntity,
-                    destination = Zone.BATTLEFIELD,
-                    placement = ZonePlacement.Tapped,
-                    controllerOverride = EffectTarget.Controller
-                ),
+            // Return that card to the battlefield tapped under your control.
+            then = Effects.Move(
+                target = EffectTarget.TriggeringEntity,
+                destination = Zone.BATTLEFIELD,
+                placement = ZonePlacement.Tapped,
+                controllerOverride = EffectTarget.Controller
+            ) then
                 // It's a colorless Treasure artifact with the mana ability, losing all other types.
                 Effects.BecomeArtifact(
                     target = EffectTarget.TriggeringEntity,
@@ -74,7 +73,6 @@ val VraskaTheSilencer = card("Vraska, the Silencer") {
                     grantedAbility = treasureManaAbility,
                     duration = Duration.Permanent
                 )
-            )
         )
     }
 

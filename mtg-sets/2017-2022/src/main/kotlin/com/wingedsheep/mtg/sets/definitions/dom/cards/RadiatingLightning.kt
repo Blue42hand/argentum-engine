@@ -23,8 +23,8 @@ val RadiatingLightning = card("Radiating Lightning") {
 
     spell {
         val player = target(Targets.Player)
-        effect = Effects.DealDamage(3, player)
-            .then(Patterns.Group.dealDamageToAll(1, GroupFilter(GameObjectFilter.Creature.targetPlayerControls())))
+        effect = Effects.DealDamage(3, player) then
+            Patterns.Group.dealDamageToAll(1, GroupFilter(GameObjectFilter.Creature.targetPlayerControls()))
     }
 
     metadata {

@@ -216,7 +216,7 @@
                     "keyword": "FLYING",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirements": [
@@ -225,7 +225,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }
@@ -486,7 +486,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -503,7 +503,7 @@
                                     ]
                                 }
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Branching Bolt deals 3 damage to target creature without flying"
@@ -1332,7 +1332,7 @@
                                     "zone": "Hand",
                                     "player": {
                                         "type": "BoundVariable",
-                                        "name": "t0"
+                                        "name": "t1"
                                     }
                                 },
                                 "storeAs": "hand"
@@ -1359,7 +1359,7 @@
                                     "zone": "Graveyard",
                                     "player": {
                                         "type": "BoundVariable",
-                                        "name": "t0"
+                                        "name": "t1"
                                     }
                                 },
                                 "moveType": "Discard"
@@ -1369,7 +1369,7 @@
                     "targetRequirements": [
                         {
                             "type": "TargetPlayer",
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target player discards two cards"
@@ -1976,7 +1976,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -1985,7 +1985,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target creature gets -4/-4 until end of turn"
@@ -2827,7 +2827,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirements": [
@@ -2836,7 +2836,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }
@@ -3451,7 +3451,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
@@ -3459,7 +3459,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]
@@ -3529,7 +3529,7 @@
                     "filter": {
                         "baseFilter": "creature attacking"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]
@@ -3588,12 +3588,12 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
                     "type": "AnyTarget",
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]
@@ -3662,7 +3662,7 @@
                     "filter": {
                         "baseFilter": "permanent"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]

@@ -80,24 +80,20 @@ private val EdgarMarkovsCoffin = card("Edgar Markov's Coffin") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                power = 1,
-                toughness = 1,
-                colors = setOf(Color.WHITE, Color.BLACK),
-                creatureTypes = setOf("Vampire"),
-                keywords = setOf(Keyword.LIFELINK),
-                imageUri = "https://cards.scryfall.io/normal/front/7/e/7eee78d3-c65f-4454-bd3c-1c55388422f5.jpg?1783924693",
-            ),
-            Effects.AddCounters(CounterType.BLOODLINE, 1, EffectTarget.Self),
+        effect = Effects.CreateToken(
+            power = 1,
+            toughness = 1,
+            colors = setOf(Color.WHITE, Color.BLACK),
+            creatureTypes = setOf("Vampire"),
+            keywords = setOf(Keyword.LIFELINK),
+            imageUri = "https://cards.scryfall.io/normal/front/7/e/7eee78d3-c65f-4454-bd3c-1c55388422f5.jpg?1783924693",
+        ) then
+            Effects.AddCounters(CounterType.BLOODLINE, 1, EffectTarget.Self) then
             Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(CounterType.BLOODLINE, 3),
-                then = Effects.Composite(
-                    Effects.RemoveCounters(CounterType.BLOODLINE, 3, EffectTarget.Self),
+                then = Effects.RemoveCounters(CounterType.BLOODLINE, 3, EffectTarget.Self) then
                     Effects.Transform(EffectTarget.Self),
-                ),
-            ),
-        )
+            )
         description = "At the beginning of your upkeep, create a 1/1 white and black Vampire creature " +
             "token with lifelink and put a bloodline counter on Edgar Markov's Coffin. Then if there " +
             "are three or more bloodline counters on it, remove those counters and transform it."

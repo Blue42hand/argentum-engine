@@ -37,8 +37,7 @@ val EyeOfTheStorm = card("Eye of the Storm") {
 
     triggeredAbility {
         trigger = Triggers.anyPlayer.casts(GameObjectFilter.InstantOrSorcery, requires = setOf(SpellCastPredicate.IsCard))
-        effect = Effects.Composite(
-            Effects.ExileTriggeringSpell(linkToSource = true),
+        effect = Effects.ExileTriggeringSpell(linkToSource = true) then
             Effects.ForEachPlayer(
                 Player.TriggeringPlayer,
                 Effects.Pipeline {
@@ -48,7 +47,6 @@ val EyeOfTheStorm = card("Eye of the Storm") {
                     run(Effects.CastAnyNumberFromCollectionWithoutPayingCost(from = eyeCopies))
                 }
             )
-        )
     }
 
     metadata {

@@ -29,10 +29,8 @@ val JoragaInvocation = card("Joraga Invocation") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.Composite(
-                Effects.ModifyStats(3, 3, EffectTarget.IterationEntity),
+            Effects.ModifyStats(3, 3, EffectTarget.IterationEntity) then
                 Effects.MustBeBlocked(EffectTarget.IterationEntity, allCreatures = false),
-            ),
         )
     }
 

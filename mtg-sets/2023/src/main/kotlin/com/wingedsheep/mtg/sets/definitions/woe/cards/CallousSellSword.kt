@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.woe.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
@@ -61,7 +62,7 @@ val CallousSellSword = card("Callous Sell-Sword") {
             "(Then exile this card. You may cast the creature later from exile.)"
         spell {
             val yourCreature = target(TargetFilter.CreatureYouControl)
-            val other = target(TargetOther(baseRequirement = AnyTarget()))
+            val other = target(TargetOther(baseRequirement = Targets.Any))
             effect = Effects.DealDamage(
                 DynamicAmounts.powerOf(yourCreature),
                 other,

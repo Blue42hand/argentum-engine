@@ -374,7 +374,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Distribute two +1/+1 counters among one or two target creatures"
@@ -3639,7 +3639,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
@@ -3648,7 +3648,7 @@
                         "baseFilter": "creature ctrl:you",
                         "excludeSelf": true
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]
@@ -5634,13 +5634,13 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
                         {
                             "type": "TargetOpponentOrPlaneswalker",
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Jeskai Charm deals 4 damage to target opponent or planeswalker"
@@ -6919,7 +6919,7 @@
                                 "type": "RevealHand",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             {
@@ -6929,7 +6929,7 @@
                                     "zone": "Hand",
                                     "player": {
                                         "type": "BoundVariable",
-                                        "name": "t0"
+                                        "name": "t1"
                                     }
                                 },
                                 "storeAs": "gathered1"
@@ -6958,7 +6958,7 @@
                                     "zone": "Graveyard",
                                     "player": {
                                         "type": "BoundVariable",
-                                        "name": "t0"
+                                        "name": "t1"
                                     }
                                 },
                                 "moveType": "Discard"
@@ -6968,7 +6968,7 @@
                     "targetRequirements": [
                         {
                             "type": "TargetOpponent",
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target opponent reveals their hand, discard a noncreature, nonland card"
@@ -11359,7 +11359,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -11370,7 +11370,7 @@
                             "filter": {
                                 "baseFilter": "artifact|enchantment"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target artifact or enchantment"
@@ -12237,7 +12237,7 @@
                                 "baseFilter": {},
                                 "zone": "Stack"
                             },
-                            "id": "t0"
+                            "id": "t2"
                         }
                     ]
                 },
@@ -13734,7 +13734,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -13743,7 +13743,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Winterflame deals 2 damage to target creature"

@@ -59,10 +59,7 @@ val DevouringSugarmaw = card("Devouring Sugarmaw") {
         oracleText = "Create a 1/1 white Human creature token and a Food token. " +
             "(Then exile this card. You may cast the creature later from exile.)"
         spell {
-            effect = Effects.Composite(
-                woeHumanToken(),
-                Effects.CreateFood()
-            )
+            effect = woeHumanToken() then Effects.CreateFood()
         }
     }
 

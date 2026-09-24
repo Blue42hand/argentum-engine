@@ -34,8 +34,7 @@ val SpiderFood = card("Spider Food") {
             ),
             optional = true,
         )
-        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then
-            Effects.CreateFood()
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then Effects.CreateFood()
     }
 
     metadata {

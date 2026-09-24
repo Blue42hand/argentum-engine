@@ -45,19 +45,17 @@ val MakeshiftMannequin = card("Makeshift Mannequin") {
 
     spell {
         val creature = target(TargetFilter.CreatureInYourGraveyard)
-        effect = Effects.PutOntoBattlefieldFromGraveyard(creature)
-            .then(Effects.AddCounters(CounterType.MANNEQUIN, 1, creature))
-            .then(
-                Effects.GrantTriggeredAbility(
-                    ability = TriggeredAbility.create(
-                        trigger = Triggers.self.becomesTarget(),
-                        effect = Effects.SacrificeTarget(EffectTarget.Self),
-                        descriptionOverride = "When this creature becomes the target of a spell " +
-                            "or ability, sacrifice it."
-                    ),
-                    target = creature,
-                    duration = Duration.WhileAffectedHasCounter(CounterType.MANNEQUIN)
-                )
+        effect = Effects.PutOntoBattlefieldFromGraveyard(creature) then
+            Effects.AddCounters(CounterType.MANNEQUIN, 1, creature) then
+            Effects.GrantTriggeredAbility(
+                ability = TriggeredAbility.create(
+                    trigger = Triggers.self.becomesTarget(),
+                    effect = Effects.SacrificeTarget(EffectTarget.Self),
+                    descriptionOverride = "When this creature becomes the target of a spell " +
+                        "or ability, sacrifice it."
+                ),
+                target = creature,
+                duration = Duration.WhileAffectedHasCounter(CounterType.MANNEQUIN)
             )
     }
 

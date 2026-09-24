@@ -39,25 +39,21 @@ val CruelclawsHeist = card("Cruelclaw's Heist") {
             // Mode 1: No gift — reveal, choose nonland, exile (can't cast it)
             mode("Don't promise a gift — exile a nonland card from target opponent's hand") {
                 val opponent = target(Targets.Opponent)
-                effect = Effects.Composite(revealChooseExile(opponent))
+                effect = revealChooseExile(opponent)
             },
             // Mode 2: Gift a card — opponent draws, then reveal, choose nonland, exile
             //         with permanent cast-from-exile permission
             mode("Promise a gift — an opponent draws a card, then exile a nonland card from target opponent's hand (you may cast it from exile)") {
                 val opponent = target(Targets.Opponent)
-                effect = Effects.Composite(
-                    listOf(Effects.DrawCards(1, opponent)) +
-                    listOf(revealChooseExile(opponent)) +
-                    listOf(
-                        Effects.GrantMayPlayFromExile(
-                            from = "chosenCard",
-                            expiry = MayPlayExpiry.Permanent,
-                            // "and mana of any type can be spent to cast it"
-                            withAnyManaType = true
-                        )
-                    ) +
-                    listOf(Effects.GiftGiven())
-                )
+                effect = Effects.DrawCards(1, opponent) then
+                    revealChooseExile(opponent) then
+                    Effects.GrantMayPlayFromExile(
+                        from = "chosenCard",
+                        expiry = MayPlayExpiry.Permanent,
+                        // "and mana of any type can be spent to cast it"
+                        withAnyManaType = true
+                    ) then
+                    Effects.GiftGiven()
             }
         )
     }

@@ -60,12 +60,10 @@ val EbonPraetor = card("Ebon Praetor") {
                 ActivationRestriction.OncePerTurn
             )
         )
-        effect = Effects.RemoveCounters(CounterType.MINUS_TWO_MINUS_TWO, 1, EffectTarget.Self)
-            .then(
-                Effects.If(
-                    condition = Conditions.SacrificedHadSubtype(Subtype.THRULL.value),
-                    then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ZERO, 1, EffectTarget.Self)
-                )
+        effect = Effects.RemoveCounters(CounterType.MINUS_TWO_MINUS_TWO, 1, EffectTarget.Self) then
+            Effects.If(
+                condition = Conditions.SacrificedHadSubtype(Subtype.THRULL.value),
+                then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ZERO, 1, EffectTarget.Self)
             )
         description = "Sacrifice a creature: Remove a -2/-2 counter from this creature. If the sacrificed creature was a Thrull, put a +1/+0 counter on this creature. Activate only during your upkeep and only once each turn."
     }

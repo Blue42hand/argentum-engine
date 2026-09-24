@@ -41,10 +41,8 @@ val FinFangFoom = card("Fin Fang Foom") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery, requires = setOf(SpellCastPredicate.TargetsMatching(GameObjectFilter.ArtifactOrLand)))
-        effect = Effects.Composite(
-            Effects.CopyTargetSpell(target = EffectTarget.TriggeringEntity),
+        effect = Effects.CopyTargetSpell(target = EffectTarget.TriggeringEntity) then
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
-        )
         description = "Whenever you cast an instant or sorcery spell that targets an artifact or " +
             "land, copy that spell. You may choose new targets for the copy. Put two +1/+1 " +
             "counters on Fin Fang Foom."

@@ -2957,7 +2957,7 @@
                         "type": "TapUntap",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     }
                 },
@@ -2966,7 +2966,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]
@@ -3062,7 +3062,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     }
                 },
@@ -3071,7 +3071,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             },
             "target": {
@@ -3152,7 +3152,7 @@
                         "baseFilter": {},
                         "zone": "Stack"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]
@@ -4402,7 +4402,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     }
                 },
@@ -4411,7 +4411,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]
@@ -6449,7 +6449,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -6458,7 +6458,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target creature gets +2/+0 until end of turn"
@@ -6472,7 +6472,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t2"
                         }
                     },
                     "targetRequirements": [
@@ -6481,7 +6481,7 @@
                             "filter": {
                                 "baseFilter": "creature Wizard"
                             },
-                            "id": "t0"
+                            "id": "t2"
                         }
                     ],
                     "description": "Fever Charm deals 3 damage to target Wizard creature"
@@ -10191,7 +10191,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Hand"
                     },
@@ -10202,7 +10202,7 @@
                                 "baseFilter": "Cleric own:you",
                                 "zone": "Graveyard"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Return target Cleric card from your graveyard to your hand"
@@ -10216,13 +10216,13 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t2"
                         }
                     },
                     "targetRequirements": [
                         {
                             "type": "TargetPlayer",
-                            "id": "t0"
+                            "id": "t2"
                         }
                     ],
                     "description": "Target player loses 2 life"
@@ -11391,7 +11391,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -11400,7 +11400,7 @@
                             "filter": {
                                 "baseFilter": "creature Soldier"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target Soldier creature gets +2/+2 until end of turn"
@@ -11604,7 +11604,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     }
                 },
@@ -11613,7 +11613,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]
@@ -13598,7 +13598,7 @@
                     "type": "PreventDamageShield",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "direction": "FromTarget"
                 },
@@ -13609,7 +13609,7 @@
                             "baseFilter": {},
                             "zone": "Stack"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }
@@ -14499,13 +14499,13 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     }
                 },
                 "targetRequirement": {
                     "type": "AnyTarget",
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]
@@ -15242,7 +15242,7 @@
                         "type": "PreventDamageShield",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "amount": {
                             "type": "Fixed",
@@ -15252,7 +15252,7 @@
                 },
                 "targetRequirement": {
                     "type": "AnyTarget",
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]
@@ -16396,7 +16396,7 @@
                         "type": "BecomeCreatureType",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -16405,7 +16405,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target creature becomes the creature type of your choice until end of turn"
@@ -16899,7 +16899,7 @@
                         "type": "Regenerate",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -16908,7 +16908,7 @@
                             "filter": {
                                 "baseFilter": "permanent Beast"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Regenerate target Beast"
@@ -17428,34 +17428,29 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "FromZone",
-                                "zone": "Hand",
-                                "player": {
-                                    "type": "BoundVariable",
-                                    "name": "t0"
-                                }
-                            },
-                            "storeAs": "discardedHand"
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "discardedHand",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Graveyard",
-                                "player": {
-                                    "type": "BoundVariable",
-                                    "name": "t0"
-                                }
-                            },
-                            "moveType": "Discard"
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Hand",
+                        "player": {
+                            "type": "BoundVariable",
+                            "name": "t0"
                         }
-                    ]
+                    },
+                    "storeAs": "discardedHand"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "discardedHand",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard",
+                        "player": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
+                    },
+                    "moveType": "Discard"
                 },
                 {
                     "type": "DrawCards",

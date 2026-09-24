@@ -37,20 +37,18 @@ val StillnessInMotion = card("Stillness in Motion") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        effect = Patterns.Library.mill(3).then(
-            Effects.If(
-                condition = Conditions.CompareAmounts(
-                    DynamicAmounts.count(Player.You, Zone.LIBRARY),
-                    ComparisonOperator.EQ,
-                    0
-                ),
-                then = Effects.Pipeline {
-                    run(Effects.Exile(EffectTarget.Self))
-                    val graveyardCards = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.You))
-                    val toTop = chooseExactly(5, from = graveyardCards)
-                    toLibraryTop(toTop)
-                }
-            )
+        effect = Patterns.Library.mill(3) then Effects.If(
+            condition = Conditions.CompareAmounts(
+                DynamicAmounts.count(Player.You, Zone.LIBRARY),
+                ComparisonOperator.EQ,
+                0
+            ),
+            then = Effects.Pipeline {
+                run(Effects.Exile(EffectTarget.Self))
+                val graveyardCards = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.You))
+                val toTop = chooseExactly(5, from = graveyardCards)
+                toLibraryTop(toTop)
+            }
         )
         description = "At the beginning of your upkeep, mill three cards. Then if your library has " +
             "no cards in it, exile this enchantment and put five cards from your graveyard on top of " +

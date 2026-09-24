@@ -80,8 +80,8 @@ val WickTheWhorledMind = card("Wick, the Whorled Mind") {
             Costs.Mana("{U}{B}{R}"),
             Costs.Sacrifice(GameObjectFilter.Creature.withSubtype("Snail"))
         )
-        effect = Effects.DealDamage(DynamicAmounts.sacrificedPower(), EffectTarget.PlayerRef(Player.EachOpponent))
-            .then(Effects.DrawCards(DynamicAmounts.sacrificedPower()))
+        effect = Effects.DealDamage(DynamicAmounts.sacrificedPower(), EffectTarget.PlayerRef(Player.EachOpponent)) then
+            Effects.DrawCards(DynamicAmounts.sacrificedPower())
     }
 
     metadata {

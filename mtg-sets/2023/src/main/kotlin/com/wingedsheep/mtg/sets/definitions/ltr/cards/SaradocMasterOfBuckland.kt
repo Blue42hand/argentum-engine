@@ -50,8 +50,8 @@ val SaradocMasterOfBuckland = card("Saradoc, Master of Buckland") {
             filter = GameObjectFilter.Creature.withSubtype("Halfling").youControl(),
             excludeSelf = true
         )
-        effect = Effects.ModifyStats(2, 0, EffectTarget.Self)
-            .then(Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self))
+        effect = Effects.ModifyStats(2, 0, EffectTarget.Self) then
+            Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self)
     }
 
     metadata {

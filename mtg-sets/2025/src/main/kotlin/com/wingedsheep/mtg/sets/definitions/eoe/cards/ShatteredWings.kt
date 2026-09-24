@@ -24,12 +24,7 @@ val ShatteredWings = card("Shattered Wings") {
         val target = target(
             TargetFilter(GameObjectFilter.Artifact or GameObjectFilter.Enchantment or GameObjectFilter.Creature.withKeyword(Keyword.FLYING)),
         )
-        effect = Effects.Composite(
-            listOf(
-                Effects.Destroy(target),
-                Patterns.Library.surveil(1)
-            )
-        )
+        effect = Effects.Destroy(target) then Patterns.Library.surveil(1)
     }
 
     metadata {

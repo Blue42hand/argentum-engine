@@ -31,12 +31,10 @@ val OriginOfSpiderMan = card("Origin of Spider-Man") {
 
     sagaChapter(2) {
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(listOf(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
-            Effects.AddCardType("LEGENDARY", creature, Duration.Permanent),
-            Effects.AddCreatureType("Spider", creature, Duration.Permanent),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
+            Effects.AddCardType("LEGENDARY", creature, Duration.Permanent) then
+            Effects.AddCreatureType("Spider", creature, Duration.Permanent) then
             Effects.AddCreatureType("Hero", creature, Duration.Permanent)
-        ))
     }
 
     sagaChapter(3) {

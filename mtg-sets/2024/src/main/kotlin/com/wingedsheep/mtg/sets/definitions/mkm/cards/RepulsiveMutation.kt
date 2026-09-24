@@ -27,12 +27,10 @@ val RepulsiveMutation = card("Repulsive Mutation") {
     spell {
         val creature = target(TargetFilter.CreatureYouControl)
         target(TargetFilter.SpellOnStack, optional = true)
-        effect = Effects.Composite(
-            Effects.AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE, DynamicAmounts.xValue(), creature),
+        effect = Effects.AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE, DynamicAmounts.xValue(), creature) then
             Effects.CounterUnlessDynamicPays(
                 DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature).maxPower()
-            ),
-        )
+            )
     }
 
     metadata {

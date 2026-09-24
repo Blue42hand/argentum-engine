@@ -46,8 +46,7 @@ val RamblingPossum = card("Rambling Possum") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         triggerRestriction = Conditions.SourceIsSaddled
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 2, EffectTarget.Self),
+        effect = Effects.ModifyStats(1, 2, EffectTarget.Self) then
             Effects.Pipeline {
                 val saddlers = gather(
                     CardSource.BattlefieldMatching(
@@ -57,7 +56,6 @@ val RamblingPossum = card("Rambling Possum") {
                 val chosen = chooseAnyNumber(from = saddlers, useTargetingUI = true)
                 toHand(chosen)
             }
-        )
         description = "Whenever this creature attacks while saddled, it gets +1/+2 until end of " +
             "turn. Then you may return any number of creatures that saddled it this turn to " +
             "their owner's hand."

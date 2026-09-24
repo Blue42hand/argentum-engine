@@ -24,10 +24,7 @@ val BurningProphet = card("Burning Prophet") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
-        effect = Effects.Composite(listOf(
-            Effects.ModifyStats(1, 0, EffectTarget.Self),
-            Effects.Scry(1)
-        ))
+        effect = Effects.ModifyStats(1, 0, EffectTarget.Self) then Effects.Scry(1)
     }
 
     metadata {

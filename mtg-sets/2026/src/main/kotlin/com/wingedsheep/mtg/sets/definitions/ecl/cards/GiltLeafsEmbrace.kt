@@ -35,8 +35,8 @@ val GiltLeafsEmbrace = card("Gilt-Leaf's Embrace") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.EnchantedCreature)
-            .then(Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.EnchantedCreature))
+        effect = Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.EnchantedCreature) then
+            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.EnchantedCreature)
     }
 
     staticAbility {

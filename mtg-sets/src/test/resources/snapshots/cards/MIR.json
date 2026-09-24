@@ -234,7 +234,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirements": [
@@ -243,7 +243,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }
@@ -520,7 +520,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirements": [
@@ -529,7 +529,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }
@@ -1083,7 +1083,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "destination": "Library",
                     "placement": "Top"
@@ -1094,7 +1094,7 @@
                         "filter": {
                             "baseFilter": "creature ctrl:you"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }
@@ -3921,7 +3921,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirements": [
@@ -3930,7 +3930,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }

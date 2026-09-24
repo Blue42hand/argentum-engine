@@ -39,7 +39,7 @@ val SimicGrowthChamber = card("Simic Growth Chamber") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = Effects.AddMana(Color.GREEN).then(Effects.AddMana(Color.BLUE))
+        effect = Effects.AddMana(Color.GREEN) then Effects.AddMana(Color.BLUE)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

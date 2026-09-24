@@ -42,7 +42,7 @@ val DirgurIslandDragon = card("Dirgur Island Dragon") {
             "(Then shuffle this card into its owner's library.)"
         spell {
             val creature = target(TargetFilter.Creature, optional = true)
-            effect = Effects.Tap(creature).then(Effects.DrawCards(1))
+            effect = Effects.Tap(creature) then Effects.DrawCards(1)
         }
     }
 

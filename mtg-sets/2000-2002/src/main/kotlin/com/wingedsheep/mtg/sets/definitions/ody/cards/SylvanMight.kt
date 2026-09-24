@@ -26,10 +26,7 @@ val SylvanMight = card("Sylvan Might") {
     oracleText = "Target creature gets +2/+2 and gains trample until end of turn.\nFlashback {2}{G}{G} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 2, t),
-            Effects.GrantKeyword(Keyword.TRAMPLE, t)
-        )
+        effect = Effects.ModifyStats(2, 2, t) then Effects.GrantKeyword(Keyword.TRAMPLE, t)
     }
     keywordAbility(KeywordAbility.flashback("{2}{G}{G}"))
     metadata {

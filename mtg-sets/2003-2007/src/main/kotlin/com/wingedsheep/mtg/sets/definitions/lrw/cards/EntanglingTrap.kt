@@ -39,8 +39,7 @@ val EntanglingTrap = card("Entangling Trap") {
     triggeredAbility {
         trigger = Triggers.you.clashes()
         val creature = target(TargetFilter.CreatureOpponentControls)
-        effect = Effects.Composite(
-            Effects.Tap(creature),
+        effect = Effects.Tap(creature) then
             Effects.If(
                 Conditions.YouWonTheClash,
                 Effects.GrantKeyword(
@@ -49,7 +48,6 @@ val EntanglingTrap = card("Entangling Trap") {
                     Duration.UntilAfterAffectedControllersNextUntap
                 )
             )
-        )
         description = "tap target creature an opponent controls. If you won, that creature " +
             "doesn't untap during its controller's next untap step."
     }

@@ -56,14 +56,10 @@ val TheLastRonin = card("The Last Ronin") {
         effect = Effects.CreateDelayedTrigger(
             trigger = Triggers.a(GameObjectFilter.Creature.youControl()).attacks(setOf(AttackPredicate.Alone)),
             expiry = DelayedTriggerExpiry.EndOfTurn,
-            effect = Effects.Composite(
-                listOf(
-                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, EffectTarget.TriggeringEntity),
-                    Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.TriggeringEntity, Duration.EndOfTurn),
-                    Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.TriggeringEntity, Duration.EndOfTurn),
-                    Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.TriggeringEntity, Duration.EndOfTurn)
-                )
-            )
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, EffectTarget.TriggeringEntity) then
+                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.TriggeringEntity, Duration.EndOfTurn) then
+                Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.TriggeringEntity, Duration.EndOfTurn) then
+                Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.TriggeringEntity, Duration.EndOfTurn)
         )
     }
 

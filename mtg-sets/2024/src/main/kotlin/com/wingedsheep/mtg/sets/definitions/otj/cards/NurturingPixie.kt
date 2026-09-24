@@ -48,11 +48,9 @@ val NurturingPixie = card("Nurturing Pixie") {
             TargetFilter(GameObjectFilter.NonlandPermanent.notSubtype(Subtype.FAERIE).youControl()),
             optional = true,
         )
-        effect = Effects.ReturnToHand(t).then(
-            Effects.If(
-                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent, t),
-                then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            ),
+        effect = Effects.ReturnToHand(t) then Effects.If(
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent, t),
+            then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
         )
         description = "When this creature enters, return up to one target non-Faerie, nonland " +
             "permanent you control to its owner's hand. If a permanent was returned this way, " +

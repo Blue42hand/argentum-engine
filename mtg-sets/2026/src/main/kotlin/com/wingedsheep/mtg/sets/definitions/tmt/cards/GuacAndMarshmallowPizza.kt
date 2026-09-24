@@ -29,8 +29,7 @@ val GuacAndMarshmallowPizza = card("Guac & Marshmallow Pizza") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(2, 2, creature)
-            .then(Effects.Untap(creature))
+        effect = Effects.ModifyStats(2, 2, creature) then Effects.Untap(creature)
     }
 
     activatedAbility {

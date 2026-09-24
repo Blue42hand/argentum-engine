@@ -45,12 +45,8 @@ val Kithkeeper = card("Kithkeeper") {
 
     activatedAbility {
         cost = Costs.TapPermanents(3, GameObjectFilter.Creature)
-        effect = Effects.Composite(
-            listOf(
-                Effects.ModifyStats(3, 0, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self)
-            )
-        )
+        effect = Effects.ModifyStats(3, 0, EffectTarget.Self) then
+            Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self)
     }
 
     metadata {

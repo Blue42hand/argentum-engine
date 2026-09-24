@@ -21,10 +21,7 @@ val RayOfDissolution = card("Ray of Dissolution") {
 
     spell {
         val t = target(TargetFilter.Enchantment)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            Effects.GainLife(3)
-        )
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then Effects.GainLife(3)
     }
 
     metadata {

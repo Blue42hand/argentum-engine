@@ -24,13 +24,11 @@ val DesculptingBlast = card("Desculpting Blast") {
     spell {
         val permanent = target(TargetFilter.NonlandPermanent)
         // Check attacking status before the return so the permanent is still on the battlefield
-        effect = Effects.Composite(
-            Effects.If(
-                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent.attacking(), permanent),
-                then = Effects.CreateDroneToken()
-            ),
+        effect = Effects.If(
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent.attacking(), permanent),
+            then = Effects.CreateDroneToken()
+        ) then
             Effects.ReturnToHand(permanent)
-        )
     }
 
     metadata {

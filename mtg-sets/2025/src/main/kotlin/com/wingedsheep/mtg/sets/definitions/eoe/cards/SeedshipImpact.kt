@@ -23,12 +23,10 @@ val SeedshipImpact = card("Seedship Impact") {
 
     spell {
         val target = target(TargetFilter(GameObjectFilter.Artifact or GameObjectFilter.Enchantment))
-        effect = Effects.Move(target, Zone.GRAVEYARD, byDestruction = true)
-            .then(
-                Effects.If(
-                    condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(2), target),
-                    then = Effects.CreateLander()
-                )
+        effect = Effects.Move(target, Zone.GRAVEYARD, byDestruction = true) then
+            Effects.If(
+                condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(2), target),
+                then = Effects.CreateLander()
             )
     }
 

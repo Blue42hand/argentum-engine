@@ -37,18 +37,14 @@ val SpinalEmbrace = card("Spinal Embrace") {
     spell {
         castOnlyDuring(Phase.COMBAT)
         val t = target(TargetFilter.CreatureOpponentControls)
-        effect = Effects.Composite(
-            Effects.Untap(t),
-            Effects.GainControl(t, Duration.Permanent),
-            Effects.GrantKeyword(Keyword.HASTE, t, Duration.EndOfTurn),
+        effect = Effects.Untap(t) then
+            Effects.GainControl(t, Duration.Permanent) then
+            Effects.GrantKeyword(Keyword.HASTE, t, Duration.EndOfTurn) then
             Effects.CreateDelayedTrigger(
                 step = Step.END,
-                effect = Effects.Composite(
-                    Effects.SacrificeTarget(t),
+                effect = Effects.SacrificeTarget(t) then
                     Effects.GainLife(DynamicAmounts.sacrificedToughness(), EffectTarget.Controller)
-                )
             )
-        )
     }
 
     metadata {

@@ -24,9 +24,9 @@ val HorsesOfTheBruinen = card("Horses of the Bruinen") {
         targets(TargetFilter.Creature, count = 2, optional = true)
         effect = Effects.ForEachTarget(
             Effects.ReturnToHand(EffectTarget.ContextTarget(0))
-        )
-            .then(Patterns.Library.scry(1))
-            .then(Effects.TheRingTemptsYou())
+        ) then
+            Patterns.Library.scry(1) then
+            Effects.TheRingTemptsYou()
     }
 
     metadata {

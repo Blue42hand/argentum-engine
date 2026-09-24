@@ -25,10 +25,7 @@ val AuraBlast = card("Aura Blast") {
     oracleText = "Destroy target enchantment.\nDraw a card."
     spell {
         val t = target(TargetFilter.Enchantment)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

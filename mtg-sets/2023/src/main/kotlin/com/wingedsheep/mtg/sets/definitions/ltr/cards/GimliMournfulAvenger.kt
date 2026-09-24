@@ -54,20 +54,18 @@ val GimliMournfulAvenger = card("Gimli, Mournful Avenger") {
     // target creature you don't control.
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.youControl()).dies()
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-            .then(IncrementAbilityResolutionCountEffect)
-            .then(
-                Effects.If(
-                    condition = Conditions.SourceAbilityResolvedNTimes(3),
-                    then = Effects.ReflexiveTrigger(
-                        action = Effects.Composite(emptyList()),
-                        optional = false,
-                        descriptionOverride = "Gimli fights up to one target creature you don't control"
-                    ) {
-                        val creatureOpponentControls = target(TargetFilter.CreatureOpponentControls, optional = true)
-                        effect = Effects.Fight(EffectTarget.Self, creatureOpponentControls)
-                    }
-                )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            IncrementAbilityResolutionCountEffect then
+            Effects.If(
+                condition = Conditions.SourceAbilityResolvedNTimes(3),
+                then = Effects.ReflexiveTrigger(
+                    action = Effects.Nothing,
+                    optional = false,
+                    descriptionOverride = "Gimli fights up to one target creature you don't control"
+                ) {
+                    val creatureOpponentControls = target(TargetFilter.CreatureOpponentControls, optional = true)
+                    effect = Effects.Fight(EffectTarget.Self, creatureOpponentControls)
+                }
             )
         description = "Whenever another creature you control dies, put a +1/+1 counter on Gimli. When this ability resolves for the third time this turn, Gimli fights up to one target creature you don't control."
     }

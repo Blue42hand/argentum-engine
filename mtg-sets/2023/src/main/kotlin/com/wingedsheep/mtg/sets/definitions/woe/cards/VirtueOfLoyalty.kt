@@ -28,16 +28,14 @@ val VirtueOfLoyalty = card("Virtue of Loyalty") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter.AllCreaturesYouControl,
-                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
-            ),
+        effect = Effects.ForEachInGroup(
+            GroupFilter.AllCreaturesYouControl,
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
+        ) then
             Effects.ForEachInGroup(
                 GroupFilter.AllCreaturesYouControl,
                 Effects.Untap(EffectTarget.IterationEntity)
             )
-        )
         description = "At the beginning of your end step, put a +1/+1 counter on each creature " +
             "you control. Untap those creatures."
     }

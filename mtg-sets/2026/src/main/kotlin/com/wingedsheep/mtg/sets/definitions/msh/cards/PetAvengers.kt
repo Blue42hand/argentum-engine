@@ -41,8 +41,7 @@ val PetAvengers = card("Pet Avengers") {
     activatedAbility {
         isPowerUp = true
         cost = Costs.Mana("{6}{G}")
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
             Effects.CreateToken(
                 power = 3,
                 toughness = 2,
@@ -51,7 +50,6 @@ val PetAvengers = card("Pet Avengers") {
                 keywords = setOf(Keyword.VIGILANCE),
                 imageUri = "https://cards.scryfall.io/normal/front/e/4/e4a64831-eec5-4fc9-8904-19523af3ca42.jpg?1783902804"
             )
-        )
     }
 
     metadata {

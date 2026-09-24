@@ -33,7 +33,7 @@ val RimeChill = card("Rime Chill") {
         effect = Effects.ForEachTarget(
             Effects.Tap(EffectTarget.ContextTarget(0)),
             Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(0))
-        ).then(Effects.DrawCards(1))
+        ) then Effects.DrawCards(1)
     }
 
     metadata {

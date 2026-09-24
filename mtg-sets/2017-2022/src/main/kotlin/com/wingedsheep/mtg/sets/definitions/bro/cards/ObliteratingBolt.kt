@@ -23,10 +23,7 @@ val ObliteratingBolt = card("Obliterating Bolt") {
     oracleText = "Obliterating Bolt deals 4 damage to target creature or planeswalker. If that creature or planeswalker would die this turn, exile it instead."
     spell {
         val t = target(Targets.CreatureOrPlaneswalker)
-        effect = Effects.Composite(
-            Effects.DealDamage(4, t),
-            Effects.MarkExileOnDeath(t)
-        )
+        effect = Effects.DealDamage(4, t) then Effects.MarkExileOnDeath(t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

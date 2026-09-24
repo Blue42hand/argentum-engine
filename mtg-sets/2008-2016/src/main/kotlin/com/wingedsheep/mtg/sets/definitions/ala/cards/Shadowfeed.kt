@@ -25,10 +25,7 @@ val Shadowfeed = card("Shadowfeed") {
 
     spell {
         val t = target(TargetFilter.CardInGraveyard)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.EXILE),
-            Effects.GainLife(3)
-        )
+        effect = Effects.Move(t, Zone.EXILE) then Effects.GainLife(3)
     }
 
     metadata {

@@ -24,19 +24,17 @@ val WarmWelcome = card("Warm Welcome") {
     oracleText = "Look at the top five cards of your library. You may reveal a creature card from among them and put it into your hand. Put the rest on the bottom of your library in a random order. Create a 1/1 green and white Citizen creature token."
 
     spell {
-        effect = Effects.Composite(
-            Patterns.Library.lookAtTopRevealMatchingToHand(
-                count = 5,
-                filter = GameObjectFilter.Creature,
-                prompt = "You may reveal a creature card from among them and put it into your hand"
-            ),
+        effect = Patterns.Library.lookAtTopRevealMatchingToHand(
+            count = 5,
+            filter = GameObjectFilter.Creature,
+            prompt = "You may reveal a creature card from among them and put it into your hand"
+        ) then
             Effects.CreateToken(
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.GREEN, Color.WHITE),
                 creatureTypes = setOf("Citizen"),
             )
-        )
     }
 
     metadata {

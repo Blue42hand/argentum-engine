@@ -31,13 +31,11 @@ val CosmicSpiderMan = card("Cosmic Spider-Man") {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.SPIDER).youControl(), excludeSelf = true),
-            Effects.Composite(
-                Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity),
-                Effects.GrantKeyword(Keyword.FIRST_STRIKE, EffectTarget.IterationEntity),
-                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity),
-                Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.IterationEntity),
+            Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity) then
+                Effects.GrantKeyword(Keyword.FIRST_STRIKE, EffectTarget.IterationEntity) then
+                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity) then
+                Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.IterationEntity) then
                 Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
-            )
         )
     }
     metadata {

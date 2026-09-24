@@ -22,8 +22,8 @@ val RewriteRegrets = card("Rewrite Regrets") {
                 zone = Zone.GRAVEYARD,
             ),
         )
-        effect = Effects.Move(card, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
-            .then(Patterns.Mechanic.empowerJace(2))
+        effect = Effects.Move(card, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
+            Patterns.Mechanic.empowerJace(2)
     }
 
     metadata {

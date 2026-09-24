@@ -39,7 +39,7 @@ val HeraldOfAnafenza = card("Herald of Anafenza") {
             colors = setOf(Color.WHITE),
             creatureTypes = setOf("Warrior"),
             imageUri = "https://cards.scryfall.io/normal/front/f/4/f46bcc76-181c-4e06-aa04-590a3e651dc7.jpg?1562640133"
-        ).then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self))
+        ) then Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
     metadata {

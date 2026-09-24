@@ -30,10 +30,7 @@ val ElvishScout = card("Elvish Scout") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{G}"), Costs.Tap)
         val t = target(TargetFilter(GameObjectFilter.Creature.attacking().youControl()))
-        effect = Effects.Composite(
-            Effects.Untap(t),
-            Effects.PreventCombatDamageToAndBy(t)
-        )
+        effect = Effects.Untap(t) then Effects.PreventCombatDamageToAndBy(t)
     }
 
     metadata {

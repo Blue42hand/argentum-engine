@@ -24,10 +24,7 @@ val FerociousCharge = card("Ferocious Charge") {
     oracleText = "Target creature gets +4/+4 until end of turn. Scry 2. (Look at the top two cards of your library, then put any number of them on the bottom and the rest on top in any order.)"
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(4, 4, t),
-            Patterns.Library.scry(2)
-        )
+        effect = Effects.ModifyStats(4, 4, t) then Patterns.Library.scry(2)
     }
     metadata {
         rarity = Rarity.COMMON

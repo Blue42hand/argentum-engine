@@ -46,13 +46,11 @@ val TorchTheWitness = card("Torch the Witness") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.DealDamage(DynamicAmounts.xValue() * 2, creature),
+        effect = Effects.DealDamage(DynamicAmounts.xValue() * 2, creature) then
             Effects.If(
                 condition = Conditions.IfTargetTookExcessDamage(),
                 then = Effects.Investigate(),
-            ),
-        )
+            )
     }
 
     metadata {

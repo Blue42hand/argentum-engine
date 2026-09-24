@@ -605,12 +605,12 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
                     "type": "TargetOpponent",
-                    "id": "t0"
+                    "id": "t1"
                 },
                 "descriptionOverride": "When this creature leaves the battlefield, target opponent draws a card."
             }

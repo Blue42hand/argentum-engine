@@ -26,11 +26,9 @@ val FieryAnnihilation = card("Fiery Annihilation") {
     spell {
         val t1 = target(TargetFilter.Creature)
         val t2 = target(TargetFilter(GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT)), optional = true)
-        effect = Effects.Composite(
-            Effects.DealDamage(5, t1),
-            Effects.Exile(t2),
+        effect = Effects.DealDamage(5, t1) then
+            Effects.Exile(t2) then
             Effects.MarkExileOnDeath(t1)
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

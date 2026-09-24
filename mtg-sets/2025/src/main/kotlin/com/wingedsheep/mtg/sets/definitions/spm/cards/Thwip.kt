@@ -23,13 +23,11 @@ val Thwip = card("Thwip!") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(2, 2, t)
-            .then(Effects.GrantKeyword(Keyword.FLYING, t))
-            .then(
-                Effects.If(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.SPIDER), t),
-                    then = Effects.GainLife(2)
-                )
+        effect = Effects.ModifyStats(2, 2, t) then
+            Effects.GrantKeyword(Keyword.FLYING, t) then
+            Effects.If(
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.SPIDER), t),
+                then = Effects.GainLife(2)
             )
     }
 

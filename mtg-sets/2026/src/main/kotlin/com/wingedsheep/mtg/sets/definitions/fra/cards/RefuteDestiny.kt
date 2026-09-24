@@ -15,7 +15,7 @@ val RefuteDestiny = card("Refute Destiny") {
 
     spell {
         val permanent = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker) .withAnyColor(Color.GREEN, Color.BLUE))
-        effect = Effects.Composite(Effects.Exile(permanent), Effects.Surveil(1))
+        effect = Effects.Exile(permanent) then Effects.Surveil(1)
     }
 
     metadata {

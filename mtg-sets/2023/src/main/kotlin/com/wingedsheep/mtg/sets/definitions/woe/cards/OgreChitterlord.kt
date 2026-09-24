@@ -29,14 +29,12 @@ private val ratsYouControl = GameObjectFilter.Creature.withSubtype("Rat").youCon
  * triggered abilities (the `Triggers.self.enters()` / `Triggers.self.attacks()` pair used for every
  * "enters or attacks" card).
  */
-private fun ratSwarmAndRally(): Effect = woeRatToken(DynamicAmounts.fixed(2)).then(
-    Effects.If(
-        condition = Conditions.YouControlAtLeast(5, ratsYouControl),
-        then = Patterns.Group.modifyStatsForAll(
-            power = 2,
-            toughness = 0,
-            filter = GroupFilter(ratsYouControl)
-        )
+private fun ratSwarmAndRally(): Effect = woeRatToken(DynamicAmounts.fixed(2)) then Effects.If(
+    condition = Conditions.YouControlAtLeast(5, ratsYouControl),
+    then = Patterns.Group.modifyStatsForAll(
+        power = 2,
+        toughness = 0,
+        filter = GroupFilter(ratsYouControl)
     )
 )
 

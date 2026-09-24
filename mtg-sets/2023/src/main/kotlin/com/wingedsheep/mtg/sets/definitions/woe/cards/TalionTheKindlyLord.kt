@@ -72,10 +72,8 @@ val TalionTheKindlyLord = card("Talion, the Kindly Lord") {
                     )
                 )
             ))
-        effect = Effects.Composite(
-            Effects.LoseLife(2, EffectTarget.PlayerRef(Player.TriggeringPlayer)),
+        effect = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.TriggeringPlayer)) then
             Effects.DrawCards(1)
-        )
         description = "Whenever an opponent casts a spell with mana value, power, or toughness " +
             "equal to the chosen number, that player loses 2 life and you draw a card."
     }

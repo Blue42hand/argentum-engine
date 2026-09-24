@@ -61,10 +61,8 @@ val GastalThrillroller = card("Gastal Thrillroller") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{R}"), Costs.DiscardCard)
-        effect = Effects.Composite(
-            Effects.PutOntoBattlefield(EffectTarget.Self),
+        effect = Effects.PutOntoBattlefield(EffectTarget.Self) then
             Effects.AddCounters(CounterType.FINALITY, 1, EffectTarget.Self)
-        )
         activateFromZone = Zone.GRAVEYARD
         timing = TimingRule.SorcerySpeed
         description = "{2}{R}, Discard a card: Return this card from your graveyard to the " +

@@ -41,18 +41,16 @@ val FarrelsMantle = card("Farrel's Mantle") {
         trigger = Triggers.attached.attacksAndIsntBlocked()
         val t = target(TargetFilter(GameObjectFilter.Creature.notAttachedToBySource()))
         effect = Effects.May(
-            Effects.Composite(
-                Effects.DealDamage(
-                    DynamicAmounts.enchantedCreaturePower() + 2,
-                    t,
-                    damageSource = EffectTarget.EnchantedPermanent,
-                ),
+            Effects.DealDamage(
+                DynamicAmounts.enchantedCreaturePower() + 2,
+                t,
+                damageSource = EffectTarget.EnchantedPermanent,
+            ) then
                 Effects.GrantKeyword(
                     AbilityFlag.ASSIGNS_NO_COMBAT_DAMAGE,
                     EffectTarget.EnchantedPermanent,
                     Duration.EndOfTurn,
                 ),
-            ),
             // "Its controller may" — the *enchanted creature's* controller, who need not be the
             // Aura's controller: the Mantle can be put on an opponent's creature and the choice is
             // still theirs. The trigger binds the attacker as the triggering entity for this.

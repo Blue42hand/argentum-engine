@@ -42,8 +42,7 @@ val KirdChieftain = card("Kird Chieftain") {
     activatedAbility {
         cost = Costs.Mana("{4}{G}")
         val t = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(2, 2, t)
-            .then(Effects.GrantKeyword(Keyword.TRAMPLE, t))
+        effect = Effects.ModifyStats(2, 2, t) then Effects.GrantKeyword(Keyword.TRAMPLE, t)
     }
 
     metadata {

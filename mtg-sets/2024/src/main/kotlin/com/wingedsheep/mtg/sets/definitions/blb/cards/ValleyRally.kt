@@ -41,10 +41,10 @@ val ValleyRally = card("Valley Rally") {
             // Mode 2: Gift a Food — opponent creates Food, creatures get +2/+0, target creature gains first strike
             mode("Promise a gift — opponent creates a Food token, creatures you control get +2/+0 and target creature you control gains first strike until end of turn") {
                 val creatureYouControl = target(TargetFilter.CreatureYouControl)
-                effect = Effects.CreateFood(1, EffectTarget.PlayerRef(Player.ChosenOpponent))
-                    .then(pumpAll)
-                    .then(Effects.GrantKeyword(Keyword.FIRST_STRIKE, creatureYouControl))
-                    .then(Effects.GiftGiven())
+                effect = Effects.CreateFood(1, EffectTarget.PlayerRef(Player.ChosenOpponent)) then
+                    pumpAll then
+                    Effects.GrantKeyword(Keyword.FIRST_STRIKE, creatureYouControl) then
+                    Effects.GiftGiven()
             }
         )
     }

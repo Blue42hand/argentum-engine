@@ -28,11 +28,11 @@ val HazardrootHerbalist = card("Hazardroot Herbalist") {
     triggeredAbility {
         trigger = Triggers.you.attacks()
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.ModifyStats(1, 0, creature)
-            .then(Effects.If(
+        effect = Effects.ModifyStats(1, 0, creature) then
+            Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Token, creature),
                 then = Effects.GrantKeyword(Keyword.DEATHTOUCH, creature)
-            ))
+            )
     }
 
     metadata {

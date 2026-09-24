@@ -41,10 +41,7 @@ val GetLost = card("Get Lost") {
 
     spell {
         val t = target(creatureEnchantmentOrPlaneswalker)
-        effect = Effects.Composite(
-            Effects.Destroy(t),
-            Effects.CreateMapToken(2, controller = EffectTarget.TargetController)
-        )
+        effect = Effects.Destroy(t) then Effects.CreateMapToken(2, controller = EffectTarget.TargetController)
     }
 
     metadata {

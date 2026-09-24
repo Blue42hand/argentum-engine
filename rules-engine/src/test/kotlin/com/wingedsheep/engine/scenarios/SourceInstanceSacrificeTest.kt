@@ -30,7 +30,7 @@ class SourceInstanceSacrificeTest : FunSpec({
         typeLine = "Instant"
         spell {
             val creature = target(TargetFilter.Creature)
-            effect = Effects.Exile(creature).then(Effects.PutOntoBattlefield(creature))
+            effect = Effects.Exile(creature) then Effects.PutOntoBattlefield(creature)
         }
     }
 
@@ -70,8 +70,8 @@ class SourceInstanceSacrificeTest : FunSpec({
             toughness = 1
             triggeredAbility {
                 trigger = Triggers.self.dies()
-                effect = Effects.PutOntoBattlefield(com.wingedsheep.sdk.scripting.targets.EffectTarget.Self)
-                    .then(Effects.ModifyStats(2, 0, com.wingedsheep.sdk.scripting.targets.EffectTarget.Self))
+                effect = Effects.PutOntoBattlefield(com.wingedsheep.sdk.scripting.targets.EffectTarget.Self) then
+                    Effects.ModifyStats(2, 0, com.wingedsheep.sdk.scripting.targets.EffectTarget.Self)
             }
         }
         val d = GameTestDriver()

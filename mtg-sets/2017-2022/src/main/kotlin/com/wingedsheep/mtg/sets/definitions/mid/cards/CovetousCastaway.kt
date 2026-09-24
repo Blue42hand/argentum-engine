@@ -111,7 +111,7 @@ private val GhostlyCastigator = card("Ghostly Castigator") {
         effect = Effects.May(
             Effects.ForEachTarget(
                 Effects.Move(EffectTarget.ContextTarget(0), Zone.LIBRARY)
-            ).then(Effects.ShuffleLibrary()),
+            ) then Effects.ShuffleLibrary(),
             descriptionOverride = "Shuffle the targeted cards from your graveyard into your library?",
         )
         description = "When this creature enters, you may shuffle up to three target cards from " +

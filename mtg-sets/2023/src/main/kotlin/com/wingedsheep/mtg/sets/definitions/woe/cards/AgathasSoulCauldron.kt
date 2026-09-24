@@ -76,8 +76,7 @@ val AgathasSoulCauldron = card("Agatha's Soul Cauldron") {
     activatedAbility {
         cost = Costs.Tap
         val exiled = target(TargetFilter.CardInGraveyard)
-        effect = Effects.Composite(
-            Effects.ExileLinkedToSource(exiled),
+        effect = Effects.ExileLinkedToSource(exiled) then
             // Reflexive "when a creature card is exiled this way": tested on the exiled card's
             // printed type (last-known via its CardComponent in exile). When true, choose a creature
             // you control at resolution and add the counter.
@@ -92,7 +91,6 @@ val AgathasSoulCauldron = card("Agatha's Soul Cauldron") {
                     ))
                 }
             )
-        )
     }
 
     metadata {

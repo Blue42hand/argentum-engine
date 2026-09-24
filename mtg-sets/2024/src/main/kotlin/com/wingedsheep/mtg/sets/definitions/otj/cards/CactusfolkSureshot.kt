@@ -44,11 +44,9 @@ val CactusfolkSureshot = card("Cactusfolk Sureshot") {
         effect = Patterns.Group.grantKeywordToAll(
             Keyword.TRAMPLE,
             Filters.Group.creaturesYouControl.powerAtLeast(4).other()
-        ).then(
-            Patterns.Group.grantKeywordToAll(
-                Keyword.HASTE,
-                Filters.Group.creaturesYouControl.powerAtLeast(4).other()
-            )
+        ) then Patterns.Group.grantKeywordToAll(
+            Keyword.HASTE,
+            Filters.Group.creaturesYouControl.powerAtLeast(4).other()
         )
         description = "other creatures you control with power 4 or greater gain trample and " +
             "haste until end of turn."

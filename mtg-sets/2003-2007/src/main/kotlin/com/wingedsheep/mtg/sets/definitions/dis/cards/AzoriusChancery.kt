@@ -39,7 +39,7 @@ val AzoriusChancery = card("Azorius Chancery") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = Effects.AddMana(Color.WHITE).then(Effects.AddMana(Color.BLUE))
+        effect = Effects.AddMana(Color.WHITE) then Effects.AddMana(Color.BLUE)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

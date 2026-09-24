@@ -30,12 +30,10 @@ val AtomicMicrosizer = card("Atomic Microsizer") {
     triggeredAbility {
         trigger = Triggers.attached.attacks()
         val target = target(com.wingedsheep.sdk.scripting.filters.unified.TargetFilter.Creature, optional = true)
-        effect = Effects.Composite(listOf(
-            // Can't be blocked this turn
-            Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, target),
+        // Can't be blocked this turn
+        effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, target) then
             // Has base power and toughness 1/1 until end of turn
             Effects.SetBasePowerAndToughness(1, 1, target, com.wingedsheep.sdk.scripting.Duration.EndOfTurn)
-        ))
     }
 
     // Equip ability

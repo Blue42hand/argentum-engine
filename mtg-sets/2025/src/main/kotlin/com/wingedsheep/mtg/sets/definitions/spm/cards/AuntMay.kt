@@ -29,18 +29,16 @@ val AuntMay = card("Aunt May") {
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
-        effect = Effects.GainLife(1)
-            .then(
-                Effects.If(
-                    condition = Conditions.EntityMatches(
-                        EffectTarget.TriggeringEntity,
-                        GameObjectFilter.Creature.withSubtype(Subtype.SPIDER),
-                    ),
-                    then = Effects.AddCounters(
-                        CounterType.PLUS_ONE_PLUS_ONE,
-                        1,
-                        EffectTarget.TriggeringEntity,
-                    ),
+        effect = Effects.GainLife(1) then
+            Effects.If(
+                condition = Conditions.EntityMatches(
+                    EffectTarget.TriggeringEntity,
+                    GameObjectFilter.Creature.withSubtype(Subtype.SPIDER),
+                ),
+                then = Effects.AddCounters(
+                    CounterType.PLUS_ONE_PLUS_ONE,
+                    1,
+                    EffectTarget.TriggeringEntity,
                 ),
             )
     }

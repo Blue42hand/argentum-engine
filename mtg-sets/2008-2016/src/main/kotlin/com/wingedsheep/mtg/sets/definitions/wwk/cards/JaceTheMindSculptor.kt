@@ -70,8 +70,7 @@ val JaceTheMindSculptor = card("Jace, the Mind Sculptor") {
     }
 
     loyaltyAbility(0) {
-        effect = Effects.Composite(
-            Effects.DrawCards(3),
+        effect = Effects.DrawCards(3) then
             Effects.Pipeline {
                 val hand = gather(CardSource.FromZone(Zone.HAND, Player.You, GameObjectFilter.Any))
                 val putBack = chooseExactly(
@@ -81,7 +80,6 @@ val JaceTheMindSculptor = card("Jace, the Mind Sculptor") {
                 )
                 toLibraryTop(putBack)
             }
-        )
     }
 
     loyaltyAbility(-1) {

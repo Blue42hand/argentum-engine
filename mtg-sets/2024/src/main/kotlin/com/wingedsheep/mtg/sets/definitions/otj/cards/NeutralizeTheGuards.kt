@@ -30,14 +30,12 @@ val NeutralizeTheGuards = card("Neutralize the Guards") {
 
     spell {
         val opponent = target(Targets.Opponent)
-        effect = Effects.Composite(
-            Patterns.Group.modifyStatsForAll(
-                power = -1,
-                toughness = -1,
-                filter = GroupFilter(GameObjectFilter.Creature.targetPlayerControls(opponent))
-            ),
+        effect = Patterns.Group.modifyStatsForAll(
+            power = -1,
+            toughness = -1,
+            filter = GroupFilter(GameObjectFilter.Creature.targetPlayerControls(opponent))
+        ) then
             Patterns.Library.surveil(2)
-        )
     }
 
     metadata {

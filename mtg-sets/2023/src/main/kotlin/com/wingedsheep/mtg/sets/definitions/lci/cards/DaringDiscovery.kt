@@ -20,10 +20,8 @@ val DaringDiscovery = card("Daring Discovery") {
     oracleText = "Up to three target creatures can't block this turn.\nDiscover 4."
     spell {
         targets(TargetFilter.Creature, count = 3, optional = true)
-        effect = Effects.Composite(
-            Effects.ForEachTarget(Effects.CantBlock(EffectTarget.ContextTarget(0))),
+        effect = Effects.ForEachTarget(Effects.CantBlock(EffectTarget.ContextTarget(0))) then
             Effects.Discover(4)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

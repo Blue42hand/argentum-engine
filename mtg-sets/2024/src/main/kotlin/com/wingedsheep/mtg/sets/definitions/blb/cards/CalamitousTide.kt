@@ -22,9 +22,9 @@ val CalamitousTide = card("Calamitous Tide") {
 
     spell {
         val (c1, c2) = targets(TargetFilter.Creature, count = 2, optional = true)
-        effect = Effects.ReturnToHand(c1)
-            .then(Effects.ReturnToHand(c2))
-            .then(Patterns.Hand.loot(draw = 2, discard = 1))
+        effect = Effects.ReturnToHand(c1) then
+            Effects.ReturnToHand(c2) then
+            Patterns.Hand.loot(draw = 2, discard = 1)
     }
 
     metadata {

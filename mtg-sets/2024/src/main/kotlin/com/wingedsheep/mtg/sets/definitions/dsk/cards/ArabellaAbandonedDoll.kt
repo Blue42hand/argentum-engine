@@ -36,10 +36,7 @@ val ArabellaAbandonedDoll = card("Arabella, Abandoned Doll") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        effect = Effects.Composite(
-            Effects.DealDamage(x, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.GainLife(x),
-        )
+        effect = Effects.DealDamage(x, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(x)
     }
 
     metadata {

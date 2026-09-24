@@ -37,13 +37,11 @@ val GnawingCrescendo = card("Gnawing Crescendo") {
         effect = Patterns.Group.modifyStatsForAll(
             2, 0,
             GroupFilter(GameObjectFilter.Creature.youControl())
-        ).then(
-            Effects.CreateDelayedTrigger(
-                trigger = Triggers.a(GameObjectFilter.Creature.youControl().nontoken()).dies(),
-                expiry = DelayedTriggerExpiry.EndOfTurn,
-                fireOnce = false,
-                effect = woeRatToken()
-            )
+        ) then Effects.CreateDelayedTrigger(
+            trigger = Triggers.a(GameObjectFilter.Creature.youControl().nontoken()).dies(),
+            expiry = DelayedTriggerExpiry.EndOfTurn,
+            fireOnce = false,
+            effect = woeRatToken()
         )
     }
 

@@ -41,10 +41,8 @@ val ShieldsOfVelisVel = card("Shields of Velis Vel") {
         val player = target(Targets.Player)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.targetPlayerControls(player)),
-            Effects.Composite(
-                Effects.ModifyStats(0, 1, EffectTarget.IterationEntity),
+            Effects.ModifyStats(0, 1, EffectTarget.IterationEntity) then
                 Effects.GrantKeyword(Keyword.CHANGELING, EffectTarget.IterationEntity)
-            )
         )
     }
 

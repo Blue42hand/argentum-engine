@@ -40,12 +40,10 @@ val AbigaleEloquentFirstYear = card("Abigale, Eloquent First-Year") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.Creature.copy(excludeSelf = true), optional = true)
-        effect = Effects.Composite(
-            Effects.RemoveAllAbilities(creature, Duration.Permanent),
-            Effects.AddCounters(CounterType.FLYING, 1, creature),
-            Effects.AddCounters(CounterType.FIRST_STRIKE, 1, creature),
-            Effects.AddCounters(CounterType.LIFELINK, 1, creature),
-        )
+        effect = Effects.RemoveAllAbilities(creature, Duration.Permanent) then
+            Effects.AddCounters(CounterType.FLYING, 1, creature) then
+            Effects.AddCounters(CounterType.FIRST_STRIKE, 1, creature) then
+            Effects.AddCounters(CounterType.LIFELINK, 1, creature)
     }
 
     metadata {

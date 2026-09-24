@@ -22,8 +22,7 @@ val LiminalHold = card("Liminal Hold") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val permanent = target(TargetFilter.NonlandPermanentOpponentControls, optional = true)
-        effect = Effects.ExileUntilLeaves(permanent)
-            .then(Effects.GainLife(2))
+        effect = Effects.ExileUntilLeaves(permanent) then Effects.GainLife(2)
     }
 
     triggeredAbility {

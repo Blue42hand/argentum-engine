@@ -44,15 +44,13 @@ val InfernalVessel = card("Infernal Vessel") {
     triggeredAbility {
         trigger = Triggers.self.dies()
         interveningIf = Conditions.Not(Conditions.TriggeringEntityHadSubtype(Subtype.DEMON.value))
-        effect = Effects.Composite(
-            Effects.Move(
-                target = EffectTarget.Self,
-                destination = Zone.BATTLEFIELD,
-                fromZone = Zone.GRAVEYARD
-            ),
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self),
+        effect = Effects.Move(
+            target = EffectTarget.Self,
+            destination = Zone.BATTLEFIELD,
+            fromZone = Zone.GRAVEYARD
+        ) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self) then
             Effects.AddCreatureType(Subtype.DEMON.value, EffectTarget.Self, Duration.Permanent)
-        )
         description = "When this creature dies, if it wasn't a Demon, return it to the battlefield " +
             "under its owner's control with two +1/+1 counters on it. It's a Demon in addition to " +
             "its other types."

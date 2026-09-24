@@ -20,8 +20,7 @@ val Repulse = card("Repulse") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ReturnToHand(creature)
-            .then(Effects.DrawCards(1))
+        effect = Effects.ReturnToHand(creature) then Effects.DrawCards(1)
     }
 
     metadata {

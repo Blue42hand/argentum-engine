@@ -25,12 +25,10 @@ val InvoluntaryEmployment = card("Involuntary Employment") {
     oracleText = "Gain control of target creature until end of turn. Untap that creature. It gains haste until end of turn. Create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")"
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GainControl(t, Duration.EndOfTurn),
-            Effects.Untap(t),
-            Effects.GrantKeyword(Keyword.HASTE, t),
+        effect = Effects.GainControl(t, Duration.EndOfTurn) then
+            Effects.Untap(t) then
+            Effects.GrantKeyword(Keyword.HASTE, t) then
             Effects.CreateTreasure()
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

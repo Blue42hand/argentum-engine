@@ -55,14 +55,12 @@ val OldHobAlleycatBlues = card("Old Hob, Alleycat Blues") {
             creatureTypes = setOf("Mutant"),
             keywords = setOf(Keyword.HASTE),
             imageUri = "https://cards.scryfall.io/normal/front/5/1/51e33613-7a24-461c-8d9f-12680af4b92a.jpg?1771590526"
-        ).then(
-            Effects.CreateDelayedTrigger(
-                step = Step.END,
-                effect = Effects.Move(
-                    target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0),
-                    destination = Zone.GRAVEYARD,
-                    byDestruction = true,
-                )
+        ) then Effects.CreateDelayedTrigger(
+            step = Step.END,
+            effect = Effects.Move(
+                target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0),
+                destination = Zone.GRAVEYARD,
+                byDestruction = true,
             )
         )
         description = "At the beginning of combat on your turn, create a 2/2 red Mutant creature token. It gains haste until end of turn. Destroy it at the beginning of the next end step."

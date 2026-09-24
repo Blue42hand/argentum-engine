@@ -26,10 +26,7 @@ val VanishFromSight = card("Vanish from Sight") {
 
     spell {
         val permanent = target(TargetFilter.NonlandPermanent)
-        effect = Effects.Composite(
-            Effects.PutOnTopOrBottomOfLibrary(permanent),
-            Patterns.Library.surveil(1)
-        )
+        effect = Effects.PutOnTopOrBottomOfLibrary(permanent) then Patterns.Library.surveil(1)
     }
 
     metadata {

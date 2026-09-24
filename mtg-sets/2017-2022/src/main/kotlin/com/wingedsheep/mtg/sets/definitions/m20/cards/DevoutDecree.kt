@@ -27,10 +27,7 @@ val DevoutDecree = card("Devout Decree") {
 
     spell {
         val victim = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.withAnyColor(Color.BLACK, Color.RED)))
-        effect = Effects.Composite(
-            Effects.Exile(victim),
-            Effects.Scry(1),
-        )
+        effect = Effects.Exile(victim) then Effects.Scry(1)
     }
 
     metadata {

@@ -33,17 +33,13 @@ val EomerMarshalOfRohan = card("Éomer, Marshal of Rohan") {
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.youControl().legendary().attacking()).dies()
         oncePerTurn = true
-        effect = Effects.Composite(
-            listOf(
-                // Untap all creatures you control
-                Effects.ForEachInGroup(
-                    GroupFilter.AllCreaturesYouControl,
-                    Effects.Untap(EffectTarget.IterationEntity)
-                ),
-                // After this phase, there is an additional combat phase (combat only — no main)
-                Effects.AddCombatPhase
-            )
-        )
+        // Untap all creatures you control
+        effect = Effects.ForEachInGroup(
+            GroupFilter.AllCreaturesYouControl,
+            Effects.Untap(EffectTarget.IterationEntity)
+        ) then
+            // After this phase, there is an additional combat phase (combat only — no main)
+            Effects.AddCombatPhase
     }
 
     metadata {

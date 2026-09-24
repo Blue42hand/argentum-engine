@@ -21,10 +21,7 @@ val WalkWithTheAncestors = card("Walk with the Ancestors") {
     oracleText = "Return up to one target permanent card from your graveyard to your hand.\nDiscover 4."
     spell {
         val permanent = target(TargetFilter(GameObjectFilter.Permanent.ownedByYou(), zone = Zone.GRAVEYARD), optional = true)
-        effect = Effects.Composite(
-            Effects.ReturnToHand(permanent),
-            Effects.Discover(4)
-        )
+        effect = Effects.ReturnToHand(permanent) then Effects.Discover(4)
     }
     metadata {
         rarity = Rarity.COMMON

@@ -25,10 +25,7 @@ val SymbolOfUnsummoning = card("Symbol of Unsummoning") {
     oracleText = "Return target creature to its owner's hand.\nDraw a card."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.HAND),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.Move(t, Zone.HAND) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

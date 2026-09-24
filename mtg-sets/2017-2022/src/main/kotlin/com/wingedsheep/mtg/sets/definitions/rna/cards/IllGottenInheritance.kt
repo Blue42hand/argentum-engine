@@ -27,18 +27,12 @@ val IllGottenInheritance = card("Ill-Gotten Inheritance") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        effect = Effects.Composite(listOf(
-            Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.GainLife(1)
-        ))
+        effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(1)
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{5}{B}"), Costs.SacrificeSelf)
         val victim = target(Targets.Opponent)
-        effect = Effects.Composite(listOf(
-            Effects.DealDamage(4, victim),
-            Effects.GainLife(4)
-        ))
+        effect = Effects.DealDamage(4, victim) then Effects.GainLife(4)
     }
 
     metadata {

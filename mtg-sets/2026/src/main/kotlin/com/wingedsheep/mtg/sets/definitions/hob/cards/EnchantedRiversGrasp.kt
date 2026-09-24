@@ -38,8 +38,8 @@ val EnchantedRiversGrasp = card("Enchanted River's Grasp") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Tap(EffectTarget.EnchantedCreature)
-            .then(Effects.RemoveAllCounters(EffectTarget.EnchantedCreature))
+        effect = Effects.Tap(EffectTarget.EnchantedCreature) then
+            Effects.RemoveAllCounters(EffectTarget.EnchantedCreature)
     }
 
     staticAbility {

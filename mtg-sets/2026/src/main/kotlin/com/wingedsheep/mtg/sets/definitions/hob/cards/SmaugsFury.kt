@@ -24,11 +24,9 @@ val SmaugsFury = card("Smaug's Fury") {
     oracleText = "Target creature gets +3/+0 and gains reach and first strike until end of turn."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(3, 0, t),
-            Effects.GrantKeyword(Keyword.REACH, t),
+        effect = Effects.ModifyStats(3, 0, t) then
+            Effects.GrantKeyword(Keyword.REACH, t) then
             Effects.GrantKeyword(Keyword.FIRST_STRIKE, t)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

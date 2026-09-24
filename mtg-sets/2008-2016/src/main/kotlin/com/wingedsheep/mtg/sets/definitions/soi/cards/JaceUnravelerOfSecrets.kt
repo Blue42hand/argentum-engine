@@ -38,7 +38,7 @@ val JaceUnravelerOfSecrets = card("Jace, Unraveler of Secrets") {
         "counter that spell.\""
 
     loyaltyAbility(+1) {
-        effect = Patterns.Library.scry(1).then(Effects.DrawCards(1))
+        effect = Patterns.Library.scry(1) then Effects.DrawCards(1)
     }
 
     loyaltyAbility(-2) {

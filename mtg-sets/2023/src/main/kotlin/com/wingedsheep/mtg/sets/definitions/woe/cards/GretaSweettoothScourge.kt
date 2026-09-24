@@ -65,10 +65,7 @@ val GretaSweettoothScourge = card("Greta, Sweettooth Scourge") {
             Costs.Mana("{1}{B}"),
             Costs.Sacrifice(GameObjectFilter.Any.withSubtype("Food")),
         )
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Effects.LoseLife(1, EffectTarget.Controller),
-        )
+        effect = Effects.DrawCards(1) then Effects.LoseLife(1, EffectTarget.Controller)
         description = "You draw a card and you lose 1 life."
     }
 

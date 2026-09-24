@@ -51,8 +51,7 @@ val TalionsMessenger = card("Talion's Messenger") {
 
     triggeredAbility {
         trigger = Triggers.you.attacks(GameObjectFilter.Any.withSubtype("Faerie"))
-        effect = Effects.Composite(
-            Effects.DrawCards(1, EffectTarget.Controller),
+        effect = Effects.DrawCards(1, EffectTarget.Controller) then
             Effects.ReflexiveTrigger(
                 action = Patterns.Hand.discardCards(1),
                 optional = false,
@@ -63,8 +62,7 @@ val TalionsMessenger = card("Talion's Messenger") {
                     1,
                     permanent,
                 )
-            },
-        )
+            }
         description = "Whenever you attack with one or more Faeries, draw a card, then discard a " +
             "card. When you discard a card this way, put a +1/+1 counter on target Faerie you control."
     }

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
@@ -36,7 +35,7 @@ val TheOoze = card("The Ooze") {
     activatedAbility {
         val graveyardCard = target(TargetFilter.CardInGraveyard)
         cost = Costs.Tap
-        effect = Effects.Exile(graveyardCard).then(Effects.CreateMutagenToken())
+        effect = Effects.Exile(graveyardCard) then Effects.CreateMutagenToken()
     }
 
     metadata {

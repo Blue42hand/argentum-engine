@@ -24,10 +24,8 @@ val KonstrariCharm = card("Konstrari Charm") {
             }
             mode("Put two +1/+1 counters on target creature. It gains trample until end of turn") {
                 val t = target(TargetFilter.Creature)
-                effect = Effects.Composite(
-                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t),
+                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t) then
                     Effects.GrantKeyword(Keyword.TRAMPLE, t)
-                )
             }
             mode("Add {C}{C}{C}") {
                 effect = Effects.AddColorlessMana(3)

@@ -24,10 +24,7 @@ val Despoil = card("Despoil") {
     oracleText = "Destroy target land. Its controller loses 2 life."
     spell {
         val t = target(TargetFilter.Land)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            Effects.LoseLife(2, t)
-        )
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then Effects.LoseLife(2, t)
     }
     metadata {
         rarity = Rarity.COMMON

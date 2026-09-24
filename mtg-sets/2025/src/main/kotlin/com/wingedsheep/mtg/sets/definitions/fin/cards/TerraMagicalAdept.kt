@@ -53,14 +53,13 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  */
 
 // Shared chapter I–III effect, parameterized on the chosen target enchantment.
-private fun copyChapterEffect(chosen: EffectTarget): Effect = Effects.Composite(
-    Effects.CreateTokenCopyOfTarget(
-        target = chosen,
-        addedKeywords = setOf(Keyword.HASTE),
-        // "Sacrifice it at the beginning of your next end step."
-        sacrificeAtStep = Step.END,
-        sacrificeOnlyOnControllersTurn = true,
-    ),
+private fun copyChapterEffect(chosen: EffectTarget): Effect = Effects.CreateTokenCopyOfTarget(
+    target = chosen,
+    addedKeywords = setOf(Keyword.HASTE),
+    // "Sacrifice it at the beginning of your next end step."
+    sacrificeAtStep = Step.END,
+    sacrificeOnlyOnControllersTurn = true,
+) then
     // "If it's a Saga, put up to three lore counters on it." The created token is in CREATED_TOKENS;
     // gate on it being a Saga, then let the controller choose 0..3 lore counters (advancing its
     // chapters). Copying a non-Saga enchantment offers no lore prompt.
@@ -70,8 +69,7 @@ private fun copyChapterEffect(chosen: EffectTarget): Effect = Effects.Composite(
             GameObjectFilter.Enchantment.withSubtype(Subtype.SAGA),
         ),
         then = Effects.AddCountersUpTo(CounterType.LORE, 3, EffectTarget.PipelineTarget(CREATED_TOKENS, 0)),
-    ),
-)
+    )
 
 private val EsperTerra = card("Esper Terra") {
     manaCost = ""
@@ -97,14 +95,12 @@ private val EsperTerra = card("Esper Terra") {
 
     // IV — Add {W}{W}{U}{U}{B}{B}{R}{R}{G}{G}, then exile Esper Terra and return it front face up.
     sagaChapter(4) {
-        effect = Effects.Composite(
-            Effects.AddMana(Color.WHITE, 2),
-            Effects.AddMana(Color.BLUE, 2),
-            Effects.AddMana(Color.BLACK, 2),
-            Effects.AddMana(Color.RED, 2),
-            Effects.AddMana(Color.GREEN, 2),
-            Effects.ExileAndReturnTransformed(EffectTarget.Self, ReturnFace.FRONT),
-        )
+        effect = Effects.AddMana(Color.WHITE, 2) then
+            Effects.AddMana(Color.BLUE, 2) then
+            Effects.AddMana(Color.BLACK, 2) then
+            Effects.AddMana(Color.RED, 2) then
+            Effects.AddMana(Color.GREEN, 2) then
+            Effects.ExileAndReturnTransformed(EffectTarget.Self, ReturnFace.FRONT)
     }
 
     metadata {

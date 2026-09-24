@@ -1379,7 +1379,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -1390,7 +1390,7 @@
                         "filter": {
                             "baseFilter": "creature kw:flying"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }

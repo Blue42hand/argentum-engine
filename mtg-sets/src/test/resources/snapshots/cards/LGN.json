@@ -3372,13 +3372,13 @@
                     "amount": "XValue",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }

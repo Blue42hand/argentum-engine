@@ -31,10 +31,7 @@ val CutIn = card("Cut In") {
     spell {
         val damaged = target(TargetFilter.Creature)
         val roleTarget = target(TargetFilter.CreatureYouControl, optional = true)
-        effect = Effects.Composite(
-            Effects.DealDamage(4, damaged),
-            Effects.CreateRoleToken("Young Hero Role", roleTarget)
-        )
+        effect = Effects.DealDamage(4, damaged) then Effects.CreateRoleToken("Young Hero Role", roleTarget)
     }
 
     metadata {

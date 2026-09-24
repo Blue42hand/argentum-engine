@@ -65,10 +65,7 @@ val AbsolvingLammasu = card("Absolving Lammasu") {
     triggeredAbility {
         trigger = Triggers.self.dies()
         val suspect = target(TargetFilter.CreatureOpponentControls, optional = true)
-        effect = Effects.Composite(
-            Effects.GainLife(3),
-            Effects.Suspect(suspect)
-        )
+        effect = Effects.GainLife(3) then Effects.Suspect(suspect)
         description = "When this creature dies, you gain 3 life and suspect up to one target " +
             "creature an opponent controls."
     }

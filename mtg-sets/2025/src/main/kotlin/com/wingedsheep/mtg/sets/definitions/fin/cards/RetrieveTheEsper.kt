@@ -31,20 +31,18 @@ val RetrieveTheEsper = card("Retrieve the Esper") {
         "Flashback {5}{U} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
 
     spell {
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                power = 3,
-                toughness = 3,
-                colors = setOf(Color.BLUE),
-                creatureTypes = setOf("Robot", "Warrior"),
-                artifactToken = true,
-                imageUri = "https://cards.scryfall.io/normal/front/c/2/c2b4e93b-6b27-4dd3-a6dd-a75d6fab14dc.jpg?1748704066",
-            ),
+        effect = Effects.CreateToken(
+            power = 3,
+            toughness = 3,
+            colors = setOf(Color.BLUE),
+            creatureTypes = setOf("Robot", "Warrior"),
+            artifactToken = true,
+            imageUri = "https://cards.scryfall.io/normal/front/c/2/c2b4e93b-6b27-4dd3-a6dd-a75d6fab14dc.jpg?1748704066",
+        ) then
             Effects.If(
                 condition = Conditions.WasCastFromGraveyard,
                 then = Effects.AddCountersToCollection(CREATED_TOKENS, CounterType.PLUS_ONE_PLUS_ONE, 2),
-            ),
-        )
+            )
     }
 
     keywordAbility(KeywordAbility.flashback("{5}{U}"))

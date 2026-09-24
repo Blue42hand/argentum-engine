@@ -23,10 +23,7 @@ val Dissolve = card("Dissolve") {
 
     spell {
         val spell = target(TargetFilter.SpellOnStack)
-        effect = Effects.Composite(
-            Effects.CounterSpell(),
-            Effects.Scry(1),
-        )
+        effect = Effects.CounterSpell() then Effects.Scry(1)
     }
 
     metadata {

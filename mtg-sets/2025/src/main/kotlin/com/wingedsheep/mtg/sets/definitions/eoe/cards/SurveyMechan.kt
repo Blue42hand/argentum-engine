@@ -35,11 +35,9 @@ val SurveyMechan = card("Survey Mechan") {
         cost = Costs.Composite(Costs.Mana("{10}"), Costs.SacrificeSelf)
         val damageTarget = target(Targets.Any)
         val drawTarget = target(Targets.Player)
-        effect = Effects.Composite(
-            Effects.DealDamage(3, damageTarget),
-            Effects.DrawCards(3, drawTarget),
-            Effects.GainLife(3, drawTarget),
-        )
+        effect = Effects.DealDamage(3, damageTarget) then
+            Effects.DrawCards(3, drawTarget) then
+            Effects.GainLife(3, drawTarget)
         genericCostReduction = DynamicAmounts.differentlyNamedLandsYouControl()
     }
 

@@ -3753,7 +3753,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -3764,7 +3764,7 @@
                             "filter": {
                                 "baseFilter": "artifact"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target artifact."
@@ -4753,11 +4753,11 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "t0"
+                "id": "t1"
             },
             {
                 "type": "TargetPlayerOrPlaneswalker",
-                "id": "t1"
+                "id": "t2"
             }
         ],
         "kickerSpellEffect": {
@@ -4771,7 +4771,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 {
@@ -4782,7 +4782,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t1"
+                        "name": "t2"
                     }
                 }
             ]
@@ -6969,39 +6969,34 @@
                         "type": "Composite",
                         "effects": [
                             {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "GatherCards",
-                                        "source": {
-                                            "type": "FromZone",
-                                            "zone": "Hand"
-                                        },
-                                        "storeAs": "hand"
-                                    },
-                                    {
-                                        "type": "SelectFromCollection",
-                                        "from": "hand",
-                                        "selection": {
-                                            "type": "ChooseExactly",
-                                            "count": {
-                                                "type": "Fixed",
-                                                "amount": 1
-                                            }
-                                        },
-                                        "storeSelected": "discarded",
-                                        "prompt": "Choose 1 card to discard"
-                                    },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "discarded",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Graveyard"
-                                        },
-                                        "moveType": "Discard"
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Hand"
+                                },
+                                "storeAs": "hand"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "hand",
+                                "selection": {
+                                    "type": "ChooseExactly",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
                                     }
-                                ]
+                                },
+                                "storeSelected": "discarded",
+                                "prompt": "Choose 1 card to discard"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "discarded",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                },
+                                "moveType": "Discard"
                             },
                             {
                                 "type": "DrawCards",
@@ -11707,7 +11702,7 @@
                             "type": "MoveToZone",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t1"
                             },
                             "destination": "Exile"
                         },
@@ -11716,7 +11711,7 @@
                             "filter": {
                                 "baseFilter": "permanent ctrl:opponent"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     },
                     "descriptionOverride": "Whenever you draw a card, exile target permanent an opponent controls."
@@ -12744,7 +12739,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "destination": "Hand"
                 },
@@ -12754,7 +12749,7 @@
                         "baseFilter": "sorcery own:you",
                         "zone": "Graveyard"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             },
             {
@@ -13019,7 +13014,7 @@
                             "type": "TapUntap",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t1"
                             }
                         },
                         {
@@ -13027,7 +13022,7 @@
                             "keyword": "DOESNT_UNTAP",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t1"
                             },
                             "duration": {
                                 "type": "WhileSourceOnBattlefield",
@@ -13041,7 +13036,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             },
             {
@@ -13285,7 +13280,7 @@
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
@@ -13301,7 +13296,7 @@
                             "controllerPredicate": "ControlledByYou"
                         }
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             },
             {
@@ -13314,7 +13309,7 @@
                             "keyword": "FLYING",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t2"
                             }
                         },
                         {
@@ -13322,7 +13317,7 @@
                             "keyword": "FIRST_STRIKE",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t2"
                             }
                         },
                         {
@@ -13330,7 +13325,7 @@
                             "keyword": "LIFELINK",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t2"
                             }
                         }
                     ]
@@ -13348,7 +13343,7 @@
                             "controllerPredicate": "ControlledByYou"
                         }
                     },
-                    "id": "t0"
+                    "id": "t2"
                 }
             }
         ]

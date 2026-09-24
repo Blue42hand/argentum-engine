@@ -19,10 +19,7 @@ val JayasFirenado = card("Jaya's Firenado") {
 
     spell {
         val t = target(Targets.CreatureOrPlaneswalker)
-        effect = Effects.Composite(
-            Effects.DealDamage(5, t),
-            Effects.Scry(1)
-        )
+        effect = Effects.DealDamage(5, t) then Effects.Scry(1)
     }
 
     metadata {

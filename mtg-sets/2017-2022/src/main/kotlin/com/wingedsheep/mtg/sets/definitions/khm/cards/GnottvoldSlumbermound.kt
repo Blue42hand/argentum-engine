@@ -46,8 +46,7 @@ val GnottvoldSlumbermound = card("Gnottvold Slumbermound") {
             Costs.SacrificeSelf
         )
         val victim = target(TargetFilter.Land)
-        effect = Effects.Composite(
-            Effects.Destroy(victim),
+        effect = Effects.Destroy(victim) then
             Effects.CreateToken(
                 power = 4,
                 toughness = 4,
@@ -55,7 +54,6 @@ val GnottvoldSlumbermound = card("Gnottvold Slumbermound") {
                 creatureTypes = setOf("Troll", "Warrior"),
                 keywords = setOf(Keyword.TRAMPLE)
             )
-        )
     }
 
     metadata {

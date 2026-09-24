@@ -26,10 +26,7 @@ val CoatWithVenom = card("Coat with Venom") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 2, t),
-            Effects.GrantKeyword(Keyword.DEATHTOUCH, t)
-        )
+        effect = Effects.ModifyStats(1, 2, t) then Effects.GrantKeyword(Keyword.DEATHTOUCH, t)
     }
 
     metadata {

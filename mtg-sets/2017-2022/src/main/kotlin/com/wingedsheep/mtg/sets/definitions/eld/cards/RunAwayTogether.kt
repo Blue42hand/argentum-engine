@@ -28,8 +28,7 @@ val RunAwayTogether = card("Run Away Together") {
     spell {
         val t1 = target(TargetFilter.CreatureYouControl)
         val t2 = target(TargetFilter.CreatureOpponentControls)
-        effect = Effects.ReturnToHand(t1)
-            .then(Effects.ReturnToHand(t2))
+        effect = Effects.ReturnToHand(t1) then Effects.ReturnToHand(t2)
     }
 
     metadata {

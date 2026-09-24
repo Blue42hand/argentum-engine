@@ -65,12 +65,10 @@ class TheTaleOfTamiyoScenarioTest : FunSpec({
                 TargetFilter(GameObjectFilter.InstantOrSorcery.ownedByYou(), zone = Zone.GRAVEYARD),
                 unlimited = true,
             )
-            effect = Effects.Composite(
-                ForEachTargetEffect(listOf(Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE))),
-                GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "tamiyoExiled"),
-                Effects.CopyCollectionIntoCollection(from = "tamiyoExiled", storeAs = "tamiyoCopies"),
-                Effects.CastAnyNumberFromCollection(from = "tamiyoCopies"),
-            )
+            effect = ForEachTargetEffect(listOf(Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE))) then
+                GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "tamiyoExiled") then
+                Effects.CopyCollectionIntoCollection(from = "tamiyoExiled", storeAs = "tamiyoCopies") then
+                Effects.CastAnyNumberFromCollection(from = "tamiyoCopies")
         }
     }
 

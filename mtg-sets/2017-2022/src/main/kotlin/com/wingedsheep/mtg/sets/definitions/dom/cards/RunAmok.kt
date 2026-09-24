@@ -20,8 +20,7 @@ val RunAmok = card("Run Amok") {
 
     spell {
         val t = target(TargetFilter.AttackingCreature)
-        effect = Effects.ModifyStats(3, 3, t)
-            .then(Effects.GrantKeyword(Keyword.TRAMPLE, t))
+        effect = Effects.ModifyStats(3, 3, t) then Effects.GrantKeyword(Keyword.TRAMPLE, t)
     }
 
     metadata {

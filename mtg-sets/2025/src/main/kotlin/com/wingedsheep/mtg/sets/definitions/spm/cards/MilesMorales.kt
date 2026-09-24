@@ -102,11 +102,9 @@ private val UltimateSpiderMan = card("Ultimate Spider-Man") {
     // colorless until end of turn.
     activatedAbility {
         cost = Costs.Mana("{2}")
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            Effects.GrantHexproof(EffectTarget.Self, Duration.EndOfTurn),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.GrantHexproof(EffectTarget.Self, Duration.EndOfTurn) then
             Effects.ChangeColor(EffectTarget.Self, emptySet(), Duration.EndOfTurn)
-        )
         description = "Camouflage — Put a +1/+1 counter on Ultimate Spider-Man. He gains hexproof and becomes colorless until end of turn."
     }
 

@@ -26,22 +26,18 @@ val StingerquillCharm = card("Stingerquill Charm") {
             }
             mode("Target creature gains first strike and deathtouch until end of turn") {
                 val t = target(TargetFilter.Creature)
-                effect = Effects.Composite(
-                    Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),
+                effect = Effects.GrantKeyword(Keyword.FIRST_STRIKE, t) then
                     Effects.GrantKeyword(Keyword.DEATHTOUCH, t)
-                )
             }
             mode("Create a 2/2 colorless Wizard Soldier creature token named Cadet. It gains haste until end of turn") {
-                effect = Effects.Composite(
-                    Effects.CreateToken(
-                        power = 2,
-                        toughness = 2,
-                        name = "Cadet",
-                        creatureTypes = setOf("Wizard", "Soldier"),
-                        imageUri = "https://cards.scryfall.io/normal/front/8/f/8f4534d8-2783-484f-8ebf-a47b1cc4c6df.jpg?1789734318"
-                    ),
+                effect = Effects.CreateToken(
+                    power = 2,
+                    toughness = 2,
+                    name = "Cadet",
+                    creatureTypes = setOf("Wizard", "Soldier"),
+                    imageUri = "https://cards.scryfall.io/normal/front/8/f/8f4534d8-2783-484f-8ebf-a47b1cc4c6df.jpg?1789734318"
+                ) then
                     Effects.GrantKeyword(Keyword.HASTE, EffectTarget.PipelineTarget(CREATED_TOKENS, 0))
-                )
             }
         }
     }

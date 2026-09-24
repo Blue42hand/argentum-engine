@@ -24,10 +24,7 @@ val GrappleWithDeath = card("Grapple with Death") {
     oracleText = "Destroy target artifact or creature. You gain 1 life."
     spell {
         val t = target(TargetFilter.CreatureOrArtifact)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            Effects.GainLife(1)
-        )
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then Effects.GainLife(1)
     }
     metadata {
         rarity = Rarity.COMMON

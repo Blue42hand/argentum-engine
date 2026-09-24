@@ -27,8 +27,8 @@ val Mindswipe = card("Mindswipe") {
 
     spell {
         val spell = target(TargetFilter.SpellOnStack)
-        effect = Effects.CounterUnlessDynamicPays(DynamicAmounts.xValue())
-            .then(Effects.DealDamage(DynamicAmounts.xValue(), EffectTarget.TargetController))
+        effect = Effects.CounterUnlessDynamicPays(DynamicAmounts.xValue()) then
+            Effects.DealDamage(DynamicAmounts.xValue(), EffectTarget.TargetController)
     }
 
     metadata {

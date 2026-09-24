@@ -46,19 +46,17 @@ val PizzaFaceGastromancer = card("Pizza Face, Gastromancer") {
         val target = target(TargetFilter.CreatureOrArtifact.copy(excludeSelf = true), optional = true)
         trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.YouHadPermanentLeaveBattlefieldThisTurn
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, target)
-            .then(
-                Effects.If(
-                    condition = Conditions.Not(
-                        Conditions.TargetMatchesFilter(GameObjectFilter.Creature, target)
-                    ),
-                    then = Effects.BecomeCreature(
-                        target = target,
-                        power = 0,
-                        toughness = 0,
-                        creatureTypes = setOf("Mutant"),
-                        duration = Duration.Permanent
-                    )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, target) then
+            Effects.If(
+                condition = Conditions.Not(
+                    Conditions.TargetMatchesFilter(GameObjectFilter.Creature, target)
+                ),
+                then = Effects.BecomeCreature(
+                    target = target,
+                    power = 0,
+                    toughness = 0,
+                    creatureTypes = setOf("Mutant"),
+                    duration = Duration.Permanent
                 )
             )
         description = "Disappear — At the beginning of your end step, if a permanent left the battlefield under your control this turn, put three +1/+1 counters on up to one other target artifact or creature. If it isn't a creature, it becomes a 0/0 Mutant creature in addition to its other types."

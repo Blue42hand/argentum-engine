@@ -27,10 +27,8 @@ val StealthMission = card("Stealth Mission") {
 
     spell {
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature) then
             Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature)
-        )
     }
 
     metadata {

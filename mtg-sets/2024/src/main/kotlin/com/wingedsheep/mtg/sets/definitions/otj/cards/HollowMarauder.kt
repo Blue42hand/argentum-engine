@@ -80,7 +80,7 @@ val HollowMarauder = card("Hollow Marauder") {
             discard(hmDiscarded, Player.ContextPlayer(0))
             // Draw a card unless the discarded card had mana value 4 or greater.
             ifNotEmpty(hmDiscarded, filter = GameObjectFilter.Any.manaValueAtLeast(4)) {
-                run(Effects.Composite(emptyList()))
+                run(Effects.Nothing)
             } orElse {
                 run(Effects.DrawCards(count = 1, target = EffectTarget.Controller))
             }

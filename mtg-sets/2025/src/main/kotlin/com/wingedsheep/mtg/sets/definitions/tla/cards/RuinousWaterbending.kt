@@ -32,11 +32,10 @@ val RuinousWaterbending = card("Ruinous Waterbending") {
     waterbendCost(amount = 4, optional = true)
 
     spell {
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                filter = GroupFilter.AllCreatures,
-                effect = Effects.ModifyStats(-2, -2, EffectTarget.IterationEntity)
-            ),
+        effect = Effects.ForEachInGroup(
+            filter = GroupFilter.AllCreatures,
+            effect = Effects.ModifyStats(-2, -2, EffectTarget.IterationEntity)
+        ) then
             // If the optional waterbend was paid, set up a this-turn delayed trigger that gains
             // 1 life each time a creature dies (the mass -2/-2 deaths happen as SBAs after this
             // spell finishes resolving, so the trigger is in place to catch them).
@@ -49,7 +48,6 @@ val RuinousWaterbending = card("Ruinous Waterbending") {
                     fireOnce = false
                 )
             )
-        )
     }
 
     metadata {

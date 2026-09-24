@@ -70,15 +70,11 @@ val DesertWereWorm = card("Desert Were-Worm") {
             right = 12
         )
         oncePerTurn = true
-        effect = Effects.Composite(
-            listOf(
-                Effects.ForEachInGroup(
-                    filter = GroupFilter(baseFilter = GameObjectFilter.Creature.attacking()),
-                    effect = Effects.Untap(EffectTarget.IterationEntity)
-                ),
-                Effects.AddCombatPhase
-            )
-        )
+        effect = Effects.ForEachInGroup(
+            filter = GroupFilter(baseFilter = GameObjectFilter.Creature.attacking()),
+            effect = Effects.Untap(EffectTarget.IterationEntity)
+        ) then
+            Effects.AddCombatPhase
         description = "Whenever you attack with creatures with total power 12 or greater for the " +
             "first time each turn, untap all attacking creatures. After this phase, there is an " +
             "additional combat phase."

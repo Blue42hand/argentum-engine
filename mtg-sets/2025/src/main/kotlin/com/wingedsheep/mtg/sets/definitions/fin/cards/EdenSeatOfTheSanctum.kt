@@ -43,8 +43,7 @@ val EdenSeatOfTheSanctum = card("Eden, Seat of the Sanctum") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{5}"), Costs.Tap)
-        effect = Effects.Composite(
-            Patterns.Library.mill(2),
+        effect = Patterns.Library.mill(2) then
             Effects.ReflexiveTrigger(
                 action = Effects.SacrificeTarget(EffectTarget.Self),
                 optional = true,
@@ -57,8 +56,7 @@ val EdenSeatOfTheSanctum = card("Eden, Seat of the Sanctum") {
                     ),
                 )
                 effect = Effects.ReturnToHand(permanent)
-            },
-        )
+            }
     }
 
     metadata {

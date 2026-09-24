@@ -56,8 +56,7 @@ val RockfaceVillage = card("Rockface Village") {
                     )
             ),
         )
-        effect = Effects.ModifyStats(1, 0, t)
-            .then(Effects.GrantKeyword(Keyword.HASTE, t))
+        effect = Effects.ModifyStats(1, 0, t) then Effects.GrantKeyword(Keyword.HASTE, t)
         timing = TimingRule.SorcerySpeed
     }
 

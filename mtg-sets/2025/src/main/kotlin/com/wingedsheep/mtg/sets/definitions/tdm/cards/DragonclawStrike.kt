@@ -36,7 +36,7 @@ val DragonclawStrike = card("Dragonclaw Strike") {
             power = DynamicAmounts.powerOf(yourCreature),
             toughness = DynamicAmounts.toughnessOf(yourCreature),
             target = yourCreature
-        ).then(Effects.Fight(yourCreature, opponentCreature))
+        ) then Effects.Fight(yourCreature, opponentCreature)
     }
 
     metadata {

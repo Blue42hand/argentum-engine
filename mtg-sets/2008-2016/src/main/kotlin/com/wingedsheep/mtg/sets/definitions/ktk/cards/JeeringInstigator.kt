@@ -32,11 +32,9 @@ val JeeringInstigator = card("Jeering Instigator") {
         trigger = Triggers.self.turnedFaceUp()
         interveningIf = Conditions.IsYourTurn
         val t = target(TargetFilter.OtherCreature)
-        effect = Effects.Composite(
-            Effects.GainControl(t, Duration.EndOfTurn),
-            Effects.Untap(t),
+        effect = Effects.GainControl(t, Duration.EndOfTurn) then
+            Effects.Untap(t) then
             Effects.GrantKeyword(Keyword.HASTE, t)
-        )
     }
 
     metadata {

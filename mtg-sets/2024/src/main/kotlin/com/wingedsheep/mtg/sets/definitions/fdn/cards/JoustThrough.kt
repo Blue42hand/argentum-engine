@@ -23,10 +23,7 @@ val JoustThrough = card("Joust Through") {
     oracleText = "Joust Through deals 3 damage to target attacking or blocking creature. You gain 1 life."
     spell {
         val t = target(TargetFilter.AttackingOrBlockingCreature)
-        effect = Effects.Composite(
-            Effects.DealDamage(3, t),
-            Effects.GainLife(1)
-        )
+        effect = Effects.DealDamage(3, t) then Effects.GainLife(1)
     }
     metadata {
         rarity = Rarity.UNCOMMON

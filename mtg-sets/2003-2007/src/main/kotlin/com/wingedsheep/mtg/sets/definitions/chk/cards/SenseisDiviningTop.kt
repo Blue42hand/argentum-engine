@@ -32,10 +32,7 @@ val SenseisDiviningTop = card("Sensei's Divining Top") {
     }
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Effects.Move(EffectTarget.Self, Zone.LIBRARY, ZonePlacement.Top)
-        )
+        effect = Effects.DrawCards(1) then Effects.Move(EffectTarget.Self, Zone.LIBRARY, ZonePlacement.Top)
     }
     metadata {
         rarity = Rarity.UNCOMMON

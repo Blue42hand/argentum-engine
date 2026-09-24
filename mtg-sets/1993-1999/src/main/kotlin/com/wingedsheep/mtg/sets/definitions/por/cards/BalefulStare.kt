@@ -30,8 +30,7 @@ val BalefulStare = card("Baleful Stare") {
     oracleText = "Target opponent reveals their hand. You draw a card for each Mountain and red card in it."
     spell {
         val t = target(Targets.Opponent)
-        effect = Effects.Composite(
-            Effects.RevealHand(t),
+        effect = Effects.RevealHand(t) then
             Effects.DrawCards(
                 DynamicAmounts.count(
                     Player.TargetOpponent,
@@ -39,7 +38,6 @@ val BalefulStare = card("Baleful Stare") {
                     (GameObjectFilter.Land.withSubtype(Subtype.MOUNTAIN) or GameObjectFilter.Any.withColor(Color.RED))
                 )
             )
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

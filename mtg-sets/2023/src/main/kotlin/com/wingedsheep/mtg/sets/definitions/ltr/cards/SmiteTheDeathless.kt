@@ -25,9 +25,9 @@ val SmiteTheDeathless = card("Smite the Deathless") {
         val creature = target(TargetFilter.Creature)
         // Remove indestructible and set up the "exile if it would die" replacement before
         // dealing damage so the damage can actually destroy/exile the creature.
-        effect = Effects.RemoveKeyword(Keyword.INDESTRUCTIBLE, creature, Duration.EndOfTurn)
-            .then(Effects.MarkExileOnDeath(creature))
-            .then(Effects.DealDamage(3, creature))
+        effect = Effects.RemoveKeyword(Keyword.INDESTRUCTIBLE, creature, Duration.EndOfTurn) then
+            Effects.MarkExileOnDeath(creature) then
+            Effects.DealDamage(3, creature)
     }
 
     metadata {

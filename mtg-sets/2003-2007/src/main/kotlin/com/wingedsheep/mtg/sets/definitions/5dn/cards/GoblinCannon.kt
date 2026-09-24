@@ -26,10 +26,7 @@ val GoblinCannon = card("Goblin Cannon") {
     activatedAbility {
         cost = Costs.Mana("{2}")
         val t = target(Targets.Any)
-        effect = Effects.Composite(
-            Effects.DealDamage(1, t),
-            SacrificeSelfEffect
-        )
+        effect = Effects.DealDamage(1, t) then SacrificeSelfEffect
     }
     metadata {
         rarity = Rarity.UNCOMMON

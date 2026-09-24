@@ -49,7 +49,7 @@ val AridArchway = card("Arid Archway") {
                 Conditions.TargetMatchesFilter(GameObjectFilter.Land.withSubtype(Subtype.DESERT), land),
                 Conditions.Not(Conditions.TargetIsSource()),
             ),
-            then = Effects.ReturnToHand(land).then(Patterns.Library.surveil(1)),
+            then = Effects.ReturnToHand(land) then Patterns.Library.surveil(1),
             otherwise = Effects.ReturnToHand(land),
         )
     }

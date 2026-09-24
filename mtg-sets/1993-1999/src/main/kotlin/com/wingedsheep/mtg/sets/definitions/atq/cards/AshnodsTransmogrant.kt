@@ -29,10 +29,8 @@ val AshnodsTransmogrant = card("Ashnod's Transmogrant") {
     activatedAbility {
         cost = Costs.Composite(Costs.Tap, Costs.SacrificeSelf)
         val creature = target(TargetFilter.Creature.nonartifact())
-        effect = Effects.Composite(listOf(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
             Effects.AddCardType("ARTIFACT", creature)
-        ))
         description = "{T}, Sacrifice this artifact: Put a +1/+1 counter on target nonartifact creature. " +
             "That creature becomes an artifact in addition to its other types."
     }

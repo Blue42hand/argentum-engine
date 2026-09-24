@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.emn.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.unaryMinus

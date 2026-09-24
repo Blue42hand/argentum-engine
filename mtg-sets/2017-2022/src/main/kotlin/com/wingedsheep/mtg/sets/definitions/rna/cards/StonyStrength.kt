@@ -21,10 +21,7 @@ val StonyStrength = card("Stony Strength") {
 
     spell {
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(listOf(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
-            Effects.Untap(creature)
-        ))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then Effects.Untap(creature)
     }
 
     metadata {

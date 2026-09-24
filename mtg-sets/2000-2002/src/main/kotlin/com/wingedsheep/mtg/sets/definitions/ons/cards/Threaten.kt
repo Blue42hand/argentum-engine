@@ -22,11 +22,9 @@ val Threaten = card("Threaten") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Untap(t),
-            Effects.GainControl(t, Duration.EndOfTurn),
+        effect = Effects.Untap(t) then
+            Effects.GainControl(t, Duration.EndOfTurn) then
             Effects.GrantKeyword(Keyword.HASTE, t)
-        )
     }
 
     metadata {

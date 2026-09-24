@@ -37,8 +37,8 @@ val SaguPummeler = card("Sagu Pummeler") {
 
     renew("{4}{G}") {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature)
-            .then(Effects.AddCounters(CounterType.REACH, 1, creature))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature) then
+            Effects.AddCounters(CounterType.REACH, 1, creature)
     }
 
     metadata {

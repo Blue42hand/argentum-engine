@@ -40,19 +40,17 @@ val NoWitnesses = card("No Witnesses") {
         "this token: Draw a card.\")"
 
     spell {
-        effect = Effects.Composite(
-            Effects.ForEachPlayer(
-                players = Player.Each,
-                effect = Effects.If(
-                    condition = Conditions.PlayerControlsMostPermanents(
-                        Player.You,
-                        GameObjectFilter.Creature,
-                    ),
-                    then = Effects.Investigate(controller = EffectTarget.Controller),
+        effect = Effects.ForEachPlayer(
+            players = Player.Each,
+            effect = Effects.If(
+                condition = Conditions.PlayerControlsMostPermanents(
+                    Player.You,
+                    GameObjectFilter.Creature,
                 ),
+                then = Effects.Investigate(controller = EffectTarget.Controller),
             ),
-            Effects.DestroyAll(GameObjectFilter.Creature),
-        )
+        ) then
+            Effects.DestroyAll(GameObjectFilter.Creature)
     }
 
     metadata {

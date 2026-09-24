@@ -33,10 +33,8 @@ val RosaResoluteWhiteMage = card("Rosa, Resolute White Mage") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val t = target(TargetFilter.Creature.youControl())
-        effect = Effects.Composite(
-            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t) then
             Effects.GrantKeyword(Keyword.LIFELINK, t)
-        )
     }
     metadata {
         rarity = Rarity.RARE

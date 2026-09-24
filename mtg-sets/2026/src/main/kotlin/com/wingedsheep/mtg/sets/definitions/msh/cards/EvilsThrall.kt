@@ -62,22 +62,20 @@ val EvilsThrall = card("Evil's Thrall") {
 
     spell {
         val stolen = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.If(
-                condition = Conditions.CompareAmounts(
-                    DynamicAmounts.battlefield(
-                        Player.You,
-                        GameObjectFilter.Permanent.withSubtype(Subtype.VILLAIN)
-                    ).maxManaValue(),
-                    ComparisonOperator.GT,
-                    DynamicAmounts.manaValueOf(stolen)
-                ),
-                then = Effects.GainControl(stolen, Duration.EndOfYourNextTurn),
-                otherwise = Effects.GainControl(stolen, Duration.EndOfTurn)
+        effect = Effects.If(
+            condition = Conditions.CompareAmounts(
+                DynamicAmounts.battlefield(
+                    Player.You,
+                    GameObjectFilter.Permanent.withSubtype(Subtype.VILLAIN)
+                ).maxManaValue(),
+                ComparisonOperator.GT,
+                DynamicAmounts.manaValueOf(stolen)
             ),
-            Effects.Untap(stolen),
+            then = Effects.GainControl(stolen, Duration.EndOfYourNextTurn),
+            otherwise = Effects.GainControl(stolen, Duration.EndOfTurn)
+        ) then
+            Effects.Untap(stolen) then
             Effects.GrantKeyword(Keyword.HASTE, stolen)
-        )
     }
 
     metadata {

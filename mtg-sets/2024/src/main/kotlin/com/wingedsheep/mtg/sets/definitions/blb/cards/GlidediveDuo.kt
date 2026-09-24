@@ -29,12 +29,8 @@ val GlidediveDuo = card("Glidedive Duo") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            listOf(
-                Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)),
-                Effects.GainLife(2, EffectTarget.Controller)
-            )
-        )
+        effect = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)) then
+            Effects.GainLife(2, EffectTarget.Controller)
     }
 
     metadata {

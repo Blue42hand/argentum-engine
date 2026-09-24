@@ -28,8 +28,8 @@ val AethershieldArtificer = card("Aethershield Artificer") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val creature = target(TargetFilter(GameObjectFilter.ArtifactCreature.youControl()))
-        effect = Effects.ModifyStats(2, 2, creature)
-            .then(Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature, Duration.EndOfTurn))
+        effect = Effects.ModifyStats(2, 2, creature) then
+            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature, Duration.EndOfTurn)
     }
 
     metadata {

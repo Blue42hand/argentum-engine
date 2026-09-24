@@ -30,16 +30,14 @@ val DisturbedSlumber = card("Disturbed Slumber") {
 
     spell {
         val t = target(TargetFilter(GameObjectFilter.Land.youControl()))
-        effect = Effects.Composite(
-            Effects.BecomeCreature(
-                target = t,
-                power = 4,
-                toughness = 4,
-                keywords = setOf(Keyword.REACH, Keyword.HASTE),
-                creatureTypes = setOf("Dinosaur")
-            ),
+        effect = Effects.BecomeCreature(
+            target = t,
+            power = 4,
+            toughness = 4,
+            keywords = setOf(Keyword.REACH, Keyword.HASTE),
+            creatureTypes = setOf("Dinosaur")
+        ) then
             Effects.MustBeBlocked(t, allCreatures = false)
-        )
     }
 
     metadata {

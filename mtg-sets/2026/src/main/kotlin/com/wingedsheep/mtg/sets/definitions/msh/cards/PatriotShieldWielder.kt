@@ -27,10 +27,7 @@ val PatriotShieldWielder = card("Patriot, Shield Wielder") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
         val t = target(TargetFilter.Creature.youControl().other())
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, t),
-            Effects.GrantKeyword(Keyword.HEXPROOF, t),
-        )
+        effect = Effects.ModifyStats(2, 0, t) then Effects.GrantKeyword(Keyword.HEXPROOF, t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

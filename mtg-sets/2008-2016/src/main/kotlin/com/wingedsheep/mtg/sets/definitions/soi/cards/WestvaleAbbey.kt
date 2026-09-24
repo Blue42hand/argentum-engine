@@ -73,10 +73,7 @@ private val WestvaleAbbeyFront = card("Westvale Abbey") {
             Costs.Tap,
             Costs.SacrificeMultiple(5, GameObjectFilter.Creature),
         )
-        effect = Effects.Composite(
-            Effects.Transform(EffectTarget.Self),
-            Effects.Untap(EffectTarget.Self),
-        )
+        effect = Effects.Transform(EffectTarget.Self) then Effects.Untap(EffectTarget.Self)
         description = "Transform this land, then untap it."
     }
 

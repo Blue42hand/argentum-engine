@@ -825,7 +825,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "destination": "Hand"
                 },
@@ -836,7 +836,7 @@
                             "baseFilter": "own:you",
                             "zone": "Graveyard"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }
@@ -2712,7 +2712,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Exile"
                     },
@@ -2722,7 +2722,7 @@
                             "filter": {
                                 "baseFilter": "creature pow>=5"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Exile target creature with power 5 or greater"

@@ -206,10 +206,7 @@ class TeamworkMechanicScenarioTest : ScenarioTestBase() {
 
             val rallyCreature = kickerTarget(TargetFilter.Creature)
             val rallyPlayer = kickerTarget(com.wingedsheep.sdk.dsl.Targets.Player)
-            kickerEffect = Effects.Composite(
-                Effects.DealDamage(2, rallyCreature),
-                Effects.DealDamage(2, rallyPlayer),
-            )
+            kickerEffect = Effects.DealDamage(2, rallyCreature) then Effects.DealDamage(2, rallyPlayer)
         }
     }
 

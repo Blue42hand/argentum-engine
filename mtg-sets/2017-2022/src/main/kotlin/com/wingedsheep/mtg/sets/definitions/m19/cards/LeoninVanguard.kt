@@ -31,10 +31,7 @@ val LeoninVanguard = card("Leonin Vanguard") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         interveningIf = Conditions.YouControlAtLeast(3, GameObjectFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 1, EffectTarget.Self),
-            Effects.GainLife(1)
-        )
+        effect = Effects.ModifyStats(1, 1, EffectTarget.Self) then Effects.GainLife(1)
     }
     metadata {
         rarity = Rarity.UNCOMMON

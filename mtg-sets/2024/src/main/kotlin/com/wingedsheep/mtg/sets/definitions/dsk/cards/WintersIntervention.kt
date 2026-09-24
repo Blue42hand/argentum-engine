@@ -23,10 +23,7 @@ val WintersIntervention = card("Winter's Intervention") {
     oracleText = "Winter's Intervention deals 2 damage to target creature. You gain 2 life."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.DealDamage(2, t),
-            Effects.GainLife(2)
-        )
+        effect = Effects.DealDamage(2, t) then Effects.GainLife(2)
     }
     metadata {
         rarity = Rarity.COMMON

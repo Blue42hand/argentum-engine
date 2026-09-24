@@ -54,16 +54,12 @@ val SanctuaryWall = card("Sanctuary Wall") {
             Costs.Mana("{2}{W}"),
             Costs.Tap
         )
-        effect = Effects.Composite(
-            Effects.Tap(creature),
+        effect = Effects.Tap(creature) then
             Effects.May(
-                Effects.Composite(
-                    Effects.AddCounters(CounterType.STUN, 1, creature),
-                    Effects.AddCounters(CounterType.STUN, 1, EffectTarget.Self)
-                ),
+                Effects.AddCounters(CounterType.STUN, 1, creature) then
+                    Effects.AddCounters(CounterType.STUN, 1, EffectTarget.Self),
                 descriptionOverride = "Put a stun counter on it? (Sanctuary Wall also gets one.)"
             )
-        )
         description = "Tap target creature. You may put a stun counter on it. If you do, put a stun " +
             "counter on this creature."
     }

@@ -42,10 +42,7 @@ val YathanTombguard = card("Yathan Tombguard") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl().withAnyCounter()).dealsCombatDamage(Recipient.AnyPlayer)
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Effects.LoseLife(1, EffectTarget.PlayerRef(Player.You)),
-        )
+        effect = Effects.DrawCards(1) then Effects.LoseLife(1, EffectTarget.PlayerRef(Player.You))
     }
 
     metadata {

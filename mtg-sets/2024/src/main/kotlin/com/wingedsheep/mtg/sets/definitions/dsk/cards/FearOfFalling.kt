@@ -37,10 +37,8 @@ val FearOfFalling = card("Fear of Falling") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val targeted = target(TargetFilter.CreatureOpponentControls)
-        effect = Effects.Composite(
-            Effects.ModifyStats(-2, 0, targeted, Duration.UntilYourNextTurn),
+        effect = Effects.ModifyStats(-2, 0, targeted, Duration.UntilYourNextTurn) then
             Effects.RemoveKeyword(Keyword.FLYING, targeted, Duration.UntilYourNextTurn)
-        )
     }
 
     metadata {

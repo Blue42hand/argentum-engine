@@ -38,10 +38,8 @@ val NinjaOfTheHand = card("Ninja of the Hand") {
     activatedAbility {
         isPowerUp = true
         cost = Costs.Mana("{4}{B}")
-        effect = Effects.Composite(
-            Effects.EachOpponentDiscards(1),
+        effect = Effects.EachOpponentDiscards(1) then
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-        )
     }
 
     metadata {

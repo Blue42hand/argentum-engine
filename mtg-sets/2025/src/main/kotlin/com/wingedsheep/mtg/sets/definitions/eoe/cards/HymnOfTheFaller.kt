@@ -22,10 +22,10 @@ val HymnOfTheFaller = card("Hymn of the Faller") {
         "Void — If a nonland permanent left the battlefield this turn or a spell was warped this turn, draw another card."
 
     spell {
-        effect = Patterns.Library.surveil(1)
-            .then(Effects.DrawCards(1))
-            .then(Effects.LoseLife(1, EffectTarget.Controller))
-            .then(Effects.If(Conditions.Void, Effects.DrawCards(1)))
+        effect = Patterns.Library.surveil(1) then
+            Effects.DrawCards(1) then
+            Effects.LoseLife(1, EffectTarget.Controller) then
+            Effects.If(Conditions.Void, Effects.DrawCards(1))
     }
 
     metadata {

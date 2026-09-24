@@ -38,10 +38,7 @@ val FaerieDreamthief = card("Faerie Dreamthief") {
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{B}"), Costs.ExileSelf)
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Effects.LoseLife(1, EffectTarget.Controller)
-        )
+        effect = Effects.DrawCards(1) then Effects.LoseLife(1, EffectTarget.Controller)
         activateFromZone = Zone.GRAVEYARD
     }
     metadata {

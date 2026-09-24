@@ -44,7 +44,7 @@ val AzogMoriasRuin = card("Azog, Moria's Ruin") {
 
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.youControl(), creature),
-            then = resolveForItsController.then(Effects.DrawCards(1)),
+            then = resolveForItsController then Effects.DrawCards(1),
             otherwise = resolveForItsController,
         )
     }

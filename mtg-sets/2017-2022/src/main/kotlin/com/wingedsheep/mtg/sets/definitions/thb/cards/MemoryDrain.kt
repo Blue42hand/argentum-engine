@@ -24,10 +24,7 @@ val MemoryDrain = card("Memory Drain") {
 
     spell {
         val spell = target(TargetFilter.SpellOnStack)
-        effect = Effects.Composite(
-            Effects.CounterSpell(),
-            Effects.Scry(2),
-        )
+        effect = Effects.CounterSpell() then Effects.Scry(2)
     }
 
     metadata {

@@ -30,9 +30,9 @@ val MindTransferProtocol = card("Mind Transfer Protocol") {
             power = 4,
             toughness = 5,
             duration = Duration.EndOfTurn
-        )
-            .then(Effects.AddCardType("ARTIFACT", target, Duration.EndOfTurn))
-            .then(Effects.DrawCards(1))
+        ) then
+            Effects.AddCardType("ARTIFACT", target, Duration.EndOfTurn) then
+            Effects.DrawCards(1)
     }
 
     metadata {

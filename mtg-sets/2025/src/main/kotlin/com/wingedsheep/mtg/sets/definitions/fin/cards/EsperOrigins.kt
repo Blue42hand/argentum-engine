@@ -102,10 +102,7 @@ private val EsperOriginsFront = card("Esper Origins") {
         "Flashback {3}{G} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
 
     spell {
-        effect = Effects.Composite(
-            Effects.Surveil(2),
-            Effects.GainLife(2),
-        )
+        effect = Effects.Surveil(2) then Effects.GainLife(2)
         // If cast from a graveyard, this resolution puts the card onto the battlefield transformed
         // (as Summon: Esper Maduin) with a finality counter, instead of going to the graveyard.
         returnTransformedFromGraveyard(listOf(CounterType.FINALITY))

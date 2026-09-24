@@ -32,10 +32,8 @@ val LukeCagePowerMan = card("Luke Cage, Power Man") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks(setOf(AttackPredicate.Alone))
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, EffectTarget.Self),
-            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self, Duration.EndOfTurn),
-        )
+        effect = Effects.ModifyStats(2, 0, EffectTarget.Self) then
+            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self, Duration.EndOfTurn)
         description = "Unbreakable Skin — Whenever Luke Cage attacks alone, he gets +2/+0 and " +
             "gains indestructible until end of turn."
     }

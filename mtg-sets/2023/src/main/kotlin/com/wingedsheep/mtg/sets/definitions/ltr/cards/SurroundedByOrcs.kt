@@ -30,13 +30,11 @@ val SurroundedByOrcs = card("Surrounded by Orcs") {
 
     spell {
         val player = target(Targets.Player)
-        effect = Effects.Composite(listOf(
-            Effects.Amass(3, "Orc"),
+        effect = Effects.Amass(3, "Orc") then
             Patterns.Library.mill(
                 DynamicAmounts.powerOf(EffectTarget.AmassedArmy),
                 player
             )
-        ))
     }
 
     metadata {

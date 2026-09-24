@@ -43,13 +43,11 @@ val OutCold = card("Out Cold") {
 
     spell {
         targets(TargetFilter.Creature, count = 2, optional = true)
-        effect = Effects.Composite(
-            Effects.ForEachTarget(
-                Effects.Tap(EffectTarget.ContextTarget(0)),
-                Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(0))
-            ),
+        effect = Effects.ForEachTarget(
+            Effects.Tap(EffectTarget.ContextTarget(0)),
+            Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(0))
+        ) then
             Effects.Investigate()
-        )
     }
 
     metadata {

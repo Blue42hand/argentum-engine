@@ -27,8 +27,7 @@ val NamelessInversion = card("Nameless Inversion") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(3, -3, creature) then
-            Effects.LoseAllCreatureTypes(creature)
+        effect = Effects.ModifyStats(3, -3, creature) then Effects.LoseAllCreatureTypes(creature)
     }
 
     metadata {

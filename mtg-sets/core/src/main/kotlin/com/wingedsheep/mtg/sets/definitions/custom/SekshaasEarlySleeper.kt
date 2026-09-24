@@ -61,19 +61,13 @@ val SekshaasEarlySleeper = card("Sekshaas, Early Sleeper") {
     // Early to Rest — exile at each end step, return at your next upkeep with haste
     triggeredAbility {
         trigger = Triggers.anyPlayer.beginningOf(Step.END)
-        effect = Effects.Composite(
-            listOf(
-                Effects.Move(EffectTarget.Self, Zone.EXILE),
-                Effects.CreateDelayedTrigger(
-                    step = Step.UPKEEP,
-                    effect = Effects.Composite(listOf(
-                        Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD),
-                        Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self)
-                    )),
-                    fireOnPlayer = EffectTarget.PlayerRef(Player.You)
-                )
+        effect = Effects.Move(EffectTarget.Self, Zone.EXILE) then
+            Effects.CreateDelayedTrigger(
+                step = Step.UPKEEP,
+                effect = Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD) then
+                    Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self),
+                fireOnPlayer = EffectTarget.PlayerRef(Player.You)
             )
-        )
     }
 
     // {T}: Create a Food token named "Just One Glass" — once per turn

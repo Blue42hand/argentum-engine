@@ -29,13 +29,11 @@ val TheSpotsPortal = card("The Spot's Portal") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Move(t, Zone.LIBRARY, ZonePlacement.Bottom).then(
-            Effects.If(
-                condition = Conditions.Not(
-                    Conditions.YouControl(GameObjectFilter.Creature.withSubtype("Villain"))
-                ),
-                then = Effects.LoseLife(2, EffectTarget.Controller),
-            )
+        effect = Effects.Move(t, Zone.LIBRARY, ZonePlacement.Bottom) then Effects.If(
+            condition = Conditions.Not(
+                Conditions.YouControl(GameObjectFilter.Creature.withSubtype("Villain"))
+            ),
+            then = Effects.LoseLife(2, EffectTarget.Controller),
         )
     }
 

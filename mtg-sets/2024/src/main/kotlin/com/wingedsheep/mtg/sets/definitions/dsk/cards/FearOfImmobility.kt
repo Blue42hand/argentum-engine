@@ -36,13 +36,11 @@ val FearOfImmobility = card("Fear of Immobility") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter.Creature, optional = true)
-        effect = Effects.Composite(
-            Effects.Tap(t),
+        effect = Effects.Tap(t) then
             Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.opponentControls(), t),
                 then = Effects.AddCounters(counterType = CounterType.STUN, count = 1, target = t),
-            ),
-        )
+            )
         description = "When this creature enters, tap up to one target creature. If an opponent " +
             "controls that creature, put a stun counter on it."
     }

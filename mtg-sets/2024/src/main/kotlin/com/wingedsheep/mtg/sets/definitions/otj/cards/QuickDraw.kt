@@ -28,18 +28,16 @@ val QuickDraw = card("Quick Draw") {
     spell {
         val creature = target(TargetFilter.CreatureYouControl)
         val opponent = target(Targets.Opponent)
-        effect = Effects.Composite(
-            Effects.ModifyStats(power = 1, toughness = 1, target = creature),
-            Effects.GrantKeyword(Keyword.FIRST_STRIKE, target = creature),
+        effect = Effects.ModifyStats(power = 1, toughness = 1, target = creature) then
+            Effects.GrantKeyword(Keyword.FIRST_STRIKE, target = creature) then
             Patterns.Group.removeKeywordFromAll(
                 keyword = Keyword.FIRST_STRIKE,
                 filter = GroupFilter(GameObjectFilter.Creature.targetPlayerControls(opponent))
-            ),
+            ) then
             Patterns.Group.removeKeywordFromAll(
                 keyword = Keyword.DOUBLE_STRIKE,
                 filter = GroupFilter(GameObjectFilter.Creature.targetPlayerControls(opponent))
             )
-        )
     }
 
     metadata {

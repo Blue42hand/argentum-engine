@@ -25,25 +25,17 @@ val SystemsOverride = card("Systems Override") {
 
     spell {
         val target = target(TargetFilter.CreatureOrArtifact)
-        effect = Effects.Composite(
-            listOf(
-                Effects.GainControl(target, Duration.EndOfTurn),
-                Effects.Untap(target),
-                Effects.GrantKeyword(Keyword.HASTE, target),
-                Effects.If(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.withSubtype("Spacecraft"), target),
-                    then = Effects.Composite(
-                        listOf(
-                            Effects.AddCounters(CounterType.CHARGE, 10, target),
-                            Effects.CreateDelayedTrigger(
-                                step = Step.END,
-                                effect = Effects.RemoveCounters(CounterType.CHARGE, 10, target)
-                            )
-                        )
+        effect = Effects.GainControl(target, Duration.EndOfTurn) then
+            Effects.Untap(target) then
+            Effects.GrantKeyword(Keyword.HASTE, target) then
+            Effects.If(
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.withSubtype("Spacecraft"), target),
+                then = Effects.AddCounters(CounterType.CHARGE, 10, target) then
+                    Effects.CreateDelayedTrigger(
+                        step = Step.END,
+                        effect = Effects.RemoveCounters(CounterType.CHARGE, 10, target)
                     )
-                )
             )
-        )
     }
 
     metadata {

@@ -51,10 +51,8 @@ val GollumSilentSlinker = card("Gollum, Silent Slinker") {
         spell {
             val player = target(Targets.Player)
             val creature = target(TargetFilter.Creature, optional = true)
-            effect = Effects.Composite(
-                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
                 Effects.GainLife(2, player)
-            )
         }
     }
 

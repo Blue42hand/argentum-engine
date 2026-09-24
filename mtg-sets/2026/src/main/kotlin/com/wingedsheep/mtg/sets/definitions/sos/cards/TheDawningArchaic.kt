@@ -56,13 +56,11 @@ val TheDawningArchaic = card("The Dawning Archaic") {
     triggeredAbility {
         val target = target(TargetFilter.InstantOrSorceryInGraveyard.ownedByYou())
         trigger = Triggers.self.attacks()
-        effect = Effects.Composite(
-            Effects.Move(target, Zone.EXILE),
+        effect = Effects.Move(target, Zone.EXILE) then
             Effects.GrantFreeCastTargetFromExile(
                 target = target,
                 exileAfterResolve = true,
-            ),
-        )
+            )
     }
 
     metadata {

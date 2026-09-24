@@ -71,13 +71,11 @@ val KayaGeistHunter = card("Kaya, Geist Hunter") {
     //     one target creature token you control.
     loyaltyAbility(+1) {
         val tokenCreature = target(TargetFilter(GameObjectFilter.Creature.token().youControl()), optional = true)
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter(GameObjectFilter.Creature.youControl()),
-                Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.IterationEntity)
-            ),
+        effect = Effects.ForEachInGroup(
+            GroupFilter(GameObjectFilter.Creature.youControl()),
+            Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.IterationEntity)
+        ) then
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, tokenCreature)
-        )
         description = "Creatures you control gain deathtouch until end of turn. Put a +1/+1 " +
             "counter on up to one target creature token you control."
     }

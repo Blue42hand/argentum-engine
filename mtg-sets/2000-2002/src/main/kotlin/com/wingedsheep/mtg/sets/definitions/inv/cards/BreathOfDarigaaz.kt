@@ -30,18 +30,14 @@ val BreathOfDarigaaz = card("Breath of Darigaaz") {
 
     keywordAbility(KeywordAbility.kicker("{2}"))
 
-    fun damageToNonFliersAndPlayers(amount: Int): Effect = Effects.Composite(
-        listOf(
-            Effects.ForEachInGroup(
-                GroupFilter.AllCreatures.withoutKeyword(Keyword.FLYING),
-                Effects.DealDamage(amount, EffectTarget.IterationEntity)
-            ),
-            Effects.ForEachPlayer(
-                players = Player.Each,
-                effect = Effects.DealDamage(amount, EffectTarget.Controller)
-            )
+    fun damageToNonFliersAndPlayers(amount: Int): Effect = Effects.ForEachInGroup(
+        GroupFilter.AllCreatures.withoutKeyword(Keyword.FLYING),
+        Effects.DealDamage(amount, EffectTarget.IterationEntity)
+    ) then
+        Effects.ForEachPlayer(
+            players = Player.Each,
+            effect = Effects.DealDamage(amount, EffectTarget.Controller)
         )
-    )
 
     spell {
         effect = Effects.If(

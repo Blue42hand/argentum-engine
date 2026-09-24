@@ -55,7 +55,7 @@ val KutzilsFlanker = card("Kutzil's Flanker") {
                     "under your control this turn"
             ),
             Mode.noTarget(
-                Effects.Composite(listOf(Effects.GainLife(2), Effects.Scry(2))),
+                Effects.GainLife(2) then Effects.Scry(2),
                 "You gain 2 life and scry 2"
             ),
             mode("Exile target player's graveyard") {

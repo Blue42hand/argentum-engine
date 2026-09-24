@@ -49,10 +49,7 @@ val DueDiligence = card("Due Diligence") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val other = target(TargetFilter(GameObjectFilter.Creature.youControl().notAttachedToBySource()))
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 2, other),
-            Effects.GrantKeyword(Keyword.VIGILANCE, other)
-        )
+        effect = Effects.ModifyStats(2, 2, other) then Effects.GrantKeyword(Keyword.VIGILANCE, other)
         description = "When this Aura enters, target creature you control other than enchanted " +
             "creature gets +2/+2 and gains vigilance until end of turn."
     }

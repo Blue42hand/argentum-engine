@@ -28,10 +28,8 @@ val RazzleDazzler = card("Razzle-Dazzler") {
 
     triggeredAbility {
         trigger = Triggers.you.castsNth(2)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
             Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, EffectTarget.Self)
-        )
     }
 
     metadata {

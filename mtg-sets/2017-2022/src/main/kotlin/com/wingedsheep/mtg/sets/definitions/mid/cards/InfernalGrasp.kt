@@ -25,10 +25,8 @@ val InfernalGrasp = card("Infernal Grasp") {
     oracleText = "Destroy target creature. You lose 2 life."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then
             Effects.LoseLife(2, EffectTarget.Controller)
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

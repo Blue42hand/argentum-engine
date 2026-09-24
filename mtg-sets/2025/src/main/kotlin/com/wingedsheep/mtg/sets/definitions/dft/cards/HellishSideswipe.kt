@@ -41,11 +41,9 @@ val HellishSideswipe = card("Hellish Sideswipe") {
 
     spell {
         val creatureOrVehicle = target(TargetFilter(GameObjectFilter.CreatureOrVehicle))
-        effect = Effects.Destroy(creatureOrVehicle).then(
-            Effects.If(
-                condition = Conditions.SacrificedHadSubtype(Subtype.VEHICLE.value),
-                then = Effects.DrawCards(1),
-            )
+        effect = Effects.Destroy(creatureOrVehicle) then Effects.If(
+            condition = Conditions.SacrificedHadSubtype(Subtype.VEHICLE.value),
+            then = Effects.DrawCards(1),
         )
     }
 

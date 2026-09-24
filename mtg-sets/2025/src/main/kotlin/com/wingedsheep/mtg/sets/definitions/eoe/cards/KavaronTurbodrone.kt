@@ -26,12 +26,7 @@ val KavaronTurbodrone = card("Kavaron Turbodrone") {
     activatedAbility {
         cost = Costs.Tap
         val target = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            listOf(
-                Effects.ModifyStats(1, 1, target),
-                Effects.GrantKeyword(Keyword.HASTE, target)
-            )
-        )
+        effect = Effects.ModifyStats(1, 1, target) then Effects.GrantKeyword(Keyword.HASTE, target)
         timing = TimingRule.SorcerySpeed
         description = "{T}: Target creature you control gets +1/+1 and gains haste until end of turn. Activate only as a sorcery."
     }

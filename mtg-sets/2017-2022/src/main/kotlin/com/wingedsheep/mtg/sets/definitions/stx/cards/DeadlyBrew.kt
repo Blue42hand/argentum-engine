@@ -48,28 +48,26 @@ val DeadlyBrew = card("Deadly Brew") {
             GameObjectFilter.CreatureOrPlaneswalker,
             count = 1,
             target = EffectTarget.PlayerRef(Player.Each)
-        ).then(
-            Effects.If(
-                condition = Conditions.YouSacrificedThisWay,
-                then = Effects.Pipeline {
-                    val eligible = gather(
-                        CardSource.FromZone(
-                            Zone.GRAVEYARD,
-                            Player.You,
-                            GameObjectFilter.Permanent,
-                            // "return ANOTHER permanent card" — the permanent you just
-                            // sacrificed sits in your graveyard but is not a legal choice.
-                            excludeSacrificedThisWay = true
-                        )
+        ) then Effects.If(
+            condition = Conditions.YouSacrificedThisWay,
+            then = Effects.Pipeline {
+                val eligible = gather(
+                    CardSource.FromZone(
+                        Zone.GRAVEYARD,
+                        Player.You,
+                        GameObjectFilter.Permanent,
+                        // "return ANOTHER permanent card" — the permanent you just
+                        // sacrificed sits in your graveyard but is not a legal choice.
+                        excludeSacrificedThisWay = true
                     )
-                    val chosen = chooseUpTo(
-                        1,
-                        from = eligible,
-                        prompt = "Choose a permanent card to return to your hand"
-                    )
-                    toHand(chosen)
-                }
-            )
+                )
+                val chosen = chooseUpTo(
+                    1,
+                    from = eligible,
+                    prompt = "Choose a permanent card to return to your hand"
+                )
+                toHand(chosen)
+            }
         )
     }
 

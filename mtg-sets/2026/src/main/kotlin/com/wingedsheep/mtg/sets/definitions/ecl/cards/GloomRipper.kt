@@ -44,8 +44,8 @@ val GloomRipper = card("Gloom Ripper") {
         val elfCount = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Permanent.withSubtype(Subtype.ELF)).count() +
             DynamicAmounts.zone(Player.You, Zone.GRAVEYARD, GameObjectFilter.Any.withSubtype(Subtype.ELF)).count()
 
-        effect = Effects.ModifyStats(elfCount, DynamicAmounts.fixed(0), ally)
-            .then(Effects.ModifyStats(DynamicAmounts.fixed(0), 0 - elfCount, enemy))
+        effect = Effects.ModifyStats(elfCount, DynamicAmounts.fixed(0), ally) then
+            Effects.ModifyStats(DynamicAmounts.fixed(0), 0 - elfCount, enemy)
     }
 
     metadata {

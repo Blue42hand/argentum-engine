@@ -39,7 +39,7 @@ val OrzhovBasilica = card("Orzhov Basilica") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = Effects.AddMana(Color.WHITE).then(Effects.AddMana(Color.BLACK))
+        effect = Effects.AddMana(Color.WHITE) then Effects.AddMana(Color.BLACK)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

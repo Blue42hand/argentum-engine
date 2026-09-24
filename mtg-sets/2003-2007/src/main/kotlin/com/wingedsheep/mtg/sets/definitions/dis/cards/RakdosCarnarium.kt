@@ -39,7 +39,7 @@ val RakdosCarnarium = card("Rakdos Carnarium") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = Effects.AddMana(Color.BLACK).then(Effects.AddMana(Color.RED))
+        effect = Effects.AddMana(Color.BLACK) then Effects.AddMana(Color.RED)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

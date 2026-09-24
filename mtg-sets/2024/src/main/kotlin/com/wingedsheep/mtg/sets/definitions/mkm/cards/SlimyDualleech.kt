@@ -30,10 +30,7 @@ val SlimyDualleech = card("Slimy Dualleech") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val t = target(TargetFilter.Creature.powerAtMost(2).youControl())
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, t),
-            Effects.GrantKeyword(Keyword.DEATHTOUCH, t)
-        )
+        effect = Effects.ModifyStats(1, 0, t) then Effects.GrantKeyword(Keyword.DEATHTOUCH, t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

@@ -20,10 +20,8 @@ val ProftConsultingDetective = card("Proft, Consulting Detective") {
         trigger = Triggers.you.scriesOrSurveils()
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}"),
-            then = Effects.Composite(
-                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-                Effects.DrawCards(1),
-            )
+            then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+                Effects.DrawCards(1)
         )
         description = "Whenever you scry or surveil, you may pay {2}. If you do, put a +1/+1 counter on Proft and draw a card."
     }

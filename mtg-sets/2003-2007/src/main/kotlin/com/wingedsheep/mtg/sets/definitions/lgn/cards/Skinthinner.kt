@@ -27,8 +27,7 @@ val Skinthinner = card("Skinthinner") {
     triggeredAbility {
         trigger = Triggers.self.turnedFaceUp()
         val t = target(TargetFilter.Creature.notColor(Color.BLACK))
-        effect = Effects.CantBeRegenerated(t) then
-                Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
+        effect = Effects.CantBeRegenerated(t) then Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }
 
     morph = "{3}{B}{B}"

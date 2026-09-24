@@ -40,21 +40,17 @@ val GreedsGambit = card("Greed's Gambit") {
     // When this enchantment enters: draw 3, gain 6 life, create three 2/1 black flying Bats.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            listOf(
-                Effects.DrawCards(3),
-                Effects.GainLife(6),
-                Effects.CreateToken(
-                    power = 2,
-                    toughness = 1,
-                    colors = setOf(Color.BLACK),
-                    creatureTypes = setOf("Bat"),
-                    keywords = setOf(Keyword.FLYING),
-                    count = 3,
-                    imageUri = "https://cards.scryfall.io/normal/front/5/9/59f138e5-501d-486f-b9a0-3f37640398a0.jpg?1712317347"
-                )
+        effect = Effects.DrawCards(3) then
+            Effects.GainLife(6) then
+            Effects.CreateToken(
+                power = 2,
+                toughness = 1,
+                colors = setOf(Color.BLACK),
+                creatureTypes = setOf("Bat"),
+                keywords = setOf(Keyword.FLYING),
+                count = 3,
+                imageUri = "https://cards.scryfall.io/normal/front/5/9/59f138e5-501d-486f-b9a0-3f37640398a0.jpg?1712317347"
             )
-        )
         description = "You draw three cards, gain 6 life, and create three 2/1 black Bat creature " +
             "tokens with flying."
     }
@@ -62,26 +58,18 @@ val GreedsGambit = card("Greed's Gambit") {
     // At the beginning of your end step: discard a card, lose 2 life, sacrifice a creature.
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
-        effect = Effects.Composite(
-            listOf(
-                Effects.Discard(1, EffectTarget.Controller),
-                Effects.LoseLife(2, EffectTarget.Controller),
-                Effects.Sacrifice(GameObjectFilter.Creature, count = 1, target = EffectTarget.Controller)
-            )
-        )
+        effect = Effects.Discard(1, EffectTarget.Controller) then
+            Effects.LoseLife(2, EffectTarget.Controller) then
+            Effects.Sacrifice(GameObjectFilter.Creature, count = 1, target = EffectTarget.Controller)
         description = "You discard a card, lose 2 life, and sacrifice a creature."
     }
 
     // When this enchantment leaves the battlefield: discard 3, lose 6 life, sacrifice 3 creatures.
     triggeredAbility {
         trigger = Triggers.self.leaves()
-        effect = Effects.Composite(
-            listOf(
-                Effects.Discard(3, EffectTarget.Controller),
-                Effects.LoseLife(6, EffectTarget.Controller),
-                Effects.Sacrifice(GameObjectFilter.Creature, count = 3, target = EffectTarget.Controller)
-            )
-        )
+        effect = Effects.Discard(3, EffectTarget.Controller) then
+            Effects.LoseLife(6, EffectTarget.Controller) then
+            Effects.Sacrifice(GameObjectFilter.Creature, count = 3, target = EffectTarget.Controller)
         description = "You discard three cards, lose 6 life, and sacrifice three creatures."
     }
 

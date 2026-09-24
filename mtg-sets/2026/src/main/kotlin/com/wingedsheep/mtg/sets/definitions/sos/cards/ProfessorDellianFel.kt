@@ -42,9 +42,7 @@ val ProfessorDellianFel = card("Professor Dellian Fel") {
 
     // 0: You draw a card and lose 1 life.
     loyaltyAbility(0) {
-        effect = Effects.DrawCards(1).then(
-            Effects.LoseLife(1, EffectTarget.Controller)
-        )
+        effect = Effects.DrawCards(1) then Effects.LoseLife(1, EffectTarget.Controller)
     }
 
     // −3: Destroy target creature.

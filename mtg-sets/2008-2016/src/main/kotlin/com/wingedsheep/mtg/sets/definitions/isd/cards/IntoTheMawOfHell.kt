@@ -25,10 +25,7 @@ val IntoTheMawOfHell = card("Into the Maw of Hell") {
     spell {
         val t1 = target(TargetFilter.Land)
         val t2 = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Move(t1, Zone.GRAVEYARD, byDestruction = true),
-            Effects.DealDamage(13, t2)
-        )
+        effect = Effects.Move(t1, Zone.GRAVEYARD, byDestruction = true) then Effects.DealDamage(13, t2)
     }
     metadata {
         rarity = Rarity.UNCOMMON

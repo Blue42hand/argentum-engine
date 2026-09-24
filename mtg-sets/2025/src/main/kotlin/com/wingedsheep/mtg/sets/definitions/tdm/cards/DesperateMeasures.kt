@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
@@ -31,15 +30,13 @@ val DesperateMeasures = card("Desperate Measures") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(listOf(
-            Effects.ModifyStats(1, -1, t),
+        effect = Effects.ModifyStats(1, -1, t) then
             Effects.CreateDelayedTrigger(
                 effect = Effects.DrawCards(2),
                 trigger = Triggers.self.dies(),
                 watchedTarget = t,
                 expiry = DelayedTriggerExpiry.EndOfTurn
             )
-        ))
     }
 
     metadata {

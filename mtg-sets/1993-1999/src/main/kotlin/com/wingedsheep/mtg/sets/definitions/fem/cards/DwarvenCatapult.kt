@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.fem.cards
 
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Patterns
+import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.div
 import com.wingedsheep.sdk.model.Rarity
@@ -35,7 +36,7 @@ val DwarvenCatapult = card("Dwarven Catapult") {
         "creatures target opponent controls."
 
     spell {
-        target = TargetOpponent()
+        target = Targets.Opponent
         effect = Patterns.Group.dealDamageToAll(
             amount = DynamicAmounts.xValue() / DynamicAmounts.battlefield(
                 Player.TargetOpponent,

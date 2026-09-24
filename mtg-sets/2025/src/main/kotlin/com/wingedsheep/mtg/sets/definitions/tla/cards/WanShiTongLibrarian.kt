@@ -48,21 +48,17 @@ val WanShiTongLibrarian = card("Wan Shi Tong, Librarian") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE, DynamicAmounts.xValue(), EffectTarget.Self),
+        effect = Effects.AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE, DynamicAmounts.xValue(), EffectTarget.Self) then
             Effects.DrawCards(
                 DynamicAmounts.xValue() / 2,
-            ),
-        )
+            )
         description = "Put X +1/+1 counters on Wan Shi Tong. Then draw half X cards, rounded down."
     }
 
     triggeredAbility {
         trigger = Triggers.anOpponent.searchesLibrary()
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            Effects.DrawCards(1),
-        )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.DrawCards(1)
         description = "Put a +1/+1 counter on Wan Shi Tong and draw a card."
     }
 

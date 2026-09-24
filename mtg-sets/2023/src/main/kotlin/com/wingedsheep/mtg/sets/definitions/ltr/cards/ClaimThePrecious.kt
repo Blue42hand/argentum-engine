@@ -20,7 +20,7 @@ val ClaimThePrecious = card("Claim the Precious") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Destroy(t).then(Effects.TheRingTemptsYou())
+        effect = Effects.Destroy(t) then Effects.TheRingTemptsYou()
     }
 
     metadata {

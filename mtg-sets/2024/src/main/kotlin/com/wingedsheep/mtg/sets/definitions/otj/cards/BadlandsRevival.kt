@@ -30,12 +30,7 @@ val BadlandsRevival = card("Badlands Revival") {
     spell {
         val creature = target(TargetFilter.CreatureInYourGraveyard, optional = true)
         val permanent = target(TargetFilter(GameObjectFilter.Permanent.ownedByYou(), zone = Zone.GRAVEYARD), optional = true)
-        effect = Effects.Composite(
-            listOf(
-                Effects.PutOntoBattlefield(creature),
-                Effects.ReturnToHand(permanent),
-            ),
-        )
+        effect = Effects.PutOntoBattlefield(creature) then Effects.ReturnToHand(permanent)
     }
 
     metadata {

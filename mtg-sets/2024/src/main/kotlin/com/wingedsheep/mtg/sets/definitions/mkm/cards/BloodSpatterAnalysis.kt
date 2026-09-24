@@ -68,23 +68,21 @@ val BloodSpatterAnalysis = card("Blood Spatter Analysis") {
 
     triggeredAbility {
         trigger = Triggers.oneOrMore(GameObjectFilter.Creature.anyController()).die()
-        effect = Patterns.Library.mill(1)
-            .then(Effects.AddCounters(CounterType.BLOODSTAIN, 1, EffectTarget.Self))
-            .then(
-                Effects.If(
-                    condition = Conditions.SourceCounterCountAtLeast(CounterType.BLOODSTAIN, 5),
-                    then = Effects.ReflexiveTrigger(
-                        action = Effects.SacrificeTarget(EffectTarget.Self),
-                        optional = false) {
-                        val creature = target(
-                            TargetFilter(
-                                baseFilter = GameObjectFilter.Creature.ownedByYou(),
-                                zone = Zone.GRAVEYARD
-                            ),
-                        )
-                        effect = Effects.ReturnToHand(creature)
-                    }
-                )
+        effect = Patterns.Library.mill(1) then
+            Effects.AddCounters(CounterType.BLOODSTAIN, 1, EffectTarget.Self) then
+            Effects.If(
+                condition = Conditions.SourceCounterCountAtLeast(CounterType.BLOODSTAIN, 5),
+                then = Effects.ReflexiveTrigger(
+                    action = Effects.SacrificeTarget(EffectTarget.Self),
+                    optional = false) {
+                    val creature = target(
+                        TargetFilter(
+                            baseFilter = GameObjectFilter.Creature.ownedByYou(),
+                            zone = Zone.GRAVEYARD
+                        ),
+                    )
+                    effect = Effects.ReturnToHand(creature)
+                }
             )
         description = "Whenever one or more creatures die, mill a card and put a bloodstain " +
             "counter on this enchantment. Then sacrifice it if it has five or more bloodstain " +

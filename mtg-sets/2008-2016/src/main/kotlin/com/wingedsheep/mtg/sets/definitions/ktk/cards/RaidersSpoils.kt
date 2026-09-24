@@ -39,10 +39,7 @@ val RaidersSpoils = card("Raiders' Spoils") {
             ability = TriggeredAbility.create(
                 trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer),
                 effect = Effects.May(
-                    effect = Effects.Composite(listOf(
-                        Effects.LoseLife(1, EffectTarget.Controller),
-                        Effects.DrawCards(1)
-                    ))
+                    effect = Effects.LoseLife(1, EffectTarget.Controller) then Effects.DrawCards(1)
                 )
             ),
             filter = GroupFilter(GameObjectFilter.Creature.withSubtype("Warrior").youControl())

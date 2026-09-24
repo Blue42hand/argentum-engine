@@ -26,8 +26,7 @@ val TreasonOfIsengard = card("Treason of Isengard") {
             TargetFilter(GameObjectFilter.InstantOrSorcery.ownedByYou(), zone = Zone.GRAVEYARD),
             optional = true,
         )
-        effect = Effects.PutOnTopOfLibrary(card)
-            .then(Effects.Amass(2, "Orc"))
+        effect = Effects.PutOnTopOfLibrary(card) then Effects.Amass(2, "Orc")
     }
 
     metadata {

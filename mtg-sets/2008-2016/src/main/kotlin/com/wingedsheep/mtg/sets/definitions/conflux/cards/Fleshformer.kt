@@ -38,11 +38,9 @@ val Fleshformer = card("Fleshformer") {
     activatedAbility {
         cost = Costs.Mana("{W}{U}{B}{R}{G}")
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 2, EffectTarget.Self)
-                .then(Effects.GrantKeyword(Keyword.FEAR, EffectTarget.Self)),
+        effect = Effects.ModifyStats(2, 2, EffectTarget.Self) then
+            Effects.GrantKeyword(Keyword.FEAR, EffectTarget.Self) then
             Effects.ModifyStats(-2, -2, t)
-        )
         restrictions = listOf(ActivationRestriction.OnlyDuringYourTurn)
     }
 

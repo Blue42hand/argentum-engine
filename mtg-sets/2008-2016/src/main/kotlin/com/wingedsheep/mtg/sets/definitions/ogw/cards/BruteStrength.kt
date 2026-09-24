@@ -20,10 +20,7 @@ val BruteStrength = card("Brute Strength") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(3, 1, creature),
-            Effects.GrantKeyword(Keyword.TRAMPLE, creature)
-        )
+        effect = Effects.ModifyStats(3, 1, creature) then Effects.GrantKeyword(Keyword.TRAMPLE, creature)
     }
 
     metadata {

@@ -39,7 +39,7 @@ val ManholeMissile = card("Manhole Missile") {
             ifNotEmpty(bottomed) {
                 run(Effects.DrawCards(1))
             } orElse {
-                run(Effects.Composite(listOf()))
+                run(Effects.Nothing)
             }
         }
     }

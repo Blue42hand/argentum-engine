@@ -34,11 +34,9 @@ val TeamTactics = card("Team Tactics") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, creature).then(
-            Effects.If(
-                condition = Conditions.TeamworkWasPaid,
-                then = Effects.GrantKeyword(Keyword.TRAMPLE, creature),
-            ),
+        effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, creature) then Effects.If(
+            condition = Conditions.TeamworkWasPaid,
+            then = Effects.GrantKeyword(Keyword.TRAMPLE, creature),
         )
     }
 

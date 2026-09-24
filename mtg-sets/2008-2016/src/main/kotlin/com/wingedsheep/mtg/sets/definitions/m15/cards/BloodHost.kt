@@ -26,8 +26,8 @@ val BloodHost = card("Blood Host") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{B}"), Costs.SacrificeAnother(GameObjectFilter.Creature))
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-            .then(Effects.GainLife(2))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.GainLife(2)
         description = "{1}{B}, Sacrifice another creature: Put a +1/+1 counter on this creature and " +
             "you gain 2 life."
     }

@@ -26,8 +26,8 @@ val DefendTheRider = card("Defend the Rider") {
         modal(chooseCount = 1) {
             mode("Grant hexproof and indestructible") {
                 val permanent = target(TargetFilter(GameObjectFilter.Permanent.youControl()))
-                effect = Effects.GrantKeyword(Keyword.HEXPROOF, permanent, Duration.EndOfTurn)
-                    .then(Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, permanent, Duration.EndOfTurn))
+                effect = Effects.GrantKeyword(Keyword.HEXPROOF, permanent, Duration.EndOfTurn) then
+                    Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, permanent, Duration.EndOfTurn)
             }
             mode("Create a 1/1 Pilot creature token") {
                 effect = Effects.CreateToken(

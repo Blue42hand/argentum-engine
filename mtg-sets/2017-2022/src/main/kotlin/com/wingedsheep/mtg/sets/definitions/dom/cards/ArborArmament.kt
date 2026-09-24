@@ -21,8 +21,8 @@ val ArborArmament = card("Arbor Armament") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
-            .then(Effects.GrantKeyword(Keyword.REACH, t))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t) then
+            Effects.GrantKeyword(Keyword.REACH, t)
     }
 
     metadata {

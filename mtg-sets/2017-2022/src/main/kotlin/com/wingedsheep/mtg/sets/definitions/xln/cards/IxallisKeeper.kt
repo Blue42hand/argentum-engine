@@ -28,8 +28,7 @@ val IxallisKeeper = card("Ixalli's Keeper") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{7}{G}"), Costs.Tap, Costs.SacrificeSelf)
         val boosted = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(5, 5, boosted) then
-            Effects.GrantKeyword(Keyword.TRAMPLE, boosted)
+        effect = Effects.ModifyStats(5, 5, boosted) then Effects.GrantKeyword(Keyword.TRAMPLE, boosted)
     }
 
     metadata {

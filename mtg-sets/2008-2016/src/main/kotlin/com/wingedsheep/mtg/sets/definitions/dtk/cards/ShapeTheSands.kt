@@ -27,10 +27,7 @@ val ShapeTheSands = card("Shape the Sands") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(0, 5, t),
-            Effects.GrantKeyword(Keyword.REACH, t)
-        )
+        effect = Effects.ModifyStats(0, 5, t) then Effects.GrantKeyword(Keyword.REACH, t)
     }
 
     metadata {

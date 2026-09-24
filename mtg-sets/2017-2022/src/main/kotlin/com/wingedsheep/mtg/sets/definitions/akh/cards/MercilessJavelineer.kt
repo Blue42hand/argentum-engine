@@ -28,10 +28,7 @@ val MercilessJavelineer = card("Merciless Javelineer") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.DiscardCard)
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, t),
-            Effects.CantBlock(t),
-        )
+        effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, t) then Effects.CantBlock(t)
     }
 
     metadata {

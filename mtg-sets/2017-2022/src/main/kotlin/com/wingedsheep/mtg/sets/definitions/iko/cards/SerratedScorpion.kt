@@ -29,10 +29,7 @@ val SerratedScorpion = card("Serrated Scorpion") {
 
     triggeredAbility {
         trigger = Triggers.self.dies()
-        effect = Effects.Composite(
-            Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.GainLife(2)
-        )
+        effect = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(2)
     }
 
     metadata {

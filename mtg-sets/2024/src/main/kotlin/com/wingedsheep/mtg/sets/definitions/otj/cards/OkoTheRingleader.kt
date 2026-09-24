@@ -58,28 +58,22 @@ val OkoTheRingleader = card("Oko, the Ringleader") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val creatureYouControl = target(TargetFilter.CreatureYouControl, optional = true)
-        effect = Effects.Composite(
-            listOf(
-                Effects.EachPermanentBecomesCopyOfTarget(
-                    target = creatureYouControl,
-                    duration = Duration.EndOfTurn,
-                    affected = EffectTarget.Self,
-                ),
-                Effects.GrantHexproof(EffectTarget.Self, Duration.EndOfTurn),
-            )
-        )
+        effect = Effects.EachPermanentBecomesCopyOfTarget(
+            target = creatureYouControl,
+            duration = Duration.EndOfTurn,
+            affected = EffectTarget.Self,
+        ) then
+            Effects.GrantHexproof(EffectTarget.Self, Duration.EndOfTurn)
         description = "At the beginning of combat on your turn, Oko becomes a copy of up to one " +
             "target creature you control until end of turn, except he has hexproof."
     }
 
     // +1: Draw two cards. If you've committed a crime this turn, discard a card. Otherwise, discard two.
     loyaltyAbility(+1) {
-        effect = Effects.DrawCards(2).then(
-            Effects.If(
-                condition = Conditions.YouCommittedCrimeThisTurn,
-                then = Patterns.Hand.discardCards(1),
-                otherwise = Patterns.Hand.discardCards(2),
-            )
+        effect = Effects.DrawCards(2) then Effects.If(
+            condition = Conditions.YouCommittedCrimeThisTurn,
+            then = Patterns.Hand.discardCards(1),
+            otherwise = Patterns.Hand.discardCards(2),
         )
     }
 

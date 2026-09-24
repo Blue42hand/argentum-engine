@@ -27,10 +27,7 @@ val CyclopeanSnare = card("Cyclopean Snare") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}"), Costs.Tap)
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Tap(t),
-            Effects.Move(EffectTarget.Self, Zone.HAND)
-        )
+        effect = Effects.Tap(t) then Effects.Move(EffectTarget.Self, Zone.HAND)
     }
     metadata {
         rarity = Rarity.UNCOMMON

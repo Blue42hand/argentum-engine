@@ -52,11 +52,9 @@ val PurgingStormbrood = card("Purging Stormbrood") {
             "(Then shuffle this card into its owner's library.)"
         spell {
             val creature = target(TargetFilter.Creature)
-            effect = Effects.Composite(
-                Effects.ModifyStats(2, 2, creature),
-                Effects.GrantKeyword(Keyword.LIFELINK, creature),
-                Effects.GrantHexproof(creature),
-            )
+            effect = Effects.ModifyStats(2, 2, creature) then
+                Effects.GrantKeyword(Keyword.LIFELINK, creature) then
+                Effects.GrantHexproof(creature)
         }
     }
 

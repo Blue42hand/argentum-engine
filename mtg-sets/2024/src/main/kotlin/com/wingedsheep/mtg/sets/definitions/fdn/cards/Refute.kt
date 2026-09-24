@@ -24,11 +24,9 @@ val Refute = card("Refute") {
     oracleText = "Counter target spell. Draw a card, then discard a card."
     spell {
         val t = target(TargetFilter.SpellOnStack)
-        effect = Effects.Composite(
-            Effects.CounterSpell(),
-            Effects.DrawCards(1),
+        effect = Effects.CounterSpell() then
+            Effects.DrawCards(1) then
             Patterns.Hand.discardCards(1)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

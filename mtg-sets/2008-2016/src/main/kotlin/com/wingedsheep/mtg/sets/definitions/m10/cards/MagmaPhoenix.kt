@@ -43,16 +43,14 @@ val MagmaPhoenix = card("Magma Phoenix") {
 
     triggeredAbility {
         trigger = Triggers.self.dies()
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter.AllCreatures,
-                Effects.DealDamage(3, EffectTarget.IterationEntity),
-            ),
+        effect = Effects.ForEachInGroup(
+            GroupFilter.AllCreatures,
+            Effects.DealDamage(3, EffectTarget.IterationEntity),
+        ) then
             Effects.ForEachPlayer(
                 Player.Each,
                 listOf(Effects.DealDamage(3, EffectTarget.Controller)),
-            ),
-        )
+            )
         description = "When this creature dies, it deals 3 damage to each creature and each player."
     }
 

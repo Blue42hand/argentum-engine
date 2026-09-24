@@ -36,10 +36,7 @@ val GoldRush = card("Gold Rush") {
             Player.You,
             GameObjectFilter.Artifact.withSubtype(Subtype.TREASURE)
         ).count() * 2
-        effect = Effects.Composite(
-            Effects.CreateTreasure(1),
-            Effects.ModifyStats(perTreasure, perTreasure, creature)
-        )
+        effect = Effects.CreateTreasure(1) then Effects.ModifyStats(perTreasure, perTreasure, creature)
     }
 
     metadata {

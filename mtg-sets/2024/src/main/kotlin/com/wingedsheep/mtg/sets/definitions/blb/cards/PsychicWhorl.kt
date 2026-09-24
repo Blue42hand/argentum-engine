@@ -22,11 +22,11 @@ val PsychicWhorl = card("Psychic Whorl") {
 
     spell {
         val t = target(Targets.Opponent)
-        effect = Patterns.Hand.discardCards(2, t)
-            .then(Effects.If(
+        effect = Patterns.Hand.discardCards(2, t) then
+            Effects.If(
                 condition = Conditions.ControlCreatureOfType(Subtype("Rat")),
                 then = Patterns.Library.surveil(2)
-            ))
+            )
     }
 
     metadata {

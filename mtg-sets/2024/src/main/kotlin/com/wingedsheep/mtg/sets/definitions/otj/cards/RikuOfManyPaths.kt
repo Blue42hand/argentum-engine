@@ -68,12 +68,8 @@ val RikuOfManyPaths = card("Riku of Many Paths") {
             ),
             // Mode 2 — +1/+1 counter + trample until end of turn.
             Mode.noTarget(
-                Effects.Composite(
-                    listOf(
-                        Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-                        Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self, Duration.EndOfTurn)
-                    )
-                ),
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+                    Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self, Duration.EndOfTurn),
                 description = "Put a +1/+1 counter on Riku. It gains trample until end of turn."
             ),
             // Mode 3 — create a 1/1 blue Bird with flying.

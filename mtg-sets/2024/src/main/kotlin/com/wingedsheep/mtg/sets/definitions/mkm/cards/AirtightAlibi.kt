@@ -59,11 +59,9 @@ val AirtightAlibi = card("Airtight Alibi") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.Untap(EffectTarget.EnchantedCreature),
-            Effects.GrantHexproof(EffectTarget.EnchantedCreature),
+        effect = Effects.Untap(EffectTarget.EnchantedCreature) then
+            Effects.GrantHexproof(EffectTarget.EnchantedCreature) then
             Effects.NoLongerSuspected(EffectTarget.EnchantedCreature)
-        )
         description = "When this Aura enters, untap enchanted creature. It gains hexproof until " +
             "end of turn. If it's suspected, it's no longer suspected."
     }

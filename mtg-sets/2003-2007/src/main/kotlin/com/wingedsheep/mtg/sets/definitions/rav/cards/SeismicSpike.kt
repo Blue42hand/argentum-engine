@@ -25,10 +25,7 @@ val SeismicSpike = card("Seismic Spike") {
     oracleText = "Destroy target land. Add {R}{R}."
     spell {
         val t = target(TargetFilter.Land)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            Effects.AddMana(Color.RED, 2)
-        )
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then Effects.AddMana(Color.RED, 2)
     }
     metadata {
         rarity = Rarity.COMMON

@@ -30,16 +30,12 @@ val LieInWait = card("Lie in Wait") {
     spell {
         val creatureCardInYourGraveyard = target(TargetFilter.CreatureInYourGraveyard)
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            listOf(
-                Effects.ReturnToHand(creatureCardInYourGraveyard),
-                Effects.DealDamage(
-                    DynamicAmounts.powerOf(creatureCardInYourGraveyard),
-                    creature,
-                    damageSource = EffectTarget.Self
-                )
+        effect = Effects.ReturnToHand(creatureCardInYourGraveyard) then
+            Effects.DealDamage(
+                DynamicAmounts.powerOf(creatureCardInYourGraveyard),
+                creature,
+                damageSource = EffectTarget.Self
             )
-        )
     }
 
     metadata {

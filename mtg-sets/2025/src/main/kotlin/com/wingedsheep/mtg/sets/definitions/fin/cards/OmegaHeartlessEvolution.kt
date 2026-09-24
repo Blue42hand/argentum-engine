@@ -53,11 +53,9 @@ val OmegaHeartlessEvolution = card("Omega, Heartless Evolution") {
             Zone.BATTLEFIELD,
             GameObjectFilter.NonbasicLand
         )
-        effect = Effects.Composite(
-            Effects.Tap(permanent),
-            Effects.AddDynamicCounters(CounterType.STUN, nonbasicLands, permanent),
+        effect = Effects.Tap(permanent) then
+            Effects.AddDynamicCounters(CounterType.STUN, nonbasicLands, permanent) then
             Effects.GainLife(nonbasicLands)
-        )
     }
 
     metadata {

@@ -23,10 +23,7 @@ val SorinsThirst = card("Sorin's Thirst") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.DealDamage(2, creature),
-            Effects.GainLife(2)
-        )
+        effect = Effects.DealDamage(2, creature) then Effects.GainLife(2)
     }
 
     metadata {

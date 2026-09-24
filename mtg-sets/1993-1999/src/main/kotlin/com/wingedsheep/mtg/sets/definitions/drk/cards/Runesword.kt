@@ -48,21 +48,19 @@ val Runesword = card("Runesword") {
         val attackingCreature = target(TargetFilter.AttackingCreature)
         cost = Costs.Composite(Costs.Mana("{3}"), Costs.Tap)
 
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, attackingCreature),
+        effect = Effects.ModifyStats(2, 0, attackingCreature) then
             // The two death riders are one granted static, not a trigger: a trigger for "whenever
             // this deals damage to a creature" resolves only after state-based actions have binned
             // the dying creature (CR 704.3), too late to send it to exile instead.
             Effects.GrantStaticAbility(
                 CreaturesDamagedBySourceAreDoomed(),
                 attackingCreature,
-            ),
+            ) then
             Effects.CreateDelayedTrigger(
                 trigger = Triggers.self.leaves(),
                 watchedTarget = attackingCreature,
                 effect = SacrificeSelfEffect,
-            ),
-        )
+            )
         description = "{3}, {T}: Target attacking creature gets +2/+0 until end of turn. When " +
             "that creature leaves the battlefield this turn, sacrifice this artifact."
     }

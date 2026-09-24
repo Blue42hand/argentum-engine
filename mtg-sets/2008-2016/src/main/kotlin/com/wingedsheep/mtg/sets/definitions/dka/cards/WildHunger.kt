@@ -26,10 +26,7 @@ val WildHunger = card("Wild Hunger") {
     oracleText = "Target creature gets +3/+1 and gains trample until end of turn.\nFlashback {3}{R} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(3, 1, t),
-            Effects.GrantKeyword(Keyword.TRAMPLE, t)
-        )
+        effect = Effects.ModifyStats(3, 1, t) then Effects.GrantKeyword(Keyword.TRAMPLE, t)
     }
     keywordAbility(KeywordAbility.flashback("{3}{R}"))
     metadata {

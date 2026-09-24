@@ -29,8 +29,8 @@ val Crumble = card("Crumble") {
 
     spell {
         val artifact = target(TargetFilter.Artifact)
-        effect = Effects.GainLife(DynamicAmounts.manaValueOf(artifact), EffectTarget.TargetController)
-            .then(Effects.Destroy(artifact, noRegenerate = true))
+        effect = Effects.GainLife(DynamicAmounts.manaValueOf(artifact), EffectTarget.TargetController) then
+            Effects.Destroy(artifact, noRegenerate = true)
     }
 
     metadata {

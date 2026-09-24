@@ -44,15 +44,11 @@ val ArwenMortalQueen = card("Arwen, Mortal Queen") {
             Costs.RemoveCounterFromSelf(CounterType.INDESTRUCTIBLE)
         )
         val creature = target(TargetFilter.Creature.copy(excludeSelf = true))
-        effect = Effects.Composite(
-            listOf(
-                Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature),
-                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
-                Effects.AddCounters(CounterType.LIFELINK, 1, creature),
-                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-                Effects.AddCounters(CounterType.LIFELINK, 1, EffectTarget.Self)
-            )
-        )
+        effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
+            Effects.AddCounters(CounterType.LIFELINK, 1, creature) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.AddCounters(CounterType.LIFELINK, 1, EffectTarget.Self)
     }
 
     metadata {

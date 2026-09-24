@@ -29,10 +29,8 @@ val BeetleLegacyCriminal = card("Beetle, Legacy Criminal") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{U}"), Costs.ExileSelf)
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t) then
             Effects.GrantKeyword(Keyword.FLYING, t)
-        )
         timing = TimingRule.SorcerySpeed
         activateFromZone = Zone.GRAVEYARD
     }

@@ -21,13 +21,11 @@ val Rootgrapple = card("Rootgrapple") {
 
     spell {
         val permanent = target(TargetFilter.NoncreaturePermanent)
-        effect = Effects.Composite(
-            Effects.Destroy(permanent),
+        effect = Effects.Destroy(permanent) then
             Effects.If(
                 condition = Conditions.ControlPermanentOfType(Subtype.TREEFOLK),
                 then = Effects.DrawCards(1)
             )
-        )
     }
 
     metadata {

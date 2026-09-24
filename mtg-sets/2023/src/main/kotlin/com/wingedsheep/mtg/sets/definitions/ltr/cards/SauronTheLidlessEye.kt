@@ -34,17 +34,15 @@ val SauronTheLidlessEye = card("Sauron, the Lidless Eye") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.CreatureOpponentControls)
-        effect = Effects.Composite(
-            Effects.GainControl(creature, Duration.EndOfTurn),
-            Effects.Untap(creature),
+        effect = Effects.GainControl(creature, Duration.EndOfTurn) then
+            Effects.Untap(creature) then
             Effects.GrantKeyword(Keyword.HASTE, creature)
-        )
     }
 
     activatedAbility {
         cost = Costs.Mana("{1}{B}{R}")
-        effect = Patterns.Group.modifyStatsForAll(2, 0, Filters.Group.creaturesYouControl)
-            .then(Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)))
+        effect = Patterns.Group.modifyStatsForAll(2, 0, Filters.Group.creaturesYouControl) then
+            Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent))
     }
 
     metadata {

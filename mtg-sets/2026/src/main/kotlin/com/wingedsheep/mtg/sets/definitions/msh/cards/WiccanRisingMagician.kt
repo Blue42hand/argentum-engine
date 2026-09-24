@@ -46,13 +46,11 @@ val WiccanRisingMagician = card("Wiccan, Rising Magician") {
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         val permanent = target(TargetFilter(GameObjectFilter.NonlandPermanent.nontoken()).other())
-        effect = Effects.Composite(
-            Effects.Move(permanent, Zone.EXILE),
+        effect = Effects.Move(permanent, Zone.EXILE) then
             Effects.CreateDelayedTrigger(
                 step = Step.END,
                 effect = Effects.Move(permanent, Zone.BATTLEFIELD),
-            ),
-        )
+            )
         description = "Whenever you cast a noncreature spell, exile another target nonland, " +
             "nontoken permanent. Return that card to the battlefield under its owner's control " +
             "at the beginning of the next end step."

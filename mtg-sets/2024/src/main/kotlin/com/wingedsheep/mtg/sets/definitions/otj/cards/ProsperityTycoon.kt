@@ -58,10 +58,8 @@ val ProsperityTycoon = card("Prosperity Tycoon") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Sacrifice(GameObjectFilter.Token))
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self),
+        effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self) then
             Effects.Tap(EffectTarget.Self)
-        )
     }
 
     metadata {

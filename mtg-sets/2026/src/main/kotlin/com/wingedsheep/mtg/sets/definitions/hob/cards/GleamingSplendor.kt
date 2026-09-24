@@ -42,12 +42,7 @@ val GleamingSplendor = card("Gleaming Splendor") {
     activatedAbility {
         cost = Costs.Mana("{2}{W}")
         val (firstPlayer, secondPlayer) = targets(TargetPlayer(count = 2))
-        effect = Effects.Composite(
-            listOf(
-                Effects.DrawCards(1, firstPlayer),
-                Effects.DrawCards(1, secondPlayer),
-            )
-        )
+        effect = Effects.DrawCards(1, firstPlayer) then Effects.DrawCards(1, secondPlayer)
         description = "Two target players each draw a card."
     }
 

@@ -29,16 +29,12 @@ val TakeTheFall = card("Take the Fall") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            listOf(
-                Effects.If(
-                    condition = Conditions.YouControl(Filters.OutlawCreature),
-                    then = Effects.ModifyStats(-4, 0, creature),
-                    otherwise = Effects.ModifyStats(-1, 0, creature)
-                ),
-                Effects.DrawCards(1, EffectTarget.Controller)
-            )
-        )
+        effect = Effects.If(
+            condition = Conditions.YouControl(Filters.OutlawCreature),
+            then = Effects.ModifyStats(-4, 0, creature),
+            otherwise = Effects.ModifyStats(-1, 0, creature)
+        ) then
+            Effects.DrawCards(1, EffectTarget.Controller)
     }
 
     metadata {

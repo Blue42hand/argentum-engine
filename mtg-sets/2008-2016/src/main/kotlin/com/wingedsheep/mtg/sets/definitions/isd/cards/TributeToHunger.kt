@@ -31,12 +31,8 @@ val TributeToHunger = card("Tribute to Hunger") {
 
     spell {
         val t = target(Targets.Opponent)
-        effect = Effects.Composite(
-            listOf(
-                Effects.Sacrifice(GameObjectFilter.Creature, 1, t),
-                Effects.GainLife(DynamicAmounts.sacrificedToughness(0))
-            )
-        )
+        effect = Effects.Sacrifice(GameObjectFilter.Creature, 1, t) then
+            Effects.GainLife(DynamicAmounts.sacrificedToughness(0))
     }
 
     metadata {

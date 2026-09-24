@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
@@ -32,8 +31,7 @@ val IllvoiLightJammer = card("Illvoi Light Jammer") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.AttachEquipment(creature)
-            .then(Effects.GrantKeyword(Keyword.HEXPROOF, creature))
+        effect = Effects.AttachEquipment(creature) then Effects.GrantKeyword(Keyword.HEXPROOF, creature)
     }
 
     // Equipped creature gets +1/+2

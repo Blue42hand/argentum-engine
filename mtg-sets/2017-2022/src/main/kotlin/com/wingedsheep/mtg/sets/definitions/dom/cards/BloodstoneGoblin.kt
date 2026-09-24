@@ -26,8 +26,8 @@ val BloodstoneGoblin = card("Bloodstone Goblin") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.WasKicked))
-        effect = Effects.ModifyStats(1, 1, EffectTarget.Self)
-            .then(Effects.GrantKeyword(Keyword.MENACE, EffectTarget.Self))
+        effect = Effects.ModifyStats(1, 1, EffectTarget.Self) then
+            Effects.GrantKeyword(Keyword.MENACE, EffectTarget.Self)
     }
 
     metadata {

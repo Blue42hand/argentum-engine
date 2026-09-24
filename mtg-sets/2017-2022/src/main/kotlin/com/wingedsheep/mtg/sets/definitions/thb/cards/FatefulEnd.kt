@@ -24,10 +24,7 @@ val FatefulEnd = card("Fateful End") {
 
     spell {
         val t = target(Targets.Any)
-        effect = Effects.Composite(
-            Effects.DealDamage(3, t),
-            Effects.Scry(1)
-        )
+        effect = Effects.DealDamage(3, t) then Effects.Scry(1)
     }
 
     metadata {

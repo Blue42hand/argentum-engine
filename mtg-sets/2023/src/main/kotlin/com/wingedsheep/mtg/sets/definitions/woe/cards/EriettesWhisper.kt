@@ -31,10 +31,7 @@ val EriettesWhisper = card("Eriette's Whisper") {
     spell {
         val opponent = target(Targets.Opponent)
         val creature = target(TargetFilter.CreatureYouControl, optional = true)
-        effect = Effects.Composite(
-            Effects.Discard(2, opponent),
-            Effects.CreateRoleToken("Wicked Role", creature)
-        )
+        effect = Effects.Discard(2, opponent) then Effects.CreateRoleToken("Wicked Role", creature)
     }
 
     metadata {

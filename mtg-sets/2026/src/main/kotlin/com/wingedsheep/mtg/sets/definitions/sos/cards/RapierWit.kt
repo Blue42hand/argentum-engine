@@ -30,14 +30,12 @@ val RapierWit = card("Rapier Wit") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Tap(t),
+        effect = Effects.Tap(t) then
             Effects.If(
                 condition = IsYourTurn,
                 then = Effects.AddCounters(CounterType.STUN, 1, t),
-            ),
-            Effects.DrawCards(1),
-        )
+            ) then
+            Effects.DrawCards(1)
     }
 
     metadata {

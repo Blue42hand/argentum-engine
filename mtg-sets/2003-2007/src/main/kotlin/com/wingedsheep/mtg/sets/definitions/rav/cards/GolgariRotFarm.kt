@@ -39,7 +39,7 @@ val GolgariRotFarm = card("Golgari Rot Farm") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = Effects.AddMana(Color.BLACK).then(Effects.AddMana(Color.GREEN))
+        effect = Effects.AddMana(Color.BLACK) then Effects.AddMana(Color.GREEN)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

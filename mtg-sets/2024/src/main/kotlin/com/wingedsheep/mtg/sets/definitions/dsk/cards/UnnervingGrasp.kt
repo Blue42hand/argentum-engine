@@ -30,10 +30,7 @@ val UnnervingGrasp = card("Unnerving Grasp") {
 
     spell {
         val permanent = target(TargetFilter.NonlandPermanent, optional = true)
-        effect = Effects.Composite(
-            Effects.ReturnToHand(permanent),
-            Patterns.Library.manifestDread(),
-        )
+        effect = Effects.ReturnToHand(permanent) then Patterns.Library.manifestDread()
     }
 
     metadata {

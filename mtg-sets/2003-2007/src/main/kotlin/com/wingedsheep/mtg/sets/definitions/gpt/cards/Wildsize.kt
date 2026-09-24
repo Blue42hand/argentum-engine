@@ -22,11 +22,9 @@ val Wildsize = card("Wildsize") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 2, t),
-            Effects.GrantKeyword(Keyword.TRAMPLE, t),
-            Effects.DrawCards(1),
-        )
+        effect = Effects.ModifyStats(2, 2, t) then
+            Effects.GrantKeyword(Keyword.TRAMPLE, t) then
+            Effects.DrawCards(1)
     }
 
     metadata {

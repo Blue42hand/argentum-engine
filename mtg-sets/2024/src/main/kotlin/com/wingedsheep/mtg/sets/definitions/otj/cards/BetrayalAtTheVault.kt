@@ -48,12 +48,10 @@ val BetrayalAtTheVault = card("Betrayal at the Vault") {
             amount = sourcePower,
             target = firstOtherCreature,
             damageSource = creatureYouControl
-        ).then(
-            Effects.DealDamage(
-                amount = sourcePower,
-                target = secondOtherCreature,
-                damageSource = creatureYouControl
-            )
+        ) then Effects.DealDamage(
+            amount = sourcePower,
+            target = secondOtherCreature,
+            damageSource = creatureYouControl
         )
     }
 

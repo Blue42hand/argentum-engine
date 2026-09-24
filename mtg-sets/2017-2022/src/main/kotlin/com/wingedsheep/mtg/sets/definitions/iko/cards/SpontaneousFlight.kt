@@ -24,10 +24,7 @@ val SpontaneousFlight = card("Spontaneous Flight") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 2, t),
-            Effects.AddCounters(CounterType.FLYING, 1, t)
-        )
+        effect = Effects.ModifyStats(2, 2, t) then Effects.AddCounters(CounterType.FLYING, 1, t)
     }
 
     metadata {

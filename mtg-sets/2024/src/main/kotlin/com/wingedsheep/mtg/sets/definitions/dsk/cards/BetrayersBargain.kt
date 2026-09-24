@@ -39,7 +39,7 @@ val BetrayersBargain = card("Betrayer's Bargain") {
         "this turn, exile it instead."
 
     fun dealFiveExilingOnDeath(creature: EffectTarget) =
-        Effects.MarkExileOnDeath(creature).then(Effects.DealDamage(5, creature))
+        Effects.MarkExileOnDeath(creature) then Effects.DealDamage(5, creature)
 
     spell {
         effect = ModalEffect.chooseOne(

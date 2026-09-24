@@ -41,10 +41,7 @@ private val BraskasFinalAeon = card("Braska's Final Aeon") {
     keywords(Keyword.MENACE)
 
     // I, II — Jecht Beam — Each opponent discards a card and you draw a card.
-    val jechtBeam = Effects.Composite(
-        Effects.Discard(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-        Effects.DrawCards(1),
-    )
+    val jechtBeam = Effects.Discard(1, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.DrawCards(1)
     sagaChapter(1) { effect = jechtBeam }
     sagaChapter(2) { effect = jechtBeam }
 

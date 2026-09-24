@@ -38,16 +38,12 @@ val CursedRecording = card("Cursed Recording") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.TIME, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.TIME, 1, EffectTarget.Self) then
             Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(CounterType.TIME, 7),
-                then = Effects.Composite(
-                    Effects.RemoveCounters(CounterType.TIME, 7, EffectTarget.Self),
+                then = Effects.RemoveCounters(CounterType.TIME, 7, EffectTarget.Self) then
                     Effects.DealDamage(20, EffectTarget.Controller, damageSource = EffectTarget.Self),
-                ),
-            ),
-        )
+            )
     }
 
     activatedAbility {

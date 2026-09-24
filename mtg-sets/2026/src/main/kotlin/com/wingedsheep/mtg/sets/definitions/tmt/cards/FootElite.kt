@@ -28,8 +28,8 @@ val FootElite = card("Foot Elite") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val creature = target(TargetFilter.CreatureYouControl.other())
-        effect = Effects.ModifyStats(1, 0, creature)
-            .then(Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature, Duration.EndOfTurn))
+        effect = Effects.ModifyStats(1, 0, creature) then
+            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature, Duration.EndOfTurn)
     }
 
     metadata {

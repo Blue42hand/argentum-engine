@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.core.Step
 
 /**
@@ -48,17 +47,15 @@ val RootwiseSurvivor = card("Rootwise Survivor") {
         trigger = Triggers.you.beginningOf(Step.POSTCOMBAT_MAIN)
         interveningIf = Conditions.SourceIsTapped
         val land = target(TargetFilter.Land.youControl(), optional = true)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, land),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, land) then
             Effects.BecomeCreature(
                 target = land,
                 power = 0,
                 toughness = 0,
                 creatureTypes = setOf("Elemental"),
                 duration = Duration.Permanent,
-            ),
-            Effects.GrantKeyword(Keyword.HASTE, land, Duration.UntilYourNextTurn),
-        )
+            ) then
+            Effects.GrantKeyword(Keyword.HASTE, land, Duration.UntilYourNextTurn)
         description = "Survival — At the beginning of your second main phase, if this creature " +
             "is tapped, put three +1/+1 counters on up to one target land you control. That land " +
             "becomes a 0/0 Elemental creature in addition to its other types. It gains haste " +

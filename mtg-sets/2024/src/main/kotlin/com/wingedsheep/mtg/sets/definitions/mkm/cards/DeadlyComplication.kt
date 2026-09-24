@@ -51,12 +51,10 @@ val DeadlyComplication = card("Deadly Complication") {
             }
             mode("Put a +1/+1 counter on target suspected creature you control") {
                 val suspect = target(TargetFilter(GameObjectFilter.Creature.youControl().suspected()))
-                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, suspect)
-                    .then(
-                        Effects.May(
-                            Effects.NoLongerSuspected(suspect),
-                            descriptionOverride = "Have it become no longer suspected?"
-                        )
+                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, suspect) then
+                    Effects.May(
+                        Effects.NoLongerSuspected(suspect),
+                        descriptionOverride = "Have it become no longer suspected?"
                     )
             }
         }

@@ -59,12 +59,8 @@ val RakishCrew = card("Rakish Crew") {
 
     triggeredAbility {
         trigger = Triggers.a(Filters.OutlawCreature.youControl()).dies()
-        effect = Effects.Composite(
-            listOf(
-                Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-                Effects.GainLife(1, EffectTarget.Controller),
-            )
-        )
+        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then
+            Effects.GainLife(1, EffectTarget.Controller)
         description = "Whenever an outlaw you control dies, each opponent loses 1 life and you gain 1 life."
     }
 

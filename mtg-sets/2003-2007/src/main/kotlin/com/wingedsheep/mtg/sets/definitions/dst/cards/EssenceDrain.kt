@@ -23,10 +23,7 @@ val EssenceDrain = card("Essence Drain") {
     oracleText = "Essence Drain deals 3 damage to any target and you gain 3 life."
     spell {
         val t = target(Targets.Any)
-        effect = Effects.Composite(
-            Effects.DealDamage(3, t),
-            Effects.GainLife(3)
-        )
+        effect = Effects.DealDamage(3, t) then Effects.GainLife(3)
     }
     metadata {
         rarity = Rarity.COMMON

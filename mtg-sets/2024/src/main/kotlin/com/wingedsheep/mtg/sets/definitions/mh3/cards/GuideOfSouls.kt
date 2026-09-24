@@ -43,7 +43,7 @@ val GuideOfSouls = card("Guide of Souls") {
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
-        effect = Effects.GainLife(1).then(Effects.GetEnergy(1))
+        effect = Effects.GainLife(1) then Effects.GetEnergy(1)
     }
 
     triggeredAbility {
@@ -56,9 +56,9 @@ val GuideOfSouls = card("Guide of Souls") {
                 "addition to its other types."
         ) {
             val attackingCreature = target(TargetFilter.AttackingCreature)
-            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, attackingCreature)
-                .then(Effects.AddCounters(CounterType.FLYING, 1, attackingCreature))
-                .then(Effects.AddCreatureType("Angel", attackingCreature))
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, attackingCreature) then
+                Effects.AddCounters(CounterType.FLYING, 1, attackingCreature) then
+                Effects.AddCreatureType("Angel", attackingCreature)
         }
     }
 

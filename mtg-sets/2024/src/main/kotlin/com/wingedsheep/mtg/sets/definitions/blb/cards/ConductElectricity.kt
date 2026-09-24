@@ -22,8 +22,7 @@ val ConductElectricity = card("Conduct Electricity") {
     spell {
         val creature = target(TargetFilter.Creature)
         val creatureToken = target(TargetFilter(GameObjectFilter.Creature and GameObjectFilter.Token), optional = true)
-        effect = Effects.DealDamage(6, creature)
-            .then(Effects.DealDamage(2, creatureToken))
+        effect = Effects.DealDamage(6, creature) then Effects.DealDamage(2, creatureToken)
     }
 
     metadata {

@@ -26,8 +26,7 @@ val SunshowerDruid = card("Sunshower Druid") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.Creature)
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
-            .then(Effects.GainLife(1))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then Effects.GainLife(1)
     }
 
     metadata {

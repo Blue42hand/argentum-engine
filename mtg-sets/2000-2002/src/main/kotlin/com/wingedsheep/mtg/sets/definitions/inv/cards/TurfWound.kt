@@ -21,10 +21,7 @@ val TurfWound = card("Turf Wound") {
 
     spell {
         val player = target(Targets.Player)
-        effect = Effects.Composite(
-            Effects.CantPlayLandsThisTurn(player),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.CantPlayLandsThisTurn(player) then Effects.DrawCards(1)
     }
 
     metadata {

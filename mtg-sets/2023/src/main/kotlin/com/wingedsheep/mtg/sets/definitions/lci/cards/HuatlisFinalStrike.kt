@@ -25,10 +25,8 @@ val HuatlisFinalStrike = card("Huatli's Final Strike") {
     spell {
         val t1 = target(TargetFilter.Creature.youControl())
         val t2 = target(TargetFilter.Creature.opponentControls())
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, t1),
+        effect = Effects.ModifyStats(1, 0, t1) then
             Effects.DealDamage(DynamicAmounts.powerOf(t1), t2, damageSource = t1)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

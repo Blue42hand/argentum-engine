@@ -48,10 +48,8 @@ val ThereAndBackAgain = card("There and Back Again") {
 
     sagaChapter(1) {
         val creature = target(TargetFilter.Creature, optional = true)
-        effect = Effects.Composite(
-            Effects.CantBlock(creature, Duration.WhileYouControlSource("There and Back Again")),
+        effect = Effects.CantBlock(creature, Duration.WhileYouControlSource("There and Back Again")) then
             Effects.TheRingTemptsYou()
-        )
     }
 
     sagaChapter(2) {

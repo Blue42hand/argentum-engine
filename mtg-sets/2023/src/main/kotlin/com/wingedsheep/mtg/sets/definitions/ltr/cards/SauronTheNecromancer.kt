@@ -49,8 +49,7 @@ val SauronTheNecromancer = card("Sauron, the Necromancer") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val card = target(TargetFilter.CreatureInYourGraveyard)
-        effect = Effects.Composite(listOf(
-            Effects.Exile(card),
+        effect = Effects.Exile(card) then
             Effects.CreateTokenCopyOfTarget(
                 target = card,
                 overridePower = 3,
@@ -63,7 +62,6 @@ val SauronTheNecromancer = card("Sauron, the Necromancer") {
                 exileAtStep = Step.END,
                 exileUnlessSourceIsRingBearer = true
             )
-        ))
     }
 
     metadata {

@@ -24,7 +24,7 @@ val MomentaryBlink = card("Momentary Blink") {
 
     spell {
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Exile(creature).then(Effects.Move(creature, Zone.BATTLEFIELD))
+        effect = Effects.Exile(creature) then Effects.Move(creature, Zone.BATTLEFIELD)
     }
 
     keywordAbility(KeywordAbility.flashback("{3}{U}"))

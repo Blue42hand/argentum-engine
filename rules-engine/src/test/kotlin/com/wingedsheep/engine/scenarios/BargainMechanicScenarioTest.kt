@@ -80,13 +80,11 @@ class BargainMechanicScenarioTest : ScenarioTestBase() {
         bargain()
         spell {
             val damaged = target(TargetFilter.Creature)
-            effect = Effects.Composite(
-                Effects.DealDamage(2, damaged),
+            effect = Effects.DealDamage(2, damaged) then
                 Effects.If(
                     condition = Conditions.WasBargained,
                     then = Effects.DealDamage(2, damaged),
-                ),
-            )
+                )
         }
     }
 
@@ -139,10 +137,7 @@ class BargainMechanicScenarioTest : ScenarioTestBase() {
         spell {
             effect = Effects.GainLife(1)
             val pumped = kickerTarget(TargetFilter.Creature)
-            kickerEffect = Effects.Composite(
-                Effects.ModifyStats(3, 3, pumped),
-                Effects.GainLife(1),
-            )
+            kickerEffect = Effects.ModifyStats(3, 3, pumped) then Effects.GainLife(1)
         }
     }
 

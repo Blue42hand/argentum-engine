@@ -44,10 +44,7 @@ val CruelAlliance = card("Cruel Alliance") {
         effect = Effects.Exile(small)
 
         val anyCreature = kickerTarget(TargetFilter.Creature)
-        kickerEffect = Effects.Composite(
-            Effects.Exile(anyCreature),
-            Effects.GainLife(3),
-        )
+        kickerEffect = Effects.Exile(anyCreature) then Effects.GainLife(3)
     }
 
     metadata {

@@ -25,11 +25,9 @@ val KindledHeroism = card("Kindled Heroism") {
     oracleText = "Target creature gets +1/+0 and gains first strike until end of turn. Scry 1."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, t),
-            Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),
+        effect = Effects.ModifyStats(1, 0, t) then
+            Effects.GrantKeyword(Keyword.FIRST_STRIKE, t) then
             Patterns.Library.scry(1)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

@@ -27,10 +27,7 @@ val MerfolkLooter = card("Merfolk Looter") {
     toughness = 1
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Patterns.Hand.discardCards(1)
-        )
+        effect = Effects.DrawCards(1) then Patterns.Hand.discardCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

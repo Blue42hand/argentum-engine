@@ -24,10 +24,7 @@ val JalumTome = card("Jalum Tome") {
     oracleText = "{2}, {T}: Draw a card, then discard a card."
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Patterns.Hand.discardCards(1)
-        )
+        effect = Effects.DrawCards(1) then Patterns.Hand.discardCards(1)
     }
     metadata {
         rarity = Rarity.UNCOMMON

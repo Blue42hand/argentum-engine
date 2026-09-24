@@ -35,9 +35,9 @@ val Shroudstomper = card("Shroudstomper") {
 
     keywords(Keyword.DEATHTOUCH)
 
-    val payoff = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent))
-        .then(Effects.GainLife(2))
-        .then(Effects.DrawCards(1))
+    val payoff = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)) then
+        Effects.GainLife(2) then
+        Effects.DrawCards(1)
 
     triggeredAbility {
         trigger = Triggers.self.enters()

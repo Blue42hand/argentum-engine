@@ -24,11 +24,9 @@ val WingsOfTheCosmos = card("Wings of the Cosmos") {
 
     spell {
         val recipient = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 3, recipient),
-            Effects.GrantKeyword(Keyword.FLYING, recipient),
+        effect = Effects.ModifyStats(1, 3, recipient) then
+            Effects.GrantKeyword(Keyword.FLYING, recipient) then
             Effects.Untap(recipient)
-        )
     }
 
     metadata {

@@ -35,27 +35,25 @@ val RenderSpeechless = card("Render Speechless") {
     spell {
         val opponent = target(Targets.Opponent)
         val creature = target(TargetFilter.Creature, optional = true)
-        effect = Effects.Composite(
-            // Targeted discard: reveal the opponent's hand (target 0), the controller chooses a nonland
-            // card from it, that player discards it. The opponent is the first chosen target, addressed
-            // by Player.ContextPlayer(0) for both the gather source and the discard destination.
-            Effects.Pipeline {
-                run(Effects.RevealHand(opponent))
-                val opponentHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
-                val toDiscard = chooseExactly(
-                    1,
-                    from = opponentHand,
-                    chooser = Chooser.Controller,
-                    filter = GameObjectFilter.Nonland,
-                    prompt = "Choose a nonland card to discard",
-                    alwaysPrompt = true,
-                    showAllCards = true
-                )
-                discard(toDiscard, opponent.asPlayer)
-            },
+        // Targeted discard: reveal the opponent's hand (target 0), the controller chooses a nonland
+        // card from it, that player discards it. The opponent is the first chosen target, addressed
+        // by Player.ContextPlayer(0) for both the gather source and the discard destination.
+        effect = Effects.Pipeline {
+            run(Effects.RevealHand(opponent))
+            val opponentHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
+            val toDiscard = chooseExactly(
+                1,
+                from = opponentHand,
+                chooser = Chooser.Controller,
+                filter = GameObjectFilter.Nonland,
+                prompt = "Choose a nonland card to discard",
+                alwaysPrompt = true,
+                showAllCards = true
+            )
+            discard(toDiscard, opponent.asPlayer)
+        } then
             // Two +1/+1 counters on the optional creature (target 1). No-ops when no creature is chosen.
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature),
-        )
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature)
     }
 
     metadata {

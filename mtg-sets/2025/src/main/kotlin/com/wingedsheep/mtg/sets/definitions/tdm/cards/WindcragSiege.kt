@@ -79,27 +79,23 @@ val WindcragSiege = card("Windcrag Siege") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
         triggerRestriction = SourceChosenModeIs("jeskai")
-        effect = Effects.Composite(
-            listOf(
-                Effects.CreateToken(
-                    power = 1,
-                    toughness = 1,
-                    colors = setOf(Color.RED),
-                    creatureTypes = setOf("Goblin"),
-                    imageUri = "https://cards.scryfall.io/normal/front/e/2/e265ca24-96c0-4654-a8f3-bbffe288970a.jpg?1742506636"
-                ),
-                Effects.GrantKeyword(
-                    Keyword.LIFELINK,
-                    EffectTarget.PipelineTarget(CREATED_TOKENS, 0),
-                    Duration.EndOfTurn
-                ),
-                Effects.GrantKeyword(
-                    Keyword.HASTE,
-                    EffectTarget.PipelineTarget(CREATED_TOKENS, 0),
-                    Duration.EndOfTurn
-                )
+        effect = Effects.CreateToken(
+            power = 1,
+            toughness = 1,
+            colors = setOf(Color.RED),
+            creatureTypes = setOf("Goblin"),
+            imageUri = "https://cards.scryfall.io/normal/front/e/2/e265ca24-96c0-4654-a8f3-bbffe288970a.jpg?1742506636"
+        ) then
+            Effects.GrantKeyword(
+                Keyword.LIFELINK,
+                EffectTarget.PipelineTarget(CREATED_TOKENS, 0),
+                Duration.EndOfTurn
+            ) then
+            Effects.GrantKeyword(
+                Keyword.HASTE,
+                EffectTarget.PipelineTarget(CREATED_TOKENS, 0),
+                Duration.EndOfTurn
             )
-        )
     }
 
     metadata {

@@ -26,24 +26,22 @@ val SplashPortal = card("Splash Portal") {
 
     spell {
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Move(creature, Zone.EXILE)
-            .then(Effects.Move(creature, Zone.BATTLEFIELD))
-            .then(
-                Effects.If(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter(
-                            cardPredicates = listOf(
-                                CardPredicate.Or(
-                                    listOf(
-                                        CardPredicate.HasSubtype(Subtype("Bird")),
-                                        CardPredicate.HasSubtype(Subtype("Frog")),
-                                        CardPredicate.HasSubtype(Subtype("Otter")),
-                                        CardPredicate.HasSubtype(Subtype("Rat"))
-                                    )
+        effect = Effects.Move(creature, Zone.EXILE) then
+            Effects.Move(creature, Zone.BATTLEFIELD) then
+            Effects.If(
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter(
+                        cardPredicates = listOf(
+                            CardPredicate.Or(
+                                listOf(
+                                    CardPredicate.HasSubtype(Subtype("Bird")),
+                                    CardPredicate.HasSubtype(Subtype("Frog")),
+                                    CardPredicate.HasSubtype(Subtype("Otter")),
+                                    CardPredicate.HasSubtype(Subtype("Rat"))
                                 )
                             )
-                        ), creature),
-                    then = Effects.DrawCards(1)
-                )
+                        )
+                    ), creature),
+                then = Effects.DrawCards(1)
             )
     }
 

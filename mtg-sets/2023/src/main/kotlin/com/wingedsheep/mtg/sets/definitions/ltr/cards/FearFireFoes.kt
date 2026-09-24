@@ -34,15 +34,13 @@ val FearFireFoes = card("Fear, Fire, Foes!") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.DamageCantBePreventedThisTurn()
-            .then(Effects.DealDamage(DynamicAmounts.xValue(), creature))
-            .then(
-                Patterns.Group.dealDamageToAll(
-                    1,
-                    GroupFilter(
-                        GameObjectFilter.Creature.targetPlayerControls(EffectTarget.TargetController)
-                    ).otherThanTarget()
-                )
+        effect = Effects.DamageCantBePreventedThisTurn() then
+            Effects.DealDamage(DynamicAmounts.xValue(), creature) then
+            Patterns.Group.dealDamageToAll(
+                1,
+                GroupFilter(
+                    GameObjectFilter.Creature.targetPlayerControls(EffectTarget.TargetController)
+                ).otherThanTarget()
             )
     }
 

@@ -68,16 +68,14 @@ private val DocentOfPerfectionFront = card("Docent of Perfection") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
-        effect = Effects.Composite(
-            HumanWizardToken,
+        effect = HumanWizardToken then
             Effects.If(
                 condition = Conditions.YouControlAtLeast(
                     3,
                     GameObjectFilter.Creature.withSubtype("Wizard"),
                 ),
                 then = Effects.Transform(EffectTarget.Self),
-            ),
-        )
+            )
         description = "Create a 1/1 blue Human Wizard creature token. Then if you control three " +
             "or more Wizards, transform this creature."
     }

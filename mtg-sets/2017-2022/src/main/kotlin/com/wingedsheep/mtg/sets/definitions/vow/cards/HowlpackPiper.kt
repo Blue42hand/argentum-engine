@@ -64,15 +64,13 @@ private val HowlpackPiperFront = card("Howlpack Piper") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{G}"), Costs.Tap)
         timing = TimingRule.SorcerySpeed
-        effect = Effects.Composite(
-            Patterns.Hand.putFromHand(filter = GameObjectFilter.Creature, count = 1),
+        effect = Patterns.Hand.putFromHand(filter = GameObjectFilter.Creature, count = 1) then
             Effects.If(
                 condition = Conditions.CollectionContainsMatch(Patterns.Hand.putFromHandCards,
                     GameObjectFilter.Creature.withAnySubtype("Wolf", "Werewolf"),
                 ),
                 then = Effects.Untap(EffectTarget.Self),
-            ),
-        )
+            )
         description = "You may put a creature card from your hand onto the battlefield. If it's a Wolf " +
             "or Werewolf, untap this creature."
     }

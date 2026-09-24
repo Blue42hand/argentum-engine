@@ -36,14 +36,12 @@ val InduceParanoia = card("Induce Paranoia") {
 
     spell {
         val spellTarget = target(TargetFilter.SpellOnStack)
-        effect = Effects.CounterSpell()
-            .then(
-                Effects.If(
-                    condition = Conditions.ManaSpentToCastIncludes(requiredBlack = 1),
-                    then = Patterns.Library.mill(
-                        DynamicAmounts.manaValueOf(spellTarget),
-                        EffectTarget.PlayerRef(Player.ControllerOf("target spell"))
-                    )
+        effect = Effects.CounterSpell() then
+            Effects.If(
+                condition = Conditions.ManaSpentToCastIncludes(requiredBlack = 1),
+                then = Patterns.Library.mill(
+                    DynamicAmounts.manaValueOf(spellTarget),
+                    EffectTarget.PlayerRef(Player.ControllerOf("target spell"))
                 )
             )
     }

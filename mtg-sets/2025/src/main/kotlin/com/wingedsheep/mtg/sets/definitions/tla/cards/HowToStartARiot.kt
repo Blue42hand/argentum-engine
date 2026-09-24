@@ -29,13 +29,11 @@ val HowToStartARiot = card("How to Start a Riot") {
     spell {
         val creature = target(TargetFilter.Creature)
         val player = target(Targets.Player)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.MENACE, creature),
+        effect = Effects.GrantKeyword(Keyword.MENACE, creature) then
             Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.targetPlayerControls(player)),
                 effect = Effects.ModifyStats(2, 0, EffectTarget.IterationEntity)
             )
-        )
     }
 
     metadata {

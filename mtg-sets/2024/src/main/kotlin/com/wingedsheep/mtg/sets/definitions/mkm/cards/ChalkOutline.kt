@@ -35,15 +35,13 @@ val ChalkOutline = card("Chalk Outline") {
 
     triggeredAbility {
         trigger = Triggers.oneOrMore(GameObjectFilter.Creature).leaveYourGraveyard()
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                power = 2,
-                toughness = 2,
-                colors = setOf(Color.WHITE, Color.BLUE),
-                creatureTypes = setOf("Detective")
-            ),
+        effect = Effects.CreateToken(
+            power = 2,
+            toughness = 2,
+            colors = setOf(Color.WHITE, Color.BLUE),
+            creatureTypes = setOf("Detective")
+        ) then
             Effects.Investigate()
-        )
         description = "Whenever one or more creature cards leave your graveyard, create a 2/2 " +
             "white and blue Detective creature token, then investigate."
     }

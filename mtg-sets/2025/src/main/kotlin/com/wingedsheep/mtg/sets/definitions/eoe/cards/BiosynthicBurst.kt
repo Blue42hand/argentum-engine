@@ -20,16 +20,14 @@ val BiosynthicBurst = card("Biosynthic Burst") {
 
     spell {
         val target = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(listOf(
-            // Put a +1/+1 counter on target creature
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target),
+        // Put a +1/+1 counter on target creature
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target) then
             // It gains reach, trample, and indestructible until end of turn
-            Effects.GrantKeyword(Keyword.REACH, target, duration = com.wingedsheep.sdk.scripting.Duration.EndOfTurn),
-            Effects.GrantKeyword(Keyword.TRAMPLE, target, duration = com.wingedsheep.sdk.scripting.Duration.EndOfTurn),
-            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, target, duration = com.wingedsheep.sdk.scripting.Duration.EndOfTurn),
+            Effects.GrantKeyword(Keyword.REACH, target, duration = com.wingedsheep.sdk.scripting.Duration.EndOfTurn) then
+            Effects.GrantKeyword(Keyword.TRAMPLE, target, duration = com.wingedsheep.sdk.scripting.Duration.EndOfTurn) then
+            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, target, duration = com.wingedsheep.sdk.scripting.Duration.EndOfTurn) then
             // Untap it
             Effects.Untap(target)
-        ))
     }
 
     metadata {

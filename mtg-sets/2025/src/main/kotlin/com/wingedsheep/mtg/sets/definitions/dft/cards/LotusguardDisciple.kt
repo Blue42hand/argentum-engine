@@ -32,10 +32,8 @@ val LotusguardDisciple = card("Lotusguard Disciple") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter(GameObjectFilter.CreatureOrVehicle))
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.LIFELINK, t),
+        effect = Effects.GrantKeyword(Keyword.LIFELINK, t) then
             Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
-        )
         description = "When this creature enters, target creature or Vehicle gains lifelink and " +
             "indestructible until end of turn."
     }

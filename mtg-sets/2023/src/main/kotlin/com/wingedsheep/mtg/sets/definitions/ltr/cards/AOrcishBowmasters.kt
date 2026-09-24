@@ -34,10 +34,7 @@ val AOrcishBowmasters = card("A-Orcish Bowmasters") {
     triggeredAbility {
         trigger = Triggers.anOpponent.draws(true)
         val t = target(Targets.Any)
-        effect = Effects.Composite(
-            Effects.DealDamage(1, t),
-            Effects.Amass(1, "Orc")
-        )
+        effect = Effects.DealDamage(1, t) then Effects.Amass(1, "Orc")
     }
 
     metadata {

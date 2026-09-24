@@ -52,13 +52,11 @@ val BumiUnleashed = card("Bumi, Unleashed") {
 
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter(GameObjectFilter.Land.youControl()),
-                Effects.Untap(EffectTarget.IterationEntity),
-            ),
-            Effects.AddCombatPhaseRestrictedTo(GameObjectFilter.Creature and GameObjectFilter.Land),
-        )
+        effect = Effects.ForEachInGroup(
+            GroupFilter(GameObjectFilter.Land.youControl()),
+            Effects.Untap(EffectTarget.IterationEntity),
+        ) then
+            Effects.AddCombatPhaseRestrictedTo(GameObjectFilter.Creature and GameObjectFilter.Land)
         description = "Whenever Bumi deals combat damage to a player, untap all lands you control. " +
             "After this phase, there is an additional combat phase. Only land creatures can attack " +
             "during that combat phase."

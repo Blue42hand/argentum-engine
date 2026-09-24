@@ -43,7 +43,7 @@ val KillingWave = card("Killing Wave") {
                     filter = GroupFilter.AllCreaturesYouControl,
                     effect = Effects.MayPay(
                         cost = Effects.PayDynamicLife(DynamicAmounts.xValue()),
-                        then = Effects.Composite(emptyList()),
+                        then = Effects.Nothing,
                         otherwise = Effects.SacrificeTarget(EffectTarget.IterationEntity),
                         // The gate labels its own "yes" button with the computed cost ("Pay 2
                         // life") and its "no" with "Don't pay", so the prompt only has to state

@@ -19,8 +19,7 @@ val DefiantStrike = card("Defiant Strike") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(1, 0, t)
-            .then(Effects.DrawCards(1))
+        effect = Effects.ModifyStats(1, 0, t) then Effects.DrawCards(1)
     }
 
     metadata {

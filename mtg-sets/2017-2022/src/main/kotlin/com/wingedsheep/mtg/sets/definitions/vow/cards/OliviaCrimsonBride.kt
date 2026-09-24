@@ -61,13 +61,12 @@ val OliviaCrimsonBride = card("Olivia, Crimson Bride") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val creature = target(TargetFilter.CreatureInYourGraveyard)
-        effect = Effects.Composite(
-            Effects.Move(
-                target = creature,
-                destination = Zone.BATTLEFIELD,
-                placement = ZonePlacement.TappedAndAttacking,
-                fromZone = Zone.GRAVEYARD
-            ),
+        effect = Effects.Move(
+            target = creature,
+            destination = Zone.BATTLEFIELD,
+            placement = ZonePlacement.TappedAndAttacking,
+            fromZone = Zone.GRAVEYARD
+        ) then
             Effects.GrantStateTriggeredAbility(
                 ability = StateTriggeredAbility.create(
                     condition = Conditions.YouControl(
@@ -81,7 +80,6 @@ val OliviaCrimsonBride = card("Olivia, Crimson Bride") {
                 target = creature,
                 duration = Duration.Permanent
             )
-        )
         description = "Whenever Olivia attacks, return target creature card from your graveyard " +
             "to the battlefield tapped and attacking. It gains \"When you don't control a " +
             "legendary Vampire, exile this creature.\""

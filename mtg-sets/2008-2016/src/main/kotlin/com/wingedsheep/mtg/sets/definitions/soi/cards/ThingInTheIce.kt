@@ -71,13 +71,11 @@ private val ThingInTheIceFront = card("Thing in the Ice") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery)
-        effect = Effects.Composite(
-            Effects.RemoveCounters(CounterType.ICE, 1, EffectTarget.Self),
+        effect = Effects.RemoveCounters(CounterType.ICE, 1, EffectTarget.Self) then
             Effects.If(
                 condition = Conditions.SourceCounterCountAtMost(CounterType.ICE, 0),
                 then = Effects.Transform(EffectTarget.Self),
-            ),
-        )
+            )
         description = "Remove an ice counter from this creature. Then if it has no ice counters " +
             "on it, transform it."
     }

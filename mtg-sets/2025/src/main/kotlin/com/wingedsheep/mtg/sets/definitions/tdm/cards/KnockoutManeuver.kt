@@ -29,14 +29,12 @@ val KnockoutManeuver = card("Knockout Maneuver") {
     spell {
         val mine = target(TargetFilter.CreatureYouControl)
         val theirs = target(TargetFilter.CreatureOpponentControls)
-        effect = Effects.Composite(listOf(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, mine),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, mine) then
             Effects.DealDamage(
                 amount = DynamicAmounts.powerOf(mine),
                 target = theirs,
                 damageSource = mine
             )
-        ))
     }
 
     metadata {

@@ -30,10 +30,7 @@ val VeilOfAssimilation = card("Veil of Assimilation") {
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Artifact.youControl()).enters()
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 1, creature),
-            Effects.GrantKeyword(Keyword.VIGILANCE, creature),
-        )
+        effect = Effects.ModifyStats(1, 1, creature) then Effects.GrantKeyword(Keyword.VIGILANCE, creature)
     }
 
     metadata {

@@ -29,7 +29,7 @@ val HolyCow = card("Holy Cow") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.GainLife(2).then(Patterns.Library.scry(1))
+        effect = Effects.GainLife(2) then Patterns.Library.scry(1)
         description = "you gain 2 life and scry 1."
     }
 

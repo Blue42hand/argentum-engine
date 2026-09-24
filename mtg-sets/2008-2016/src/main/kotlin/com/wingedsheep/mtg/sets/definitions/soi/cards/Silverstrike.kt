@@ -20,10 +20,7 @@ val Silverstrike = card("Silverstrike") {
 
     spell {
         val victim = target(TargetFilter.AttackingCreature)
-        effect = Effects.Composite(
-            Effects.Destroy(victim),
-            Effects.GainLife(3)
-        )
+        effect = Effects.Destroy(victim) then Effects.GainLife(3)
     }
 
     metadata {

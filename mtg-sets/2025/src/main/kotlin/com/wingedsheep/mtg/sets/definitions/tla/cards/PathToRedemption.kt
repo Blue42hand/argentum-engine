@@ -40,15 +40,13 @@ val PathToRedemption = card("Path to Redemption") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{5}"), Costs.SacrificeSelf)
-        effect = Effects.Composite(
-            Effects.Exile(EffectTarget.EnchantedCreature),
+        effect = Effects.Exile(EffectTarget.EnchantedCreature) then
             Effects.CreateToken(
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.WHITE),
                 creatureTypes = setOf("Ally")
             )
-        )
         restrictions = listOf(ActivationRestriction.OnlyDuringYourTurn)
     }
 

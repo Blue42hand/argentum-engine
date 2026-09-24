@@ -37,13 +37,11 @@ val FractalAnomaly = card("Fractal Anomaly") {
             colors = setOf(Color.GREEN, Color.BLUE),
             creatureTypes = setOf("Fractal"),
             imageUri = "https://cards.scryfall.io/normal/front/d/e/de564776-9d88-4533-8717-842eecdd0594.jpg?1775828279"
-        )
-            .then(
-                Effects.AddDynamicCounters(
-                    CounterType.PLUS_ONE_PLUS_ONE,
-                    DynamicAmounts.cardsDrawnThisTurn(Player.You),
-                    EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
-                )
+        ) then
+            Effects.AddDynamicCounters(
+                CounterType.PLUS_ONE_PLUS_ONE,
+                DynamicAmounts.cardsDrawnThisTurn(Player.You),
+                EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
             )
     }
 

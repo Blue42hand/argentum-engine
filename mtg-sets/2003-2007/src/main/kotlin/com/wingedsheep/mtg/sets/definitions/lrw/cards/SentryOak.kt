@@ -23,8 +23,8 @@ val SentryOak = card("Sentry Oak") {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         optional = true
         effect = Patterns.Mechanic.clash(
-            Effects.ModifyStats(2, 0, EffectTarget.Self)
-                .then(Effects.RemoveKeyword(Keyword.DEFENDER, EffectTarget.Self))
+            Effects.ModifyStats(2, 0, EffectTarget.Self) then
+                Effects.RemoveKeyword(Keyword.DEFENDER, EffectTarget.Self)
         )
         description = "You may clash with an opponent. If you win, this creature gets +2/+0 and loses defender until end of turn."
     }

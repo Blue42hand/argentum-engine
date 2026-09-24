@@ -306,7 +306,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "destination": "Hand"
                 },
@@ -316,7 +316,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ],
                 "timing": "SorcerySpeed",
@@ -338,7 +338,7 @@
                                 "zone": "Library",
                                 "player": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t2"
                                 }
                             },
                             "storeAs": "gathered0"
@@ -351,7 +351,7 @@
                                 "zone": "Exile",
                                 "player": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t2"
                                 }
                             }
                         },
@@ -362,7 +362,7 @@
                                 "zone": "Hand",
                                 "player": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t2"
                                 }
                             },
                             "storeAs": "gathered2"
@@ -375,7 +375,7 @@
                                 "zone": "Library",
                                 "player": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t2"
                                 },
                                 "placement": "Shuffled"
                             }
@@ -385,7 +385,7 @@
                 "targetRequirements": [
                     {
                         "type": "TargetPlayer",
-                        "id": "t0"
+                        "id": "t2"
                     }
                 ],
                 "timing": "SorcerySpeed",

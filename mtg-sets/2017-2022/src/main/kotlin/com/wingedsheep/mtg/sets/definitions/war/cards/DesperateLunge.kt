@@ -23,13 +23,9 @@ val DesperateLunge = card("Desperate Lunge") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Composite(
-                Effects.ModifyStats(2, 2, t),
-                Effects.GrantKeyword(Keyword.FLYING, t)
-            ),
+        effect = Effects.ModifyStats(2, 2, t) then
+            Effects.GrantKeyword(Keyword.FLYING, t) then
             Effects.GainLife(2)
-        )
     }
 
     metadata {

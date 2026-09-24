@@ -53,12 +53,8 @@ val MarkovRetribution = card("Markov Retribution") {
             ) {
                 val vampire = target(TargetFilter.Creature.withSubtype("Vampire").youControl())
                 val victim = target(TargetOther(TargetObject(filter = TargetFilter.Creature)))
-                effect = Effects.Composite(
-                    listOf(
-                        pumpAll,
-                        Effects.DealDamage(DynamicAmounts.powerOf(vampire), victim, damageSource = vampire)
-                    )
-                )
+                effect = pumpAll then
+                    Effects.DealDamage(DynamicAmounts.powerOf(vampire), victim, damageSource = vampire)
             }
         }
     }

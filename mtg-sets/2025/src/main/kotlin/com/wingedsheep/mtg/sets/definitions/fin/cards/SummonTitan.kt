@@ -53,10 +53,7 @@ val SummonTitan = card("Summon: Titan") {
     sagaChapter(3) {
         val ally = target(TargetFilter.OtherCreatureYouControl)
         val lands = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Land).count()
-        effect = Effects.Composite(
-            Effects.ModifyStats(lands, lands, ally),
-            Effects.GrantKeyword(Keyword.TRAMPLE, ally),
-        )
+        effect = Effects.ModifyStats(lands, lands, ally) then Effects.GrantKeyword(Keyword.TRAMPLE, ally)
     }
 
     metadata {

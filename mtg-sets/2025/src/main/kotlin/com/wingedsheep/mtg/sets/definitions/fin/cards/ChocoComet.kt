@@ -30,8 +30,7 @@ val ChocoComet = card("Choco-Comet") {
     oracleText = "Choco-Comet deals X damage to any target.\nCreate a 2/2 green Bird creature token with \"Whenever a land you control enters, this token gets +1/+0 until end of turn.\""
     spell {
         val t = target(Targets.Any)
-        effect = Effects.Composite(
-            Effects.DealDamage(DynamicAmounts.xValue(), t),
+        effect = Effects.DealDamage(DynamicAmounts.xValue(), t) then
             Effects.CreateToken(
                 power = 2,
                 toughness = 2,
@@ -45,7 +44,6 @@ val ChocoComet = card("Choco-Comet") {
                     )
                 )
             )
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

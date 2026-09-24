@@ -35,8 +35,7 @@ val MostValuableSlayer = card("Most Valuable Slayer") {
     triggeredAbility {
         trigger = Triggers.you.attacks()
         val attacker = target(TargetFilter.AttackingCreature)
-        effect = Effects.ModifyStats(1, 0, attacker)
-            .then(Effects.GrantKeyword(Keyword.FIRST_STRIKE, attacker))
+        effect = Effects.ModifyStats(1, 0, attacker) then Effects.GrantKeyword(Keyword.FIRST_STRIKE, attacker)
     }
 
     metadata {

@@ -65,17 +65,14 @@ val UnyieldingGatekeeper = card("Unyielding Gatekeeper") {
         val permanent = target(TargetFilter.OtherNonlandPermanent)
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.NonlandPermanent.youControl(), permanent),
-            then = Effects.Move(permanent, Zone.EXILE)
-                .then(
-                    Effects.Move(
-                        permanent,
-                        Zone.BATTLEFIELD,
-                        placement = ZonePlacement.Tapped,
-                        controllerOverride = EffectTarget.Controller,
-                    )
+            then = Effects.Move(permanent, Zone.EXILE) then
+                Effects.Move(
+                    permanent,
+                    Zone.BATTLEFIELD,
+                    placement = ZonePlacement.Tapped,
+                    controllerOverride = EffectTarget.Controller,
                 ),
-            otherwise = Effects.Composite(
-                Effects.Exile(permanent),
+            otherwise = Effects.Exile(permanent) then
                 Effects.CreateToken(
                     power = 2,
                     toughness = 2,
@@ -83,7 +80,6 @@ val UnyieldingGatekeeper = card("Unyielding Gatekeeper") {
                     creatureTypes = setOf("Detective"),
                     controller = EffectTarget.TargetController,
                 ),
-            ),
         )
         description = "When this creature is turned face up, exile another target nonland " +
             "permanent. If you controlled it, return it to the battlefield tapped. Otherwise, " +

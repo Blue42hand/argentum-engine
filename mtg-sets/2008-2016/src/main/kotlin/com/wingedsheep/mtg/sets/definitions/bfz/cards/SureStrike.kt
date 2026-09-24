@@ -24,10 +24,7 @@ val SureStrike = card("Sure Strike") {
     oracleText = "Target creature gets +3/+0 and gains first strike until end of turn. (It deals combat damage before creatures without first strike.)"
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(3, 0, t),
-            Effects.GrantKeyword(Keyword.FIRST_STRIKE, t)
-        )
+        effect = Effects.ModifyStats(3, 0, t) then Effects.GrantKeyword(Keyword.FIRST_STRIKE, t)
     }
     metadata {
         rarity = Rarity.COMMON

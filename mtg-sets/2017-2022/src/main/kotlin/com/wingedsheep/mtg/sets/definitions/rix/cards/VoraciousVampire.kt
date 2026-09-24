@@ -35,8 +35,7 @@ val VoraciousVampire = card("Voracious Vampire") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val vampire = target(TargetFilter(GameObjectFilter.Permanent.withSubtype(Subtype.VAMPIRE).youControl()))
-        effect = Effects.ModifyStats(1, 1, vampire) then
-            Effects.GrantKeyword(Keyword.MENACE, vampire)
+        effect = Effects.ModifyStats(1, 1, vampire) then Effects.GrantKeyword(Keyword.MENACE, vampire)
     }
 
     metadata {

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -37,13 +36,11 @@ val SkyskipperDuo = card("Skyskipper Duo") {
         trigger = Triggers.self.enters()
         // "one OTHER target creature you control" — Skyskipper Duo can't blink itself
         val creature = target(TargetFilter(GameObjectFilter.Creature.youControl()).other(), optional = true)
-        effect = Effects.Composite(listOf(
-            Effects.Move(creature, Zone.EXILE),
+        effect = Effects.Move(creature, Zone.EXILE) then
             Effects.CreateDelayedTrigger(
                 step = Step.END,
                 effect = Effects.Move(creature, Zone.BATTLEFIELD)
             )
-        ))
     }
 
     metadata {

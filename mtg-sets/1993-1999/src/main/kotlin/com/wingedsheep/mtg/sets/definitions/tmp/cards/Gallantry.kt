@@ -24,10 +24,7 @@ val Gallantry = card("Gallantry") {
     oracleText = "Target blocking creature gets +4/+4 until end of turn.\nDraw a card."
     spell {
         val t = target(TargetFilter.BlockingCreature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(4, 4, t),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.ModifyStats(4, 4, t) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.UNCOMMON

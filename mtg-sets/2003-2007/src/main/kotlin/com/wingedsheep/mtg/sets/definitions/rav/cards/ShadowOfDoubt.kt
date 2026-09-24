@@ -25,10 +25,7 @@ val ShadowOfDoubt = card("Shadow of Doubt") {
     oracleText = "({U/B} can be paid with either {U} or {B}.)\nPlayers can't search libraries this turn.\nDraw a card."
 
     spell {
-        effect = Effects.Composite(
-            Effects.CantSearchLibraries(EffectTarget.PlayerRef(Player.Each)),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.CantSearchLibraries(EffectTarget.PlayerRef(Player.Each)) then Effects.DrawCards(1)
     }
 
     metadata {

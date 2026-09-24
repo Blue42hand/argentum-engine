@@ -39,9 +39,9 @@ val Defossilize = card("Defossilize") {
 
     spell {
         val t = target(TargetFilter.CreatureInYourGraveyard)
-        effect = Effects.PutOntoBattlefield(t)
-            .then(Effects.Explore(t))
-            .then(Effects.Explore(t))
+        effect = Effects.PutOntoBattlefield(t) then
+            Effects.Explore(t) then
+            Effects.Explore(t)
     }
 
     metadata {

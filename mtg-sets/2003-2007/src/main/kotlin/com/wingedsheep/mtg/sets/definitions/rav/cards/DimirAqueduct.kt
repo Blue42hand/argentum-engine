@@ -39,7 +39,7 @@ val DimirAqueduct = card("Dimir Aqueduct") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = Effects.AddMana(Color.BLUE).then(Effects.AddMana(Color.BLACK))
+        effect = Effects.AddMana(Color.BLUE) then Effects.AddMana(Color.BLACK)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

@@ -56,18 +56,16 @@ val AbuelosAwakening = card("Abuelo's Awakening") {
                 zone = Zone.GRAVEYARD
             ),
         )
-        effect = Effects.PutOntoBattlefield(t)
-            .then(
-                Effects.BecomeCreature(
-                    target = t,
-                    power = 1,
-                    toughness = 1,
-                    keywords = setOf(Keyword.FLYING),
-                    duration = Duration.Permanent
-                )
-            )
-            .then(Effects.AddSubtype("Spirit", target = t, duration = Duration.Permanent))
-            .then(Effects.AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE, DynamicAmounts.xValue(), t))
+        effect = Effects.PutOntoBattlefield(t) then
+            Effects.BecomeCreature(
+                target = t,
+                power = 1,
+                toughness = 1,
+                keywords = setOf(Keyword.FLYING),
+                duration = Duration.Permanent
+            ) then
+            Effects.AddSubtype("Spirit", target = t, duration = Duration.Permanent) then
+            Effects.AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE, DynamicAmounts.xValue(), t)
     }
 
     metadata {

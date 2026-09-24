@@ -27,13 +27,9 @@ val BigPlay = card("Big Play") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Composite(
-                Effects.ModifyStats(2, 2, creature),
-                Effects.GrantKeyword(Keyword.REACH, creature)
-            ),
+        effect = Effects.ModifyStats(2, 2, creature) then
+            Effects.GrantKeyword(Keyword.REACH, creature) then
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
-        )
     }
 
     metadata {

@@ -26,12 +26,8 @@ val MolecularModifier = card("Molecular Modifier") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            listOf(
-                Effects.ModifyStats(+1, 0, creature),
-                Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature)
-            )
-        )
+        effect = Effects.ModifyStats(+1, 0, creature) then
+            Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature)
     }
 
     metadata {

@@ -45,12 +45,8 @@ val JadedAnalyst = card("Jaded Analyst") {
 
     triggeredAbility {
         trigger = Triggers.you.drawsNth(2)
-        effect = Effects.Composite(
-            listOf(
-                Effects.RemoveKeyword(Keyword.DEFENDER, EffectTarget.Self, Duration.EndOfTurn),
-                Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.Self, Duration.EndOfTurn)
-            )
-        )
+        effect = Effects.RemoveKeyword(Keyword.DEFENDER, EffectTarget.Self, Duration.EndOfTurn) then
+            Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.Self, Duration.EndOfTurn)
         description = "Whenever you draw your second card each turn, this creature loses defender " +
             "and gains vigilance until end of turn."
     }

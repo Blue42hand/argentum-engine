@@ -34,12 +34,10 @@ val ZidaneTantalusThief = card("Zidane, Tantalus Thief") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter.CreatureOpponentControls)
-        effect = Effects.Composite(
-            Effects.GainControl(t, Duration.EndOfTurn),
-            Effects.Untap(t),
-            Effects.GrantKeyword(Keyword.LIFELINK, t),
+        effect = Effects.GainControl(t, Duration.EndOfTurn) then
+            Effects.Untap(t) then
+            Effects.GrantKeyword(Keyword.LIFELINK, t) then
             Effects.GrantKeyword(Keyword.HASTE, t)
-        )
     }
     triggeredAbility {
         trigger = Triggers.a().controlChanges(ControlChangeDirection.LOST, toOpponent = true)

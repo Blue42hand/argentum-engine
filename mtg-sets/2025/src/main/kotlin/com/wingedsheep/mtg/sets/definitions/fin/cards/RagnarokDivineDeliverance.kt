@@ -47,8 +47,7 @@ val RagnarokDivineDeliverance = card("Ragnarok, Divine Deliverance") {
         trigger = Triggers.self.dies()
         val permanent = target(TargetFilter.Permanent)
         val reanimate = target(TargetFilter(GameObjectFilter.Permanent.ownedByYou().nonlegendary(), zone = Zone.GRAVEYARD))
-        effect = Effects.Destroy(permanent)
-            .then(Effects.PutOntoBattlefield(reanimate))
+        effect = Effects.Destroy(permanent) then Effects.PutOntoBattlefield(reanimate)
     }
 
     metadata {

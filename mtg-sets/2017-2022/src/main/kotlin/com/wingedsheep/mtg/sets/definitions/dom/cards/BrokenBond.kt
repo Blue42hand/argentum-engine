@@ -22,8 +22,7 @@ val BrokenBond = card("Broken Bond") {
 
     spell {
         val t = target(TargetFilter.ArtifactOrEnchantment)
-        effect = Effects.Destroy(t)
-            .then(Patterns.Hand.putFromHand(filter = GameObjectFilter.Land))
+        effect = Effects.Destroy(t) then Patterns.Hand.putFromHand(filter = GameObjectFilter.Land)
     }
 
     metadata {

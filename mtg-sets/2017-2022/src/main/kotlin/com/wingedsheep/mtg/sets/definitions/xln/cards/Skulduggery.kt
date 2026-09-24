@@ -26,12 +26,7 @@ val Skulduggery = card("Skulduggery") {
     spell {
         val yours = target(TargetFilter.CreatureYouControl)
         val theirs = target(TargetFilter.CreatureOpponentControls)
-        effect = Effects.Composite(
-            listOf(
-                Effects.ModifyStats(1, 1, yours),
-                Effects.ModifyStats(-1, -1, theirs)
-            )
-        )
+        effect = Effects.ModifyStats(1, 1, yours) then Effects.ModifyStats(-1, -1, theirs)
     }
 
     metadata {

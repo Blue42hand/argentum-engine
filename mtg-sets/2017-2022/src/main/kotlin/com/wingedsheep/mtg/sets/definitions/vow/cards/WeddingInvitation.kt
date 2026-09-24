@@ -38,13 +38,11 @@ val WeddingInvitation = card("Wedding Invitation") {
     activatedAbility {
         cost = Costs.Composite(Costs.Tap, Costs.SacrificeSelf)
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature, Duration.EndOfTurn),
+        effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature, Duration.EndOfTurn) then
             Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype("Vampire")), creature),
                 then = Effects.GrantKeyword(Keyword.LIFELINK, creature, Duration.EndOfTurn),
-            ),
-        )
+            )
         description = "{T}, Sacrifice this artifact: Target creature can't be blocked this turn. " +
             "If it's a Vampire, it also gains lifelink until end of turn."
     }

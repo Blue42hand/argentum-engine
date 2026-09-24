@@ -181,7 +181,7 @@ object Recursion {
                 spellEffect = if (kind == null) {
                     moved
                 } else {
-                    Effects.Composite(listOf(moved, Effects.AddCounters(kind, count, EffectTarget.Self)))
+                    moved then Effects.AddCounters(kind, count, EffectTarget.Self)
                 }
             )
         }

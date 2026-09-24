@@ -44,13 +44,11 @@ val WaterbenderAscension = card("Waterbender Ascension") {
     // enchantment. Then if it has four or more quest counters on it, draw a card.
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dealsCombatDamage(Recipient.AnyPlayer)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.QUEST, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.QUEST, 1, EffectTarget.Self) then
             Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(CounterType.QUEST, 4),
                 then = Effects.DrawCards(1)
             )
-        )
         description = "Whenever a creature you control deals combat damage to a player, put a quest counter on this enchantment. Then if it has four or more quest counters on it, draw a card."
     }
 

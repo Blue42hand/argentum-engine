@@ -20,9 +20,9 @@ val SecondBreakfast = card("Second Breakfast") {
 
     spell {
         val (c1, c2) = targets(TargetFilter.Creature, count = 2, optional = true)
-        effect = Effects.ModifyStats(2, 1, c1)
-            .then(Effects.ModifyStats(2, 1, c2))
-            .then(Effects.CreateFood())
+        effect = Effects.ModifyStats(2, 1, c1) then
+            Effects.ModifyStats(2, 1, c2) then
+            Effects.CreateFood()
     }
 
     metadata {

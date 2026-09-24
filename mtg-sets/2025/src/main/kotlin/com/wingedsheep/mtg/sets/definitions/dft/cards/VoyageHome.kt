@@ -35,10 +35,7 @@ val VoyageHome = card("Voyage Home") {
         )
     }
     spell {
-        effect = Effects.Composite(
-            Effects.DrawCards(3),
-            Effects.GainLife(3)
-        )
+        effect = Effects.DrawCards(3) then Effects.GainLife(3)
     }
     metadata {
         rarity = Rarity.UNCOMMON

@@ -292,7 +292,7 @@ val Blaze = card("Blaze") {
     manaCost = "{X}{R}"
     typeLine = "Sorcery"
     spell {
-        val t = target("target", AnyTarget())
+        val t = target(Targets.Any)
         effect = DealDamageEffect(DynamicAmount.XValue, t)
     }
 }

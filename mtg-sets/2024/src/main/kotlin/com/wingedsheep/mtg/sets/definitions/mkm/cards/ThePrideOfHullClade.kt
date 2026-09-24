@@ -75,17 +75,15 @@ val ThePrideOfHullClade = card("The Pride of Hull Clade") {
     activatedAbility {
         cost = Costs.Mana("{2}{U}{U}")
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, creature),
+        effect = Effects.ModifyStats(1, 0, creature) then
             Effects.GrantTriggeredAbility(
                 ability = TriggeredAbility.create(
                     trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer),
                     effect = Effects.DrawCards(DynamicAmounts.sourceToughness()),
                 ),
                 target = creature,
-            ),
-            Effects.CanAttackDespiteDefenderThisTurn(creature),
-        )
+            ) then
+            Effects.CanAttackDespiteDefenderThisTurn(creature)
         description = "Until end of turn, target creature you control gets +1/+0, gains " +
             "\"Whenever this creature deals combat damage to a player, draw cards equal to its " +
             "toughness,\" and can attack as though it didn't have defender."

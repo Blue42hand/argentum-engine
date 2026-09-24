@@ -26,11 +26,9 @@ val HasteMagic = card("Haste Magic") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(3, 1, t),
-            Effects.GrantKeyword(Keyword.HASTE, t),
+        effect = Effects.ModifyStats(3, 1, t) then
+            Effects.GrantKeyword(Keyword.HASTE, t) then
             Patterns.Exile.impulse(count = 1, expiry = MayPlayExpiry.UntilNextEndStep)
-        )
     }
 
     metadata {

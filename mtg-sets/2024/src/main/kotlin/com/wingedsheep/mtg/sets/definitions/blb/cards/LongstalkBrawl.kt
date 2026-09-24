@@ -54,10 +54,10 @@ val LongstalkBrawl = card("Longstalk Brawl") {
                     tapped = true,
                     controller = EffectTarget.PlayerRef(Player.ChosenOpponent),
                     imageUri = "https://cards.scryfall.io/normal/front/d/e/de0d6700-49f0-4233-97ba-cef7821c30ed.jpg?1721431109"
-                )
-                    .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creatureYouControl))
-                    .then(Effects.Fight(creatureYouControl, creatureOpponentControls))
-                    .then(Effects.GiftGiven())
+                ) then
+                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creatureYouControl) then
+                    Effects.Fight(creatureYouControl, creatureOpponentControls) then
+                    Effects.GiftGiven()
             }
         )
     }

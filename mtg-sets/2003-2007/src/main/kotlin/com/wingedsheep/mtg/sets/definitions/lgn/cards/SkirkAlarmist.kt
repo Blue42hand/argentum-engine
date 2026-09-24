@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
@@ -34,11 +33,11 @@ val SkirkAlarmist = card("Skirk Alarmist") {
     activatedAbility {
         cost = Costs.Tap
         val t = target(TargetFilter.Creature.faceDown().youControl())
-        effect = Effects.TurnFaceUp(t)
-            .then(Effects.CreateDelayedTrigger(
+        effect = Effects.TurnFaceUp(t) then
+            Effects.CreateDelayedTrigger(
                 step = Step.END,
                 effect = Effects.SacrificeTarget(t)
-            ))
+            )
     }
 
     metadata {

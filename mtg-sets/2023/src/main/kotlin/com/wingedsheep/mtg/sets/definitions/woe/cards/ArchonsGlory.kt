@@ -39,16 +39,12 @@ val ArchonsGlory = card("Archon's Glory") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(power = 2, toughness = 2, target = creature),
+        effect = Effects.ModifyStats(power = 2, toughness = 2, target = creature) then
             Effects.If(
                 condition = Conditions.WasBargained,
-                then = Effects.Composite(
-                    Effects.GrantKeyword(Keyword.FLYING, creature),
+                then = Effects.GrantKeyword(Keyword.FLYING, creature) then
                     Effects.GrantKeyword(Keyword.LIFELINK, creature),
-                ),
-            ),
-        )
+            )
     }
 
     metadata {

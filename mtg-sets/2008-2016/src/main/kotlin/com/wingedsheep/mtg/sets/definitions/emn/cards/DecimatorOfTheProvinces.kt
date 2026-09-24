@@ -45,10 +45,8 @@ val DecimatorOfTheProvinces = card("Decimator of the Provinces") {
         trigger = Triggers.self.isCast()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.Composite(
-                Effects.ModifyStats(2, 2, EffectTarget.IterationEntity),
+            Effects.ModifyStats(2, 2, EffectTarget.IterationEntity) then
                 Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity),
-            ),
         )
         description = "When you cast this spell, creatures you control get +2/+2 and gain " +
             "trample until end of turn."

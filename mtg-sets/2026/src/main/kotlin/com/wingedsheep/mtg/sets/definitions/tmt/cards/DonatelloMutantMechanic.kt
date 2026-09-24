@@ -37,17 +37,15 @@ val DonatelloMutantMechanic = card("Donatello, Mutant Mechanic") {
         val art = target(TargetFilter(GameObjectFilter.Artifact.youControl()))
         cost = Costs.Tap
         timing = TimingRule.SorcerySpeed
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, art)
-            .then(
-                Effects.If(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Noncreature, art),
-                    then = Effects.BecomeCreature(
-                        target = art,
-                        power = 0,
-                        toughness = 0,
-                        creatureTypes = setOf("Robot"),
-                        duration = Duration.Permanent
-                    )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, art) then
+            Effects.If(
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Noncreature, art),
+                then = Effects.BecomeCreature(
+                    target = art,
+                    power = 0,
+                    toughness = 0,
+                    creatureTypes = setOf("Robot"),
+                    duration = Duration.Permanent
                 )
             )
         description = "{T}: Put three +1/+1 counters on target artifact you control. If it isn't a creature, it becomes a 0/0 Robot creature in addition to its other types. Activate only as a sorcery."

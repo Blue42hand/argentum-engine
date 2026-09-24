@@ -51,10 +51,7 @@ val JohannsStopgap = card("Johann's Stopgap") {
 
     spell {
         val permanent = target(TargetFilter.NonlandPermanent)
-        effect = Effects.Composite(
-            Effects.ReturnToHand(permanent),
-            Effects.DrawCards(1),
-        )
+        effect = Effects.ReturnToHand(permanent) then Effects.DrawCards(1)
     }
 
     metadata {

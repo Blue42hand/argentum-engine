@@ -41,10 +41,8 @@ val Ferocification = card("Ferocification") {
             },
             mode("Target creature you control gains menace and haste until end of turn") {
                 val creatureYouControl = target(TargetFilter.CreatureYouControl)
-                effect = Effects.Composite(
-                    Effects.GrantKeyword(Keyword.MENACE, creatureYouControl),
-                    Effects.GrantKeyword(Keyword.HASTE, creatureYouControl),
-                )
+                effect = Effects.GrantKeyword(Keyword.MENACE, creatureYouControl) then
+                    Effects.GrantKeyword(Keyword.HASTE, creatureYouControl)
             },
         )
     }

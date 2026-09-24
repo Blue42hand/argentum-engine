@@ -21,8 +21,8 @@ val SeismicShift = card("Seismic Shift") {
     spell {
         val land = target(TargetFilter.Land)
         targets(TargetFilter.Creature, count = 2, optional = true)
-        effect = Effects.Destroy(land)
-            .then(Effects.ForEachTarget(Effects.CantBlock(EffectTarget.ContextTarget(0))))
+        effect = Effects.Destroy(land) then
+            Effects.ForEachTarget(Effects.CantBlock(EffectTarget.ContextTarget(0)))
     }
 
     metadata {

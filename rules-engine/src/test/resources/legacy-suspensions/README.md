@@ -40,3 +40,10 @@ Edited on 2026-09-24 when a `ForEach` loop's current object moved from
 `selfBinding`). Every capture held both as `null`, so the obsolete `iterationTarget` keys were
 dropped and `selfBinding` renamed in place; no other byte of `state.json`, `actions.json` or
 `after-N.json` changed.
+
+Representation-refreshed on 2026-09-25 when card target declarations stopped carrying
+author-written names: the DSL now mints each target's binding id (`t0`, `t1`, … unique per card)
+and the targeting prompt is derived from the requirement. The only edits were the recorded
+binding name `"target"` → `"t0"` (requirement `id` and the `BoundVariable` reading it) and the
+recorded prompt `"target"` → `"target artifact or enchantment"` (Naturalize's derived wording).
+No action or event payload changed, and no gameplay was rerun.

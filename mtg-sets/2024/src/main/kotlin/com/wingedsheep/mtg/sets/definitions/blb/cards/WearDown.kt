@@ -40,14 +40,10 @@ val WearDown = card("Wear Down") {
             mode("Promise a gift — an opponent draws a card, then destroy two target artifacts and/or enchantments") {
                 val firstArtifactOrEnchantment = target(TargetFilter.ArtifactOrEnchantment)
                 val secondArtifactOrEnchantment = target(TargetFilter.ArtifactOrEnchantment)
-                effect = Effects.Composite(
-                    listOf(
-                        Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent)),
-                        Effects.Destroy(firstArtifactOrEnchantment),
-                        Effects.Destroy(secondArtifactOrEnchantment),
-                        Effects.GiftGiven()
-                    )
-                )
+                effect = Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent)) then
+                    Effects.Destroy(firstArtifactOrEnchantment) then
+                    Effects.Destroy(secondArtifactOrEnchantment) then
+                    Effects.GiftGiven()
             }
         )
     }

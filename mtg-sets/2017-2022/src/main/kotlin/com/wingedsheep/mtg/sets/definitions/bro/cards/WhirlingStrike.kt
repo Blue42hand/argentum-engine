@@ -20,11 +20,9 @@ val WhirlingStrike = card("Whirling Strike") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, t),
-            Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),
+        effect = Effects.ModifyStats(2, 0, t) then
+            Effects.GrantKeyword(Keyword.FIRST_STRIKE, t) then
             Effects.GrantKeyword(Keyword.TRAMPLE, t)
-        )
     }
 
     metadata {

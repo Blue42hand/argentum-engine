@@ -36,11 +36,9 @@ val RepulsorBlast = card("Repulsor Blast") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.DealDamage(5, creature).then(
-            Effects.If(
-                condition = Conditions.TeamworkWasPaid,
-                then = Effects.DealDamage(2, EffectTarget.TargetController),
-            ),
+        effect = Effects.DealDamage(5, creature) then Effects.If(
+            condition = Conditions.TeamworkWasPaid,
+            then = Effects.DealDamage(2, EffectTarget.TargetController),
         )
     }
 

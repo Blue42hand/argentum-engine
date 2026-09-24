@@ -21,10 +21,7 @@ val BakeIntoAPie = card("Bake into a Pie") {
 
     spell {
         val target = target(TargetFilter.Creature)
-        effect = Effects.Composite(listOf(
-            Effects.Destroy(target),
-            Effects.CreateFood()
-        ))
+        effect = Effects.Destroy(target) then Effects.CreateFood()
     }
 
     metadata {

@@ -28,12 +28,8 @@ val Mechanozoa = card("Mechanozoa") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val artifactOrCreatureOpponentControls = target(TargetFilter(GameObjectFilter.CreatureOrArtifact.opponentControls()))
-        effect = Effects.Composite(
-            listOf(
-                Effects.Tap(artifactOrCreatureOpponentControls),
-                Effects.AddCounters(CounterType.STUN, 1, artifactOrCreatureOpponentControls)
-            )
-        )
+        effect = Effects.Tap(artifactOrCreatureOpponentControls) then
+            Effects.AddCounters(CounterType.STUN, 1, artifactOrCreatureOpponentControls)
     }
 
     warp = "{2}{U}"

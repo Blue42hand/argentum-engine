@@ -25,8 +25,7 @@ val ConjurersCloset = card("Conjurer's Closet") {
         trigger = Triggers.you.beginningOf(Step.END)
         val creature = target(TargetFilter.CreatureYouControl)
         effect = Effects.May(
-            Effects.Move(creature, Zone.EXILE)
-                .then(Effects.Move(creature, Zone.BATTLEFIELD))
+            Effects.Move(creature, Zone.EXILE) then Effects.Move(creature, Zone.BATTLEFIELD)
         )
     }
 

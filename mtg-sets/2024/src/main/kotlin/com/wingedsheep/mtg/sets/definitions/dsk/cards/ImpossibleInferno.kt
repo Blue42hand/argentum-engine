@@ -25,8 +25,7 @@ val ImpossibleInferno = card("Impossible Inferno") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.DealDamage(6, t),
+        effect = Effects.DealDamage(6, t) then
             // Delirium: only exile/grant-play if there are four or more card types in your graveyard.
             Effects.If(
                 condition = Conditions.Delirium(),
@@ -36,7 +35,6 @@ val ImpossibleInferno = card("Impossible Inferno") {
                     run(Effects.GrantMayPlayFromExile(impulseExiled, MayPlayExpiry.UntilEndOfNextTurn))
                 }
             )
-        )
     }
 
     metadata {

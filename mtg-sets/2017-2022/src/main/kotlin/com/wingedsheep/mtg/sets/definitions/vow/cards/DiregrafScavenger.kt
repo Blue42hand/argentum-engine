@@ -45,12 +45,10 @@ val DiregrafScavenger = card("Diregraf Scavenger") {
             val diregrafExiled = gather(CardSource.ChosenTargets)
             exile(diregrafExiled)
             ifNotEmpty(diregrafExiled, filter = GameObjectFilter.Creature) {
-                run(Effects.Composite(
-                    Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)),
-                    Effects.GainLife(2)
-                ))
+                run(Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)) then
+                    Effects.GainLife(2))
             } orElse {
-                run(Effects.Composite(emptyList()))
+                run(Effects.Nothing)
             }
         }
         description = "When this creature enters, exile up to one target card from a graveyard. " +

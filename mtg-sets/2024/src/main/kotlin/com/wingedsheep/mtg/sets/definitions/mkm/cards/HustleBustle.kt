@@ -31,10 +31,7 @@ val HustleBustle = card("Hustle // Bustle") {
 
         spell {
             val creature = target(TargetFilter.Creature)
-            effect = Effects.Composite(
-                Effects.MarkMustAttackThisTurn(creature),
-                Effects.MarkMustBlockThisTurn(creature),
-            )
+            effect = Effects.MarkMustAttackThisTurn(creature) then Effects.MarkMustBlockThisTurn(creature)
         }
     }
 
@@ -48,10 +45,8 @@ val HustleBustle = card("Hustle // Bustle") {
             effect = Effects.Pipeline {
                 run(Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.youControl()),
-                    Effects.Composite(
-                        Effects.ModifyStats(2, 2, EffectTarget.IterationEntity),
+                    Effects.ModifyStats(2, 2, EffectTarget.IterationEntity) then
                         Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity),
-                    ),
                 ))
                 val faceDownCreatures = gather(
                     CardSource.BattlefieldMatching(

@@ -48,7 +48,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Exile"
                     },
@@ -58,7 +58,7 @@
                             "filter": {
                                 "baseFilter": "artifact"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Exile target artifact"
@@ -375,39 +375,34 @@
                         "type": "Composite",
                         "effects": [
                             {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "GatherCards",
-                                        "source": {
-                                            "type": "FromZone",
-                                            "zone": "Hand"
-                                        },
-                                        "storeAs": "hand"
-                                    },
-                                    {
-                                        "type": "SelectFromCollection",
-                                        "from": "hand",
-                                        "selection": {
-                                            "type": "ChooseExactly",
-                                            "count": {
-                                                "type": "Fixed",
-                                                "amount": 1
-                                            }
-                                        },
-                                        "storeSelected": "discarded",
-                                        "prompt": "Choose 1 card to discard"
-                                    },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "discarded",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Graveyard"
-                                        },
-                                        "moveType": "Discard"
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Hand"
+                                },
+                                "storeAs": "hand"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "hand",
+                                "selection": {
+                                    "type": "ChooseExactly",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
                                     }
-                                ]
+                                },
+                                "storeSelected": "discarded",
+                                "prompt": "Choose 1 card to discard"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "discarded",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                },
+                                "moveType": "Discard"
                             },
                             {
                                 "type": "DrawCards",
@@ -1394,7 +1389,7 @@
                                         },
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t1"
                                         }
                                     },
                                     {
@@ -1416,7 +1411,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Promise a gift — opponent creates a Treasure token, deal 2 damage to target creature and 3 damage to its controller"
@@ -2036,7 +2031,7 @@
                             "type": "MoveToZone",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t1"
                             },
                             "destination": "Battlefield"
                         },
@@ -2046,7 +2041,7 @@
                                 "baseFilter": "noncreature permanent nonland own:you",
                                 "zone": "Graveyard"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     }
                 ]
@@ -3334,7 +3329,7 @@
                                         "type": "MoveToZone",
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t1"
                                         },
                                         "destination": "Battlefield",
                                         "fromZone": "Graveyard"
@@ -3347,7 +3342,7 @@
                                                 "type": "EntityMatches",
                                                 "entity": {
                                                     "type": "BoundVariable",
-                                                    "name": "t0"
+                                                    "name": "t1"
                                                 },
                                                 "filter": {
                                                     "cardPredicates": [
@@ -3361,7 +3356,7 @@
                                             "type": "CreateTokenCopyOfTarget",
                                             "target": {
                                                 "type": "BoundVariable",
-                                                "name": "t0"
+                                                "name": "t1"
                                             },
                                             "overridePower": 1,
                                             "overrideToughness": 1
@@ -3379,7 +3374,7 @@
                                 "baseFilter": "creature own:you",
                                 "zone": "Graveyard"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Promise a gift — opponent draws a card, return target creature card from your graveyard to the battlefield, then if it isn't legendary create a 1/1 token copy"
@@ -3594,14 +3589,14 @@
                                         },
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t1"
                                         }
                                     },
                                     {
                                         "type": "MoveToZone",
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t1"
+                                            "name": "t2"
                                         },
                                         "destination": "Hand"
                                     },
@@ -3613,7 +3608,7 @@
                     "targetRequirements": [
                         {
                             "type": "TargetOpponent",
-                            "id": "t0"
+                            "id": "t1"
                         },
                         {
                             "type": "TargetObject",
@@ -3621,7 +3616,7 @@
                                 "baseFilter": "creature own:you",
                                 "zone": "Graveyard"
                             },
-                            "id": "t1"
+                            "id": "t2"
                         }
                     ],
                     "description": "Promise a gift — opponent draws a card, target opponent sacrifices a creature with the greatest power, return target creature card from your graveyard to your hand"
@@ -3851,54 +3846,49 @@
                         "type": "Composite",
                         "effects": [
                             {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "RevealHand",
-                                        "target": {
-                                            "type": "BoundVariable",
-                                            "name": "t0"
-                                        }
+                                "type": "RevealHand",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                }
+                            },
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Hand",
+                                    "player": {
+                                        "type": "BoundVariable",
+                                        "name": "t0"
                                     },
-                                    {
-                                        "type": "GatherCards",
-                                        "source": {
-                                            "type": "FromZone",
-                                            "zone": "Hand",
-                                            "player": {
-                                                "type": "BoundVariable",
-                                                "name": "t0"
-                                            },
-                                            "filter": "nonland"
-                                        },
-                                        "storeAs": "chosenCardCandidates"
-                                    },
-                                    {
-                                        "type": "SelectFromCollection",
-                                        "from": "chosenCardCandidates",
-                                        "selection": {
-                                            "type": "ChooseExactly",
-                                            "count": {
-                                                "type": "Fixed",
-                                                "amount": 1
-                                            }
-                                        },
-                                        "storeSelected": "chosenCard",
-                                        "prompt": "Choose a nonland card to exile"
-                                    },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "chosenCard",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Exile",
-                                            "player": {
-                                                "type": "BoundVariable",
-                                                "name": "t0"
-                                            }
-                                        }
+                                    "filter": "nonland"
+                                },
+                                "storeAs": "chosenCardCandidates"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "chosenCardCandidates",
+                                "selection": {
+                                    "type": "ChooseExactly",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
                                     }
-                                ]
+                                },
+                                "storeSelected": "chosenCard",
+                                "prompt": "Choose a nonland card to exile"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "chosenCard",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Exile",
+                                    "player": {
+                                        "type": "BoundVariable",
+                                        "name": "t0"
+                                    }
+                                }
                             }
                         ]
                     },
@@ -3929,7 +3919,7 @@
                                         },
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t1"
                                         }
                                     },
                                     {
@@ -3939,7 +3929,7 @@
                                                 "type": "RevealHand",
                                                 "target": {
                                                     "type": "BoundVariable",
-                                                    "name": "t0"
+                                                    "name": "t1"
                                                 }
                                             },
                                             {
@@ -3949,7 +3939,7 @@
                                                     "zone": "Hand",
                                                     "player": {
                                                         "type": "BoundVariable",
-                                                        "name": "t0"
+                                                        "name": "t1"
                                                     },
                                                     "filter": "nonland"
                                                 },
@@ -3976,7 +3966,7 @@
                                                     "zone": "Exile",
                                                     "player": {
                                                         "type": "BoundVariable",
-                                                        "name": "t0"
+                                                        "name": "t1"
                                                     }
                                                 }
                                             }
@@ -3996,7 +3986,7 @@
                     "targetRequirements": [
                         {
                             "type": "TargetOpponent",
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Promise a gift — an opponent draws a card, then exile a nonland card from target opponent's hand (you may cast it from exile)"
@@ -4094,7 +4084,7 @@
                                         },
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t1"
                                         }
                                     },
                                     {
@@ -4102,7 +4092,7 @@
                                         "keyword": "INDESTRUCTIBLE",
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t1"
                                         }
                                     },
                                     "GiftGiven"
@@ -4116,7 +4106,7 @@
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Promise a gift — opponent creates a Food token, target creature you control gets +2/+2 and gains indestructible until end of turn"
@@ -5037,7 +5027,7 @@
                                 "type": "MoveToZone",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -5056,7 +5046,7 @@
                                             "controllerPredicate": "ControlledByOpponent"
                                         }
                                     },
-                                    "id": "t0"
+                                    "id": "t1"
                                 }
                             ],
                             "description": "Destroy target creature an opponent controls that was dealt damage this turn"
@@ -5518,7 +5508,7 @@
                                     "zone": "Battlefield",
                                     "player": {
                                         "type": "BoundVariable",
-                                        "name": "t0"
+                                        "name": "t1"
                                     },
                                     "filter": "enchantment"
                                 },
@@ -5546,7 +5536,7 @@
                                     "zone": "Exile",
                                     "player": {
                                         "type": "BoundVariable",
-                                        "name": "t0"
+                                        "name": "t1"
                                     }
                                 }
                             }
@@ -5555,7 +5545,7 @@
                     "targetRequirements": [
                         {
                             "type": "TargetOpponent",
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target opponent exiles an enchantment they control"
@@ -5706,7 +5696,7 @@
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
@@ -5714,7 +5704,7 @@
                     "filter": {
                         "baseFilter": "land"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ],
@@ -6307,7 +6297,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -6315,7 +6305,7 @@
                     "targetRequirements": [
                         {
                             "type": "TargetCreatureOrPlaneswalker",
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Forage — destroy target creature or planeswalker",
@@ -8607,7 +8597,7 @@
                                 "target1": "Self",
                                 "target2": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             "targetRequirements": [
@@ -8616,7 +8606,7 @@
                                     "filter": {
                                         "baseFilter": "creature token"
                                     },
-                                    "id": "t0"
+                                    "id": "t1"
                                 }
                             ],
                             "description": "This creature fights target creature token"
@@ -8626,7 +8616,7 @@
                                 "type": "MoveToZone",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t2"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -8637,7 +8627,7 @@
                                     "filter": {
                                         "baseFilter": "artifact|enchantment"
                                     },
-                                    "id": "t0"
+                                    "id": "t2"
                                 }
                             ],
                             "description": "Destroy target artifact or enchantment"
@@ -8708,26 +8698,21 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "FromZone",
-                                        "zone": "Hand"
-                                    },
-                                    "storeAs": "discardedHand"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "discardedHand",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard"
-                                    },
-                                    "moveType": "Discard"
-                                }
-                            ]
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand"
+                            },
+                            "storeAs": "discardedHand"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "discardedHand",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Discard"
                         },
                         {
                             "type": "DrawCards",
@@ -9048,7 +9033,7 @@
                                     },
                                     "target": {
                                         "type": "BoundVariable",
-                                        "name": "t0"
+                                        "name": "t2"
                                     }
                                 },
                                 {
@@ -9056,7 +9041,7 @@
                                     "keyword": "TRAMPLE",
                                     "target": {
                                         "type": "BoundVariable",
-                                        "name": "t0"
+                                        "name": "t2"
                                     }
                                 }
                             ]
@@ -9066,7 +9051,7 @@
                             "filter": {
                                 "baseFilter": "creature attacking"
                             },
-                            "id": "t0"
+                            "id": "t2"
                         }
                     }
                 ]
@@ -9327,7 +9312,7 @@
                                         "type": "MoveToZone",
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t1"
                                         },
                                         "destination": "Hand"
                                     },
@@ -9342,7 +9327,7 @@
                             "filter": {
                                 "baseFilter": "nonland permanent ctrl:opponent"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Promise a gift — opponent creates a tapped 1/1 blue Fish token, then return target nonland permanent an opponent controls to its owner's hand"
@@ -10906,18 +10891,18 @@
                                         "count": 1,
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t2"
                                         }
                                     },
                                     {
                                         "type": "Fight",
                                         "target1": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t2"
                                         },
                                         "target2": {
                                             "type": "BoundVariable",
-                                            "name": "t1"
+                                            "name": "t3"
                                         }
                                     },
                                     "GiftGiven"
@@ -10931,14 +10916,14 @@
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
                             },
-                            "id": "t0"
+                            "id": "t2"
                         },
                         {
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:opponent"
                             },
-                            "id": "t1"
+                            "id": "t3"
                         }
                     ],
                     "description": "Promise a gift — opponent creates a tapped 1/1 blue Fish token, +1/+1 counter on your creature, then fight"
@@ -11797,14 +11782,14 @@
                                         },
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t1"
                                         }
                                     },
                                     {
                                         "type": "TapUntap",
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t1"
+                                            "name": "t2"
                                         }
                                     },
                                     {
@@ -11813,7 +11798,7 @@
                                         "count": 1,
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t1"
+                                            "name": "t2"
                                         }
                                     },
                                     "GiftGiven"
@@ -11824,7 +11809,7 @@
                     "targetRequirements": [
                         {
                             "type": "TargetPlayer",
-                            "id": "t0",
+                            "id": "t1",
                             "descriptionOverride": "target player to draw three cards"
                         },
                         {
@@ -11832,7 +11817,7 @@
                             "filter": {
                                 "baseFilter": "creature ctrl:opponent"
                             },
-                            "id": "t1"
+                            "id": "t2"
                         }
                     ],
                     "description": "Promise a gift — opponent creates a tapped 1/1 blue Fish token, target player draws three cards, tap target creature an opponent controls and put a stun counter on it"
@@ -12680,7 +12665,7 @@
                                         "type": "MoveToZone",
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t1"
                                         },
                                         "destination": "Graveyard",
                                         "byDestruction": true
@@ -12696,7 +12681,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Promise a gift — opponent creates a Food token, then destroy target creature"
@@ -13108,7 +13093,7 @@
                                         "type": "MoveToZone",
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t1"
                                         },
                                         "destination": "Exile"
                                     },
@@ -13123,7 +13108,7 @@
                             "filter": {
                                 "baseFilter": "creature nontoken"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Promise a gift — opponent creates a tapped 1/1 blue Fish token, then exile target nontoken creature permanently"
@@ -13237,7 +13222,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -13248,7 +13233,7 @@
                             "filter": {
                                 "baseFilter": "enchantment"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target enchantment"
@@ -13456,7 +13441,7 @@
                                         "type": "MoveToZone",
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0[0]"
+                                            "name": "t1[0]"
                                         },
                                         "destination": "Hand"
                                     },
@@ -13464,7 +13449,7 @@
                                         "type": "MoveToZone",
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0[1]"
+                                            "name": "t1[1]"
                                         },
                                         "destination": "Hand"
                                     },
@@ -13481,7 +13466,7 @@
                                 "baseFilter": "permanent own:you",
                                 "zone": "Graveyard"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Gift a card — return two target permanent cards from your graveyard to your hand"
@@ -15603,7 +15588,7 @@
                                         },
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t1"
                                         }
                                     },
                                     {
@@ -15618,7 +15603,7 @@
                                         },
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t1"
+                                            "name": "t2"
                                         }
                                     },
                                     "GiftGiven"
@@ -15629,14 +15614,14 @@
                     "targetRequirements": [
                         {
                             "type": "TargetPlayer",
-                            "id": "t0"
+                            "id": "t1"
                         },
                         {
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
                             },
-                            "id": "t1"
+                            "id": "t2"
                         }
                     ],
                     "description": "Promise a gift — opponent creates a tapped 1/1 blue Fish token, target player draws two cards, target creature you control gets +2/+0 until end of turn"
@@ -18824,39 +18809,34 @@
                             "type": "Composite",
                             "effects": [
                                 {
-                                    "type": "Composite",
-                                    "effects": [
-                                        {
-                                            "type": "GatherCards",
-                                            "source": {
-                                                "type": "FromZone",
-                                                "zone": "Hand"
-                                            },
-                                            "storeAs": "hand"
-                                        },
-                                        {
-                                            "type": "SelectFromCollection",
-                                            "from": "hand",
-                                            "selection": {
-                                                "type": "ChooseExactly",
-                                                "count": {
-                                                    "type": "Fixed",
-                                                    "amount": 1
-                                                }
-                                            },
-                                            "storeSelected": "discarded",
-                                            "prompt": "Choose 1 card to discard"
-                                        },
-                                        {
-                                            "type": "MoveCollection",
-                                            "from": "discarded",
-                                            "destination": {
-                                                "type": "ToZone",
-                                                "zone": "Graveyard"
-                                            },
-                                            "moveType": "Discard"
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand"
+                                    },
+                                    "storeAs": "hand"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "hand",
+                                    "selection": {
+                                        "type": "ChooseExactly",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
                                         }
-                                    ]
+                                    },
+                                    "storeSelected": "discarded",
+                                    "prompt": "Choose 1 card to discard"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "discarded",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    },
+                                    "moveType": "Discard"
                                 },
                                 {
                                     "type": "DrawCards",
@@ -21637,7 +21617,7 @@
                                         "type": "MoveToZone",
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t1"
                                         },
                                         "destination": "Graveyard",
                                         "byDestruction": true
@@ -21646,7 +21626,7 @@
                                         "type": "MoveToZone",
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t1"
+                                            "name": "t2"
                                         },
                                         "destination": "Graveyard",
                                         "byDestruction": true
@@ -21662,14 +21642,14 @@
                             "filter": {
                                 "baseFilter": "artifact|enchantment"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         },
                         {
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "artifact|enchantment"
                             },
-                            "id": "t1"
+                            "id": "t2"
                         }
                     ],
                     "description": "Promise a gift — an opponent draws a card, then destroy two target artifacts and/or enchantments"
@@ -22620,7 +22600,7 @@
                                     "type": "MoveToZone",
                                     "target": {
                                         "type": "BoundVariable",
-                                        "name": "t0"
+                                        "name": "t1"
                                     },
                                     "destination": "Battlefield",
                                     "fromZone": "Graveyard"
@@ -22631,7 +22611,7 @@
                                     "count": 1,
                                     "target": {
                                         "type": "BoundVariable",
-                                        "name": "t0"
+                                        "name": "t1"
                                     }
                                 }
                             ]
@@ -22643,7 +22623,7 @@
                                     "baseFilter": "nonland permanent mv<=3 own:you",
                                     "zone": "Graveyard"
                                 },
-                                "id": "t0"
+                                "id": "t1"
                             }
                         ],
                         "descriptionOverride": "return target nonland permanent card with mana value 3 or less from your graveyard to the battlefield with a finality counter on it"

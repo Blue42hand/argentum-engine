@@ -26,8 +26,7 @@ val Char = card("Char") {
 
     spell {
         val victim = target(Targets.Any)
-        effect = Effects.DealDamage(4, victim) then
-            Effects.DealDamage(2, EffectTarget.PlayerRef(Player.You))
+        effect = Effects.DealDamage(4, victim) then Effects.DealDamage(2, EffectTarget.PlayerRef(Player.You))
     }
 
     metadata {

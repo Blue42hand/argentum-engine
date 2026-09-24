@@ -19,8 +19,7 @@ val Inspirit = card("Inspirit") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Untap(t) then
-                Effects.ModifyStats(2, 4, t)
+        effect = Effects.Untap(t) then Effects.ModifyStats(2, 4, t)
     }
 
     metadata {

@@ -64,7 +64,7 @@ data class ReturnTransformedFromGraveyard(
  *         TriggeredAbility.create(
  *             trigger = OnEnterBattlefield(),
  *             effect = DealDamageEffect(4, EffectTarget.ContextTarget(0)),
- *             targetRequirement = TargetCreature()
+ *             targetRequirement = TargetObject(filter = TargetFilter.Creature)
  *         )
  *     )
  * )
@@ -166,7 +166,7 @@ data class CardScript(
     /**
      * For Aura spells, defines what the aura can enchant.
      * If set, this permanent is an Aura that attaches to valid targets.
-     * Example: TargetCreature() for "Enchant creature"
+     * Example: `TargetObject(filter = TargetFilter.Creature)` for "Enchant creature"
      */
     val auraTarget: TargetRequirement? = null,
 

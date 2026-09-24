@@ -36,11 +36,9 @@ val HauntedHellride = card("Haunted Hellride") {
     triggeredAbility {
         trigger = Triggers.you.attacks()
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, creature),
-            Effects.GrantKeyword(Keyword.DEATHTOUCH, creature),
+        effect = Effects.ModifyStats(1, 0, creature) then
+            Effects.GrantKeyword(Keyword.DEATHTOUCH, creature) then
             Effects.Untap(creature)
-        )
     }
 
     keywordAbility(KeywordAbility.crew(1))

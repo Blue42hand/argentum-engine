@@ -70,10 +70,8 @@ val CaseOfTheTrampledGarden = card("Case of the Trampled Garden") {
     solvedTriggeredAbility {
         val creature = target(TargetFilter.Creature.attacking())
         trigger = Triggers.you.attacks()
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
             Effects.GrantKeyword(Keyword.TRAMPLE, creature)
-        )
         description = "Solved — Whenever you attack, put a +1/+1 counter on target attacking " +
             "creature. It gains trample until end of turn."
     }

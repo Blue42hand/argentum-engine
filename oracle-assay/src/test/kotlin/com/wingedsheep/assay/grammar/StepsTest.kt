@@ -336,12 +336,8 @@ class StepsTest : StringSpec({
                 script = CardScript(
                     spellEffect = ForEachTargetEffect(
                         listOf(
-                            Effects.Composite(
-                                listOf(
-                                    Effects.ModifyStats(1, 1, EffectTarget.ContextTarget(0)),
-                                    Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.ContextTarget(0)),
-                                )
-                            )
+                            Effects.ModifyStats(1, 1, EffectTarget.ContextTarget(0)) then
+                                Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.ContextTarget(0))
                         )
                     ),
                     targetRequirements = listOf(Targets.several(2, GameObjectFilter.Creature, optional = true)),

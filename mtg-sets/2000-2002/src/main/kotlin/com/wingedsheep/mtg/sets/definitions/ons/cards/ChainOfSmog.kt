@@ -27,7 +27,7 @@ val ChainOfSmog = card("Chain of Smog") {
             action = Patterns.Hand.discardCards(2, t),
             target = t,
             offerTo = CopyRecipient.TARGET_PLAYER,
-            copyTarget = TargetPlayer()
+            copyTarget = Targets.Player
         )
     }
 

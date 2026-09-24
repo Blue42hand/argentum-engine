@@ -731,7 +731,7 @@ object HandPatterns {
      * would connive" replacements and make it fire connive triggers.
      *
      * @param requirement what the chosen counter recipient must satisfy (e.g.
-     *   `Targets.CreatureYouControl`).
+     *   `TargetObject(filter = TargetFilter.CreatureYouControl)`).
      */
     fun conniveTargeting(
         requirement: TargetRequirement,

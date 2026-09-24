@@ -37,8 +37,7 @@ val VengefulVillagers = card("Vengeful Villagers") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val chosen = target(TargetFilter(GameObjectFilter.Creature.opponentControls()))
-        effect = Effects.Composite(
-            Effects.Tap(chosen),
+        effect = Effects.Tap(chosen) then
             Effects.MayPay(
                 cost = Effects.SacrificeOwn(
                     filter = GameObjectFilter.Artifact.or(GameObjectFilter.Creature),
@@ -46,7 +45,6 @@ val VengefulVillagers = card("Vengeful Villagers") {
                 ),
                 then = Effects.AddCounters(counterType = CounterType.STUN, count = 1, target = chosen)
             )
-        )
         description = "Whenever this creature attacks, choose target creature an opponent controls. " +
             "Tap it, then you may sacrifice an artifact or creature. If you do, put a stun counter on it."
     }

@@ -52,13 +52,11 @@ val GetawayGlamer = card("Getaway Glamer") {
                     "battlefield under its owner's control at the beginning of the next end step.") {
                     val creature = target(TargetFilter(GameObjectFilter.Creature.nontoken()))
                     additionalManaCost = "{1}"
-                    effect = Effects.Composite(
-                        Effects.Move(creature, Zone.EXILE),
+                    effect = Effects.Move(creature, Zone.EXILE) then
                         Effects.CreateDelayedTrigger(
                             step = Step.END,
                             effect = Effects.Move(creature, Zone.BATTLEFIELD)
                         )
-                    )
                 },
                 mode("+ {2} — Destroy target creature if no other creature has greater power.") {
                     val creature = target(TargetFilter.Creature)

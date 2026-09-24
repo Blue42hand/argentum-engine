@@ -44,28 +44,24 @@ val BetorKinToAll = card("Betor, Kin to All") {
         // Intervening "if" (CR 603.4): the 10-toughness gate is checked both as the trigger
         // would go on the stack and again on resolution.
         interveningIf = totalToughnessAtLeast(10)
-        effect = Effects.DrawCards(1)
+        effect = Effects.DrawCards(1) then
             // "Then if ... 20 or greater, untap each creature you control."
-            .then(
-                Effects.If(
-                    condition = totalToughnessAtLeast(20),
-                    then = Effects.ForEachInGroup(
-                        filter = GroupFilter.AllCreaturesYouControl,
-                        effect = Effects.Untap(EffectTarget.IterationEntity)
-                    )
+            Effects.If(
+                condition = totalToughnessAtLeast(20),
+                then = Effects.ForEachInGroup(
+                    filter = GroupFilter.AllCreaturesYouControl,
+                    effect = Effects.Untap(EffectTarget.IterationEntity)
                 )
-            )
+            ) then
             // "Then if ... 40 or greater, each opponent loses half their life, rounded up."
             // Iterated per opponent so each loses half of *their own* life total — the
             // loop rebinds the controller, so the LoseHalfLife defaults (target =
             // Controller, lifePlayer = You) read the iterated opponent.
-            .then(
-                Effects.If(
-                    condition = totalToughnessAtLeast(40),
-                    then = Effects.ForEachPlayer(
-                        players = Player.EachOpponent,
-                        effect = Effects.LoseHalfLife(roundUp = true)
-                    )
+            Effects.If(
+                condition = totalToughnessAtLeast(40),
+                then = Effects.ForEachPlayer(
+                    players = Player.EachOpponent,
+                    effect = Effects.LoseHalfLife(roundUp = true)
                 )
             )
     }

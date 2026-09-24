@@ -20,10 +20,8 @@ val RushOfAdrenaline = card("Rush of Adrenaline") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(power = 2, toughness = 1, target = t),
+        effect = Effects.ModifyStats(power = 2, toughness = 1, target = t) then
             Effects.GrantKeyword(Keyword.TRAMPLE, target = t)
-        )
     }
 
     metadata {

@@ -23,11 +23,9 @@ val FleetingFlight = card("Fleeting Flight") {
 
     spell {
         val target = target(TargetFilter.Creature)
-        effect = Effects.Composite(listOf(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target),
-            Effects.GrantKeyword(Keyword.FLYING, target),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target) then
+            Effects.GrantKeyword(Keyword.FLYING, target) then
             Effects.PreventDamage(target = target, combatOnly = true)
-        ))
     }
 
     metadata {

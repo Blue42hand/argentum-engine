@@ -21,8 +21,7 @@ val ReturnToTheSewers = card("Return to the Sewers") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.PutOnTopOrBottomOfLibrary(creature)
-            .then(Effects.CreateMutagenToken())
+        effect = Effects.PutOnTopOrBottomOfLibrary(creature) then Effects.CreateMutagenToken()
     }
 
     metadata {

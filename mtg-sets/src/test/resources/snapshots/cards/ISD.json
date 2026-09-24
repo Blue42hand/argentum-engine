@@ -3742,7 +3742,7 @@
                                 "type": "ControlledPermanents",
                                 "player": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             "storeAs": "gathered0"
@@ -3783,7 +3783,7 @@
                 "targetRequirements": [
                     {
                         "type": "TargetPlayer",
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ],
                 "timing": "SorcerySpeed",
@@ -4677,7 +4677,7 @@
                     "type": "GainControl",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "duration": {
                         "type": "WhileYouControlSource",
@@ -4690,7 +4690,7 @@
                         "filter": {
                             "baseFilter": "creature Vampire"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ],
                 "descriptionOverride": "{3}{B}{B}: Gain control of target Vampire for as long as you control Olivia Voldaren."

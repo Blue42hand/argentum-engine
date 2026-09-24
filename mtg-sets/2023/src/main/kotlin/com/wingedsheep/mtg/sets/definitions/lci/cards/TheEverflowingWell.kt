@@ -57,10 +57,7 @@ private val TheEverflowingWellFront = card("The Everflowing Well") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Patterns.Library.mill(2),
-            Effects.DrawCards(2),
-        )
+        effect = Patterns.Library.mill(2) then Effects.DrawCards(2)
         description = "When The Everflowing Well enters, mill two cards, then draw two cards."
     }
 

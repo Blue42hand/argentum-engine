@@ -70,19 +70,17 @@ val BolgOfTheNorth = card("Bolg of the North") {
                 "damage was dealt this way, amass Goblins X, where X is that excess damage.",
         ) {
             val creature = target(TargetFilter.Creature.other())
-            effect = Effects.Composite(
-                Effects.DealDamage(
-                    DynamicAmounts.storedNumber("bolgSacrificedPower"),
-                    creature,
-                ),
+            effect = Effects.DealDamage(
+                DynamicAmounts.storedNumber("bolgSacrificedPower"),
+                creature,
+            ) then
                 Effects.If(
                     condition = Conditions.IfTargetTookExcessDamage(),
                     then = Effects.Amass(
                         DynamicAmounts.propertyOf(creature, EntityNumericProperty.ExcessMarkedDamage),
                         "Goblin",
                     ),
-                ),
-            )
+                )
         }
         description = "When Bolg enters, you may sacrifice another creature. When you do, Bolg " +
             "deals damage equal to that creature's power to another target creature. If excess " +

@@ -40,11 +40,9 @@ val TriumphOfGerrard = card("Triumph of Gerrard") {
 
     sagaChapter(3) {
         val creature = target(greatestPowerTarget)
-        effect = Effects.Composite(listOf(
-            Effects.GrantKeyword(Keyword.FLYING, creature),
-            Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature),
+        effect = Effects.GrantKeyword(Keyword.FLYING, creature) then
+            Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature) then
             Effects.GrantKeyword(Keyword.LIFELINK, creature)
-        ))
     }
 
     metadata {

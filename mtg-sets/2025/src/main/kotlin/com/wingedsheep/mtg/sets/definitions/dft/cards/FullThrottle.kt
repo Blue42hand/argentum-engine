@@ -28,15 +28,14 @@ val FullThrottle = card("Full Throttle") {
         "At the beginning of each combat this turn, untap all creatures that attacked this turn."
 
     spell {
-        effect = Effects.Composite(
-            Effects.If(
-                condition = Conditions.IsInPhase(
-                    Phase.PRECOMBAT_MAIN,
-                    Phase.POSTCOMBAT_MAIN,
-                    yoursOnly = false,
-                ),
-                then = Effects.Composite(Effects.AddCombatPhase, Effects.AddCombatPhase),
+        effect = Effects.If(
+            condition = Conditions.IsInPhase(
+                Phase.PRECOMBAT_MAIN,
+                Phase.POSTCOMBAT_MAIN,
+                yoursOnly = false,
             ),
+            then = Effects.AddCombatPhase then Effects.AddCombatPhase,
+        ) then
             Effects.CreateDelayedTrigger(
                 step = Step.BEGIN_COMBAT,
                 effect = Patterns.Group.untapGroup(
@@ -44,8 +43,7 @@ val FullThrottle = card("Full Throttle") {
                 ),
                 repeatAtEachMatchingStep = true,
                 expiry = DelayedTriggerExpiry.EndOfTurn,
-            ),
-        )
+            )
     }
 
     metadata {

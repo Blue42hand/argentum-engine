@@ -27,8 +27,7 @@ val UtromScientists = card("Utrom Scientists") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.Creature, optional = true)
-        effect = Effects.Tap(creature)
-            .then(Effects.AddCounters(CounterType.STUN, 1, creature))
+        effect = Effects.Tap(creature) then Effects.AddCounters(CounterType.STUN, 1, creature)
     }
 
     metadata {

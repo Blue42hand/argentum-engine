@@ -25,8 +25,7 @@ val BeamingDefiance = card("Beaming Defiance") {
 
     spell {
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.ModifyStats(2, 2, creature) then
-            Effects.GrantKeyword(Keyword.HEXPROOF, creature)
+        effect = Effects.ModifyStats(2, 2, creature) then Effects.GrantKeyword(Keyword.HEXPROOF, creature)
     }
 
     metadata {

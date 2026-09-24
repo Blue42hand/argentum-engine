@@ -32,8 +32,7 @@ val Inquisition = card("Inquisition") {
 
     spell {
         val victim = target(Targets.Player)
-        effect = Effects.Composite(
-            Effects.RevealHand(victim),
+        effect = Effects.RevealHand(victim) then
             Effects.DealDamage(
                 DynamicAmounts.count(
                     victim.asPlayer,
@@ -41,8 +40,7 @@ val Inquisition = card("Inquisition") {
                     GameObjectFilter.Any.withColor(Color.WHITE),
                 ),
                 victim,
-            ),
-        )
+            )
     }
 
     metadata {

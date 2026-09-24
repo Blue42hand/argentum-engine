@@ -81,12 +81,12 @@ class EffectOncePerTurnLoweringTest : DescribeSpec({
         }
 
         it("accepts one at the tail of a composite — the Planetarium 'do X, then you may Y' shape") {
-            val tail = Effects.Composite(Effects.GainLife(1), payoff)
+            val tail = Effects.GainLife(1) then payoff
             TriggerProcessor.consentGateIsMisplaced(tail) shouldBe false
         }
 
         it("rejects one buried mid-composite, where the budget would sit outside it") {
-            val buried = Effects.Composite(payoff, Effects.GainLife(1))
+            val buried = payoff then Effects.GainLife(1)
             TriggerProcessor.consentGateIsMisplaced(buried) shouldBe true
         }
 
@@ -95,7 +95,7 @@ class EffectOncePerTurnLoweringTest : DescribeSpec({
         }
 
         it("makes the lowering throw with an actionable message rather than mis-placing the gate") {
-            val buried = Effects.Composite(payoff, Effects.GainLife(1))
+            val buried = payoff then Effects.GainLife(1)
             val failure = shouldThrow<IllegalArgumentException> {
                 TriggerProcessor.loweredEffectBudget(buried, AbilityId("test"))
             }

@@ -40,10 +40,7 @@ val Countersculpt = card("Countersculpt") {
 
     spell {
         target = TargetObject(filter = TargetFilter.SpellOnStack)
-        effect = Effects.Composite(
-            Effects.CounterSpell(),
-            Patterns.Mechanic.empowerJace(1),
-        )
+        effect = Effects.CounterSpell() then Patterns.Mechanic.empowerJace(1)
     }
 
     metadata {

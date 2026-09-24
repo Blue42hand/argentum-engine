@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -48,17 +47,15 @@ val ConstructACosmicCube = card("Construct a Cosmic Cube") {
 
     triggeredAbility {
         trigger = Triggers.you.drawsNth(2)
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                power = 2,
-                toughness = 1,
-                colors = setOf(Color.BLACK),
-                creatureTypes = setOf(Subtype.VILLAIN.value),
-                keywords = setOf(Keyword.MENACE),
-                imageUri = "https://cards.scryfall.io/normal/front/4/a/4a51b6a0-9a54-4f01-b959-0a28c15d103f.jpg?1783902804",
-            ),
-            Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self),
-        )
+        effect = Effects.CreateToken(
+            power = 2,
+            toughness = 1,
+            colors = setOf(Color.BLACK),
+            creatureTypes = setOf(Subtype.VILLAIN.value),
+            keywords = setOf(Keyword.MENACE),
+            imageUri = "https://cards.scryfall.io/normal/front/4/a/4a51b6a0-9a54-4f01-b959-0a28c15d103f.jpg?1783902804",
+        ) then
+            Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self)
         description = "Whenever you draw your second card each turn, create a 2/1 black Villain " +
             "creature token with menace and put a plan counter on this enchantment."
     }

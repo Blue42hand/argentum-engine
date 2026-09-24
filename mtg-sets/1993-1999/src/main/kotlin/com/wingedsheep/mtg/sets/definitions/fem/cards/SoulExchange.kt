@@ -42,12 +42,10 @@ val SoulExchange = card("Soul Exchange") {
 
     spell {
         val creatureCard = target(TargetFilter.CreatureInYourGraveyard)
-        effect = Effects.Move(creatureCard, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
-            .then(
-                Effects.If(
-                    condition = Conditions.ExiledAsCostHadSubtype("Thrull"),
-                    then = Effects.AddCounters(CounterType.PLUS_TWO_PLUS_TWO, 1, creatureCard)
-                )
+        effect = Effects.Move(creatureCard, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
+            Effects.If(
+                condition = Conditions.ExiledAsCostHadSubtype("Thrull"),
+                then = Effects.AddCounters(CounterType.PLUS_TWO_PLUS_TWO, 1, creatureCard)
             )
     }
 

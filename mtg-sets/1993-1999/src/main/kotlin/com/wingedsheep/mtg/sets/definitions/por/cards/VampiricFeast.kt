@@ -23,10 +23,7 @@ val VampiricFeast = card("Vampiric Feast") {
     oracleText = "Vampiric Feast deals 4 damage to any target and you gain 4 life."
     spell {
         val t = target(Targets.Any)
-        effect = Effects.Composite(
-            Effects.DealDamage(4, t),
-            Effects.GainLife(4)
-        )
+        effect = Effects.DealDamage(4, t) then Effects.GainLife(4)
     }
     metadata {
         rarity = Rarity.UNCOMMON

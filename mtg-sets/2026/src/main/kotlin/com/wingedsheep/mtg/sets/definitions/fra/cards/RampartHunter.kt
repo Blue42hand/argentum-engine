@@ -20,10 +20,7 @@ val RampartHunter = card("Rampart Hunter") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 2, creature),
-            Effects.GrantKeyword(Keyword.DEATHTOUCH, creature)
-        )
+        effect = Effects.ModifyStats(2, 2, creature) then Effects.GrantKeyword(Keyword.DEATHTOUCH, creature)
     }
 
     metadata {

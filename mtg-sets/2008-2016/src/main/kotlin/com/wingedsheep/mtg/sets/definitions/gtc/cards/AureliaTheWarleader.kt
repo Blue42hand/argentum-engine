@@ -33,13 +33,11 @@ val AureliaTheWarleader = card("Aurelia, the Warleader") {
     keywords(Keyword.FLYING, Keyword.VIGILANCE, Keyword.HASTE)
     triggeredAbility {
         trigger = Triggers.self.attacks(setOf(AttackPredicate.FirstTimeEachTurn))
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter(GameObjectFilter.Creature.youControl()),
-                Effects.Untap(EffectTarget.IterationEntity)
-            ),
+        effect = Effects.ForEachInGroup(
+            GroupFilter(GameObjectFilter.Creature.youControl()),
+            Effects.Untap(EffectTarget.IterationEntity)
+        ) then
             Effects.AddCombatPhase
-        )
     }
     metadata {
         rarity = Rarity.MYTHIC

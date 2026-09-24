@@ -38,10 +38,8 @@ val JeongJeongTheDeserter = card("Jeong Jeong, the Deserter") {
     activatedAbility {
         isExhaust = true
         cost = Costs.Mana("{3}")
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            Effects.CopyNextSpellCast(1, GameObjectFilter.Any.withSubtype("Lesson")),
-        )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.CopyNextSpellCast(1, GameObjectFilter.Any.withSubtype("Lesson"))
     }
 
     metadata {

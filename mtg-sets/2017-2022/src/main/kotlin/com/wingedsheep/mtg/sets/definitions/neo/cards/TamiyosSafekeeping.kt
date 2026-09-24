@@ -27,8 +27,7 @@ val TamiyosSafekeeping = card("Tamiyo's Safekeeping") {
     spell {
         val t = target(TargetFilter.PermanentYouControl)
         effect = (
-            Effects.GrantKeyword(Keyword.HEXPROOF, t) then
-                Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
+            Effects.GrantKeyword(Keyword.HEXPROOF, t) then Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
             ) then Effects.GainLife(2)
     }
 

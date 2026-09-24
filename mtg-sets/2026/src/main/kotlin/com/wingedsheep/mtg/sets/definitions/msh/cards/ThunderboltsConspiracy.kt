@@ -49,18 +49,16 @@ val ThunderboltsConspiracy = card("Thunderbolts Conspiracy") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.withSubtype(Subtype.VILLAIN).youControl()).dies()
-        effect = Effects.Composite(
-            // Return it to the battlefield under its owner's control *with* a finality counter on
-            // it — `addCounterType`, not a following AddCounters, because "with a counter on it"
-            // is an as-enters replacement (CR 614.1c).
-            Effects.Move(
-                EffectTarget.TriggeringEntity,
-                Zone.BATTLEFIELD,
-                addCounterType = CounterType.FINALITY,
-            ),
+        // Return it to the battlefield under its owner's control *with* a finality counter on
+        // it — `addCounterType`, not a following AddCounters, because "with a counter on it"
+        // is an as-enters replacement (CR 614.1c).
+        effect = Effects.Move(
+            EffectTarget.TriggeringEntity,
+            Zone.BATTLEFIELD,
+            addCounterType = CounterType.FINALITY,
+        ) then
             // That creature is a Hero in addition to its other types.
             Effects.AddCreatureType("Hero", EffectTarget.TriggeringEntity, Duration.Permanent)
-        )
     }
 
     metadata {

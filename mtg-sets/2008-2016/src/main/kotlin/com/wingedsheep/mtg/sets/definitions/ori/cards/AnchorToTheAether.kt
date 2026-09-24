@@ -23,10 +23,7 @@ val AnchorToTheAether = card("Anchor to the Aether") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.PutOnTopOfLibrary(t),
-            Effects.Scry(1)
-        )
+        effect = Effects.PutOnTopOfLibrary(t) then Effects.Scry(1)
     }
 
     metadata {

@@ -31,10 +31,8 @@ val SalivatingGremlins = card("Salivating Gremlins") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Artifact.youControl()).enters()
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, EffectTarget.Self),
+        effect = Effects.ModifyStats(2, 0, EffectTarget.Self) then
             Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self)
-        )
         description = "This creature gets +2/+0 and gains trample until end of turn."
     }
 

@@ -44,15 +44,14 @@ val ChargingHooligan = card("Charging Hooligan") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        effect = Effects.Composite(
-            Effects.ModifyStats(
-                power = DynamicAmounts.battlefield(
-                    Player.Each,
-                    GameObjectFilter.Creature.attacking()
-                ).count(),
-                toughness = DynamicAmounts.fixed(0),
-                target = EffectTarget.Self
-            ),
+        effect = Effects.ModifyStats(
+            power = DynamicAmounts.battlefield(
+                Player.Each,
+                GameObjectFilter.Creature.attacking()
+            ).count(),
+            toughness = DynamicAmounts.fixed(0),
+            target = EffectTarget.Self
+        ) then
             Effects.If(
                 condition = Conditions.CompareAmounts(
                     DynamicAmounts.battlefield(
@@ -64,7 +63,6 @@ val ChargingHooligan = card("Charging Hooligan") {
                 ),
                 then = Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self)
             )
-        )
         description = "Whenever this creature attacks, it gets +1/+0 until end of turn for each " +
             "attacking creature. If a Rat is attacking, this creature gains trample until end of turn."
     }

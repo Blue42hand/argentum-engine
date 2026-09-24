@@ -64,7 +64,7 @@ val ChandraTorchOfDefiance = card("Chandra, Torch of Defiance") {
                     ))
                 }
             },
-            then = Effects.Composite(emptyList()),
+            then = Effects.Nothing,
             otherwise = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent)),
             successCriterion = SuccessCriterion.CollectionNonEmpty("chandraCast"),
         )

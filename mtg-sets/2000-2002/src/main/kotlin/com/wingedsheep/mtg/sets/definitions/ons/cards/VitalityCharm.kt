@@ -38,8 +38,7 @@ val VitalityCharm = card("Vitality Charm") {
             }
             mode("Target creature gets +1/+1 and gains trample until end of turn") {
                 val t = target(TargetFilter.Creature)
-                effect = Effects.ModifyStats(1, 1, t)
-                    .then(Effects.GrantKeyword(Keyword.TRAMPLE, t))
+                effect = Effects.ModifyStats(1, 1, t) then Effects.GrantKeyword(Keyword.TRAMPLE, t)
             }
             mode("Regenerate target Beast") {
                 val t = target(TargetFilter.Permanent.withSubtype("Beast"))

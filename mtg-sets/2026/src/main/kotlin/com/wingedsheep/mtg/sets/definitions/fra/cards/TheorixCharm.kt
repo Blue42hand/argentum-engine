@@ -26,10 +26,7 @@ val TheorixCharm = card("Theorix Charm") {
                 effect = Effects.ModifyStats(-2, -2, t)
             }
             mode("Mill three cards, then draw a card") {
-                effect = Effects.Composite(
-                    Patterns.Library.mill(3),
-                    Effects.DrawCards(1)
-                )
+                effect = Patterns.Library.mill(3) then Effects.DrawCards(1)
             }
         }
     }

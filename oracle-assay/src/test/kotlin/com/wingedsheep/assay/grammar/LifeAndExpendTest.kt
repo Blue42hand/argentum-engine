@@ -136,12 +136,8 @@ class LifeAndExpendTest : StringSpec({
     // it is a different printed sentence.
     "each opponent loses life is a recipient the model names, not one it targets" {
         fragment("When ~ enters, each opponent loses 2 life and you gain 2 life.")
-            .script.triggeredAbilities.single().effect shouldBe Effects.Composite(
-            listOf(
-                Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)),
-                Effects.GainLife(2, EffectTarget.Controller),
-            )
-        )
+            .script.triggeredAbilities.single().effect shouldBe (Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)) then
+                Effects.GainLife(2, EffectTarget.Controller))
         // Glidedive Duo prints the clauses joined by "and", which [Steps.tailsOf] reads as an
         // alternate and prints back as the canonical sequence: a `CompositeEffect` has no room for
         // the conjunction, so one of the two spellings has to be the one that prints.

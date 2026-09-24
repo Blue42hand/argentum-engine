@@ -33,14 +33,12 @@ val BeastieBeatdown = card("Beastie Beatdown") {
     spell {
         val yours = target(TargetFilter.Creature.youControl())
         val theirs = target(TargetFilter.Creature.opponentControls())
-        effect = Effects.Composite(
-            // Delirium — counters land first so the damage uses the buffed power.
-            Effects.If(
-                condition = Conditions.Delirium(),
-                then = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = yours),
-            ),
-            Effects.DealDamage(DynamicAmounts.powerOf(yours), theirs, damageSource = yours),
-        )
+        // Delirium — counters land first so the damage uses the buffed power.
+        effect = Effects.If(
+            condition = Conditions.Delirium(),
+            then = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = yours),
+        ) then
+            Effects.DealDamage(DynamicAmounts.powerOf(yours), theirs, damageSource = yours)
     }
 
     metadata {

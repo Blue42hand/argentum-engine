@@ -27,8 +27,7 @@ val Nobody = card("Nobody") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val artifact = target(TargetFilter.Artifact.youControl().other(), optional = true)
-        effect = Effects.ReturnToHand(artifact)
-            .then(Patterns.Library.scry(1))
+        effect = Effects.ReturnToHand(artifact) then Patterns.Library.scry(1)
     }
 
     metadata {

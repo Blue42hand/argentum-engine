@@ -23,8 +23,7 @@ val Stun = card("Stun") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.CantBlock(t)
-            .then(Effects.DrawCards(1))
+        effect = Effects.CantBlock(t) then Effects.DrawCards(1)
     }
 
     metadata {

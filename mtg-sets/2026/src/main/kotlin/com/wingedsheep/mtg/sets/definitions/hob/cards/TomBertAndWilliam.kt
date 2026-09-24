@@ -61,12 +61,10 @@ val TomBertAndWilliam = card("Tom, Bert, and William") {
             Costs.Mana("{1}"),
             Costs.SacrificeAnother(GameObjectFilter.Creature)
         )
-        effect = Effects.Composite(
-            Effects.DrawCards(
-                DynamicAmounts.powerOf(EffectTarget.SacrificedAsCost())
-            ),
+        effect = Effects.DrawCards(
+            DynamicAmounts.powerOf(EffectTarget.SacrificedAsCost())
+        ) then
             Effects.Discard(1)
-        )
         description = "{1}, Sacrifice another creature: Draw cards equal to the sacrificed " +
             "creature's power, then discard a card."
     }
@@ -74,12 +72,11 @@ val TomBertAndWilliam = card("Tom, Bert, and William") {
     triggeredAbility {
         trigger = Triggers.self.dies()
         interveningIf = Conditions.TriggeringEntityHadCardType(CardType.CREATURE.name)
-        effect = Effects.Composite(
-            Effects.Move(
-                target = EffectTarget.Self,
-                destination = Zone.BATTLEFIELD,
-                fromZone = Zone.GRAVEYARD
-            ),
+        effect = Effects.Move(
+            target = EffectTarget.Self,
+            destination = Zone.BATTLEFIELD,
+            fromZone = Zone.GRAVEYARD
+        ) then
             Effects.BecomeArtifact(
                 target = EffectTarget.Self,
                 cardTypes = setOf(CardType.ARTIFACT.name),
@@ -90,7 +87,6 @@ val TomBertAndWilliam = card("Tom, Bert, and William") {
                 loseAllAbilities = false,
                 duration = Duration.Permanent
             )
-        )
         description = "When Tom, Bert, and William die, if they were a creature, return them to " +
             "the battlefield. They're an artifact."
     }

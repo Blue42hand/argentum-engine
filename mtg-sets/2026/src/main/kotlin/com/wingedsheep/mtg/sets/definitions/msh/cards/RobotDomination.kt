@@ -42,11 +42,9 @@ val RobotDomination = card("Robot Domination") {
 
     triggeredAbility {
         trigger = Triggers.oneOrMore(GameObjectFilter.Creature).putIntoYourGraveyard()
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Effects.LoseLife(1, EffectTarget.Controller),
-            Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self),
-        )
+        effect = Effects.DrawCards(1) then
+            Effects.LoseLife(1, EffectTarget.Controller) then
+            Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self)
         description = "Whenever one or more creature cards are put into your graveyard from " +
             "anywhere, you draw a card, lose 1 life, and put a plan counter on this enchantment."
     }
@@ -54,8 +52,7 @@ val RobotDomination = card("Robot Domination") {
     triggeredAbility {
         trigger = Triggers.self.getsCounters(CounterType.PLAN)
         triggerRestriction = Conditions.SourceCounterCountAtLeast(CounterType.PLAN, 3)
-        effect = Effects.Composite(
-            Effects.SacrificeTarget(EffectTarget.Self),
+        effect = Effects.SacrificeTarget(EffectTarget.Self) then
             Effects.CreateToken(
                 power = 2,
                 toughness = 2,
@@ -64,8 +61,7 @@ val RobotDomination = card("Robot Domination") {
                 count = 3,
                 artifactToken = true,
                 imageUri = "https://cards.scryfall.io/normal/front/8/e/8eb1de03-fc45-45bd-bd1f-5b164104426e.jpg?1783902799",
-            ),
-        )
+            )
         description = "When the third plan counter is put on this enchantment, sacrifice it and " +
             "create three 2/2 colorless Robot Villain artifact creature tokens."
     }

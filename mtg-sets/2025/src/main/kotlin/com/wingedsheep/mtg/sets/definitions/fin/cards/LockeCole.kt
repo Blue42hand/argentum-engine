@@ -31,10 +31,7 @@ val LockeCole = card("Locke Cole") {
     keywords(Keyword.DEATHTOUCH, Keyword.LIFELINK)
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Patterns.Hand.discardCards(1)
-        )
+        effect = Effects.DrawCards(1) then Patterns.Hand.discardCards(1)
     }
     metadata {
         rarity = Rarity.UNCOMMON

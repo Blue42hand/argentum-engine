@@ -26,11 +26,9 @@ val CostOfBrilliance = card("Cost of Brilliance") {
     spell {
         val t1 = target(Targets.Player)
         val t2 = target(TargetFilter.Creature, optional = true)
-        effect = Effects.Composite(
-            Effects.DrawCards(2, t1),
-            Effects.LoseLife(2, t1),
+        effect = Effects.DrawCards(2, t1) then
+            Effects.LoseLife(2, t1) then
             Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t2)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

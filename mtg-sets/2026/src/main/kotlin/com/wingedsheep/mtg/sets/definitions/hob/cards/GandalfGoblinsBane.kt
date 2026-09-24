@@ -52,10 +52,8 @@ val GandalfGoblinsBane = card("Gandalf, Goblins' Bane") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(power = 1, toughness = 1, target = EffectTarget.Self),
+        effect = Effects.ModifyStats(power = 1, toughness = 1, target = EffectTarget.Self) then
             Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent))
-        )
     }
 
     adventure("Flameshape") {

@@ -31,11 +31,9 @@ val BasilicaSkullbomb = card("Basilica Skullbomb") {
     activatedAbility {
         val creatureYouControl = target(TargetFilter.CreatureYouControl)
         cost = Costs.Composite(Costs.Mana("{2}{W}"), Costs.SacrificeSelf)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 2, creatureYouControl),
-            Effects.GrantKeyword(Keyword.FLYING, creatureYouControl),
+        effect = Effects.ModifyStats(2, 2, creatureYouControl) then
+            Effects.GrantKeyword(Keyword.FLYING, creatureYouControl) then
             Effects.DrawCards(1)
-        )
         timing = TimingRule.SorcerySpeed
     }
 

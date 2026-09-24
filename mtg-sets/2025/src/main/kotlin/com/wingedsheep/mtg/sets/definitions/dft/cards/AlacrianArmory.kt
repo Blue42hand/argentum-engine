@@ -69,11 +69,10 @@ val AlacrianArmory = card("Alacrian Armory") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val permanent = target(TargetFilter(MountOrVehicleYouControl), optional = true)
-        effect = Effects.Composite(
-            Effects.If(
-                condition = Conditions.TargetMatchesFilter(Mount, permanent),
-                then = Effects.BecomeSaddled(permanent)
-            ),
+        effect = Effects.If(
+            condition = Conditions.TargetMatchesFilter(Mount, permanent),
+            then = Effects.BecomeSaddled(permanent)
+        ) then
             Effects.If(
                 condition = Conditions.TargetMatchesFilter(Vehicle, permanent),
                 then = Effects.AddCardType(
@@ -81,8 +80,7 @@ val AlacrianArmory = card("Alacrian Armory") {
                     target = permanent,
                     duration = Duration.EndOfTurn
                 )
-            ),
-        )
+            )
         description = "At the beginning of combat on your turn, choose up to one target Mount or " +
             "Vehicle you control. Until end of turn, that permanent becomes saddled if it's a " +
             "Mount and becomes an artifact creature if it's a Vehicle."

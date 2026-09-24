@@ -26,14 +26,12 @@ val TranquilPath = card("Tranquil Path") {
     typeLine = "Sorcery"
     oracleText = "Destroy all enchantments.\nDraw a card."
     spell {
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter(GameObjectFilter.Enchantment),
-                Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, byDestruction = true),
-                noRegenerate = false
-            ),
+        effect = Effects.ForEachInGroup(
+            GroupFilter(GameObjectFilter.Enchantment),
+            Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, byDestruction = true),
+            noRegenerate = false
+        ) then
             Effects.DrawCards(1)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

@@ -74,10 +74,7 @@ val ChandraChillOfCompliance = card("Chandra, Chill of Compliance") {
     // −X: Tap target artifact or creature. Put X stun counters on it.
     loyaltyAbilityX {
         val t = target(TargetFilter(GameObjectFilter.CreatureOrArtifact))
-        effect = Effects.Composite(
-            Effects.Tap(t),
-            Effects.AddDynamicCounters(CounterType.STUN, DynamicAmounts.xValue(), t),
-        )
+        effect = Effects.Tap(t) then Effects.AddDynamicCounters(CounterType.STUN, DynamicAmounts.xValue(), t)
         description = "Tap target artifact or creature. Put X stun counters on it."
     }
 

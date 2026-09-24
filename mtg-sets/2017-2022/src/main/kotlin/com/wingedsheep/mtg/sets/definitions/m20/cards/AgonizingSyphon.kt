@@ -20,8 +20,7 @@ val AgonizingSyphon = card("Agonizing Syphon") {
 
     spell {
         val anyTarget = target(Targets.Any)
-        effect = Effects.DealDamage(3, anyTarget)
-            .then(Effects.GainLife(3))
+        effect = Effects.DealDamage(3, anyTarget) then Effects.GainLife(3)
     }
 
     metadata {

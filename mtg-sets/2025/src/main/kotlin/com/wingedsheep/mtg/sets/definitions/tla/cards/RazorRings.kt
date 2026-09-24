@@ -29,12 +29,10 @@ val RazorRings = card("Razor Rings") {
 
     spell {
         val creature = target(TargetFilter.AttackingOrBlockingCreature)
-        effect = Effects.Composite(
-            Effects.DealDamage(4, creature),
+        effect = Effects.DealDamage(4, creature) then
             Effects.GainLife(
                 DynamicAmounts.propertyOf(creature, EntityNumericProperty.ExcessMarkedDamage)
             )
-        )
     }
 
     metadata {

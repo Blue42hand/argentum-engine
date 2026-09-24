@@ -41,9 +41,7 @@ val MorningtidesLight = card("Morningtide's Light") {
                     placement = ZonePlacement.Tapped
                 )
             )
-        ).then(
-            Effects.PreventDamage(duration = Duration.UntilYourNextTurn)
-        )
+        ) then Effects.PreventDamage(duration = Duration.UntilYourNextTurn)
     }
 
     metadata {

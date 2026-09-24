@@ -24,10 +24,7 @@ val LaquatussDisdain = card("Laquatus's Disdain") {
     oracleText = "Counter target spell cast from a graveyard.\nDraw a card."
     spell {
         val t = target(TargetFilter.SpellOnStack)
-        effect = Effects.Composite(
-            Effects.CounterSpell(),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.CounterSpell() then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.UNCOMMON

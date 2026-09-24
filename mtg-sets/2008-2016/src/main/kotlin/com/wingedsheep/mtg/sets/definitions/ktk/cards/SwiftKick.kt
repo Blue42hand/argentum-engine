@@ -21,8 +21,7 @@ val SwiftKick = card("Swift Kick") {
     spell {
         val yourCreature = target(TargetFilter(GameObjectFilter.Creature.youControl()))
         val theirCreature = target(TargetFilter(GameObjectFilter.Creature.opponentControls()))
-        effect = Effects.ModifyStats(1, 0, yourCreature)
-            .then(Effects.Fight(yourCreature, theirCreature))
+        effect = Effects.ModifyStats(1, 0, yourCreature) then Effects.Fight(yourCreature, theirCreature)
     }
 
     metadata {

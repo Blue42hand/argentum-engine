@@ -27,15 +27,15 @@ val ThoughtweftCharge = card("Thoughtweft Charge") {
     spell {
         val creature = target(TargetFilter.Creature)
 
-        effect = Effects.ModifyStats(3, 3, creature)
-            .then(Effects.If(
+        effect = Effects.ModifyStats(3, 3, creature) then
+            Effects.If(
                 condition = Exists(
                     Player.You,
                     Zone.BATTLEFIELD,
                     GameObjectFilter.Creature.youControl().enteredThisTurn()
                 ),
                 then = Effects.DrawCards(1)
-            ))
+            )
     }
 
     metadata {

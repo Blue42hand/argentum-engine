@@ -39,7 +39,7 @@
                                     "zone": "Hand",
                                     "player": {
                                         "type": "BoundVariable",
-                                        "name": "t0"
+                                        "name": "t1"
                                     }
                                 },
                                 "storeAs": "hand"
@@ -66,7 +66,7 @@
                                     "zone": "Exile",
                                     "player": {
                                         "type": "BoundVariable",
-                                        "name": "t0"
+                                        "name": "t1"
                                     }
                                 }
                             }
@@ -75,7 +75,7 @@
                     "targetRequirements": [
                         {
                             "type": "TargetOpponent",
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target opponent exiles two cards from their hand"
@@ -204,14 +204,14 @@
                 "filter": {
                     "baseFilter": "nonland permanent"
                 },
-                "id": "t0"
+                "id": "t1"
             }
         ],
         "cleaveSpellEffect": {
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "t0"
+                "name": "t1"
             },
             "destination": "Hand"
         }
@@ -3939,12 +3939,12 @@
                                     },
                                     "target": {
                                         "type": "BoundVariable",
-                                        "name": "t0"
+                                        "name": "t1"
                                     }
                                 },
                                 "targetRequirement": {
                                     "type": "AnyTarget",
-                                    "id": "t0"
+                                    "id": "t1"
                                 },
                                 "descriptionOverride": "Whenever you cast a red spell, this emblem deals X damage to any target, where X is the amount of mana spent to cast that spell."
                             },
@@ -4003,26 +4003,21 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "FromZone",
-                                "zone": "Hand"
-                            },
-                            "storeAs": "discardedHand"
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "discardedHand",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Graveyard"
-                            },
-                            "moveType": "Discard"
-                        }
-                    ]
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Hand"
+                    },
+                    "storeAs": "discardedHand"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "discardedHand",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    },
+                    "moveType": "Discard"
                 },
                 {
                     "type": "DrawCards",
@@ -5076,39 +5071,34 @@
                         "type": "Composite",
                         "effects": [
                             {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "GatherCards",
-                                        "source": {
-                                            "type": "FromZone",
-                                            "zone": "Hand",
-                                            "filter": "land"
-                                        },
-                                        "storeAs": "put_candidates"
-                                    },
-                                    {
-                                        "type": "SelectFromCollection",
-                                        "from": "put_candidates",
-                                        "selection": {
-                                            "type": "ChooseUpTo",
-                                            "count": {
-                                                "type": "Fixed",
-                                                "amount": 1
-                                            }
-                                        },
-                                        "storeSelected": "putting"
-                                    },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "putting",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Battlefield",
-                                            "placement": "Tapped"
-                                        }
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Hand",
+                                    "filter": "land"
+                                },
+                                "storeAs": "put_candidates"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "put_candidates",
+                                "selection": {
+                                    "type": "ChooseUpTo",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
                                     }
-                                ]
+                                },
+                                "storeSelected": "putting"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "putting",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Battlefield",
+                                    "placement": "Tapped"
+                                }
                             },
                             {
                                 "type": "Gated",
@@ -5472,28 +5462,23 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "TopOfLibrary",
-                                "count": {
-                                    "type": "Fixed",
-                                    "amount": 13
-                                }
-                            },
-                            "storeAs": "exiled_top"
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "exiled_top",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Exile"
-                            }
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 13
                         }
-                    ]
+                    },
+                    "storeAs": "exiled_top"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "exiled_top",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Exile"
+                    }
                 },
                 {
                     "type": "Composite",
@@ -6832,7 +6817,7 @@
                                 "keyword": "DOESNT_UNTAP",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 },
                                 "duration": "UntilAfterAffectedControllersNextUntap"
                             },
@@ -6842,7 +6827,7 @@
                                     "filter": {
                                         "baseFilter": "creature"
                                     },
-                                    "id": "t0"
+                                    "id": "t1"
                                 }
                             ],
                             "description": "Target creature doesn't untap during its controller's next untap step"
@@ -7024,7 +7009,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Hand"
                     },
@@ -7035,7 +7020,7 @@
                                 "baseFilter": "creature own:you",
                                 "zone": "Graveyard"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "descriptionOverride": "You may pay {B}. When you do, return target creature card from your graveyard to your hand."
@@ -7916,14 +7901,14 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "t0"
+                "id": "t1"
             }
         ],
         "cleaveSpellEffect": {
             "type": "MoveToZone",
             "target": {
                 "type": "BoundVariable",
-                "name": "t0"
+                "name": "t1"
             },
             "destination": "Graveyard",
             "byDestruction": true
@@ -10387,38 +10372,33 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "FromZone",
-                                        "zone": "Hand",
-                                        "filter": "creature"
-                                    },
-                                    "storeAs": "put_candidates"
-                                },
-                                {
-                                    "type": "SelectFromCollection",
-                                    "from": "put_candidates",
-                                    "selection": {
-                                        "type": "ChooseUpTo",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 1
-                                        }
-                                    },
-                                    "storeSelected": "putting"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "putting",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Battlefield"
-                                    }
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand",
+                                "filter": "creature"
+                            },
+                            "storeAs": "put_candidates"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "put_candidates",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
                                 }
-                            ]
+                            },
+                            "storeSelected": "putting"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "putting",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield"
+                            }
                         },
                         {
                             "type": "Gated",
@@ -12510,7 +12490,7 @@
         "cleaveTargetRequirements": [
             {
                 "type": "TargetCreatureOrPlaneswalker",
-                "id": "t0"
+                "id": "t1"
             }
         ],
         "cleaveSpellEffect": {
@@ -12521,7 +12501,7 @@
                     "amount": "XValue",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 {
@@ -12736,7 +12716,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "t0"
+                "id": "t1"
             }
         ],
         "cleaveSpellEffect": {
@@ -12746,7 +12726,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "destination": "Hand"
                 },
@@ -13083,17 +13063,17 @@
                                     "type": "EntityProperty",
                                     "entity": {
                                         "type": "BoundVariable",
-                                        "name": "t0"
+                                        "name": "t2"
                                     },
                                     "numericProperty": "Power"
                                 },
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t1"
+                                    "name": "t3"
                                 },
                                 "damageSource": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t2"
                                 }
                             }
                         ]
@@ -13104,7 +13084,7 @@
                             "filter": {
                                 "baseFilter": "creature Vampire ctrl:you"
                             },
-                            "id": "t0"
+                            "id": "t2"
                         },
                         {
                             "type": "TargetOther",
@@ -13114,7 +13094,7 @@
                                     "baseFilter": "creature"
                                 }
                             },
-                            "id": "t1"
+                            "id": "t3"
                         }
                     ],
                     "description": "Creatures you control get +1/+0 until end of turn and target Vampire you control deals damage equal to its power to another target creature"
@@ -13653,29 +13633,24 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "TopOfLibrary",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 3
-                                        },
-                                        "isMill": true
-                                    },
-                                    "storeAs": "milled"
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 3
                                 },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "milled",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard"
-                                    }
-                                }
-                            ]
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
                         },
                         {
                             "type": "AddDynamicCounters",
@@ -14297,29 +14272,24 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "TopOfLibrary",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 1
-                                        },
-                                        "isMill": true
-                                    },
-                                    "storeAs": "milled"
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
                                 },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "milled",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard"
-                                    }
-                                }
-                            ]
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
                         },
                         {
                             "type": "Gated",
@@ -14388,29 +14358,24 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "TopOfLibrary",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 1
-                                        },
-                                        "isMill": true
-                                    },
-                                    "storeAs": "milled"
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
                                 },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "milled",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard"
-                                    }
-                                }
-                            ]
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
                         },
                         {
                             "type": "Gated",
@@ -15040,7 +15005,7 @@
                 "filter": {
                     "baseFilter": "creature"
                 },
-                "id": "t0"
+                "id": "t1"
             }
         ],
         "cleaveSpellEffect": {
@@ -15054,7 +15019,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 {
@@ -16915,7 +16880,7 @@
                                 "target1": "Self",
                                 "target2": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             "targetRequirements": [
@@ -16924,7 +16889,7 @@
                                     "filter": {
                                         "baseFilter": "creature Zombie ctrl:opponent"
                                     },
-                                    "id": "t0"
+                                    "id": "t1"
                                 }
                             ],
                             "description": "This creature fights target Zombie an opponent controls"

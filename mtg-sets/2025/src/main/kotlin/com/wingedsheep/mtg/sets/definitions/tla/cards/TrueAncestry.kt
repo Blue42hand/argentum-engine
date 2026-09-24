@@ -30,10 +30,7 @@ val TrueAncestry = card("True Ancestry") {
             TargetFilter(baseFilter = GameObjectFilter.Permanent.ownedByYou(), zone = Zone.GRAVEYARD),
             optional = true,
         )
-        effect = Effects.Composite(
-            Effects.ReturnToHand(permanentCard),
-            Effects.CreateClue(),
-        )
+        effect = Effects.ReturnToHand(permanentCard) then Effects.CreateClue()
     }
 
     metadata {

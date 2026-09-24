@@ -43,7 +43,7 @@ val ShowerOfArrows = card("Shower of Arrows") {
             )
         )
         val permanent = target(targetFilter)
-        effect = Effects.Destroy(permanent).then(Patterns.Library.scry(1))
+        effect = Effects.Destroy(permanent) then Patterns.Library.scry(1)
     }
 
     metadata {

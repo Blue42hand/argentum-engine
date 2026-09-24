@@ -77,12 +77,9 @@ val ZoralineCosmosCaller = card("Zoraline, Cosmos Caller") {
  * the "when you do" is the payment itself (the Fire Lord Sozin shape).
  */
 private fun zoralineReanimateEffect() = Effects.MayPay(
-    cost = Effects.Composite(
-        Effects.PayMana("{W}{B}"),
-        Effects.PayLife(2)
-    ),
+    cost = Effects.PayMana("{W}{B}") then Effects.PayLife(2),
     then = Effects.ReflexiveTrigger(
-        action = Effects.Composite(emptyList()),
+        action = Effects.Nothing,
         optional = false,
         descriptionOverride = "return target nonland permanent card with mana value 3 or less " +
             "from your graveyard to the battlefield with a finality counter on it"
@@ -93,9 +90,7 @@ private fun zoralineReanimateEffect() = Effects.MayPay(
                 zone = Zone.GRAVEYARD
             ),
         )
-        effect = Effects.Composite(
-            Effects.PutOntoBattlefieldFromGraveyard(nonlandPermanent),
+        effect = Effects.PutOntoBattlefieldFromGraveyard(nonlandPermanent) then
             Effects.AddCounters(CounterType.FINALITY, 1, nonlandPermanent)
-        )
     }
 )

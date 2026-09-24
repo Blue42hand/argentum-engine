@@ -26,10 +26,8 @@ val KayasOnslaught = card("Kaya's Onslaught") {
 
     spell {
         val recipient = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 1, recipient),
+        effect = Effects.ModifyStats(1, 1, recipient) then
             Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, recipient)
-        )
     }
 
     keywordAbility(KeywordAbility.foretell("{W}"))

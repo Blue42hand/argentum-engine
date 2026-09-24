@@ -29,12 +29,8 @@ val RecklessSpite = card("Reckless Spite") {
         // "two target nonblack creatures" is one requirement with a count, and the destroy runs
         // once per chosen target — `ForEachTargetEffect` rebinds slot 0 per iteration, so listing
         // ContextTarget(0) and ContextTarget(1) by hand said the same thing only for exactly two.
-        effect = Effects.Composite(
-            listOf(
-                Effects.ForEachTarget(Effects.Destroy(EffectTarget.ContextTarget(0))),
-                Effects.LoseLife(5, EffectTarget.Controller)
-            )
-        )
+        effect = Effects.ForEachTarget(Effects.Destroy(EffectTarget.ContextTarget(0))) then
+            Effects.LoseLife(5, EffectTarget.Controller)
     }
 
     metadata {

@@ -29,17 +29,11 @@ val ReverentHowl = card("Reverent Howl") {
         modal(chooseCount = 1) {
             mode("Target player draws two cards and loses 2 life") {
                 val t = target(Targets.Player)
-                effect = Effects.Composite(
-                    Effects.DrawCards(2, t),
-                    Effects.LoseLife(2, t)
-                )
+                effect = Effects.DrawCards(2, t) then Effects.LoseLife(2, t)
             }
             mode("Target creature gets +2/+2 and gains lifelink until end of turn") {
                 val t = target(TargetFilter.Creature)
-                effect = Effects.Composite(
-                    Effects.ModifyStats(2, 2, t),
-                    Effects.GrantKeyword(Keyword.LIFELINK, t)
-                )
+                effect = Effects.ModifyStats(2, 2, t) then Effects.GrantKeyword(Keyword.LIFELINK, t)
             }
         }
     }

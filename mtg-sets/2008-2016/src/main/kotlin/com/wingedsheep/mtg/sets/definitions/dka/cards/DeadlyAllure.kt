@@ -22,10 +22,8 @@ val DeadlyAllure = card("Deadly Allure") {
         "Flashback {G} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.DEATHTOUCH, t),
+        effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, t) then
             Effects.MustBeBlocked(t, allCreatures = false)
-        )
     }
     keywordAbility(KeywordAbility.flashback("{G}"))
     metadata {

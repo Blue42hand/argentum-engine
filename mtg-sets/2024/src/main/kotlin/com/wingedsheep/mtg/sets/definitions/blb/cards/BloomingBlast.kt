@@ -40,10 +40,10 @@ val BloomingBlast = card("Blooming Blast") {
             // Mode 2: Gift a Treasure — opponent creates Treasure, 2 damage to creature, 3 damage to controller
             mode("Promise a gift — opponent creates a Treasure token, deal 2 damage to target creature and 3 damage to its controller") {
                 val creature = target(TargetFilter.Creature)
-                effect = Effects.CreateTreasure(1, controller = EffectTarget.PlayerRef(Player.ChosenOpponent))
-                    .then(Effects.DealDamage(2, creature))
-                    .then(Effects.DealDamage(3, EffectTarget.TargetController))
-                    .then(Effects.GiftGiven())
+                effect = Effects.CreateTreasure(1, controller = EffectTarget.PlayerRef(Player.ChosenOpponent)) then
+                    Effects.DealDamage(2, creature) then
+                    Effects.DealDamage(3, EffectTarget.TargetController) then
+                    Effects.GiftGiven()
             }
         )
     }

@@ -53,7 +53,7 @@ val DayOfTheDragons = card("Day of the Dragons") {
             filter = GameObjectFilter.Creature.withSubtype("Dragon"),
             count = 100,
             target = EffectTarget.Controller
-        ).then(Effects.ReturnLinkedExile())
+        ) then Effects.ReturnLinkedExile()
     }
 
     metadata {

@@ -66,8 +66,8 @@ val YunaHopeOfSpira = card("Yuna, Hope of Spira") {
             TargetFilter(GameObjectFilter.Enchantment.ownedByYou(), zone = Zone.GRAVEYARD),
             optional = true,
         )
-        effect = Effects.Move(enchantment, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
-            .then(Effects.AddCounters(CounterType.FINALITY, 1, enchantment))
+        effect = Effects.Move(enchantment, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
+            Effects.AddCounters(CounterType.FINALITY, 1, enchantment)
         description = "At the beginning of your end step, return up to one target enchantment card " +
             "from your graveyard to the battlefield with a finality counter on it."
     }

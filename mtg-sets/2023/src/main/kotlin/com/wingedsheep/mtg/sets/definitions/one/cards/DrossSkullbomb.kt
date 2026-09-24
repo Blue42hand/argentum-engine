@@ -30,10 +30,7 @@ val DrossSkullbomb = card("Dross Skullbomb") {
     activatedAbility {
         val creatureCardInYourGraveyard = target(TargetFilter.CreatureInYourGraveyard)
         cost = Costs.Composite(Costs.Mana("{2}{B}"), Costs.SacrificeSelf)
-        effect = Effects.Composite(
-            Effects.ReturnToHand(creatureCardInYourGraveyard),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.ReturnToHand(creatureCardInYourGraveyard) then Effects.DrawCards(1)
         timing = TimingRule.SorcerySpeed
     }
 

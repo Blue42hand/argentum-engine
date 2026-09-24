@@ -45,8 +45,7 @@ val LizardConnorssCurse = card("Lizard, Connors's Curse") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter.OtherCreature, optional = true)
-        effect = Effects.Composite(
-            Effects.RemoveAllAbilities(t, Duration.Permanent),
+        effect = Effects.RemoveAllAbilities(t, Duration.Permanent) then
             Effects.BecomeCreature(
                 target = t,
                 power = 4,
@@ -55,7 +54,6 @@ val LizardConnorssCurse = card("Lizard, Connors's Curse") {
                 colors = setOf("GREEN"),
                 duration = Duration.Permanent
             )
-        )
     }
 
     metadata {

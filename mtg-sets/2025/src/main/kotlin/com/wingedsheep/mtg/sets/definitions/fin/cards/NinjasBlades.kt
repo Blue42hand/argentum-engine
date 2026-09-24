@@ -59,14 +59,12 @@ val NinjasBlades = card("Ninja's Blades") {
         ability = GrantTriggeredAbility(
             ability = TriggeredAbility.create(
                 trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer),
-                effect = Effects.Composite(
-                    Effects.DrawCards(1),
-                    Patterns.Hand.discardCards(1),
+                effect = Effects.DrawCards(1) then
+                    Patterns.Hand.discardCards(1) then
                     Effects.LoseLife(
                         DynamicAmounts.manaValueOf(Patterns.Hand.discarded),
                         EffectTarget.PlayerRef(Player.TriggeringPlayer),
-                    ),
-                )
+                    )
             ),
             filter = Filters.EquippedCreature
         )

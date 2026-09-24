@@ -49,10 +49,8 @@ val ScrollOfIsildur = card("Scroll of Isildur") {
 
     sagaChapter(1) {
         val artifact = target(TargetFilter.Artifact, optional = true)
-        effect = Effects.Composite(
-            Effects.GainControl(artifact, Duration.WhileYouControlSource("Scroll of Isildur")),
+        effect = Effects.GainControl(artifact, Duration.WhileYouControlSource("Scroll of Isildur")) then
             Effects.TheRingTemptsYou()
-        )
     }
 
     sagaChapter(2) {

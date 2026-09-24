@@ -31,10 +31,7 @@ val DecorumDissertation = card("Decorum Dissertation") {
 
     spell {
         val player = target(Targets.Player)
-        effect = Effects.Composite(
-            Effects.DrawCards(2, player),
-            Effects.LoseLife(2, player),
-        )
+        effect = Effects.DrawCards(2, player) then Effects.LoseLife(2, player)
         paradigm()
     }
 

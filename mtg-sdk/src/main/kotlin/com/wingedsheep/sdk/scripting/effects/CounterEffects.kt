@@ -214,7 +214,7 @@ data class RemoveAnyNumberOfCountersEffect(
  *
  * "You get {E}{E}{E} (three energy counters), then you may pay any amount of {E}. [~] deals that
  * much damage to that permanent." (Galvanic Discharge) composes as:
- * `Effects.Composite(Effects.GetEnergy(3), PayCountersEffect(CounterType.ENERGY, storeAmountAs = "paid"), Effects.DealDamage(VariableReference("paid"), target))`.
+ * `Effects.GetEnergy(3) then PayCountersEffect(CounterType.ENERGY, storeAmountAs = "paid") then Effects.DealDamage(VariableReference("paid"), target)`.
  *
  * Paying 0 is always legal (a `ChooseNumberDecision` with `minValue = 0`) — "may pay" is
  * honored by the player being free to choose 0, not by a separate opt-out step. No prompt at all

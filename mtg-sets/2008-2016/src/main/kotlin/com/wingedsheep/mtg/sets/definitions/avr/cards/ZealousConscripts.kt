@@ -32,11 +32,9 @@ val ZealousConscripts = card("Zealous Conscripts") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter.Permanent)
-        effect = Effects.Composite(
-            Effects.GainControl(t, Duration.EndOfTurn),
-            Effects.Untap(t),
+        effect = Effects.GainControl(t, Duration.EndOfTurn) then
+            Effects.Untap(t) then
             Effects.GrantKeyword(Keyword.HASTE, t)
-        )
     }
     metadata {
         rarity = Rarity.RARE

@@ -30,12 +30,7 @@ val SelfcraftMechan = card("Selfcraft Mechan") {
             action = Effects.SacrificeOwn(GameObjectFilter.Artifact),
             optional = true) {
             val creature = target(TargetFilter.Creature)
-            effect = Effects.Composite(
-                listOf(
-                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
-                    Effects.DrawCards(1)
-                )
-            )
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then Effects.DrawCards(1)
         }
     }
 

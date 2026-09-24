@@ -26,10 +26,7 @@ val MazeOfIth = card("Maze of Ith") {
     activatedAbility {
         cost = Costs.Tap
         val creature = target(TargetFilter.AttackingCreature)
-        effect = Effects.Composite(
-            Effects.Untap(creature),
-            Effects.PreventCombatDamageToAndBy(creature)
-        )
+        effect = Effects.Untap(creature) then Effects.PreventCombatDamageToAndBy(creature)
     }
 
     metadata {

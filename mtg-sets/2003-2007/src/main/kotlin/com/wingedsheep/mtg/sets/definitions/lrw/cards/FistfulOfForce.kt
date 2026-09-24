@@ -15,11 +15,8 @@ val FistfulOfForce = card("Fistful of Force") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(2, 2, creature).then(
-            Patterns.Mechanic.clash(
-                Effects.ModifyStats(2, 2, creature)
-                    .then(Effects.GrantKeyword(Keyword.TRAMPLE, creature))
-            )
+        effect = Effects.ModifyStats(2, 2, creature) then Patterns.Mechanic.clash(
+            Effects.ModifyStats(2, 2, creature) then Effects.GrantKeyword(Keyword.TRAMPLE, creature)
         )
     }
 

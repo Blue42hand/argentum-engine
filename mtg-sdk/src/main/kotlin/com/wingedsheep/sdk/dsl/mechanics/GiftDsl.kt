@@ -58,7 +58,7 @@ fun giftEnterTrigger(kind: GiftKind, subject: String = "this permanent"): Trigge
     TriggeredAbility.create(
         trigger = Triggers.self.enters(),
         interveningIf = Conditions.GiftWasPromised,
-        effect = giftEffect(kind).then(Effects.GiftGiven()),
+        effect = giftEffect(kind) then Effects.GiftGiven(),
         descriptionOverride =
             "When $subject enters, if the gift was promised, ${kind.effectText}."
     )

@@ -40,13 +40,9 @@ val OliviaVoldaren = card("Olivia Voldaren") {
     activatedAbility {
         cost = Costs.Mana("{1}{R}")
         val creature = target(TargetFilter.OtherCreature)
-        effect = Effects.Composite(
-            listOf(
-                Effects.DealDamage(1, creature),
-                Effects.AddSubtype("Vampire", creature, Duration.Permanent),
-                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-            )
-        )
+        effect = Effects.DealDamage(1, creature) then
+            Effects.AddSubtype("Vampire", creature, Duration.Permanent) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "{1}{R}: Olivia Voldaren deals 1 damage to another target creature. That creature becomes a Vampire in addition to its other types. Put a +1/+1 counter on Olivia Voldaren."
     }
 

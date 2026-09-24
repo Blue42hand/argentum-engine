@@ -30,10 +30,7 @@ val KnockoutBlow = card("Knockout Blow") {
 
     spell {
         val t = target(TargetFilter.AttackingOrBlockingCreature)
-        effect = Effects.Composite(
-            Effects.DealDamage(4, t),
-            Effects.GainLife(2)
-        )
+        effect = Effects.DealDamage(4, t) then Effects.GainLife(2)
     }
 
     staticAbility {

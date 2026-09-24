@@ -36,10 +36,7 @@ val EngineeredMight = card("Engineered Might") {
         modal {
             mode("Target creature gets +5/+5 and gains trample until end of turn") {
                 val t = target(TargetFilter.Creature)
-                effect = Effects.Composite(
-                    Effects.ModifyStats(5, 5, t),
-                    Effects.GrantKeyword(Keyword.TRAMPLE, t),
-                )
+                effect = Effects.ModifyStats(5, 5, t) then Effects.GrantKeyword(Keyword.TRAMPLE, t)
             }
             mode("Creatures you control get +2/+2 and gain vigilance until end of turn") {
                 effect = Patterns.Group.pumpAndGrantToAll(

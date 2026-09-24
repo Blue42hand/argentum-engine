@@ -51,12 +51,10 @@ val CharmingPrince = card("Charming Prince") {
                 mode("Exile another target creature you own. Return it to the battlefield " +
                     "under your control at the beginning of the next end step.") {
                     val creature = target(TargetFilter.Creature.ownedByYou().other())
-                    effect = Effects.Move(creature, Zone.EXILE)
-                        .then(
-                            Effects.CreateDelayedTrigger(
-                                step = Step.END,
-                                effect = Effects.Move(creature, Zone.BATTLEFIELD)
-                            )
+                    effect = Effects.Move(creature, Zone.EXILE) then
+                        Effects.CreateDelayedTrigger(
+                            step = Step.END,
+                            effect = Effects.Move(creature, Zone.BATTLEFIELD)
                         )
                 }
             )

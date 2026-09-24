@@ -26,10 +26,7 @@ val Bargain = card("Bargain") {
 
     spell {
         val opponent = target(Targets.Opponent)
-        effect = Effects.Composite(
-            Effects.DrawCards(1, opponent),
-            Effects.GainLife(7),
-        )
+        effect = Effects.DrawCards(1, opponent) then Effects.GainLife(7)
     }
 
     metadata {

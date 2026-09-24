@@ -37,20 +37,18 @@ val ReliveThePast = card("Relive the Past") {
         )
 
         fun returnAsElemental(target: com.wingedsheep.sdk.scripting.targets.EffectTarget) =
-            Effects.PutOntoBattlefield(target)
-                .then(
-                    Effects.BecomeCreature(
-                        target = target,
-                        power = 5,
-                        toughness = 5,
-                        duration = Duration.Permanent,
-                    ),
-                )
-                .then(Effects.AddSubtype("Elemental", target, Duration.Permanent))
+            Effects.PutOntoBattlefield(target) then
+                Effects.BecomeCreature(
+                    target = target,
+                    power = 5,
+                    toughness = 5,
+                    duration = Duration.Permanent,
+                ) then
+                Effects.AddSubtype("Elemental", target, Duration.Permanent)
 
-        effect = returnAsElemental(artifact)
-            .then(returnAsElemental(land))
-            .then(returnAsElemental(enchantment))
+        effect = returnAsElemental(artifact) then
+            returnAsElemental(land) then
+            returnAsElemental(enchantment)
     }
 
     metadata {

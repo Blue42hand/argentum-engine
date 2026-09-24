@@ -29,8 +29,7 @@ val CabalArchon = card("Cabal Archon") {
             Costs.Sacrifice(GameObjectFilter.Permanent.withSubtype("Cleric"))
         )
         val t = target(Targets.Player)
-        effect = Effects.LoseLife(2, t) then
-                Effects.GainLife(2, EffectTarget.Controller)
+        effect = Effects.LoseLife(2, t) then Effects.GainLife(2, EffectTarget.Controller)
     }
 
     metadata {

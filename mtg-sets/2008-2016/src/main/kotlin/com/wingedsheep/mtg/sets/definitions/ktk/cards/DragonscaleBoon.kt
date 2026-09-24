@@ -20,8 +20,7 @@ val DragonscaleBoon = card("Dragonscale Boon") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t)
-            .then(Effects.Untap(t))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t) then Effects.Untap(t)
     }
 
     metadata {

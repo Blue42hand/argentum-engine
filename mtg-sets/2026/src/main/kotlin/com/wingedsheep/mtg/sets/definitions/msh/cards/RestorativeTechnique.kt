@@ -42,8 +42,7 @@ val RestorativeTechnique = card("Restorative Technique") {
         val player = target(Targets.Player)
         val creature = target(TargetFilter.Creature, optional = true)
 
-        effect = Effects.Composite(
-            Effects.GainLife(2, player),
+        effect = Effects.GainLife(2, player) then
             Effects.Pipeline {
                 val basics = gather(
                     CardSource.FromZone(Zone.LIBRARY, Player.TargetPlayer, GameObjectFilter.BasicLand),
@@ -61,9 +60,8 @@ val RestorativeTechnique = card("Restorative Technique") {
                 )
                 run(Effects.ShuffleLibrary(player))
                 run(EmitLibrarySearchedEventEffect)
-            },
+            } then
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
-        )
     }
 
     metadata {

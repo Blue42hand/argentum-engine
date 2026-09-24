@@ -76,27 +76,23 @@ val CollectorsCage = card("Collector's Cage") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap)
         val target = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            listOf(
-                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target),
-                Effects.If(
-                    condition = Conditions.CompareAmounts(
-                        DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature)
-                            .distinctValues(CardNumericProperty.POWER),
-                        ComparisonOperator.GTE,
-                        3
-                    ),
-                    then = Effects.May(
-                        Effects.Pipeline {
-                            val hideawayLinked = gather(CardSource.FromLinkedExile())
-                            run(Effects.GrantMayPlayFromExile(hideawayLinked))
-                            run(Effects.GrantPlayWithoutPayingCost(hideawayLinked))
-                        },
-                        descriptionOverride = "Play the exiled card without paying its mana cost"
-                    )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target) then
+            Effects.If(
+                condition = Conditions.CompareAmounts(
+                    DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature)
+                        .distinctValues(CardNumericProperty.POWER),
+                    ComparisonOperator.GTE,
+                    3
+                ),
+                then = Effects.May(
+                    Effects.Pipeline {
+                        val hideawayLinked = gather(CardSource.FromLinkedExile())
+                        run(Effects.GrantMayPlayFromExile(hideawayLinked))
+                        run(Effects.GrantPlayWithoutPayingCost(hideawayLinked))
+                    },
+                    descriptionOverride = "Play the exiled card without paying its mana cost"
                 )
             )
-        )
         description = "Put a +1/+1 counter on target creature you control. Then if you control " +
             "three or more creatures with different powers, you may play the exiled card without " +
             "paying its mana cost."

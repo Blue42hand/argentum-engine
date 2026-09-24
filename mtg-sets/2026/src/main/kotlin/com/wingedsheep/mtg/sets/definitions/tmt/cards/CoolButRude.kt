@@ -67,7 +67,7 @@ val CoolButRude = card("Cool but Rude") {
                 count = 1,
                 destination = SearchDestination.HAND,
                 shuffleAfter = true
-            ).then(Patterns.Hand.discardRandom(1))
+            ) then Patterns.Hand.discardRandom(1)
         }
     }
 

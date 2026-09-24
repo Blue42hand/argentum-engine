@@ -32,9 +32,9 @@ val Perennation = card("Perennation") {
 
     spell {
         val returnTarget = target(TargetFilter(GameObjectFilter.Permanent.ownedByYou(), zone = Zone.GRAVEYARD))
-        effect = Effects.PutOntoBattlefield(returnTarget)
-            .then(Effects.AddCounters(CounterType.HEXPROOF, 1, returnTarget))
-            .then(Effects.AddCounters(CounterType.INDESTRUCTIBLE, 1, returnTarget))
+        effect = Effects.PutOntoBattlefield(returnTarget) then
+            Effects.AddCounters(CounterType.HEXPROOF, 1, returnTarget) then
+            Effects.AddCounters(CounterType.INDESTRUCTIBLE, 1, returnTarget)
     }
 
     metadata {

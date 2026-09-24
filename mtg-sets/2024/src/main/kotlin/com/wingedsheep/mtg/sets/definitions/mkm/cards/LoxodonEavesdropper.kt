@@ -45,10 +45,8 @@ val LoxodonEavesdropper = card("Loxodon Eavesdropper") {
 
     triggeredAbility {
         trigger = Triggers.you.drawsNth(2)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 1, EffectTarget.Self),
+        effect = Effects.ModifyStats(1, 1, EffectTarget.Self) then
             Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.Self)
-        )
         description = "Whenever you draw your second card each turn, this creature gets +1/+1 " +
             "and gains vigilance until end of turn."
     }

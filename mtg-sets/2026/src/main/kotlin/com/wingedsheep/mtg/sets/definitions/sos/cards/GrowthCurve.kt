@@ -26,10 +26,8 @@ val GrowthCurve = card("Growth Curve") {
 
     spell {
         val t = target(TargetFilter.Creature.youControl())
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t) then
             Effects.DoubleCounters(CounterType.PLUS_ONE_PLUS_ONE, t)
-        )
     }
 
     metadata {

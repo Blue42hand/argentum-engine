@@ -24,10 +24,7 @@ val TravelingMinister = card("Traveling Minister") {
     activatedAbility {
         cost = Costs.Tap
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, t),
-            Effects.GainLife(1)
-        )
+        effect = Effects.ModifyStats(1, 0, t) then Effects.GainLife(1)
         timing = TimingRule.SorcerySpeed
     }
     metadata {

@@ -34,8 +34,7 @@ val DeathmarkPrelate = card("Deathmark Prelate") {
         )
         timing = TimingRule.SorcerySpeed
         val t = target(TargetFilter(GameObjectFilter.Creature.notSubtype(Subtype("Zombie"))))
-        effect = Effects.CantBeRegenerated(t) then
-                Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
+        effect = Effects.CantBeRegenerated(t) then Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }
 
     metadata {

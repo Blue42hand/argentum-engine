@@ -26,12 +26,10 @@ val PullFromTheGrave = card("Pull from the Grave") {
             optional = true,
             filter = TargetFilter(GameObjectFilter.Creature.ownedByYou(), zone = Zone.GRAVEYARD),
         )
-        effect = Effects.Composite(
-            Effects.ForEachTarget(
-                Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND),
-            ),
-            Effects.GainLife(2),
-        )
+        effect = Effects.ForEachTarget(
+            Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND),
+        ) then
+            Effects.GainLife(2)
     }
     metadata {
         rarity = Rarity.COMMON

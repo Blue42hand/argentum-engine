@@ -103,10 +103,7 @@ private val DeadlyDancer = card("Deadly Dancer") {
 
     triggeredAbility {
         trigger = Triggers.self.transforms(true)
-        effect = Effects.Composite(
-            Effects.AddMana(Color.RED, 2),
-            Effects.RetainUnspentMana(Color.RED),
-        )
+        effect = Effects.AddMana(Color.RED, 2) then Effects.RetainUnspentMana(Color.RED)
         description = "When this creature transforms into Deadly Dancer, add {R}{R}. Until end of " +
             "turn, you don't lose this mana as steps and phases end."
     }
@@ -114,10 +111,7 @@ private val DeadlyDancer = card("Deadly Dancer") {
     activatedAbility {
         cost = Costs.Mana("{R}{R}")
         val partner = target(TargetFilter.OtherCreature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, EffectTarget.Self),
-            Effects.ModifyStats(1, 0, partner),
-        )
+        effect = Effects.ModifyStats(1, 0, EffectTarget.Self) then Effects.ModifyStats(1, 0, partner)
         description = "This creature and another target creature each get +1/+0 until end of turn."
     }
 

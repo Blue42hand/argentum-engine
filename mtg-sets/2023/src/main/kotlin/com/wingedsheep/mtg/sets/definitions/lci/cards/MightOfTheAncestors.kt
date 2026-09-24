@@ -27,10 +27,7 @@ val MightOfTheAncestors = card("Might of the Ancestors") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val t = target(TargetFilter.Creature.youControl())
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, t),
-            Effects.GrantKeyword(Keyword.VIGILANCE, t)
-        )
+        effect = Effects.ModifyStats(2, 0, t) then Effects.GrantKeyword(Keyword.VIGILANCE, t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

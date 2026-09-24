@@ -37,10 +37,7 @@ val ThorinsLastStand = card("Thorin's Last Stand") {
             }
             mode("Destroy target artifact or enchantment. You gain 2 life") {
                 val t = target(TargetFilter.ArtifactOrEnchantment)
-                effect = Effects.Composite(
-                    Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-                    Effects.GainLife(2)
-                )
+                effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then Effects.GainLife(2)
             }
         }
     }

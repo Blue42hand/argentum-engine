@@ -35,12 +35,8 @@ val JailbreakScheme = card("Jailbreak Scheme") {
                 mode("+ {3} — Put a +1/+1 counter on target creature. It can't be blocked this turn.") {
                     val creature = target(TargetFilter.Creature)
                     additionalManaCost = "{3}"
-                    effect = Effects.Composite(
-                        listOf(
-                            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
-                            Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature)
-                        )
-                    )
+                    effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
+                        Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature)
                 },
                 mode("+ {2} — Target artifact or creature's owner puts it on their choice of the top or bottom of their library.") {
                     val creatureOrArtifact = target(TargetFilter.CreatureOrArtifact)

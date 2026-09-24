@@ -1250,7 +1250,7 @@
                                 },
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             {
@@ -1265,7 +1265,7 @@
                     "reflexiveTargetRequirements": [
                         {
                             "type": "AnyTarget",
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "descriptionOverride": "You may sacrifice a Vampire. When you do, Sorin deals 3 damage to any target and you gain 3 life."

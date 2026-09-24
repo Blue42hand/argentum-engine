@@ -44,10 +44,8 @@ val AbominationTerrifyingTitan = card("Abomination, Terrifying Titan") {
         isPowerUp = true
         cost = Costs.Mana("{5}{R/G}{R/G}")
         val foe = target(TargetFilter.CreatureOpponentControls, optional = true)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
             Effects.Fight(EffectTarget.Self, foe)
-        )
     }
 
     metadata {

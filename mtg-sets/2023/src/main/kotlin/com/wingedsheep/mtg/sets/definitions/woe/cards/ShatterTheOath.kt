@@ -36,10 +36,7 @@ val ShatterTheOath = card("Shatter the Oath") {
     spell {
         val doomed = target(TargetFilter.CreatureOrEnchantment)
         val roleTarget = target(TargetFilter.CreatureYouControl, optional = true)
-        effect = Effects.Composite(
-            Effects.Destroy(doomed),
-            Effects.CreateRoleToken("Wicked Role", roleTarget),
-        )
+        effect = Effects.Destroy(doomed) then Effects.CreateRoleToken("Wicked Role", roleTarget)
     }
 
     metadata {

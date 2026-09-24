@@ -34,12 +34,8 @@ val SyrVondamSunstarExemplar = card("Syr Vondam, Sunstar Exemplar") {
     keywords(Keyword.VIGILANCE, Keyword.MENACE)
 
     // Shared effect for ability 1: +1/+1 counter on self + gain 1 life
-    val counterAndLife = Effects.Composite(
-        listOf(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            Effects.GainLife(1)
-        )
-    )
+    val counterAndLife = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+        Effects.GainLife(1)
 
     // Whenever another creature you control dies, put a +1/+1 counter on Syr Vondam and you gain 1 life.
     triggeredAbility {

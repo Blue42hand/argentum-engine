@@ -26,11 +26,9 @@ val BattlefieldPromotion = card("Battlefield Promotion") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
-            Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
+            Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature) then
             Effects.GainLife(2)
-        )
     }
 
     metadata {

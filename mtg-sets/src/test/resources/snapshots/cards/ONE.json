@@ -1634,21 +1634,21 @@
                                 "keyword": "TOXIC_1",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             {
                                 "type": "GrantHexproofFromChosenColor",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             {
                                 "type": "GrantCantBeBlockedByChosenColor",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             }
                         ]
@@ -1661,7 +1661,7 @@
                             "baseFilter": "creature ctrl:you",
                             "excludeSelf": true
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }

@@ -26,10 +26,7 @@ val WildPackSquad = card("Wild Pack Squad") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val t = target(TargetFilter.Creature, optional = true)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),
-            Effects.GrantKeyword(Keyword.VIGILANCE, t)
-        )
+        effect = Effects.GrantKeyword(Keyword.FIRST_STRIKE, t) then Effects.GrantKeyword(Keyword.VIGILANCE, t)
     }
 
     metadata {

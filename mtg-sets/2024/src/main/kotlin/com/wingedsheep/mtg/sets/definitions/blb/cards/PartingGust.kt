@@ -40,16 +40,12 @@ val PartingGust = card("Parting Gust") {
             // Mode 1: No gift — exile and return at end step with +1/+1 counter
             mode("Don't promise a gift — exile target nontoken creature, return it at the next end step with a +1/+1 counter") {
                 val targetNontokenCreature = target(nontokenCreature)
-                effect = Effects.Composite(listOf(
-                    Effects.Move(targetNontokenCreature, Zone.EXILE),
+                effect = Effects.Move(targetNontokenCreature, Zone.EXILE) then
                     Effects.CreateDelayedTrigger(
                         step = Step.END,
-                        effect = Effects.Composite(listOf(
-                            Effects.Move(targetNontokenCreature, Zone.BATTLEFIELD),
+                        effect = Effects.Move(targetNontokenCreature, Zone.BATTLEFIELD) then
                             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, targetNontokenCreature)
-                        ))
                     )
-                ))
             },
             // Mode 2: Gift a tapped Fish — opponent gets Fish token, exile target permanently
             mode("Promise a gift — opponent creates a tapped 1/1 blue Fish token, then exile target nontoken creature permanently") {
@@ -63,8 +59,8 @@ val PartingGust = card("Parting Gust") {
                     controller = EffectTarget.PlayerRef(Player.ChosenOpponent),
                     tapped = true,
                     imageUri = "https://cards.scryfall.io/normal/front/d/e/de0d6700-49f0-4233-97ba-cef7821c30ed.jpg?1721431109"
-                ).then(Effects.Exile(targetNontokenCreature))
-                    .then(Effects.GiftGiven())
+                ) then Effects.Exile(targetNontokenCreature) then
+                    Effects.GiftGiven()
             }
         )
     }

@@ -38,11 +38,11 @@ val ParasiticGrasp = card("Parasitic Grasp") {
     spell {
         // Printed (brackets present): 3 damage to target Human creature, gain 3 life.
         val human = target(TargetFilter(GameObjectFilter.Creature.withSubtype(Subtype.HUMAN)))
-        effect = Effects.DealDamage(3, human).then(Effects.GainLife(3))
+        effect = Effects.DealDamage(3, human) then Effects.GainLife(3)
 
         // Cleaved (brackets removed): 3 damage to target creature, gain 3 life.
         val anyCreature = cleaveTarget(TargetFilter.Creature)
-        cleaveEffect = Effects.DealDamage(3, anyCreature).then(Effects.GainLife(3))
+        cleaveEffect = Effects.DealDamage(3, anyCreature) then Effects.GainLife(3)
     }
 
     metadata {

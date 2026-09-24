@@ -25,10 +25,7 @@ val TelJiladJustice = card("Tel-Jilad Justice") {
     oracleText = "Destroy target artifact. Scry 2. (Look at the top two cards of your library, then put any number of them on the bottom and the rest on top in any order.)"
     spell {
         val t = target(TargetFilter.Artifact)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            Patterns.Library.scry(2)
-        )
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then Patterns.Library.scry(2)
     }
     metadata {
         rarity = Rarity.UNCOMMON

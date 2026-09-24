@@ -965,7 +965,7 @@ interface ObjectFilterBuilder<out Self> {
      * Must be controlled by the player referenced by [target].
      *
      * Preferred over [targetPlayerControls] when a spell declares the player target
-     * explicitly (e.g., `val p = target("target player", TargetPlayer())`) and threads
+     * explicitly (e.g., `val p = target(Targets.Player)`) and threads
      * that reference into the filter — avoids relying on implicit "first player target"
      * resolution.
      */

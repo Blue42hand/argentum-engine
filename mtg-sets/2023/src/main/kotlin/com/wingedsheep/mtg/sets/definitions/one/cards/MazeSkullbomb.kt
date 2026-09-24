@@ -31,11 +31,9 @@ val MazeSkullbomb = card("Maze Skullbomb") {
     activatedAbility {
         val creatureYouControl = target(TargetFilter.CreatureYouControl)
         cost = Costs.Composite(Costs.Mana("{2}{G}"), Costs.SacrificeSelf)
-        effect = Effects.Composite(
-            Effects.ModifyStats(3, 3, creatureYouControl),
-            Effects.GrantKeyword(Keyword.TRAMPLE, creatureYouControl),
+        effect = Effects.ModifyStats(3, 3, creatureYouControl) then
+            Effects.GrantKeyword(Keyword.TRAMPLE, creatureYouControl) then
             Effects.DrawCards(1)
-        )
         timing = TimingRule.SorcerySpeed
     }
 

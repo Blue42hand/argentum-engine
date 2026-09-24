@@ -29,10 +29,8 @@ val AbstractPaintmage = card("Abstract Paintmage") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
-        effect = Effects.Composite(
-            Effects.AddMana(Color.BLUE, 1, ManaRestriction.InstantOrSorceryOnly),
+        effect = Effects.AddMana(Color.BLUE, 1, ManaRestriction.InstantOrSorceryOnly) then
             Effects.AddMana(Color.RED, 1, ManaRestriction.InstantOrSorceryOnly)
-        )
     }
 
     metadata {

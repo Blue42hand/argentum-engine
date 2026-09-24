@@ -34,11 +34,9 @@ val LongRiversPull = card("Long River's Pull") {
             ),
             // Mode 1: Gift promised — opponent draws a card, then counter target spell
             Mode.withTarget(
-                effect = Effects.Composite(listOf(
-                    Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent)),
-                    Effects.CounterSpell(),
-                    Effects.GiftGiven()
-                )),
+                effect = Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent)) then
+                    Effects.CounterSpell() then
+                    Effects.GiftGiven(),
                 target = TargetObject(filter = TargetFilter.SpellOnStack),
                 description = "Gift a card — counter target spell"
             )

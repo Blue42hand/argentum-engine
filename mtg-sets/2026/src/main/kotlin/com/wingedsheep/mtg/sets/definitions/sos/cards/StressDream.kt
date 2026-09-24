@@ -34,15 +34,13 @@ val StressDream = card("Stress Dream") {
 
     spell {
         val creature = target(TargetFilter.Creature, optional = true)
-        effect = Effects.DealDamage(5, creature)
-            .then(
-                Patterns.Library.lookAtTopAndKeep(
-                    count = 2,
-                    keepCount = 1,
-                    keepDestination = CardDestination.ToZone(Zone.HAND),
-                    restDestination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom),
-                    restOrder = CardOrder.ControllerChooses,
-                )
+        effect = Effects.DealDamage(5, creature) then
+            Patterns.Library.lookAtTopAndKeep(
+                count = 2,
+                keepCount = 1,
+                keepDestination = CardDestination.ToZone(Zone.HAND),
+                restDestination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom),
+                restOrder = CardOrder.ControllerChooses,
             )
     }
 

@@ -32,21 +32,17 @@ val OutlawsFury = card("Outlaws' Fury") {
         "card. (Assassins, Mercenaries, Pirates, Rogues, and Warlocks are outlaws.)"
 
     spell {
-        effect = Effects.Composite(
-            listOf(
-                // Creatures you control get +2/+0 until end of turn.
-                Patterns.Group.modifyStatsForAll(2, 0, Filters.Group.creaturesYouControl),
-                // If you control an outlaw, exile the top card and let it be played until your next turn ends.
-                Effects.If(
-                    Conditions.YouControl(Filters.OutlawCreature),
-                    Effects.Pipeline {
-                        val exiledCard = gather(CardSource.TopOfLibrary(1))
-                        exile(exiledCard)
-                        run(Effects.GrantMayPlayFromExile(exiledCard, MayPlayExpiry.UntilEndOfNextTurn))
-                    },
-                ),
+        // Creatures you control get +2/+0 until end of turn.
+        effect = Patterns.Group.modifyStatsForAll(2, 0, Filters.Group.creaturesYouControl) then
+            // If you control an outlaw, exile the top card and let it be played until your next turn ends.
+            Effects.If(
+                Conditions.YouControl(Filters.OutlawCreature),
+                Effects.Pipeline {
+                    val exiledCard = gather(CardSource.TopOfLibrary(1))
+                    exile(exiledCard)
+                    run(Effects.GrantMayPlayFromExile(exiledCard, MayPlayExpiry.UntilEndOfNextTurn))
+                },
             )
-        )
     }
 
     metadata {

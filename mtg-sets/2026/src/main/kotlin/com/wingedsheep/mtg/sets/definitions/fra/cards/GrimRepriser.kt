@@ -25,8 +25,8 @@ val GrimRepriser = card("Grim Repriser") {
 
     activatedAbility {
         cost = Costs.Mana("{B}{R}")
-        effect = Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
-            .then(Effects.AddCounters(CounterType.FINALITY, 1, EffectTarget.Self))
+        effect = Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
+            Effects.AddCounters(CounterType.FINALITY, 1, EffectTarget.Self)
         activateFromZone = Zone.GRAVEYARD
         restrictions = listOf(ActivationRestriction.OnlyIfCondition(Conditions.OpponentWasDealtNoncombatDamageThisTurn))
         description = "{B}{R}: Return this card from your graveyard to the battlefield with a finality counter on it. " +

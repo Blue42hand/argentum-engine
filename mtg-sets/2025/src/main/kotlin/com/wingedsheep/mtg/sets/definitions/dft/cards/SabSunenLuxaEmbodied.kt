@@ -67,11 +67,9 @@ val SabSunenLuxaEmbodied = card("Sab-Sunen, Luxa Embodied") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.PRECOMBAT_MAIN)
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self).then(
-            Effects.If(
-                condition = Conditions.AmountIsOdd(countersOnSabSunen),
-                then = Effects.DrawCards(2),
-            )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then Effects.If(
+            condition = Conditions.AmountIsOdd(countersOnSabSunen),
+            then = Effects.DrawCards(2),
         )
         description = "At the beginning of your first main phase, put a +1/+1 counter on " +
             "Sab-Sunen. Then if it has an odd number of counters on it, draw two cards."

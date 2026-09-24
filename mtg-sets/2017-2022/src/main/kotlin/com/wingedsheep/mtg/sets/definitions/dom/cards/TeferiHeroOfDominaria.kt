@@ -30,22 +30,18 @@ val TeferiHeroOfDominaria = card("Teferi, Hero of Dominaria") {
 
     // +1: Draw a card. At the beginning of the next end step, untap up to two lands.
     loyaltyAbility(+1) {
-        effect = Effects.Composite(
-            listOf(
-                Effects.DrawCards(1),
-                Effects.CreateDelayedTrigger(
-                    step = Step.END,
-                    effect = Effects.Pipeline {
-                        val lands = gather(CardSource.ControlledPermanents(Player.You, GameObjectFilter.Land))
-                        val toUntap = chooseUpTo(2, from = lands)
-                        run(Effects.TapCollection(
-                            collection = toUntap,
-                            tap = false
-                        ))
-                    }
-                )
+        effect = Effects.DrawCards(1) then
+            Effects.CreateDelayedTrigger(
+                step = Step.END,
+                effect = Effects.Pipeline {
+                    val lands = gather(CardSource.ControlledPermanents(Player.You, GameObjectFilter.Land))
+                    val toUntap = chooseUpTo(2, from = lands)
+                    run(Effects.TapCollection(
+                        collection = toUntap,
+                        tap = false
+                    ))
+                }
             )
-        )
     }
 
     // −3: Put target nonland permanent into its owner's library third from the top.

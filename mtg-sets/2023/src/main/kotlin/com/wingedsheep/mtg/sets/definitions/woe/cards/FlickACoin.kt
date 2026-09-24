@@ -24,11 +24,9 @@ val FlickACoin = card("Flick a Coin") {
     oracleText = "Flick a Coin deals 1 damage to any target. You create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")\nDraw a card."
     spell {
         val t = target(Targets.Any)
-        effect = Effects.Composite(
-            Effects.DealDamage(1, t),
-            Effects.CreateTreasure(),
+        effect = Effects.DealDamage(1, t) then
+            Effects.CreateTreasure() then
             Effects.DrawCards(1)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

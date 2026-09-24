@@ -37,9 +37,9 @@ val TheLastAgniKai = card("The Last Agni Kai") {
     spell {
         val yourCreature = target(TargetFilter.CreatureYouControl)
         val theirCreature = target(TargetFilter.CreatureOpponentControls)
-        effect = Effects.Fight(yourCreature, theirCreature, excessDamageVariable = "excess")
-            .then(Effects.AddMana(Color.RED, DynamicAmounts.storedNumber("excess")))
-            .then(Effects.RetainUnspentMana(Color.RED))
+        effect = Effects.Fight(yourCreature, theirCreature, excessDamageVariable = "excess") then
+            Effects.AddMana(Color.RED, DynamicAmounts.storedNumber("excess")) then
+            Effects.RetainUnspentMana(Color.RED)
     }
 
     metadata {

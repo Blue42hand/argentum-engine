@@ -30,10 +30,8 @@ val PacesetterParagon = card("Pacesetter Paragon") {
     activatedAbility {
         cost = Costs.Mana("{2}{R}")
         isExhaust = true
-        effect = Effects.Composite(
-            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self),
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self) then
             Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, EffectTarget.Self)
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

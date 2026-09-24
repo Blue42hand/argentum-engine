@@ -59,10 +59,7 @@ val ThranduilTheElvenking = card("Thranduil, the Elvenking") {
     // "Whenever another legendary Elf you control enters, draw two cards, then discard a card."
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Any.legendary().withSubtype(Subtype.ELF).youControl()).enters()
-        effect = Effects.Composite(
-            Effects.DrawCards(2),
-            Patterns.Hand.discardCards(1)
-        )
+        effect = Effects.DrawCards(2) then Patterns.Hand.discardCards(1)
     }
 
     metadata {

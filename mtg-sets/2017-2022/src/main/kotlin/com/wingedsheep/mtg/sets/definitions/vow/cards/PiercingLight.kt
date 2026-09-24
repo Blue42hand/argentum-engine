@@ -19,10 +19,7 @@ val PiercingLight = card("Piercing Light") {
     oracleText = "Piercing Light deals 2 damage to target attacking or blocking creature. Scry 1. (Look at the top card of your library. You may put that card on the bottom.)"
     spell {
         val t = target(TargetFilter.AttackingOrBlockingCreature)
-        effect = Effects.Composite(
-            Effects.DealDamage(2, t),
-            Patterns.Library.scry(1)
-        )
+        effect = Effects.DealDamage(2, t) then Patterns.Library.scry(1)
     }
     metadata {
         rarity = Rarity.COMMON

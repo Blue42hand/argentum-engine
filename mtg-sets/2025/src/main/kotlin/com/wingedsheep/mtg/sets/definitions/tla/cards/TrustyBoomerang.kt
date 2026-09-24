@@ -35,10 +35,7 @@ val TrustyBoomerang = card("Trusty Boomerang") {
             ability = grantedActivatedAbility {
                 cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap)
                 val creature = target(TargetFilter.Creature)
-                effect = Effects.Composite(
-                    Effects.Tap(creature),
-                    Effects.ReturnToHand(EffectTarget.GrantingSource),
-                )
+                effect = Effects.Tap(creature) then Effects.ReturnToHand(EffectTarget.GrantingSource)
             }
             // filter defaults to GroupFilter.attachedCreature() — "equipped creature has ..."
         )

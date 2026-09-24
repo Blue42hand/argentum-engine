@@ -35,7 +35,7 @@ val KellanInquisitiveProdigy = card("Kellan, Inquisitive Prodigy") {
         val artifact = target(TargetFilter.Artifact, optional = true)
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Artifact.youControl(), artifact),
-            then = Effects.Destroy(artifact).then(Effects.DrawCards(1)),
+            then = Effects.Destroy(artifact) then Effects.DrawCards(1),
             otherwise = Effects.Destroy(artifact),
         )
         description = "Whenever Kellan attacks, destroy up to one target artifact. If you " +
@@ -48,7 +48,7 @@ val KellanInquisitiveProdigy = card("Kellan, Inquisitive Prodigy") {
         oracleText = "Investigate. You may play an additional land this turn. (Then exile this " +
             "card. You may cast the creature later from exile.)"
         spell {
-            effect = Effects.Investigate().then(Effects.PlayAdditionalLands(count = 1))
+            effect = Effects.Investigate() then Effects.PlayAdditionalLands(count = 1)
         }
     }
 

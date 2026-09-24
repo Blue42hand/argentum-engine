@@ -24,10 +24,7 @@ val FullyGrown = card("Fully Grown") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(3, 3, t),
-            Effects.AddCounters(CounterType.TRAMPLE, 1, t)
-        )
+        effect = Effects.ModifyStats(3, 3, t) then Effects.AddCounters(CounterType.TRAMPLE, 1, t)
     }
 
     metadata {

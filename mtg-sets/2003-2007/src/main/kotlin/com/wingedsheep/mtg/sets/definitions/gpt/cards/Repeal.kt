@@ -24,7 +24,7 @@ val Repeal = card("Repeal") {
 
     spell {
         val t = target(TargetFilter.NonlandPermanent.manaValueEqualsX())
-        effect = Effects.ReturnToHand(t).then(Effects.DrawCards(1))
+        effect = Effects.ReturnToHand(t) then Effects.DrawCards(1)
     }
 
     metadata {

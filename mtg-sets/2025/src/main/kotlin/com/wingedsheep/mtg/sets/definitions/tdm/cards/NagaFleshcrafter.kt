@@ -44,14 +44,12 @@ val NagaFleshcrafter = card("Naga Fleshcrafter") {
 
     renew("{2}{U}") {
         val creature = target(TargetFilter(GameObjectFilter.Creature.youControl().nonlegendary()))
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
-            .then(
-                Effects.EachPermanentBecomesCopyOfTarget(
-                    target = creature,
-                    filter = GroupFilter(GameObjectFilter.Creature.youControl()),
-                    duration = Duration.EndOfTurn,
-                    excludeTarget = true,
-                )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
+            Effects.EachPermanentBecomesCopyOfTarget(
+                target = creature,
+                filter = GroupFilter(GameObjectFilter.Creature.youControl()),
+                duration = Duration.EndOfTurn,
+                excludeTarget = true,
             )
     }
 

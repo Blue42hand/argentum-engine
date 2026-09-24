@@ -3119,12 +3119,12 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t1"
                             }
                         },
                         "targetRequirement": {
                             "type": "AnyTarget",
-                            "id": "t0"
+                            "id": "t1"
                         },
                         "descriptionOverride": "Whenever an artifact you control enters, this emblem deals 3 damage to any target."
                     },
@@ -3553,7 +3553,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -3564,7 +3564,7 @@
                             "filter": {
                                 "baseFilter": "artifact"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target artifact"
@@ -3757,13 +3757,13 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
                         {
                             "type": "TargetCreatureOrPlaneswalker",
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Crash and Burn deals 6 damage to target creature or planeswalker"
@@ -3986,7 +3986,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Battlefield"
                     }
@@ -3997,7 +3997,7 @@
                         "baseFilter": "artifact own:you",
                         "zone": "Graveyard"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]
@@ -7584,7 +7584,7 @@
                     "cardType": "Creature",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "duration": "EndOfTurn"
                 },
@@ -7594,7 +7594,7 @@
                         "filter": {
                             "baseFilter": "permanent Vehicle ctrl:you"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ],
                 "descriptionOverride": "{2}, {T}: Target Vehicle you control becomes an artifact creature until end of turn."
@@ -11494,29 +11494,24 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "TopOfLibrary",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 2
-                                        },
-                                        "isMill": true
-                                    },
-                                    "storeAs": "milled"
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
                                 },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "milled",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard"
-                                    }
-                                }
-                            ]
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
                         },
                         {
                             "type": "AddDynamicCounters",
@@ -12006,7 +12001,7 @@
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirements": [
@@ -12015,7 +12010,7 @@
                         "filter": {
                             "baseFilter": "creature|Vehicle ctrl:you"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ],
                 "timing": "SorcerySpeed",
@@ -12184,7 +12179,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t2"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -12195,7 +12190,7 @@
                             "filter": {
                                 "baseFilter": "artifact Vehicle"
                             },
-                            "id": "t0"
+                            "id": "t2"
                         }
                     ],
                     "description": "Destroy target Vehicle"
@@ -14112,7 +14107,7 @@
                     {
                         "type": "TargetPlayer",
                         "unlimited": true,
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ],
                 "restrictions": [
@@ -15119,7 +15114,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -15130,7 +15125,7 @@
                         "filter": {
                             "baseFilter": "creature|Vehicle"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ],
                 "descriptionOverride": "{6}, {T}, Sacrifice this artifact: Destroy target creature or Vehicle."
@@ -18781,7 +18776,7 @@
                             "type": "MoveToZone",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t1"
                             },
                             "destination": "Exile"
                         },
@@ -18801,7 +18796,7 @@
                         "baseFilter": {},
                         "zone": "Graveyard"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 },
                 "descriptionOverride": "Whenever this creature enters or attacks, exile up to one target card from a graveyard. You gain 1 life."
             }

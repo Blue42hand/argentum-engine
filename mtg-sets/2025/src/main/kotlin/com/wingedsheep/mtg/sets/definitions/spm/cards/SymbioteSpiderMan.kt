@@ -75,14 +75,12 @@ val SymbioteSpiderMan = card("Symbiote Spider-Man") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{U/B}"), Costs.ExileSelf)
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = creature),
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = creature) then
             Effects.GrantTriggeredAbility(
                 ability = symbioteCombatDamageTrigger(),
                 target = creature,
                 duration = Duration.Permanent,
-            ),
-        )
+            )
         timing = TimingRule.SorcerySpeed
         activateFromZone = Zone.GRAVEYARD
         description = "Find New Host — {2}{U/B}, Exile this card from your graveyard: Put a +1/+1 " +

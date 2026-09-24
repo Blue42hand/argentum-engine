@@ -28,12 +28,8 @@ val KulrathMystic = card("Kulrath Mystic") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Any.manaValueAtLeast(4))
-        effect = Effects.Composite(
-            listOf(
-                Effects.ModifyStats(2, 0, EffectTarget.Self),
-                Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.Self)
-            )
-        )
+        effect = Effects.ModifyStats(2, 0, EffectTarget.Self) then
+            Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.Self)
     }
 
     metadata {

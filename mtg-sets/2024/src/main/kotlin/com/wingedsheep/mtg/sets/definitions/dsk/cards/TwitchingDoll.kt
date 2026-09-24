@@ -32,10 +32,7 @@ val TwitchingDoll = card("Twitching Doll") {
     // This is still a mana ability (CR 605.1a): no target, and it could add mana.
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.Composite(
-            Effects.AddManaOfChoice(),
-            Effects.AddCounters(CounterType.NEST, 1, EffectTarget.Self)
-        )
+        effect = Effects.AddManaOfChoice() then Effects.AddCounters(CounterType.NEST, 1, EffectTarget.Self)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

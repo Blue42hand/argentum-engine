@@ -57,8 +57,7 @@ val FeralDeathgorger = card("Feral Deathgorger") {
             "(Then shuffle this card into its owner's library.)"
         spell {
             val creature = target(TargetFilter.Creature, optional = true)
-            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
-                .then(Effects.DrawCards(1))
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then Effects.DrawCards(1)
         }
     }
 

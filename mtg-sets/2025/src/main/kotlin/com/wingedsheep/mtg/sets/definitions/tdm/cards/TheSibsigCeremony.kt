@@ -47,15 +47,13 @@ val TheSibsigCeremony = card("The Sibsig Ceremony") {
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl()).enters()
         interveningIf = Conditions.TriggeringEntityWasCast
-        effect = Effects.Destroy(EffectTarget.TriggeringEntity)
-            .then(
-                Effects.CreateToken(
-                    power = 2,
-                    toughness = 2,
-                    colors = setOf(Color.BLACK),
-                    creatureTypes = setOf("Zombie", "Druid"),
-                    imageUri = "https://cards.scryfall.io/normal/front/f/1/f10d5813-7818-43e8-b08d-4ed8c54d0366.jpg?1748452772"
-                )
+        effect = Effects.Destroy(EffectTarget.TriggeringEntity) then
+            Effects.CreateToken(
+                power = 2,
+                toughness = 2,
+                colors = setOf(Color.BLACK),
+                creatureTypes = setOf("Zombie", "Druid"),
+                imageUri = "https://cards.scryfall.io/normal/front/f/1/f10d5813-7818-43e8-b08d-4ed8c54d0366.jpg?1748452772"
             )
         description = "Whenever a creature you control enters, if you cast it, destroy that " +
             "creature, then create a 2/2 black Zombie Druid creature token."

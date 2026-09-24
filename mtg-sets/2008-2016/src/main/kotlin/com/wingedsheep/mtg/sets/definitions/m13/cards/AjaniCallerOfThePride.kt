@@ -47,10 +47,8 @@ val AjaniCallerOfThePride = card("Ajani, Caller of the Pride") {
     // −3: Target creature gains flying and double strike until end of turn.
     loyaltyAbility(-3) {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.FLYING, creature),
+        effect = Effects.GrantKeyword(Keyword.FLYING, creature) then
             Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, creature)
-        )
     }
 
     // −8: Create X 2/2 white Cat creature tokens, where X is your life total.

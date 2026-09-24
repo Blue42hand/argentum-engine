@@ -36,8 +36,7 @@ val GazeOfTheGorgon = card("Gaze of the Gorgon") {
 
     spell {
         val gazer = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Regenerate(gazer),
+        effect = Effects.Regenerate(gazer) then
             Effects.CreateDelayedTrigger(
                 step = Step.END_COMBAT,
                 timing = DelayedTriggerTiming.THIS_TURN_ONLY,
@@ -46,7 +45,6 @@ val GazeOfTheGorgon = card("Gaze of the Gorgon") {
                     GameObjectFilter.Creature.blockedOrWasBlockedByThisTurn(EffectTarget.TriggeringEntity)
                 )
             )
-        )
     }
 
     metadata {

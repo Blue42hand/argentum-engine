@@ -38,12 +38,10 @@ val FriendlyRivalry = card("Friendly Rivalry") {
             amount = DynamicAmounts.powerOf(myCreature),
             target = theirCreature,
             damageSource = myCreature
-        ).then(
-            Effects.DealDamage(
-                amount = DynamicAmounts.powerOf(legendary),
-                target = theirCreature,
-                damageSource = legendary
-            )
+        ) then Effects.DealDamage(
+            amount = DynamicAmounts.powerOf(legendary),
+            target = theirCreature,
+            damageSource = legendary
         )
     }
 

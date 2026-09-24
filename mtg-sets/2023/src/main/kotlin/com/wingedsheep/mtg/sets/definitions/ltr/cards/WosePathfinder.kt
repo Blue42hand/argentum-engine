@@ -37,8 +37,7 @@ val WosePathfinder = card("Wose Pathfinder") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{6}{G}"), Costs.Tap)
         val other = target(TargetFilter.OtherCreature)
-        effect = Effects.ModifyStats(3, 3, other)
-            .then(Effects.GrantKeyword(Keyword.TRAMPLE, other))
+        effect = Effects.ModifyStats(3, 3, other) then Effects.GrantKeyword(Keyword.TRAMPLE, other)
     }
 
     metadata {

@@ -24,10 +24,7 @@ val SilkNet = card("Silk Net") {
     oracleText = "Target creature gets +1/+1 and gains reach until end of turn. (It can block creatures with flying.)"
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 1, t),
-            Effects.GrantKeyword(Keyword.REACH, t)
-        )
+        effect = Effects.ModifyStats(1, 1, t) then Effects.GrantKeyword(Keyword.REACH, t)
     }
     metadata {
         rarity = Rarity.COMMON

@@ -33,10 +33,7 @@ val KaronaFalseGod = card("Karona, False God") {
     // At the beginning of each player's upkeep, that player untaps Karona and gains control of it.
     triggeredAbility {
         trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
-        effect = Effects.Composite(
-            Effects.Untap(EffectTarget.Self),
-            Effects.GainControlByActivePlayer(EffectTarget.Self)
-        )
+        effect = Effects.Untap(EffectTarget.Self) then Effects.GainControlByActivePlayer(EffectTarget.Self)
     }
 
     // Whenever Karona attacks, creatures of the creature type of your choice get +3/+3 until end of turn.

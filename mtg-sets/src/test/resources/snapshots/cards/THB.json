@@ -1407,29 +1407,24 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "TopOfLibrary",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 2
-                                        },
-                                        "isMill": true
-                                    },
-                                    "storeAs": "milled"
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
                                 },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "milled",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard"
-                                    }
-                                }
-                            ]
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
                         },
                         {
                             "type": "GainLife",
@@ -2068,13 +2063,13 @@
                         "filter": "enchantment",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
                         {
                             "type": "TargetOpponent",
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target opponent sacrifices an enchantment of their choice"
@@ -2931,58 +2926,53 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "TopOfLibrary",
-                                        "count": {
-                                            "type": "DevotionTo",
-                                            "colors": [
-                                                "BLUE"
-                                            ]
-                                        }
-                                    },
-                                    "storeAs": "gathered0"
-                                },
-                                {
-                                    "type": "SelectFromCollection",
-                                    "from": "gathered0",
-                                    "selection": {
-                                        "type": "ChooseUpTo",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 1
-                                        }
-                                    },
-                                    "storeSelected": "selected1",
-                                    "storeRemainder": "remainder1",
-                                    "prompt": "Put up to one card on top of your library",
-                                    "selectedLabel": "Put on top of library",
-                                    "remainderLabel": "Put on the bottom in a random order"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "selected1",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Library",
-                                        "placement": "Top"
-                                    },
-                                    "order": "ControllerChooses"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "remainder1",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Library",
-                                        "placement": "Bottom"
-                                    },
-                                    "order": "Random"
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "DevotionTo",
+                                    "colors": [
+                                        "BLUE"
+                                    ]
                                 }
-                            ]
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
+                            "prompt": "Put up to one card on top of your library",
+                            "selectedLabel": "Put on top of library",
+                            "remainderLabel": "Put on the bottom in a random order"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "placement": "Top"
+                            },
+                            "order": "ControllerChooses"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "remainder1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "placement": "Bottom"
+                            },
+                            "order": "Random"
                         },
                         {
                             "type": "Gated",

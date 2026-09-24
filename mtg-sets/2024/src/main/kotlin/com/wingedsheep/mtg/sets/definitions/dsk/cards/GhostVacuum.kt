@@ -76,15 +76,13 @@ val GhostVacuum = card("Ghost Vacuum") {
             // Each of them is a 1/1 Spirit in addition to its other types (lasting).
             run(Effects.ForEachInCollection(
                 spirits,
-                Effects.Composite(
-                    Effects.SetBasePowerAndToughness(
-                        power = 1,
-                        toughness = 1,
-                        target = EffectTarget.IterationEntity,
-                        duration = com.wingedsheep.sdk.scripting.Duration.Permanent,
-                    ),
+                Effects.SetBasePowerAndToughness(
+                    power = 1,
+                    toughness = 1,
+                    target = EffectTarget.IterationEntity,
+                    duration = com.wingedsheep.sdk.scripting.Duration.Permanent,
+                ) then
                     Effects.AddCreatureType("Spirit", EffectTarget.IterationEntity),
-                ),
             ))
             // Sacrifice this artifact (modeled in-effect; see KDoc).
             run(Effects.SacrificeTarget(EffectTarget.Self))

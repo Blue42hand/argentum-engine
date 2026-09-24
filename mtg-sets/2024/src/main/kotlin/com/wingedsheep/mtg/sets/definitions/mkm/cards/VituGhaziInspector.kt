@@ -52,10 +52,7 @@ val VituGhaziInspector = card("Vitu-Ghazi Inspector") {
         trigger = Triggers.self.enters()
         interveningIf = Conditions.WasEvidenceCollected
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
-            Effects.GainLife(2),
-        )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then Effects.GainLife(2)
         description = "When this creature enters, if evidence was collected, put a +1/+1 counter " +
             "on target creature and you gain 2 life."
     }

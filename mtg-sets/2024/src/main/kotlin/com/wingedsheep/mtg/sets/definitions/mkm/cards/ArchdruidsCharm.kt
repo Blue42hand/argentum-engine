@@ -101,14 +101,12 @@ val ArchdruidsCharm = card("Archdruid's Charm") {
             ) {
                 val yours = target(TargetFilter.Creature.youControl())
                 val theirs = target(TargetFilter.Creature.opponentControls())
-                effect = Effects.Composite(
-                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, yours),
+                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, yours) then
                     Effects.DealDamage(
                         amount = DynamicAmounts.powerOf(yours),
                         target = theirs,
                         damageSource = yours,
-                    ),
-                )
+                    )
             }
 
             mode("Exile target artifact or enchantment") {

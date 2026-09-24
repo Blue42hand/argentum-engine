@@ -28,8 +28,7 @@ val ShreddersRevenge = card("Shredder's Revenge") {
             }
             mode("Target player draws two cards and loses 2 life") {
                 val player = target(Targets.Player)
-                effect = Effects.DrawCards(2, player)
-                    .then(Effects.LoseLife(2, player))
+                effect = Effects.DrawCards(2, player) then Effects.LoseLife(2, player)
             }
         }
     }

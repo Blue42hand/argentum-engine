@@ -35,13 +35,9 @@ val XuIfitOsteoharmonist = card("Xu-Ifit, Osteoharmonist") {
     activatedAbility {
         cost = Costs.Tap
         val creature = target(TargetFilter.CreatureInYourGraveyard)
-        effect = Effects.Composite(
-            listOf(
-                Effects.PutOntoBattlefield(creature),
-                Effects.AddCreatureType(Subtype.SKELETON.value, creature, Duration.Permanent),
-                Effects.RemoveAllAbilities(creature, Duration.Permanent),
-            )
-        )
+        effect = Effects.PutOntoBattlefield(creature) then
+            Effects.AddCreatureType(Subtype.SKELETON.value, creature, Duration.Permanent) then
+            Effects.RemoveAllAbilities(creature, Duration.Permanent)
         timing = TimingRule.SorcerySpeed
     }
 

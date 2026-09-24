@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -26,8 +25,7 @@ val MasterTheWay = card("Master the Way") {
 
     spell {
         val t = target(Targets.Any)
-        effect = Effects.DrawCards(1)
-            .then(Effects.DealDamage(DynamicAmounts.cardsInYourHand(), t))
+        effect = Effects.DrawCards(1) then Effects.DealDamage(DynamicAmounts.cardsInYourHand(), t)
     }
 
     metadata {

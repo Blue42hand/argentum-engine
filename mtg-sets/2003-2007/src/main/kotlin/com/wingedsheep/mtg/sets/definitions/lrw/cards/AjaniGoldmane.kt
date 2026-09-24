@@ -50,10 +50,8 @@ val AjaniGoldmane = card("Ajani Goldmane") {
     loyaltyAbility(-1) {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.Composite(
-                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity) then
                 Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.IterationEntity)
-            )
         )
     }
 

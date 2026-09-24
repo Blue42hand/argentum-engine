@@ -24,8 +24,7 @@ val FrenziedTilling = card("Frenzied Tilling") {
 
     spell {
         val permanent = target(TargetFilter.Land)
-        effect = Effects.Composite(
-            Effects.Destroy(permanent),
+        effect = Effects.Destroy(permanent) then
             Patterns.Library.searchLibrary(
                 filter = GameObjectFilter.BasicLand,
                 count = 1,
@@ -33,7 +32,6 @@ val FrenziedTilling = card("Frenzied Tilling") {
                 entersTapped = true,
                 shuffleAfter = true
             )
-        )
     }
 
     metadata {

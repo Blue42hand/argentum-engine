@@ -29,10 +29,8 @@ val VenomEvilUnleashed = card("Venom, Evil Unleashed") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{B}"), Costs.ExileSelf)
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = t),
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = t) then
             Effects.GrantKeyword(Keyword.DEATHTOUCH, t)
-        )
         timing = TimingRule.SorcerySpeed
         activateFromZone = Zone.GRAVEYARD
     }

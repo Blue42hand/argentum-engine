@@ -43,7 +43,7 @@ val SmileAtDeath = card("Smile at Death") {
                 EffectTarget.ContextTarget(0),
                 Zone.BATTLEFIELD,
                 fromZone = Zone.GRAVEYARD
-            ).then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
+            ) then Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
         )
         description = "At the beginning of your upkeep, return up to two target creature cards with " +
             "power 2 or less from your graveyard to the battlefield. Put a +1/+1 counter on each of those creatures."

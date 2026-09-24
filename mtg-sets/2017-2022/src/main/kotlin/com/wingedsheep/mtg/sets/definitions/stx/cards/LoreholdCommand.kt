@@ -50,11 +50,9 @@ val LoreholdCommand = card("Lorehold Command") {
             mode("Creatures you control get +1/+0 and gain indestructible and haste until end of turn") {
                 effect = Effects.ForEachInGroup(
                     GroupFilter.AllCreaturesYouControl,
-                    Effects.Composite(
-                        Effects.ModifyStats(1, 0, EffectTarget.IterationEntity),
-                        Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity),
+                    Effects.ModifyStats(1, 0, EffectTarget.IterationEntity) then
+                        Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity) then
                         Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
-                    )
                 )
             }
             mode("Lorehold Command deals 3 damage to any target. Target player gains 3 life") {

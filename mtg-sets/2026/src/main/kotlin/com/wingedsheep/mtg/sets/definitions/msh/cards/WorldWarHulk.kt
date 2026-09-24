@@ -68,14 +68,12 @@ val WorldWarHulk = card("World War Hulk") {
     //       and it gains trample.
     sagaChapter(3) {
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.ModifyStats(
-                power = DynamicAmounts.powerOf(creature),
-                toughness = DynamicAmounts.toughnessOf(creature),
-                target = creature
-            ),
+        effect = Effects.ModifyStats(
+            power = DynamicAmounts.powerOf(creature),
+            toughness = DynamicAmounts.toughnessOf(creature),
+            target = creature
+        ) then
             Effects.GrantKeyword(Keyword.TRAMPLE, creature)
-        )
     }
 
     metadata {

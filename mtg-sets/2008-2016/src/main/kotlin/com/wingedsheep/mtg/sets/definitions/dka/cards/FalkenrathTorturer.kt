@@ -34,12 +34,10 @@ val FalkenrathTorturer = card("Falkenrath Torturer") {
 
     activatedAbility {
         cost = Costs.Sacrifice(GameObjectFilter.Creature)
-        effect = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self)
-            .then(
-                Effects.If(
-                    condition = Conditions.SacrificedHadSubtype("Human"),
-                    then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-                )
+        effect = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self) then
+            Effects.If(
+                condition = Conditions.SacrificedHadSubtype("Human"),
+                then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             )
     }
 

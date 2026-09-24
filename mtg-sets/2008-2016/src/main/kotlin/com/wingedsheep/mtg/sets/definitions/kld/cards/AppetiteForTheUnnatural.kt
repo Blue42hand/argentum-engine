@@ -24,8 +24,7 @@ val AppetiteForTheUnnatural = card("Appetite for the Unnatural") {
 
     spell {
         val t = target(TargetFilter.ArtifactOrEnchantment)
-        effect = Effects.Destroy(t)
-            .then(Effects.GainLife(2))
+        effect = Effects.Destroy(t) then Effects.GainLife(2)
     }
 
     metadata {

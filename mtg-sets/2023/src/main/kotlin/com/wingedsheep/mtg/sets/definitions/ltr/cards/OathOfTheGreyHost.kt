@@ -30,13 +30,12 @@ val OathOfTheGreyHost = card("Oath of the Grey Host") {
 
     sagaChapter(1) {
         val opponent = target(Targets.Opponent)
-        effect = Effects.CreateFood()
-            .then(Effects.CreateFood(controller = opponent))
+        effect = Effects.CreateFood() then Effects.CreateFood(controller = opponent)
     }
 
     sagaChapter(2) {
-        effect = Effects.LoseLife(3, EffectTarget.PlayerRef(Player.EachOpponent))
-            .then(Effects.CreateTreasure())
+        effect = Effects.LoseLife(3, EffectTarget.PlayerRef(Player.EachOpponent)) then
+            Effects.CreateTreasure()
     }
 
     sagaChapter(3) {

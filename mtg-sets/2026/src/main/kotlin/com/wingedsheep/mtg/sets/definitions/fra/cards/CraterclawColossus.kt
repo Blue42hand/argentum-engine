@@ -32,10 +32,8 @@ val CraterclawColossus = card("Craterclaw Colossus") {
             val artifactCount = storeNumber(DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count())
             run(Effects.ForEachInGroup(
                 GroupFilter.AllCreaturesYouControl,
-                Effects.Composite(
-                    Effects.ModifyStats(artifactCount.amount, DynamicAmounts.fixed(0), EffectTarget.IterationEntity),
+                Effects.ModifyStats(artifactCount.amount, DynamicAmounts.fixed(0), EffectTarget.IterationEntity) then
                     Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
-                )
             ))
         }
     }

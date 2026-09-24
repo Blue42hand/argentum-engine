@@ -14,7 +14,7 @@ val YourFateEndsHere = card("Your Fate Ends Here") {
 
     spell {
         val permanent = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker).manaValueAtLeast(3))
-        effect = Effects.Composite(Effects.Destroy(permanent), Effects.Surveil(1))
+        effect = Effects.Destroy(permanent) then Effects.Surveil(1)
     }
 
     metadata {

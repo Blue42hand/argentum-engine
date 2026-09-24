@@ -23,10 +23,7 @@ private val EcstaticAwakenerFront = card("Ecstatic Awakener") {
             Costs.Mana("{2}{B}"),
             Costs.SacrificeAnother(GameObjectFilter.Creature)
         )
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Effects.Transform(EffectTarget.Self)
-        )
+        effect = Effects.DrawCards(1) then Effects.Transform(EffectTarget.Self)
         restrictions = listOf(ActivationRestriction.OncePerTurn)
         description = "Draw a card, then transform this creature. Activate only once each turn."
     }

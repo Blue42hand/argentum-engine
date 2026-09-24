@@ -87,7 +87,7 @@ private val FireLordSozin = card("Fire Lord Sozin") {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.MayPayX(
             then = Effects.ReflexiveTrigger(
-                action = Effects.Composite(emptyList()),
+                action = Effects.Nothing,
                 optional = false,
                 reflexiveTargetRequirements = listOf(
                     TargetObject(

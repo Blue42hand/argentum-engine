@@ -67,10 +67,7 @@ val EmrakulThePromisedEnd = card("Emrakul, the Promised End") {
     triggeredAbility {
         trigger = Triggers.self.isCast()
         val opponent = target(Targets.Opponent)
-        effect = Effects.Composite(
-            Effects.HijackNextTurn(opponent),
-            Effects.TakeExtraTurn(target = opponent)
-        )
+        effect = Effects.HijackNextTurn(opponent) then Effects.TakeExtraTurn(target = opponent)
         description = "When you cast this spell, you gain control of target opponent during that " +
             "player's next turn. After that turn, that player takes an extra turn."
     }

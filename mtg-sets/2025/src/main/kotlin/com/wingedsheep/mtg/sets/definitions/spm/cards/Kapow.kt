@@ -24,15 +24,13 @@ val Kapow = card("Kapow!") {
     spell {
         val yourCreature = target(TargetFilter.CreatureYouControl)
         val theirCreature = target(TargetFilter.CreatureOpponentControls)
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, yourCreature)
-            .then(
-                Effects.If(
-                    condition = Conditions.All(
-                        Conditions.TargetMatchesFilter(GameObjectFilter.Creature.youControl(), yourCreature),
-                        Conditions.TargetMatchesFilter(GameObjectFilter.Creature.opponentControls(), theirCreature)
-                    ),
-                    then = Effects.Fight(yourCreature, theirCreature)
-                )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, yourCreature) then
+            Effects.If(
+                condition = Conditions.All(
+                    Conditions.TargetMatchesFilter(GameObjectFilter.Creature.youControl(), yourCreature),
+                    Conditions.TargetMatchesFilter(GameObjectFilter.Creature.opponentControls(), theirCreature)
+                ),
+                then = Effects.Fight(yourCreature, theirCreature)
             )
     }
 

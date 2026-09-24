@@ -31,8 +31,8 @@ val ItDoesntAddUp = card("It Doesn't Add Up") {
 
     spell {
         val creatureCard = target(TargetFilter.CreatureInYourGraveyard)
-        effect = Effects.Move(creatureCard, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
-            .then(Effects.Suspect(creatureCard))
+        effect = Effects.Move(creatureCard, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
+            Effects.Suspect(creatureCard)
     }
 
     metadata {

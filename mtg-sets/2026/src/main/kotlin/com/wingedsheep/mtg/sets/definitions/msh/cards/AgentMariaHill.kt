@@ -39,10 +39,8 @@ val AgentMariaHill = card("Agent Maria Hill") {
 
     triggeredAbility {
         trigger = Triggers.self.becomesTapped(TapReason.TEAMWORK)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            Effects.DrawCards(1),
-        )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.DrawCards(1)
     }
 
     metadata {

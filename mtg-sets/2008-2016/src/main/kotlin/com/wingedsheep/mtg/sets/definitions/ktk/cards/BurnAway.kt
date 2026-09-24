@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.ktk.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
@@ -21,8 +20,7 @@ val BurnAway = card("Burn Away") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.DealDamage(6, t) then
-                Effects.MarkExileControllerGraveyardOnDeath(t)
+        effect = Effects.DealDamage(6, t) then Effects.MarkExileControllerGraveyardOnDeath(t)
     }
 
     metadata {

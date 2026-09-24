@@ -49,7 +49,7 @@ val PulsarSquadronAce = card("Pulsar Squadron Ace") {
             // 4. If you didn't put a card into your hand this way, put a +1/+1 counter on this creature
             // If cards were kept, do nothing
             ifNotEmpty(kept) {
-                run(Effects.Composite(listOf()))
+                run(Effects.Nothing)
             } orElse {
                 run(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self))
                 // If no cards kept, add counter

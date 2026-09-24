@@ -35,11 +35,9 @@ val FullSteamAhead = card("Full Steam Ahead") {
     spell {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.Composite(
-                Effects.ModifyStats(2, 2, EffectTarget.IterationEntity),
-                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity),
+            Effects.ModifyStats(2, 2, EffectTarget.IterationEntity) then
+                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity) then
                 Effects.GrantStaticAbility(CantBeBlockedByMoreThan(maxBlockers = 1), EffectTarget.IterationEntity),
-            ),
         )
     }
 

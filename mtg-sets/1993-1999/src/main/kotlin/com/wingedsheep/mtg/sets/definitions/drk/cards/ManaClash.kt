@@ -44,22 +44,20 @@ val ManaClash = card("Mana Clash") {
         val theirHeads = DynamicAmounts.storedNumber("manaClashTheirs")
 
         effect = Effects.RepeatWhile(
-            body = Effects.Composite(
-                Effects.FlipCoins(1, storeHeadsAs = "manaClashMine"),
-                Effects.FlipCoins(1, storeHeadsAs = "manaClashTheirs"),
+            body = Effects.FlipCoins(1, storeHeadsAs = "manaClashMine") then
+                Effects.FlipCoins(1, storeHeadsAs = "manaClashTheirs") then
                 Effects.If(
                     condition = Conditions.CompareAmounts(
                         myHeads, ComparisonOperator.EQ, 0
                     ),
                     then = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.You)),
-                ),
+                ) then
                 Effects.If(
                     condition = Conditions.CompareAmounts(
                         theirHeads, ComparisonOperator.EQ, 0
                     ),
                     then = Effects.DealDamage(1, opponent),
                 ),
-            ),
             repeatCondition = RepeatCondition.WhileCondition(
                 Conditions.Not(
                     Conditions.All(

@@ -37,10 +37,7 @@ val GladiolusAmicitia = card("Gladiolus Amicitia") {
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         val t = target(TargetFilter.OtherCreatureYouControl)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 2, t),
-            Effects.GrantKeyword(Keyword.TRAMPLE, t)
-        )
+        effect = Effects.ModifyStats(2, 2, t) then Effects.GrantKeyword(Keyword.TRAMPLE, t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

@@ -22,10 +22,7 @@ val TendrilsOfAgony = card("Tendrils of Agony") {
 
     spell {
         val t = target(Targets.Player)
-        effect = Effects.Composite(
-            Effects.LoseLife(2, t),
-            Effects.GainLife(2)
-        )
+        effect = Effects.LoseLife(2, t) then Effects.GainLife(2)
     }
 
     keywords(Keyword.STORM)

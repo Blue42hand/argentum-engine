@@ -40,10 +40,8 @@ val HonorboundPage = card("Honorbound Page") {
         oracleText = "Target creature gets +1/+0 and gains flying until end of turn."
         spell {
             val creature = target(TargetFilter.Creature)
-            effect = Effects.Composite(
-                Effects.ModifyStats(1, 0, creature),
-                Effects.GrantKeyword(Keyword.FLYING, creature, Duration.EndOfTurn),
-            )
+            effect = Effects.ModifyStats(1, 0, creature) then
+                Effects.GrantKeyword(Keyword.FLYING, creature, Duration.EndOfTurn)
         }
     }
 

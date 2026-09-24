@@ -29,10 +29,8 @@ val SandstoneBridge = card("Sandstone Bridge") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(power = 1, toughness = 1, target = t),
+        effect = Effects.ModifyStats(power = 1, toughness = 1, target = t) then
             Effects.GrantKeyword(Keyword.VIGILANCE, target = t)
-        )
     }
 
     activatedAbility {

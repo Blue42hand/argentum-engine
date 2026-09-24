@@ -44,10 +44,8 @@ val ClaimTheKingdom = card("Claim the Kingdom") {
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
-            Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self),
-        )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
+            Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self)
         description = "Landfall — Whenever a land you control enters, put a +1/+1 counter on " +
             "target creature you control and a plan counter on this enchantment."
     }

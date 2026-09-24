@@ -36,12 +36,7 @@ val TrickShot = card("Trick Shot") {
                     filter = TargetFilter(GameObjectFilter.Creature.token())
                 )
             ))
-        effect = Effects.Composite(
-            listOf(
-                Effects.DealDamage(6, creature),
-                Effects.DealDamage(2, tokencreature)
-            )
-        )
+        effect = Effects.DealDamage(6, creature) then Effects.DealDamage(2, tokencreature)
     }
 
     metadata {

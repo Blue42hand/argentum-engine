@@ -48,30 +48,28 @@ val RiseOfTheWitchKing = card("Rise of the Witch-king") {
             GameObjectFilter.Creature,
             count = 1,
             target = EffectTarget.PlayerRef(Player.Each)
-        ).then(
-            Effects.If(
-                condition = Conditions.YouSacrificedThisWay,
-                then = Effects.Pipeline {
-                    val eligible = gather(
-                        CardSource.FromZone(
-                            Zone.GRAVEYARD,
-                            Player.You,
-                            GameObjectFilter.Permanent,
-                            // "return ANOTHER permanent card" — the creature you just
-                            // sacrificed to this spell sits in your graveyard but is not
-                            // a legal choice (CR ruling: "You cannot return the same
-                            // permanent card that you sacrificed.").
-                            excludeSacrificedThisWay = true
-                        )
+        ) then Effects.If(
+            condition = Conditions.YouSacrificedThisWay,
+            then = Effects.Pipeline {
+                val eligible = gather(
+                    CardSource.FromZone(
+                        Zone.GRAVEYARD,
+                        Player.You,
+                        GameObjectFilter.Permanent,
+                        // "return ANOTHER permanent card" — the creature you just
+                        // sacrificed to this spell sits in your graveyard but is not
+                        // a legal choice (CR ruling: "You cannot return the same
+                        // permanent card that you sacrificed.").
+                        excludeSacrificedThisWay = true
                     )
-                    val chosen = chooseUpTo(
-                        1,
-                        from = eligible,
-                        prompt = "Choose a permanent card to return to the battlefield"
-                    )
-                    move(chosen, CardDestination.ToZone(Zone.BATTLEFIELD))
-                }
-            )
+                )
+                val chosen = chooseUpTo(
+                    1,
+                    from = eligible,
+                    prompt = "Choose a permanent card to return to the battlefield"
+                )
+                move(chosen, CardDestination.ToZone(Zone.BATTLEFIELD))
+            }
         )
     }
 

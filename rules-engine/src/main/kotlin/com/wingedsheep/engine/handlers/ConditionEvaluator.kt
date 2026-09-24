@@ -2011,7 +2011,7 @@ class ConditionEvaluator(
      * damage in scope).
      *
      * The non-creature and not-on-battlefield branches return false defensively — under
-     * `Targets.Creature` + Composite they can't fire, but they keep this condition safe
+     * `target(TargetFilter.Creature)` + a `then` sequence they can't fire, but they keep this condition safe
      * if a future caller wraps it in a longer chain that crosses SBA or re-targets.
      */
     /**

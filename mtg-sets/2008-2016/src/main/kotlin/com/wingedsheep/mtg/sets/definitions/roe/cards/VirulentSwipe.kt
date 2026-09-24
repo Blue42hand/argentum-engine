@@ -36,10 +36,7 @@ val VirulentSwipe = card("Virulent Swipe") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, t),
-            Effects.GrantKeyword(Keyword.DEATHTOUCH, t)
-        )
+        effect = Effects.ModifyStats(2, 0, t) then Effects.GrantKeyword(Keyword.DEATHTOUCH, t)
     }
 
     metadata {

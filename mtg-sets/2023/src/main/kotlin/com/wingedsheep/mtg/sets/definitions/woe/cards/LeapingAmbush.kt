@@ -24,11 +24,9 @@ val LeapingAmbush = card("Leaping Ambush") {
     oracleText = "Target creature gets +1/+3 and gains reach until end of turn. Untap it."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 3, t),
-            Effects.GrantKeyword(Keyword.REACH, t),
+        effect = Effects.ModifyStats(1, 3, t) then
+            Effects.GrantKeyword(Keyword.REACH, t) then
             Effects.Untap(t)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

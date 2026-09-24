@@ -64,20 +64,18 @@ private val AclazotzDeepestBetrayalFront = card("Aclazotz, Deepest Betrayal") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        effect = Effects.Composite(
-            // Draw for each opponent who can't discard (empty hand), snapshotted before the discards.
-            Effects.DrawCards(
-                DynamicAmounts.countPlayersWith(
-                    scope = Player.EachOpponent,
-                    condition = Conditions.CompareAmounts(
-                        left = DynamicAmounts.cardsInYourHand(),
-                        operator = ComparisonOperator.LTE,
-                        right = 0,
-                    ),
-                )
-            ),
-            Effects.EachOpponentDiscards(1),
-        )
+        // Draw for each opponent who can't discard (empty hand), snapshotted before the discards.
+        effect = Effects.DrawCards(
+            DynamicAmounts.countPlayersWith(
+                scope = Player.EachOpponent,
+                condition = Conditions.CompareAmounts(
+                    left = DynamicAmounts.cardsInYourHand(),
+                    operator = ComparisonOperator.LTE,
+                    right = 0,
+                ),
+            )
+        ) then
+            Effects.EachOpponentDiscards(1)
         description = "Whenever Aclazotz attacks, each opponent discards a card. For each " +
             "opponent who can't, you draw a card."
     }

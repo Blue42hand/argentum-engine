@@ -35,8 +35,7 @@ val LightOfJudgment = card("Light of Judgment") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.DealDamage(6, creature),
+        effect = Effects.DealDamage(6, creature) then
             Effects.Pipeline {
                 val onCreature = gather(
                     CardSource.AttachedTo(
@@ -51,8 +50,7 @@ val LightOfJudgment = card("Light of Judgment") {
                     prompt = "Destroy up to one Equipment attached to that creature",
                 )
                 destroy(chosen)
-            },
-        )
+            }
     }
 
     metadata {

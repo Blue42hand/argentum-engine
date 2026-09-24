@@ -110,13 +110,11 @@ private val TheEmperorOfPalameciaFront = card("The Emperor of Palamecia") {
                 ComparisonOperator.GTE,
                 4,
             ),
-            then = Effects.Composite(
-                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
                 Effects.If(
                     condition = Conditions.SourceCounterCountAtLeast(CounterType.PLUS_ONE_PLUS_ONE, 3),
                     then = Effects.Transform(EffectTarget.Self),
                 ),
-            ),
         )
     }
 

@@ -29,10 +29,7 @@ val RecklessScholar = card("Reckless Scholar") {
     activatedAbility {
         cost = Costs.Tap
         val t = target(Targets.Player)
-        effect = Effects.Composite(
-            Effects.DrawCards(1, t),
-            Patterns.Hand.discardCards(1, t)
-        )
+        effect = Effects.DrawCards(1, t) then Patterns.Hand.discardCards(1, t)
     }
     metadata {
         rarity = Rarity.COMMON

@@ -44,16 +44,15 @@ val WaltzOfRage = card("Waltz of Rage") {
 
     spell {
         val chosen = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            // Target creature you control deals damage equal to its power to each other creature.
-            Effects.ForEachInGroup(
-                filter = GroupFilter(GameObjectFilter.Creature).otherThanTarget(),
-                effect = Effects.DealDamage(
-                    amount = DynamicAmounts.powerOf(chosen),
-                    target = EffectTarget.IterationEntity,
-                    damageSource = chosen
-                )
-            ),
+        // Target creature you control deals damage equal to its power to each other creature.
+        effect = Effects.ForEachInGroup(
+            filter = GroupFilter(GameObjectFilter.Creature).otherThanTarget(),
+            effect = Effects.DealDamage(
+                amount = DynamicAmounts.powerOf(chosen),
+                target = EffectTarget.IterationEntity,
+                damageSource = chosen
+            )
+        ) then
             // Until end of turn, whenever a creature you control dies, exile the top card of your
             // library. You may play it until the end of your next turn.
             Effects.CreateDelayedTrigger(
@@ -66,7 +65,6 @@ val WaltzOfRage = card("Waltz of Rage") {
                     run(Effects.GrantMayPlayFromExile(waltzExiled, MayPlayExpiry.UntilEndOfNextTurn))
                 }
             )
-        )
     }
 
     metadata {

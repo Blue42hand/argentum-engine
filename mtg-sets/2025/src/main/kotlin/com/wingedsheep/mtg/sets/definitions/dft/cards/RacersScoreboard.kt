@@ -40,10 +40,7 @@ val RacersScoreboard = card("Racers' Scoreboard") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.DrawCards(2),
-            Effects.Discard(1)
-        )
+        effect = Effects.DrawCards(2) then Effects.Discard(1)
     }
 
     maxSpeed {

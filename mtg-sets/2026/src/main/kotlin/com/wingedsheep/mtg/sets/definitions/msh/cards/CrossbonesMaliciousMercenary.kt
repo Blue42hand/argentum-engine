@@ -44,10 +44,8 @@ val CrossbonesMaliciousMercenary = card("Crossbones, Malicious Mercenary") {
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Permanent.withSubtype(Subtype.VILLAIN).youControl()).enters()
         oncePerTurn = true
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent)),
-        )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent))
         description = "Whenever another Villain you control enters, put a +1/+1 counter on " +
             "Crossbones. He deals 2 damage to each opponent. This ability triggers only once " +
             "each turn."

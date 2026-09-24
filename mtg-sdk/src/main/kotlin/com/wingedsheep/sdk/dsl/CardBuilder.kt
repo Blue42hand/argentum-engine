@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.costs.CostAtom
 import com.wingedsheep.sdk.scripting.costs.PayCost
 import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
 import com.wingedsheep.sdk.scripting.effects.AddManaEffect
-import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.ManaExpiry
@@ -42,7 +41,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetRequirement
  *     manaCost = "{R}"
  *     typeLine = "Instant"
  *     spell {
- *         val any = target("any", Targets.Any)
+ *         val any = target(Targets.Any)
  *         effect = Effects.DealDamage(3, any)
  *     }
  * }
@@ -1043,25 +1042,12 @@ class CardBuilder(private val name: String) {
 /**
  * Builder for spell effects (instants and sorceries).
  *
- * Supports two targeting styles:
- *
- * 1. Simple (single target, legacy):
+ * Targets are declared through [TargetDeclarations] and read through the returned handles:
  * ```kotlin
  * spell {
- *     target = Targets.Creature
- *     effect = Effects.Destroy(EffectTarget.ContextTarget(0))
- * }
- * ```
- *
- * 2. Named binding (preferred):
- * ```kotlin
- * spell {
- *     val creature = target("creature", TargetCreature())
- *     val player = target("player", TargetPlayer())
- *     effect = Effects.Composite(
- *         Effects.Destroy(creature),
- *         Effects.DealDamage(3, player)
- *     )
+ *     val creature = target(TargetFilter.Creature)
+ *     val player = target(Targets.Player)
+ *     effect = Effects.Destroy(creature) then Effects.DealDamage(3, player)
  * }
  * ```
  */
@@ -1170,7 +1156,7 @@ class SpellBuilder(private val declaredTargets: TargetList = TargetList()) : Tar
     var kickerTarget: TargetRequirement? = null
 
     // Named kicker target bindings (for kicker spells with multiple alternate targets)
-    private val namedKickerTargets = TargetList()
+    private val kickerTargetList = TargetList()
 
     /**
      * Declare a named target for the optional-additional-cost branch and get an EffectTarget
@@ -1178,15 +1164,15 @@ class SpellBuilder(private val declaredTargets: TargetList = TargetList()) : Tar
      * (e.g., Goblin Barrage), or is the only branch with a target at all (CR 702.166d).
      */
     fun kickerTarget(requirement: TargetRequirement): EffectTarget.BoundVariable =
-        EffectTarget.BoundVariable(namedKickerTargets.declareTarget(requirement))
+        EffectTarget.BoundVariable(kickerTargetList.declareTarget(requirement))
 
     /** [kickerTarget] for an object target, declared by its filter. */
     fun kickerTarget(filter: TargetFilter, optional: Boolean = false): EffectTarget.BoundVariable =
         kickerTarget(TargetObject(filter = filter, optional = optional))
 
     internal val kickerTargetRequirements: List<TargetRequirement>
-        get() = if (!namedKickerTargets.isEmpty()) {
-            namedKickerTargets.requirements
+        get() = if (!kickerTargetList.isEmpty()) {
+            kickerTargetList.requirements
         } else {
             listOfNotNull(kickerTarget)
         }
@@ -1209,21 +1195,21 @@ class SpellBuilder(private val declaredTargets: TargetList = TargetList()) : Tar
     var cleaveTarget: TargetRequirement? = null
 
     // Named cleave target bindings (for cleaved spells with named/multiple alternate targets)
-    private val namedCleaveTargets = TargetList()
+    private val cleaveTargetList = TargetList()
 
     /**
      * Declare a named cleave target and get an EffectTarget reference to use in [cleaveEffect].
      */
     fun cleaveTarget(requirement: TargetRequirement): EffectTarget.BoundVariable =
-        EffectTarget.BoundVariable(namedCleaveTargets.declareTarget(requirement))
+        EffectTarget.BoundVariable(cleaveTargetList.declareTarget(requirement))
 
     /** [cleaveTarget] for an object target, declared by its filter. */
     fun cleaveTarget(filter: TargetFilter, optional: Boolean = false): EffectTarget.BoundVariable =
         cleaveTarget(TargetObject(filter = filter, optional = optional))
 
     internal val cleaveTargetRequirements: List<TargetRequirement>
-        get() = if (!namedCleaveTargets.isEmpty()) {
-            namedCleaveTargets.requirements
+        get() = if (!cleaveTargetList.isEmpty()) {
+            cleaveTargetList.requirements
         } else {
             listOfNotNull(cleaveTarget)
         }
@@ -1291,12 +1277,12 @@ class SpellBuilder(private val declaredTargets: TargetList = TargetList()) : Tar
      * spell {
      *     modal(chooseCount = 2) {
      *         mode("Counter target spell") {
-     *             target = TargetSpell()
-     *             effect = Effects.CounterSpell()
+     *             val spell = target(TargetFilter.SpellOnStack)
+     *             effect = Effects.CounterSpell(spell)
      *         }
      *         mode("Return target permanent to its owner's hand") {
-     *             target = TargetPermanent()
-     *             effect = Effects.ReturnToHand(EffectTarget.ContextTarget(0))
+     *             val permanent = target(TargetFilter.Permanent)
+     *             effect = Effects.ReturnToHand(permanent)
      *         }
      *         mode("Tap all creatures your opponents control") {
      *             effect = GroupPatterns.tapAll(CreatureGroupFilter.OpponentsControl)
@@ -1428,7 +1414,7 @@ class ModalBuilder(
  * `spell { }` or `triggeredAbility { }` block:
  *
  * ```kotlin
- * val creature = target("target creature", Targets.Creature)
+ * val creature = target(TargetFilter.Creature)
  * effect = Effects.Destroy(creature)
  * ```
  */
@@ -1473,7 +1459,7 @@ class ModeBuilder(private val description: String) : TargetedEffectBuilder() {
  * ```kotlin
  * ModalEffect.chooseOne(
  *     mode("Destroy target artifact.") {
- *         val artifact = target("target artifact", Targets.Artifact)
+ *         val artifact = target(TargetFilter.Artifact)
  *         effect = Effects.Destroy(artifact)
  *     },
  *     Mode.noTarget(Effects.DrawCards(1), "Draw a card."),

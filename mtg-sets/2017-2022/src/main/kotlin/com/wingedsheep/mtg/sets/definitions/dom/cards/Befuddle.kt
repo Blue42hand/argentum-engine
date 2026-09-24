@@ -19,8 +19,7 @@ val Befuddle = card("Befuddle") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(-4, 0, t)
-            .then(Effects.DrawCards(1))
+        effect = Effects.ModifyStats(-4, 0, t) then Effects.DrawCards(1)
     }
 
     metadata {

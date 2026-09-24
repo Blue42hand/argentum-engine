@@ -1717,17 +1717,12 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "AddMana",
-                                    "color": "BLUE"
-                                },
-                                {
-                                    "type": "AddMana",
-                                    "color": "BLACK"
-                                }
-                            ]
+                            "type": "AddMana",
+                            "color": "BLUE"
+                        },
+                        {
+                            "type": "AddMana",
+                            "color": "BLACK"
                         },
                         {
                             "type": "DrawCards",
@@ -2495,25 +2490,20 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "CantBeRegenerated",
-                            "target": {
-                                "type": "BoundVariable",
-                                "name": "t0"
-                            }
-                        },
-                        {
-                            "type": "MoveToZone",
-                            "target": {
-                                "type": "BoundVariable",
-                                "name": "t0"
-                            },
-                            "destination": "Graveyard",
-                            "byDestruction": true
-                        }
-                    ]
+                    "type": "CantBeRegenerated",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
                 },
                 {
                     "type": "DrawCards",
@@ -3645,17 +3635,12 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "AddMana",
-                                    "color": "RED"
-                                },
-                                {
-                                    "type": "AddMana",
-                                    "color": "GREEN"
-                                }
-                            ]
+                            "type": "AddMana",
+                            "color": "RED"
+                        },
+                        {
+                            "type": "AddMana",
+                            "color": "GREEN"
                         },
                         {
                             "type": "DrawCards",
@@ -4862,17 +4847,12 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "AddMana",
-                                    "color": "BLACK"
-                                },
-                                {
-                                    "type": "AddMana",
-                                    "color": "RED"
-                                }
-                            ]
+                            "type": "AddMana",
+                            "color": "BLACK"
+                        },
+                        {
+                            "type": "AddMana",
+                            "color": "RED"
                         },
                         {
                             "type": "DrawCards",
@@ -5110,17 +5090,12 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "AddMana",
-                                    "color": "WHITE"
-                                },
-                                {
-                                    "type": "AddMana",
-                                    "color": "BLUE"
-                                }
-                            ]
+                            "type": "AddMana",
+                            "color": "WHITE"
+                        },
+                        {
+                            "type": "AddMana",
+                            "color": "BLUE"
                         },
                         {
                             "type": "DrawCards",
@@ -5395,7 +5370,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "destination": "Exile"
                 },
@@ -5406,7 +5381,7 @@
                             "baseFilter": {},
                             "zone": "Graveyard"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }
@@ -5450,17 +5425,12 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "AddMana",
-                                    "color": "GREEN"
-                                },
-                                {
-                                    "type": "AddMana",
-                                    "color": "WHITE"
-                                }
-                            ]
+                            "type": "AddMana",
+                            "color": "GREEN"
+                        },
+                        {
+                            "type": "AddMana",
+                            "color": "WHITE"
                         },
                         {
                             "type": "DrawCards",

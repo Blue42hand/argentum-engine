@@ -40,10 +40,8 @@ val BelligerentOfTheBall = card("Belligerent of the Ball") {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         interveningIf = Conditions.Celebration
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.ModifyStats(power = 1, toughness = 0, target = creature),
-            Effects.GrantKeyword(Keyword.MENACE, creature),
-        )
+        effect = Effects.ModifyStats(power = 1, toughness = 0, target = creature) then
+            Effects.GrantKeyword(Keyword.MENACE, creature)
         description = "At the beginning of combat on your turn, if two or more nonland permanents " +
             "entered the battlefield under your control this turn, target creature you control " +
             "gets +1/+0 and gains menace until end of turn."

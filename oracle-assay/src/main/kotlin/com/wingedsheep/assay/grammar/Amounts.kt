@@ -780,12 +780,8 @@ object Amounts {
      */
     private val drawAndLoseByCount: Phrase<CardScript> = run {
         fun scriptFor(amount: DynamicAmount) = CardScript(
-            spellEffect = Effects.Composite(
-                listOf(
-                    Effects.DrawCards(amount, EffectTarget.Controller),
-                    Effects.LoseLife(amount, EffectTarget.Controller),
-                )
-            )
+            spellEffect = Effects.DrawCards(amount, EffectTarget.Controller) then
+                Effects.LoseLife(amount, EffectTarget.Controller)
         )
         phrase(
             "you draw X cards and you lose X life, where X is {amount}",

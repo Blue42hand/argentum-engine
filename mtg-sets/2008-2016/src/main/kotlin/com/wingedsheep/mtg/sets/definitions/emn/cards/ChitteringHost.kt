@@ -40,10 +40,8 @@ val ChitteringHost = card("Chittering Host") {
         trigger = Triggers.self.enters()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
-            Effects.Composite(
-                Effects.ModifyStats(1, 0, EffectTarget.IterationEntity),
+            Effects.ModifyStats(1, 0, EffectTarget.IterationEntity) then
                 Effects.GrantKeyword(Keyword.MENACE, EffectTarget.IterationEntity)
-            )
         )
     }
     metadata {

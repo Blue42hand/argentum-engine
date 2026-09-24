@@ -27,7 +27,7 @@ val AncientAnimus = card("Ancient Animus") {
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary(), yourCreature),
             then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, yourCreature)
-        ).then(Effects.Fight(yourCreature, theirCreature))
+        ) then Effects.Fight(yourCreature, theirCreature)
     }
 
     metadata {

@@ -25,19 +25,17 @@ val StrengthOfArms = card("Strength of Arms") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(2, 2, creature)
-            .then(
-                Effects.If(
-                    condition = Conditions.YouControlAtLeast(
-                        1,
-                        GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT)
-                    ),
-                    then = Effects.CreateToken(
-                        power = 1,
-                        toughness = 1,
-                        colors = setOf(Color.WHITE),
-                        creatureTypes = setOf("Human", "Soldier")
-                    )
+        effect = Effects.ModifyStats(2, 2, creature) then
+            Effects.If(
+                condition = Conditions.YouControlAtLeast(
+                    1,
+                    GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT)
+                ),
+                then = Effects.CreateToken(
+                    power = 1,
+                    toughness = 1,
+                    colors = setOf(Color.WHITE),
+                    creatureTypes = setOf("Human", "Soldier")
                 )
             )
     }

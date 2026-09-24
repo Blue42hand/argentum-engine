@@ -28,15 +28,13 @@ val PropheticBolt = card("Prophetic Bolt") {
     oracleText = "Prophetic Bolt deals 4 damage to any target. Look at the top four cards of your library. Put one of those cards into your hand and the rest on the bottom of your library in any order."
     spell {
         val t = target(Targets.Any)
-        effect = Effects.Composite(
-            Effects.DealDamage(4, t),
+        effect = Effects.DealDamage(4, t) then
             Patterns.Library.lookAtTopAndKeep(
                 count = 4,
                 keepCount = 1,
                 restDestination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom),
                 restOrder = CardOrder.ControllerChooses
             )
-        )
     }
     metadata {
         rarity = Rarity.RARE

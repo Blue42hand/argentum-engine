@@ -28,11 +28,9 @@ val Devastate = card("Devastate") {
     oracleText = "Destroy target land. Devastate deals 1 damage to each creature and each player."
     spell {
         val t = target(TargetFilter.Land)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), Effects.DealDamage(1, EffectTarget.IterationEntity)),
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then
+            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), Effects.DealDamage(1, EffectTarget.IterationEntity)) then
             Effects.ForEachPlayer(Player.Each, Effects.DealDamage(1, EffectTarget.Controller))
-        )
     }
     metadata {
         rarity = Rarity.COMMON

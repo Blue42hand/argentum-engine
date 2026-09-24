@@ -1202,7 +1202,7 @@
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
@@ -1210,7 +1210,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ],
@@ -2093,7 +2093,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -2103,7 +2103,7 @@
                     "filter": {
                         "baseFilter": "artifact ctrl:opponent"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             },
             {
@@ -3166,7 +3166,7 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t1"
                             }
                         },
                         {
@@ -3180,7 +3180,7 @@
                 },
                 "targetRequirement": {
                     "type": "TargetOpponent",
-                    "id": "t0"
+                    "id": "t1"
                 }
             },
             {
@@ -3196,7 +3196,7 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t2"
                             }
                         },
                         {
@@ -3210,7 +3210,7 @@
                 },
                 "targetRequirement": {
                     "type": "TargetOpponent",
-                    "id": "t0"
+                    "id": "t2"
                 }
             }
         ]
@@ -4245,7 +4245,7 @@
                                 "type": "TapUntap",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 },
                                 "tap": false
                             },
@@ -4255,7 +4255,7 @@
                                     "filter": {
                                         "baseFilter": "creature ctrl:you"
                                     },
-                                    "id": "t0"
+                                    "id": "t1"
                                 }
                             ],
                             "description": "Untap target creature you control"
@@ -5626,7 +5626,7 @@
                                         "type": "ControlledByReferencedPlayer",
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t1"
                                         }
                                     }
                                 }
@@ -5648,7 +5648,7 @@
                     "targetRequirements": [
                         {
                             "type": "TargetPlayer",
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Creatures target player controls get -1/-1 until end of turn"
@@ -8820,7 +8820,7 @@
                     "type": "PreventDamageShield",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "direction": "FromTarget",
                     "duration": {
@@ -8834,7 +8834,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             },
             {
@@ -9386,7 +9386,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -9397,7 +9397,7 @@
                             "filter": {
                                 "baseFilter": "artifact token"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target artifact token"
@@ -9886,7 +9886,7 @@
                                 },
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             {
@@ -9894,7 +9894,7 @@
                                 "keyword": "LIFELINK",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             }
                         ]
@@ -9905,7 +9905,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target creature gets +2/+2 and gains lifelink until end of turn"
@@ -10350,7 +10350,7 @@
                             "type": "MoveToZone",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t1"
                             },
                             "destination": "Exile"
                         },
@@ -10361,7 +10361,7 @@
                                 "type": "MoveToZone",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 },
                                 "destination": "Battlefield"
                             }
@@ -10374,7 +10374,7 @@
                     "filter": {
                         "baseFilter": "creature|land ctrl:you"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             },
             {
@@ -10386,7 +10386,7 @@
                             "type": "MoveToZone",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t2"
                             },
                             "destination": "Exile"
                         },
@@ -10397,7 +10397,7 @@
                                 "type": "MoveToZone",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t2"
                                 },
                                 "destination": "Battlefield"
                             }
@@ -10410,7 +10410,7 @@
                     "filter": {
                         "baseFilter": "creature|land ctrl:you"
                     },
-                    "id": "t0"
+                    "id": "t2"
                 }
             },
             {
@@ -10422,7 +10422,7 @@
                             "type": "MoveToZone",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t3"
                             },
                             "destination": "Exile"
                         },
@@ -10433,7 +10433,7 @@
                                 "type": "MoveToZone",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t3"
                                 },
                                 "destination": "Battlefield"
                             }
@@ -10446,7 +10446,7 @@
                     "filter": {
                         "baseFilter": "creature|land ctrl:you"
                     },
-                    "id": "t0"
+                    "id": "t3"
                 }
             }
         ]
@@ -11242,7 +11242,7 @@
                                 "cardType": "ARTIFACT",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 },
                                 "duration": "EndOfTurn"
                             },
@@ -11251,7 +11251,7 @@
                                 "keyword": "INDESTRUCTIBLE",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             }
                         ]
@@ -11262,7 +11262,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target creature becomes an artifact and gains indestructible until end of turn"
@@ -12581,7 +12581,7 @@
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
@@ -12590,7 +12590,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]
@@ -12838,12 +12838,12 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
                     "type": "TargetOpponent",
-                    "id": "t0"
+                    "id": "t1"
                 },
                 "descriptionOverride": "Whenever you sacrifice a token, target opponent loses 1 life."
             }
@@ -13081,7 +13081,7 @@
                                         },
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t2"
                                         },
                                         "damageSource": "IterationEntity"
                                     }
@@ -13093,7 +13093,7 @@
                                         "filter": {
                                             "baseFilter": "creature"
                                         },
-                                        "id": "t0"
+                                        "id": "t2"
                                     }
                                 ],
                                 "descriptionOverride": "Attach the chosen Equipment to that creature. When one or more Equipment become attached to it this way, it deals damage equal to its power to up to one target creature."
@@ -14372,7 +14372,7 @@
                                 "count": 1,
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             {
@@ -14380,7 +14380,7 @@
                                 "keyword": "TRAMPLE",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             {
@@ -14388,7 +14388,7 @@
                                 "keyword": "HEXPROOF",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             }
                         ]
@@ -14399,7 +14399,7 @@
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Put a +1/+1 counter on target creature you control. It gains trample and hexproof until end of turn. (It can't be the target of spells or abilities your opponents control.)"

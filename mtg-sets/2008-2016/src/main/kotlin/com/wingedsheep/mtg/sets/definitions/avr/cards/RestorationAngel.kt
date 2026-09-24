@@ -44,8 +44,7 @@ val RestorationAngel = card("Restoration Angel") {
             ),
         )
         effect = Effects.May(
-            Effects.Move(creature, Zone.EXILE)
-                .then(Effects.Move(creature, Zone.BATTLEFIELD))
+            Effects.Move(creature, Zone.EXILE) then Effects.Move(creature, Zone.BATTLEFIELD)
         )
     }
 

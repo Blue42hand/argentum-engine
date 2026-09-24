@@ -36,16 +36,14 @@ val WitchsMark = card("Witch's Mark") {
 
     spell {
         val t = target(TargetFilter.CreatureYouControl, optional = true)
-        effect = Effects.Composite(
-            Effects.May(
-                effect = Effects.IfYouDo(
-                    action = Patterns.Hand.discardCards(1),
-                    then = Effects.DrawCards(2)
-                ),
-                descriptionOverride = "You may discard a card. If you do, draw two cards."
+        effect = Effects.May(
+            effect = Effects.IfYouDo(
+                action = Patterns.Hand.discardCards(1),
+                then = Effects.DrawCards(2)
             ),
+            descriptionOverride = "You may discard a card. If you do, draw two cards."
+        ) then
             Effects.CreateRoleToken("Wicked Role", t)
-        )
     }
 
     metadata {

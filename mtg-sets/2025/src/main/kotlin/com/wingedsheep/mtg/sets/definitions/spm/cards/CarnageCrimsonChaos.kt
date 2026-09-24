@@ -42,9 +42,8 @@ val CarnageCrimsonChaos = card("Carnage, Crimson Chaos") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.CreatureInYourGraveyard.manaValueAtMost(3))
-        effect = Effects.Composite(
-            Effects.Move(creature, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
-            Effects.GrantStaticAbility(MustAttack(), creature, Duration.Permanent),
+        effect = Effects.Move(creature, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
+            Effects.GrantStaticAbility(MustAttack(), creature, Duration.Permanent) then
             Effects.GrantTriggeredAbility(
                 ability = TriggeredAbility.create(
                     trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer),
@@ -53,7 +52,6 @@ val CarnageCrimsonChaos = card("Carnage, Crimson Chaos") {
                 target = creature,
                 duration = Duration.Permanent
             )
-        )
     }
 
     metadata {

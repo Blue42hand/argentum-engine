@@ -25,10 +25,7 @@ val SkywhalersShot = card("Skywhaler's Shot") {
 
     spell {
         val t = target(TargetFilter.Creature.powerAtLeast(3))
-        effect = Effects.Composite(
-            Effects.Destroy(t),
-            Patterns.Library.scry(1)
-        )
+        effect = Effects.Destroy(t) then Patterns.Library.scry(1)
     }
 
     metadata {

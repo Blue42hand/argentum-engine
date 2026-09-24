@@ -21,10 +21,7 @@ val CurseMarredDemon = card("Curse-Marred Demon") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Patterns.Library.searchLibrary(),
-            Patterns.Hand.discardRandom(1)
-        )
+        effect = Patterns.Library.searchLibrary() then Patterns.Hand.discardRandom(1)
     }
 
     metadata {

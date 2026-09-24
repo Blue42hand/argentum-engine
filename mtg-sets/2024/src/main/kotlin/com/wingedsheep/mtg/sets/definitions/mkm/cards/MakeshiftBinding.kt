@@ -25,10 +25,7 @@ val MakeshiftBinding = card("Makeshift Binding") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter.Creature.opponentControls())
-        effect = Effects.Composite(
-            Effects.ExileUntilLeaves(t),
-            Effects.GainLife(2)
-        )
+        effect = Effects.ExileUntilLeaves(t) then Effects.GainLife(2)
     }
     triggeredAbility {
         trigger = Triggers.self.leaves()

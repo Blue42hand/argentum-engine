@@ -21,8 +21,7 @@ val Ulcerate = card("Ulcerate") {
     spell {
         val t = target(TargetFilter.Creature)
         // The life loss isn't a cost — it only happens if the spell resolves.
-        effect = Effects.ModifyStats(-3, -3, t)
-            .then(Effects.LoseLife(3, EffectTarget.Controller))
+        effect = Effects.ModifyStats(-3, -3, t) then Effects.LoseLife(3, EffectTarget.Controller)
     }
 
     metadata {

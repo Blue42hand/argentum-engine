@@ -26,10 +26,8 @@ val VoldarenEpicure = card("Voldaren Epicure") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)),
+        effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)) then
             Effects.CreateBlood(1)
-        )
     }
 
     metadata {

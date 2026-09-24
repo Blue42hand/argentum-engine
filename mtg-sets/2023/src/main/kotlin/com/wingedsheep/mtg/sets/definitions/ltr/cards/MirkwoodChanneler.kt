@@ -31,8 +31,8 @@ val MirkwoodChanneler = card("Mirkwood Channeler") {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val elf = target(TargetFilter.CreatureYouControl.withSubtype(Subtype("Elf")))
         val forestCount = DynamicAmounts.landsWithSubtype(Subtype("Forest"))
-        effect = Effects.GrantKeyword(Keyword.TRAMPLE, elf)
-            .then(Effects.ModifyStats(forestCount, forestCount, elf))
+        effect = Effects.GrantKeyword(Keyword.TRAMPLE, elf) then
+            Effects.ModifyStats(forestCount, forestCount, elf)
     }
 
     metadata {

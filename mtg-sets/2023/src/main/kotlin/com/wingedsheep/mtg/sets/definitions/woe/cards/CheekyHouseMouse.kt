@@ -35,13 +35,11 @@ val CheekyHouseMouse = card("Cheeky House-Mouse") {
             "creatures with power 3 or greater this turn. (Then exile this card. You may cast the creature later from exile.)"
         spell {
             val t = target(TargetFilter.CreatureYouControl)
-            effect = Effects.Composite(
-                Effects.ModifyStats(1, 1, t),
+            effect = Effects.ModifyStats(1, 1, t) then
                 Effects.GrantStaticAbility(
                     CantBeBlockedBy(GameObjectFilter.Creature.powerAtLeast(3)),
                     t
                 )
-            )
         }
     }
 

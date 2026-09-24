@@ -40,8 +40,7 @@ val FractalMascot = card("Fractal Mascot") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.CreatureOpponentControls)
-        effect = Effects.Tap(creature)
-            .then(Effects.AddCounters(CounterType.STUN, 1, creature))
+        effect = Effects.Tap(creature) then Effects.AddCounters(CounterType.STUN, 1, creature)
         description = "When this creature enters, tap target creature an opponent controls. " +
             "Put a stun counter on it."
     }

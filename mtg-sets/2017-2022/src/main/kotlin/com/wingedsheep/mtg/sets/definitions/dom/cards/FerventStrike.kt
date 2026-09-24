@@ -20,9 +20,9 @@ val FerventStrike = card("Fervent Strike") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(1, 0, t)
-            .then(Effects.GrantKeyword(Keyword.FIRST_STRIKE, t))
-            .then(Effects.GrantKeyword(Keyword.HASTE, t))
+        effect = Effects.ModifyStats(1, 0, t) then
+            Effects.GrantKeyword(Keyword.FIRST_STRIKE, t) then
+            Effects.GrantKeyword(Keyword.HASTE, t)
     }
 
     metadata {

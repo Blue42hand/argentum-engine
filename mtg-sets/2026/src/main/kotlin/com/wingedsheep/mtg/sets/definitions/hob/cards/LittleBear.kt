@@ -35,13 +35,11 @@ val LittleBear = card("Little Bear") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter.OtherCreatureYouControl)
-        effect = Effects.Composite(
-            Effects.Untap(t),
+        effect = Effects.Untap(t) then
             Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.BEAR), t),
                 then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t),
-            ),
-        )
+            )
     }
     metadata {
         rarity = Rarity.COMMON

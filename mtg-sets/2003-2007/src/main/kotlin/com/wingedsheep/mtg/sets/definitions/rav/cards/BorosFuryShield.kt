@@ -40,14 +40,12 @@ val BorosFuryShield = card("Boros Fury-Shield") {
 
     spell {
         val creature = target(TargetFilter.AttackingOrBlockingCreature)
-        effect = Effects.PreventAllDamageDealtBy(creature, scope = PreventionScope.CombatOnly)
-            .then(
-                Effects.If(
-                    condition = Conditions.ManaSpentToCastIncludes(requiredRed = 1),
-                    then = Effects.DealDamage(
-                        DynamicAmounts.powerOf(creature),
-                        EffectTarget.TargetController
-                    )
+        effect = Effects.PreventAllDamageDealtBy(creature, scope = PreventionScope.CombatOnly) then
+            Effects.If(
+                condition = Conditions.ManaSpentToCastIncludes(requiredRed = 1),
+                then = Effects.DealDamage(
+                    DynamicAmounts.powerOf(creature),
+                    EffectTarget.TargetController
                 )
             )
     }

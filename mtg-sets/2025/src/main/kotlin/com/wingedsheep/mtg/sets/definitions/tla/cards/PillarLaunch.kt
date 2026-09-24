@@ -24,11 +24,9 @@ val PillarLaunch = card("Pillar Launch") {
     oracleText = "Target creature gets +2/+2 and gains reach until end of turn. Untap it."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 2, t),
-            Effects.GrantKeyword(Keyword.REACH, t),
+        effect = Effects.ModifyStats(2, 2, t) then
+            Effects.GrantKeyword(Keyword.REACH, t) then
             Effects.Untap(t)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

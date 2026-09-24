@@ -29,10 +29,8 @@ val EdgarAncientBloodlord = card("Edgar, Ancient Bloodlord") {
             Costs.Mana("{2}"),
             Costs.SacrificeAnother(GameObjectFilter.CreatureOrPlaneswalker)
         )
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
             Effects.GrantKeyword(Keyword.MENACE, EffectTarget.Self)
-        )
     }
 
     metadata {

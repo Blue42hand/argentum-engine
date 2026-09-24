@@ -106,8 +106,7 @@ private val TheIncredibleHulkBack = card("The Incredible Hulk") {
     // attacking, untap him and there is an additional combat phase after this phase.
     triggeredAbility {
         trigger = Triggers.self.isDealtDamage()
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
             Effects.If(
                 // "If he's attacking" — a *live* check, hence the `onBattlefield()` conjunct.
                 // Bare `SourceIsAttacking` resolves through PredicateEvaluator, whose IsAttacking
@@ -118,14 +117,11 @@ private val TheIncredibleHulkBack = card("The Incredible Hulk") {
                 condition = Conditions.SourceMatches(
                     GameObjectFilter.Any.onBattlefield().attacking(),
                 ),
-                then = Effects.Composite(
-                    // "untap him"
-                    Effects.Untap(EffectTarget.Self),
+                // "untap him"
+                then = Effects.Untap(EffectTarget.Self) then
                     // "there is an additional combat phase after this phase" (combat only — no main)
                     Effects.AddCombatPhase,
-                ),
-            ),
-        )
+            )
         description = "Enrage — Whenever The Incredible Hulk is dealt damage, put a +1/+1 counter " +
             "on him. If he's attacking, untap him and there is an additional combat phase after " +
             "this phase."

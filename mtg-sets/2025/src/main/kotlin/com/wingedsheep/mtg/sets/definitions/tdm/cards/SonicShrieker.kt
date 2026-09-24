@@ -40,14 +40,12 @@ val SonicShrieker = card("Sonic Shrieker") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val anyTarget = target(Targets.Any)
-        effect = Effects.Composite(listOf(
-            Effects.DealDamage(2, anyTarget),
-            Effects.GainLife(2),
+        effect = Effects.DealDamage(2, anyTarget) then
+            Effects.GainLife(2) then
             Effects.If(
                 condition = Conditions.TargetIsPlayer(0),
                 then = Effects.Discard(1, anyTarget)
             )
-        ))
         description = "When this creature enters, it deals 2 damage to any target and you gain 2 life. " +
             "If a player is dealt damage this way, they discard a card."
     }

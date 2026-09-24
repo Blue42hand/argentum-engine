@@ -21,12 +21,7 @@ val LostInSpace = card("Lost in Space") {
 
     spell {
         val target = target(TargetFilter(GameObjectFilter.Artifact or GameObjectFilter.Creature))
-        effect = Effects.Composite(
-            listOf(
-                Effects.PutOnTopOrBottomOfLibrary(target),
-                Patterns.Library.surveil(1)
-            )
-        )
+        effect = Effects.PutOnTopOrBottomOfLibrary(target) then Patterns.Library.surveil(1)
     }
 
     metadata {

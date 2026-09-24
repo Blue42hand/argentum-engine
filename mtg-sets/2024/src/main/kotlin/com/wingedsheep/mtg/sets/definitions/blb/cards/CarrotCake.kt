@@ -28,7 +28,7 @@ val CarrotCake = card("Carrot Cake") {
         colors = setOf(Color.WHITE),
         creatureTypes = setOf("Rabbit"),
         imageUri = "https://cards.scryfall.io/normal/front/8/1/81de52ef-7515-4958-abea-fb8ebdcef93c.jpg?1721431122"
-    ).then(Patterns.Library.scry(1))
+    ) then Patterns.Library.scry(1)
 
     // When this artifact enters — create Rabbit token + scry 1
     triggeredAbility {

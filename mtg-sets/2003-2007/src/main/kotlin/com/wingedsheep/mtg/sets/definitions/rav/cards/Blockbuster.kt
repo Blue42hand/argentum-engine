@@ -27,13 +27,11 @@ val Blockbuster = card("Blockbuster") {
     oracleText = "{1}{R}, Sacrifice this enchantment: It deals 3 damage to each tapped creature and each player."
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{R}"), Costs.SacrificeSelf)
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter(GameObjectFilter.Creature.tapped()),
-                Effects.DealDamage(3, EffectTarget.IterationEntity)
-            ),
+        effect = Effects.ForEachInGroup(
+            GroupFilter(GameObjectFilter.Creature.tapped()),
+            Effects.DealDamage(3, EffectTarget.IterationEntity)
+        ) then
             Effects.ForEachPlayer(Player.Each, Effects.DealDamage(3, EffectTarget.Controller))
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

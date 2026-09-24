@@ -31,13 +31,11 @@ val HellToPay = card("Hell to Pay") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.DealXDamage(creature),
+        effect = Effects.DealXDamage(creature) then
             Effects.CreateTreasure(
                 count = DynamicAmounts.propertyOf(creature, EntityNumericProperty.ExcessMarkedDamage),
                 tapped = true
             )
-        )
     }
 
     metadata {

@@ -34,10 +34,7 @@ val ReasonableDoubt = card("Reasonable Doubt") {
     spell {
         target(TargetFilter.SpellOnStack)
         val creature = target(TargetFilter.Creature, optional = true)
-        effect = Effects.Composite(
-            Effects.CounterUnlessDynamicPays(DynamicAmounts.fixed(2)),
-            Effects.Suspect(creature)
-        )
+        effect = Effects.CounterUnlessDynamicPays(DynamicAmounts.fixed(2)) then Effects.Suspect(creature)
     }
 
     metadata {

@@ -19,12 +19,7 @@ val DefibrillatingCurrent = card("Defibrillating Current") {
 
     spell {
         val t = target(Targets.CreatureOrPlaneswalker)
-        effect = Effects.Composite(
-            listOf(
-                Effects.DealDamage(4, t),
-                Effects.GainLife(2)
-            )
-        )
+        effect = Effects.DealDamage(4, t) then Effects.GainLife(2)
     }
 
     metadata {

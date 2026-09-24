@@ -53,10 +53,7 @@ val BedlamReveler = card("Bedlam Reveler") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Patterns.Hand.discardHand(),
-            Effects.DrawCards(3)
-        )
+        effect = Patterns.Hand.discardHand() then Effects.DrawCards(3)
         description = "When this creature enters, discard your hand, then draw three cards."
     }
 

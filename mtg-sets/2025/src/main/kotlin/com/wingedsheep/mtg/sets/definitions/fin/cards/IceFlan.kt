@@ -34,10 +34,7 @@ val IceFlan = card("Ice Flan") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter(GameObjectFilter.CreatureOrArtifact.opponentControls()))
-        effect = Effects.Composite(
-            Effects.Tap(t),
-            Effects.AddCounters(CounterType.STUN, 1, t),
-        )
+        effect = Effects.Tap(t) then Effects.AddCounters(CounterType.STUN, 1, t)
     }
 
     keywordAbility(KeywordAbility.typecycling("Island", ManaCost.parse("{2}")))

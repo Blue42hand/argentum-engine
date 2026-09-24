@@ -26,12 +26,10 @@ val ChillingTrap = card("Chilling Trap") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(-4, 0, creature)
-            .then(
-                Effects.If(
-                    condition = Conditions.ControlPermanentOfType(Subtype("Wizard")),
-                    then = Effects.DrawCards(1),
-                )
+        effect = Effects.ModifyStats(-4, 0, creature) then
+            Effects.If(
+                condition = Conditions.ControlPermanentOfType(Subtype("Wizard")),
+                then = Effects.DrawCards(1),
             )
     }
 

@@ -53,8 +53,7 @@ val HuntersTalent = card("Hunter's Talent") {
         triggeredAbility {
             trigger = Triggers.you.attacks()
             val attacker = target(TargetFilter.AttackingCreature)
-            effect = Effects.ModifyStats(1, 0, attacker)
-                .then(Effects.GrantKeyword(Keyword.TRAMPLE, attacker))
+            effect = Effects.ModifyStats(1, 0, attacker) then Effects.GrantKeyword(Keyword.TRAMPLE, attacker)
         }
     }
 

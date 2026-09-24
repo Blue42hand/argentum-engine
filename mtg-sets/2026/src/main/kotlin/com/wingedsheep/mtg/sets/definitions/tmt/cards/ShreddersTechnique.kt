@@ -35,7 +35,7 @@ val ShreddersTechnique = card("Shredder's Technique") {
         val t = target(TargetFilter.CreatureOrEnchantment)
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Enchantment, t),
-            then = Effects.Destroy(t).then(Effects.LoseLife(2, EffectTarget.Controller)),
+            then = Effects.Destroy(t) then Effects.LoseLife(2, EffectTarget.Controller),
             otherwise = Effects.Destroy(t)
         )
     }

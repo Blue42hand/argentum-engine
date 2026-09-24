@@ -42,8 +42,7 @@ val SparringRegimen = card("Sparring Regimen") {
     triggeredAbility {
         trigger = Triggers.you.attacks()
         val attacker = target(TargetFilter.AttackingCreature)
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, attacker) then
-            Effects.Untap(attacker)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, attacker) then Effects.Untap(attacker)
     }
 
     metadata {

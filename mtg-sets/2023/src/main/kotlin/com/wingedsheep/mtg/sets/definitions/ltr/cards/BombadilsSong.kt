@@ -28,9 +28,9 @@ val BombadilsSong = card("Bombadil's Song") {
             toughness = 1,
             target = creature,
             duration = Duration.EndOfTurn
-        )
-            .then(Effects.GrantKeyword(Keyword.HEXPROOF, creature, Duration.EndOfTurn))
-            .then(Effects.TheRingTemptsYou())
+        ) then
+            Effects.GrantKeyword(Keyword.HEXPROOF, creature, Duration.EndOfTurn) then
+            Effects.TheRingTemptsYou()
     }
 
     metadata {

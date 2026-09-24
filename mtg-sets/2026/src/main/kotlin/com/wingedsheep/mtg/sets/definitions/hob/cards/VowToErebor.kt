@@ -36,9 +36,8 @@ val VowToErebor = card("Vow to Erebor") {
 
     spell {
         val creatureYouControl = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.Untap(creatureYouControl),
-            Effects.ModifyStats(2, 2, creatureYouControl, Duration.EndOfTurn),
+        effect = Effects.Untap(creatureYouControl) then
+            Effects.ModifyStats(2, 2, creatureYouControl, Duration.EndOfTurn) then
             Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.DWARF), creatureYouControl),
                 then = Effects.Pipeline {
@@ -62,7 +61,6 @@ val VowToErebor = card("Vow to Erebor") {
                     )
                 }
             )
-        )
     }
 
     metadata {

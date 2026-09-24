@@ -43,12 +43,10 @@ val SoulShackledZombie = card("Soul-Shackled Zombie") {
             val sszExiled = gather(CardSource.ChosenTargets)
             exile(sszExiled)
             ifNotEmpty(sszExiled, filter = GameObjectFilter.Creature) {
-                run(Effects.Composite(
-                    Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)),
-                    Effects.GainLife(2)
-                ))
+                run(Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)) then
+                    Effects.GainLife(2))
             } orElse {
-                run(Effects.Composite(emptyList()))
+                run(Effects.Nothing)
             }
         }
     }

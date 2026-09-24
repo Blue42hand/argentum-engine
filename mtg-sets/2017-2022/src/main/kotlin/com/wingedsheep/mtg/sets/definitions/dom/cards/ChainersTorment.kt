@@ -31,13 +31,11 @@ val ChainersTorment = card("Chainer's Torment") {
     val halfLifeRoundedUp = DynamicAmounts.yourLifeTotal() divRoundedUp 2
 
     sagaChapter(1) {
-        effect = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent))
-            .then(Effects.GainLife(2))
+        effect = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(2)
     }
 
     sagaChapter(2) {
-        effect = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent))
-            .then(Effects.GainLife(2))
+        effect = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(2)
     }
 
     sagaChapter(3) {
@@ -46,9 +44,7 @@ val ChainersTorment = card("Chainer's Torment") {
             dynamicToughness = halfLifeRoundedUp,
             colors = setOf(Color.BLACK),
             creatureTypes = setOf("Nightmare", "Horror")
-        ).then(
-            Effects.DealDamage(halfLifeRoundedUp, EffectTarget.Controller)
-        )
+        ) then Effects.DealDamage(halfLifeRoundedUp, EffectTarget.Controller)
     }
 
     metadata {

@@ -29,7 +29,7 @@ val GloriousGale = card("Glorious Gale") {
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary(), creatureSpell),
             then = Effects.TheRingTemptsYou()
-        ).then(Effects.CounterSpell())
+        ) then Effects.CounterSpell()
     }
 
     metadata {

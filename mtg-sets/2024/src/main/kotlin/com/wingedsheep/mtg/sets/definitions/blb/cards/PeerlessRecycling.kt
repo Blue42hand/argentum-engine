@@ -41,12 +41,10 @@ val PeerlessRecycling = card("Peerless Recycling") {
                     TargetFilter(GameObjectFilter.Permanent.ownedByYou(), zone = Zone.GRAVEYARD),
                     count = 2,
                 )
-                effect = Effects.Composite(listOf(
-                    Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent)),
-                    Effects.ReturnToHand(firstPermanent),
-                    Effects.ReturnToHand(secondPermanent),
+                effect = Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent)) then
+                    Effects.ReturnToHand(firstPermanent) then
+                    Effects.ReturnToHand(secondPermanent) then
                     Effects.GiftGiven()
-                ))
             }
         )
     }

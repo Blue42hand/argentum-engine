@@ -52,14 +52,12 @@ val GolbezCrystalCollector = card("Golbez, Crystal Collector") {
         trigger = Triggers.you.beginningOf(Step.END)
         interveningIf = Conditions.YouControlAtLeast(4, GameObjectFilter.Artifact.youControl())
         val creatureCard = target(TargetFilter.CreatureInYourGraveyard)
-        effect = Effects.Move(creatureCard, Zone.HAND)
-            .then(
-                Effects.If(
-                    condition = Conditions.YouControlAtLeast(8, GameObjectFilter.Artifact.youControl()),
-                    then = Effects.LoseLife(
-                        DynamicAmounts.powerOf(creatureCard),
-                        EffectTarget.PlayerRef(Player.EachOpponent),
-                    ),
+        effect = Effects.Move(creatureCard, Zone.HAND) then
+            Effects.If(
+                condition = Conditions.YouControlAtLeast(8, GameObjectFilter.Artifact.youControl()),
+                then = Effects.LoseLife(
+                    DynamicAmounts.powerOf(creatureCard),
+                    EffectTarget.PlayerRef(Player.EachOpponent),
                 ),
             )
         description = "At the beginning of your end step, if you control four or more artifacts, return " +

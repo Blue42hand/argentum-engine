@@ -31,24 +31,20 @@ val VigorousCharge = card("Vigorous Charge") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            listOf(
-                Effects.GrantKeyword(Keyword.TRAMPLE, t),
-                Effects.If(
-                    condition = WasKicked,
-                    then = Effects.GrantTriggeredAbility(
-                        ability = TriggeredAbility.create(
-                            trigger = Triggers.self.dealsCombatDamage(),
-                            effect = Effects.GainLife(
-                                DynamicAmounts.triggerDamageAmount()
-                            ),
-                            descriptionOverride = "Whenever this creature deals combat damage, you gain life equal to that damage."
+        effect = Effects.GrantKeyword(Keyword.TRAMPLE, t) then
+            Effects.If(
+                condition = WasKicked,
+                then = Effects.GrantTriggeredAbility(
+                    ability = TriggeredAbility.create(
+                        trigger = Triggers.self.dealsCombatDamage(),
+                        effect = Effects.GainLife(
+                            DynamicAmounts.triggerDamageAmount()
                         ),
-                        target = t
-                    )
+                        descriptionOverride = "Whenever this creature deals combat damage, you gain life equal to that damage."
+                    ),
+                    target = t
                 )
             )
-        )
     }
 
     metadata {

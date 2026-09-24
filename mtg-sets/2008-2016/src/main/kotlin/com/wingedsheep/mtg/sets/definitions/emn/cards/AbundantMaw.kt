@@ -39,10 +39,7 @@ val AbundantMaw = card("Abundant Maw") {
     triggeredAbility {
         trigger = Triggers.self.isCast()
         val victim = target(Targets.Opponent)
-        effect = Effects.Composite(
-            Effects.LoseLife(3, target = victim),
-            Effects.GainLife(3),
-        )
+        effect = Effects.LoseLife(3, target = victim) then Effects.GainLife(3)
         description = "When you cast this spell, target opponent loses 3 life and you gain 3 life."
     }
 

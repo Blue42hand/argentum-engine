@@ -33,25 +33,17 @@ val RequiemMonolith = card("Requiem Monolith") {
         val damage = DynamicAmounts.triggerDamageAmount()
         val grantedAbility = TriggeredAbility.create(
             trigger = Triggers.self.isDealtDamage(),
-            effect = Effects.Composite(
-                listOf(
-                    Effects.DrawCards(damage, EffectTarget.Controller),
-                    Effects.LoseLife(damage, EffectTarget.Controller)
-                )
-            ),
+            effect = Effects.DrawCards(damage, EffectTarget.Controller) then
+                Effects.LoseLife(damage, EffectTarget.Controller),
             descriptionOverride = "Whenever this creature is dealt damage, you draw that many cards and lose that much life"
         )
 
-        effect = Effects.Composite(
-            listOf(
-                Effects.GrantTriggeredAbility(ability = grantedAbility, target = creature),
-                Effects.May(
-                    effect = Effects.DealDamage(amount = 1, target = creature, damageSource = EffectTarget.Self),
-                    descriptionOverride = "Have Requiem Monolith deal 1 damage to that creature?",
-                    decisionMaker = EffectTarget.TargetController
-                )
+        effect = Effects.GrantTriggeredAbility(ability = grantedAbility, target = creature) then
+            Effects.May(
+                effect = Effects.DealDamage(amount = 1, target = creature, damageSource = EffectTarget.Self),
+                descriptionOverride = "Have Requiem Monolith deal 1 damage to that creature?",
+                decisionMaker = EffectTarget.TargetController
             )
-        )
     }
 
     metadata {

@@ -35,11 +35,9 @@ val SpiritWaterRevival = card("Spirit Water Revival") {
         selfExile()
         effect = Effects.If(
             condition = Conditions.WaterbendWasPaid,
-            then = Effects.Composite(
-                Patterns.Library.shuffleGraveyardIntoLibrary(EffectTarget.Controller),
-                Effects.DrawCards(7),
-                Effects.RemoveMaximumHandSize()
-            ),
+            then = Patterns.Library.shuffleGraveyardIntoLibrary(EffectTarget.Controller) then
+                Effects.DrawCards(7) then
+                Effects.RemoveMaximumHandSize(),
             otherwise = Effects.DrawCards(2)
         )
     }

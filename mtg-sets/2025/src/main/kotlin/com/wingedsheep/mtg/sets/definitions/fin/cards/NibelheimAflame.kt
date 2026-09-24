@@ -39,23 +39,18 @@ val NibelheimAflame = card("Nibelheim Aflame") {
 
     spell {
         val chosen = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                filter = GroupFilter(GameObjectFilter.Creature).otherThanTarget(),
-                effect = Effects.DealDamage(
-                    amount = DynamicAmounts.powerOf(chosen),
-                    target = EffectTarget.IterationEntity,
-                    damageSource = chosen,
-                ),
+        effect = Effects.ForEachInGroup(
+            filter = GroupFilter(GameObjectFilter.Creature).otherThanTarget(),
+            effect = Effects.DealDamage(
+                amount = DynamicAmounts.powerOf(chosen),
+                target = EffectTarget.IterationEntity,
+                damageSource = chosen,
             ),
+        ) then
             Effects.If(
                 condition = Conditions.WasCastFromGraveyard,
-                then = Effects.Composite(
-                    Patterns.Hand.discardHand(),
-                    Effects.DrawCards(4),
-                ),
-            ),
-        )
+                then = Patterns.Hand.discardHand() then Effects.DrawCards(4),
+            )
     }
 
     keywordAbility(KeywordAbility.flashback("{5}{R}{R}"))

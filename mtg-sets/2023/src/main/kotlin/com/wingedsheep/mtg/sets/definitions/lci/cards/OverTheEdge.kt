@@ -48,8 +48,7 @@ val OverTheEdge = card("Over the Edge") {
             }
             mode("Target creature you control explores, then it explores again") {
                 val creature = target(TargetFilter.CreatureYouControl)
-                effect = Effects.Explore(creature)
-                    .then(Effects.Explore(creature))
+                effect = Effects.Explore(creature) then Effects.Explore(creature)
             }
         }
     }

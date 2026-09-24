@@ -45,11 +45,9 @@ val GraveResearcher = card("Grave Researcher") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        effect = Patterns.Library.surveil(1).then(
-            Effects.If(
-                condition = Conditions.CreatureCardsInGraveyardAtLeast(3),
-                then = Effects.BecomePrepared(),
-            )
+        effect = Patterns.Library.surveil(1) then Effects.If(
+            condition = Conditions.CreatureCardsInGraveyardAtLeast(3),
+            then = Effects.BecomePrepared(),
         )
         description = "At the beginning of your upkeep, surveil 1. Then if there are three or more " +
             "creature cards in your graveyard, this creature becomes prepared."
@@ -63,13 +61,11 @@ val GraveResearcher = card("Grave Researcher") {
             "control. You lose life equal to that card's mana value."
         spell {
             val creatureCardInGraveyard = target(TargetFilter.CreatureInGraveyard)
-            effect = Effects.Composite(
-                Effects.Move(creatureCardInGraveyard, Zone.BATTLEFIELD),
+            effect = Effects.Move(creatureCardInGraveyard, Zone.BATTLEFIELD) then
                 Effects.LoseLife(
                     DynamicAmounts.manaValueOf(creatureCardInGraveyard),
                     EffectTarget.Controller,
-                ),
-            )
+                )
         }
     }
 

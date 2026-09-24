@@ -34,9 +34,9 @@ val LilysplashMentor = card("Lilysplash Mentor") {
         cost = Costs.Mana("{1}{G}{U}")
         timing = TimingRule.SorcerySpeed
         val creature = target(TargetFilter.OtherCreatureYouControl)
-        effect = Effects.Move(creature, Zone.EXILE)
-            .then(Effects.Move(creature, Zone.BATTLEFIELD))
-            .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature))
+        effect = Effects.Move(creature, Zone.EXILE) then
+            Effects.Move(creature, Zone.BATTLEFIELD) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }
 
     metadata {

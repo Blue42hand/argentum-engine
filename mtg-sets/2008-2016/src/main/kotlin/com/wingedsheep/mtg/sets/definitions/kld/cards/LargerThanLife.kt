@@ -25,10 +25,7 @@ val LargerThanLife = card("Larger Than Life") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(4, 4, t),
-            Effects.GrantKeyword(Keyword.TRAMPLE, t)
-        )
+        effect = Effects.ModifyStats(4, 4, t) then Effects.GrantKeyword(Keyword.TRAMPLE, t)
     }
 
     metadata {

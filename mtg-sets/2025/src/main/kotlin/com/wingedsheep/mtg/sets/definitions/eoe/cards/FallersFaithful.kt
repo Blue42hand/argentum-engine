@@ -42,7 +42,7 @@ val FallersFaithful = card("Faller's Faithful") {
                     statePredicates = listOf(StatePredicate.Not(StatePredicate.WasDealtDamageThisTurn))
                 ), creature),
             then = Effects.DrawCards(2, EffectTarget.TargetController)
-        ).then(Effects.Destroy(creature))
+        ) then Effects.Destroy(creature)
         description = "When this creature enters, destroy up to one other target creature. " +
             "If that creature wasn't dealt damage this turn, its controller draws two cards."
     }

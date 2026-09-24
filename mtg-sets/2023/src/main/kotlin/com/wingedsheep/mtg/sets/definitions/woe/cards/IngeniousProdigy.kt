@@ -59,10 +59,8 @@ val IngeniousProdigy = card("Ingenious Prodigy") {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.SourceHasCounter(CounterType.PLUS_ONE_PLUS_ONE)
         effect = Effects.May(
-            Effects.Composite(
-                Effects.RemoveCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-                Effects.DrawCards(1),
-            )
+            Effects.RemoveCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+                Effects.DrawCards(1)
         )
     }
 

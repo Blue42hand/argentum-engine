@@ -36,10 +36,8 @@ val Wellspring = card("Wellspring") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        effect = Effects.Composite(
-            Effects.Untap(EffectTarget.EnchantedPermanent),
-            Effects.GainControl(EffectTarget.EnchantedPermanent, Duration.EndOfTurn),
-        )
+        effect = Effects.Untap(EffectTarget.EnchantedPermanent) then
+            Effects.GainControl(EffectTarget.EnchantedPermanent, Duration.EndOfTurn)
     }
 
     metadata {

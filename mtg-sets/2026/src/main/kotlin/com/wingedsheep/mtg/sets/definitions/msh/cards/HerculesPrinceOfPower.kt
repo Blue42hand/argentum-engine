@@ -38,12 +38,10 @@ val HerculesPrinceOfPower = card("Hercules, Prince of Power") {
     activatedAbility {
         isPowerUp = true
         cost = Costs.Mana("{4}{G}")
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.Self),
-            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.Self) then
+            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self) then
             Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self)
-        )
     }
 
     metadata {

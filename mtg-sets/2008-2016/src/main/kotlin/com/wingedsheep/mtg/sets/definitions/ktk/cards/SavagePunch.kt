@@ -29,8 +29,7 @@ val SavagePunch = card("Savage Punch") {
         // Ferocious: +2/+2 to your creature before fight if you control a creature with power 4+
         effect = Effects.If(
             condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.powerAtLeast(4)),
-            then = Effects.ModifyStats(2, 2, yourCreature)
-                .then(Effects.Fight(yourCreature, theirCreature)),
+            then = Effects.ModifyStats(2, 2, yourCreature) then Effects.Fight(yourCreature, theirCreature),
             otherwise = Effects.Fight(yourCreature, theirCreature)
         )
     }

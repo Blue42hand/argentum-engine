@@ -27,16 +27,12 @@ val Efflorescence = card("Efflorescence") {
     oracleText = "Put two +1/+1 counters on target creature.\nInfusion — If you gained life this turn, that creature also gains trample and indestructible until end of turn."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = t),
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = t) then
             Effects.If(
                 condition = Conditions.YouGainedLifeThisTurn,
-                then = Effects.Composite(
-                    Effects.GrantKeyword(Keyword.TRAMPLE, t),
+                then = Effects.GrantKeyword(Keyword.TRAMPLE, t) then
                     Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
-                )
             )
-        )
     }
     metadata {
         rarity = Rarity.COMMON

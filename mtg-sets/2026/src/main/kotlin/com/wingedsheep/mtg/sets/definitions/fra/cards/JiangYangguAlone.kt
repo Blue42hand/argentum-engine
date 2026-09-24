@@ -34,15 +34,13 @@ val JiangYangguAlone = card("Jiang Yanggu, Alone") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl().attackingAnOpponent()).attacks(setOf(AttackPredicate.Alone))
-        effect = Effects.Composite(
-            Patterns.Hand.discardCards(1),
-            Effects.DrawCards(1),
+        effect = Patterns.Hand.discardCards(1) then
+            Effects.DrawCards(1) then
             Effects.AddDynamicCounters(
                 CounterType.PLUS_ONE_PLUS_ONE,
                 DynamicAmounts.cardsDiscardedThisTurn(),
                 EffectTarget.TriggeringEntity
             )
-        )
         description = "Whenever a creature you control attacks a player alone, discard a card, then draw a " +
             "card. Then put a +1/+1 counter on that creature for each card you've discarded this turn."
     }

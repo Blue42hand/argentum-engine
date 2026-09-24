@@ -71,8 +71,8 @@ val SharpEyedRookie = card("Sharp-Eyed Rookie") {
                 DynamicAmounts.sourceToughness()
             )
         )
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-            .then(Effects.Investigate())
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.Investigate()
         description = "Whenever a creature you control enters, if its power is greater than this " +
             "creature's power or its toughness is greater than this creature's toughness, put a " +
             "+1/+1 counter on this creature and investigate."

@@ -20,10 +20,7 @@ val GrotesqueMutation = card("Grotesque Mutation") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(3, 1, t),
-            Effects.GrantKeyword(Keyword.LIFELINK, t)
-        )
+        effect = Effects.ModifyStats(3, 1, t) then Effects.GrantKeyword(Keyword.LIFELINK, t)
     }
 
     metadata {

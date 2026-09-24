@@ -45,15 +45,13 @@ val UneasyAlliance = card("Uneasy Alliance") {
             Costs.SacrificeSelf
         )
         timing = TimingRule.SorcerySpeed
-        effect = Effects.Exile(EffectTarget.EnchantedCreature)
-            .then(
-                Effects.CreateToken(
-                    power = 1,
-                    toughness = 1,
-                    colors = setOf(Color.BLACK),
-                    creatureTypes = setOf("Ninja"),
-                    imageUri = "https://cards.scryfall.io/normal/front/a/7/a7b76498-d696-40d1-b7c7-91657525b44f.jpg?1771590477"
-                )
+        effect = Effects.Exile(EffectTarget.EnchantedCreature) then
+            Effects.CreateToken(
+                power = 1,
+                toughness = 1,
+                colors = setOf(Color.BLACK),
+                creatureTypes = setOf("Ninja"),
+                imageUri = "https://cards.scryfall.io/normal/front/a/7/a7b76498-d696-40d1-b7c7-91657525b44f.jpg?1771590477"
             )
     }
 

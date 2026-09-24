@@ -31,7 +31,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Battlefield",
                         "placement": "Tapped"
@@ -43,7 +43,7 @@
                                 "baseFilter": "creature Zombie own:you",
                                 "zone": "Graveyard"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Return target Zombie creature card from your graveyard to the battlefield tapped"

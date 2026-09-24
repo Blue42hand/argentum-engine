@@ -29,10 +29,7 @@ val TreasuredFind = card("Treasured Find") {
 
     spell {
         val c = target(TargetFilter(GameObjectFilter.Any.ownedByYou(), zone = Zone.GRAVEYARD))
-        effect = Effects.Composite(
-            Effects.ReturnToHand(c),
-            Effects.Exile(EffectTarget.Self),
-        )
+        effect = Effects.ReturnToHand(c) then Effects.Exile(EffectTarget.Self)
     }
 
     metadata {

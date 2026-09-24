@@ -25,10 +25,7 @@ val OozeSpill = card("Ooze Spill") {
         // Counter the spell, then create the Mutagen token. The spell is the only
         // target, so if it is an illegal target on resolution (CR 608.2b) Ooze Spill
         // is removed and neither effect happens.
-        effect = Effects.Composite(
-            Effects.CounterSpell(),
-            Effects.CreateMutagenToken()
-        )
+        effect = Effects.CounterSpell() then Effects.CreateMutagenToken()
     }
 
     metadata {

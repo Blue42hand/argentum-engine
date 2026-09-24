@@ -24,10 +24,7 @@ val SorcerousSight = card("Sorcerous Sight") {
     oracleText = "Look at target opponent's hand.\nDraw a card."
     spell {
         val t = target(Targets.Opponent)
-        effect = Effects.Composite(
-            Effects.LookAtHand(t),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.LookAtHand(t) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

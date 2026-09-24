@@ -40,7 +40,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Hand"
                     },
@@ -50,7 +50,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Return target creature to its owner's hand"
@@ -865,13 +865,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "TargetOpponentOrPlaneswalker",
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }
@@ -925,7 +925,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -936,7 +936,7 @@
                             "filter": {
                                 "baseFilter": "creature kw:defender"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target creature with defender"
@@ -3600,32 +3600,27 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "ModifyStats",
-                            "powerModifier": {
-                                "type": "Fixed",
-                                "amount": 1
-                            },
-                            "toughnessModifier": {
-                                "type": "Fixed",
-                                "amount": 0
-                            },
-                            "target": {
-                                "type": "BoundVariable",
-                                "name": "t0"
-                            }
-                        },
-                        {
-                            "type": "GrantKeyword",
-                            "keyword": "FIRST_STRIKE",
-                            "target": {
-                                "type": "BoundVariable",
-                                "name": "t0"
-                            }
-                        }
-                    ]
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "GrantKeyword",
+                    "keyword": "FIRST_STRIKE",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
                 },
                 {
                     "type": "Scry",
@@ -3690,7 +3685,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Hand"
                     },
@@ -3700,7 +3695,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Return target creature to its owner's hand"
@@ -3829,13 +3824,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "TargetOpponentOrPlaneswalker",
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }

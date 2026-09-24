@@ -109,7 +109,7 @@ class ChampionKeywordTest : FunSpec({
         typeLine = "Instant"
         spell {
             val creature = target(TargetFilter.Creature)
-            effect = Effects.Exile(creature).then(Effects.PutOntoBattlefield(creature))
+            effect = Effects.Exile(creature) then Effects.PutOntoBattlefield(creature)
         }
     }
 

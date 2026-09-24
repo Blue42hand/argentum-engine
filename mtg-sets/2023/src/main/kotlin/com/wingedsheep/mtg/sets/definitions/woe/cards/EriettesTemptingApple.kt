@@ -31,11 +31,9 @@ val EriettesTemptingApple = card("Eriette's Tempting Apple") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GainControl(t, Duration.EndOfTurn),
-            Effects.Untap(t),
+        effect = Effects.GainControl(t, Duration.EndOfTurn) then
+            Effects.Untap(t) then
             Effects.GrantKeyword(Keyword.HASTE, t)
-        )
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap, Costs.SacrificeSelf)

@@ -48,8 +48,8 @@ val KheruGoldkeeper = card("Kheru Goldkeeper") {
 
     renew("{2}{B}{G}{U}") {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature)
-            .then(Effects.AddCounters(CounterType.FLYING, 1, creature))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature) then
+            Effects.AddCounters(CounterType.FLYING, 1, creature)
     }
 
     metadata {

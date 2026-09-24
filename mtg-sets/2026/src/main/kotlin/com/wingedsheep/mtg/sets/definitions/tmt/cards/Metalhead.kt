@@ -42,9 +42,9 @@ val Metalhead = card("Metalhead") {
             Costs.Mana("{R}"),
             Costs.SacrificeAnother(GameObjectFilter.Artifact)
         )
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-            .then(Effects.GrantKeyword(Keyword.MENACE, EffectTarget.Self, Duration.EndOfTurn))
-            .then(Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self, Duration.EndOfTurn))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.GrantKeyword(Keyword.MENACE, EffectTarget.Self, Duration.EndOfTurn) then
+            Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self, Duration.EndOfTurn)
     }
 
     metadata {

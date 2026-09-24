@@ -27,9 +27,9 @@ val VeteranGuardmouse = card("Veteran Guardmouse") {
 
     triggeredAbility {
         trigger = Triggers.self.becomesTarget(byYou = true, firstTimeEachTurn = true)
-        effect = Effects.ModifyStats(1, 0, EffectTarget.Self)
-            .then(Effects.GrantKeyword(Keyword.FIRST_STRIKE, EffectTarget.Self))
-            .then(Patterns.Library.scry(1))
+        effect = Effects.ModifyStats(1, 0, EffectTarget.Self) then
+            Effects.GrantKeyword(Keyword.FIRST_STRIKE, EffectTarget.Self) then
+            Patterns.Library.scry(1)
     }
 
     metadata {

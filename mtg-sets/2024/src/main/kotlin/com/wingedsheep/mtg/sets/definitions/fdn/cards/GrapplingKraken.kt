@@ -30,10 +30,8 @@ val GrapplingKraken = card("Grappling Kraken") {
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         val t = target(TargetFilter.Creature.opponentControls())
-        effect = Effects.Composite(
-            Effects.Tap(t),
+        effect = Effects.Tap(t) then
             Effects.AddCounters(counterType = CounterType.STUN, count = 1, target = t)
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

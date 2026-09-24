@@ -32,11 +32,9 @@ val CelestialArmor = card("Celestial Armor") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter.Creature.youControl())
-        effect = Effects.Composite(
-            Effects.AttachEquipment(t),
-            Effects.GrantKeyword(Keyword.HEXPROOF, t),
+        effect = Effects.AttachEquipment(t) then
+            Effects.GrantKeyword(Keyword.HEXPROOF, t) then
             Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
-        )
     }
     staticAbility {
         ability = ModifyStats(2, 0)

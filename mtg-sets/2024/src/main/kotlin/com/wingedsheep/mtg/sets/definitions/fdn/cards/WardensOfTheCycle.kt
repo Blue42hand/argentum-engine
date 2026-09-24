@@ -40,7 +40,7 @@ val WardensOfTheCycle = card("Wardens of the Cycle") {
                 description = "You gain 2 life"
             ),
             Mode(
-                effect = Effects.DrawCards(1).then(Effects.LoseLife(1, EffectTarget.Controller)),
+                effect = Effects.DrawCards(1) then Effects.LoseLife(1, EffectTarget.Controller),
                 description = "You draw a card and you lose 1 life"
             )
         )

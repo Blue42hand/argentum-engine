@@ -47,10 +47,7 @@ val MutantChainReaction = card("Mutant Chain Reaction") {
             optional = true,
         )
         // The destroy no-ops if no target was chosen; the token is always created.
-        effect = Effects.Composite(
-            Effects.Destroy(permanent),
-            Effects.CreateMutagenToken()
-        )
+        effect = Effects.Destroy(permanent) then Effects.CreateMutagenToken()
     }
 
     metadata {

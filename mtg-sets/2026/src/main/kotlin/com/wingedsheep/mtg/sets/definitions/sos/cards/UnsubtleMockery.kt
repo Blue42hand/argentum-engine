@@ -24,10 +24,7 @@ val UnsubtleMockery = card("Unsubtle Mockery") {
     oracleText = "Unsubtle Mockery deals 4 damage to target creature. Surveil 1. (Look at the top card of your library. You may put it into your graveyard.)"
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.DealDamage(4, t),
-            Patterns.Library.surveil(1)
-        )
+        effect = Effects.DealDamage(4, t) then Patterns.Library.surveil(1)
     }
     metadata {
         rarity = Rarity.COMMON

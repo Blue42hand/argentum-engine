@@ -158,7 +158,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "destination": "Exile"
                 },
@@ -167,7 +167,7 @@
                     "filter": {
                         "baseFilter": "permanent"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]

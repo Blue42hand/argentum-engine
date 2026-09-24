@@ -20,10 +20,7 @@ val SlaughterCry = card("Slaughter Cry") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(3, 0, creature),
-            Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature),
-        )
+        effect = Effects.ModifyStats(3, 0, creature) then Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature)
     }
 
     metadata {

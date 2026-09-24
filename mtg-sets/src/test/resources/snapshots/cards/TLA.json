@@ -754,39 +754,34 @@
                 "type": "Composite",
                 "effects": [
                     {
-                        "type": "Composite",
-                        "effects": [
-                            {
-                                "type": "GatherCards",
-                                "source": {
-                                    "type": "FromZone",
-                                    "zone": "Hand"
-                                },
-                                "storeAs": "hand"
-                            },
-                            {
-                                "type": "SelectFromCollection",
-                                "from": "hand",
-                                "selection": {
-                                    "type": "ChooseExactly",
-                                    "count": {
-                                        "type": "Fixed",
-                                        "amount": 1
-                                    }
-                                },
-                                "storeSelected": "discarded",
-                                "prompt": "Choose 1 card to discard"
-                            },
-                            {
-                                "type": "MoveCollection",
-                                "from": "discarded",
-                                "destination": {
-                                    "type": "ToZone",
-                                    "zone": "Graveyard"
-                                },
-                                "moveType": "Discard"
+                        "type": "GatherCards",
+                        "source": {
+                            "type": "FromZone",
+                            "zone": "Hand"
+                        },
+                        "storeAs": "hand"
+                    },
+                    {
+                        "type": "SelectFromCollection",
+                        "from": "hand",
+                        "selection": {
+                            "type": "ChooseExactly",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
                             }
-                        ]
+                        },
+                        "storeSelected": "discarded",
+                        "prompt": "Choose 1 card to discard"
+                    },
+                    {
+                        "type": "MoveCollection",
+                        "from": "discarded",
+                        "destination": {
+                            "type": "ToZone",
+                            "zone": "Graveyard"
+                        },
+                        "moveType": "Discard"
                     },
                     {
                         "type": "DrawCards",
@@ -1436,44 +1431,39 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "GatherCards",
-                            "source": "ChosenTargets",
-                            "storeAs": "airbendChosen"
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "airbendChosen",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Exile"
-                            },
-                            "storeMovedAs": "airbendExiled"
-                        },
-                        {
-                            "type": "GrantMayPlayFromExile",
-                            "from": "airbendExiled",
-                            "expiry": "Permanent",
-                            "ownerControls": true,
-                            "fixedAlternativeManaCost": "{2}"
-                        },
-                        {
-                            "type": "Gated",
-                            "gate": {
-                                "type": "Gate.WhenCondition",
-                                "condition": {
-                                    "type": "CollectionContainsMatch",
-                                    "collection": "airbendExiled"
-                                }
-                            },
-                            "then": {
-                                "type": "EmitBendEvent",
-                                "bendType": "AIR"
-                            }
+                    "type": "GatherCards",
+                    "source": "ChosenTargets",
+                    "storeAs": "airbendChosen"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "airbendChosen",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Exile"
+                    },
+                    "storeMovedAs": "airbendExiled"
+                },
+                {
+                    "type": "GrantMayPlayFromExile",
+                    "from": "airbendExiled",
+                    "expiry": "Permanent",
+                    "ownerControls": true,
+                    "fixedAlternativeManaCost": "{2}"
+                },
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "CollectionContainsMatch",
+                            "collection": "airbendExiled"
                         }
-                    ]
+                    },
+                    "then": {
+                        "type": "EmitBendEvent",
+                        "bendType": "AIR"
+                    }
                 },
                 {
                     "type": "DrawCards",
@@ -2343,48 +2333,43 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "BattlefieldMatching",
-                                "filter": "creature",
-                                "excludeChosenTargets": true
-                            },
-                            "storeAs": "airbendChosen"
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "airbendChosen",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Exile"
-                            },
-                            "storeMovedAs": "airbendExiled"
-                        },
-                        {
-                            "type": "GrantMayPlayFromExile",
-                            "from": "airbendExiled",
-                            "expiry": "Permanent",
-                            "ownerControls": true,
-                            "fixedAlternativeManaCost": "{2}"
-                        },
-                        {
-                            "type": "Gated",
-                            "gate": {
-                                "type": "Gate.WhenCondition",
-                                "condition": {
-                                    "type": "CollectionContainsMatch",
-                                    "collection": "airbendExiled"
-                                }
-                            },
-                            "then": {
-                                "type": "EmitBendEvent",
-                                "bendType": "AIR"
-                            }
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "BattlefieldMatching",
+                        "filter": "creature",
+                        "excludeChosenTargets": true
+                    },
+                    "storeAs": "airbendChosen"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "airbendChosen",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Exile"
+                    },
+                    "storeMovedAs": "airbendExiled"
+                },
+                {
+                    "type": "GrantMayPlayFromExile",
+                    "from": "airbendExiled",
+                    "expiry": "Permanent",
+                    "ownerControls": true,
+                    "fixedAlternativeManaCost": "{2}"
+                },
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "CollectionContainsMatch",
+                            "collection": "airbendExiled"
                         }
-                    ]
+                    },
+                    "then": {
+                        "type": "EmitBendEvent",
+                        "bendType": "AIR"
+                    }
                 },
                 {
                     "type": "CantCastSpellsFromNonHandZones",
@@ -2462,7 +2447,7 @@
                         "count": 1,
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -2471,7 +2456,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Put a +1/+1 counter on target creature"
@@ -3969,7 +3954,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -3993,7 +3978,7 @@
                                     }
                                 ]
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target land creature or nonbasic land"
@@ -4123,7 +4108,7 @@
                                         "type": "AnimateLand",
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t1"
                                         },
                                         "power": 0,
                                         "toughness": 0,
@@ -4134,7 +4119,7 @@
                                         "keyword": "HASTE",
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t1"
                                         },
                                         "duration": "Permanent"
                                     },
@@ -4144,7 +4129,7 @@
                                         "count": 3,
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t1"
                                         }
                                     },
                                     {
@@ -4178,7 +4163,7 @@
                                         },
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t1"
                                         },
                                         "duration": "Permanent"
                                     },
@@ -4194,7 +4179,7 @@
                                     "filter": {
                                         "baseFilter": "land ctrl:you"
                                     },
-                                    "id": "t0"
+                                    "id": "t1"
                                 }
                             ],
                             "description": "Earthbend 3. (Target land you control becomes a 0/0 creature with haste that's still a land. Put three +1/+1 counters on it. When it dies or is exiled, return it to the battlefield tapped.)"
@@ -5260,76 +5245,71 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "AnimateLand",
-                                    "target": {
-                                        "type": "BoundVariable",
-                                        "name": "t0"
-                                    },
-                                    "power": 0,
-                                    "toughness": 0,
-                                    "duration": "Permanent"
+                            "type": "AnimateLand",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "power": 0,
+                            "toughness": 0,
+                            "duration": "Permanent"
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "HASTE",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "duration": "Permanent"
+                        },
+                        {
+                            "type": "AddCounters",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
+                            "count": 1,
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            }
+                        },
+                        {
+                            "type": "GrantTriggeredAbility",
+                            "ability": {
+                                "id": "earthbend_return_tapped",
+                                "trigger": {
+                                    "type": "ZoneChangeEvent",
+                                    "from": "Battlefield"
                                 },
-                                {
-                                    "type": "GrantKeyword",
-                                    "keyword": "HASTE",
-                                    "target": {
-                                        "type": "BoundVariable",
-                                        "name": "t0"
-                                    },
-                                    "duration": "Permanent"
-                                },
-                                {
-                                    "type": "AddCounters",
-                                    "counterType": "PLUS_ONE_PLUS_ONE",
-                                    "count": 1,
-                                    "target": {
-                                        "type": "BoundVariable",
-                                        "name": "t0"
-                                    }
-                                },
-                                {
-                                    "type": "GrantTriggeredAbility",
-                                    "ability": {
-                                        "id": "earthbend_return_tapped",
-                                        "trigger": {
-                                            "type": "ZoneChangeEvent",
-                                            "from": "Battlefield"
+                                "effect": {
+                                    "type": "Composite",
+                                    "effects": [
+                                        {
+                                            "type": "MoveToZone",
+                                            "target": "Self",
+                                            "destination": "Battlefield",
+                                            "placement": "Tapped",
+                                            "fromZone": "Graveyard"
                                         },
-                                        "effect": {
-                                            "type": "Composite",
-                                            "effects": [
-                                                {
-                                                    "type": "MoveToZone",
-                                                    "target": "Self",
-                                                    "destination": "Battlefield",
-                                                    "placement": "Tapped",
-                                                    "fromZone": "Graveyard"
-                                                },
-                                                {
-                                                    "type": "MoveToZone",
-                                                    "target": "Self",
-                                                    "destination": "Battlefield",
-                                                    "placement": "Tapped",
-                                                    "fromZone": "Exile"
-                                                }
-                                            ]
-                                        },
-                                        "descriptionOverride": "When this dies or is exiled, return it to the battlefield tapped."
-                                    },
-                                    "target": {
-                                        "type": "BoundVariable",
-                                        "name": "t0"
-                                    },
-                                    "duration": "Permanent"
+                                        {
+                                            "type": "MoveToZone",
+                                            "target": "Self",
+                                            "destination": "Battlefield",
+                                            "placement": "Tapped",
+                                            "fromZone": "Exile"
+                                        }
+                                    ]
                                 },
-                                {
-                                    "type": "EmitBendEvent",
-                                    "bendType": "EARTH"
-                                }
-                            ]
+                                "descriptionOverride": "When this dies or is exiled, return it to the battlefield tapped."
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "duration": "Permanent"
+                        },
+                        {
+                            "type": "EmitBendEvent",
+                            "bendType": "EARTH"
                         },
                         {
                             "type": "Composite",
@@ -5569,7 +5549,7 @@
                                 "type": "AnimateLand",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 },
                                 "power": 0,
                                 "toughness": 0,
@@ -5580,7 +5560,7 @@
                                 "keyword": "HASTE",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 },
                                 "duration": "Permanent"
                             },
@@ -5590,7 +5570,7 @@
                                 "count": 2,
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             {
@@ -5624,7 +5604,7 @@
                                 },
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 },
                                 "duration": "Permanent"
                             },
@@ -5640,7 +5620,7 @@
                             "filter": {
                                 "baseFilter": "land ctrl:you"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Earthbend 2"
@@ -5766,7 +5746,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -5777,7 +5757,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Sacrifice an artifact or creature — destroy target creature",
@@ -6523,11 +6503,11 @@
                 "type": "Fight",
                 "target1": {
                     "type": "BoundVariable",
-                    "name": "t0"
+                    "name": "t1"
                 },
                 "target2": {
                     "type": "BoundVariable",
-                    "name": "t1"
+                    "name": "t2"
                 }
             },
             "reflexiveTargetRequirements": [
@@ -6537,14 +6517,14 @@
                     "filter": {
                         "baseFilter": "creature ctrl:you"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 },
                 {
                     "type": "TargetObject",
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
                     },
-                    "id": "t1"
+                    "id": "t2"
                 }
             ],
             "descriptionOverride": "Earthbend 2. When you do, up to one target creature you control fights target creature an opponent controls."
@@ -6800,76 +6780,71 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "AnimateLand",
-                                    "target": {
-                                        "type": "BoundVariable",
-                                        "name": "t0"
-                                    },
-                                    "power": 0,
-                                    "toughness": 0,
-                                    "duration": "Permanent"
+                            "type": "AnimateLand",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "power": 0,
+                            "toughness": 0,
+                            "duration": "Permanent"
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "HASTE",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "duration": "Permanent"
+                        },
+                        {
+                            "type": "AddCounters",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
+                            "count": 2,
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            }
+                        },
+                        {
+                            "type": "GrantTriggeredAbility",
+                            "ability": {
+                                "id": "earthbend_return_tapped",
+                                "trigger": {
+                                    "type": "ZoneChangeEvent",
+                                    "from": "Battlefield"
                                 },
-                                {
-                                    "type": "GrantKeyword",
-                                    "keyword": "HASTE",
-                                    "target": {
-                                        "type": "BoundVariable",
-                                        "name": "t0"
-                                    },
-                                    "duration": "Permanent"
-                                },
-                                {
-                                    "type": "AddCounters",
-                                    "counterType": "PLUS_ONE_PLUS_ONE",
-                                    "count": 2,
-                                    "target": {
-                                        "type": "BoundVariable",
-                                        "name": "t0"
-                                    }
-                                },
-                                {
-                                    "type": "GrantTriggeredAbility",
-                                    "ability": {
-                                        "id": "earthbend_return_tapped",
-                                        "trigger": {
-                                            "type": "ZoneChangeEvent",
-                                            "from": "Battlefield"
+                                "effect": {
+                                    "type": "Composite",
+                                    "effects": [
+                                        {
+                                            "type": "MoveToZone",
+                                            "target": "Self",
+                                            "destination": "Battlefield",
+                                            "placement": "Tapped",
+                                            "fromZone": "Graveyard"
                                         },
-                                        "effect": {
-                                            "type": "Composite",
-                                            "effects": [
-                                                {
-                                                    "type": "MoveToZone",
-                                                    "target": "Self",
-                                                    "destination": "Battlefield",
-                                                    "placement": "Tapped",
-                                                    "fromZone": "Graveyard"
-                                                },
-                                                {
-                                                    "type": "MoveToZone",
-                                                    "target": "Self",
-                                                    "destination": "Battlefield",
-                                                    "placement": "Tapped",
-                                                    "fromZone": "Exile"
-                                                }
-                                            ]
-                                        },
-                                        "descriptionOverride": "When this dies or is exiled, return it to the battlefield tapped."
-                                    },
-                                    "target": {
-                                        "type": "BoundVariable",
-                                        "name": "t0"
-                                    },
-                                    "duration": "Permanent"
+                                        {
+                                            "type": "MoveToZone",
+                                            "target": "Self",
+                                            "destination": "Battlefield",
+                                            "placement": "Tapped",
+                                            "fromZone": "Exile"
+                                        }
+                                    ]
                                 },
-                                {
-                                    "type": "EmitBendEvent",
-                                    "bendType": "EARTH"
-                                }
-                            ]
+                                "descriptionOverride": "When this dies or is exiled, return it to the battlefield tapped."
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "duration": "Permanent"
+                        },
+                        {
+                            "type": "EmitBendEvent",
+                            "bendType": "EARTH"
                         },
                         {
                             "type": "Composite",
@@ -7381,7 +7356,7 @@
                         "type": "CreateTokenCopyOfTarget",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "overridePower": 2,
                         "overrideToughness": 2,
@@ -7398,7 +7373,7 @@
                             "filter": {
                                 "baseFilter": "creature ctrl:opponent"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Create a token that's a copy of target creature an opponent controls, except it's not legendary and it's a 2/2 Coward in addition to its other types"
@@ -7676,7 +7651,7 @@
                         "type": "AnimateLand",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "power": 0,
                         "toughness": 0,
@@ -7687,7 +7662,7 @@
                         "keyword": "HASTE",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "duration": "Permanent"
                     },
@@ -7697,7 +7672,7 @@
                         "count": 4,
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     {
@@ -7731,7 +7706,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "duration": "Permanent"
                     },
@@ -7757,7 +7732,7 @@
                 "filter": {
                     "baseFilter": "land ctrl:you"
                 },
-                "id": "t0"
+                "id": "t1"
             }
         },
         "targetRequirements": [
@@ -10302,7 +10277,7 @@
                         "type": "RemoveAnyNumberOfCounters",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "maxTotal": {
                             "type": "Fixed",
@@ -10315,7 +10290,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Remove up to three counters from target creature"
@@ -10398,7 +10373,7 @@
                                 "type": "SacrificeTarget",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             {
@@ -10416,7 +10391,7 @@
                         "baseFilter": "creature|artifact ctrl:you",
                         "excludeSelf": true
                     },
-                    "id": "t0"
+                    "id": "t1"
                 },
                 "descriptionOverride": "Whenever Hei Bai attacks, you may sacrifice another creature or artifact. If you do, put two +1/+1 counters on Hei Bai."
             },
@@ -10430,7 +10405,7 @@
                     "type": "MoveAllLastKnownCounters",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t2"
                     }
                 },
                 "targetRequirement": {
@@ -10438,7 +10413,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:you"
                     },
-                    "id": "t0"
+                    "id": "t2"
                 },
                 "descriptionOverride": "When Hei Bai leaves the battlefield, put its counters on target creature you control."
             }
@@ -11675,7 +11650,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 },
                 "descriptionOverride": "When Jet dies, put a +1/+1 counter on each of up to two target creatures."
             }
@@ -12500,29 +12475,24 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "TopOfLibrary",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 3
-                                        },
-                                        "isMill": true
-                                    },
-                                    "storeAs": "milled"
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 3
                                 },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "milled",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard"
-                                    }
-                                }
-                            ]
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
                         },
                         {
                             "type": "CreatePredefinedToken",
@@ -13776,7 +13746,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirements": [
@@ -13785,7 +13755,7 @@
                         "filter": {
                             "baseFilter": "creature ctrl:opponent"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ],
                 "descriptionOverride": "Waterbend {3}, {T}: Tap target creature an opponent controls.",
@@ -14192,7 +14162,7 @@
                                 "count": 1,
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             {
@@ -14200,7 +14170,7 @@
                                 "keyword": "INDESTRUCTIBLE",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             }
                         ]
@@ -14211,7 +14181,7 @@
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Put a +1/+1 counter on target creature you control. It gains indestructible until end of turn."
@@ -15535,7 +15505,7 @@
                             "type": "MoveToZone",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t1"
                             },
                             "destination": "Exile"
                         },
@@ -15559,7 +15529,7 @@
                         "baseFilter": {},
                         "zone": "Graveyard"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 },
                 "descriptionOverride": "Whenever this creature attacks, exile up to one target card from a graveyard. If a creature card is exiled this way, create a Clue token."
             },
@@ -16598,7 +16568,7 @@
                                 "type": "AnimateLand",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 },
                                 "power": 0,
                                 "toughness": 0,
@@ -16609,7 +16579,7 @@
                                 "keyword": "HASTE",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 },
                                 "duration": "Permanent"
                             },
@@ -16619,7 +16589,7 @@
                                 "count": 3,
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             {
@@ -16653,7 +16623,7 @@
                                 },
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 },
                                 "duration": "Permanent"
                             },
@@ -16669,7 +16639,7 @@
                             "filter": {
                                 "baseFilter": "land ctrl:you"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Earthbend 3"
@@ -17917,26 +17887,21 @@
                 "type": "Composite",
                 "effects": [
                     {
-                        "type": "Composite",
-                        "effects": [
-                            {
-                                "type": "GatherCards",
-                                "source": {
-                                    "type": "FromZone",
-                                    "zone": "Graveyard"
-                                },
-                                "storeAs": "graveyardCards"
-                            },
-                            {
-                                "type": "MoveCollection",
-                                "from": "graveyardCards",
-                                "destination": {
-                                    "type": "ToZone",
-                                    "zone": "Library",
-                                    "placement": "Shuffled"
-                                }
-                            }
-                        ]
+                        "type": "GatherCards",
+                        "source": {
+                            "type": "FromZone",
+                            "zone": "Graveyard"
+                        },
+                        "storeAs": "graveyardCards"
+                    },
+                    {
+                        "type": "MoveCollection",
+                        "from": "graveyardCards",
+                        "destination": {
+                            "type": "ToZone",
+                            "zone": "Library",
+                            "placement": "Shuffled"
+                        }
                     },
                     {
                         "type": "DrawCards",
@@ -19206,80 +19171,75 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "AnimateLand",
-                                    "target": {
-                                        "type": "BoundVariable",
-                                        "name": "t0"
-                                    },
-                                    "power": 0,
-                                    "toughness": 0,
-                                    "duration": "Permanent"
+                            "type": "AnimateLand",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "power": 0,
+                            "toughness": 0,
+                            "duration": "Permanent"
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "HASTE",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "duration": "Permanent"
+                        },
+                        {
+                            "type": "AddDynamicCounters",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
+                            "amount": {
+                                "type": "Count",
+                                "player": "You",
+                                "zone": "Hand"
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            }
+                        },
+                        {
+                            "type": "GrantTriggeredAbility",
+                            "ability": {
+                                "id": "earthbend_return_tapped",
+                                "trigger": {
+                                    "type": "ZoneChangeEvent",
+                                    "from": "Battlefield"
                                 },
-                                {
-                                    "type": "GrantKeyword",
-                                    "keyword": "HASTE",
-                                    "target": {
-                                        "type": "BoundVariable",
-                                        "name": "t0"
-                                    },
-                                    "duration": "Permanent"
-                                },
-                                {
-                                    "type": "AddDynamicCounters",
-                                    "counterType": "PLUS_ONE_PLUS_ONE",
-                                    "amount": {
-                                        "type": "Count",
-                                        "player": "You",
-                                        "zone": "Hand"
-                                    },
-                                    "target": {
-                                        "type": "BoundVariable",
-                                        "name": "t0"
-                                    }
-                                },
-                                {
-                                    "type": "GrantTriggeredAbility",
-                                    "ability": {
-                                        "id": "earthbend_return_tapped",
-                                        "trigger": {
-                                            "type": "ZoneChangeEvent",
-                                            "from": "Battlefield"
+                                "effect": {
+                                    "type": "Composite",
+                                    "effects": [
+                                        {
+                                            "type": "MoveToZone",
+                                            "target": "Self",
+                                            "destination": "Battlefield",
+                                            "placement": "Tapped",
+                                            "fromZone": "Graveyard"
                                         },
-                                        "effect": {
-                                            "type": "Composite",
-                                            "effects": [
-                                                {
-                                                    "type": "MoveToZone",
-                                                    "target": "Self",
-                                                    "destination": "Battlefield",
-                                                    "placement": "Tapped",
-                                                    "fromZone": "Graveyard"
-                                                },
-                                                {
-                                                    "type": "MoveToZone",
-                                                    "target": "Self",
-                                                    "destination": "Battlefield",
-                                                    "placement": "Tapped",
-                                                    "fromZone": "Exile"
-                                                }
-                                            ]
-                                        },
-                                        "descriptionOverride": "When this dies or is exiled, return it to the battlefield tapped."
-                                    },
-                                    "target": {
-                                        "type": "BoundVariable",
-                                        "name": "t0"
-                                    },
-                                    "duration": "Permanent"
+                                        {
+                                            "type": "MoveToZone",
+                                            "target": "Self",
+                                            "destination": "Battlefield",
+                                            "placement": "Tapped",
+                                            "fromZone": "Exile"
+                                        }
+                                    ]
                                 },
-                                {
-                                    "type": "EmitBendEvent",
-                                    "bendType": "EARTH"
-                                }
-                            ]
+                                "descriptionOverride": "When this dies or is exiled, return it to the battlefield tapped."
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "duration": "Permanent"
+                        },
+                        {
+                            "type": "EmitBendEvent",
+                            "bendType": "EARTH"
                         },
                         {
                             "type": "AddSubtype",
@@ -20555,76 +20515,71 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "AnimateLand",
-                                    "target": {
-                                        "type": "BoundVariable",
-                                        "name": "t0"
-                                    },
-                                    "power": 0,
-                                    "toughness": 0,
-                                    "duration": "Permanent"
+                            "type": "AnimateLand",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t1"
+                            },
+                            "power": 0,
+                            "toughness": 0,
+                            "duration": "Permanent"
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "HASTE",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t1"
+                            },
+                            "duration": "Permanent"
+                        },
+                        {
+                            "type": "AddCounters",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
+                            "count": 1,
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t1"
+                            }
+                        },
+                        {
+                            "type": "GrantTriggeredAbility",
+                            "ability": {
+                                "id": "earthbend_return_tapped",
+                                "trigger": {
+                                    "type": "ZoneChangeEvent",
+                                    "from": "Battlefield"
                                 },
-                                {
-                                    "type": "GrantKeyword",
-                                    "keyword": "HASTE",
-                                    "target": {
-                                        "type": "BoundVariable",
-                                        "name": "t0"
-                                    },
-                                    "duration": "Permanent"
-                                },
-                                {
-                                    "type": "AddCounters",
-                                    "counterType": "PLUS_ONE_PLUS_ONE",
-                                    "count": 1,
-                                    "target": {
-                                        "type": "BoundVariable",
-                                        "name": "t0"
-                                    }
-                                },
-                                {
-                                    "type": "GrantTriggeredAbility",
-                                    "ability": {
-                                        "id": "earthbend_return_tapped",
-                                        "trigger": {
-                                            "type": "ZoneChangeEvent",
-                                            "from": "Battlefield"
+                                "effect": {
+                                    "type": "Composite",
+                                    "effects": [
+                                        {
+                                            "type": "MoveToZone",
+                                            "target": "Self",
+                                            "destination": "Battlefield",
+                                            "placement": "Tapped",
+                                            "fromZone": "Graveyard"
                                         },
-                                        "effect": {
-                                            "type": "Composite",
-                                            "effects": [
-                                                {
-                                                    "type": "MoveToZone",
-                                                    "target": "Self",
-                                                    "destination": "Battlefield",
-                                                    "placement": "Tapped",
-                                                    "fromZone": "Graveyard"
-                                                },
-                                                {
-                                                    "type": "MoveToZone",
-                                                    "target": "Self",
-                                                    "destination": "Battlefield",
-                                                    "placement": "Tapped",
-                                                    "fromZone": "Exile"
-                                                }
-                                            ]
-                                        },
-                                        "descriptionOverride": "When this dies or is exiled, return it to the battlefield tapped."
-                                    },
-                                    "target": {
-                                        "type": "BoundVariable",
-                                        "name": "t0"
-                                    },
-                                    "duration": "Permanent"
+                                        {
+                                            "type": "MoveToZone",
+                                            "target": "Self",
+                                            "destination": "Battlefield",
+                                            "placement": "Tapped",
+                                            "fromZone": "Exile"
+                                        }
+                                    ]
                                 },
-                                {
-                                    "type": "EmitBendEvent",
-                                    "bendType": "EARTH"
-                                }
-                            ]
+                                "descriptionOverride": "When this dies or is exiled, return it to the battlefield tapped."
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t1"
+                            },
+                            "duration": "Permanent"
+                        },
+                        {
+                            "type": "EmitBendEvent",
+                            "bendType": "EARTH"
                         },
                         {
                             "type": "Gated",
@@ -20642,7 +20597,7 @@
                                 "count": 1,
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             }
                         }
@@ -20653,7 +20608,7 @@
                     "filter": {
                         "baseFilter": "land ctrl:you"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]
@@ -21672,42 +21627,37 @@
                         "type": "Composite",
                         "effects": [
                             {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "GatherCards",
-                                        "source": {
-                                            "type": "FromZone",
-                                            "zone": "Library",
-                                            "filter": "basicland"
-                                        },
-                                        "storeAs": "searchable",
-                                        "search": true
-                                    },
-                                    {
-                                        "type": "SelectFromCollection",
-                                        "from": "searchable",
-                                        "selection": {
-                                            "type": "ChooseUpTo",
-                                            "count": {
-                                                "type": "Fixed",
-                                                "amount": 1
-                                            }
-                                        },
-                                        "storeSelected": "found"
-                                    },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "found",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Battlefield",
-                                            "placement": "Tapped"
-                                        }
-                                    },
-                                    "EmitLibrarySearchedEvent"
-                                ]
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Library",
+                                    "filter": "basicland"
+                                },
+                                "storeAs": "searchable",
+                                "search": true
                             },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "searchable",
+                                "selection": {
+                                    "type": "ChooseUpTo",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "found"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "found",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Battlefield",
+                                    "placement": "Tapped"
+                                }
+                            },
+                            "EmitLibrarySearchedEvent",
                             {
                                 "type": "MoveToZone",
                                 "target": "Self",

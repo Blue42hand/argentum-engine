@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
@@ -70,26 +69,24 @@ val MagmaticHellkite = card("Magmatic Hellkite") {
         // The land controller (target[0]'s controller) ramps a basic, tapped, stunned.
         val landController = Player.ControllerOf("nonbasic land an opponent controls")
 
-        effect = Effects.Destroy(land)
-            .then(
-                Effects.Pipeline {
-                    val rampLands = gather(
-                        CardSource.FromZone(Zone.LIBRARY, landController, GameObjectFilter.BasicLand),
-                        search = true
-                    )
-                    val rampChosen = chooseUpTo(1, from = rampLands, chooser = Chooser.ControllerOfTarget)
-                    move(
-                        rampChosen,
-                        CardDestination.ToZone(
-                            Zone.BATTLEFIELD,
-                            landController,
-                            ZonePlacement.Tapped
-                        ),
-                        addCounterType = CounterType.STUN
-                    )
-                    run(Effects.ShuffleLibrary(target = EffectTarget.TargetController))
-                }
-            )
+        effect = Effects.Destroy(land) then
+            Effects.Pipeline {
+                val rampLands = gather(
+                    CardSource.FromZone(Zone.LIBRARY, landController, GameObjectFilter.BasicLand),
+                    search = true
+                )
+                val rampChosen = chooseUpTo(1, from = rampLands, chooser = Chooser.ControllerOfTarget)
+                move(
+                    rampChosen,
+                    CardDestination.ToZone(
+                        Zone.BATTLEFIELD,
+                        landController,
+                        ZonePlacement.Tapped
+                    ),
+                    addCounterType = CounterType.STUN
+                )
+                run(Effects.ShuffleLibrary(target = EffectTarget.TargetController))
+            }
         description = "destroy target nonbasic land an opponent controls. Its controller searches " +
             "their library for a basic land card, puts it onto the battlefield tapped with a stun " +
             "counter on it, then shuffles."

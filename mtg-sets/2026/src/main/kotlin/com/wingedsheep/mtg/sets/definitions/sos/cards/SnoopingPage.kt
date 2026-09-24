@@ -41,12 +41,8 @@ val SnoopingPage = card("Snooping Page") {
 
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
-        effect = Effects.Composite(
-            listOf(
-                Effects.DrawCards(1, EffectTarget.Controller),
-                Effects.LoseLife(1, EffectTarget.Controller),
-            )
-        )
+        effect = Effects.DrawCards(1, EffectTarget.Controller) then
+            Effects.LoseLife(1, EffectTarget.Controller)
     }
 
     metadata {

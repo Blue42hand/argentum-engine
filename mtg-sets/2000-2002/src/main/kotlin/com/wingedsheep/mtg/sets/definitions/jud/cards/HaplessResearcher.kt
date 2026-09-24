@@ -27,10 +27,7 @@ val HaplessResearcher = card("Hapless Researcher") {
     toughness = 1
     activatedAbility {
         cost = Costs.SacrificeSelf
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Patterns.Hand.discardCards(1)
-        )
+        effect = Effects.DrawCards(1) then Patterns.Hand.discardCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

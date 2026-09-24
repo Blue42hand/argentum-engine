@@ -21,13 +21,9 @@ val RiverguardsReflexes = card("Riverguard's Reflexes") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            listOf(
-                Effects.ModifyStats(2, 2, creature),
-                Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature),
-                Effects.Untap(creature)
-            )
-        )
+        effect = Effects.ModifyStats(2, 2, creature) then
+            Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature) then
+            Effects.Untap(creature)
     }
 
     metadata {

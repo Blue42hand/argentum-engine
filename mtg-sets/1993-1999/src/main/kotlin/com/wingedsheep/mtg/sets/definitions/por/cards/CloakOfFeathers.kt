@@ -25,10 +25,7 @@ val CloakOfFeathers = card("Cloak of Feathers") {
     oracleText = "Target creature gains flying until end of turn.\nDraw a card."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.FLYING, t),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.GrantKeyword(Keyword.FLYING, t) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

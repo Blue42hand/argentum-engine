@@ -25,8 +25,7 @@ val EssenceExtraction = card("Essence Extraction") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.DealDamage(3, t)
-            .then(Effects.GainLife(3))
+        effect = Effects.DealDamage(3, t) then Effects.GainLife(3)
     }
 
     metadata {

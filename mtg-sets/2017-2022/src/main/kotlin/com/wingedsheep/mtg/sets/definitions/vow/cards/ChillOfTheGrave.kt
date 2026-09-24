@@ -46,15 +46,13 @@ val ChillOfTheGrave = card("Chill of the Grave") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Tap(creature)
-            .then(
-                Effects.GrantKeyword(
-                    AbilityFlag.DOESNT_UNTAP,
-                    creature,
-                    Duration.UntilAfterAffectedControllersNextUntap
-                )
-            )
-            .then(Effects.DrawCards(1))
+        effect = Effects.Tap(creature) then
+            Effects.GrantKeyword(
+                AbilityFlag.DOESNT_UNTAP,
+                creature,
+                Duration.UntilAfterAffectedControllersNextUntap
+            ) then
+            Effects.DrawCards(1)
     }
 
     metadata {

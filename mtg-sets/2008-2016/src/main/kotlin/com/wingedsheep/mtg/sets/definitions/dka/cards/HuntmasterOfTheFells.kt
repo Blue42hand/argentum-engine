@@ -24,10 +24,7 @@ private val createHuntmasterWolf = Effects.CreateToken(
     imageUri = "https://cards.scryfall.io/normal/front/8/9/89b89a55-3ea2-4186-b946-06831bc16169.jpg?1783907965",
 )
 
-private val huntmasterFrontTrigger = Effects.Composite(
-    createHuntmasterWolf,
-    Effects.GainLife(2),
-)
+private val huntmasterFrontTrigger = createHuntmasterWolf then Effects.GainLife(2)
 
 private val HuntmasterOfTheFellsFront = card("Huntmaster of the Fells") {
     manaCost = "{2}{R}{G}"
@@ -88,10 +85,7 @@ private val RavagerOfTheFells = card("Ravager of the Fells") {
             ),
             optional = true,
         )
-        effect = Effects.Composite(
-            Effects.DealDamage(2, playerOrPlaneswalker),
-            Effects.DealDamage(2, creature),
-        )
+        effect = Effects.DealDamage(2, playerOrPlaneswalker) then Effects.DealDamage(2, creature)
     }
     triggeredAbility {
         trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)

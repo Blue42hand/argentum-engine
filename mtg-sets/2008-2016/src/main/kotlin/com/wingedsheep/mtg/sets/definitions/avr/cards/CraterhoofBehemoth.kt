@@ -37,13 +37,11 @@ val CraterhoofBehemoth = card("Craterhoof Behemoth") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Patterns.Group.grantKeywordToAll(Keyword.TRAMPLE, Filters.Group.creaturesYouControl)
-            .then(
-                Patterns.Group.modifyStatsForAll(
-                    DynamicAmounts.creaturesYouControl(),
-                    DynamicAmounts.creaturesYouControl(),
-                    Filters.Group.creaturesYouControl
-                )
+        effect = Patterns.Group.grantKeywordToAll(Keyword.TRAMPLE, Filters.Group.creaturesYouControl) then
+            Patterns.Group.modifyStatsForAll(
+                DynamicAmounts.creaturesYouControl(),
+                DynamicAmounts.creaturesYouControl(),
+                Filters.Group.creaturesYouControl
             )
         description = "creatures you control gain trample and get +X/+X until end of turn, " +
             "where X is the number of creatures you control."

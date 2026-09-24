@@ -48,12 +48,10 @@ val GlintWeaver = card("Glint Weaver") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         target = TargetObject(filter = TargetFilter.Creature, count = 3, minCount = 1)
-        effect = Effects.Composite(
-            Effects.DistributeCountersAmongTargets(totalCounters = 3),
+        effect = Effects.DistributeCountersAmongTargets(totalCounters = 3) then
             Effects.GainLife(
                 DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature).maxToughness()
             )
-        )
         description = "When this creature enters, distribute three +1/+1 counters among one, two, " +
             "or three target creatures, then you gain life equal to the greatest toughness among " +
             "creatures you control."

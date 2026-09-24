@@ -31,10 +31,8 @@ val SoulcoilViper = card("Soulcoil Viper") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{B}"), Costs.Tap, Costs.SacrificeSelf)
         val t = target(TargetFilter.CreatureInYourGraveyard)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
+        effect = Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
             Effects.AddCounters(counterType = CounterType.FINALITY, count = 1, target = t)
-        )
         timing = TimingRule.SorcerySpeed
     }
     metadata {

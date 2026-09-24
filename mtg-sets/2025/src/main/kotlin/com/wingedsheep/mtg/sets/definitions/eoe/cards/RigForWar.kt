@@ -21,9 +21,9 @@ val RigForWar = card("Rig for War") {
 
     spell {
         val target = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(3, 0, target)
-            .then(Effects.GrantKeyword(Keyword.FIRST_STRIKE, target, Duration.EndOfTurn))
-            .then(Effects.GrantKeyword(Keyword.REACH, target, Duration.EndOfTurn))
+        effect = Effects.ModifyStats(3, 0, target) then
+            Effects.GrantKeyword(Keyword.FIRST_STRIKE, target, Duration.EndOfTurn) then
+            Effects.GrantKeyword(Keyword.REACH, target, Duration.EndOfTurn)
     }
 
     metadata {

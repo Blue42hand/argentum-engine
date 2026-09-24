@@ -24,11 +24,9 @@ val LastCaress = card("Last Caress") {
     oracleText = "Target player loses 1 life and you gain 1 life.\nDraw a card."
     spell {
         val t = target(Targets.Player)
-        effect = Effects.Composite(
-            Effects.LoseLife(1, t),
-            Effects.GainLife(1),
+        effect = Effects.LoseLife(1, t) then
+            Effects.GainLife(1) then
             Effects.DrawCards(1)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

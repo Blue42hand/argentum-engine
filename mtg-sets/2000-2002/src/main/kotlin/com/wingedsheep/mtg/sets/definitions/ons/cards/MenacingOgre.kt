@@ -33,15 +33,13 @@ val MenacingOgre = card("Menacing Ogre") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         effect = Effects.SecretBid(
-            highestBidderEffect = Effects.Composite(listOf(
-                // Each highest bidder loses life equal to their bid
-                Effects.LoseLife(DynamicAmounts.xValue(), EffectTarget.Controller),
+            // Each highest bidder loses life equal to their bid
+            highestBidderEffect = Effects.LoseLife(DynamicAmounts.xValue(), EffectTarget.Controller) then
                 // If the controller is among them, put counters on this creature
                 Effects.If(
                     condition = YouControlSource,
                     then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
                 )
-            ))
         )
     }
 

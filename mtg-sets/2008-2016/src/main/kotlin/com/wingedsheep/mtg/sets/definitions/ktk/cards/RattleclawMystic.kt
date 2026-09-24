@@ -54,11 +54,9 @@ val RattleclawMystic = card("Rattleclaw Mystic") {
     // When Rattleclaw Mystic is turned face up, add {G}{U}{R}.
     triggeredAbility {
         trigger = Triggers.self.turnedFaceUp()
-        effect = Effects.Composite(
-            Effects.AddMana(Color.GREEN),
-            Effects.AddMana(Color.BLUE),
+        effect = Effects.AddMana(Color.GREEN) then
+            Effects.AddMana(Color.BLUE) then
             Effects.AddMana(Color.RED)
-        )
     }
 
     metadata {

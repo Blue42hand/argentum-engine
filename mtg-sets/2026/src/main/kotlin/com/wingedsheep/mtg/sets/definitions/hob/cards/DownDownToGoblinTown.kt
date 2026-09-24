@@ -93,4 +93,4 @@ val DownDownToGoblinTown = card("Down, Down to Goblin-town") {
 
 /** The chapter III / IV ability: the named opponent loses 1 life, then you gain 1 life. */
 private fun goblinTownDrain(opponent: EffectTarget): Effect =
-    Effects.LoseLife(1, opponent).then(Effects.GainLife(1))
+    Effects.LoseLife(1, opponent) then Effects.GainLife(1)

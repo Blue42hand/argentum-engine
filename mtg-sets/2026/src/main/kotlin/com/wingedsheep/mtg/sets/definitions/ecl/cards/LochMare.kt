@@ -50,8 +50,7 @@ val LochMare = card("Loch Mare") {
             Costs.RemoveCounterFromSelf(CounterType.MINUS_ONE_MINUS_ONE, 2)
         )
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Tap(creature)
-            .then(Effects.AddCounters(CounterType.STUN, 1, creature))
+        effect = Effects.Tap(creature) then Effects.AddCounters(CounterType.STUN, 1, creature)
     }
 
     metadata {

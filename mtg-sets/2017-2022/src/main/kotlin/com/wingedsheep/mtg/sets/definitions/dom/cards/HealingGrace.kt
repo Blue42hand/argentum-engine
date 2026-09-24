@@ -26,7 +26,7 @@ val HealingGrace = card("Healing Grace") {
             target = t,
             sources = PreventionSourceFilter.Chosen(),
             amount = DynamicAmounts.fixed(3)
-        ).then(Effects.GainLife(3))
+        ) then Effects.GainLife(3)
     }
 
     metadata {

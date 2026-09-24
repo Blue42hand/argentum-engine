@@ -29,10 +29,7 @@ val FlowstoneChanneler = card("Flowstone Channeler") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{R}"), Costs.Tap, Costs.DiscardCard)
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, -1, creature),
-            Effects.GrantKeyword(Keyword.HASTE, creature),
-        )
+        effect = Effects.ModifyStats(1, -1, creature) then Effects.GrantKeyword(Keyword.HASTE, creature)
     }
 
     metadata {

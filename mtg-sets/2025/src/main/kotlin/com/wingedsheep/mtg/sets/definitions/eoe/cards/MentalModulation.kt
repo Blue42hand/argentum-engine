@@ -37,8 +37,7 @@ val MentalModulation = card("Mental Modulation") {
 
     spell {
         val target = target(TargetFilter(GameObjectFilter.Artifact or GameObjectFilter.Creature))
-        effect = Effects.Tap(target)
-            .then(Effects.DrawCards(1))
+        effect = Effects.Tap(target) then Effects.DrawCards(1)
     }
 
     metadata {

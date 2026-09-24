@@ -48,10 +48,7 @@ val ThreeBowlsOfPorridge = card("Three Bowls of Porridge") {
             },
             // • Sacrifice this artifact. You gain 3 life.
             Mode.noTarget(
-                Effects.Composite(
-                    SacrificeSelfEffect,
-                    Effects.GainLife(3)
-                ),
+                SacrificeSelfEffect then Effects.GainLife(3),
                 "Sacrifice this artifact. You gain 3 life"
             )
         )

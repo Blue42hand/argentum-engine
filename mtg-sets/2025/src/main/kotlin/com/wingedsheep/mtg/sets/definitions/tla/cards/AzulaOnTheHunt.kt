@@ -36,10 +36,7 @@ val AzulaOnTheHunt = card("Azula, On the Hunt") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        effect = Effects.Composite(
-            Effects.LoseLife(1, EffectTarget.PlayerRef(Player.You)),
-            Effects.Investigate(),
-        )
+        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.You)) then Effects.Investigate()
         description = "Whenever Azula attacks, you lose 1 life and create a Clue token."
     }
 

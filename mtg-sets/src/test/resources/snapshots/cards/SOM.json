@@ -39,7 +39,7 @@
                     "type": "PreventDamageShield",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "amount": {
                         "type": "Fixed",
@@ -52,7 +52,7 @@
                         "filter": {
                             "baseFilter": "artifact creature"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ],
                 "descriptionOverride": "{T}: Prevent the next 2 damage that would be dealt to target artifact creature this turn."

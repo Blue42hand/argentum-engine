@@ -25,10 +25,7 @@ val SnareTheSkies = card("Snare the Skies") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 1, creature),
-            Effects.GrantKeyword(Keyword.REACH, creature)
-        )
+        effect = Effects.ModifyStats(1, 1, creature) then Effects.GrantKeyword(Keyword.REACH, creature)
     }
 
     metadata {

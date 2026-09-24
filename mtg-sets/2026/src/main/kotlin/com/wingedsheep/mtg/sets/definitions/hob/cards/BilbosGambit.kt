@@ -55,10 +55,10 @@ val BilbosGambit = card("Bilbo's Gambit") {
                 Effects.CreateTreasure(
                     count = 1,
                     controller = EffectTarget.PlayerRef(Player.ChosenOpponent)
-                )
-                    .then(Effects.ReturnSpellToOwnersHand())
-                    .then(Effects.CantCastSpells(EffectTarget.PlayerRef(Player.Each)))
-                    .then(Effects.GiftGiven()),
+                ) then
+                    Effects.ReturnSpellToOwnersHand() then
+                    Effects.CantCastSpells(EffectTarget.PlayerRef(Player.Each)) then
+                    Effects.GiftGiven(),
                 TargetObject(filter = TargetFilter.SpellOnStack),
                 "Promise a gift — that opponent creates a Treasure, then return target spell to " +
                     "its owner's hand and players can't cast spells this turn"

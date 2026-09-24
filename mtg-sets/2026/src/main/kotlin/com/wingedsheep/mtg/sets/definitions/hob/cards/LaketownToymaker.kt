@@ -36,10 +36,7 @@ val LaketownToymaker = card("Lake-town Toymaker") {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         interveningIf = Conditions.YouDrewCardsThisTurn(2)
         val t = target(TargetFilter.OtherCreatureYouControl)
-        effect = Effects.Composite(
-            Effects.ModifyStats(3, 0, t),
-            Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),
-        )
+        effect = Effects.ModifyStats(3, 0, t) then Effects.GrantKeyword(Keyword.FIRST_STRIKE, t)
     }
 
     metadata {

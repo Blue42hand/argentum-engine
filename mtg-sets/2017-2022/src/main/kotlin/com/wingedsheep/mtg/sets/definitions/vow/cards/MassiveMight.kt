@@ -19,10 +19,7 @@ val MassiveMight = card("Massive Might") {
     oracleText = "Target creature gets +2/+2 and gains trample until end of turn."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 2, t),
-            Effects.GrantKeyword(Keyword.TRAMPLE, t)
-        )
+        effect = Effects.ModifyStats(2, 2, t) then Effects.GrantKeyword(Keyword.TRAMPLE, t)
     }
     metadata {
         rarity = Rarity.COMMON

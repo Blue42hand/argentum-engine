@@ -45,8 +45,7 @@ val TheCloningOfShredder = card("The Cloning of Shredder") {
     sagaChapter(1) {
         val target = target(TargetFilter(GameObjectFilter.Creature.ownedByYou(), zone = Zone.GRAVEYARD))
         // Exile the targeted graveyard card linked to this Saga, then copy it.
-        effect = Effects.Move(target, Zone.EXILE, linkToSource = true)
-            .then(cloneFromLinkedExile())
+        effect = Effects.Move(target, Zone.EXILE, linkToSource = true) then cloneFromLinkedExile()
     }
 
     sagaChapter(2) {

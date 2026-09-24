@@ -25,12 +25,10 @@ val BloodyBetrayal = card("Bloody Betrayal") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GainControl(t, Duration.EndOfTurn),
-            Effects.Untap(t),
-            Effects.GrantKeyword(Keyword.HASTE, t),
-            Effects.CreateBlood(1),
-        )
+        effect = Effects.GainControl(t, Duration.EndOfTurn) then
+            Effects.Untap(t) then
+            Effects.GrantKeyword(Keyword.HASTE, t) then
+            Effects.CreateBlood(1)
     }
 
     metadata {

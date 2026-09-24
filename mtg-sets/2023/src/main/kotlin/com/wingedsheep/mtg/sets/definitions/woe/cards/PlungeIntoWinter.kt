@@ -24,11 +24,9 @@ val PlungeIntoWinter = card("Plunge into Winter") {
     oracleText = "Tap up to one target creature. Scry 1, then draw a card."
     spell {
         val t = target(TargetFilter.Creature, optional = true)
-        effect = Effects.Composite(
-            Effects.Tap(t),
-            Patterns.Library.scry(1),
+        effect = Effects.Tap(t) then
+            Patterns.Library.scry(1) then
             Effects.DrawCards(1)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

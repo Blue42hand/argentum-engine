@@ -49,8 +49,7 @@ val ArdynTheUsurper = card("Ardyn, the Usurper") {
         // "Up to one target" — exile and copy both no-op if no target is chosen, which
         // naturally satisfies the oracle's "if you exiled a card this way" guard.
         val graveyardCard = target(TargetFilter.CreatureInGraveyard, optional = true)
-        effect = Effects.Composite(listOf(
-            Effects.Exile(graveyardCard),
+        effect = Effects.Exile(graveyardCard) then
             Effects.CreateTokenCopyOfTarget(
                 graveyardCard,
                 overridePower = 5,
@@ -58,7 +57,6 @@ val ArdynTheUsurper = card("Ardyn, the Usurper") {
                 overrideColors = setOf(Color.BLACK),
                 overrideSubtypes = setOf(Subtype.DEMON)
             )
-        ))
     }
 
     metadata {

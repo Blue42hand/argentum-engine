@@ -24,12 +24,10 @@ val TaintedTreats = card("Tainted Treats") {
 
     spell {
         val target = target(TargetFilter.CreatureOrArtifact)
-        effect = Effects.Move(target, Zone.GRAVEYARD, byDestruction = true)
-            .then(
-                Effects.If(
-                    condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(4), target),
-                    then = Effects.CreateFood()
-                )
+        effect = Effects.Move(target, Zone.GRAVEYARD, byDestruction = true) then
+            Effects.If(
+                condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(4), target),
+                then = Effects.CreateFood()
             )
     }
 

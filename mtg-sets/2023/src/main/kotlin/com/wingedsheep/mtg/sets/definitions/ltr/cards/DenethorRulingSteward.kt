@@ -46,8 +46,7 @@ val DenethorRulingSteward = card("Denethor, Ruling Steward") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.SacrificeAnother(GameObjectFilter.Creature))
-        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then
-            Effects.GainLife(1)
+        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(1)
     }
 
     metadata {

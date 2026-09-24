@@ -23,10 +23,7 @@ val MentalNote = card("Mental Note") {
     typeLine = "Instant"
     oracleText = "Mill two cards.\nDraw a card."
     spell {
-        effect = Effects.Composite(
-            Patterns.Library.mill(2),
-            Effects.DrawCards(1)
-        )
+        effect = Patterns.Library.mill(2) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

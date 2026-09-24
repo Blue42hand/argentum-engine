@@ -30,10 +30,7 @@ val RoyalTreatment = card("Royal Treatment") {
 
     spell {
         val t = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.HEXPROOF, t),
-            Effects.CreateRoleToken("Royal Role", t)
-        )
+        effect = Effects.GrantKeyword(Keyword.HEXPROOF, t) then Effects.CreateRoleToken("Royal Role", t)
     }
 
     metadata {

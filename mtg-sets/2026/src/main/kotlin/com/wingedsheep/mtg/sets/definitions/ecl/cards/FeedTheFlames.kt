@@ -22,8 +22,7 @@ val FeedTheFlames = card("Feed the Flames") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.MarkExileOnDeath(creature)
-            .then(Effects.DealDamage(5, creature))
+        effect = Effects.MarkExileOnDeath(creature) then Effects.DealDamage(5, creature)
     }
 
     metadata {

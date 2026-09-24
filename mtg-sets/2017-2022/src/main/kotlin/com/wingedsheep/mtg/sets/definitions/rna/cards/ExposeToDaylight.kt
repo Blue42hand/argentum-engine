@@ -21,10 +21,7 @@ val ExposeToDaylight = card("Expose to Daylight") {
 
     spell {
         val permanent = target(TargetFilter.ArtifactOrEnchantment)
-        effect = Effects.Composite(listOf(
-            Effects.Destroy(permanent),
-            Effects.Scry(1)
-        ))
+        effect = Effects.Destroy(permanent) then Effects.Scry(1)
     }
 
     metadata {

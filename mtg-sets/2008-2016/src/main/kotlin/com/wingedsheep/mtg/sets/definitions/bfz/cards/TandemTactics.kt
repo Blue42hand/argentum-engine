@@ -24,10 +24,8 @@ val TandemTactics = card("Tandem Tactics") {
 
     spell {
         targets(TargetFilter.Creature, count = 2, optional = true)
-        effect = Effects.Composite(
-            Effects.ForEachTarget(Effects.ModifyStats(1, 2, EffectTarget.ContextTarget(0))),
-            Effects.GainLife(2),
-        )
+        effect = Effects.ForEachTarget(Effects.ModifyStats(1, 2, EffectTarget.ContextTarget(0))) then
+            Effects.GainLife(2)
     }
 
     metadata {

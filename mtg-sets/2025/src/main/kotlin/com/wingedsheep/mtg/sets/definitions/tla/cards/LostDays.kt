@@ -24,10 +24,7 @@ val LostDays = card("Lost Days") {
 
     spell {
         val t = target(TargetFilter.CreatureOrEnchantment)
-        effect = Effects.Composite(
-            Effects.PutSecondFromTopOrBottomOfLibrary(t),
-            Effects.CreateClue(),
-        )
+        effect = Effects.PutSecondFromTopOrBottomOfLibrary(t) then Effects.CreateClue()
     }
 
     metadata {

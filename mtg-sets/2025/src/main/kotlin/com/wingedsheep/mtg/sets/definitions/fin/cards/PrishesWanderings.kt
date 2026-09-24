@@ -31,17 +31,13 @@ val PrishesWanderings = card("Prishe's Wanderings") {
 
     spell {
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            listOf(
-                Patterns.Library.searchLibrary(
-                    filter = basicOrTown,
-                    count = 1,
-                    destination = SearchDestination.BATTLEFIELD,
-                    entersTapped = true
-                ),
-                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
-            )
-        )
+        effect = Patterns.Library.searchLibrary(
+            filter = basicOrTown,
+            count = 1,
+            destination = SearchDestination.BATTLEFIELD,
+            entersTapped = true
+        ) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }
 
     metadata {

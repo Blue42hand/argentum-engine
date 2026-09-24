@@ -453,26 +453,21 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "FromZone",
-                                        "zone": "Hand"
-                                    },
-                                    "storeAs": "discardedHand"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "discardedHand",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard"
-                                    },
-                                    "moveType": "Discard"
-                                }
-                            ]
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand"
+                            },
+                            "storeAs": "discardedHand"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "discardedHand",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Discard"
                         },
                         {
                             "type": "DrawCards",
@@ -2601,7 +2596,7 @@
                             "type": "EntityProperty",
                             "entity": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t2"
                             },
                             "numericProperty": {
                                 "type": "CounterCount",
@@ -2610,11 +2605,11 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t1"
+                            "name": "t3"
                         },
                         "damageSource": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t2"
                         }
                     },
                     "targetRequirements": [
@@ -2623,14 +2618,14 @@
                             "filter": {
                                 "baseFilter": "planeswalker ctrl:you"
                             },
-                            "id": "t0"
+                            "id": "t2"
                         },
                         {
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature|planeswalker ctrl:opponent"
                             },
-                            "id": "t1"
+                            "id": "t3"
                         }
                     ],
                     "description": "Target planeswalker you control deals damage equal to its loyalty to target creature or planeswalker an opponent controls"
@@ -3086,41 +3081,36 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "FromZone",
-                                        "zone": "Library"
-                                    },
-                                    "storeAs": "searchable",
-                                    "search": true
-                                },
-                                {
-                                    "type": "SelectFromCollection",
-                                    "from": "searchable",
-                                    "selection": {
-                                        "type": "ChooseUpTo",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 1
-                                        }
-                                    },
-                                    "storeSelected": "found"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "found",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Hand"
-                                    }
-                                },
-                                "ShuffleLibrary",
-                                "EmitLibrarySearchedEvent"
-                            ]
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library"
+                            },
+                            "storeAs": "searchable",
+                            "search": true
                         },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "searchable",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "found"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "found",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            }
+                        },
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent",
                         {
                             "type": "Composite",
                             "effects": [
@@ -3766,7 +3756,7 @@
                                 "type": "TapUntap",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 },
                                 "tap": false
                             },
@@ -3776,7 +3766,7 @@
                                     "filter": {
                                         "baseFilter": "creature"
                                     },
-                                    "id": "t0"
+                                    "id": "t1"
                                 }
                             ],
                             "description": "Untap target creature."
@@ -5254,7 +5244,7 @@
                                         "count": 1,
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t1"
                                         }
                                     },
                                     {
@@ -5262,7 +5252,7 @@
                                         "keyword": "VIGILANCE",
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t1"
                                         }
                                     },
                                     {
@@ -5270,7 +5260,7 @@
                                         "keyword": "INDESTRUCTIBLE",
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t1"
                                         }
                                     }
                                 ]
@@ -5281,7 +5271,7 @@
                                     "filter": {
                                         "baseFilter": "creature"
                                     },
-                                    "id": "t0"
+                                    "id": "t1"
                                 }
                             ],
                             "description": "Put a +1/+1 counter on target creature. It gains vigilance and indestructible until end of turn."
@@ -7390,7 +7380,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "tap": false
                 },
@@ -7400,7 +7390,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }
@@ -7715,7 +7705,7 @@
                     "type": "BecomePrepared",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirements": [
@@ -7724,7 +7714,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ],
                 "descriptionOverride": "{4}, {T}: Target creature becomes prepared."
@@ -8064,7 +8054,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -8073,7 +8063,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target creature gets -5/-0 until end of turn"
@@ -8833,39 +8823,34 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "FromZone",
-                                        "zone": "Hand"
-                                    },
-                                    "storeAs": "hand"
-                                },
-                                {
-                                    "type": "SelectFromCollection",
-                                    "from": "hand",
-                                    "selection": {
-                                        "type": "ChooseExactly",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 1
-                                        }
-                                    },
-                                    "storeSelected": "discarded",
-                                    "prompt": "Choose 1 card to discard"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "discarded",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard"
-                                    },
-                                    "moveType": "Discard"
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand"
+                            },
+                            "storeAs": "hand"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "hand",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
                                 }
-                            ]
+                            },
+                            "storeSelected": "discarded",
+                            "prompt": "Choose 1 card to discard"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "discarded",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Discard"
                         },
                         {
                             "type": "DrawCards",
@@ -9486,7 +9471,7 @@
                                 "count": 2,
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             {
@@ -9494,7 +9479,7 @@
                                 "keyword": "TRAMPLE",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             }
                         ]
@@ -9505,7 +9490,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Put two +1/+1 counters on target creature. It gains trample until end of turn"
@@ -11769,7 +11754,7 @@
                         "type": "SetBaseStats",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "power": {
                             "type": "Fixed",
@@ -11787,7 +11772,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target creature has base power and toughness 4/5 until end of turn"
@@ -12730,53 +12715,59 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Gated",
-                    "gate": {
-                        "type": "Gate.WhenCondition",
-                        "condition": {
-                            "type": "Exists",
-                            "player": "You",
-                            "zone": "Battlefield",
-                            "filter": "planeswalker Jace token",
-                            "negate": true
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "Exists",
+                                    "player": "You",
+                                    "zone": "Battlefield",
+                                    "filter": "planeswalker Jace token",
+                                    "negate": true
+                                }
+                            },
+                            "then": {
+                                "type": "CreatePredefinedToken",
+                                "tokenType": "Jace"
+                            }
+                        },
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": "planeswalker Jace token",
+                                "player": "You"
+                            },
+                            "storeAs": "empower_jaces"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "empower_jaces",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "empower_jace",
+                            "prompt": "Empower Jace 6 — choose a Jace token you control",
+                            "useTargetingUI": true
+                        },
+                        {
+                            "type": "AddCountersToCollection",
+                            "collectionName": "empower_jace",
+                            "counterType": "LOYALTY",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 6
+                            }
                         }
-                    },
-                    "then": {
-                        "type": "CreatePredefinedToken",
-                        "tokenType": "Jace"
-                    }
-                },
-                {
-                    "type": "GatherCards",
-                    "source": {
-                        "type": "BattlefieldMatching",
-                        "filter": "planeswalker Jace token",
-                        "player": "You"
-                    },
-                    "storeAs": "empower_jaces"
-                },
-                {
-                    "type": "SelectFromCollection",
-                    "from": "empower_jaces",
-                    "selection": {
-                        "type": "ChooseExactly",
-                        "count": {
-                            "type": "Fixed",
-                            "amount": 1
-                        }
-                    },
-                    "storeSelected": "empower_jace",
-                    "prompt": "Empower Jace 6 — choose a Jace token you control",
-                    "useTargetingUI": true
-                },
-                {
-                    "type": "AddCountersToCollection",
-                    "collectionName": "empower_jace",
-                    "counterType": "LOYALTY",
-                    "amount": {
-                        "type": "Fixed",
-                        "amount": 6
-                    }
+                    ],
+                    "descriptionOverride": "Empower Jace 6"
                 },
                 {
                     "type": "DrawCards",
@@ -15686,7 +15677,7 @@
                                 "keyword": "FIRST_STRIKE",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             {
@@ -15694,7 +15685,7 @@
                                 "keyword": "DEATHTOUCH",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             }
                         ]
@@ -15705,7 +15696,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target creature gains first strike and deathtouch until end of turn"
@@ -17554,7 +17545,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -17563,7 +17554,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target creature gets -2/-2 until end of turn"
@@ -17573,29 +17564,24 @@
                         "type": "Composite",
                         "effects": [
                             {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "GatherCards",
-                                        "source": {
-                                            "type": "TopOfLibrary",
-                                            "count": {
-                                                "type": "Fixed",
-                                                "amount": 3
-                                            },
-                                            "isMill": true
-                                        },
-                                        "storeAs": "milled"
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "TopOfLibrary",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 3
                                     },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "milled",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Graveyard"
-                                        }
-                                    }
-                                ]
+                                    "isMill": true
+                                },
+                                "storeAs": "milled"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "milled",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                }
                             },
                             {
                                 "type": "DrawCards",
@@ -18594,26 +18580,21 @@
                             "type": "Composite",
                             "effects": [
                                 {
-                                    "type": "Composite",
-                                    "effects": [
-                                        {
-                                            "type": "GatherCards",
-                                            "source": {
-                                                "type": "FromZone",
-                                                "zone": "Hand"
-                                            },
-                                            "storeAs": "discardedHand"
-                                        },
-                                        {
-                                            "type": "MoveCollection",
-                                            "from": "discardedHand",
-                                            "destination": {
-                                                "type": "ToZone",
-                                                "zone": "Graveyard"
-                                            },
-                                            "moveType": "Discard"
-                                        }
-                                    ]
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand"
+                                    },
+                                    "storeAs": "discardedHand"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "discardedHand",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    },
+                                    "moveType": "Discard"
                                 },
                                 {
                                     "type": "DrawCards",
@@ -18802,18 +18783,18 @@
                                 "count": 1,
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             {
                                 "type": "Fight",
                                 "target1": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 },
                                 "target2": {
                                     "type": "BoundVariable",
-                                    "name": "t1"
+                                    "name": "t2"
                                 }
                             }
                         ]
@@ -18824,14 +18805,14 @@
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         },
                         {
                             "type": "TargetObject",
                             "filter": {
                                 "baseFilter": "creature ctrl:opponent"
                             },
-                            "id": "t1"
+                            "id": "t2"
                         }
                     ],
                     "description": "Put a +1/+1 counter on target creature you control. Then it fights target creature an opponent controls"
@@ -21455,7 +21436,7 @@
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t2"
                     }
                 },
                 "targetRequirements": [
@@ -21469,7 +21450,7 @@
                                 ]
                             }
                         },
-                        "id": "t0"
+                        "id": "t2"
                     }
                 ]
             }

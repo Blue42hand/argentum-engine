@@ -20,8 +20,7 @@ val RebelliousStrike = card("Rebellious Strike") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(power = 3, toughness = 0, target = t)
-            .then(Effects.DrawCards(1))
+        effect = Effects.ModifyStats(power = 3, toughness = 0, target = t) then Effects.DrawCards(1)
     }
 
     metadata {

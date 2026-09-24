@@ -44,24 +44,20 @@ val MindSpiral = card("Mind Spiral") {
             mode("Promise a gift — opponent creates a tapped 1/1 blue Fish token, target player draws three cards, tap target creature an opponent controls and put a stun counter on it") {
                 val player = target(TargetPlayer(descriptionOverride = "target player to draw three cards"))
                 val creatureOpponentControls = target(TargetFilter.CreatureOpponentControls)
-                effect = Effects.Composite(
-                    listOf(
-                        Effects.CreateToken(
-                            count = 1,
-                            power = 1,
-                            toughness = 1,
-                            colors = setOf(Color.BLUE),
-                            creatureTypes = setOf("Fish"),
-                            controller = EffectTarget.PlayerRef(Player.ChosenOpponent),
-                            tapped = true,
-                            imageUri = "https://cards.scryfall.io/normal/front/d/e/de0d6700-49f0-4233-97ba-cef7821c30ed.jpg?1721431109"
-                        ),
-                        Effects.DrawCards(3, player),
-                        Effects.Tap(creatureOpponentControls),
-                        Effects.AddCounters(CounterType.STUN, 1, creatureOpponentControls),
-                        Effects.GiftGiven()
-                    )
-                )
+                effect = Effects.CreateToken(
+                    count = 1,
+                    power = 1,
+                    toughness = 1,
+                    colors = setOf(Color.BLUE),
+                    creatureTypes = setOf("Fish"),
+                    controller = EffectTarget.PlayerRef(Player.ChosenOpponent),
+                    tapped = true,
+                    imageUri = "https://cards.scryfall.io/normal/front/d/e/de0d6700-49f0-4233-97ba-cef7821c30ed.jpg?1721431109"
+                ) then
+                    Effects.DrawCards(3, player) then
+                    Effects.Tap(creatureOpponentControls) then
+                    Effects.AddCounters(CounterType.STUN, 1, creatureOpponentControls) then
+                    Effects.GiftGiven()
             }
         )
     }

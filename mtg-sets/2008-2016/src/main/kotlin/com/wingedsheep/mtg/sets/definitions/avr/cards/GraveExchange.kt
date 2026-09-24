@@ -28,10 +28,8 @@ val GraveExchange = card("Grave Exchange") {
     spell {
         val creatureCard = target(TargetFilter.CreatureInYourGraveyard)
         val victim = target(Targets.Player)
-        effect = Effects.Composite(
-            Effects.ReturnToHand(creatureCard),
-            Effects.Sacrifice(GameObjectFilter.Creature, target = victim),
-        )
+        effect = Effects.ReturnToHand(creatureCard) then
+            Effects.Sacrifice(GameObjectFilter.Creature, target = victim)
     }
 
     metadata {

@@ -74,7 +74,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
@@ -82,7 +82,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:opponent"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 },
                 "descriptionOverride": "Whenever another artifact you control enters, target creature an opponent controls gets -1/-1 until end of turn."
             }
@@ -1012,7 +1012,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -1023,7 +1023,7 @@
                             "filter": {
                                 "baseFilter": "enchantment"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target enchantment"
@@ -1062,7 +1062,7 @@
                         {
                             "type": "TargetPlayer",
                             "unlimited": true,
-                            "id": "t0"
+                            "id": "t2"
                         }
                     ],
                     "description": "Exile any number of target players' graveyards"

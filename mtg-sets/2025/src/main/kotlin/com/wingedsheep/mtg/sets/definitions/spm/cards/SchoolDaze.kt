@@ -25,10 +25,7 @@ val SchoolDaze = card("School Daze") {
             }
             mode("Fight Crime — Counter target spell. Draw a card") {
                 val t = target(TargetFilter.SpellOnStack)
-                effect = Effects.Composite(
-                    Effects.CounterSpell(),
-                    Effects.DrawCards(1)
-                )
+                effect = Effects.CounterSpell() then Effects.DrawCards(1)
             }
         }
     }

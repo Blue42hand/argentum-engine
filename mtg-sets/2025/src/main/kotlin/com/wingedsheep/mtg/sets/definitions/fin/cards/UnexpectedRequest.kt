@@ -47,10 +47,9 @@ val UnexpectedRequest = card("Unexpected Request") {
             TargetFilter(GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()),
             optional = true,
         )
-        effect = Effects.Composite(
-            Effects.GainControl(creature, Duration.EndOfTurn),
-            Effects.Untap(creature),
-            Effects.GrantKeyword(Keyword.HASTE, creature, Duration.EndOfTurn),
+        effect = Effects.GainControl(creature, Duration.EndOfTurn) then
+            Effects.Untap(creature) then
+            Effects.GrantKeyword(Keyword.HASTE, creature, Duration.EndOfTurn) then
             Effects.If(
                 // "If you do" — the ConditionEvaluator only dispatches ContextTarget (not the
                 // bound-variable handle), so gate on the equipment's positional slot.
@@ -58,18 +57,15 @@ val UnexpectedRequest = card("Unexpected Request") {
                     equipment,
                     GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT)
                 ),
-                then = Effects.Composite(
-                    Effects.AttachTargetEquipmentToCreature(
-                        equipmentTarget = equipment,
-                        creatureTarget = creature
-                    ),
+                then = Effects.AttachTargetEquipmentToCreature(
+                    equipmentTarget = equipment,
+                    creatureTarget = creature
+                ) then
                     Effects.CreateDelayedTrigger(
                         step = Step.END,
                         effect = Effects.UnattachEquipment(equipment)
                     )
-                )
             )
-        )
     }
 
     metadata {

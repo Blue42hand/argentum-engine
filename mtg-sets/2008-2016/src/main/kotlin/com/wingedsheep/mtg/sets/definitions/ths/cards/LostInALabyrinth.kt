@@ -20,10 +20,7 @@ val LostInALabyrinth = card("Lost in a Labyrinth") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(-3, 0, t),
-            Effects.Scry(1)
-        )
+        effect = Effects.ModifyStats(-3, 0, t) then Effects.Scry(1)
     }
 
     metadata {

@@ -46,8 +46,7 @@ val ThePrincessTakesFlight = card("The Princess Takes Flight") {
 
     sagaChapter(2) {
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.ModifyStats(2, 2, creature)
-            .then(Effects.GrantKeyword(Keyword.FLYING, creature))
+        effect = Effects.ModifyStats(2, 2, creature) then Effects.GrantKeyword(Keyword.FLYING, creature)
     }
 
     sagaChapter(3) {

@@ -17,10 +17,8 @@ val AshesToAshes = card("Ashes to Ashes") {
 
     spell {
         target = TargetObject(filter = TargetFilter.Creature.nonartifact(), count = 2)
-        effect = Effects.Composite(
-            Effects.ForEachTarget(Effects.Exile(EffectTarget.ContextTarget(0))),
-            Effects.DealDamage(5, EffectTarget.PlayerRef(Player.You)),
-        )
+        effect = Effects.ForEachTarget(Effects.Exile(EffectTarget.ContextTarget(0))) then
+            Effects.DealDamage(5, EffectTarget.PlayerRef(Player.You))
     }
 
     metadata {

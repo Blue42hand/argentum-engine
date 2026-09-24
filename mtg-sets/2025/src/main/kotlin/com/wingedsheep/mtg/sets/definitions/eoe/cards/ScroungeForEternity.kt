@@ -32,10 +32,7 @@ val ScroungeForEternity = card("Scrounge for Eternity") {
             ),
         )
 
-        effect = Effects.Composite(listOf(
-            Effects.PutOntoBattlefield(graveyardTarget),
-            Effects.CreateLander()
-        ))
+        effect = Effects.PutOntoBattlefield(graveyardTarget) then Effects.CreateLander()
     }
 
     metadata {

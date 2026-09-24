@@ -31,8 +31,7 @@ val CuombajjWitches = card("Cuombajj Witches") {
         cost = Costs.Tap
         val mine = target(Targets.Any)
         val theirs = target(Targets.AnyChosenByOpponent)
-        effect = Effects.DealDamage(1, mine)
-            .then(Effects.DealDamage(1, theirs))
+        effect = Effects.DealDamage(1, mine) then Effects.DealDamage(1, theirs)
     }
     metadata {
         rarity = Rarity.COMMON

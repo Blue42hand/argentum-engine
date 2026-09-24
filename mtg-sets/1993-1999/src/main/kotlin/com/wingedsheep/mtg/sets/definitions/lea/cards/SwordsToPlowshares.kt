@@ -32,8 +32,8 @@ val SwordsToPlowshares = card("Swords to Plowshares") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.GainLife(DynamicAmounts.powerOf(creature), EffectTarget.TargetController)
-            .then(Effects.Exile(creature))
+        effect = Effects.GainLife(DynamicAmounts.powerOf(creature), EffectTarget.TargetController) then
+            Effects.Exile(creature)
     }
 
     metadata {

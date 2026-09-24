@@ -24,10 +24,7 @@ val MawOfTheMire = card("Maw of the Mire") {
     oracleText = "Destroy target land. You gain 4 life."
     spell {
         val t = target(TargetFilter.Land)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            Effects.GainLife(4)
-        )
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then Effects.GainLife(4)
     }
     metadata {
         rarity = Rarity.COMMON

@@ -52,8 +52,8 @@ val RevivalOfTheAncestors = card("Revival of the Ancestors") {
     }
 
     sagaChapter(3) {
-        effect = Patterns.Group.grantKeywordToAll(Keyword.TRAMPLE, GroupFilter.AllCreaturesYouControl)
-            .then(Patterns.Group.grantKeywordToAll(Keyword.LIFELINK, GroupFilter.AllCreaturesYouControl))
+        effect = Patterns.Group.grantKeywordToAll(Keyword.TRAMPLE, GroupFilter.AllCreaturesYouControl) then
+            Patterns.Group.grantKeywordToAll(Keyword.LIFELINK, GroupFilter.AllCreaturesYouControl)
     }
 
     metadata {

@@ -38,10 +38,8 @@ val BreOfClanStoutarm = card("Bre of Clan Stoutarm") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{W}"), Costs.Tap)
         val creature = target(TargetFilter.CreatureYouControl.other())
-        effect = Effects.Composite(listOf(
-            Effects.GrantKeyword(Keyword.FLYING, creature),
+        effect = Effects.GrantKeyword(Keyword.FLYING, creature) then
             Effects.GrantKeyword(Keyword.LIFELINK, creature)
-        ))
     }
 
     // At the beginning of your end step, if you gained life this turn,

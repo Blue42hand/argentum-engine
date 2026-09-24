@@ -26,13 +26,11 @@ val FeedTheSwarm = card("Feed the Swarm") {
 
     spell {
         val t = target(TargetFilter.CreatureOrEnchantment.opponentControls())
-        effect = Effects.Composite(
-            Effects.Destroy(t),
+        effect = Effects.Destroy(t) then
             Effects.LoseLife(
                 DynamicAmounts.manaValueOf(t),
                 EffectTarget.Controller
             )
-        )
     }
 
     metadata {

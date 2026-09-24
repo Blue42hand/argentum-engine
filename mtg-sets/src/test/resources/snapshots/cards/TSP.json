@@ -694,7 +694,7 @@
                     "type": "PreventDamageShield",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "amount": {
                         "type": "Fixed",
@@ -704,7 +704,7 @@
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }
@@ -2167,7 +2167,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -2176,7 +2176,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Pay {5} — deal 5 damage to target creature",

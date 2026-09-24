@@ -179,24 +179,22 @@ class SelfShuffleIntoLibraryOnResolveScenarioTest : FunSpec({
         manaCost = "{1}"
         typeLine = "Sorcery"
         spell {
-            effect = Effects.Composite(
-                GatherCardsEffect(
-                    source = CardSource.FromZone(
-                        zone = Zone.GRAVEYARD,
-                        filter = GameObjectFilter.InstantOrSorcery,
-                    ),
-                    storeAs = "pool",
+            effect = GatherCardsEffect(
+                source = CardSource.FromZone(
+                    zone = Zone.GRAVEYARD,
+                    filter = GameObjectFilter.InstantOrSorcery,
                 ),
+                storeAs = "pool",
+            ) then
                 SelectFromCollectionEffect(
                     from = "pool",
                     selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
                     storeSelected = "pick",
-                ),
+                ) then
                 Effects.CastFromCollectionWithoutPayingCost(
                     from = "pick",
                     insteadOfGraveyard = AfterResolveDestination.BOTTOM_OF_LIBRARY,
-                ),
-            )
+                )
         }
     }
 

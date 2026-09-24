@@ -28,16 +28,12 @@ val CaseyJonesVigilante = card("Casey Jones, Vigilante") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            listOf(
-                Effects.DrawCards(3),
-                Effects.CreateDelayedTrigger(
-                    step = Step.UPKEEP,
-                    fireOnPlayer = EffectTarget.PlayerRef(Player.You),
-                    effect = Patterns.Hand.discardRandom(3),
-                ),
+        effect = Effects.DrawCards(3) then
+            Effects.CreateDelayedTrigger(
+                step = Step.UPKEEP,
+                fireOnPlayer = EffectTarget.PlayerRef(Player.You),
+                effect = Patterns.Hand.discardRandom(3),
             )
-        )
     }
 
     metadata {

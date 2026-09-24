@@ -35,14 +35,12 @@ val FarrelsZealot = card("Farrel's Zealot") {
         trigger = Triggers.self.attacksAndIsntBlocked()
         val t = target(TargetFilter.Creature)
         effect = Effects.May(
-            Effects.Composite(
-                Effects.DealDamage(3, t),
+            Effects.DealDamage(3, t) then
                 Effects.GrantKeyword(
                     AbilityFlag.ASSIGNS_NO_COMBAT_DAMAGE,
                     EffectTarget.Self,
                     Duration.EndOfTurn,
                 ),
-            ),
             descriptionOverride = "have this creature deal 3 damage to that creature. If you do, it assigns no combat damage this turn",
         )
         description = "Whenever this creature attacks and isn't blocked, you may have it deal 3 damage to target creature. If you do, this creature assigns no combat damage this turn."

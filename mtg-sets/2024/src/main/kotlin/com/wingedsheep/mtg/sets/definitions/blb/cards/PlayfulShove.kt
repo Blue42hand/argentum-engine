@@ -21,8 +21,7 @@ val PlayfulShove = card("Playful Shove") {
 
     spell {
         val t = target(Targets.Any)
-        effect = Effects.DealDamage(1, t)
-            .then(Effects.DrawCards(1))
+        effect = Effects.DealDamage(1, t) then Effects.DrawCards(1)
     }
 
     metadata {

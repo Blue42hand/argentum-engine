@@ -25,10 +25,7 @@ val Unhinge = card("Unhinge") {
     oracleText = "Target player discards a card.\nDraw a card."
     spell {
         val t = target(Targets.Player)
-        effect = Effects.Composite(
-            Patterns.Hand.discardCards(1, t),
-            Effects.DrawCards(1)
-        )
+        effect = Patterns.Hand.discardCards(1, t) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

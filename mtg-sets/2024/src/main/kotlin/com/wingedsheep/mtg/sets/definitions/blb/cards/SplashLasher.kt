@@ -45,8 +45,7 @@ val SplashLasher = card("Splash Lasher") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter.Creature, optional = true)
-        effect = Effects.Tap(t)
-            .then(Effects.AddCounters(CounterType.STUN, 1, t))
+        effect = Effects.Tap(t) then Effects.AddCounters(CounterType.STUN, 1, t)
     }
 
     metadata {

@@ -42,10 +42,7 @@ val HydraInfiltration = card("HYDRA Infiltration") {
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl()).attacks(setOf(AttackPredicate.Alone))
         val victim = target(Targets.Opponent)
-        effect = Effects.Composite(
-            Effects.LoseLife(1, victim),
-            Effects.GainLife(1),
-        )
+        effect = Effects.LoseLife(1, victim) then Effects.GainLife(1)
         description = "Whenever a creature you control attacks alone, target opponent loses 1 " +
             "life and you gain 1 life."
     }

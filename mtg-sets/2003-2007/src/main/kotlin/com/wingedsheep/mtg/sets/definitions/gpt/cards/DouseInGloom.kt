@@ -19,8 +19,7 @@ val DouseInGloom = card("Douse in Gloom") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.DealDamage(2, t)
-            .then(Effects.GainLife(2))
+        effect = Effects.DealDamage(2, t) then Effects.GainLife(2)
     }
 
     metadata {

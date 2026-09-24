@@ -45,15 +45,11 @@ val RaphAndLeoSiblingRivals = card("Raph & Leo, Sibling Rivals") {
         trigger = Triggers.self.attacks()
         oncePerTurn = true
         targets(TargetFilter.AttackingCreature, count = 2, minCount = 1)
-        effect = Effects.Composite(
-            listOf(
-                Effects.ForEachTarget(
-                    Effects.Untap(EffectTarget.ContextTarget(0))
-                ),
-                // "After this phase, there is an additional combat phase." (combat only — no main)
-                Effects.AddCombatPhase,
-            )
-        )
+        effect = Effects.ForEachTarget(
+            Effects.Untap(EffectTarget.ContextTarget(0))
+        ) then
+            // "After this phase, there is an additional combat phase." (combat only — no main)
+            Effects.AddCombatPhase
     }
 
     metadata {

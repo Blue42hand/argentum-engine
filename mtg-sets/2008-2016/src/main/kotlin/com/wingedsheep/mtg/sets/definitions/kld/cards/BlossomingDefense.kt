@@ -21,8 +21,7 @@ val BlossomingDefense = card("Blossoming Defense") {
 
     spell {
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.ModifyStats(2, 2, creature)
-            .then(Effects.GrantKeyword(Keyword.HEXPROOF, creature))
+        effect = Effects.ModifyStats(2, 2, creature) then Effects.GrantKeyword(Keyword.HEXPROOF, creature)
     }
 
     metadata {

@@ -27,11 +27,9 @@ val ChargeTheSanctum = card("Charge the Sanctum") {
             }
             mode("Target creature gets +2/+0 and gains first strike until end of turn. Put a +1/+1 counter on it") {
                 val t = target(TargetFilter.Creature)
-                effect = Effects.Composite(
-                    Effects.ModifyStats(2, 0, t),
-                    Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),
+                effect = Effects.ModifyStats(2, 0, t) then
+                    Effects.GrantKeyword(Keyword.FIRST_STRIKE, t) then
                     Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
-                )
             }
         }
     }

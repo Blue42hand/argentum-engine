@@ -30,12 +30,7 @@ val ScorchingLava = card("Scorching Lava") {
         val t = target(Targets.Any)
         effect = Effects.DealDamage(2, t) then Effects.If(
             condition = WasKicked,
-            then = Effects.Composite(
-                listOf(
-                    Effects.CantBeRegenerated(t),
-                    Effects.MarkExileOnDeath(t),
-                )
-            )
+            then = Effects.CantBeRegenerated(t) then Effects.MarkExileOnDeath(t)
         )
     }
 

@@ -1,6 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -33,15 +32,13 @@ val QuagFeast = card("Quag Feast") {
 
     spell {
         val creaturePlaneswalkerOrVehicle = target(TargetFilter(GameObjectFilter.CreatureOrVehicle or GameObjectFilter.Planeswalker))
-        effect = Patterns.Library.mill(2).then(
-            Effects.If(
-                condition = Conditions.CompareAmounts(
-                    left = DynamicAmounts.manaValueOf(creaturePlaneswalkerOrVehicle),
-                    operator = ComparisonOperator.LTE,
-                    right = DynamicAmounts.cardsInYourGraveyard(),
-                ),
-                then = Effects.Destroy(creaturePlaneswalkerOrVehicle),
+        effect = Patterns.Library.mill(2) then Effects.If(
+            condition = Conditions.CompareAmounts(
+                left = DynamicAmounts.manaValueOf(creaturePlaneswalkerOrVehicle),
+                operator = ComparisonOperator.LTE,
+                right = DynamicAmounts.cardsInYourGraveyard(),
             ),
+            then = Effects.Destroy(creaturePlaneswalkerOrVehicle),
         )
     }
 

@@ -24,10 +24,7 @@ val ChainToMemory = card("Chain to Memory") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(-4, 0, t),
-            Effects.Scry(2)
-        )
+        effect = Effects.ModifyStats(-4, 0, t) then Effects.Scry(2)
     }
 
     metadata {

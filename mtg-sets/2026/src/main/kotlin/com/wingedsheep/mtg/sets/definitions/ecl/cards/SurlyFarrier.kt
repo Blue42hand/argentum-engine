@@ -27,8 +27,7 @@ val SurlyFarrier = card("Surly Farrier") {
     activatedAbility {
         cost = Costs.Tap
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.ModifyStats(1, 1, creature)
-            .then(Effects.GrantKeyword(Keyword.VIGILANCE, creature))
+        effect = Effects.ModifyStats(1, 1, creature) then Effects.GrantKeyword(Keyword.VIGILANCE, creature)
         timing = TimingRule.SorcerySpeed
     }
 

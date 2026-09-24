@@ -26,14 +26,14 @@ val SonarStrike = card("Sonar Strike") {
 
     spell {
         val t = target(TargetFilter(GameObjectFilter.Creature.attackingOrBlockingOrTapped()))
-        effect = Effects.DealDamage(4, t)
-            .then(Effects.GainLife(
+        effect = Effects.DealDamage(4, t) then
+            Effects.GainLife(
                 DynamicAmounts.conditional(
                     condition = Conditions.ControlCreatureOfType(Subtype("Bat")),
                     ifTrue = 3,
                     ifFalse = 0
                 )
-            ))
+            )
     }
 
     metadata {

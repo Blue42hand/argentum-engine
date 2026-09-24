@@ -25,10 +25,8 @@ val WitheringTorment = card("Withering Torment") {
     oracleText = "Destroy target creature or enchantment. You lose 2 life."
     spell {
         val t = target(TargetFilter.CreatureOrEnchantment)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then
             Effects.LoseLife(2, EffectTarget.Controller)
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

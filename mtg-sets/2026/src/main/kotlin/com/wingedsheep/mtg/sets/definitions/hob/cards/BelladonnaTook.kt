@@ -44,27 +44,21 @@ val BelladonnaTook = card("Belladonna Took") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Any.youControl().token()).enters()
-        effect = IncrementAbilityResolutionCountEffect
-            .then(
-                Effects.If(
-                    condition = Conditions.SourceAbilityResolvedNTimes(1),
-                    then = Effects.GainLife(1),
-                )
-            )
-            .then(
-                Effects.If(
-                    condition = Conditions.SourceAbilityResolvedNTimes(2),
-                    then = Effects.DrawCards(1),
-                )
-            )
-            .then(
-                Effects.If(
-                    condition = Conditions.SourceAbilityResolvedNTimes(3),
-                    then = Effects.ForEachInGroup(
-                        GroupFilter(GameObjectFilter.Creature.youControl()),
-                        Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
-                    ),
-                )
+        effect = IncrementAbilityResolutionCountEffect then
+            Effects.If(
+                condition = Conditions.SourceAbilityResolvedNTimes(1),
+                then = Effects.GainLife(1),
+            ) then
+            Effects.If(
+                condition = Conditions.SourceAbilityResolvedNTimes(2),
+                then = Effects.DrawCards(1),
+            ) then
+            Effects.If(
+                condition = Conditions.SourceAbilityResolvedNTimes(3),
+                then = Effects.ForEachInGroup(
+                    GroupFilter(GameObjectFilter.Creature.youControl()),
+                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
+                ),
             )
     }
 

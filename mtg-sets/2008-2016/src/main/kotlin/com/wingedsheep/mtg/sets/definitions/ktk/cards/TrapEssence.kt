@@ -25,8 +25,7 @@ val TrapEssence = card("Trap Essence") {
     spell {
         target(TargetFilter.CreatureSpellOnStack)
         val creature = target(TargetFilter.Creature, optional = true)
-        effect = Effects.CounterSpell()
-            .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature))
+        effect = Effects.CounterSpell() then Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature)
     }
 
     metadata {

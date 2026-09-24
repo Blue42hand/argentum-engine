@@ -30,10 +30,7 @@ val StallOut = card("Stall Out") {
 
     spell {
         val t = target(TargetFilter(GameObjectFilter.CreatureOrVehicle))
-        effect = Effects.Composite(
-            Effects.Tap(t),
-            Effects.AddCounters(CounterType.STUN, 3, t)
-        )
+        effect = Effects.Tap(t) then Effects.AddCounters(CounterType.STUN, 3, t)
     }
 
     keywordAbility(KeywordAbility.cycling("{2}"))

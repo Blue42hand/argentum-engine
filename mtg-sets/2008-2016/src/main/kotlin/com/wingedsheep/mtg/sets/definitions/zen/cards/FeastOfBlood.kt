@@ -29,10 +29,7 @@ val FeastOfBlood = card("Feast of Blood") {
         castOnlyIf(Conditions.YouControlAtLeast(2, GameObjectFilter.Permanent.withSubtype(Subtype.VAMPIRE)))
 
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Destroy(creature),
-            Effects.GainLife(4)
-        )
+        effect = Effects.Destroy(creature) then Effects.GainLife(4)
     }
 
     metadata {

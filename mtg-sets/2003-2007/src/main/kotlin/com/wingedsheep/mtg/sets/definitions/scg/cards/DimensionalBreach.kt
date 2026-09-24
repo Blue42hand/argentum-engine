@@ -26,13 +26,13 @@ val DimensionalBreach = card("Dimensional Breach") {
     oracleText = "Exile all permanents. For as long as any of those cards remain exiled, at the beginning of each player's upkeep, that player returns one of the exiled cards they own to the battlefield."
 
     spell {
-        effect = Effects.ExileGroupAndLink(GroupFilter(GameObjectFilter.Any))
-            .then(Effects.CreateGlobalTriggeredAbility(
+        effect = Effects.ExileGroupAndLink(GroupFilter(GameObjectFilter.Any)) then
+            Effects.CreateGlobalTriggeredAbility(
                 TriggeredAbility.create(
                     trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP),
                     effect = Effects.ReturnOneFromLinkedExile()
                 )
-            ))
+            )
     }
 
     metadata {

@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.grantedActivatedAbility
 import com.wingedsheep.sdk.model.Rarity
@@ -48,7 +49,7 @@ val IronFistLivingWeapon = card("Iron Fist, Living Weapon") {
         effect = Effects.GrantActivatedAbility(
             ability = grantedActivatedAbility {
                 cost = Costs.Tap
-                val otherTarget = target(TargetOther(baseRequirement = AnyTarget()))
+                val otherTarget = target(TargetOther(baseRequirement = Targets.Any))
                 effect = Effects.DealDamage(
                     DynamicAmounts.sourcePower(),
                     otherTarget

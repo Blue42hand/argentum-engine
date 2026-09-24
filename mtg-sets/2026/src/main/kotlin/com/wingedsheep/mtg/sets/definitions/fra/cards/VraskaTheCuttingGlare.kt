@@ -33,10 +33,8 @@ val VraskaTheCuttingGlare = card("Vraska, the Cutting Glare") {
         trigger = Triggers.self.enters()
         interveningIf = Conditions.ControlLandsAtLeast(6)
         val permanent = target(TargetFilter.PermanentOpponentControls)
-        effect = Effects.Composite(
-            Effects.Destroy(permanent),
-            Effects.CreateTreasure(controller = EffectTarget.TargetController),
-        )
+        effect = Effects.Destroy(permanent) then
+            Effects.CreateTreasure(controller = EffectTarget.TargetController)
         description = "When Vraska enters, if you control six or more lands, destroy target permanent " +
             "an opponent controls. They create a Treasure token."
     }

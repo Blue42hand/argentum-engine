@@ -813,7 +813,7 @@
                                 "type": "MoveToZone",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 },
                                 "destination": "Battlefield",
                                 "fromZone": "Graveyard"
@@ -828,7 +828,7 @@
                                             "type": "EntityMatches",
                                             "entity": {
                                                 "type": "BoundVariable",
-                                                "name": "t0"
+                                                "name": "t1"
                                             },
                                             "filter": "creature"
                                         }
@@ -838,7 +838,7 @@
                                     "type": "BecomeCreature",
                                     "target": {
                                         "type": "BoundVariable",
-                                        "name": "t0"
+                                        "name": "t1"
                                     },
                                     "power": {
                                         "type": "Fixed",
@@ -866,7 +866,7 @@
                                 "baseFilter": "artifact own:you",
                                 "zone": "Graveyard"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Return target artifact card in your graveyard to the battlefield. If it isn't an artifact creature card, it's a 3/3 Robot artifact creature with flying"
@@ -2373,7 +2373,7 @@
                     "type": "MoveAllLastKnownCounters",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
@@ -2382,7 +2382,7 @@
                     "filter": {
                         "baseFilter": "creature|artifact ctrl:you"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 },
                 "interveningIf": "TriggeringEntityHadCounters",
                 "descriptionOverride": "Whenever an artifact you control is put into a graveyard from the battlefield, if it had counters on it, put those counters on up to one target artifact or creature you control."
@@ -3460,7 +3460,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -3469,7 +3469,7 @@
                             "filter": {
                                 "baseFilter": "creature ctrl:opponent"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Go Ninja Go deals damage equal to the greatest power among creatures you control to target creature an opponent controls"
@@ -4346,7 +4346,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -4355,7 +4355,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target creature gets -3/-3 until end of turn"
@@ -4619,11 +4619,11 @@
                         "type": "ExchangeControl",
                         "target1": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t2"
                         },
                         "target2": {
                             "type": "BoundVariable",
-                            "name": "t1"
+                            "name": "t3"
                         }
                     }
                 },
@@ -4633,7 +4633,7 @@
                         "baseFilter": "creature ctrl:you",
                         "excludeSelf": true
                     },
-                    "id": "t0"
+                    "id": "t2"
                 },
                 "additionalTargetRequirements": [
                     {
@@ -4641,7 +4641,7 @@
                         "filter": {
                             "baseFilter": "creature ctrl:opponent"
                         },
-                        "id": "t1"
+                        "id": "t3"
                     }
                 ],
                 "descriptionOverride": "Whenever Kitsune deals combat damage to a player, you may exchange control of two other target creatures controlled by different players."
@@ -6179,38 +6179,33 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "FromZone",
-                                        "zone": "Hand",
-                                        "filter": "creature"
-                                    },
-                                    "storeAs": "put_candidates"
-                                },
-                                {
-                                    "type": "SelectFromCollection",
-                                    "from": "put_candidates",
-                                    "selection": {
-                                        "type": "ChooseUpTo",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 1
-                                        }
-                                    },
-                                    "storeSelected": "putting"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "putting",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Battlefield"
-                                    }
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand",
+                                "filter": "creature"
+                            },
+                            "storeAs": "put_candidates"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "put_candidates",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
                                 }
-                            ]
+                            },
+                            "storeSelected": "putting"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "putting",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield"
+                            }
                         },
                         {
                             "type": "Composite",
@@ -9027,26 +9022,21 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "FromZone",
-                                        "zone": "Hand"
-                                    },
-                                    "storeAs": "discardedHand"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "discardedHand",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard"
-                                    },
-                                    "moveType": "Discard"
-                                }
-                            ]
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand"
+                            },
+                            "storeAs": "discardedHand"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "discardedHand",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Discard"
                         },
                         {
                             "type": "DrawCards",
@@ -10100,7 +10090,7 @@
                                     "type": "TapUntap",
                                     "target": {
                                         "type": "BoundVariable",
-                                        "name": "t0"
+                                        "name": "t1"
                                     }
                                 },
                                 "description": "Tap that creature"
@@ -10110,7 +10100,7 @@
                                     "type": "TapUntap",
                                     "target": {
                                         "type": "BoundVariable",
-                                        "name": "t0"
+                                        "name": "t1"
                                     },
                                     "tap": false
                                 },
@@ -10125,7 +10115,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 },
                 "descriptionOverride": "When this artifact leaves the battlefield, you may tap or untap target creature."
             }
@@ -10284,7 +10274,7 @@
                     "type": "AttachEquipment",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirements": [
@@ -10293,7 +10283,7 @@
                         "filter": {
                             "baseFilter": "creature ctrl:you"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ],
                 "timing": "SorcerySpeed",
@@ -10397,7 +10387,7 @@
                                 },
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             {
@@ -10408,7 +10398,7 @@
                                 },
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             }
                         ]
@@ -10416,7 +10406,7 @@
                     "targetRequirements": [
                         {
                             "type": "TargetPlayer",
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target player draws two cards and loses 2 life"
@@ -10570,7 +10560,7 @@
                     "keyword": "DEATHTOUCH",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
@@ -10579,7 +10569,7 @@
                         "baseFilter": "creature ctrl:you",
                         "excludeSelf": true
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]
@@ -12839,25 +12829,20 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "BattlefieldMatching",
-                                "filter": "creature"
-                            },
-                            "storeAs": "returnAllToHand_gathered"
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "returnAllToHand_gathered",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Hand"
-                            }
-                        }
-                    ]
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "BattlefieldMatching",
+                        "filter": "creature"
+                    },
+                    "storeAs": "returnAllToHand_gathered"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "returnAllToHand_gathered",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    }
                 },
                 {
                     "type": "ForEach",

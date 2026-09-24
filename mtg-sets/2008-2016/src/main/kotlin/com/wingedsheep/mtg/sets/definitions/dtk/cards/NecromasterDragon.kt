@@ -46,15 +46,13 @@ val NecromasterDragon = card("Necromaster Dragon") {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}"),
-            then = Effects.Composite(
-                Effects.CreateToken(
-                    power = 2,
-                    toughness = 2,
-                    colors = setOf(Color.BLACK),
-                    creatureTypes = setOf("Zombie")
-                ),
+            then = Effects.CreateToken(
+                power = 2,
+                toughness = 2,
+                colors = setOf(Color.BLACK),
+                creatureTypes = setOf("Zombie")
+            ) then
                 Patterns.Library.mill(2, EffectTarget.PlayerRef(Player.EachOpponent))
-            )
         )
     }
 

@@ -39,11 +39,9 @@ val Goatnapper = card("Goatnapper") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val goat = target(TargetFilter.Creature.withSubtype(Subtype.GOAT))
-        effect = Effects.Composite(
-            Effects.Untap(goat),
-            Effects.GainControl(goat, Duration.EndOfTurn),
+        effect = Effects.Untap(goat) then
+            Effects.GainControl(goat, Duration.EndOfTurn) then
             Effects.GrantKeyword(Keyword.HASTE, goat)
-        )
         description = "untap target Goat and gain control of it until end of turn. " +
             "It gains haste until end of turn."
     }

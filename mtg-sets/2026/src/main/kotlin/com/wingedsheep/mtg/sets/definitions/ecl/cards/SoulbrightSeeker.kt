@@ -43,13 +43,11 @@ val SoulbrightSeeker = card("Soulbright Seeker") {
     activatedAbility {
         cost = Costs.Mana("{R}")
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.GrantKeyword(Keyword.TRAMPLE, creature)
-            .then(IncrementAbilityResolutionCountEffect)
-            .then(
-                Effects.If(
-                    condition = Conditions.SourceAbilityResolvedNTimes(3),
-                    then = Effects.AddMana(Color.RED, amount = 4)
-                )
+        effect = Effects.GrantKeyword(Keyword.TRAMPLE, creature) then
+            IncrementAbilityResolutionCountEffect then
+            Effects.If(
+                condition = Conditions.SourceAbilityResolvedNTimes(3),
+                then = Effects.AddMana(Color.RED, amount = 4)
             )
     }
 

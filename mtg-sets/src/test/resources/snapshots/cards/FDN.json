@@ -1637,7 +1637,7 @@
                         "filter": {
                             "baseFilter": "creature|planeswalker"
                         },
-                        "id": "t0",
+                        "id": "t1",
                         "dynamicMaxCount": {
                             "type": "Fixed",
                             "amount": 8
@@ -9579,7 +9579,7 @@
                         "filter": {
                             "baseFilter": "creature|artifact ctrl:you"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ],
                 "descriptionOverride": "Double the number of each kind of counter on up to two target creatures and/or artifacts you control."

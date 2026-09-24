@@ -32,10 +32,7 @@ val RayOfRuin = card("Ray of Ruin") {
                     GameObjectFilter.NonbasicLand
             ),
         )
-        effect = Effects.Composite(
-            Effects.Exile(t),
-            Effects.Scry(1)
-        )
+        effect = Effects.Exile(t) then Effects.Scry(1)
     }
 
     metadata {

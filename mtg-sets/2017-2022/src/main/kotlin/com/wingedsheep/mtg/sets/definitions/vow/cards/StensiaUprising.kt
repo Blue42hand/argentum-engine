@@ -46,14 +46,13 @@ val StensiaUprising = card("Stensia Uprising") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                power = 1,
-                toughness = 1,
-                colors = setOf(Color.RED),
-                creatureTypes = setOf(Subtype.HUMAN.value),
-                imageUri = "https://cards.scryfall.io/normal/front/1/1/11c8ff82-b598-4ccc-83a7-99f1e53b64d3.jpg?1783924697"
-            ),
+        effect = Effects.CreateToken(
+            power = 1,
+            toughness = 1,
+            colors = setOf(Color.RED),
+            creatureTypes = setOf(Subtype.HUMAN.value),
+            imageUri = "https://cards.scryfall.io/normal/front/1/1/11c8ff82-b598-4ccc-83a7-99f1e53b64d3.jpg?1783924697"
+        ) then
             Effects.If(
                 condition = Conditions.CompareAmounts(
                     DynamicAmounts.battlefield(Player.You, GameObjectFilter.Any).count(),
@@ -74,7 +73,6 @@ val StensiaUprising = card("Stensia Uprising") {
                     )
                 }
             )
-        )
         description = "At the beginning of your end step, create a 1/1 red Human creature token. " +
             "Then if you control exactly thirteen permanents, you may sacrifice this enchantment. " +
             "When you do, it deals 7 damage to any target."

@@ -29,8 +29,7 @@ val DuelTactics = card("Duel Tactics") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.DealDamage(1, creature) then
-            Effects.CantBlock(creature, Duration.EndOfTurn)
+        effect = Effects.DealDamage(1, creature) then Effects.CantBlock(creature, Duration.EndOfTurn)
     }
 
     metadata {

@@ -35,11 +35,11 @@ val CatharticParting = card("Cathartic Parting") {
             count = 4,
             optional = true,
         )
-        effect = Effects.ShuffleIntoLibrary(permanent)
-            .then(Effects.ShuffleIntoLibrary(g0))
-            .then(Effects.ShuffleIntoLibrary(g1))
-            .then(Effects.ShuffleIntoLibrary(g2))
-            .then(Effects.ShuffleIntoLibrary(g3))
+        effect = Effects.ShuffleIntoLibrary(permanent) then
+            Effects.ShuffleIntoLibrary(g0) then
+            Effects.ShuffleIntoLibrary(g1) then
+            Effects.ShuffleIntoLibrary(g2) then
+            Effects.ShuffleIntoLibrary(g3)
     }
 
     metadata {

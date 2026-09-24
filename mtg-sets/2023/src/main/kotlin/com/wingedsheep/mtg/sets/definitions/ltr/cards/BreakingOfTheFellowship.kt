@@ -32,7 +32,7 @@ val BreakingOfTheFellowship = card("Breaking of the Fellowship") {
             amount = DynamicAmounts.powerOf(firstCreatureOpponentControls),
             target = secondCreatureOpponentControls,
             damageSource = firstCreatureOpponentControls
-        ).then(Effects.TheRingTemptsYou())
+        ) then Effects.TheRingTemptsYou()
     }
 
     metadata {

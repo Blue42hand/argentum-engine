@@ -31,7 +31,7 @@ val WayOfTheHealer = card("Way of the Healer") {
                     creatureTypes = setOf("Wizard", "Soldier"),
                     name = "Cadet",
                     imageUri = "https://cards.scryfall.io/normal/front/8/f/8f4534d8-2783-484f-8ebf-a47b1cc4c6df.jpg?1789734318"
-                ).then(Patterns.Library.surveil(1))
+                ) then Patterns.Library.surveil(1)
                 description = "Create a 2/2 colorless Wizard Soldier creature token named Cadet. Surveil 1."
             },
             filter = GroupFilter(GameObjectFilter.Planeswalker.youControl())

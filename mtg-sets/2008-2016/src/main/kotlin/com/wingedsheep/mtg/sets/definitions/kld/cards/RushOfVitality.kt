@@ -26,11 +26,9 @@ val RushOfVitality = card("Rush of Vitality") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, t),
-            Effects.GrantKeyword(Keyword.LIFELINK, t),
+        effect = Effects.ModifyStats(1, 0, t) then
+            Effects.GrantKeyword(Keyword.LIFELINK, t) then
             Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
-        )
     }
 
     metadata {

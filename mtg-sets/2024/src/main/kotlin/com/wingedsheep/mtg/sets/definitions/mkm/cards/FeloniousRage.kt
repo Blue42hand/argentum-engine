@@ -34,9 +34,8 @@ val FeloniousRage = card("Felonious Rage") {
 
     spell {
         val t = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, t),
-            Effects.GrantKeyword(Keyword.HASTE, t),
+        effect = Effects.ModifyStats(2, 0, t) then
+            Effects.GrantKeyword(Keyword.HASTE, t) then
             Effects.CreateDelayedTrigger(
                 effect = Effects.CreateToken(
                     power = 2,
@@ -49,7 +48,6 @@ val FeloniousRage = card("Felonious Rage") {
                 fireOnce = true,
                 expiry = DelayedTriggerExpiry.EndOfTurn
             )
-        )
     }
 
     metadata {

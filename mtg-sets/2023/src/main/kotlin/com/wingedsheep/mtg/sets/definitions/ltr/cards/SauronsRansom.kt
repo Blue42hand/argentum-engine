@@ -75,7 +75,7 @@ val SauronsRansom = card("Sauron's Ransom") {
             )
             toHand(keepPile)
             toGraveyard(otherPile)
-        }.then(Effects.TheRingTemptsYou())
+        } then Effects.TheRingTemptsYou()
     }
 
     metadata {

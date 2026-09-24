@@ -35,12 +35,10 @@ val MoltenNote = card("Molten Note") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.DealDamage(DynamicAmounts.totalManaSpent(), creature)
-            .then(
-                Effects.ForEachInGroup(
-                    Filters.Group.creaturesYouControl,
-                    Effects.Untap(EffectTarget.IterationEntity),
-                )
+        effect = Effects.DealDamage(DynamicAmounts.totalManaSpent(), creature) then
+            Effects.ForEachInGroup(
+                Filters.Group.creaturesYouControl,
+                Effects.Untap(EffectTarget.IterationEntity),
             )
     }
 

@@ -35,10 +35,8 @@ val CunningCoyote = card("Cunning Coyote") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter.OtherCreatureYouControl)
-        effect = Effects.Composite(
-            Effects.ModifyStats(power = 1, toughness = 1, target = t),
+        effect = Effects.ModifyStats(power = 1, toughness = 1, target = t) then
             Effects.GrantKeyword(Keyword.HASTE, target = t)
-        )
     }
 
     metadata {

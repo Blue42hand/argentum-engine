@@ -15,7 +15,7 @@ val NoAdmittance = card("No Admittance") {
 
     spell {
         val t = target(Targets.Any)
-        effect = Effects.DealDamage(3, t).then(Patterns.Mechanic.empowerJace(1))
+        effect = Effects.DealDamage(3, t) then Patterns.Mechanic.empowerJace(1)
     }
 
     metadata {

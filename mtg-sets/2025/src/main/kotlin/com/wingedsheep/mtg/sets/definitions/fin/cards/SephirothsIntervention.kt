@@ -20,10 +20,7 @@ val SephirothsIntervention = card("Sephiroth's Intervention") {
     oracleText = "Destroy target creature. You gain 2 life."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            Effects.GainLife(2)
-        )
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then Effects.GainLife(2)
     }
     metadata {
         rarity = Rarity.COMMON

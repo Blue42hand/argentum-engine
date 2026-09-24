@@ -34,8 +34,7 @@ val FlickeringHound = card("Flickering Hound") {
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Creature)
         val creature = target(TargetFilter.OtherCreatureYouControl, optional = true)
-        effect = Effects.Move(creature, Zone.EXILE)
-            .then(Effects.Move(creature, Zone.BATTLEFIELD))
+        effect = Effects.Move(creature, Zone.EXILE) then Effects.Move(creature, Zone.BATTLEFIELD)
     }
 
     metadata {

@@ -29,12 +29,8 @@ val Ultima = card("Ultima") {
         "turn\" effects end.)"
 
     spell {
-        effect = Effects.Composite(
-            listOf(
-                Effects.DestroyAll(GameObjectFilter.Artifact or GameObjectFilter.Creature),
-                Effects.EndTheTurn,
-            )
-        )
+        effect = Effects.DestroyAll(GameObjectFilter.Artifact or GameObjectFilter.Creature) then
+            Effects.EndTheTurn
     }
 
     metadata {

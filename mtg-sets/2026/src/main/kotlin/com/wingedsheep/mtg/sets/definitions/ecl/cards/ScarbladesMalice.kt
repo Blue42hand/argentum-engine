@@ -26,25 +26,21 @@ val ScarbladesMalice = card("Scarblade's Malice") {
 
     spell {
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            listOf(
-                Effects.GrantKeyword(Keyword.DEATHTOUCH, creature),
-                Effects.GrantKeyword(Keyword.LIFELINK, creature),
-                Effects.CreateDelayedTrigger(
-                    trigger = Triggers.self.dies(),
-                    watchedTarget = creature,
-                    expiry = DelayedTriggerExpiry.EndOfTurn,
-                    effect = Effects.CreateToken(
-                        count = 1,
-                        power = 2,
-                        toughness = 2,
-                        colors = setOf(Color.BLACK, Color.GREEN),
-                        creatureTypes = setOf("Elf"),
-                        imageUri = "https://cards.scryfall.io/normal/front/3/9/39b36f22-21f9-44fe-8a49-bdc859503342.jpg?1767955588"
-                    )
+        effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, creature) then
+            Effects.GrantKeyword(Keyword.LIFELINK, creature) then
+            Effects.CreateDelayedTrigger(
+                trigger = Triggers.self.dies(),
+                watchedTarget = creature,
+                expiry = DelayedTriggerExpiry.EndOfTurn,
+                effect = Effects.CreateToken(
+                    count = 1,
+                    power = 2,
+                    toughness = 2,
+                    colors = setOf(Color.BLACK, Color.GREEN),
+                    creatureTypes = setOf("Elf"),
+                    imageUri = "https://cards.scryfall.io/normal/front/3/9/39b36f22-21f9-44fe-8a49-bdc859503342.jpg?1767955588"
                 )
             )
-        )
     }
 
     metadata {

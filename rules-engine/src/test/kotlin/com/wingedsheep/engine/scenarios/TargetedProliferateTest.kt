@@ -92,10 +92,7 @@ class TargetedProliferateTest : ScenarioTestBase() {
         spell {
             val first = target(Targets.PermanentOrPlayer)
             val second = target(Targets.PermanentOrPlayer)
-            effect = Effects.Composite(
-                Effects.Proliferate(first),
-                Effects.Proliferate(second),
-            )
+            effect = Effects.Proliferate(first) then Effects.Proliferate(second)
         }
     }
 

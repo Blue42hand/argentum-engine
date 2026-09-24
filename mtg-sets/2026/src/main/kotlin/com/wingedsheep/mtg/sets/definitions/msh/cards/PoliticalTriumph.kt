@@ -42,10 +42,7 @@ val PoliticalTriumph = card("Political Triumph") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl()).enters()
-        effect = Effects.Composite(
-            Effects.Scry(1),
-            Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self),
-        )
+        effect = Effects.Scry(1) then Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self)
         description = "Whenever a creature you control enters, scry 1 and put a plan counter on " +
             "this enchantment."
     }
@@ -53,14 +50,12 @@ val PoliticalTriumph = card("Political Triumph") {
     triggeredAbility {
         trigger = Triggers.self.getsCounters(CounterType.PLAN)
         triggerRestriction = Conditions.SourceCounterCountAtLeast(CounterType.PLAN, 4)
-        effect = Effects.Composite(
-            Effects.SacrificeTarget(EffectTarget.Self),
-            Effects.DrawCards(1),
+        effect = Effects.SacrificeTarget(EffectTarget.Self) then
+            Effects.DrawCards(1) then
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
                 Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
-            ),
-        )
+            )
         description = "When the fourth plan counter is put on this enchantment, sacrifice it, " +
             "draw a card, and put a +1/+1 counter on each creature you control."
     }

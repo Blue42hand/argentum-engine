@@ -23,10 +23,8 @@ val TradeSecrets = card("Trade Secrets") {
     spell {
         val t = target(Targets.Opponent)
         effect = Effects.RepeatWhile(
-            body = Effects.Composite(
-                Effects.DrawCards(2, t),
-                Effects.DrawUpTo(maxCards = 4, target = EffectTarget.Controller)
-            ),
+            body = Effects.DrawCards(2, t) then
+                Effects.DrawUpTo(maxCards = 4, target = EffectTarget.Controller),
             repeatCondition = RepeatCondition.PlayerChooses(
                 decider = t,
                 prompt = "Repeat the process? (You draw 2 cards, opponent draws up to 4)",

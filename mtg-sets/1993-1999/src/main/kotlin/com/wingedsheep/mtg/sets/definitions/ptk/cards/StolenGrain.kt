@@ -19,10 +19,7 @@ val StolenGrain = card("Stolen Grain") {
 
     spell {
         val t = target(Targets.OpponentOrPlaneswalker)
-        effect = Effects.Composite(
-            Effects.DealDamage(5, t),
-            Effects.GainLife(5)
-        )
+        effect = Effects.DealDamage(5, t) then Effects.GainLife(5)
     }
 
     metadata {

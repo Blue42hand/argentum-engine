@@ -30,10 +30,7 @@ val ShadowbloodEgg = card("Shadowblood Egg") {
     oracleText = "{2}, {T}, Sacrifice this artifact: Add {B}{R}. Draw a card."
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap, Costs.SacrificeSelf)
-        effect = Effects.Composite(
-            Effects.Composite(Effects.AddMana(Color.BLACK, 1), Effects.AddMana(Color.RED, 1)),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.AddMana(Color.BLACK, 1) then Effects.AddMana(Color.RED, 1) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.UNCOMMON

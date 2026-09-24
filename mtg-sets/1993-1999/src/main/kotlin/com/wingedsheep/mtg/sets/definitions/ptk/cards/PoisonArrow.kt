@@ -20,10 +20,7 @@ val PoisonArrow = card("Poison Arrow") {
 
     spell {
         val t = target(TargetFilter.Creature.notColor(Color.BLACK))
-        effect = Effects.Composite(
-            Effects.Destroy(t),
-            Effects.GainLife(3)
-        )
+        effect = Effects.Destroy(t) then Effects.GainLife(3)
     }
 
     metadata {

@@ -36,16 +36,14 @@ fun CardBuilder.jobSelect() {
     triggeredAbilities.add(
         TriggeredAbility.create(
             trigger = Triggers.self.enters(),
-            effect = Effects.Composite(
-                Effects.CreateToken(
-                    power = 1,
-                    toughness = 1,
-                    colors = emptySet(),
-                    creatureTypes = setOf("Hero"),
-                    imageUri = JOB_SELECT_HERO_TOKEN_IMAGE
-                ),
-                Effects.AttachEquipment(EffectTarget.PipelineTarget(CREATED_TOKENS, 0))
-            ),
+            effect = Effects.CreateToken(
+                power = 1,
+                toughness = 1,
+                colors = emptySet(),
+                creatureTypes = setOf("Hero"),
+                imageUri = JOB_SELECT_HERO_TOKEN_IMAGE
+            ) then
+                Effects.AttachEquipment(EffectTarget.PipelineTarget(CREATED_TOKENS, 0)),
             descriptionOverride = "Job select (When this Equipment enters, create a 1/1 " +
                 "colorless Hero creature token, then attach this to it.)"
         )

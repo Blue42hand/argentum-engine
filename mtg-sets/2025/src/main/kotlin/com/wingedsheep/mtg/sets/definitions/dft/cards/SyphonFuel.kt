@@ -23,10 +23,7 @@ val SyphonFuel = card("Syphon Fuel") {
     oracleText = "Target creature gets -6/-6 until end of turn. You gain 2 life."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(-6, -6, t),
-            Effects.GainLife(2)
-        )
+        effect = Effects.ModifyStats(-6, -6, t) then Effects.GainLife(2)
     }
     metadata {
         rarity = Rarity.COMMON

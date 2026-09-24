@@ -39,22 +39,18 @@ val FakeYourOwnDeath = card("Fake Your Own Death") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, t),
+        effect = Effects.ModifyStats(2, 0, t) then
             Effects.GrantTriggeredAbility(
                 ability = TriggeredAbility.create(
                     trigger = Triggers.self.dies(),
-                    effect = Effects.Composite(
-                        Effects.PutOntoBattlefield(EffectTarget.Self, tapped = true),
+                    effect = Effects.PutOntoBattlefield(EffectTarget.Self, tapped = true) then
                         Effects.CreateTreasure(1),
-                    ),
                     descriptionOverride = "When this creature dies, return it to the battlefield tapped " +
                         "under its owner's control and you create a Treasure token.",
                 ),
                 target = t,
                 duration = Duration.EndOfTurn,
-            ),
-        )
+            )
     }
 
     metadata {

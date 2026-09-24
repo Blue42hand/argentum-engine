@@ -35,12 +35,8 @@ val VeneratedStormsinger = card("Venerated Stormsinger") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dies()
-        effect = Effects.Composite(
-            listOf(
-                Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-                Effects.GainLife(1, EffectTarget.Controller)
-            )
-        )
+        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then
+            Effects.GainLife(1, EffectTarget.Controller)
         description = "Whenever this creature or another creature you control dies, each opponent loses 1 life and you gain 1 life."
     }
 

@@ -24,11 +24,9 @@ val BroadsideBarrage = card("Broadside Barrage") {
     oracleText = "Broadside Barrage deals 5 damage to target creature or planeswalker. Draw a card, then discard a card."
     spell {
         val t = target(Targets.CreatureOrPlaneswalker)
-        effect = Effects.Composite(
-            Effects.DealDamage(5, t),
-            Effects.DrawCards(1),
+        effect = Effects.DealDamage(5, t) then
+            Effects.DrawCards(1) then
             Patterns.Hand.discardCards(1)
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

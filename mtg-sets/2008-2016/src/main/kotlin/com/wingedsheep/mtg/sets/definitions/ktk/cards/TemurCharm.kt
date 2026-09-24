@@ -27,8 +27,8 @@ val TemurCharm = card("Temur Charm") {
             mode("Target creature you control gets +1/+1 until end of turn. It fights target creature you don't control") {
                 val yourCreature = target(TargetFilter(GameObjectFilter.Creature.youControl()))
                 val theirCreature = target(TargetFilter(GameObjectFilter.Creature.opponentControls()))
-                effect = Effects.ModifyStats(1, 1, yourCreature)
-                    .then(Effects.Fight(yourCreature, theirCreature))
+                effect = Effects.ModifyStats(1, 1, yourCreature) then
+                    Effects.Fight(yourCreature, theirCreature)
             }
             mode("Counter target spell unless its controller pays {3}") {
                 target(TargetFilter.SpellOnStack)

@@ -36,17 +36,15 @@ val SynchronizedCharge = card("Synchronized Charge") {
 
     spell {
         targets(com.wingedsheep.sdk.scripting.filters.unified.TargetFilter.CreatureYouControl, count = 2, minCount = 1)
-        effect = Effects.Composite(listOf(
-            Effects.DistributeCountersAmongTargets(totalCounters = 2),
+        effect = Effects.DistributeCountersAmongTargets(totalCounters = 2) then
             Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.youControl().withAnyCounter()),
                 effect = Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.IterationEntity)
-            ),
+            ) then
             Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature.youControl().withAnyCounter()),
                 effect = Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
             )
-        ))
     }
 
     keywordAbility(KeywordAbility.harmonize("{4}{G}"))

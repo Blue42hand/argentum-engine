@@ -43,8 +43,8 @@ val SageOfTheFang = card("Sage of the Fang") {
 
     renew("{3}{G}") {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
-            .then(Effects.DoubleCounters(CounterType.PLUS_ONE_PLUS_ONE, creature))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
+            Effects.DoubleCounters(CounterType.PLUS_ONE_PLUS_ONE, creature)
     }
 
     metadata {

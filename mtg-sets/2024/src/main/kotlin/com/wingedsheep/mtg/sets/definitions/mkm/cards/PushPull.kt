@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Push // Pull — Murders at Karlov Manor #250
@@ -43,9 +42,7 @@ val PushPull = card("Push // Pull") {
             "They gain haste until end of turn. Sacrifice them at the beginning of the next end step."
 
         spell {
-            val target = target(
-                TargetObject(filter = TargetFilter.CreatureInGraveyard, count = 2, optional = true, sameOwner = true),
-            )
+            targets(TargetFilter.CreatureInGraveyard, count = 2, optional = true, sameOwner = true)
             effect = Effects.Pipeline {
                 val targets = gather(CardSource.ChosenTargets)
                 val entered = moveTracked(
@@ -55,13 +52,11 @@ val PushPull = card("Push // Pull") {
                 run(
                     Effects.ForEachInCollection(
                         entered,
-                        Effects.Composite(
-                            Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn),
+                        Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn) then
                             Effects.CreateDelayedTrigger(
                                 step = Step.END,
                                 effect = Effects.SacrificeTarget(EffectTarget.IterationEntity),
                             ),
-                        ),
                     ),
                 )
             }

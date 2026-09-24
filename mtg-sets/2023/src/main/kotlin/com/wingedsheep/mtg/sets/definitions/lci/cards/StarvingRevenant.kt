@@ -57,16 +57,12 @@ val StarvingRevenant = card("Starving Revenant") {
     // ETB: surveil 2, then for each card kept on top, draw one and lose 3 life.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            listOf(
-                Effects.Surveil(2),
-                Effects.DrawCards(DynamicAmounts.distinctEntitiesIn("toTop")),
-                Effects.LoseLife(
-                    DynamicAmounts.distinctEntitiesIn("toTop") * 3,
-                    EffectTarget.Controller
-                )
+        effect = Effects.Surveil(2) then
+            Effects.DrawCards(DynamicAmounts.distinctEntitiesIn("toTop")) then
+            Effects.LoseLife(
+                DynamicAmounts.distinctEntitiesIn("toTop") * 3,
+                EffectTarget.Controller
             )
-        )
     }
 
     // Descend 8: whenever you draw a card, if eight or more permanent cards are in your graveyard,
@@ -75,12 +71,7 @@ val StarvingRevenant = card("Starving Revenant") {
         trigger = Triggers.you.draws()
         interveningIf = Conditions.CardsInGraveyardMatchingAtLeast(8, GameObjectFilter.Permanent)
         val opponent = target(Targets.Opponent)
-        effect = Effects.Composite(
-            listOf(
-                Effects.LoseLife(1, opponent),
-                Effects.GainLife(1)
-            )
-        )
+        effect = Effects.LoseLife(1, opponent) then Effects.GainLife(1)
     }
 
     metadata {

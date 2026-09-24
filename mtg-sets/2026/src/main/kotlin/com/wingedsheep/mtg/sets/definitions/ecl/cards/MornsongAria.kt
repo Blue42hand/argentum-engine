@@ -36,24 +36,22 @@ val MornsongAria = card("Mornsong Aria") {
 
     triggeredAbility {
         trigger = Triggers.anyPlayer.beginningOf(Step.DRAW)
-        effect = Effects.LoseLife(3, target = EffectTarget.PlayerRef(Player.TriggeringPlayer))
-            .then(
-                Effects.Pipeline {
-                    val searchable = gather(
-                        CardSource.FromZone(Zone.LIBRARY, Player.TriggeringPlayer, GameObjectFilter.Any),
-                        search = true
-                    )
-                    val found = chooseExactly(
-                        1,
-                        from = searchable,
-                        chooser = Chooser.TriggeringPlayer,
-                        prompt = "Search your library for a card",
-                        selectedLabel = "Put into hand"
-                    )
-                    toHand(found, Player.TriggeringPlayer)
-                    run(Effects.ShuffleLibrary(target = EffectTarget.PlayerRef(Player.TriggeringPlayer)))
-                }
-            )
+        effect = Effects.LoseLife(3, target = EffectTarget.PlayerRef(Player.TriggeringPlayer)) then
+            Effects.Pipeline {
+                val searchable = gather(
+                    CardSource.FromZone(Zone.LIBRARY, Player.TriggeringPlayer, GameObjectFilter.Any),
+                    search = true
+                )
+                val found = chooseExactly(
+                    1,
+                    from = searchable,
+                    chooser = Chooser.TriggeringPlayer,
+                    prompt = "Search your library for a card",
+                    selectedLabel = "Put into hand"
+                )
+                toHand(found, Player.TriggeringPlayer)
+                run(Effects.ShuffleLibrary(target = EffectTarget.PlayerRef(Player.TriggeringPlayer)))
+            }
     }
 
     metadata {

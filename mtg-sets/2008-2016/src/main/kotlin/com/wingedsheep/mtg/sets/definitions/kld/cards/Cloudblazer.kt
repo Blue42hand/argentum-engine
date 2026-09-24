@@ -29,10 +29,7 @@ val Cloudblazer = card("Cloudblazer") {
     keywords(Keyword.FLYING)
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.GainLife(2),
-            Effects.DrawCards(2)
-        )
+        effect = Effects.GainLife(2) then Effects.DrawCards(2)
     }
     metadata {
         rarity = Rarity.UNCOMMON

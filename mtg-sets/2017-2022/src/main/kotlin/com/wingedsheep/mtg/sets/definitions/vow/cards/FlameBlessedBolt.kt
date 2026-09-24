@@ -19,10 +19,7 @@ val FlameBlessedBolt = card("Flame-Blessed Bolt") {
     oracleText = "Flame-Blessed Bolt deals 2 damage to target creature or planeswalker. If that creature or planeswalker would die this turn, exile it instead."
     spell {
         val t = target(Targets.CreatureOrPlaneswalker)
-        effect = Effects.Composite(
-            Effects.DealDamage(2, t),
-            Effects.MarkExileOnDeath(t)
-        )
+        effect = Effects.DealDamage(2, t) then Effects.MarkExileOnDeath(t)
     }
     metadata {
         rarity = Rarity.COMMON

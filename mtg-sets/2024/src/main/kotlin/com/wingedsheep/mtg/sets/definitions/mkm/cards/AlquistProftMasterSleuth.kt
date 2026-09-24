@@ -63,10 +63,7 @@ val AlquistProftMasterSleuth = card("Alquist Proft, Master Sleuth") {
             Costs.Tap,
             Costs.Sacrifice(GameObjectFilter.Artifact.withSubtype("Clue"))
         )
-        effect = Effects.Composite(
-            Effects.DrawCards(DynamicAmounts.xValue()),
-            Effects.GainLife(DynamicAmounts.xValue())
-        )
+        effect = Effects.DrawCards(DynamicAmounts.xValue()) then Effects.GainLife(DynamicAmounts.xValue())
         description = "{X}{W}{U}{U}, {T}, Sacrifice a Clue: You draw X cards and gain X life."
     }
 

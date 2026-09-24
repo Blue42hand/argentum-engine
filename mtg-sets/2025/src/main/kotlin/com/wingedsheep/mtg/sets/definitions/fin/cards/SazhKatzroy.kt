@@ -54,10 +54,8 @@ val SazhKatzroy = card("Sazh Katzroy") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t) then
             Effects.DoubleCounters(CounterType.PLUS_ONE_PLUS_ONE, t)
-        )
     }
 
     metadata {

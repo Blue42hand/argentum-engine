@@ -38,14 +38,12 @@ val UnwantedRemake = card("Unwanted Remake") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Destroy(creature),
+        effect = Effects.Destroy(creature) then
             // Its controller manifests dread — run the shared recipe under the target's controller.
             Effects.ForEachPlayer(
                 players = Player.ControllerOf("target creature"),
                 effects = Patterns.Library.manifestDread().effects,
-            ),
-        )
+            )
     }
 
     metadata {

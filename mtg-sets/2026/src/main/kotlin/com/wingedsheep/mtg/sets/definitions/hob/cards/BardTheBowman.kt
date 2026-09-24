@@ -40,8 +40,8 @@ val BardTheBowman = card("Bard the Bowman") {
     triggeredAbility {
         trigger = Triggers.you.drawsNth(2)
         val t = target(TargetFilter.Creature)
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
-            .then(Effects.GrantKeyword(Keyword.LIFELINK, t))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t) then
+            Effects.GrantKeyword(Keyword.LIFELINK, t)
         description = "Whenever you draw your second card each turn, put a +1/+1 counter on " +
             "target creature. It gains lifelink until end of turn."
     }

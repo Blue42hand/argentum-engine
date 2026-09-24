@@ -26,10 +26,7 @@ val Glint = card("Glint") {
 
     spell {
         val t = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.ModifyStats(0, 3, t),
-            Effects.GrantKeyword(Keyword.HEXPROOF, t)
-        )
+        effect = Effects.ModifyStats(0, 3, t) then Effects.GrantKeyword(Keyword.HEXPROOF, t)
     }
 
     metadata {

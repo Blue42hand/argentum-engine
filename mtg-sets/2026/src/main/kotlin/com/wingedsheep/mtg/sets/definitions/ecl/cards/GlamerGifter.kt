@@ -32,12 +32,8 @@ val GlamerGifter = card("Glamer Gifter") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.OtherCreature, optional = true)
-        effect = Effects.Composite(
-            listOf(
-                Effects.SetBasePowerAndToughness(4, 4, creature, Duration.EndOfTurn),
-                Effects.GrantKeyword(Keyword.CHANGELING, creature)
-            )
-        )
+        effect = Effects.SetBasePowerAndToughness(4, 4, creature, Duration.EndOfTurn) then
+            Effects.GrantKeyword(Keyword.CHANGELING, creature)
     }
 
     metadata {

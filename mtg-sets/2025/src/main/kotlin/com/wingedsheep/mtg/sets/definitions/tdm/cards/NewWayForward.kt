@@ -34,13 +34,11 @@ val NewWayForward = card("New Way Forward") {
     spell {
         effect = Effects.PreventDamage(
             sources = PreventionSourceFilter.Chosen(),
-            onPrevented = Effects.Composite(
-                Effects.DealDamage(
-                    amount = DynamicAmounts.preventedDamage(),
-                    target = EffectTarget.ControllerOfTriggeringEntity
-                ),
+            onPrevented = Effects.DealDamage(
+                amount = DynamicAmounts.preventedDamage(),
+                target = EffectTarget.ControllerOfTriggeringEntity
+            ) then
                 Effects.DrawCards(count = DynamicAmounts.preventedDamage())
-            )
         )
     }
 

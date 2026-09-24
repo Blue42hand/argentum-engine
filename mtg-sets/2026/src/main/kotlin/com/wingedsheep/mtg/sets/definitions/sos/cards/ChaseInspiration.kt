@@ -24,10 +24,7 @@ val ChaseInspiration = card("Chase Inspiration") {
     oracleText = "Target creature you control gets +0/+3 and gains hexproof until end of turn. (It can't be the target of spells or abilities your opponents control.)"
     spell {
         val t = target(TargetFilter.Creature.youControl())
-        effect = Effects.Composite(
-            Effects.ModifyStats(0, 3, t),
-            Effects.GrantKeyword(Keyword.HEXPROOF, t)
-        )
+        effect = Effects.ModifyStats(0, 3, t) then Effects.GrantKeyword(Keyword.HEXPROOF, t)
     }
     metadata {
         rarity = Rarity.COMMON

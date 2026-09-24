@@ -24,10 +24,8 @@ val OfferImmortality = card("Offer Immortality") {
     oracleText = "Target creature gains deathtouch and indestructible until end of turn. (Damage and effects that say \"destroy\" don't destroy it.)"
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.DEATHTOUCH, t),
+        effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, t) then
             Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

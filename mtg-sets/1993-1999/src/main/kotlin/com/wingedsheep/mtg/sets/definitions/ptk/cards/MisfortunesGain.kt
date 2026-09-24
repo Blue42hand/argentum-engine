@@ -19,10 +19,7 @@ val MisfortunesGain = card("Misfortune's Gain") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Destroy(t),
-            Effects.OwnerGainsLife(4)
-        )
+        effect = Effects.Destroy(t) then Effects.OwnerGainsLife(4)
     }
 
     metadata {

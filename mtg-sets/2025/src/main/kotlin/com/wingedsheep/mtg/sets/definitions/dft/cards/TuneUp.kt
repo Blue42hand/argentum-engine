@@ -37,11 +37,9 @@ val TuneUp = card("Tune Up") {
 
     spell {
         val artifact = target(TargetFilter.ArtifactInYourGraveyard)
-        effect = Effects.Move(artifact, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD).then(
-            Effects.If(
-                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent.withSubtype(Subtype.VEHICLE), artifact),
-                then = Effects.AddCardType("Creature", artifact),
-            )
+        effect = Effects.Move(artifact, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then Effects.If(
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent.withSubtype(Subtype.VEHICLE), artifact),
+            then = Effects.AddCardType("Creature", artifact),
         )
     }
 

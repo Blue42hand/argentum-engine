@@ -48,7 +48,7 @@ val DuelForDominance = card("Duel for Dominance") {
                 right = 3,
             ),
             then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, mine),
-        ).then(Effects.Fight(mine, theirs))
+        ) then Effects.Fight(mine, theirs)
     }
 
     metadata {

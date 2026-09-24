@@ -53,10 +53,8 @@ val PolygraphOrb = card("Polygraph Orb") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Patterns.Library.lookAtTopAndKeep(count = 4, keepCount = 2),
+        effect = Patterns.Library.lookAtTopAndKeep(count = 4, keepCount = 2) then
             Effects.LoseLife(2, EffectTarget.Controller)
-        )
         description = "When this artifact enters, look at the top four cards of your library. Put " +
             "two of them into your hand and the rest into your graveyard. You lose 2 life."
     }

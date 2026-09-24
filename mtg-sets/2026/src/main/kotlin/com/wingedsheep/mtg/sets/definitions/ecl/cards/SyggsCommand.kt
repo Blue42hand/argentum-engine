@@ -51,8 +51,7 @@ val SyggsCommand = card("Sygg's Command") {
             }
             mode("Tap target creature. Put a stun counter on it") {
                 val creature = target(TargetFilter.Creature)
-                effect = Effects.Tap(creature)
-                    .then(Effects.AddCounters(CounterType.STUN, 1, creature))
+                effect = Effects.Tap(creature) then Effects.AddCounters(CounterType.STUN, 1, creature)
             }
         }
     }

@@ -35,12 +35,10 @@ val UncoverTheMoonLetters = card("Uncover the Moon-Letters") {
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
         effect = Effects.May(
-            Effects.Composite(
-                Effects.DrawCards(
-                    DynamicAmounts.manaSpentOnTriggeringSpell()
-                ),
-                Patterns.Hand.discardCards(2)
-            ),
+            Effects.DrawCards(
+                DynamicAmounts.manaSpentOnTriggeringSpell()
+            ) then
+                Patterns.Hand.discardCards(2),
             descriptionOverride = "Draw X cards, where X is the amount of mana spent to cast that " +
                 "spell, then discard two cards?"
         )

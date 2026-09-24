@@ -31,10 +31,8 @@ val BoldBiochemist = card("Bold Biochemist") {
     activatedAbility {
         isPowerUp = true
         cost = Costs.Mana("{5}{U}")
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
             Effects.DrawCards(2)
-        )
     }
 
     metadata {

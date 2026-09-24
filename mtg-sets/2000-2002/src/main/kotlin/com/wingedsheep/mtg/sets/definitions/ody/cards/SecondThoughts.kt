@@ -24,10 +24,7 @@ val SecondThoughts = card("Second Thoughts") {
     oracleText = "Exile target attacking creature.\nDraw a card."
     spell {
         val t = target(TargetFilter.Creature.attacking())
-        effect = Effects.Composite(
-            Effects.Exile(t),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.Exile(t) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

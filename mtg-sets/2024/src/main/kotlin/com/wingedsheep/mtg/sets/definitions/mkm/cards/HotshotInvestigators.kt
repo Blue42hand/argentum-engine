@@ -39,10 +39,7 @@ val HotshotInvestigators = card("Hotshot Investigators") {
         val creature = target(TargetFilter.OtherCreature, optional = true)
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.youControl(), creature),
-            then = Effects.Composite(
-                Effects.ReturnToHand(creature),
-                Effects.Investigate()
-            ),
+            then = Effects.ReturnToHand(creature) then Effects.Investigate(),
             otherwise = Effects.ReturnToHand(creature)
         )
     }

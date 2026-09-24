@@ -35,12 +35,12 @@ val DreamdewEntrancer = card("Dreamdew Entrancer") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter.Creature, optional = true)
-        effect = Effects.Tap(t)
-            .then(Effects.AddCounters(CounterType.STUN, 3, t))
-            .then(Effects.If(
+        effect = Effects.Tap(t) then
+            Effects.AddCounters(CounterType.STUN, 3, t) then
+            Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.youControl(), t),
                 then = Effects.DrawCards(2)
-            ))
+            )
     }
 
     metadata {

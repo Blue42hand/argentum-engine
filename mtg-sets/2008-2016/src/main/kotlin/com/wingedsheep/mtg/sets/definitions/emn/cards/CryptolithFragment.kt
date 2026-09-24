@@ -25,10 +25,7 @@ private val CryptolithFragmentFront = card("Cryptolith Fragment") {
 
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.Composite(
-            Effects.AddManaOfChoice(),
-            Effects.LoseLife(1, EffectTarget.PlayerRef(Player.Each)),
-        )
+        effect = Effects.AddManaOfChoice() then Effects.LoseLife(1, EffectTarget.PlayerRef(Player.Each))
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

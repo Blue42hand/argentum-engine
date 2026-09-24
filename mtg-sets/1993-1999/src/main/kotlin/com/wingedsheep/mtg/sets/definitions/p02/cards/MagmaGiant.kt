@@ -30,10 +30,8 @@ val MagmaGiant = card("Magma Giant") {
     toughness = 5
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), Effects.DealDamage(2, EffectTarget.IterationEntity)),
+        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), Effects.DealDamage(2, EffectTarget.IterationEntity)) then
             Effects.ForEachPlayer(Player.Each, Effects.DealDamage(2, EffectTarget.Controller))
-        )
     }
     metadata {
         rarity = Rarity.RARE

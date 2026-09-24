@@ -25,10 +25,7 @@ val LostInTheMist = card("Lost in the Mist") {
     spell {
         val t1 = target(TargetFilter.SpellOnStack)
         val t2 = target(TargetFilter.Permanent)
-        effect = Effects.Composite(
-            Effects.CounterSpell(),
-            Effects.Move(t2, Zone.HAND)
-        )
+        effect = Effects.CounterSpell() then Effects.Move(t2, Zone.HAND)
     }
     metadata {
         rarity = Rarity.COMMON

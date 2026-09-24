@@ -47,10 +47,8 @@ val DeadIronSledge = card("Dead-Iron Sledge") {
         ability = GrantTriggeredAbility(
             ability = TriggeredAbility.create(
                 trigger = Triggers.self.blocksOrBecomesBlocked(GameObjectFilter.Creature),
-                effect = Effects.Composite(
-                    Effects.Destroy(EffectTarget.Self),
-                    Effects.Destroy(EffectTarget.TriggeringEntity)
-                ),
+                effect = Effects.Destroy(EffectTarget.Self) then
+                    Effects.Destroy(EffectTarget.TriggeringEntity),
                 descriptionOverride = "Whenever this creature blocks or becomes blocked by a creature, destroy both creatures."
             ),
             filter = Filters.EquippedCreature

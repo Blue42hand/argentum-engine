@@ -24,12 +24,10 @@ val Decimate = card("Decimate") {
         val creature = target(TargetFilter.Creature)
         val enchantment = target(TargetFilter.Enchantment)
         val land = target(TargetFilter.Land)
-        effect = Effects.Composite(
-            Effects.Destroy(artifact),
-            Effects.Destroy(creature),
-            Effects.Destroy(enchantment),
+        effect = Effects.Destroy(artifact) then
+            Effects.Destroy(creature) then
+            Effects.Destroy(enchantment) then
             Effects.Destroy(land)
-        )
     }
 
     metadata {

@@ -32,11 +32,9 @@ val FateshaperAspirant = card("Fateshaper Aspirant") {
             },
             mode("Put a +1/+1 counter on target creature. It gains vigilance and indestructible until end of turn.") {
                 val creature = target(TargetFilter.Creature)
-                effect = Effects.Composite(
-                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
-                    Effects.GrantKeyword(Keyword.VIGILANCE, creature),
+                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
+                    Effects.GrantKeyword(Keyword.VIGILANCE, creature) then
                     Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature)
-                )
             }
         )
     }

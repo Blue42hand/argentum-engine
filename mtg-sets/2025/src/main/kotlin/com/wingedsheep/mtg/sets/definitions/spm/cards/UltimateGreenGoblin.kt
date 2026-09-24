@@ -26,10 +26,7 @@ val UltimateGreenGoblin = card("Ultimate Green Goblin") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        effect = Effects.Composite(
-            Effects.Discard(1),
-            Effects.CreateTreasure(1),
-        )
+        effect = Effects.Discard(1) then Effects.CreateTreasure(1)
     }
     mayhem("{2}{B/R}")
 

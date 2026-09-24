@@ -27,10 +27,7 @@ val ShinraReinforcements = card("Shinra Reinforcements") {
     toughness = 3
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Patterns.Library.mill(3),
-            Effects.GainLife(3)
-        )
+        effect = Patterns.Library.mill(3) then Effects.GainLife(3)
     }
     metadata {
         rarity = Rarity.COMMON

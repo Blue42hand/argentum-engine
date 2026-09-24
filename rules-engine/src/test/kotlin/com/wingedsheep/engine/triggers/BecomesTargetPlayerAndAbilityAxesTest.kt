@@ -22,7 +22,6 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.EventPattern
-import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
@@ -85,7 +84,7 @@ class BecomesTargetPlayerAndAbilityAxesTest : FunSpec({
         spell {
             val victim = target(Targets.Player)
             val creature = target(TargetFilter.Creature)
-            effect = Effects.LoseLife(1, victim).then(Effects.DealDamage(1, creature))
+            effect = Effects.LoseLife(1, victim) then Effects.DealDamage(1, creature)
         }
     }
 

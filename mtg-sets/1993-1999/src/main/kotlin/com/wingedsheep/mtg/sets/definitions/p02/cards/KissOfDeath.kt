@@ -22,10 +22,7 @@ val KissOfDeath = card("Kiss of Death") {
 
     spell {
         val victim = target(Targets.OpponentOrPlaneswalker)
-        effect = Effects.Composite(
-            Effects.DealDamage(4, victim),
-            Effects.GainLife(4)
-        )
+        effect = Effects.DealDamage(4, victim) then Effects.GainLife(4)
     }
 
     metadata {

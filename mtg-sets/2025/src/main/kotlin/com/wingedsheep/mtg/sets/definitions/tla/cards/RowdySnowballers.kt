@@ -28,10 +28,8 @@ val RowdySnowballers = card("Rowdy Snowballers") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter(GameObjectFilter.Creature.opponentControls()))
-        effect = Effects.Composite(
-            Effects.Tap(t),
-            Effects.AddCounters(counterType = CounterType.STUN, count = 1, target = t),
-        )
+        effect = Effects.Tap(t) then
+            Effects.AddCounters(counterType = CounterType.STUN, count = 1, target = t)
     }
 
     metadata {

@@ -18,12 +18,7 @@ val Explore = card("Explore") {
     oracleText = "You may play an additional land this turn.\nDraw a card."
 
     spell {
-        effect = Effects.Composite(
-            listOf(
-                Effects.PlayAdditionalLands(count = 1),
-                Effects.DrawCards(1),
-            )
-        )
+        effect = Effects.PlayAdditionalLands(count = 1) then Effects.DrawCards(1)
     }
 
     metadata {

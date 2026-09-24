@@ -15,7 +15,7 @@ val TerminalCriticism = card("Terminal Criticism") {
 
     spell {
         val permanent = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.withAnyColor(Color.BLUE, Color.RED)))
-        effect = Effects.Composite(Effects.Destroy(permanent), Effects.GainLife(1))
+        effect = Effects.Destroy(permanent) then Effects.GainLife(1)
     }
 
     metadata {

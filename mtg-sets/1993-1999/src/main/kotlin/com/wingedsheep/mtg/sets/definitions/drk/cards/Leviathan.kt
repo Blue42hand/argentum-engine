@@ -70,10 +70,8 @@ val Leviathan = card("Leviathan") {
         // free: a triggered ability has no cost slot, and the sacrifice is the price of the untap.
         effect = Effects.If(
             condition = Conditions.YouControlAtLeast(2, islands),
-            then = Effects.Composite(
-                Effects.Sacrifice(islands, count = 2, target = EffectTarget.Controller),
+            then = Effects.Sacrifice(islands, count = 2, target = EffectTarget.Controller) then
                 Effects.Untap(EffectTarget.Self),
-            ),
         )
         description = "At the beginning of your upkeep, you may sacrifice two Islands. If you do, " +
             "untap this creature."

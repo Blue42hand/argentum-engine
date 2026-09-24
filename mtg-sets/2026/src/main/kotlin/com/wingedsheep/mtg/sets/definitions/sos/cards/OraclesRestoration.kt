@@ -18,9 +18,9 @@ val OraclesRestoration = card("Oracle's Restoration") {
     oracleText = "Target creature you control gets +1/+1 until end of turn. You draw a card and gain 1 life."
     spell {
         val t = target(TargetFilter.Creature.youControl())
-        effect = Effects.ModifyStats(1, 1, t)
-            .then(Effects.DrawCards(1))
-            .then(Effects.GainLife(1))
+        effect = Effects.ModifyStats(1, 1, t) then
+            Effects.DrawCards(1) then
+            Effects.GainLife(1)
     }
     metadata {
         rarity = Rarity.COMMON

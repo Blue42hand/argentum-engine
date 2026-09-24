@@ -24,10 +24,7 @@ val NaturalEnd = card("Natural End") {
 
     spell {
         val permanent = target(TargetFilter.ArtifactOrEnchantment)
-        effect = Effects.Composite(
-            Effects.Destroy(permanent),
-            Effects.GainLife(3),
-        )
+        effect = Effects.Destroy(permanent) then Effects.GainLife(3)
     }
 
     metadata {

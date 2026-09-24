@@ -39,7 +39,7 @@ val BorosGarrison = card("Boros Garrison") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = Effects.AddMana(Color.RED).then(Effects.AddMana(Color.WHITE))
+        effect = Effects.AddMana(Color.RED) then Effects.AddMana(Color.WHITE)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

@@ -28,8 +28,8 @@ val StoneHavenPilgrim = card("Stone Haven Pilgrim") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         interveningIf = Conditions.YouControl(GameObjectFilter.ArtifactOrEnchantment)
-        effect = Effects.ModifyStats(1, 1, EffectTarget.Self)
-            .then(Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self))
+        effect = Effects.ModifyStats(1, 1, EffectTarget.Self) then
+            Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self)
         description = "Whenever this creature attacks, if you control an artifact or enchantment, " +
             "this creature gets +1/+1 and gains lifelink until end of turn."
     }

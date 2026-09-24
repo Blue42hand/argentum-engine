@@ -459,32 +459,27 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "ModifyStats",
-                            "powerModifier": {
-                                "type": "Fixed",
-                                "amount": 3
-                            },
-                            "toughnessModifier": {
-                                "type": "Fixed",
-                                "amount": 0
-                            },
-                            "target": {
-                                "type": "BoundVariable",
-                                "name": "t0"
-                            }
-                        },
-                        {
-                            "type": "GrantKeyword",
-                            "keyword": "LIFELINK",
-                            "target": {
-                                "type": "BoundVariable",
-                                "name": "t0"
-                            }
-                        }
-                    ]
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "GrantKeyword",
+                    "keyword": "LIFELINK",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
                 },
                 {
                     "type": "Regenerate",
@@ -1594,7 +1589,7 @@
                                     "zone": "Hand",
                                     "player": {
                                         "type": "BoundVariable",
-                                        "name": "t0"
+                                        "name": "t1"
                                     }
                                 },
                                 "storeAs": "hand"
@@ -1621,7 +1616,7 @@
                                     "zone": "Graveyard",
                                     "player": {
                                         "type": "BoundVariable",
-                                        "name": "t0"
+                                        "name": "t1"
                                     }
                                 },
                                 "moveType": "Discard"
@@ -1631,7 +1626,7 @@
                     "targetRequirements": [
                         {
                             "type": "TargetPlayer",
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target player discards a card"
@@ -1641,7 +1636,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t2"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -1652,7 +1647,7 @@
                             "filter": {
                                 "baseFilter": "artifact"
                             },
-                            "id": "t0"
+                            "id": "t2"
                         }
                     ],
                     "description": "Destroy target artifact"
@@ -1666,13 +1661,13 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t3"
                         }
                     },
                     "targetRequirements": [
                         {
                             "type": "AnyTarget",
-                            "id": "t0"
+                            "id": "t3"
                         }
                     ],
                     "description": "Kolaghan's Command deals 2 damage to any target"
@@ -1941,7 +1936,7 @@
                                 "baseFilter": "creature",
                                 "zone": "Stack"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Counter target creature spell"
@@ -3359,7 +3354,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -3370,7 +3365,7 @@
                             "filter": {
                                 "baseFilter": "land"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target land"

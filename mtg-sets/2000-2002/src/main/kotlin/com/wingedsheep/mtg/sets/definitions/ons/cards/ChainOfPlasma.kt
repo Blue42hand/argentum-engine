@@ -28,7 +28,7 @@ val ChainOfPlasma = card("Chain of Plasma") {
             action = Effects.DealDamage(3, t),
             target = t,
             offerTo = CopyRecipient.AFFECTED_PLAYER,
-            copyTarget = AnyTarget(),
+            copyTarget = Targets.Any,
             copyCost = Costs.pay.Discard()
         )
     }

@@ -30,8 +30,7 @@ val SquiresLightblade = card("Squire's Lightblade") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.AttachEquipment(creature)
-            .then(Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature))
+        effect = Effects.AttachEquipment(creature) then Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature)
     }
 
     // Equipped creature gets +1/+0

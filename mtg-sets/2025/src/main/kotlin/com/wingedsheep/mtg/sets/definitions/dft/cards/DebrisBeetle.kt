@@ -33,10 +33,7 @@ val DebrisBeetle = card("Debris Beetle") {
     keywords(Keyword.TRAMPLE)
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.LoseLife(3, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.GainLife(3)
-        )
+        effect = Effects.LoseLife(3, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(3)
     }
     keywordAbility(KeywordAbility.crew(2))
     metadata {

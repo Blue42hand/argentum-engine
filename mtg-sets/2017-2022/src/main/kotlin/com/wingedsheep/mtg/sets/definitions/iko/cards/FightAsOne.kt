@@ -33,17 +33,11 @@ val FightAsOne = card("Fight as One") {
         modal(chooseCount = 2, minChooseCount = 1) {
             mode("Target Human creature you control gets +1/+1 and gains indestructible until end of turn.") {
                 val t = target(TargetFilter(GameObjectFilter.Creature.withSubtype(Subtype.HUMAN).youControl()))
-                effect = Effects.Composite(
-                    Effects.ModifyStats(1, 1, t),
-                    Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
-                )
+                effect = Effects.ModifyStats(1, 1, t) then Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
             }
             mode("Target non-Human creature you control gets +1/+1 and gains indestructible until end of turn.") {
                 val t = target(TargetFilter(GameObjectFilter.Creature.notSubtype(Subtype.HUMAN).youControl()))
-                effect = Effects.Composite(
-                    Effects.ModifyStats(1, 1, t),
-                    Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
-                )
+                effect = Effects.ModifyStats(1, 1, t) then Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
             }
         }
     }

@@ -42,10 +42,8 @@ val EaterOfTheDead = card("Eater of the Dead") {
         cost = Costs.Free
         effect = Effects.If(
             condition = Conditions.SourceIsTapped,
-            then = Effects.Composite(
-                Effects.Exile(creatureCardInGraveyard, fromZone = Zone.GRAVEYARD),
+            then = Effects.Exile(creatureCardInGraveyard, fromZone = Zone.GRAVEYARD) then
                 Effects.Untap(EffectTarget.Self),
-            ),
         )
         description = "{0}: If this creature is tapped, exile target creature card from a " +
             "graveyard and untap this creature."

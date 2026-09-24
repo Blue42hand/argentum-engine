@@ -26,10 +26,8 @@ val FellingBlow = card("Felling Blow") {
     spell {
         val t1 = target(TargetFilter.Creature.youControl())
         val t2 = target(TargetFilter.Creature.opponentControls())
-        effect = Effects.Composite(
-            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t1),
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t1) then
             Effects.DealDamage(DynamicAmounts.powerOf(t1), t2, damageSource = t1)
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

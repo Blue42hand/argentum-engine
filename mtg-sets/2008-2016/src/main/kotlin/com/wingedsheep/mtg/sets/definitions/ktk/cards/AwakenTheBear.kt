@@ -20,8 +20,7 @@ val AwakenTheBear = card("Awaken the Bear") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(3, 3, t)
-            .then(Effects.GrantKeyword(Keyword.TRAMPLE, t))
+        effect = Effects.ModifyStats(3, 3, t) then Effects.GrantKeyword(Keyword.TRAMPLE, t)
     }
 
     metadata {

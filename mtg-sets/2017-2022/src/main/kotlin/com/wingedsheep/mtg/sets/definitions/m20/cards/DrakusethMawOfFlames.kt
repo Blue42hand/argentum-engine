@@ -41,13 +41,9 @@ val DrakusethMawOfFlames = card("Drakuseth, Maw of Flames") {
         trigger = Triggers.self.attacks()
         val anyTarget = target(Targets.Any)
         val (firstOtherTarget, secondOtherTarget) = targets(TargetOther(baseRequirement = AnyTarget(count = 2, minCount = 0)))
-        effect = Effects.Composite(
-            listOf(
-                Effects.DealDamage(4, anyTarget),
-                Effects.DealDamage(3, firstOtherTarget),
-                Effects.DealDamage(3, secondOtherTarget)
-            )
-        )
+        effect = Effects.DealDamage(4, anyTarget) then
+            Effects.DealDamage(3, firstOtherTarget) then
+            Effects.DealDamage(3, secondOtherTarget)
         description = "Whenever Drakuseth attacks, it deals 4 damage to any target and 3 damage " +
             "to each of up to two other targets."
     }

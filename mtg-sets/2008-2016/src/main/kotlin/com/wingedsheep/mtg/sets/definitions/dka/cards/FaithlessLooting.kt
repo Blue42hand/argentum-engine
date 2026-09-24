@@ -24,10 +24,7 @@ val FaithlessLooting = card("Faithless Looting") {
     typeLine = "Sorcery"
     oracleText = "Draw two cards, then discard two cards.\nFlashback {2}{R} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
     spell {
-        effect = Effects.Composite(
-            Effects.DrawCards(2),
-            Patterns.Hand.discardCards(2)
-        )
+        effect = Effects.DrawCards(2) then Patterns.Hand.discardCards(2)
     }
     keywordAbility(KeywordAbility.flashback("{2}{R}"))
     metadata {

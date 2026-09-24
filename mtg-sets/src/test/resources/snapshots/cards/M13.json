@@ -52,7 +52,7 @@
                             "keyword": "FLYING",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t1"
                             }
                         },
                         {
@@ -60,7 +60,7 @@
                             "keyword": "DOUBLE_STRIKE",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t1"
                             }
                         }
                     ]
@@ -71,7 +71,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ],
                 "timing": "SorcerySpeed",

@@ -53,8 +53,7 @@ val CaptivatingVampire = card("Captivating Vampire") {
             count = 5,
             filter = GameObjectFilter.Creature.withSubtype(Subtype.VAMPIRE).youControl()
         )
-        effect = Effects.GainControl(creature)
-            .then(Effects.AddCreatureType("Vampire", creature))
+        effect = Effects.GainControl(creature) then Effects.AddCreatureType("Vampire", creature)
         description = "Gain control of target creature. It becomes a Vampire in addition to its other types."
     }
 

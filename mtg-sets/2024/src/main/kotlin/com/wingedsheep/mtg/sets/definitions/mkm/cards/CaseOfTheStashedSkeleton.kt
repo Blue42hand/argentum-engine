@@ -53,17 +53,15 @@ val CaseOfTheStashedSkeleton = card("Case of the Stashed Skeleton") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                power = 2,
-                toughness = 1,
-                colors = setOf(Color.BLACK),
-                creatureTypes = setOf("Skeleton"),
-                name = "Skeleton",
-                imageUri = "https://cards.scryfall.io/normal/front/0/2/02404852-5788-4adb-b2dc-98bf705d8d96.jpg?1783912608"
-            ),
+        effect = Effects.CreateToken(
+            power = 2,
+            toughness = 1,
+            colors = setOf(Color.BLACK),
+            creatureTypes = setOf("Skeleton"),
+            name = "Skeleton",
+            imageUri = "https://cards.scryfall.io/normal/front/0/2/02404852-5788-4adb-b2dc-98bf705d8d96.jpg?1783912608"
+        ) then
             Effects.Suspect(EffectTarget.PipelineTarget(CREATED_TOKENS, 0))
-        )
         description = "When this Case enters, create a 2/1 black Skeleton creature token and suspect it."
     }
 

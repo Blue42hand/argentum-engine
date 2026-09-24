@@ -97,10 +97,8 @@ private val TheLegendOfKyoshiFront = card("The Legend of Kyoshi") {
     // other types.
     sagaChapter(2) {
         val land = target(TargetFilter.Land.youControl())
-        effect = Effects.Composite(
-            Effects.Earthbend(DynamicAmounts.cardsInYourHand(), land),
+        effect = Effects.Earthbend(DynamicAmounts.cardsInYourHand(), land) then
             Effects.AddSubtype("Island", land, Duration.Permanent)
-        )
     }
 
     // III — Exile this Saga, then return it to the battlefield transformed under your control.

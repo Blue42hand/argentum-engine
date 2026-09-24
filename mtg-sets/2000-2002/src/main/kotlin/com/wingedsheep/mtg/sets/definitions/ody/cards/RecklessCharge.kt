@@ -26,10 +26,7 @@ val RecklessCharge = card("Reckless Charge") {
     oracleText = "Target creature gets +3/+0 and gains haste until end of turn.\nFlashback {2}{R} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(3, 0, t),
-            Effects.GrantKeyword(Keyword.HASTE, t)
-        )
+        effect = Effects.ModifyStats(3, 0, t) then Effects.GrantKeyword(Keyword.HASTE, t)
     }
     keywordAbility(KeywordAbility.flashback("{2}{R}"))
     metadata {

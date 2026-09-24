@@ -53,12 +53,10 @@ val GreatTrainHeist = card("Great Train Heist") {
         effect = Effects.Modal(
             modes = listOf(
                 Mode(
-                    effect = Patterns.Group.untapGroup(GroupFilter.AllCreaturesYouControl)
-                        .then(
-                            Effects.If(
-                                condition = Conditions.IsInPhase(Phase.COMBAT, yoursOnly = true),
-                                then = Effects.AddCombatPhase
-                            )
+                    effect = Patterns.Group.untapGroup(GroupFilter.AllCreaturesYouControl) then
+                        Effects.If(
+                            condition = Conditions.IsInPhase(Phase.COMBAT, yoursOnly = true),
+                            then = Effects.AddCombatPhase
                         ),
                     description = "+ {2}{R} — Untap all creatures you control. If it's your combat phase, there is an additional combat phase after this phase.",
                     additionalManaCost = "{2}{R}"

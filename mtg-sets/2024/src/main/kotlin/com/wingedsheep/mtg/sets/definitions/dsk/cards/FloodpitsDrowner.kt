@@ -45,10 +45,8 @@ val FloodpitsDrowner = card("Floodpits Drowner") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter.Creature.opponentControls())
-        effect = Effects.Composite(
-            Effects.Tap(t),
+        effect = Effects.Tap(t) then
             Effects.AddCounters(counterType = CounterType.STUN, count = 1, target = t)
-        )
     }
 
     // {1}{U}, {T}: Shuffle this creature and target creature with a stun counter on it into their
@@ -56,8 +54,7 @@ val FloodpitsDrowner = card("Floodpits Drowner") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{U}"), Costs.Tap)
         val t = target(TargetFilter(GameObjectFilter.Creature.withCounter(CounterType.STUN)))
-        effect = Effects.ShuffleIntoLibrary(EffectTarget.Self)
-            .then(Effects.ShuffleIntoLibrary(t))
+        effect = Effects.ShuffleIntoLibrary(EffectTarget.Self) then Effects.ShuffleIntoLibrary(t)
         description = "{1}{U}, {T}: Shuffle this creature and target creature with a stun counter " +
             "on it into their owners' libraries."
     }

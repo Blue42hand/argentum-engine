@@ -274,7 +274,7 @@ data class TargetIsSource(
  * marked damage now strictly exceeds its (projected) toughness.
  *
  * Reads post-damage state, so chain it AFTER a [com.wingedsheep.sdk.scripting.effects.DealDamageEffect]
- * with `Effects.Composite(DealDamage(N, t), Effects.If(IfTargetTookExcessDamage(0), ...))`.
+ * with `DealDamage(N, t) then Effects.If(IfTargetTookExcessDamage(0), ...)`.
  *
  * What this actually checks is `marked > toughness` on the target at evaluation time,
  * regardless of which preceding step in the chain dealt the damage. CompositeEffect
@@ -287,7 +287,7 @@ data class TargetIsSource(
  * the excess.
  *
  * Defensive guards (target is not a creature, target left the battlefield) return false.
- * In the canonical Orbital Plunge chain these can't fire — `Targets.Creature` rules out
+ * In the canonical Orbital Plunge chain these can't fire — `target(TargetFilter.Creature)` rules out
  * non-creature targets, and Composite never reaches SBA between steps so the target is
  * still on the battlefield. They exist for future callers that might wrap this in a longer
  * chain crossing SBA or re-target between steps.

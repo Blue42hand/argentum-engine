@@ -24,11 +24,11 @@ val BarrageOfBoulders = card("Barrage of Boulders") {
     oracleText = "Barrage of Boulders deals 1 damage to each creature you don't control.\nFerocious — If you control a creature with power 4 or greater, creatures can't block this turn."
 
     spell {
-        effect = Patterns.Group.dealDamageToAll(1, GroupFilter.AllCreaturesOpponentsControl)
-            .then(Effects.If(
+        effect = Patterns.Group.dealDamageToAll(1, GroupFilter.AllCreaturesOpponentsControl) then
+            Effects.If(
                 condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.powerAtLeast(4)),
                 then = Effects.CantBlockGroup(GroupFilter.AllCreatures)
-            ))
+            )
     }
 
     metadata {

@@ -29,13 +29,11 @@ val PhyrexianDelver = card("Phyrexian Delver") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val returned = target(TargetFilter.CreatureInYourGraveyard)
-        effect = Effects.Composite(
-            Effects.Move(returned, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
+        effect = Effects.Move(returned, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
             Effects.LoseLife(
                 DynamicAmounts.manaValueOf(returned),
                 EffectTarget.Controller,
-            ),
-        )
+            )
     }
 
     metadata {

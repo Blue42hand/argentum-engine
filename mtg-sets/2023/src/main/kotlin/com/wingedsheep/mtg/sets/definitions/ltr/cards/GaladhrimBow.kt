@@ -32,8 +32,7 @@ val GaladhrimBow = card("Galadhrim Bow") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.AttachEquipment(creature)
-            .then(Effects.Untap(creature))
+        effect = Effects.AttachEquipment(creature) then Effects.Untap(creature)
     }
 
     // Equipped creature gets +1/+2

@@ -25,11 +25,9 @@ val FreezeInPlace = card("Freeze in Place") {
     oracleText = "Tap target creature an opponent controls and put three stun counters on it. Scry 2. (If a permanent with a stun counter would become untapped, remove one from it instead.)"
     spell {
         val t = target(TargetFilter.Creature.opponentControls())
-        effect = Effects.Composite(
-            Effects.Tap(t),
-            Effects.AddCounters(counterType = CounterType.STUN, count = 3, target = t),
+        effect = Effects.Tap(t) then
+            Effects.AddCounters(counterType = CounterType.STUN, count = 3, target = t) then
             Patterns.Library.scry(2)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

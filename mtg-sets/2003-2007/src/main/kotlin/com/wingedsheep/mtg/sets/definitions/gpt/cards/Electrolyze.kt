@@ -20,14 +20,12 @@ val Electrolyze = card("Electrolyze") {
 
     spell {
         target = AnyTarget(count = 2, minCount = 1)
-        effect = Effects.Composite(
-            Effects.DividedDamage(
-                total = 2,
-                minTargets = 1,
-                maxTargets = 2
-            ),
+        effect = Effects.DividedDamage(
+            total = 2,
+            minTargets = 1,
+            maxTargets = 2
+        ) then
             Effects.DrawCards(1)
-        )
     }
 
     metadata {

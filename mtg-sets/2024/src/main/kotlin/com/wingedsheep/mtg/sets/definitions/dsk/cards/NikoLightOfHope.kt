@@ -62,15 +62,13 @@ val NikoLightOfHope = card("Niko, Light of Hope") {
             Costs.Tap
         )
         val nonlegendaryCreatureYouControl = target(TargetFilter(GameObjectFilter.Creature.nonlegendary().youControl()))
-        effect = Effects.Composite(
-            Patterns.Exile.exileUntilEndStep(nonlegendaryCreatureYouControl),
+        effect = Patterns.Exile.exileUntilEndStep(nonlegendaryCreatureYouControl) then
             Effects.EachPermanentBecomesCopyOfTarget(
                 target = nonlegendaryCreatureYouControl,
                 filter = GroupFilter(GameObjectFilter.Any.named("Shard").youControl()),
                 duration = Duration.UntilNextEndStep,
                 sourceFromAnyZone = true,
-            ),
-        )
+            )
         description = "{2}, {T}: Exile target nonlegendary creature you control. Shards you " +
             "control become copies of it until the next end step. Return it to the battlefield " +
             "under its owner's control at the beginning of the next end step."

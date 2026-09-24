@@ -43,12 +43,11 @@ val StolenUniform = card("Stolen Uniform") {
     spell {
         val creature = target(TargetFilter.CreatureYouControl)
         val equipment = target(TargetFilter(GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT)))
-        effect = Effects.Composite(
-            Effects.GainControl(equipment, Duration.EndOfTurn),
+        effect = Effects.GainControl(equipment, Duration.EndOfTurn) then
             Effects.AttachTargetEquipmentToCreature(
                 equipmentTarget = equipment,
                 creatureTarget = creature
-            ),
+            ) then
             Effects.CreateDelayedTrigger(
                 trigger = Triggers.self.controlChanges(ControlChangeDirection.LOST),
                 watchedTarget = equipment,
@@ -62,7 +61,6 @@ val StolenUniform = card("Stolen Uniform") {
                     then = Effects.UnattachEquipment(EffectTarget.TriggeringEntity)
                 )
             )
-        )
     }
 
     metadata {

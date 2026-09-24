@@ -1942,7 +1942,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Exile"
                     },
@@ -1952,7 +1952,7 @@
                             "filter": {
                                 "baseFilter": "enchantment"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Exile target enchantment."
@@ -2111,7 +2111,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Hand"
                     },
@@ -2122,7 +2122,7 @@
                                 "baseFilter": "enchantment own:you",
                                 "zone": "Graveyard"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Return target enchantment card from your graveyard to your hand."

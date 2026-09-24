@@ -32,8 +32,7 @@ val DivinerOfVictory = card("Diviner of Victory") {
         oracleText = "Return target creature an opponent controls with mana value 3 or less to its owner's hand. Surveil 1."
         spell {
             val creature = target(TargetFilter(GameObjectFilter.Creature.opponentControls().manaValueAtMost(3)))
-            effect = Effects.ReturnToHand(creature)
-                .then(Patterns.Library.surveil(1))
+            effect = Effects.ReturnToHand(creature) then Patterns.Library.surveil(1)
         }
     }
 

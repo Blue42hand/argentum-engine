@@ -34,10 +34,7 @@ val PineconeStrike = card("Pinecone Strike") {
                 "Pinecone Strike deals 3 damage to target creature. If that creature would die this turn, exile it instead"
             ) {
                 val creature = target(TargetFilter.Creature)
-                effect = Effects.Composite(
-                    Effects.DealDamage(3, creature),
-                    Effects.MarkExileOnDeath(creature)
-                )
+                effect = Effects.DealDamage(3, creature) then Effects.MarkExileOnDeath(creature)
             }
             mode("Destroy target artifact token") {
                 val artifactToken = target(TargetFilter(GameObjectFilter.Artifact.token()))

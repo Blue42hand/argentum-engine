@@ -22,10 +22,7 @@ val DeadlyRiposte = card("Deadly Riposte") {
     oracleText = "Deadly Riposte deals 3 damage to target tapped creature and you gain 2 life."
     spell {
         val tappedCreature = target(TargetFilter.Creature.tapped())
-        effect = Effects.Composite(
-            Effects.DealDamage(3, tappedCreature),
-            Effects.GainLife(2)
-        )
+        effect = Effects.DealDamage(3, tappedCreature) then Effects.GainLife(2)
     }
     metadata {
         rarity = Rarity.COMMON

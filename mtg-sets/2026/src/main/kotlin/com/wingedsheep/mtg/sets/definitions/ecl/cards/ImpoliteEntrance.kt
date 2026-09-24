@@ -22,9 +22,9 @@ val ImpoliteEntrance = card("Impolite Entrance") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.GrantKeyword(Keyword.TRAMPLE, creature)
-            .then(Effects.GrantKeyword(Keyword.HASTE, creature))
-            .then(Effects.DrawCards(1))
+        effect = Effects.GrantKeyword(Keyword.TRAMPLE, creature) then
+            Effects.GrantKeyword(Keyword.HASTE, creature) then
+            Effects.DrawCards(1)
     }
 
     metadata {

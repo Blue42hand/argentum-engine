@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -45,9 +44,9 @@ val DewdropCure = card("Dewdrop Cure") {
             ),
             // Mode 2: Gift a card — opponent draws, return up to 3 creature cards with MV ≤ 2
             Mode(
-                effect = Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent))
-                    .then(returnEffect)
-                    .then(Effects.GiftGiven()),
+                effect = Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent)) then
+                    returnEffect then
+                    Effects.GiftGiven(),
                 targetRequirements = listOf(
                     TargetObject(count = 3, optional = true, filter = graveyardFilter)
                 ),

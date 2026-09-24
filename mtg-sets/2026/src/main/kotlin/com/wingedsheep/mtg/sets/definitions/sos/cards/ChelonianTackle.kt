@@ -29,8 +29,7 @@ val ChelonianTackle = card("Chelonian Tackle") {
     spell {
         val yourCreature = target(TargetFilter.CreatureYouControl)
         val opponentCreature = target(TargetFilter.CreatureOpponentControls, optional = true)
-        effect = Effects.ModifyStats(0, 10, yourCreature)
-            .then(Effects.Fight(yourCreature, opponentCreature))
+        effect = Effects.ModifyStats(0, 10, yourCreature) then Effects.Fight(yourCreature, opponentCreature)
     }
 
     metadata {

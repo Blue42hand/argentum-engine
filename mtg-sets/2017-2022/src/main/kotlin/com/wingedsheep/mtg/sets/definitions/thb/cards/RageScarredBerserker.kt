@@ -30,10 +30,8 @@ val RageScarredBerserker = card("Rage-Scarred Berserker") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, creature),
-            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature),
-        )
+        effect = Effects.ModifyStats(1, 0, creature) then
+            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature)
     }
 
     metadata {

@@ -49,13 +49,11 @@ val HauntwoodsShrieker = card("Hauntwoods Shrieker") {
     activatedAbility {
         cost = Costs.Mana("{1}{G}")
         val t = target(TargetFilter(GameObjectFilter.Permanent.faceDown()))
-        effect = Effects.Composite(
-            Effects.RevealFaceDownPermanent(t),
+        effect = Effects.RevealFaceDownPermanent(t) then
             Effects.If(
                 condition = Conditions.TargetIsCreatureCard(0),
                 then = Effects.May(Effects.TurnFaceUp(t)),
-            ),
-        )
+            )
         description = "{1}{G}: Reveal target face-down permanent. If it's a creature card, you may " +
             "turn it face up."
     }

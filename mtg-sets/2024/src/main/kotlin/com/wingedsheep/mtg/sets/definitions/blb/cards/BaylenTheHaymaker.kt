@@ -42,8 +42,8 @@ val BaylenTheHaymaker = card("Baylen, the Haymaker") {
 
     activatedAbility {
         cost = Costs.TapPermanents(4, GameObjectFilter.Token)
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, EffectTarget.Self)
-            .then(Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, EffectTarget.Self) then
+            Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self)
     }
 
     metadata {

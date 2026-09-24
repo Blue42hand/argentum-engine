@@ -47,9 +47,9 @@ val BillFernyBreeSwindler = card("Bill Ferny, Bree Swindler") {
                 effect = Effects.GiveControl(
                     permanent = creature,
                     newController = opponent
-                )
-                    .then(Effects.RemoveFromCombat(EffectTarget.Self))
-                    .then(Effects.CreateTreasure(3))
+                ) then
+                    Effects.RemoveFromCombat(EffectTarget.Self) then
+                    Effects.CreateTreasure(3)
             }
         )
     }

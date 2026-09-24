@@ -34,12 +34,10 @@ val ConsumptiveGoo = card("Consumptive Goo") {
             toughness = -1,
             target = t,
             duration = Duration.EndOfTurn
-        ).then(
-            Effects.AddCounters(
-                counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                count = 1,
-                target = EffectTarget.Self
-            )
+        ) then Effects.AddCounters(
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
+            count = 1,
+            target = EffectTarget.Self
         )
     }
 

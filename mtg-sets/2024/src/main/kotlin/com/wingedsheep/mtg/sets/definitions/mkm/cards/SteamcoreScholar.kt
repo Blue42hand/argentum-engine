@@ -45,15 +45,13 @@ val SteamcoreScholar = card("Steamcore Scholar") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.DrawCards(2),
+        effect = Effects.DrawCards(2) then
             Patterns.Hand.discardCardsUnlessMatching(
                 count = 2,
                 unlessFilter = GameObjectFilter.InstantOrSorcery or
                     GameObjectFilter.Creature.withKeyword(Keyword.FLYING),
                 prompt = "Discard two cards, or a single instant, sorcery, or creature card with flying",
-            ),
-        )
+            )
         description = "When this creature enters, draw two cards. Then discard two cards unless " +
             "you discard an instant or sorcery card or a creature card with flying."
     }

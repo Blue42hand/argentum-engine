@@ -64,10 +64,8 @@ private val BahamutWardenOfLight = card("Bahamut, Warden of Light") {
     // Those creatures gain flying until end of turn.
     val wingsOfLight = Effects.ForEachInGroup(
         GroupFilter.OtherCreaturesYouControl,
-        Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
+        Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity) then
             Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity),
-        ),
     )
     sagaChapter(1) {
         effect = wingsOfLight
@@ -80,10 +78,8 @@ private val BahamutWardenOfLight = card("Bahamut, Warden of Light") {
     // battlefield (front face up).
     sagaChapter(3) {
         val t = target(TargetFilter(GameObjectFilter.Permanent))
-        effect = Effects.Composite(
-            Effects.Destroy(t),
-            Effects.ExileAndReturnTransformed(EffectTarget.Self, ReturnFace.FRONT),
-        )
+        effect = Effects.Destroy(t) then
+            Effects.ExileAndReturnTransformed(EffectTarget.Self, ReturnFace.FRONT)
     }
 
     metadata {

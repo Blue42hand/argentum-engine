@@ -20,7 +20,7 @@ val RangersFirebrand = card("Ranger's Firebrand") {
 
     spell {
         val t = target(Targets.Any)
-        effect = Effects.DealDamage(2, t).then(Effects.TheRingTemptsYou())
+        effect = Effects.DealDamage(2, t) then Effects.TheRingTemptsYou()
     }
 
     metadata {

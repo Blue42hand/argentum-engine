@@ -24,10 +24,7 @@ val MasterfulFlourish = card("Masterful Flourish") {
     oracleText = "Target creature you control gets +1/+0 and gains indestructible until end of turn. (Damage and effects that say \"destroy\" don't destroy it.)"
     spell {
         val t = target(TargetFilter.Creature.youControl())
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, t),
-            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
-        )
+        effect = Effects.ModifyStats(1, 0, t) then Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
     }
     metadata {
         rarity = Rarity.COMMON

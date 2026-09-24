@@ -58,16 +58,12 @@ val ClaimJumper = card("Claim Jumper") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         interveningIf = Conditions.OpponentControlsMoreLands
-        effect = Effects.Composite(
-            listOf(
-                searchForPlains,
-                // "Then if an opponent controls more lands than you, repeat this process once."
-                Effects.If(
-                    condition = Conditions.OpponentControlsMoreLands,
-                    then = searchForPlains
-                )
+        effect = searchForPlains then
+            // "Then if an opponent controls more lands than you, repeat this process once."
+            Effects.If(
+                condition = Conditions.OpponentControlsMoreLands,
+                then = searchForPlains
             )
-        )
         description = "When this creature enters, if an opponent controls more lands than you, you " +
             "may search your library for a Plains card and put it onto the battlefield tapped. Then " +
             "if an opponent controls more lands than you, repeat this process once. If you search " +

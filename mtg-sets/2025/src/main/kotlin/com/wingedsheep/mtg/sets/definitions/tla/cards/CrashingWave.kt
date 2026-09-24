@@ -42,15 +42,13 @@ val CrashingWave = card("Crashing Wave") {
             filter = TargetFilter.Creature,
             dynamicMaxCount = DynamicAmounts.xValue(),
         )
-        effect = Effects.Composite(
-            Effects.TapEachTarget(),
+        effect = Effects.TapEachTarget() then
             Effects.DistributeCountersAmongFiltered(
                 totalCounters = 3,
                 counterType = CounterType.STUN,
                 filter = Filters.Creature.tapped().opponentControls(),
                 minPerTarget = 0,
-            ),
-        )
+            )
     }
 
     metadata {

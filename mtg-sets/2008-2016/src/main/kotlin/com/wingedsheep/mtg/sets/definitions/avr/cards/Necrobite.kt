@@ -27,10 +27,7 @@ val Necrobite = card("Necrobite") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.DEATHTOUCH, creature),
-            Effects.Regenerate(creature)
-        )
+        effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, creature) then Effects.Regenerate(creature)
     }
 
     metadata {

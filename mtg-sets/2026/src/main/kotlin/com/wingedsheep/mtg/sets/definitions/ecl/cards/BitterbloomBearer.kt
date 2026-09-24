@@ -22,8 +22,7 @@ val BitterbloomBearer = card("Bitterbloom Bearer") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        effect = Effects.Composite(listOf(
-            Effects.LoseLife(1, EffectTarget.Controller),
+        effect = Effects.LoseLife(1, EffectTarget.Controller) then
             Effects.CreateToken(
                 count = 1,
                 power = 1,
@@ -33,7 +32,6 @@ val BitterbloomBearer = card("Bitterbloom Bearer") {
                 keywords = setOf(Keyword.FLYING),
                 imageUri = "https://cards.scryfall.io/normal/front/0/1/01524db2-c96f-4902-8394-bc7a7128e573.jpg?1767956498"
             )
-        ))
     }
 
     metadata {

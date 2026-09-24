@@ -25,10 +25,7 @@ val SangriteSurge = card("Sangrite Surge") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(3, 3, t),
-            Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, t)
-        )
+        effect = Effects.ModifyStats(3, 3, t) then Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, t)
     }
 
     metadata {

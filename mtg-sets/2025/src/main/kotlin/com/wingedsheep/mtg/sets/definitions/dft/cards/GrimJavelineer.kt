@@ -38,17 +38,13 @@ val GrimJavelineer = card("Grim Javelineer") {
     triggeredAbility {
         trigger = Triggers.you.attacks()
         val attacker = target(TargetFilter.AttackingCreature)
-        effect = Effects.Composite(
-            listOf(
-                Effects.ModifyStats(1, 0, attacker),
-                Effects.CreateDelayedTrigger(
-                    effect = Patterns.Library.surveil(1),
-                    trigger = Triggers.self.dies(),
-                    watchedTarget = attacker,
-                    expiry = DelayedTriggerExpiry.EndOfTurn
-                )
+        effect = Effects.ModifyStats(1, 0, attacker) then
+            Effects.CreateDelayedTrigger(
+                effect = Patterns.Library.surveil(1),
+                trigger = Triggers.self.dies(),
+                watchedTarget = attacker,
+                expiry = DelayedTriggerExpiry.EndOfTurn
             )
-        )
         description = "Whenever you attack, target attacking creature gets +1/+0 until end of turn. " +
             "When that creature dies this turn, surveil 1."
     }

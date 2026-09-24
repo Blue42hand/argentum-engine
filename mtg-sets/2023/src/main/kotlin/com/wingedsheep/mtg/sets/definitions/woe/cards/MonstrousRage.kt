@@ -26,10 +26,7 @@ val MonstrousRage = card("Monstrous Rage") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(+2, 0, t),
-            Effects.CreateRoleToken("Monster Role", t)
-        )
+        effect = Effects.ModifyStats(+2, 0, t) then Effects.CreateRoleToken("Monster Role", t)
     }
 
     metadata {

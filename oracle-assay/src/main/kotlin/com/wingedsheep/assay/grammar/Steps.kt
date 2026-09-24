@@ -773,11 +773,9 @@ object Steps {
         // first sentence's slot and neither half denotes anything alone.
         run {
             val script = CardScript(
-                spellEffect = Effects.ExileGroupAndLink(GroupFilter.AllCreatures).then(
-                    CreateDelayedTriggerEffect(
-                        step = Step.END,
-                        effect = Effects.ReturnLinkedExileUnderOwnersControl(),
-                    )
+                spellEffect = Effects.ExileGroupAndLink(GroupFilter.AllCreatures) then CreateDelayedTriggerEffect(
+                    step = Step.END,
+                    effect = Effects.ReturnLinkedExileUnderOwnersControl(),
                 )
             )
             phrase<CardScript>(
@@ -2348,15 +2346,11 @@ object Steps {
         fixed: DynamicAmount?,
     ): Phrase<CardScript> {
         fun scriptFor(value: DynamicAmount, filter: GameObjectFilter) = CardScript(
-            spellEffect = Effects.Composite(
-                listOf(
-                    Effects.ForEachInGroup(GroupFilter(filter), Effects.DealDamage(value, EffectTarget.IterationEntity)),
-                    Effects.ForEachPlayer(
-                        Player.Each,
-                        listOf(Effects.DealDamage(value, EffectTarget.Controller)),
-                    ),
+            spellEffect = Effects.ForEachInGroup(GroupFilter(filter), Effects.DealDamage(value, EffectTarget.IterationEntity)) then
+                Effects.ForEachPlayer(
+                    Player.Each,
+                    listOf(Effects.DealDamage(value, EffectTarget.Controller)),
                 )
-            )
         )
         return phrase(template, name = name) {
             slot("self", Primitives.self)

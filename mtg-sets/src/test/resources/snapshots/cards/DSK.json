@@ -711,7 +711,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
@@ -720,7 +720,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ],
@@ -1106,7 +1106,7 @@
                                 "type": "MarkExileOnDeath",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             {
@@ -1117,7 +1117,7 @@
                                 },
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             }
                         ]
@@ -1128,7 +1128,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Pay {2} — deal 5 damage to target creature",
@@ -1462,7 +1462,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Exile"
                     },
@@ -1472,7 +1472,7 @@
                             "filter": {
                                 "baseFilter": "enchantment"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Exile target enchantment"
@@ -2337,51 +2337,46 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "TopOfLibrary",
-                                "count": {
-                                    "type": "Fixed",
-                                    "amount": 4
-                                }
-                            },
-                            "storeAs": "looked"
-                        },
-                        {
-                            "type": "SelectFromCollection",
-                            "from": "looked",
-                            "selection": {
-                                "type": "ChooseExactly",
-                                "count": {
-                                    "type": "Fixed",
-                                    "amount": 1
-                                }
-                            },
-                            "storeSelected": "kept",
-                            "storeRemainder": "rest",
-                            "selectedLabel": "Put in hand",
-                            "remainderLabel": "Put in graveyard"
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "kept",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Hand"
-                            }
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "rest",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Graveyard"
-                            }
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 4
                         }
-                    ]
+                    },
+                    "storeAs": "looked"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "looked",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "kept",
+                    "storeRemainder": "rest",
+                    "selectedLabel": "Put in hand",
+                    "remainderLabel": "Put in graveyard"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "kept",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "rest",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    }
                 },
                 {
                     "type": "GainLife",
@@ -2423,54 +2418,49 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "TopOfLibrary",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 2
-                                        }
-                                    },
-                                    "storeAs": "manifestDreadLooked"
-                                },
-                                {
-                                    "type": "SelectFromCollection",
-                                    "from": "manifestDreadLooked",
-                                    "selection": {
-                                        "type": "ChooseExactly",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 1
-                                        }
-                                    },
-                                    "storeSelected": "manifestDreadManifested",
-                                    "storeRemainder": "manifestDreadGraveyard",
-                                    "selectedLabel": "Manifest (put onto the battlefield face down)",
-                                    "remainderLabel": "Put into your graveyard"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "manifestDreadManifested",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Battlefield"
-                                    },
-                                    "faceDown": "MANIFEST"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "manifestDreadGraveyard",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard"
-                                    }
-                                },
-                                "EmitManifestedDreadEvent"
-                            ]
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            "storeAs": "manifestDreadLooked"
                         },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "manifestDreadLooked",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "manifestDreadManifested",
+                            "storeRemainder": "manifestDreadGraveyard",
+                            "selectedLabel": "Manifest (put onto the battlefield face down)",
+                            "remainderLabel": "Put into your graveyard"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "manifestDreadManifested",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield"
+                            },
+                            "faceDown": "MANIFEST"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "manifestDreadGraveyard",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
+                        },
+                        "EmitManifestedDreadEvent",
                         {
                             "type": "AttachEquipment",
                             "target": {
@@ -2996,54 +2986,49 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "TopOfLibrary",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 2
-                                        }
-                                    },
-                                    "storeAs": "manifestDreadLooked"
-                                },
-                                {
-                                    "type": "SelectFromCollection",
-                                    "from": "manifestDreadLooked",
-                                    "selection": {
-                                        "type": "ChooseExactly",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 1
-                                        }
-                                    },
-                                    "storeSelected": "manifestDreadManifested",
-                                    "storeRemainder": "manifestDreadGraveyard",
-                                    "selectedLabel": "Manifest (put onto the battlefield face down)",
-                                    "remainderLabel": "Put into your graveyard"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "manifestDreadManifested",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Battlefield"
-                                    },
-                                    "faceDown": "MANIFEST"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "manifestDreadGraveyard",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard"
-                                    }
-                                },
-                                "EmitManifestedDreadEvent"
-                            ]
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            "storeAs": "manifestDreadLooked"
                         },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "manifestDreadLooked",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "manifestDreadManifested",
+                            "storeRemainder": "manifestDreadGraveyard",
+                            "selectedLabel": "Manifest (put onto the battlefield face down)",
+                            "remainderLabel": "Put into your graveyard"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "manifestDreadManifested",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield"
+                            },
+                            "faceDown": "MANIFEST"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "manifestDreadGraveyard",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
+                        },
+                        "EmitManifestedDreadEvent",
                         {
                             "type": "AttachEquipment",
                             "target": {
@@ -3772,54 +3757,49 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "TopOfLibrary",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 2
-                                        }
-                                    },
-                                    "storeAs": "manifestDreadLooked"
-                                },
-                                {
-                                    "type": "SelectFromCollection",
-                                    "from": "manifestDreadLooked",
-                                    "selection": {
-                                        "type": "ChooseExactly",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 1
-                                        }
-                                    },
-                                    "storeSelected": "manifestDreadManifested",
-                                    "storeRemainder": "manifestDreadGraveyard",
-                                    "selectedLabel": "Manifest (put onto the battlefield face down)",
-                                    "remainderLabel": "Put into your graveyard"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "manifestDreadManifested",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Battlefield"
-                                    },
-                                    "faceDown": "MANIFEST"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "manifestDreadGraveyard",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard"
-                                    }
-                                },
-                                "EmitManifestedDreadEvent"
-                            ]
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            "storeAs": "manifestDreadLooked"
                         },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "manifestDreadLooked",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "manifestDreadManifested",
+                            "storeRemainder": "manifestDreadGraveyard",
+                            "selectedLabel": "Manifest (put onto the battlefield face down)",
+                            "remainderLabel": "Put into your graveyard"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "manifestDreadManifested",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield"
+                            },
+                            "faceDown": "MANIFEST"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "manifestDreadGraveyard",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
+                        },
+                        "EmitManifestedDreadEvent",
                         {
                             "type": "AttachEquipment",
                             "target": {
@@ -6444,7 +6424,7 @@
                             "type": "MoveToZone",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t1"
                             },
                             "destination": "Library",
                             "placement": "Shuffled"
@@ -6467,7 +6447,7 @@
                                 ]
                             }
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ],
                 "descriptionOverride": "{1}{U}, {T}: Shuffle this creature and target creature with a stun counter on it into their owners' libraries."
@@ -9151,7 +9131,7 @@
                                 "type": "MoveToZone",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 },
                                 "destination": "Graveyard",
                                 "byDestruction": true
@@ -9162,7 +9142,7 @@
                                     "filter": {
                                         "baseFilter": "enchantment"
                                     },
-                                    "id": "t0"
+                                    "id": "t1"
                                 }
                             ],
                             "description": "Destroy target enchantment"
@@ -9889,54 +9869,49 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "TopOfLibrary",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 2
-                                        }
-                                    },
-                                    "storeAs": "manifestDreadLooked"
-                                },
-                                {
-                                    "type": "SelectFromCollection",
-                                    "from": "manifestDreadLooked",
-                                    "selection": {
-                                        "type": "ChooseExactly",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 1
-                                        }
-                                    },
-                                    "storeSelected": "manifestDreadManifested",
-                                    "storeRemainder": "manifestDreadGraveyard",
-                                    "selectedLabel": "Manifest (put onto the battlefield face down)",
-                                    "remainderLabel": "Put into your graveyard"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "manifestDreadManifested",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Battlefield"
-                                    },
-                                    "faceDown": "MANIFEST"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "manifestDreadGraveyard",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard"
-                                    }
-                                },
-                                "EmitManifestedDreadEvent"
-                            ]
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            "storeAs": "manifestDreadLooked"
                         },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "manifestDreadLooked",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "manifestDreadManifested",
+                            "storeRemainder": "manifestDreadGraveyard",
+                            "selectedLabel": "Manifest (put onto the battlefield face down)",
+                            "remainderLabel": "Put into your graveyard"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "manifestDreadManifested",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield"
+                            },
+                            "faceDown": "MANIFEST"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "manifestDreadGraveyard",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
+                        },
+                        "EmitManifestedDreadEvent",
                         {
                             "type": "AttachEquipment",
                             "target": {
@@ -10559,7 +10534,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -10570,7 +10545,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target creature"
@@ -10965,39 +10940,34 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "FromZone",
-                                        "zone": "Hand"
-                                    },
-                                    "storeAs": "hand"
-                                },
-                                {
-                                    "type": "SelectFromCollection",
-                                    "from": "hand",
-                                    "selection": {
-                                        "type": "ChooseExactly",
-                                        "count": {
-                                            "type": "ContextProperty",
-                                            "key": "TRIGGER_LIFE_LOST"
-                                        }
-                                    },
-                                    "storeSelected": "discarded",
-                                    "prompt": "Choose cards to discard"
-                                },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "discarded",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard"
-                                    },
-                                    "moveType": "Discard"
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand"
+                            },
+                            "storeAs": "hand"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "hand",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "ContextProperty",
+                                    "key": "TRIGGER_LIFE_LOST"
                                 }
-                            ]
+                            },
+                            "storeSelected": "discarded",
+                            "prompt": "Choose cards to discard"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "discarded",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Discard"
                         },
                         {
                             "type": "Gated",
@@ -12119,29 +12089,24 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "MoveToZone",
-                                    "target": {
-                                        "type": "BoundVariable",
-                                        "name": "t0"
-                                    },
-                                    "destination": "Exile"
+                            "type": "MoveToZone",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "destination": "Exile"
+                        },
+                        {
+                            "type": "CreateDelayedTrigger",
+                            "step": "END",
+                            "effect": {
+                                "type": "MoveToZone",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
                                 },
-                                {
-                                    "type": "CreateDelayedTrigger",
-                                    "step": "END",
-                                    "effect": {
-                                        "type": "MoveToZone",
-                                        "target": {
-                                            "type": "BoundVariable",
-                                            "name": "t0"
-                                        },
-                                        "destination": "Battlefield"
-                                    }
-                                }
-                            ]
+                                "destination": "Battlefield"
+                            }
                         },
                         {
                             "type": "EachPermanentBecomesCopyOfTarget",
@@ -12567,7 +12532,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 },
                 "interveningIf": {
                     "type": "Compare",
@@ -12648,7 +12613,7 @@
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
@@ -12656,7 +12621,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 },
                 "descriptionOverride": "Eerie — Whenever you fully unlock a Room, put a +1/+1 counter on target creature."
             }
@@ -13284,13 +13249,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "damageSource": "Self"
                 },
                 "targetRequirement": {
                     "type": "AnyTarget",
-                    "id": "t0"
+                    "id": "t1"
                 },
                 "descriptionOverride": "Whenever this permanent attacks, it deals 4 damage to any target."
             }
@@ -14197,26 +14162,21 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "FromZone",
-                                "zone": "Hand"
-                            },
-                            "storeAs": "discardedHand"
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "discardedHand",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Graveyard"
-                            },
-                            "moveType": "Discard"
-                        }
-                    ]
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Hand"
+                    },
+                    "storeAs": "discardedHand"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "discardedHand",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    },
+                    "moveType": "Discard"
                 },
                 {
                     "type": "DrawCards",
@@ -15915,7 +15875,7 @@
                                 },
                                 "player": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 },
                                 "isMill": true
                             },
@@ -15929,7 +15889,7 @@
                                 "zone": "Graveyard",
                                 "player": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             }
                         }
@@ -15937,7 +15897,7 @@
                 },
                 "targetRequirement": {
                     "type": "TargetPlayer",
-                    "id": "t0"
+                    "id": "t1"
                 },
                 "descriptionOverride": "Eerie — Whenever you fully unlock a Room, target player mills two cards."
             }
@@ -17366,7 +17326,7 @@
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t1"
                             }
                         },
                         "targetRequirement": {
@@ -17374,7 +17334,7 @@
                             "filter": {
                                 "baseFilter": "creature attacking"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         },
                         "descriptionOverride": "Whenever you attack, put a +1/+1 counter on target attacking creature."
                     }
@@ -17738,29 +17698,24 @@
                         "type": "Composite",
                         "effects": [
                             {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "GatherCards",
-                                        "source": {
-                                            "type": "TopOfLibrary",
-                                            "count": {
-                                                "type": "Fixed",
-                                                "amount": 2
-                                            },
-                                            "isMill": true
-                                        },
-                                        "storeAs": "milled"
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "TopOfLibrary",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 2
                                     },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "milled",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Graveyard"
-                                        }
-                                    }
-                                ]
+                                    "isMill": true
+                                },
+                                "storeAs": "milled"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "milled",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                }
                             },
                             {
                                 "type": "Gated",
@@ -17798,29 +17753,24 @@
                         "type": "Composite",
                         "effects": [
                             {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "GatherCards",
-                                        "source": {
-                                            "type": "TopOfLibrary",
-                                            "count": {
-                                                "type": "Fixed",
-                                                "amount": 2
-                                            },
-                                            "isMill": true
-                                        },
-                                        "storeAs": "milled"
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "TopOfLibrary",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 2
                                     },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "milled",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Graveyard"
-                                        }
-                                    }
-                                ]
+                                    "isMill": true
+                                },
+                                "storeAs": "milled"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "milled",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                }
                             },
                             {
                                 "type": "Gated",
@@ -17858,29 +17808,24 @@
                         "type": "Composite",
                         "effects": [
                             {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "GatherCards",
-                                        "source": {
-                                            "type": "TopOfLibrary",
-                                            "count": {
-                                                "type": "Fixed",
-                                                "amount": 2
-                                            },
-                                            "isMill": true
-                                        },
-                                        "storeAs": "milled"
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "TopOfLibrary",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 2
                                     },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "milled",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Graveyard"
-                                        }
-                                    }
-                                ]
+                                    "isMill": true
+                                },
+                                "storeAs": "milled"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "milled",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                }
                             },
                             {
                                 "type": "Gated",
@@ -19270,54 +19215,49 @@
                             "type": "Composite",
                             "effects": [
                                 {
-                                    "type": "Composite",
-                                    "effects": [
-                                        {
-                                            "type": "GatherCards",
-                                            "source": {
-                                                "type": "TopOfLibrary",
-                                                "count": {
-                                                    "type": "Fixed",
-                                                    "amount": 2
-                                                }
-                                            },
-                                            "storeAs": "manifestDreadLooked"
-                                        },
-                                        {
-                                            "type": "SelectFromCollection",
-                                            "from": "manifestDreadLooked",
-                                            "selection": {
-                                                "type": "ChooseExactly",
-                                                "count": {
-                                                    "type": "Fixed",
-                                                    "amount": 1
-                                                }
-                                            },
-                                            "storeSelected": "manifestDreadManifested",
-                                            "storeRemainder": "manifestDreadGraveyard",
-                                            "selectedLabel": "Manifest (put onto the battlefield face down)",
-                                            "remainderLabel": "Put into your graveyard"
-                                        },
-                                        {
-                                            "type": "MoveCollection",
-                                            "from": "manifestDreadManifested",
-                                            "destination": {
-                                                "type": "ToZone",
-                                                "zone": "Battlefield"
-                                            },
-                                            "faceDown": "MANIFEST"
-                                        },
-                                        {
-                                            "type": "MoveCollection",
-                                            "from": "manifestDreadGraveyard",
-                                            "destination": {
-                                                "type": "ToZone",
-                                                "zone": "Graveyard"
-                                            }
-                                        },
-                                        "EmitManifestedDreadEvent"
-                                    ]
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "TopOfLibrary",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 2
+                                        }
+                                    },
+                                    "storeAs": "manifestDreadLooked"
                                 },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "manifestDreadLooked",
+                                    "selection": {
+                                        "type": "ChooseExactly",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "storeSelected": "manifestDreadManifested",
+                                    "storeRemainder": "manifestDreadGraveyard",
+                                    "selectedLabel": "Manifest (put onto the battlefield face down)",
+                                    "remainderLabel": "Put into your graveyard"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "manifestDreadManifested",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Battlefield"
+                                    },
+                                    "faceDown": "MANIFEST"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "manifestDreadGraveyard",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    }
+                                },
+                                "EmitManifestedDreadEvent",
                                 {
                                     "type": "AddCounters",
                                     "counterType": "PLUS_ONE_PLUS_ONE",

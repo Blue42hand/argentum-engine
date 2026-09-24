@@ -44,17 +44,15 @@ val CauldronDance = card("Cauldron Dance") {
             val reanimated = gather(CardSource.ChosenTargets)
             move(reanimated, CardDestination.ToZone(Zone.BATTLEFIELD))
             ifNotEmpty(reanimated) {
-                run(Effects.Composite(
-                    Effects.GrantKeyword(
-                        keyword = Keyword.HASTE,
-                        target = reanimated.asTarget,
-                        duration = Duration.Permanent
-                    ),
+                run(Effects.GrantKeyword(
+                    keyword = Keyword.HASTE,
+                    target = reanimated.asTarget,
+                    duration = Duration.Permanent
+                ) then
                     Effects.CreateDelayedTrigger(
                         step = Step.END,
                         effect = Effects.ReturnToHand(reanimated.asTarget)
-                    )
-                ))
+                    ))
             }
 
             // Part 2 — optionally drop a creature from hand, give it haste, and sacrifice it

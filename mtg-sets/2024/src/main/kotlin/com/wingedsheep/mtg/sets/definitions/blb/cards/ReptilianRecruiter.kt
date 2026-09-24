@@ -55,9 +55,9 @@ val ReptilianRecruiter = card("Reptilian Recruiter") {
                     )
                 )
             ),
-            then = Effects.GainControl(creature, Duration.EndOfTurn)
-                .then(Effects.Untap(creature))
-                .then(Effects.GrantKeyword(Keyword.HASTE, creature))
+            then = Effects.GainControl(creature, Duration.EndOfTurn) then
+                Effects.Untap(creature) then
+                Effects.GrantKeyword(Keyword.HASTE, creature)
         )
     }
 

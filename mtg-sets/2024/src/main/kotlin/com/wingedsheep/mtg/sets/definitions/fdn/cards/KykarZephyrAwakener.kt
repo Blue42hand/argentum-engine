@@ -42,13 +42,11 @@ val KykarZephyrAwakener = card("Kykar, Zephyr Awakener") {
         effect = ModalEffect.chooseOne(
             mode("Exile another target creature you control. Return that card to the battlefield under its owner's control at the beginning of the next end step") {
                 val otherCreatureYouControl = target(TargetFilter.OtherCreatureYouControl)
-                effect = Effects.Composite(
-                    Effects.Exile(otherCreatureYouControl),
+                effect = Effects.Exile(otherCreatureYouControl) then
                     Effects.CreateDelayedTrigger(
                         step = Step.END,
                         effect = Effects.Move(otherCreatureYouControl, Zone.BATTLEFIELD)
                     )
-                )
             },
             Mode.noTarget(
                 Effects.CreateToken(

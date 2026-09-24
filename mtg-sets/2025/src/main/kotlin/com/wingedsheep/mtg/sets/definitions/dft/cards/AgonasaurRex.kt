@@ -43,11 +43,9 @@ val AgonasaurRex = card("Agonasaur Rex") {
     triggeredAbility {
         trigger = Triggers.self.isCycled()
         val t = target(TargetFilter(GameObjectFilter.CreatureOrVehicle), optional = true)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t),
-            Effects.GrantKeyword(Keyword.TRAMPLE, t),
-            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t),
-        )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t) then
+            Effects.GrantKeyword(Keyword.TRAMPLE, t) then
+            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
         description = "When you cycle this card, put two +1/+1 counters on up to one target " +
             "creature or Vehicle. It gains trample and indestructible until end of turn."
     }

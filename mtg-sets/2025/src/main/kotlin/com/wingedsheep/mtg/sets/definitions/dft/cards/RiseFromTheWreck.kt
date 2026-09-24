@@ -38,12 +38,10 @@ val RiseFromTheWreck = card("Rise from the Wreck") {
             TargetFilter(Filters.CreatureWithNoAbilities.ownedByYou(), zone = Zone.GRAVEYARD),
             optional = true,
         )
-        effect = Effects.Composite(
-            Effects.ReturnToHand(creature),
-            Effects.ReturnToHand(mount),
-            Effects.ReturnToHand(vehicle),
-            Effects.ReturnToHand(noAbilities),
-        )
+        effect = Effects.ReturnToHand(creature) then
+            Effects.ReturnToHand(mount) then
+            Effects.ReturnToHand(vehicle) then
+            Effects.ReturnToHand(noAbilities)
     }
     metadata {
         rarity = Rarity.UNCOMMON

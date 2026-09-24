@@ -46,16 +46,15 @@ val PracticedOffense = card("Practiced Offense") {
     spell {
         val player = target(Targets.Player)
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            // Put a +1/+1 counter on each creature the target player controls.
-            Effects.ForEachInGroup(
-                filter = GroupFilter(GameObjectFilter.Creature.targetPlayerControls(player)),
-                effect = Effects.AddCounters(
-                    counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                    count = 1,
-                    target = EffectTarget.IterationEntity,
-                ),
+        // Put a +1/+1 counter on each creature the target player controls.
+        effect = Effects.ForEachInGroup(
+            filter = GroupFilter(GameObjectFilter.Creature.targetPlayerControls(player)),
+            effect = Effects.AddCounters(
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
+                count = 1,
+                target = EffectTarget.IterationEntity,
             ),
+        ) then
             // Target creature gains your choice of double strike or lifelink until end of turn.
             ModalEffect.chooseOne(
                 Mode.noTarget(
@@ -67,8 +66,7 @@ val PracticedOffense = card("Practiced Offense") {
                     "Lifelink",
                 ),
                 countsAsModalSpell = false,
-            ),
-        )
+            )
     }
 
     keywordAbility(KeywordAbility.flashback("{1}{W}"))

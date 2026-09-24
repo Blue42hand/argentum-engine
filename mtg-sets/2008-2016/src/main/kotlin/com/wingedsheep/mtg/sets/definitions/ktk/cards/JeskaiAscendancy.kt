@@ -25,18 +25,14 @@ val JeskaiAscendancy = card("Jeskai Ascendancy") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
-        effect = Effects.Composite(
-            listOf(
-                Effects.ForEachInGroup(
-                    GroupFilter.AllCreaturesYouControl,
-                    Effects.ModifyStats(1, 1, EffectTarget.IterationEntity)
-                ),
-                Effects.ForEachInGroup(
-                    GroupFilter.AllCreaturesYouControl,
-                    Effects.Untap(EffectTarget.IterationEntity)
-                )
+        effect = Effects.ForEachInGroup(
+            GroupFilter.AllCreaturesYouControl,
+            Effects.ModifyStats(1, 1, EffectTarget.IterationEntity)
+        ) then
+            Effects.ForEachInGroup(
+                GroupFilter.AllCreaturesYouControl,
+                Effects.Untap(EffectTarget.IterationEntity)
             )
-        )
     }
 
     triggeredAbility {

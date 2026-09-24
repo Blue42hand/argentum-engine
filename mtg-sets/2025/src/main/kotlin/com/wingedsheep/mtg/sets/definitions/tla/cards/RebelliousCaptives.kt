@@ -33,10 +33,8 @@ val RebelliousCaptives = card("Rebellious Captives") {
         isExhaust = true
         cost = Costs.Mana("{6}")
         val land = target(TargetFilter.Land.youControl())
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self),
-            Effects.Earthbend(2, land),
-        )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self) then
+            Effects.Earthbend(2, land)
     }
 
     metadata {

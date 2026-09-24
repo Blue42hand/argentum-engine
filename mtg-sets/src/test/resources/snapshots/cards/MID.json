@@ -2301,7 +2301,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -2310,7 +2310,7 @@
                             "filter": {
                                 "baseFilter": "creature attacking"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target attacking creature gets +2/+2 until end of turn"

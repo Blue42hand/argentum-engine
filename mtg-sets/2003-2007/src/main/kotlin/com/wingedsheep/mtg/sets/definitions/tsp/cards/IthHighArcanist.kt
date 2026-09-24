@@ -36,10 +36,7 @@ val IthHighArcanist = card("Ith, High Arcanist") {
     activatedAbility {
         cost = Costs.Tap
         val t = target(TargetFilter.AttackingCreature)
-        effect = Effects.Composite(
-            Effects.Untap(t),
-            Effects.PreventCombatDamageToAndBy(t)
-        )
+        effect = Effects.Untap(t) then Effects.PreventCombatDamageToAndBy(t)
     }
 
     keywordAbility(KeywordAbility.suspend("{W}{U}", 4))

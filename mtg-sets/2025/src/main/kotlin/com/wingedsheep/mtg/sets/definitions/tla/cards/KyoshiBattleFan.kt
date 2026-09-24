@@ -34,15 +34,13 @@ val KyoshiBattleFan = card("Kyoshi Battle Fan") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                power = 1,
-                toughness = 1,
-                colors = setOf(Color.WHITE),
-                creatureTypes = setOf("Ally")
-            ),
+        effect = Effects.CreateToken(
+            power = 1,
+            toughness = 1,
+            colors = setOf(Color.WHITE),
+            creatureTypes = setOf("Ally")
+        ) then
             Effects.AttachEquipment(EffectTarget.PipelineTarget(CREATED_TOKENS, 0))
-        )
     }
 
     staticAbility {

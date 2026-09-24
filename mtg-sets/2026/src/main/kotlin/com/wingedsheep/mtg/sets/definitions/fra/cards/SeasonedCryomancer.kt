@@ -39,7 +39,7 @@ val SeasonedCryomancer = card("Seasoned Cryomancer") {
             val discardedNonland = filter(Patterns.Hand.discarded, GameObjectFilter.Nonland)
             ifNotEmpty(discardedNonland) {
                 run(Effects.ReflexiveTrigger(
-                    action = Effects.Composite(emptyList()),
+                    action = Effects.Nothing,
                     optional = false,
                     reflexiveEffect = Effects.ForEachTarget(
                         Effects.Tap(EffectTarget.ContextTarget(0)),

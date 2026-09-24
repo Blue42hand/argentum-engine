@@ -45,10 +45,7 @@ val BloodHustler = card("Blood Hustler") {
     activatedAbility {
         cost = Costs.Mana("{3}{B}")
         val t = target(Targets.Opponent)
-        effect = Effects.Composite(
-            Effects.LoseLife(1, t),
-            Effects.GainLife(1, EffectTarget.Controller)
-        )
+        effect = Effects.LoseLife(1, t) then Effects.GainLife(1, EffectTarget.Controller)
         description = "{3}{B}: Target opponent loses 1 life and you gain 1 life."
     }
 

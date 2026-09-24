@@ -49,13 +49,11 @@ private val AberrantResearcherFront = card("Aberrant Researcher") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        effect = Effects.Composite(
-            Patterns.Library.mill(1),
+        effect = Patterns.Library.mill(1) then
             Effects.If(
                 condition = Conditions.CollectionContainsMatch(Patterns.Library.milled, GameObjectFilter.InstantOrSorcery),
                 then = Effects.Transform(EffectTarget.Self),
-            ),
-        )
+            )
         description = "At the beginning of your upkeep, mill a card. If an instant or sorcery card " +
             "was milled this way, transform this creature."
     }

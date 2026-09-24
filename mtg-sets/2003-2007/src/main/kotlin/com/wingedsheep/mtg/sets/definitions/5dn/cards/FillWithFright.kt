@@ -24,10 +24,7 @@ val FillWithFright = card("Fill with Fright") {
     oracleText = "Target player discards two cards. Scry 2. (Look at the top two cards of your library, then put any number of them on the bottom and the rest on top in any order.)"
     spell {
         val t = target(Targets.Player)
-        effect = Effects.Composite(
-            Patterns.Hand.discardCards(2, t),
-            Patterns.Library.scry(2)
-        )
+        effect = Patterns.Hand.discardCards(2, t) then Patterns.Library.scry(2)
     }
     metadata {
         rarity = Rarity.COMMON

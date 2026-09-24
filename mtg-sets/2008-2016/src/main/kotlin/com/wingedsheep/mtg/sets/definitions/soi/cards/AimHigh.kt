@@ -24,11 +24,9 @@ val AimHigh = card("Aim High") {
     oracleText = "Untap target creature. It gets +2/+2 and gains reach until end of turn."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Untap(t),
-            Effects.ModifyStats(2, 2, t),
+        effect = Effects.Untap(t) then
+            Effects.ModifyStats(2, 2, t) then
             Effects.GrantKeyword(Keyword.REACH, t)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

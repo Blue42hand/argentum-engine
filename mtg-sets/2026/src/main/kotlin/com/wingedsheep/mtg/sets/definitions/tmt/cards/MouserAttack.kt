@@ -36,8 +36,8 @@ val MouserAttack = card("Mouser Attack!") {
             }
             mode("Target creature gets +3/+0 and gains first strike until end of turn") {
                 val creature = target(TargetFilter.Creature)
-                effect = Effects.ModifyStats(3, 0, creature)
-                    .then(Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature, Duration.EndOfTurn))
+                effect = Effects.ModifyStats(3, 0, creature) then
+                    Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature, Duration.EndOfTurn)
             }
         }
     }

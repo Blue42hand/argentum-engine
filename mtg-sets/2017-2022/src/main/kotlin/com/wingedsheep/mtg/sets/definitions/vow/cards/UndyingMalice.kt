@@ -39,15 +39,13 @@ val UndyingMalice = card("Undying Malice") {
         effect = Effects.GrantTriggeredAbility(
             ability = TriggeredAbility.create(
                 trigger = Triggers.self.dies(),
-                effect = Effects.Composite(
-                    Effects.Move(
-                        target = EffectTarget.Self,
-                        destination = Zone.BATTLEFIELD,
-                        placement = ZonePlacement.Tapped,
-                        fromZone = Zone.GRAVEYARD
-                    ),
+                effect = Effects.Move(
+                    target = EffectTarget.Self,
+                    destination = Zone.BATTLEFIELD,
+                    placement = ZonePlacement.Tapped,
+                    fromZone = Zone.GRAVEYARD
+                ) then
                     Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-                ),
                 descriptionOverride = "When this creature dies, return it to the battlefield tapped under its owner's control with a +1/+1 counter on it."
             ),
             target = t,

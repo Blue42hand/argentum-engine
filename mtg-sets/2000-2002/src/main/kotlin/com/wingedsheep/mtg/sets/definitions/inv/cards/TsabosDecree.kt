@@ -54,12 +54,8 @@ val TsabosDecree = card("Tsabo's Decree") {
                     baseFilter = GameObjectFilter.Creature.targetPlayerControls(),
                     chosenSubtypeKey = "chosenCreatureType",
                 ),
-                effect = Effects.Composite(
-                    listOf(
-                        Effects.CantBeRegenerated(EffectTarget.IterationEntity),
-                        Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, byDestruction = true),
-                    ),
-                ),
+                effect = Effects.CantBeRegenerated(EffectTarget.IterationEntity) then
+                    Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, byDestruction = true),
             ))
         }
     }

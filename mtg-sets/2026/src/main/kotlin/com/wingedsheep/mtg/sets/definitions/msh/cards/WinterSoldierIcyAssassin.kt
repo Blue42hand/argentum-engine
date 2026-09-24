@@ -73,9 +73,8 @@ val WinterSoldierIcyAssassin = card("Winter Soldier, Icy Assassin") {
     activatedAbility {
         cost = Costs.Mana("{3}{W}{B}")
         activateFromZone = Zone.GRAVEYARD
-        effect = Effects.Composite(
-            Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
-            Effects.AddCounters(counterType = CounterType.FINALITY, count = 1, target = EffectTarget.Self),
+        effect = Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
+            Effects.AddCounters(counterType = CounterType.FINALITY, count = 1, target = EffectTarget.Self) then
             Effects.May(
                 effect = Effects.Pipeline {
                     val winterSoldierEquipment = selectTarget(
@@ -95,7 +94,6 @@ val WinterSoldierIcyAssassin = card("Winter Soldier, Icy Assassin") {
                     GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT)
                 )
             )
-        )
         description = "{3}{W}{B}: Return this card from your graveyard to the battlefield with a " +
             "finality counter on him. Then you may attach an Equipment you control to him."
     }

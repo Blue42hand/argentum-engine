@@ -32,9 +32,9 @@ val CorrodingDragonstorm = card("Corroding Dragonstorm") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent))
-            .then(Effects.GainLife(2))
-            .then(Patterns.Library.surveil(2))
+        effect = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)) then
+            Effects.GainLife(2) then
+            Patterns.Library.surveil(2)
         description = "When this enchantment enters, each opponent loses 2 life and you gain " +
             "2 life. Surveil 2."
     }

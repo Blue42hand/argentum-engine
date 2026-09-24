@@ -66,8 +66,7 @@ val UltimaOriginOfOblivion = card("Ultima, Origin of Oblivion") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val land = target(TargetFilter.Land)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.BLIGHT, 1, land),
+        effect = Effects.AddCounters(CounterType.BLIGHT, 1, land) then
             Effects.BecomeArtifact(
                 target = land,
                 cardTypes = null,       // keep the land's card types (stays a land; keeps e.g. artifact)
@@ -82,7 +81,6 @@ val UltimaOriginOfOblivion = card("Ultima, Origin of Oblivion") {
                 ),
                 duration = Durations.whileAffectedHasCounter(CounterType.BLIGHT)
             )
-        )
         description = "Whenever Ultima attacks, put a blight counter on target land. For as long " +
             "as that land has a blight counter on it, it loses all land types and abilities and " +
             "has \"{T}: Add {C}.\""

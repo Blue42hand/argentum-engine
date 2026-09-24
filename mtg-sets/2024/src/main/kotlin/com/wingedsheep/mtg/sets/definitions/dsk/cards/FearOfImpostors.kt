@@ -47,14 +47,12 @@ val FearOfImpostors = card("Fear of Impostors") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         target(TargetFilter.SpellOnStack)
-        effect = Effects.Composite(
-            Effects.CounterSpell(),
+        effect = Effects.CounterSpell() then
             // Its controller manifests dread — run the shared recipe under the spell's controller.
             Effects.ForEachPlayer(
                 players = Player.ControllerOf("target spell"),
                 effects = Patterns.Library.manifestDread().effects,
-            ),
-        )
+            )
         description = "When this creature enters, counter target spell. Its controller manifests dread."
     }
 

@@ -21,9 +21,9 @@ val EscapeFromOrthanc = card("Escape from Orthanc") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(1, 3, creature)
-            .then(Effects.GrantKeyword(Keyword.FLYING, creature))
-            .then(Effects.Untap(creature))
+        effect = Effects.ModifyStats(1, 3, creature) then
+            Effects.GrantKeyword(Keyword.FLYING, creature) then
+            Effects.Untap(creature)
     }
 
     metadata {

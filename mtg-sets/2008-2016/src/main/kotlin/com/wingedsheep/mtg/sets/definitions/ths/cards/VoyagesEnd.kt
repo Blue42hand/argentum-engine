@@ -20,8 +20,7 @@ val VoyagesEnd = card("Voyage's End") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ReturnToHand(creature)
-            .then(Effects.Scry(1))
+        effect = Effects.ReturnToHand(creature) then Effects.Scry(1)
     }
 
     metadata {

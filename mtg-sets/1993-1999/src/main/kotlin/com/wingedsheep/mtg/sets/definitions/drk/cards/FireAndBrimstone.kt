@@ -39,10 +39,8 @@ val FireAndBrimstone = card("Fire and Brimstone") {
                 ),
                 descriptionOverride = "target player who attacked this turn",
             ))
-        effect = Effects.Composite(
-            Effects.DealDamage(4, attacker),
-            Effects.DealDamage(4, EffectTarget.PlayerRef(Player.You)),
-        )
+        effect = Effects.DealDamage(4, attacker) then
+            Effects.DealDamage(4, EffectTarget.PlayerRef(Player.You))
     }
 
     metadata {

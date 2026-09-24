@@ -24,10 +24,7 @@ val FlowstoneStrike = card("Flowstone Strike") {
     oracleText = "Target creature gets +1/-1 and gains haste until end of turn."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, -1, t),
-            Effects.GrantKeyword(Keyword.HASTE, t)
-        )
+        effect = Effects.ModifyStats(1, -1, t) then Effects.GrantKeyword(Keyword.HASTE, t)
     }
     metadata {
         rarity = Rarity.COMMON

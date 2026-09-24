@@ -37,8 +37,8 @@ val CrawlFromTheCellar = card("Crawl from the Cellar") {
         val creatureCard = target(TargetFilter.CreatureInYourGraveyard)
         val zombie = target(TargetFilter(GameObjectFilter.Permanent.withSubtype("Zombie").youControl()), optional = true)
 
-        effect = Effects.Move(creatureCard, Zone.HAND)
-            .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, zombie))
+        effect = Effects.Move(creatureCard, Zone.HAND) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, zombie)
     }
 
     keywordAbility(KeywordAbility.flashback("{3}{B}"))

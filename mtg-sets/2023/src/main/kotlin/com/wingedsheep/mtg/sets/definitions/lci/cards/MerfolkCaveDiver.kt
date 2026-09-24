@@ -32,10 +32,8 @@ val MerfolkCaveDiver = card("Merfolk Cave-Diver") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl()).explores()
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, EffectTarget.Self),
+        effect = Effects.ModifyStats(1, 0, EffectTarget.Self) then
             Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, EffectTarget.Self)
-        )
     }
 
     metadata {

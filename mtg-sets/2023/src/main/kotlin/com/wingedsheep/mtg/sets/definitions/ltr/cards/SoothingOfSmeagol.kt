@@ -21,8 +21,7 @@ val SoothingOfSmeagol = card("Soothing of Sméagol") {
 
     spell {
         val creature = target(TargetFilter(GameObjectFilter.Creature.nontoken()))
-        effect = Effects.ReturnToHand(creature)
-            .then(Effects.TheRingTemptsYou())
+        effect = Effects.ReturnToHand(creature) then Effects.TheRingTemptsYou()
     }
 
     metadata {

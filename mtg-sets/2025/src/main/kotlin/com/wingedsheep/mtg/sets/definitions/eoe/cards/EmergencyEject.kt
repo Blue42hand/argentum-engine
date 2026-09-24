@@ -21,9 +21,7 @@ val EmergencyEject = card("Emergency Eject") {
 
     spell {
         val target = target(TargetFilter.NonlandPermanent)
-        effect = Effects.Destroy(target).then(
-            Effects.CreateLander(controller = EffectTarget.TargetController)
-        )
+        effect = Effects.Destroy(target) then Effects.CreateLander(controller = EffectTarget.TargetController)
     }
 
     metadata {

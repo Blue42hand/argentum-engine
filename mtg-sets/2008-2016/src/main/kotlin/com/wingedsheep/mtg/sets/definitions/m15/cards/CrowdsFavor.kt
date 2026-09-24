@@ -25,8 +25,7 @@ val CrowdsFavor = card("Crowd's Favor") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(1, 0, t)
-            .then(Effects.GrantKeyword(Keyword.FIRST_STRIKE, t))
+        effect = Effects.ModifyStats(1, 0, t) then Effects.GrantKeyword(Keyword.FIRST_STRIKE, t)
     }
 
     metadata {

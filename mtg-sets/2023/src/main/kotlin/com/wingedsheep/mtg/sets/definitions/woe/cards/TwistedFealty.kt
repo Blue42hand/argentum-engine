@@ -40,12 +40,10 @@ val TwistedFealty = card("Twisted Fealty") {
     spell {
         val stolen = target(TargetFilter.Creature)
         val roleHost = target(TargetFilter.Creature, optional = true)
-        effect = Effects.Composite(
-            Effects.GainControl(stolen, Duration.EndOfTurn),
-            Effects.Untap(stolen),
-            Effects.GrantKeyword(Keyword.HASTE, stolen),
+        effect = Effects.GainControl(stolen, Duration.EndOfTurn) then
+            Effects.Untap(stolen) then
+            Effects.GrantKeyword(Keyword.HASTE, stolen) then
             Effects.CreateRoleToken("Wicked Role", roleHost)
-        )
     }
 
     metadata {

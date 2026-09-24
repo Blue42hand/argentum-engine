@@ -981,7 +981,7 @@
                                             "zone": "Hand",
                                             "player": {
                                                 "type": "BoundVariable",
-                                                "name": "t0"
+                                                "name": "t1"
                                             }
                                         },
                                         "storeAs": "hand"
@@ -1008,7 +1008,7 @@
                                             "zone": "Graveyard",
                                             "player": {
                                                 "type": "BoundVariable",
-                                                "name": "t0"
+                                                "name": "t1"
                                             }
                                         },
                                         "moveType": "Discard"
@@ -1018,7 +1018,7 @@
                             "targetRequirements": [
                                 {
                                     "type": "TargetOpponent",
-                                    "id": "t0"
+                                    "id": "t1"
                                 }
                             ],
                             "description": "Target opponent discards two cards"

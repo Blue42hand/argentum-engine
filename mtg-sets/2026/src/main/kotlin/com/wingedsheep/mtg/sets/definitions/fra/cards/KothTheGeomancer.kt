@@ -25,13 +25,11 @@ val KothTheGeomancer = card("Koth, the Geomancer") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
-        effect = Effects.Composite(
-            Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)),
+        effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)) then
             Effects.If(
                 condition = Conditions.EntityMatches(EffectTarget.TriggeringEntity, Filters.MountainCard),
                 then = Effects.AddMana(Color.RED)
             )
-        )
         description = "Landfall — Whenever a land you control enters, Koth deals 1 damage to each opponent. If that land is a Mountain, add {R}."
     }
 

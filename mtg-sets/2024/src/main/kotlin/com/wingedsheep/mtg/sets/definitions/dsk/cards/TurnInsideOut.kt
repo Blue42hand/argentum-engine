@@ -35,15 +35,13 @@ val TurnInsideOut = card("Turn Inside Out") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(3, 0, t),
+        effect = Effects.ModifyStats(3, 0, t) then
             Effects.CreateDelayedTrigger(
                 effect = Patterns.Library.manifestDread(),
                 trigger = Triggers.self.dies(),
                 watchedTarget = t,
                 expiry = DelayedTriggerExpiry.EndOfTurn,
-            ),
-        )
+            )
     }
 
     metadata {

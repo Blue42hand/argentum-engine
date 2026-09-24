@@ -27,11 +27,9 @@ val SeedsOfStrength = card("Seeds of Strength") {
         val first = target(TargetFilter.Creature)
         val second = target(TargetFilter.Creature)
         val third = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 1, first),
-            Effects.ModifyStats(1, 1, second),
-            Effects.ModifyStats(1, 1, third),
-        )
+        effect = Effects.ModifyStats(1, 1, first) then
+            Effects.ModifyStats(1, 1, second) then
+            Effects.ModifyStats(1, 1, third)
     }
     metadata {
         rarity = Rarity.COMMON

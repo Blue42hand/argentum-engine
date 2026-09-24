@@ -25,16 +25,14 @@ val GeistSnatch = card("Geist Snatch") {
 
     spell {
         target(TargetFilter.CreatureSpellOnStack)
-        effect = Effects.Composite(
-            Effects.CounterSpell(),
+        effect = Effects.CounterSpell() then
             Effects.CreateToken(
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.BLUE),
                 creatureTypes = setOf("Spirit"),
                 keywords = setOf(Keyword.FLYING),
-            ),
-        )
+            )
     }
 
     metadata {

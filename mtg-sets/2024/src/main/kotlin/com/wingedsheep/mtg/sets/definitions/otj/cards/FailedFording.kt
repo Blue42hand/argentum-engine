@@ -30,14 +30,12 @@ val FailedFording = card("Failed Fording") {
 
     spell {
         val permanent = target(TargetFilter.NonlandPermanent)
-        effect = Effects.ReturnToHand(permanent)
-            .then(
-                Effects.If(
-                    condition = Conditions.YouControl(
-                        GameObjectFilter.Land.withSubtype(Subtype.DESERT)
-                    ),
-                    then = Patterns.Library.surveil(1)
-                )
+        effect = Effects.ReturnToHand(permanent) then
+            Effects.If(
+                condition = Conditions.YouControl(
+                    GameObjectFilter.Land.withSubtype(Subtype.DESERT)
+                ),
+                then = Patterns.Library.surveil(1)
             )
     }
 

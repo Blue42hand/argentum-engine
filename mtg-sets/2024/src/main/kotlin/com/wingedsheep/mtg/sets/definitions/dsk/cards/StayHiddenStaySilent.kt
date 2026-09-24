@@ -59,12 +59,8 @@ val StayHiddenStaySilent = card("Stay Hidden, Stay Silent") {
     activatedAbility {
         cost = Costs.Mana("{4}{U}{U}")
         timing = TimingRule.SorcerySpeed
-        effect = Effects.Composite(
-            listOf(
-                Effects.ShuffleIntoLibrary(EffectTarget.EnchantedCreature),
-                Patterns.Library.manifestDread()
-            )
-        )
+        effect = Effects.ShuffleIntoLibrary(EffectTarget.EnchantedCreature) then
+            Patterns.Library.manifestDread()
         description = "{4}{U}{U}: Shuffle enchanted creature into its owner's library, then " +
             "manifest dread. Activate only as a sorcery."
     }

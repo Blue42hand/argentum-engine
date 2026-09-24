@@ -40,13 +40,9 @@ val GlacierGodmaw = card("Glacier Godmaw") {
         trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
-            effect = Effects.Composite(
-                listOf(
-                    Effects.ModifyStats(+1, +1, EffectTarget.IterationEntity),
-                    Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.IterationEntity),
-                    Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
-                )
-            )
+            effect = Effects.ModifyStats(+1, +1, EffectTarget.IterationEntity) then
+                Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.IterationEntity) then
+                Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
         )
     }
 

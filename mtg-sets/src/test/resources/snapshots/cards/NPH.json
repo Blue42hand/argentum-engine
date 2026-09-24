@@ -78,7 +78,7 @@
                                 "type": "TapUntap",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             "targetRequirements": [
@@ -87,7 +87,7 @@
                                     "filter": {
                                         "baseFilter": "permanent ctrl:opponent"
                                     },
-                                    "id": "t0"
+                                    "id": "t1"
                                 }
                             ],
                             "description": "Tap target permanent an opponent controls."

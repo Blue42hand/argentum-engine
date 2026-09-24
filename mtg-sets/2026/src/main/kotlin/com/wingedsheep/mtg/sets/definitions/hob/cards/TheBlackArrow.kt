@@ -49,13 +49,11 @@ val TheBlackArrow = card("The Black Arrow") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val anyTarget = target(Targets.Any)
-        effect = Effects.Composite(
-            Effects.DealDamage(1, anyTarget),
+        effect = Effects.DealDamage(1, anyTarget) then
             Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.withSubtype(Subtype.DRAGON), anyTarget),
                 then = Effects.Destroy(anyTarget)
             )
-        )
         description = "When The Black Arrow enters, it deals 1 damage to any target. " +
             "If a Dragon is dealt damage this way, destroy it."
     }

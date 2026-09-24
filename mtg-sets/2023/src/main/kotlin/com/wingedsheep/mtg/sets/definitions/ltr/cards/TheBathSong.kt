@@ -39,8 +39,8 @@ val TheBathSong = card("The Bath Song") {
         targets(TargetFilter(GameObjectFilter.Any.ownedByYou(), zone = Zone.GRAVEYARD), unlimited = true)
         effect = Effects.ForEachTarget(
             Effects.Move(EffectTarget.ContextTarget(0), Zone.LIBRARY)
-        ).then(Effects.ShuffleLibrary())
-            .then(Effects.AddMana(Color.BLUE, 2))
+        ) then Effects.ShuffleLibrary() then
+            Effects.AddMana(Color.BLUE, 2)
     }
 
     metadata {

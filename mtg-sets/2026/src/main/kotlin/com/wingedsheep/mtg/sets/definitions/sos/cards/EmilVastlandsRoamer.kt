@@ -62,12 +62,10 @@ val EmilVastlandsRoamer = card("Emil, Vastlands Roamer") {
             colors = setOf(Color.GREEN, Color.BLUE),
             creatureTypes = setOf(Subtype.FRACTAL.value),
             imageUri = "https://cards.scryfall.io/normal/front/8/b/8b5f1fdb-04df-4224-acb4-7819c37565f5.jpg?1782723480"
-        ).then(
-            Effects.AddCountersToCollection(
-                CREATED_TOKENS,
-                CounterType.PLUS_ONE_PLUS_ONE,
-                amount = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Land).distinctNames(),
-            ),
+        ) then Effects.AddCountersToCollection(
+            CREATED_TOKENS,
+            CounterType.PLUS_ONE_PLUS_ONE,
+            amount = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Land).distinctNames(),
         )
     }
 

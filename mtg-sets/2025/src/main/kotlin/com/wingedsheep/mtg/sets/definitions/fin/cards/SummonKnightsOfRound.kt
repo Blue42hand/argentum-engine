@@ -54,10 +54,8 @@ val SummonKnightsOfRound = card("Summon: Knights of Round") {
     sagaChapter(5) {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
-            effect = Effects.Composite(
-                Effects.ModifyStats(2, 2, EffectTarget.IterationEntity),
+            effect = Effects.ModifyStats(2, 2, EffectTarget.IterationEntity) then
                 Effects.AddCounters(CounterType.INDESTRUCTIBLE, 1, EffectTarget.IterationEntity),
-            ),
         )
     }
 

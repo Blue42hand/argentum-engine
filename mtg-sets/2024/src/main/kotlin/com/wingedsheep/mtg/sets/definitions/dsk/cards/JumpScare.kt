@@ -30,14 +30,10 @@ val JumpScare = card("Jump Scare") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            listOf(
-                Effects.ModifyStats(2, 2, target = creature, duration = Duration.EndOfTurn),
-                Effects.GrantKeyword(Keyword.FLYING, target = creature, duration = Duration.EndOfTurn),
-                Effects.AddCreatureType("Horror", target = creature, duration = Duration.EndOfTurn),
-                Effects.AddCardType("ENCHANTMENT", target = creature, duration = Duration.EndOfTurn)
-            )
-        )
+        effect = Effects.ModifyStats(2, 2, target = creature, duration = Duration.EndOfTurn) then
+            Effects.GrantKeyword(Keyword.FLYING, target = creature, duration = Duration.EndOfTurn) then
+            Effects.AddCreatureType("Horror", target = creature, duration = Duration.EndOfTurn) then
+            Effects.AddCardType("ENCHANTMENT", target = creature, duration = Duration.EndOfTurn)
     }
 
     metadata {

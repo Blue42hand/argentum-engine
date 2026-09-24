@@ -29,9 +29,9 @@ val WingIt = card("Wing It") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(2, 2, creature)
-            .then(Effects.AddCounters(CounterType.FLYING, 1, creature))
-            .then(Patterns.Library.scry(1))
+        effect = Effects.ModifyStats(2, 2, creature) then
+            Effects.AddCounters(CounterType.FLYING, 1, creature) then
+            Patterns.Library.scry(1)
     }
 
     metadata {

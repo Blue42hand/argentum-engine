@@ -40,11 +40,11 @@ val LunarRejection = card("Lunar Rejection") {
         val wolfOrWerewolf = target(
             TargetFilter(GameObjectFilter.Creature.withAnyOfSubtypes(listOf(Subtype.WOLF, Subtype.WEREWOLF))),
         )
-        effect = Effects.ReturnToHand(wolfOrWerewolf).then(Effects.DrawCards(1))
+        effect = Effects.ReturnToHand(wolfOrWerewolf) then Effects.DrawCards(1)
 
         // Cleaved (brackets removed): return target creature, then draw a card.
         val anyCreature = cleaveTarget(TargetFilter.Creature)
-        cleaveEffect = Effects.ReturnToHand(anyCreature).then(Effects.DrawCards(1))
+        cleaveEffect = Effects.ReturnToHand(anyCreature) then Effects.DrawCards(1)
     }
 
     metadata {

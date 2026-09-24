@@ -22,19 +22,15 @@ val BeastWithin = card("Beast Within") {
 
     spell {
         val permanent = target(TargetFilter.Permanent)
-        effect = Effects.Composite(
-            listOf(
-                Effects.Destroy(permanent),
-                Effects.CreateToken(
-                    power = 3,
-                    toughness = 3,
-                    colors = setOf(Color.GREEN),
-                    creatureTypes = setOf("Beast"),
-                    controller = EffectTarget.TargetController,
-                    imageUri = "https://cards.scryfall.io/normal/front/d/9/d93d0098-2147-4e84-af15-91dec8b98d21.jpg?1721427669"
-                )
+        effect = Effects.Destroy(permanent) then
+            Effects.CreateToken(
+                power = 3,
+                toughness = 3,
+                colors = setOf(Color.GREEN),
+                creatureTypes = setOf("Beast"),
+                controller = EffectTarget.TargetController,
+                imageUri = "https://cards.scryfall.io/normal/front/d/9/d93d0098-2147-4e84-af15-91dec8b98d21.jpg?1721427669"
             )
-        )
     }
 
     metadata {

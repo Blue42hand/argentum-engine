@@ -47,8 +47,8 @@ val IntoTheFloodMaw = card("Into the Flood Maw") {
                     controller = EffectTarget.PlayerRef(Player.ChosenOpponent),
                     tapped = true,
                     imageUri = "https://cards.scryfall.io/normal/front/d/e/de0d6700-49f0-4233-97ba-cef7821c30ed.jpg?1721431109"
-                ).then(Effects.ReturnToHand(nonlandPermanentOpponentControls))
-                    .then(Effects.GiftGiven())
+                ) then Effects.ReturnToHand(nonlandPermanentOpponentControls) then
+                    Effects.GiftGiven()
             }
         )
     }

@@ -30,10 +30,7 @@ val JeskaiShrinekeeper = card("Jeskai Shrinekeeper") {
 
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
-        effect = Effects.Composite(
-            Effects.GainLife(1),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.GainLife(1) then Effects.DrawCards(1)
     }
 
     metadata {

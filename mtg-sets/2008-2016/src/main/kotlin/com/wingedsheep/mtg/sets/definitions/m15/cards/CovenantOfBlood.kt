@@ -25,8 +25,7 @@ val CovenantOfBlood = card("Covenant of Blood") {
 
     spell {
         val victim = target(Targets.Any)
-        effect = Effects.DealDamage(4, victim)
-            .then(Effects.GainLife(4))
+        effect = Effects.DealDamage(4, victim) then Effects.GainLife(4)
     }
 
     metadata {

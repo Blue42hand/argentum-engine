@@ -29,8 +29,7 @@ val LethalVapors = card("Lethal Vapors") {
 
     activatedAbility {
         cost = Costs.Free
-        effect = Effects.Destroy(EffectTarget.Self)
-            .then(Effects.SkipNextTurn(EffectTarget.Controller))
+        effect = Effects.Destroy(EffectTarget.Self) then Effects.SkipNextTurn(EffectTarget.Controller)
         restrictions = listOf(ActivationRestriction.AnyPlayerMay)
     }
 

@@ -38,10 +38,7 @@ val RoadsideBlowout = card("Roadside Blowout") {
 
     spell {
         val t = target(TargetFilter(GameObjectFilter.CreatureOrVehicle.opponentControls()))
-        effect = Effects.Composite(
-            Effects.ReturnToHand(t),
-            Effects.DrawCards(1),
-        )
+        effect = Effects.ReturnToHand(t) then Effects.DrawCards(1)
     }
 
     staticAbility {

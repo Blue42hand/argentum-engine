@@ -33,7 +33,7 @@ val Reroute = card("Reroute") {
 
     spell {
         target(TargetFilter.ActivatedAbilityOnStack)
-        effect = Effects.ChangeTarget().then(Effects.DrawCards(1))
+        effect = Effects.ChangeTarget() then Effects.DrawCards(1)
     }
 
     metadata {

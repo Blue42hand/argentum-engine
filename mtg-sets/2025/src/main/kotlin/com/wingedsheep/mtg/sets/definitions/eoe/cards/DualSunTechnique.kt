@@ -24,13 +24,11 @@ val DualSunTechnique = card("Dual-Sun Technique") {
     spell {
         val target = target(TargetFilter.CreatureYouControl)
         
-        effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, target)
-            .then(
-                // Draw a card if the target has a +1/+1 counter
-                Effects.If(
-                    condition = Conditions.TargetHasCounter(CounterType.PLUS_ONE_PLUS_ONE, target),
-                    then = Effects.DrawCards(1, com.wingedsheep.sdk.scripting.targets.EffectTarget.Controller)
-                )
+        effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, target) then
+            // Draw a card if the target has a +1/+1 counter
+            Effects.If(
+                condition = Conditions.TargetHasCounter(CounterType.PLUS_ONE_PLUS_ONE, target),
+                then = Effects.DrawCards(1, com.wingedsheep.sdk.scripting.targets.EffectTarget.Controller)
             )
     }
 

@@ -45,8 +45,7 @@ val GlenElendraGuardian = card("Glen Elendra Guardian") {
             Costs.Mana("{1}{U}"),
             Costs.RemoveCounterFromSelf(CounterType.MINUS_ONE_MINUS_ONE)
         )
-        effect = Effects.CounterSpell()
-            .then(Effects.DrawCards(1, target = EffectTarget.TargetController))
+        effect = Effects.CounterSpell() then Effects.DrawCards(1, target = EffectTarget.TargetController)
     }
 
     metadata {

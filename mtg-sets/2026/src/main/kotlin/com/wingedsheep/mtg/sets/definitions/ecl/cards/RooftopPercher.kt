@@ -36,7 +36,7 @@ val RooftopPercher = card("Rooftop Percher") {
         targets(TargetFilter.CardInGraveyard, count = 2, optional = true)
         effect = Effects.ForEachTarget(
             Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE)
-        ).then(Effects.GainLife(3))
+        ) then Effects.GainLife(3)
     }
 
     metadata {

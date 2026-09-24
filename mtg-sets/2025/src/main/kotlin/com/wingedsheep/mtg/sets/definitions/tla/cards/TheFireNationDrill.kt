@@ -50,16 +50,14 @@ val TheFireNationDrill = card("The Fire Nation Drill") {
 
     activatedAbility {
         cost = Costs.Mana("{1}")
-        effect = Effects.Composite(
-            Patterns.Group.removeKeywordFromAll(
-                Keyword.HEXPROOF,
-                Filters.Group.permanents { opponentControls() }
-            ),
+        effect = Patterns.Group.removeKeywordFromAll(
+            Keyword.HEXPROOF,
+            Filters.Group.permanents { opponentControls() }
+        ) then
             Patterns.Group.removeKeywordFromAll(
                 Keyword.INDESTRUCTIBLE,
                 Filters.Group.permanents { opponentControls() }
             )
-        )
     }
 
     keywordAbility(KeywordAbility.crew(2))

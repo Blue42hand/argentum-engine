@@ -35,11 +35,9 @@ val KeldonOverseer = card("Keldon Overseer") {
         trigger = Triggers.self.enters()
         interveningIf = WasKicked
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GainControl(t, Duration.EndOfTurn),
-            Effects.Untap(t),
+        effect = Effects.GainControl(t, Duration.EndOfTurn) then
+            Effects.Untap(t) then
             Effects.GrantKeyword(Keyword.HASTE, t)
-        )
     }
 
     metadata {

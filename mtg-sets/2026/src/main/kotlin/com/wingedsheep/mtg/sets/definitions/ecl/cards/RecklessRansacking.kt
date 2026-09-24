@@ -20,8 +20,7 @@ val RecklessRansacking = card("Reckless Ransacking") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(3, 2, creature)
-            .then(Effects.CreateTreasure())
+        effect = Effects.ModifyStats(3, 2, creature) then Effects.CreateTreasure()
     }
 
     metadata {

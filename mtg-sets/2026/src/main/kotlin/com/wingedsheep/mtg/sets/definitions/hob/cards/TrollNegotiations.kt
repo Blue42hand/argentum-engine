@@ -25,10 +25,8 @@ val TrollNegotiations = card("Troll Negotiations") {
     spell {
         val t1 = target(TargetFilter.Creature.youControl())
         val t2 = target(TargetFilter.Creature.opponentControls())
-        effect = Effects.Composite(
-            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = t1),
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = t1) then
             Effects.Fight(t1, t2)
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

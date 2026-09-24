@@ -28,9 +28,9 @@ val EntsFury = card("Ent's Fury") {
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.powerAtLeast(4), mine),
             then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, mine)
-        )
-            .then(Effects.ModifyStats(1, 1, mine))
-            .then(Effects.Fight(mine, theirs))
+        ) then
+            Effects.ModifyStats(1, 1, mine) then
+            Effects.Fight(mine, theirs)
     }
 
     metadata {

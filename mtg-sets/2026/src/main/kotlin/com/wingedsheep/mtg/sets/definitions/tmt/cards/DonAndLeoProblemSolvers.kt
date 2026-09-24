@@ -37,10 +37,10 @@ val DonAndLeoProblemSolvers = card("Don & Leo, Problem Solvers") {
         trigger = Triggers.you.beginningOf(Step.END)
         val artifact = target(TargetFilter(GameObjectFilter.Artifact.youControl()), optional = true)
         val creature = target(TargetFilter.CreatureYouControl, optional = true)
-        effect = Effects.Move(artifact, Zone.EXILE)
-            .then(Effects.Move(creature, Zone.EXILE))
-            .then(Effects.Move(artifact, Zone.BATTLEFIELD))
-            .then(Effects.Move(creature, Zone.BATTLEFIELD))
+        effect = Effects.Move(artifact, Zone.EXILE) then
+            Effects.Move(creature, Zone.EXILE) then
+            Effects.Move(artifact, Zone.BATTLEFIELD) then
+            Effects.Move(creature, Zone.BATTLEFIELD)
         description = "At the beginning of your end step, exile up to one target artifact you control and up to one target creature you control. Then return them to the battlefield under their owners' control."
     }
 

@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import com.wingedsheep.engine.core.Outcome
@@ -48,10 +47,7 @@ class CaseOfTheBurningMasksScenarioTest : FunSpec({
         oracleText = "Test Double Spark deals 1 damage to target creature, then 1 damage to it again."
         spell {
             val t = target(TargetFilter.Creature)
-            effect = Effects.Composite(
-                Effects.DealDamage(1, t),
-                Effects.DealDamage(1, t)
-            )
+            effect = Effects.DealDamage(1, t) then Effects.DealDamage(1, t)
         }
     }
 

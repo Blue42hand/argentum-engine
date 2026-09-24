@@ -27,17 +27,13 @@ val DaringWaverider = card("Daring Waverider") {
     triggeredAbility {
         val target = target(TargetFilter.InstantOrSorceryInGraveyard.ownedByYou().manaValueAtMost(4))
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            listOf(
-                // Move the targeted card from graveyard to exile
-                Effects.Move(target, Zone.EXILE),
-                // Grant free cast from exile + exile after resolve
-                Effects.GrantFreeCastTargetFromExile(
-                    target = target,
-                    exileAfterResolve = true
-                )
+        // Move the targeted card from graveyard to exile
+        effect = Effects.Move(target, Zone.EXILE) then
+            // Grant free cast from exile + exile after resolve
+            Effects.GrantFreeCastTargetFromExile(
+                target = target,
+                exileAfterResolve = true
             )
-        )
     }
 
     metadata {

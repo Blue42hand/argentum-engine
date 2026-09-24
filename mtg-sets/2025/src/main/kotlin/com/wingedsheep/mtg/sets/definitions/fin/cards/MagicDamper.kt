@@ -20,11 +20,9 @@ val MagicDamper = card("Magic Damper") {
     oracleText = "Target creature you control gets +1/+1 and gains hexproof until end of turn. Untap it."
     spell {
         val t = target(TargetFilter.Creature.youControl())
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 1, t),
-            Effects.GrantKeyword(Keyword.HEXPROOF, t),
+        effect = Effects.ModifyStats(1, 1, t) then
+            Effects.GrantKeyword(Keyword.HEXPROOF, t) then
             Effects.Untap(t)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

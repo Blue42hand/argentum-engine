@@ -46,12 +46,11 @@ val WoebringerDemon = card("Woebringer Demon") {
 
     triggeredAbility {
         trigger = Triggers.anyPlayer.beginningOf(Step.UPKEEP)
-        effect = Effects.Composite(
-            Effects.Sacrifice(
-                filter = GameObjectFilter.Creature,
-                count = 1,
-                target = EffectTarget.PlayerRef(Player.TriggeringPlayer)
-            ),
+        effect = Effects.Sacrifice(
+            filter = GameObjectFilter.Creature,
+            count = 1,
+            target = EffectTarget.PlayerRef(Player.TriggeringPlayer)
+        ) then
             Effects.If(
                 condition = Conditions.CompareAmounts(
                         DynamicAmounts.permanentsSacrificedThisWay(),
@@ -60,7 +59,6 @@ val WoebringerDemon = card("Woebringer Demon") {
                     ),
                 then = Effects.SacrificeTarget(EffectTarget.Self)
             )
-        )
     }
 
     metadata {

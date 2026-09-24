@@ -404,7 +404,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -415,7 +415,7 @@
                             "filter": {
                                 "baseFilter": "permanent red"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target red permanent"
@@ -1783,7 +1783,7 @@
                         "type": "PreventDamageShield",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "amount": {
                             "type": "Fixed",
@@ -1793,7 +1793,7 @@
                     "targetRequirements": [
                         {
                             "type": "AnyTarget",
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Prevent the next 3 damage that would be dealt to any target this turn"
@@ -3288,7 +3288,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -3299,7 +3299,7 @@
                             "filter": {
                                 "baseFilter": "permanent blue"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target blue permanent"

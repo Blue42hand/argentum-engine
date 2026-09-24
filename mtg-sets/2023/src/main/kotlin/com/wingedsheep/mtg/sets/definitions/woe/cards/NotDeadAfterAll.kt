@@ -41,15 +41,13 @@ val NotDeadAfterAll = card("Not Dead After All") {
         effect = Effects.GrantTriggeredAbility(
             ability = TriggeredAbility.create(
                 trigger = Triggers.self.dies(),
-                effect = Effects.Composite(
-                    Effects.Move(
-                        target = EffectTarget.Self,
-                        destination = Zone.BATTLEFIELD,
-                        placement = ZonePlacement.Tapped,
-                        fromZone = Zone.GRAVEYARD
-                    ),
-                    Effects.CreateRoleToken("Wicked Role", EffectTarget.Self)
-                ),
+                effect = Effects.Move(
+                    target = EffectTarget.Self,
+                    destination = Zone.BATTLEFIELD,
+                    placement = ZonePlacement.Tapped,
+                    fromZone = Zone.GRAVEYARD
+                ) then
+                    Effects.CreateRoleToken("Wicked Role", EffectTarget.Self),
                 descriptionOverride = "When this creature dies, return it to the battlefield tapped " +
                     "under its owner's control, then create a Wicked Role token attached to it."
             ),

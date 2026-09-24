@@ -30,10 +30,8 @@ val BalothWoodcrasher = card("Baloth Woodcrasher") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
-        effect = Effects.Composite(
-            Effects.ModifyStats(4, 4, EffectTarget.Self),
+        effect = Effects.ModifyStats(4, 4, EffectTarget.Self) then
             Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self)
-        )
     }
 
     metadata {

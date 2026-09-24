@@ -23,10 +23,7 @@ val OrnamentalCourage = card("Ornamental Courage") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Untap(t),
-            Effects.ModifyStats(1, 3, t)
-        )
+        effect = Effects.Untap(t) then Effects.ModifyStats(1, 3, t)
     }
 
     metadata {

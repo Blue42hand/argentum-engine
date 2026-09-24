@@ -31,10 +31,7 @@ val ConfusticateAndBebother = card("Confusticate and Bebother") {
                 effect = Effects.CounterUnlessPays("{4}")
             }
             mode("Draw two cards, then discard a card") {
-                effect = Effects.Composite(
-                    Effects.DrawCards(2),
-                    Patterns.Hand.discardCards(1)
-                )
+                effect = Effects.DrawCards(2) then Patterns.Hand.discardCards(1)
             }
         }
     }

@@ -22,8 +22,7 @@ val SolemnOffering = card("Solemn Offering") {
 
     spell {
         val t = target(TargetFilter.ArtifactOrEnchantment)
-        effect = Effects.Destroy(t)
-            .then(Effects.GainLife(4))
+        effect = Effects.Destroy(t) then Effects.GainLife(4)
     }
 
     metadata {

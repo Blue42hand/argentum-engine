@@ -42,10 +42,8 @@ val ForumFamiliar = card("Forum Familiar") {
     triggeredAbility {
         trigger = Triggers.self.turnedFaceUp()
         val permanent = target(TargetFilter.Permanent.youControl().copy(excludeSelf = true))
-        effect = Effects.Composite(
-            Effects.ReturnToHand(permanent),
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-        )
+        effect = Effects.ReturnToHand(permanent) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "When this creature is turned face up, return another target permanent you " +
             "control to its owner's hand and put a +1/+1 counter on this creature."
     }

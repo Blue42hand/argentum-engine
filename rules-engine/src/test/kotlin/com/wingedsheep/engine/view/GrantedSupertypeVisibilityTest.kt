@@ -43,13 +43,9 @@ class GrantedSupertypeVisibilityTest : FunSpec({
         oracleText = "Target creature becomes a legendary Spider Hero in addition to its other types."
         spell {
             val creature = target(TargetFilter.Creature)
-            effect = Effects.Composite(
-                listOf(
-                    AddCardTypeEffect("LEGENDARY", creature, Duration.Permanent),
-                    Effects.AddCreatureType("Spider", creature, Duration.Permanent),
-                    Effects.AddCreatureType("Hero", creature, Duration.Permanent)
-                )
-            )
+            effect = AddCardTypeEffect("LEGENDARY", creature, Duration.Permanent) then
+                Effects.AddCreatureType("Spider", creature, Duration.Permanent) then
+                Effects.AddCreatureType("Hero", creature, Duration.Permanent)
         }
     }
 

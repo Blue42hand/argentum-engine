@@ -69,21 +69,17 @@ val FightRigging = card("Fight Rigging") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val t = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            listOf(
-                Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
-                Effects.If(
-                    condition = Conditions.YouControlAtLeast(1, GameObjectFilter.Creature.powerAtLeast(7)),
-                    then = Effects.May(
-                        Effects.Pipeline {
-                            val fightRiggingLinked = gather(CardSource.FromLinkedExile())
-                            run(Effects.PlayFromCollectionWithoutPayingCost(fightRiggingLinked))
-                        },
-                        descriptionOverride = "Play the exiled card without paying its mana cost"
-                    )
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t) then
+            Effects.If(
+                condition = Conditions.YouControlAtLeast(1, GameObjectFilter.Creature.powerAtLeast(7)),
+                then = Effects.May(
+                    Effects.Pipeline {
+                        val fightRiggingLinked = gather(CardSource.FromLinkedExile())
+                        run(Effects.PlayFromCollectionWithoutPayingCost(fightRiggingLinked))
+                    },
+                    descriptionOverride = "Play the exiled card without paying its mana cost"
                 )
             )
-        )
         description = "At the beginning of combat on your turn, put a +1/+1 counter on target " +
             "creature you control. Then if you control a creature with power 7 or greater, you " +
             "may play the exiled card without paying its mana cost."

@@ -31,12 +31,10 @@ val LacerateFlesh = card("Lacerate Flesh") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.DealDamage(4, creature),
+        effect = Effects.DealDamage(4, creature) then
             Effects.CreateBlood(
                 count = DynamicAmounts.propertyOf(creature, EntityNumericProperty.ExcessMarkedDamage)
             )
-        )
     }
 
     metadata {

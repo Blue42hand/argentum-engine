@@ -35,15 +35,11 @@ val ExtinguisherBattleship = card("Extinguisher Battleship") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val target = target(TargetFilter.NoncreaturePermanent)
-        effect = Effects.Composite(
-            listOf(
-                Effects.Destroy(target),
-                Effects.ForEachInGroup(
-                    filter = GroupFilter.AllCreatures,
-                    effect = Effects.DealDamage(4, EffectTarget.IterationEntity)
-                )
+        effect = Effects.Destroy(target) then
+            Effects.ForEachInGroup(
+                filter = GroupFilter.AllCreatures,
+                effect = Effects.DealDamage(4, EffectTarget.IterationEntity)
             )
-        )
         description = "When this Spacecraft enters, destroy target noncreature permanent. Then this Spacecraft deals 4 damage to each creature."
     }
 

@@ -31,7 +31,7 @@ val OrokuSakiShredderRising = card("Oroku Saki, Shredder Rising") {
 
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
-        effect = Effects.DrawCards(1).then(Effects.LoseLife(1, EffectTarget.Controller))
+        effect = Effects.DrawCards(1) then Effects.LoseLife(1, EffectTarget.Controller)
     }
 
     metadata {

@@ -20,9 +20,9 @@ val DaringEscape = card("Daring Escape") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(1, 0, creature)
-            .then(Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature))
-            .then(Effects.Scry(1))
+        effect = Effects.ModifyStats(1, 0, creature) then
+            Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature) then
+            Effects.Scry(1)
     }
 
     metadata {

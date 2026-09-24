@@ -25,10 +25,7 @@ val Bladebrand = card("Bladebrand") {
     oracleText = "Target creature gains deathtouch until end of turn.\nDraw a card."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.DEATHTOUCH, t),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, t) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

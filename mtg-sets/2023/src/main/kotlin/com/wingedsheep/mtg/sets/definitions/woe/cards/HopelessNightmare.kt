@@ -33,10 +33,8 @@ val HopelessNightmare = card("Hopeless Nightmare") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.EachOpponentDiscards(1),
+        effect = Effects.EachOpponentDiscards(1) then
             Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent))
-        )
     }
 
     triggeredAbility {

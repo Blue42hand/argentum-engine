@@ -24,10 +24,7 @@ val Bandage = card("Bandage") {
     oracleText = "Prevent the next 1 damage that would be dealt to any target this turn.\nDraw a card."
     spell {
         val t = target(Targets.Any)
-        effect = Effects.Composite(
-            Effects.PreventNextDamage(1, t),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.PreventNextDamage(1, t) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

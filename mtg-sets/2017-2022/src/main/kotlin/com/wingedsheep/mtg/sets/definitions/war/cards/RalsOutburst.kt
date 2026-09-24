@@ -27,10 +27,8 @@ val RalsOutburst = card("Ral's Outburst") {
 
     spell {
         val victim = target(Targets.Any)
-        effect = Effects.Composite(
-            Effects.DealDamage(3, victim),
+        effect = Effects.DealDamage(3, victim) then
             Patterns.Library.lookAtTopAndKeep(count = 2, keepCount = 1)
-        )
     }
 
     metadata {

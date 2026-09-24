@@ -53,20 +53,18 @@ val KrenkoBaronOfTinStreet = card("Krenko, Baron of Tin Street") {
         trigger = Triggers.a(GameObjectFilter.Artifact).dies()
         effect = Effects.MayPay(
             cost = ManaCost.parse("{R}"),
-            then = Effects.Composite(
-                Effects.CreateToken(
-                    power = 1,
-                    toughness = 1,
-                    colors = setOf(Color.RED),
-                    creatureTypes = setOf("Goblin"),
-                    imageUri = "https://cards.scryfall.io/normal/front/c/d/" +
-                        "cd6cd0d3-7973-49e6-9c1c-6f516a5d5fe5.jpg?1783912608",
-                ),
+            then = Effects.CreateToken(
+                power = 1,
+                toughness = 1,
+                colors = setOf(Color.RED),
+                creatureTypes = setOf("Goblin"),
+                imageUri = "https://cards.scryfall.io/normal/front/c/d/" +
+                    "cd6cd0d3-7973-49e6-9c1c-6f516a5d5fe5.jpg?1783912608",
+            ) then
                 Effects.GrantKeyword(
                     Keyword.HASTE,
                     EffectTarget.PipelineTarget(CREATED_TOKENS, 0),
                 ),
-            ),
         )
         description = "Whenever an artifact is put into a graveyard from the battlefield, you may " +
             "pay {R}. If you do, create a 1/1 red Goblin creature token. It gains haste until end " +

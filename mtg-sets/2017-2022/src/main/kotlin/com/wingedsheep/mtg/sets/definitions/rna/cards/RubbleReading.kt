@@ -20,10 +20,7 @@ val RubbleReading = card("Rubble Reading") {
 
     spell {
         val land = target(TargetFilter.Land)
-        effect = Effects.Composite(listOf(
-            Effects.Destroy(land),
-            Effects.Scry(2)
-        ))
+        effect = Effects.Destroy(land) then Effects.Scry(2)
     }
 
     metadata {

@@ -40,10 +40,8 @@ val CrimeNovelist = card("Crime Novelist") {
 
     triggeredAbility {
         trigger = Triggers.you.sacrifices(GameObjectFilter.Artifact)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
             Effects.AddMana(Color.RED)
-        )
         description = "Whenever you sacrifice an artifact, put a +1/+1 counter on this creature and add {R}."
     }
 

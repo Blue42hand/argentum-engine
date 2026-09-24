@@ -26,13 +26,11 @@ val SandalsOfAbdallah = card("Sandals of Abdallah") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
         val creature = target(TargetFilter.Creature)
-        effect = Effects.GrantKeyword(Keyword.ISLANDWALK, creature, Duration.EndOfTurn).then(
-            Effects.CreateDelayedTrigger(
-                trigger = Triggers.self.dies(),
-                watchedTarget = creature,
-                expiry = DelayedTriggerExpiry.EndOfTurn,
-                effect = Effects.Destroy(EffectTarget.Self),
-            )
+        effect = Effects.GrantKeyword(Keyword.ISLANDWALK, creature, Duration.EndOfTurn) then Effects.CreateDelayedTrigger(
+            trigger = Triggers.self.dies(),
+            watchedTarget = creature,
+            expiry = DelayedTriggerExpiry.EndOfTurn,
+            effect = Effects.Destroy(EffectTarget.Self),
         )
     }
 

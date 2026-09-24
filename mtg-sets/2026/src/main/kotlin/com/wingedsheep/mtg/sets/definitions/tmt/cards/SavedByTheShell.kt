@@ -42,10 +42,10 @@ val SavedByTheShell = card("Saved by the Shell") {
 
     spell {
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
-            .then(Effects.GrantKeyword(Keyword.TRAMPLE, creature, Duration.EndOfTurn))
-            .then(Effects.GrantKeyword(Keyword.HEXPROOF, creature, Duration.EndOfTurn))
-            .then(Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature, Duration.EndOfTurn))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
+            Effects.GrantKeyword(Keyword.TRAMPLE, creature, Duration.EndOfTurn) then
+            Effects.GrantKeyword(Keyword.HEXPROOF, creature, Duration.EndOfTurn) then
+            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature, Duration.EndOfTurn)
     }
 
     metadata {

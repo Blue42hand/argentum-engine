@@ -28,10 +28,8 @@ val NimrodelWatcher = card("Nimrodel Watcher") {
     triggeredAbility {
         trigger = Triggers.you.scries()
         oncePerTurn = true
-        effect = Effects.Composite(listOf(
-            Effects.ModifyStats(power = 1, toughness = 0, target = EffectTarget.Self),
+        effect = Effects.ModifyStats(power = 1, toughness = 0, target = EffectTarget.Self) then
             Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, EffectTarget.Self)
-        ))
     }
 
     metadata {

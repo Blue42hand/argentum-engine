@@ -24,10 +24,7 @@ val PathOfPeace = card("Path of Peace") {
     oracleText = "Destroy target creature. Its owner gains 4 life."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            Effects.OwnerGainsLife(4)
-        )
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then Effects.OwnerGainsLife(4)
     }
     metadata {
         rarity = Rarity.COMMON

@@ -30,8 +30,7 @@ val GoNinjaGo = card("Go Ninja Go") {
         modal(chooseCount = 2, minChooseCount = 1) {
             mode("Exile target creature you control, then return it to the battlefield under its owner's control") {
                 val creature = target(TargetFilter.CreatureYouControl)
-                effect = Effects.Move(creature, Zone.EXILE)
-                    .then(Effects.Move(creature, Zone.BATTLEFIELD))
+                effect = Effects.Move(creature, Zone.EXILE) then Effects.Move(creature, Zone.BATTLEFIELD)
             }
             mode("Go Ninja Go deals damage equal to the greatest power among creatures you control to target creature an opponent controls") {
                 val opponentCreature = target(TargetFilter.CreatureOpponentControls)

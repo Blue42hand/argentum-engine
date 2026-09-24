@@ -32,7 +32,7 @@ val BoomerangBasics = card("Boomerang Basics") {
         val permanent = target(TargetFilter.NonlandPermanent)
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.NonlandPermanent.youControl(), permanent),
-            then = Effects.ReturnToHand(permanent).then(Effects.DrawCards(1)),
+            then = Effects.ReturnToHand(permanent) then Effects.DrawCards(1),
             otherwise = Effects.ReturnToHand(permanent),
         )
     }

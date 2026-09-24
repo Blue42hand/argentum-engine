@@ -26,8 +26,8 @@ val MiraculousRecovery = card("Miraculous Recovery") {
 
     spell {
         val creatureCard = target(TargetFilter.CreatureInYourGraveyard)
-        effect = Effects.Move(creatureCard, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
-            .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creatureCard))
+        effect = Effects.Move(creatureCard, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creatureCard)
     }
 
     metadata {

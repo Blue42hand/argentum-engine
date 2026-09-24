@@ -59,17 +59,15 @@ val BraveTheWilds = card("Brave the Wilds") {
         effect = searchForBasic
 
         val land = kickerTarget(TargetFilter(GameObjectFilter.Land.youControl()))
-        kickerEffect = Effects.Composite(
-            Effects.BecomeCreature(
-                target = land,
-                power = 3,
-                toughness = 3,
-                keywords = setOf(Keyword.HASTE),
-                creatureTypes = setOf("Elemental"),
-                duration = Duration.Permanent,
-            ),
-            searchForBasic,
-        )
+        kickerEffect = Effects.BecomeCreature(
+            target = land,
+            power = 3,
+            toughness = 3,
+            keywords = setOf(Keyword.HASTE),
+            creatureTypes = setOf("Elemental"),
+            duration = Duration.Permanent,
+        ) then
+            searchForBasic
     }
 
     metadata {

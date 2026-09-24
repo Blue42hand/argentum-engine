@@ -53,3 +53,10 @@ into one nested `triggerContext` record; every one of them was null in these tra
 simply dropped out. No gameplay was rerun, and `actions.json` / `events-N.json` are unchanged.
 The replay in `SuspensionTraceTest` is the check. Each manifest records this as
 `representationEncodeDefaults: false` and `representationReencodedOn`.
+
+Representation-refreshed on 2026-09-25 when card target declarations stopped carrying
+author-written names: the DSL now mints each target's binding id (`t0`, `t1`, … unique per card)
+and the targeting prompt is derived from the requirement. The only edits were the recorded
+binding name `"target"` → `"t0"` (requirement `id` and the `BoundVariable` reading it) and the
+recorded prompt `"target"` → `"target artifact or enchantment"` (Naturalize's derived wording).
+No action or event payload changed, and no gameplay was rerun.

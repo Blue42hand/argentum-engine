@@ -39,10 +39,9 @@ class PausedSpellTriggerFinalizationTest : FunSpec({
                 val spell = card("Finalization Paused Draw") {
                     manaCost = "{0}"; typeLine = "Sorcery"
                     spell {
-                        val choices = GatedEffect(Gate.MayDecide("Draw?"), Effects.Composite(
-                            Effects.DrawCards(1),
-                            GatedEffect(Gate.MayDecide("Gain life?"), Effects.GainLife(2))))
-                        effect = if (initialDraw) Effects.Composite(Effects.DrawCards(1), choices) else choices
+                        val choices = GatedEffect(Gate.MayDecide("Draw?"), Effects.DrawCards(1) then
+                            GatedEffect(Gate.MayDecide("Gain life?"), Effects.GainLife(2)))
+                        effect = if (initialDraw) (Effects.DrawCards(1) then choices) else choices
                     }
                 }
                 val d = GameTestDriver().apply {

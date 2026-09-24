@@ -25,8 +25,8 @@ val DreadfulAsTheStorm = card("Dreadful as the Storm") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.SetBasePowerAndToughness(5, 5, creature, Duration.EndOfTurn)
-            .then(Effects.TheRingTemptsYou())
+        effect = Effects.SetBasePowerAndToughness(5, 5, creature, Duration.EndOfTurn) then
+            Effects.TheRingTemptsYou()
     }
 
     metadata {

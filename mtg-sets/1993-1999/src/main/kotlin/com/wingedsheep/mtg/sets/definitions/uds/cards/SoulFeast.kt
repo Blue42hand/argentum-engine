@@ -23,10 +23,7 @@ val SoulFeast = card("Soul Feast") {
     oracleText = "Target player loses 4 life and you gain 4 life."
     spell {
         val t = target(Targets.Player)
-        effect = Effects.Composite(
-            Effects.LoseLife(4, t),
-            Effects.GainLife(4)
-        )
+        effect = Effects.LoseLife(4, t) then Effects.GainLife(4)
     }
     metadata {
         rarity = Rarity.UNCOMMON

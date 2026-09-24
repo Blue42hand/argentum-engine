@@ -45,14 +45,10 @@ val ConsumedByGreed = card("Consumed by Greed") {
             mode("Promise a gift — opponent draws a card, target opponent sacrifices a creature with the greatest power, return target creature card from your graveyard to your hand") {
                 val opponent = target(Targets.Opponent)
                 val creatureCardInYourGraveyard = target(TargetFilter.CreatureInYourGraveyard)
-                effect = Effects.Composite(
-                    listOf(
-                        Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent)),
-                        sacrificeGreatestPower(opponent),
-                        Effects.ReturnToHand(creatureCardInYourGraveyard),
-                        Effects.GiftGiven()
-                    )
-                )
+                effect = Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent)) then
+                    sacrificeGreatestPower(opponent) then
+                    Effects.ReturnToHand(creatureCardInYourGraveyard) then
+                    Effects.GiftGiven()
             }
         )
     }

@@ -43,8 +43,8 @@ val BofurReliableGuardian = card("Bofur, Reliable Guardian") {
             "until end of turn. (Then exile this card. You may cast the creature later from exile.)"
         spell {
             val permanent = target(TargetFilter(GameObjectFilter.CreatureOrArtifact.youControl()))
-            effect = Effects.GrantKeyword(Keyword.HEXPROOF, permanent, Duration.EndOfTurn)
-                .then(Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, permanent, Duration.EndOfTurn))
+            effect = Effects.GrantKeyword(Keyword.HEXPROOF, permanent, Duration.EndOfTurn) then
+                Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, permanent, Duration.EndOfTurn)
         }
     }
 

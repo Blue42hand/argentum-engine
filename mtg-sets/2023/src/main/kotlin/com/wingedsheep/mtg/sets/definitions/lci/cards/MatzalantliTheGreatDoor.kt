@@ -51,7 +51,7 @@ private val MatzalantliTheGreatDoorFront = card("Matzalantli, the Great Door") {
     // {T}: Draw a card, then discard a card.
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.Composite(Effects.DrawCards(1), Effects.Discard(1))
+        effect = Effects.DrawCards(1) then Effects.Discard(1)
     }
 
     // {4}, {T}: Transform Matzalantli. Activate only if there are four or more permanent types

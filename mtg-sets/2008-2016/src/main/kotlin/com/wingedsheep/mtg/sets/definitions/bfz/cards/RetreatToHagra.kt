@@ -37,16 +37,11 @@ val RetreatToHagra = card("Retreat to Hagra") {
         effect = ModalEffect.chooseOne(
             mode("Target creature gets +1/+0 and gains deathtouch until end of turn") {
                 val creature = target(TargetFilter.Creature)
-                effect = Effects.Composite(
-                    Effects.ModifyStats(1, 0, creature),
-                    Effects.GrantKeyword(Keyword.DEATHTOUCH, creature),
-                )
+                effect = Effects.ModifyStats(1, 0, creature) then
+                    Effects.GrantKeyword(Keyword.DEATHTOUCH, creature)
             },
             Mode.noTarget(
-                Effects.Composite(
-                    Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-                    Effects.GainLife(1),
-                ),
+                Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(1),
                 "Each opponent loses 1 life and you gain 1 life",
             ),
         )

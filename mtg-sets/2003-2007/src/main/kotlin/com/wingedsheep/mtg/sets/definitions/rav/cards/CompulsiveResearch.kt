@@ -26,8 +26,8 @@ val CompulsiveResearch = card("Compulsive Research") {
 
     spell {
         val player = target(Targets.Player)
-        effect = Effects.DrawCards(3, player)
-            .then(Effects.DiscardUnlessMatching(2, GameObjectFilter.Land, target = player))
+        effect = Effects.DrawCards(3, player) then
+            Effects.DiscardUnlessMatching(2, GameObjectFilter.Land, target = player)
     }
 
     metadata {

@@ -25,11 +25,9 @@ val TemporaryInsanity = card("Temporary Insanity") {
     oracleText = "Untap target creature with power less than the number of cards in your graveyard and gain control of it until end of turn. That creature gains haste until end of turn."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Untap(t),
-            Effects.GainControl(t, Duration.EndOfTurn),
+        effect = Effects.Untap(t) then
+            Effects.GainControl(t, Duration.EndOfTurn) then
             Effects.GrantKeyword(Keyword.HASTE, t)
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

@@ -47,8 +47,7 @@ val ProteusStaff = card("Proteus Staff") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}{U}"), Costs.Tap)
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.PutOnBottomOfLibrary(creature),
+        effect = Effects.PutOnBottomOfLibrary(creature) then
             Effects.ForEachPlayer(
                 Player.ControllerOf("that creature"),
                 Effects.Pipeline {
@@ -59,7 +58,6 @@ val ProteusStaff = card("Proteus Staff") {
                     toLibraryBottom(proteusRest)
                 }
             )
-        )
         timing = TimingRule.SorcerySpeed
     }
 

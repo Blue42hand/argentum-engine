@@ -46,10 +46,7 @@ val ScathingShadelock = card("Scathing Shadelock") {
         oracleText = "Target creature you control gets +2/+0 and gains deathtouch until end of turn."
         spell {
             val t = target(TargetFilter.Creature.youControl())
-            effect = Effects.Composite(
-                Effects.ModifyStats(2, 0, t),
-                Effects.GrantKeyword(Keyword.DEATHTOUCH, t),
-            )
+            effect = Effects.ModifyStats(2, 0, t) then Effects.GrantKeyword(Keyword.DEATHTOUCH, t)
         }
     }
 

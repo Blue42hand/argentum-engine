@@ -71,8 +71,8 @@ class SentryOakScenarioTest : FunSpec({
                 typeLine = "Instant"
                 spell {
                     val target = target(TargetFilter.Creature)
-                    effect = if (returnSource) com.wingedsheep.sdk.dsl.Effects.Exile(target)
-                        .then(com.wingedsheep.sdk.dsl.Effects.PutOntoBattlefield(target))
+                    effect = if (returnSource) com.wingedsheep.sdk.dsl.Effects.Exile(target) then
+                        com.wingedsheep.sdk.dsl.Effects.PutOntoBattlefield(target)
                     else com.wingedsheep.sdk.dsl.Effects.Exile(target)
                 }
             }

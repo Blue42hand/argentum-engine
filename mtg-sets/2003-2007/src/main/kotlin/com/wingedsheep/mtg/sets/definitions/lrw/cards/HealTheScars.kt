@@ -27,12 +27,10 @@ val HealTheScars = card("Heal the Scars") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Regenerate(t),
+        effect = Effects.Regenerate(t) then
             Effects.GainLife(
                 DynamicAmounts.toughnessOf(t)
             )
-        )
     }
 
     metadata {

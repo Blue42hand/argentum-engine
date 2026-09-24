@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -56,20 +55,16 @@ val SongOfFreyalise = card("Song of Freyalise") {
     }
 
     sagaChapter(3) {
-        effect = Effects.Composite(listOf(
+        effect = Effects.ForEachInGroup(
+            filter = creaturesYouControl,
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
+        ) then
             Effects.ForEachInGroup(
                 filter = creaturesYouControl,
-                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
-            ),
-            Effects.ForEachInGroup(
-                filter = creaturesYouControl,
-                effect = Effects.Composite(listOf(
-                    Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.IterationEntity, Duration.EndOfTurn),
-                    Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity, Duration.EndOfTurn),
+                effect = Effects.GrantKeyword(Keyword.VIGILANCE, EffectTarget.IterationEntity, Duration.EndOfTurn) then
+                    Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity, Duration.EndOfTurn) then
                     Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity, Duration.EndOfTurn)
-                ))
             )
-        ))
     }
 
     metadata {

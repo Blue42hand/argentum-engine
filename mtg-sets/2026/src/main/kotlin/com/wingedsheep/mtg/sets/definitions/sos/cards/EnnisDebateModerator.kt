@@ -43,13 +43,11 @@ val EnnisDebateModerator = card("Ennis, Debate Moderator") {
     triggeredAbility {
         val creature = target(TargetFilter.OtherCreatureYouControl, optional = true)
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.Exile(creature),
+        effect = Effects.Exile(creature) then
             Effects.CreateDelayedTrigger(
                 step = Step.END,
                 effect = Effects.Move(creature, Zone.BATTLEFIELD),
-            ),
-        )
+            )
     }
 
     // At the beginning of your end step, if one or more cards were put into exile this turn,

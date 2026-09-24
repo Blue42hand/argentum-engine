@@ -45,9 +45,9 @@ val NeonatesRush = card("Neonate's Rush") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.DealDamage(1, creature)
-            .then(Effects.DealDamage(1, EffectTarget.TargetController))
-            .then(Effects.DrawCards(1))
+        effect = Effects.DealDamage(1, creature) then
+            Effects.DealDamage(1, EffectTarget.TargetController) then
+            Effects.DrawCards(1)
     }
 
     metadata {

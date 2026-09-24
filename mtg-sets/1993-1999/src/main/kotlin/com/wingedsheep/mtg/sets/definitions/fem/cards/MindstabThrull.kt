@@ -31,10 +31,7 @@ val MindstabThrull = card("Mindstab Thrull") {
     triggeredAbility {
         trigger = Triggers.self.attacksAndIsntBlocked()
         effect = Effects.May(
-            Effects.Composite(
-                SacrificeSelfEffect,
-                Effects.Discard(3, EffectTarget.PlayerRef(Player.DefendingPlayer))
-            ),
+            SacrificeSelfEffect then Effects.Discard(3, EffectTarget.PlayerRef(Player.DefendingPlayer)),
             descriptionOverride = "sacrifice this creature. If you do, defending player discards three cards",
         )
         description = "Whenever this creature attacks and isn't blocked, you may sacrifice it. If you do, defending player discards three cards."

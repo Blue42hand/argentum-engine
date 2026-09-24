@@ -45,8 +45,8 @@ val IllicitMasquerade = card("Illicit Masquerade") {
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl().withCounter(CounterType.IMPOSTOR)).dies()
         val replacement = target(TargetFilter.CreatureInYourGraveyard.otherThanTriggeringEntity(), optional = true)
-        effect = Effects.Move(EffectTarget.TriggeringEntity, Zone.EXILE, fromZone = Zone.GRAVEYARD)
-            .then(Effects.Move(replacement, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD))
+        effect = Effects.Move(EffectTarget.TriggeringEntity, Zone.EXILE, fromZone = Zone.GRAVEYARD) then
+            Effects.Move(replacement, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
         description = "Whenever a creature you control with an impostor counter on it dies, " +
             "exile it. Return up to one other target creature card from your graveyard to the " +
             "battlefield."

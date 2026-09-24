@@ -19,8 +19,7 @@ val Interjection = card("Interjection") {
     oracleText = "Target creature gets +2/+2 and gains first strike until end of turn."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(2, 2, t)
-            .then(Effects.GrantKeyword(Keyword.FIRST_STRIKE, t))
+        effect = Effects.ModifyStats(2, 2, t) then Effects.GrantKeyword(Keyword.FIRST_STRIKE, t)
     }
     metadata {
         rarity = Rarity.COMMON

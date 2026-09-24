@@ -62,10 +62,7 @@ val WardenOfTheInnerSky = card("Warden of the Inner Sky") {
             count = 3,
             filter = GameObjectFilter.Artifact or GameObjectFilter.Creature,
         )
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            Effects.Scry(1),
-        )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then Effects.Scry(1)
         timing = TimingRule.SorcerySpeed
     }
 

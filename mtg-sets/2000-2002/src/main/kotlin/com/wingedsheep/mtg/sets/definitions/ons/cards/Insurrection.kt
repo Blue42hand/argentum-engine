@@ -22,11 +22,9 @@ val Insurrection = card("Insurrection") {
     oracleText = "Untap all creatures and gain control of them until end of turn. They gain haste until end of turn."
 
     spell {
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(GroupFilter.AllCreatures, Effects.GainControl(EffectTarget.IterationEntity, Duration.EndOfTurn)),
-            Effects.ForEachInGroup(GroupFilter.AllCreatures, Effects.Untap(EffectTarget.IterationEntity)),
+        effect = Effects.ForEachInGroup(GroupFilter.AllCreatures, Effects.GainControl(EffectTarget.IterationEntity, Duration.EndOfTurn)) then
+            Effects.ForEachInGroup(GroupFilter.AllCreatures, Effects.Untap(EffectTarget.IterationEntity)) then
             Effects.ForEachInGroup(GroupFilter.AllCreatures, Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn))
-        )
     }
 
     metadata {

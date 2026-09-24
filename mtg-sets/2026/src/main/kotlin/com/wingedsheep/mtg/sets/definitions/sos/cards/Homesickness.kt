@@ -37,13 +37,11 @@ val Homesickness = card("Homesickness") {
     spell {
         val player = target(Targets.Player)
         targets(TargetFilter.Creature, count = 2, optional = true)
-        effect = Effects.DrawCards(2, player).then(
-            Effects.ForEachTarget(
-                Effects.If(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature),
-                    then = Effects.Tap(EffectTarget.ContextTarget(0))
-                        .then(Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(0))),
-                )
+        effect = Effects.DrawCards(2, player) then Effects.ForEachTarget(
+            Effects.If(
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature),
+                then = Effects.Tap(EffectTarget.ContextTarget(0)) then
+                    Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(0)),
             )
         )
     }

@@ -21,10 +21,7 @@ val ProphesiedEnd = card("Prophesied End") {
         // then resolves through last-known information.
         effect = Effects.If(
             condition = Conditions.Not(Conditions.TargetMatchesFilter(GameObjectFilter.Creature.attacking(), creature)),
-            then = Effects.Composite(
-                Effects.Destroy(creature),
-                Effects.DrawCards(1, EffectTarget.TargetController),
-            ),
+            then = Effects.Destroy(creature) then Effects.DrawCards(1, EffectTarget.TargetController),
             otherwise = Effects.Destroy(creature),
         )
     }

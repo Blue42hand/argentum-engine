@@ -58,10 +58,7 @@ val KetramoseTheNewDawn = card("Ketramose, the New Dawn") {
     triggeredAbility {
         trigger = Triggers.oneOrMore(GameObjectFilter.Any).putIntoExile()
         triggerRestriction = Conditions.IsYourTurn
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Effects.LoseLife(1, EffectTarget.Controller)
-        )
+        effect = Effects.DrawCards(1) then Effects.LoseLife(1, EffectTarget.Controller)
         description = "Whenever one or more cards are put into exile from graveyards and/or the " +
             "battlefield during your turn, you draw a card and lose 1 life."
     }

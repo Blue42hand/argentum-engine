@@ -69,18 +69,16 @@ val LostInTheMaze = card("Lost in the Maze") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         target = TargetObject(filter = TargetFilter.Creature, optional = true, dynamicMaxCount = DynamicAmounts.castX())
-        effect = Effects.TapEachTarget()
-            .then(
-                Effects.ForEachTarget(
-                    Effects.If(
-                        condition = Conditions.TargetMatchesFilter(
-                                GameObjectFilter.Creature.opponentControls()
-                            ),
-                        then = Effects.AddCounters(
-                            CounterType.STUN,
-                            1,
-                            EffectTarget.ContextTarget(0)
-                        )
+        effect = Effects.TapEachTarget() then
+            Effects.ForEachTarget(
+                Effects.If(
+                    condition = Conditions.TargetMatchesFilter(
+                            GameObjectFilter.Creature.opponentControls()
+                        ),
+                    then = Effects.AddCounters(
+                        CounterType.STUN,
+                        1,
+                        EffectTarget.ContextTarget(0)
                     )
                 )
             )

@@ -39,7 +39,7 @@ val IzzetBoilerworks = card("Izzet Boilerworks") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = Effects.AddMana(Color.BLUE).then(Effects.AddMana(Color.RED))
+        effect = Effects.AddMana(Color.BLUE) then Effects.AddMana(Color.RED)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

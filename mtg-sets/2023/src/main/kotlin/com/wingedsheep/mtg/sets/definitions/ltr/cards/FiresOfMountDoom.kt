@@ -37,12 +37,8 @@ val FiresOfMountDoom = card("Fires of Mount Doom") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.CreatureOpponentControls)
-        effect = Effects.Composite(
-            listOf(
-                Effects.DealDamage(2, creature, damageSource = EffectTarget.Self),
-                Effects.DestroyAllEquipmentOnTarget(creature),
-            )
-        )
+        effect = Effects.DealDamage(2, creature, damageSource = EffectTarget.Self) then
+            Effects.DestroyAllEquipmentOnTarget(creature)
     }
 
     // {2}{R}: impulse-exile the top card; play it this turn; when played, 2 damage to each player.

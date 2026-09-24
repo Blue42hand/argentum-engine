@@ -50,11 +50,9 @@ val DominatingVampire = card("Dominating Vampire") {
                 )
             ),
         )
-        effect = Effects.Composite(
-            Effects.GainControl(creature, Duration.EndOfTurn),
-            Effects.Untap(creature),
+        effect = Effects.GainControl(creature, Duration.EndOfTurn) then
+            Effects.Untap(creature) then
             Effects.GrantKeyword(Keyword.HASTE, creature)
-        )
         description = "When this creature enters, gain control of target creature with mana value " +
             "less than or equal to the number of Vampires you control until end of turn. Untap " +
             "that creature. It gains haste until end of turn."

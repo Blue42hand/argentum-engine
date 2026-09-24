@@ -26,15 +26,13 @@ val SingularityRupture = card("Singularity Rupture") {
 
     spell {
         target = TargetPlayer(unlimited = true)
-        effect = Effects.Composite(listOf(
-            Effects.DestroyAll(GameObjectFilter.Creature),
+        effect = Effects.DestroyAll(GameObjectFilter.Creature) then
             Effects.ForEachTarget(
                 Patterns.Library.mill(
                     DynamicAmounts.count(Player.ContextPlayer(0), Zone.LIBRARY) / 2,
                     EffectTarget.ContextTarget(0)
                 ).effects
             )
-        ))
     }
 
     metadata {

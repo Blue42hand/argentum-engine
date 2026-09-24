@@ -32,7 +32,7 @@ val Spellgyre = card("Spellgyre") {
                 "Counter target spell"
             ),
             Mode.noTarget(
-                Patterns.Library.surveil(2).then(Effects.DrawCards(2)),
+                Patterns.Library.surveil(2) then Effects.DrawCards(2),
                 "Surveil 2, then draw two cards"
             )
         )

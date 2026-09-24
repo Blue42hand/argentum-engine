@@ -34,10 +34,7 @@ val MireTriton = card("Mire Triton") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Patterns.Library.mill(2),
-            Effects.GainLife(2),
-        )
+        effect = Patterns.Library.mill(2) then Effects.GainLife(2)
     }
 
     metadata {

@@ -28,13 +28,9 @@ val SlipOnTheRing = card("Slip On the Ring") {
 
     spell {
         val creature = target(TargetFilter(GameObjectFilter.Creature.ownedByYou()))
-        effect = Effects.Composite(
-            listOf(
-                Effects.Move(creature, Zone.EXILE),
-                Effects.Move(creature, Zone.BATTLEFIELD),
-                Effects.TheRingTemptsYou()
-            )
-        )
+        effect = Effects.Move(creature, Zone.EXILE) then
+            Effects.Move(creature, Zone.BATTLEFIELD) then
+            Effects.TheRingTemptsYou()
     }
 
     metadata {

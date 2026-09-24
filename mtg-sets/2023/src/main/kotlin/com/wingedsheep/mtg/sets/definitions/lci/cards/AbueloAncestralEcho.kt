@@ -37,10 +37,8 @@ val AbueloAncestralEcho = card("Abuelo, Ancestral Echo") {
     activatedAbility {
         cost = Costs.Mana("{1}{W}{U}")
         val t = target(TargetFilter(GameObjectFilter.CreatureOrArtifact.youControl()).other())
-        effect = Effects.Composite(
-            Effects.Exile(t),
+        effect = Effects.Exile(t) then
             Effects.CreateDelayedTrigger(step = Step.END, effect = Effects.Move(t, Zone.BATTLEFIELD))
-        )
     }
     metadata {
         rarity = Rarity.RARE

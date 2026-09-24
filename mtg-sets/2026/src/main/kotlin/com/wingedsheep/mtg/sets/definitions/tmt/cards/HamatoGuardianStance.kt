@@ -23,9 +23,9 @@ val HamatoGuardianStance = card("Hamato Guardian Stance") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(1, 3, creature)
-            .then(Effects.GrantKeyword(Keyword.FLYING, creature, Duration.EndOfTurn))
-            .then(Patterns.Library.scry(1))
+        effect = Effects.ModifyStats(1, 3, creature) then
+            Effects.GrantKeyword(Keyword.FLYING, creature, Duration.EndOfTurn) then
+            Patterns.Library.scry(1)
     }
 
     metadata {

@@ -60,14 +60,12 @@ val BiteDownOnCrime = card("Bite Down on Crime") {
     spell {
         val yours = target(TargetFilter.Creature.youControl())
         val theirs = target(TargetFilter.Creature.opponentControls())
-        effect = Effects.Composite(
-            Effects.ModifyStats(power = 2, toughness = 0, target = yours),
+        effect = Effects.ModifyStats(power = 2, toughness = 0, target = yours) then
             Effects.DealDamage(
                 amount = DynamicAmounts.powerOf(yours),
                 target = theirs,
                 damageSource = yours,
-            ),
-        )
+            )
     }
 
     metadata {

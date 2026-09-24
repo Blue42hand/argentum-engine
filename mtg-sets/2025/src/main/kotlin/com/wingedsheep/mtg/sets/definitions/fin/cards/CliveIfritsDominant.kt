@@ -52,13 +52,11 @@ private val IfritWardenOfInferno = card("Ifrit, Warden of Inferno") {
     // II, III — Brimstone — Add {R}{R}{R}{R}. If Ifrit has three or more lore counters on it,
     // exile it, then return it to the battlefield front face up. Only chapter III meets the
     // lore threshold, so it is the chapter that flips Ifrit back to Clive.
-    val brimstone = Effects.Composite(
-        Effects.AddMana(Color.RED, 4),
+    val brimstone = Effects.AddMana(Color.RED, 4) then
         Effects.If(
             condition = Conditions.SourceCounterCountAtLeast(CounterType.LORE, 3),
             then = Effects.ExileAndReturnTransformed(EffectTarget.Self, ReturnFace.FRONT),
-        ),
-    )
+        )
     sagaChapter(2) { effect = brimstone }
     sagaChapter(3) { effect = brimstone }
 
@@ -86,10 +84,7 @@ private val CliveIfritsDominantFront = card("Clive, Ifrit's Dominant") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         effect = Effects.May(
-            Effects.Composite(
-                Patterns.Hand.discardHand(),
-                Effects.DrawCards(DynamicAmounts.devotionTo(Color.RED)),
-            ),
+            Patterns.Hand.discardHand() then Effects.DrawCards(DynamicAmounts.devotionTo(Color.RED)),
         )
     }
 

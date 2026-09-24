@@ -22,12 +22,10 @@ val FadingHope = card("Fading Hope") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ReturnToHand(creature)
-            .then(
-                Effects.If(
-                    condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(3), creature),
-                    then = Patterns.Library.scry(1)
-                )
+        effect = Effects.ReturnToHand(creature) then
+            Effects.If(
+                condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(3), creature),
+                then = Patterns.Library.scry(1)
             )
     }
 

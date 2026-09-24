@@ -42,8 +42,8 @@ val DelugeVirtuoso = card("Deluge Virtuoso") {
     triggeredAbility {
         val creatureOpponentControls = target(TargetFilter.CreatureOpponentControls)
         trigger = Triggers.self.enters()
-        effect = Effects.Tap(creatureOpponentControls)
-            .then(Effects.AddCounters(CounterType.STUN, 1, creatureOpponentControls))
+        effect = Effects.Tap(creatureOpponentControls) then
+            Effects.AddCounters(CounterType.STUN, 1, creatureOpponentControls)
     }
 
     opus {

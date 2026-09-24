@@ -21,10 +21,7 @@ val SeizeTheInitiative = card("Seize the Initiative") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 1, t),
-            Effects.GrantKeyword(Keyword.FIRST_STRIKE, t)
-        )
+        effect = Effects.ModifyStats(1, 1, t) then Effects.GrantKeyword(Keyword.FIRST_STRIKE, t)
     }
 
     metadata {

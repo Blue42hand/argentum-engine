@@ -65,10 +65,8 @@ val SorrowsPath = card("Sorrow's Path") {
 
     triggeredAbility {
         trigger = Triggers.self.becomesTapped()
-        effect = Effects.Composite(
-            Effects.DealDamage(2, EffectTarget.Controller),
-            Patterns.Group.dealDamageToAll(2, Filters.Group.creaturesYouControl),
-        )
+        effect = Effects.DealDamage(2, EffectTarget.Controller) then
+            Patterns.Group.dealDamageToAll(2, Filters.Group.creaturesYouControl)
         description = "Whenever this land becomes tapped, it deals 2 damage to you and each " +
             "creature you control."
     }

@@ -45,18 +45,17 @@ val VitoFanaticOfAclazotz = card("Vito, Fanatic of Aclazotz") {
 
     triggeredAbility {
         trigger = Triggers.you.sacrificesAnother(GameObjectFilter.Permanent)
-        effect = Effects.Composite(
-            IncrementAbilityResolutionCountEffect,
+        effect = IncrementAbilityResolutionCountEffect then
             // 1st time — you gain 2 life.
             Effects.If(
                 condition = Conditions.SourceAbilityResolvedNTimes(1),
                 then = Effects.GainLife(2),
-            ),
+            ) then
             // 2nd time — each opponent loses 2 life.
             Effects.If(
                 condition = Conditions.SourceAbilityResolvedNTimes(2),
                 then = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)),
-            ),
+            ) then
             // 3rd time — create a 4/3 white and black Vampire Demon creature token with flying.
             Effects.If(
                 condition = Conditions.SourceAbilityResolvedNTimes(3),
@@ -68,8 +67,7 @@ val VitoFanaticOfAclazotz = card("Vito, Fanatic of Aclazotz") {
                     keywords = setOf(Keyword.FLYING),
                     imageUri = "https://cards.scryfall.io/normal/front/3/0/3005eb0a-5c96-4a07-a6b9-a907d1095cdf.jpg?1783913605",
                 ),
-            ),
-        )
+            )
         description = "Whenever you sacrifice another permanent, you gain 2 life if this is the " +
             "first time this ability has resolved this turn. If it's the second time, each opponent " +
             "loses 2 life. If it's the third time, create a 4/3 white and black Vampire Demon " +

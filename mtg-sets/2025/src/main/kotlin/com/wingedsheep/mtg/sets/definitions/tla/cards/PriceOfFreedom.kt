@@ -17,8 +17,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Price of Freedom — {1}{R} Sorcery — Lesson
  *
  * Destroy target artifact or land an opponent controls. Its controller may search
- * their library for a basic land card, put it onto the battlefield tapped, then
- * shuffle.
+ * their library for a basic land card, put it onto the battlefield tapped, then * shuffle.
  * Draw a card.
  *
  * Same Path-to-Exile-style compensation shape as [com.wingedsheep.mtg.sets.definitions.fin.cards.Sandworm]:
@@ -39,33 +38,31 @@ val PriceOfFreedom = card("Price of Freedom") {
 
     spell {
         val permanent = target(TargetFilter(GameObjectFilter.ArtifactOrLand.opponentControls()))
-        effect = Effects.Destroy(permanent)
-            .then(
-                Effects.May(
-                    effect = Effects.Pipeline {
-                        val searchable = gather(
-                            CardSource.FromZone(
-                                zone = Zone.LIBRARY,
-                                player = Player.ControllerOf("target"),
-                                filter = GameObjectFilter.BasicLand,
-                            ),
-                            search = true
+        effect = Effects.Destroy(permanent) then
+            Effects.May(
+                effect = Effects.Pipeline {
+                    val searchable = gather(
+                        CardSource.FromZone(
+                            zone = Zone.LIBRARY,
+                            player = Player.ControllerOf("target"),
+                            filter = GameObjectFilter.BasicLand,
+                        ),
+                        search = true
+                    )
+                    val found = chooseUpTo(1, from = searchable, chooser = Chooser.ControllerOfTarget)
+                    move(
+                        found,
+                        CardDestination.ToZone(
+                            zone = Zone.BATTLEFIELD,
+                            player = Player.ControllerOf("target"),
+                            placement = ZonePlacement.Tapped,
                         )
-                        val found = chooseUpTo(1, from = searchable, chooser = Chooser.ControllerOfTarget)
-                        move(
-                            found,
-                            CardDestination.ToZone(
-                                zone = Zone.BATTLEFIELD,
-                                player = Player.ControllerOf("target"),
-                                placement = ZonePlacement.Tapped,
-                            )
-                        )
-                        run(Effects.ShuffleLibrary(target = EffectTarget.TargetController))
-                    },
-                    decisionMaker = EffectTarget.TargetController,
-                ),
-            )
-            .then(Effects.DrawCards(1))
+                    )
+                    run(Effects.ShuffleLibrary(target = EffectTarget.TargetController))
+                },
+                decisionMaker = EffectTarget.TargetController,
+            ) then
+            Effects.DrawCards(1)
     }
 
     metadata {

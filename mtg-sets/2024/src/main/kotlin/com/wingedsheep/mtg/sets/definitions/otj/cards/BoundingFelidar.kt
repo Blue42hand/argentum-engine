@@ -39,26 +39,22 @@ val BoundingFelidar = card("Bounding Felidar") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         triggerRestriction = Conditions.SourceIsSaddled
-        effect = Effects.Composite(
-            listOf(
-                Effects.ForEachInGroup(
-                    filter = GroupFilter(
-                        baseFilter = GameObjectFilter.Creature.youControl(),
-                        excludeSelf = true
-                    ),
-                    effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
-                ),
-                // "You gain 1 life for each of those creatures" — the other creatures you control,
-                // whether or not counters could be placed (CR ruling 2024-04-12).
-                Effects.GainLife(
-                    DynamicAmounts.battlefield(
-                        Player.You,
-                        GameObjectFilter.Creature,
-                        excludeSelf = true
-                    ).count()
-                )
+        effect = Effects.ForEachInGroup(
+            filter = GroupFilter(
+                baseFilter = GameObjectFilter.Creature.youControl(),
+                excludeSelf = true
+            ),
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
+        ) then
+            // "You gain 1 life for each of those creatures" — the other creatures you control,
+            // whether or not counters could be placed (CR ruling 2024-04-12).
+            Effects.GainLife(
+                DynamicAmounts.battlefield(
+                    Player.You,
+                    GameObjectFilter.Creature,
+                    excludeSelf = true
+                ).count()
             )
-        )
     }
 
     metadata {

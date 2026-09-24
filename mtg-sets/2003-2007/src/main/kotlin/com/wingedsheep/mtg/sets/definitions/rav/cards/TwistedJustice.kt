@@ -37,10 +37,8 @@ val TwistedJustice = card("Twisted Justice") {
 
     spell {
         val player = target(Targets.Player)
-        effect = Effects.Composite(
-            Effects.Sacrifice(filter = GameObjectFilter.Creature, count = 1, target = player),
-            Effects.DrawCards(DynamicAmounts.totalPowerSacrificedThisWay()),
-        )
+        effect = Effects.Sacrifice(filter = GameObjectFilter.Creature, count = 1, target = player) then
+            Effects.DrawCards(DynamicAmounts.totalPowerSacrificedThisWay())
     }
 
     metadata {

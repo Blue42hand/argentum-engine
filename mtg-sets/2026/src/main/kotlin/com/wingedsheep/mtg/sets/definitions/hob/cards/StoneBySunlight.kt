@@ -40,10 +40,8 @@ val StoneBySunlight = card("Stone by Sunlight") {
             }
             mode("Target creature becomes an artifact and gains indestructible until end of turn") {
                 val t = target(TargetFilter.Creature)
-                effect = Effects.Composite(
-                    Effects.AddCardType("ARTIFACT", t, Duration.EndOfTurn),
+                effect = Effects.AddCardType("ARTIFACT", t, Duration.EndOfTurn) then
                     Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t, Duration.EndOfTurn)
-                )
             }
         }
     }

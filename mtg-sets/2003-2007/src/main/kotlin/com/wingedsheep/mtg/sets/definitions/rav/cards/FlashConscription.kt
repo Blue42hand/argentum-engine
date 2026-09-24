@@ -40,23 +40,21 @@ val FlashConscription = card("Flash Conscription") {
 
     spell {
         val conscript = target(TargetFilter.Creature)
-        effect = Effects.Untap(conscript)
-            .then(Effects.GainControl(conscript, Duration.EndOfTurn))
-            .then(Effects.GrantKeyword(Keyword.HASTE, conscript))
-            .then(
-                Effects.If(
-                    condition = Conditions.ManaSpentToCastIncludes(requiredWhite = 1),
-                    then = Effects.GrantTriggeredAbility(
-                        ability = TriggeredAbility.create(
-                            trigger = Triggers.self.dealsCombatDamage(),
-                            effect = Effects.GainLife(
-                                DynamicAmounts.triggerDamageAmount()
-                            ),
-                            descriptionOverride = "Whenever this creature deals combat damage, you gain that much life."
+        effect = Effects.Untap(conscript) then
+            Effects.GainControl(conscript, Duration.EndOfTurn) then
+            Effects.GrantKeyword(Keyword.HASTE, conscript) then
+            Effects.If(
+                condition = Conditions.ManaSpentToCastIncludes(requiredWhite = 1),
+                then = Effects.GrantTriggeredAbility(
+                    ability = TriggeredAbility.create(
+                        trigger = Triggers.self.dealsCombatDamage(),
+                        effect = Effects.GainLife(
+                            DynamicAmounts.triggerDamageAmount()
                         ),
-                        target = conscript,
-                        duration = Duration.EndOfTurn
-                    )
+                        descriptionOverride = "Whenever this creature deals combat damage, you gain that much life."
+                    ),
+                    target = conscript,
+                    duration = Duration.EndOfTurn
                 )
             )
     }

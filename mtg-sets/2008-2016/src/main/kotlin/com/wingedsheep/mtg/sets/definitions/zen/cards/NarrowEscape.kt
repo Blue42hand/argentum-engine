@@ -19,10 +19,7 @@ val NarrowEscape = card("Narrow Escape") {
 
     spell {
         val permanent = target(TargetFilter.PermanentYouControl)
-        effect = Effects.Composite(
-            Effects.ReturnToHand(permanent),
-            Effects.GainLife(4),
-        )
+        effect = Effects.ReturnToHand(permanent) then Effects.GainLife(4)
     }
 
     metadata {

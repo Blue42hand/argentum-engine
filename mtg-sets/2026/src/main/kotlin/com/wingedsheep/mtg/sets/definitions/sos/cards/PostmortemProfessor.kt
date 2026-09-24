@@ -41,10 +41,7 @@ val PostmortemProfessor = card("Postmortem Professor") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        effect = Effects.Composite(
-            Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.GainLife(1),
-        )
+        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(1)
         description = "Whenever this creature attacks, each opponent loses 1 life and you gain 1 life."
     }
 

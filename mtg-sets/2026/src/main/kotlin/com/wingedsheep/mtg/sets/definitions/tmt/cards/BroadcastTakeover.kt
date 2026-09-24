@@ -29,11 +29,9 @@ val BroadcastTakeover = card("Broadcast Takeover") {
     val opponentArtifacts = GroupFilter(GameObjectFilter.Artifact.opponentControls())
 
     spell {
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(opponentArtifacts, Effects.Untap(EffectTarget.IterationEntity)),
-            Effects.ForEachInGroup(opponentArtifacts, Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn)),
+        effect = Effects.ForEachInGroup(opponentArtifacts, Effects.Untap(EffectTarget.IterationEntity)) then
+            Effects.ForEachInGroup(opponentArtifacts, Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn)) then
             Effects.ForEachInGroup(opponentArtifacts, Effects.GainControl(EffectTarget.IterationEntity, Duration.EndOfTurn))
-        )
     }
 
     metadata {

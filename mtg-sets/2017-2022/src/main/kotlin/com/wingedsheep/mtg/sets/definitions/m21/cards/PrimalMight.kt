@@ -25,10 +25,8 @@ val PrimalMight = card("Primal Might") {
     spell {
         val t1 = target(TargetFilter.Creature.youControl())
         val t2 = target(TargetFilter.CreatureOpponentControls, optional = true)
-        effect = Effects.Composite(
-            Effects.ModifyStats(DynamicAmounts.xValue(), DynamicAmounts.xValue(), t1),
+        effect = Effects.ModifyStats(DynamicAmounts.xValue(), DynamicAmounts.xValue(), t1) then
             Effects.Fight(t1, t2)
-        )
     }
     metadata {
         rarity = Rarity.RARE

@@ -37,13 +37,11 @@ val UsAgentJohnWalker = card("U.S.Agent, John Walker") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.CreatePredefinedToken("Sturdy Shield"),
+        effect = Effects.CreatePredefinedToken("Sturdy Shield") then
             Effects.AttachTargetEquipmentToCreature(
                 equipmentTarget = EffectTarget.PipelineTarget(CREATED_TOKENS, 0),
                 creatureTarget = EffectTarget.Self,
-            ),
-        )
+            )
         description = "When U.S.Agent enters, create a colorless Equipment artifact token named " +
             "Sturdy Shield with \"Equipped creature gets +1/+2\" and equip {2}. Attach it to U.S.Agent."
     }

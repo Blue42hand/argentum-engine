@@ -33,11 +33,9 @@ val SlayersStronghold = card("Slayers' Stronghold") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{R}{W}"), Costs.Tap)
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, t),
-            Effects.GrantKeyword(Keyword.VIGILANCE, t),
+        effect = Effects.ModifyStats(2, 0, t) then
+            Effects.GrantKeyword(Keyword.VIGILANCE, t) then
             Effects.GrantKeyword(Keyword.HASTE, t)
-        )
     }
     metadata {
         rarity = Rarity.RARE

@@ -32,24 +32,20 @@ val DutyBeyondDeath = card("Duty Beyond Death") {
     additionalCost(Costs.additional.SacrificePermanent(GameObjectFilter.Creature))
 
     spell {
-        effect = Effects.Composite(
-            listOf(
-                // Creatures you control gain indestructible until end of turn.
-                Effects.ForEachInGroup(
-                    filter = GroupFilter.AllCreaturesYouControl,
-                    effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)
-                ),
-                // Put a +1/+1 counter on each creature you control.
-                Effects.ForEachInGroup(
-                    filter = GroupFilter.AllCreaturesYouControl,
-                    effect = Effects.AddCounters(
-                        counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                        count = 1,
-                        target = EffectTarget.IterationEntity
-                    )
+        // Creatures you control gain indestructible until end of turn.
+        effect = Effects.ForEachInGroup(
+            filter = GroupFilter.AllCreaturesYouControl,
+            effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)
+        ) then
+            // Put a +1/+1 counter on each creature you control.
+            Effects.ForEachInGroup(
+                filter = GroupFilter.AllCreaturesYouControl,
+                effect = Effects.AddCounters(
+                    counterType = CounterType.PLUS_ONE_PLUS_ONE,
+                    count = 1,
+                    target = EffectTarget.IterationEntity
                 )
             )
-        )
     }
 
     metadata {

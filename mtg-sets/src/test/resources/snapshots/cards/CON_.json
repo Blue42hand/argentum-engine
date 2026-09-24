@@ -1060,26 +1060,21 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "ModifyStats",
-                                    "powerModifier": {
-                                        "type": "Fixed",
-                                        "amount": 2
-                                    },
-                                    "toughnessModifier": {
-                                        "type": "Fixed",
-                                        "amount": 2
-                                    },
-                                    "target": "Self"
-                                },
-                                {
-                                    "type": "GrantKeyword",
-                                    "keyword": "FEAR",
-                                    "target": "Self"
-                                }
-                            ]
+                            "type": "ModifyStats",
+                            "powerModifier": {
+                                "type": "Fixed",
+                                "amount": 2
+                            },
+                            "toughnessModifier": {
+                                "type": "Fixed",
+                                "amount": 2
+                            },
+                            "target": "Self"
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "FEAR",
+                            "target": "Self"
                         },
                         {
                             "type": "ModifyStats",
@@ -1368,7 +1363,7 @@
                     "keyword": "CANT_BE_BLOCKED",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirements": [
@@ -1377,7 +1372,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }
@@ -1742,13 +1737,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "TargetPlayerOrPlaneswalker",
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             },
@@ -1779,7 +1774,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t2"
                     }
                 },
                 "targetRequirements": [
@@ -1788,7 +1783,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "t0"
+                        "id": "t2"
                     }
                 ]
             }

@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * For the Common Good
@@ -33,16 +32,12 @@ val ForTheCommonGood = card("For the Common Good") {
         effect = Effects.CreateTokenCopyOfTarget(
             target = token,
             count = DynamicAmounts.xValue()
-        ).then(
-            Patterns.Group.grantKeywordToAll(
-                keyword = Keyword.INDESTRUCTIBLE,
-                filter = GroupFilter(baseFilter = GameObjectFilter.Token.youControl()),
-                duration = Duration.UntilYourNextTurn
-            )
-        ).then(
-            Effects.GainLife(
-                DynamicAmounts.count(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Token.youControl())
-            )
+        ) then Patterns.Group.grantKeywordToAll(
+            keyword = Keyword.INDESTRUCTIBLE,
+            filter = GroupFilter(baseFilter = GameObjectFilter.Token.youControl()),
+            duration = Duration.UntilYourNextTurn
+        ) then Effects.GainLife(
+            DynamicAmounts.count(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Token.youControl())
         )
     }
 

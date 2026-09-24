@@ -39,10 +39,7 @@ val WildRicochet = card("Wild Ricochet") {
 
     spell {
         val spell = target(TargetFilter.InstantOrSorcerySpellOnStack)
-        effect = Effects.Composite(
-            Effects.ChangeTriggeringObjectTargets(spell = spell),
-            Effects.CopyTargetSpell(spell),
-        )
+        effect = Effects.ChangeTriggeringObjectTargets(spell = spell) then Effects.CopyTargetSpell(spell)
     }
 
     metadata {

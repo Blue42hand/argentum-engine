@@ -32,8 +32,8 @@ val IcyBlast = card("Icy Blast") {
         // "Tap X target creatures" — the chosen X clamps the number of targets via
         // dynamicMaxCount (Builder's Bane / Distorting Wake pattern), so no magic count.
         target = TargetObject(filter = TargetFilter.Creature, optional = true, dynamicMaxCount = DynamicAmounts.xValue())
-        effect = Effects.TapEachTarget()
-            .then(Effects.If(
+        effect = Effects.TapEachTarget() then
+            Effects.If(
                 condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.powerAtLeast(4)),
                 then = Effects.ForEachTarget(
                 Effects.GrantKeyword(
@@ -42,7 +42,7 @@ val IcyBlast = card("Icy Blast") {
                     Duration.UntilAfterAffectedControllersNextUntap
                 )
             )
-            ))
+            )
     }
 
     metadata {

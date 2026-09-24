@@ -52,10 +52,7 @@ val SoulEnervation = card("Soul Enervation") {
 
     triggeredAbility {
         trigger = Triggers.oneOrMore(GameObjectFilter.Creature).leaveYourGraveyard()
-        effect = Effects.Composite(
-            Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.GainLife(1),
-        )
+        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(1)
         description = "Whenever one or more creature cards leave your graveyard, each opponent " +
             "loses 1 life and you gain 1 life."
     }

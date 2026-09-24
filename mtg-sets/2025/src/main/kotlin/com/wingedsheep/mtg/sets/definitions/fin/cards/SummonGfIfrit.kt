@@ -27,10 +27,7 @@ val SummonGfIfrit = card("Summon: G.F. Ifrit") {
 
     // "You may discard a card. If you do, draw a card."
     val rummage = Effects.May(
-        Effects.Composite(
-            Patterns.Hand.discardCards(1),
-            Effects.DrawCards(1),
-        ),
+        Patterns.Hand.discardCards(1) then Effects.DrawCards(1),
     )
     val addRed = Effects.AddMana(Color.RED, 1)
 

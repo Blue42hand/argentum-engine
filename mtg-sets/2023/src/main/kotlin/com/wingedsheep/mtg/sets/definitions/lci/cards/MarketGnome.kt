@@ -37,10 +37,7 @@ val MarketGnome = card("Market Gnome") {
     // When this creature dies, you gain 1 life and draw a card.
     triggeredAbility {
         trigger = Triggers.self.dies()
-        effect = Effects.Composite(
-            Effects.GainLife(1),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.GainLife(1) then Effects.DrawCards(1)
         description = "When Market Gnome dies, you gain 1 life and draw a card."
     }
 
@@ -48,10 +45,7 @@ val MarketGnome = card("Market Gnome") {
     // you gain 1 life and draw a card.
     triggeredAbility {
         trigger = Triggers.self.leaves(to = Zone.EXILE, asCraftMaterial = true)
-        effect = Effects.Composite(
-            Effects.GainLife(1),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.GainLife(1) then Effects.DrawCards(1)
         description = "When Market Gnome is exiled from the battlefield while you're activating a " +
             "craft ability, you gain 1 life and draw a card."
     }

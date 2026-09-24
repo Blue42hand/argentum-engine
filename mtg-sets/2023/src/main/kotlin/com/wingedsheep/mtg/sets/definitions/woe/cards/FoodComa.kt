@@ -31,10 +31,7 @@ val FoodComa = card("Food Coma") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val victim = target(TargetFilter.CreatureOpponentControls)
-        effect = Effects.Composite(
-            Effects.ExileUntilLeaves(victim),
-            Effects.CreateFood()
-        )
+        effect = Effects.ExileUntilLeaves(victim) then Effects.CreateFood()
         description = "When this enchantment enters, exile target creature an opponent controls " +
             "until this enchantment leaves the battlefield. Create a Food token."
     }

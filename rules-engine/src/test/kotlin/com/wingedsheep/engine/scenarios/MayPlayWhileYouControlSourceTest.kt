@@ -88,23 +88,19 @@ class MayPlayWhileYouControlSourceTest : FunSpec({
             "owner may play it for as long as you control this creature."
         activatedAbility {
             cost = Costs.Tap
-            effect = Effects.Composite(
-                listOf(
-                    GatherCardsEffect(
-                        source = CardSource.FromZone(Zone.HAND, Player.AnOpponent),
-                        storeAs = "theirs"
-                    ),
-                    MoveCollectionEffect(
-                        from = "theirs",
-                        destination = CardDestination.ToZone(Zone.EXILE, Player.AnOpponent)
-                    ),
-                    GrantMayPlayFromExileEffect(
-                        from = "theirs",
-                        expiry = MayPlayExpiry.WhileYouControlSource("this creature"),
-                        ownerControls = true
-                    )
+            effect = GatherCardsEffect(
+                source = CardSource.FromZone(Zone.HAND, Player.AnOpponent),
+                storeAs = "theirs"
+            ) then
+                MoveCollectionEffect(
+                    from = "theirs",
+                    destination = CardDestination.ToZone(Zone.EXILE, Player.AnOpponent)
+                ) then
+                GrantMayPlayFromExileEffect(
+                    from = "theirs",
+                    expiry = MayPlayExpiry.WhileYouControlSource("this creature"),
+                    ownerControls = true
                 )
-            )
         }
     }
 

@@ -34,8 +34,8 @@ val YawgmothsVileOffering = card("Yawgmoth's Vile Offering") {
         val graveyardTarget = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker, zone = Zone.GRAVEYARD), optional = true)
         val permanentTarget = target(Targets.CreatureOrPlaneswalker, optional = true)
 
-        effect = Effects.PutOntoBattlefieldUnderYourControl(graveyardTarget)
-            .then(Effects.Destroy(permanentTarget))
+        effect = Effects.PutOntoBattlefieldUnderYourControl(graveyardTarget) then
+            Effects.Destroy(permanentTarget)
     }
 
     metadata {

@@ -25,10 +25,7 @@ val TriumphantSurge = card("Triumphant Surge") {
 
     spell {
         val victim = target(TargetFilter.Creature.powerAtLeast(4))
-        effect = Effects.Composite(
-            Effects.Destroy(victim),
-            Effects.GainLife(3),
-        )
+        effect = Effects.Destroy(victim) then Effects.GainLife(3)
     }
 
     metadata {

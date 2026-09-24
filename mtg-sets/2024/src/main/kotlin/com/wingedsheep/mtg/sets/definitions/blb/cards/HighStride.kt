@@ -20,9 +20,9 @@ val HighStride = card("High Stride") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(1, 3, t)
-            .then(Effects.GrantKeyword(Keyword.REACH, t))
-            .then(Effects.Untap(t))
+        effect = Effects.ModifyStats(1, 3, t) then
+            Effects.GrantKeyword(Keyword.REACH, t) then
+            Effects.Untap(t)
     }
 
     metadata {

@@ -39,13 +39,11 @@ val CandyGrapple = card("Candy Grapple") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(power = -3, toughness = -3, target = creature),
+        effect = Effects.ModifyStats(power = -3, toughness = -3, target = creature) then
             Effects.If(
                 condition = Conditions.WasBargained,
                 then = Effects.ModifyStats(power = -2, toughness = -2, target = creature),
-            ),
-        )
+            )
     }
 
     metadata {

@@ -60,7 +60,7 @@ class SpellCastTargetCaptureTest : FunSpec({
         spell {
             val a = target(TargetFilter.Creature)
             val b = target(TargetFilter.Creature)
-            effect = Effects.ModifyStats(1, 1, a).then(Effects.ModifyStats(1, 1, b))
+            effect = Effects.ModifyStats(1, 1, a) then Effects.ModifyStats(1, 1, b)
         }
     }
 
@@ -71,7 +71,7 @@ class SpellCastTargetCaptureTest : FunSpec({
         spell {
             val c = target(TargetFilter.Creature)
             val p = target(Targets.Player)
-            effect = Effects.ModifyStats(1, 1, c).then(Effects.GainLife(1, p))
+            effect = Effects.ModifyStats(1, 1, c) then Effects.GainLife(1, p)
         }
     }
 

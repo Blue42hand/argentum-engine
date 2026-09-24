@@ -35,14 +35,12 @@ val HalanaAndAlenaPartners = card("Halana and Alena, Partners") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val t = target(TargetFilter.OtherCreatureYouControl)
-        effect = Effects.Composite(
-            Effects.AddDynamicCounters(
-                counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                amount = DynamicAmounts.sourcePower(),
-                target = t
-            ),
+        effect = Effects.AddDynamicCounters(
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
+            amount = DynamicAmounts.sourcePower(),
+            target = t
+        ) then
             Effects.GrantKeyword(Keyword.HASTE, t)
-        )
     }
     metadata {
         rarity = Rarity.RARE

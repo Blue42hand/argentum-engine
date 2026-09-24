@@ -34,10 +34,7 @@ val WayOfTheWarlord = card("Way of the Warlord") {
             ability = grantedLoyaltyAbility(-4) {
                 val player = target(Targets.Player)
                 val permanent = target(Targets.CreatureOrPlaneswalker, optional = true)
-                effect = Effects.Composite(
-                    Effects.DealDamage(2, permanent),
-                    Effects.DealDamage(2, player)
-                )
+                effect = Effects.DealDamage(2, permanent) then Effects.DealDamage(2, player)
                 description = "This planeswalker deals 2 damage to up to one target creature or planeswalker and 2 damage to target player."
             },
             filter = GroupFilter(GameObjectFilter.Planeswalker.youControl())

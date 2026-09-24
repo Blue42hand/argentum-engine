@@ -23,16 +23,12 @@ val RabidGnaw = card("Rabid Gnaw") {
     spell {
         val myCreature = target(TargetFilter.CreatureYouControl)
         val theirCreature = target(TargetFilter.CreatureOpponentControls)
-        effect = Effects.Composite(
-            listOf(
-                Effects.ModifyStats(1, 0, myCreature),
-                Effects.DealDamage(
-                    amount = DynamicAmounts.powerOf(myCreature),
-                    target = theirCreature,
-                    damageSource = myCreature
-                )
+        effect = Effects.ModifyStats(1, 0, myCreature) then
+            Effects.DealDamage(
+                amount = DynamicAmounts.powerOf(myCreature),
+                target = theirCreature,
+                damageSource = myCreature
             )
-        )
     }
 
     metadata {

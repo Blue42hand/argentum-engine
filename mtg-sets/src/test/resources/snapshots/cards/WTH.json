@@ -107,57 +107,52 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "FromMultipleZones",
-                                "zones": [
-                                    "Library",
-                                    "Graveyard"
-                                ]
-                            },
-                            "storeAs": "gathered0",
-                            "search": true
-                        },
-                        {
-                            "type": "SelectFromCollection",
-                            "from": "gathered0",
-                            "selection": {
-                                "type": "ChooseExactly",
-                                "count": {
-                                    "type": "Fixed",
-                                    "amount": 5
-                                }
-                            },
-                            "storeSelected": "selected1",
-                            "storeRemainder": "remainder1",
-                            "prompt": "Choose five cards to put on top of your library",
-                            "selectedLabel": "Put on top of library",
-                            "remainderLabel": "Exile"
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "remainder1",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Exile"
-                            }
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "selected1",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Library",
-                                "placement": "Top"
-                            },
-                            "order": "ControllerChooses"
-                        },
-                        "EmitLibrarySearchedEvent"
-                    ]
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromMultipleZones",
+                        "zones": [
+                            "Library",
+                            "Graveyard"
+                        ]
+                    },
+                    "storeAs": "gathered0",
+                    "search": true
                 },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "gathered0",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 5
+                        }
+                    },
+                    "storeSelected": "selected1",
+                    "storeRemainder": "remainder1",
+                    "prompt": "Choose five cards to put on top of your library",
+                    "selectedLabel": "Put on top of library",
+                    "remainderLabel": "Exile"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "remainder1",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Exile"
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "selected1",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "placement": "Top"
+                    },
+                    "order": "ControllerChooses"
+                },
+                "EmitLibrarySearchedEvent",
                 {
                     "type": "LoseLife",
                     "amount": {
@@ -580,7 +575,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -589,7 +584,7 @@
                             "filter": {
                                 "baseFilter": "creature kw:flying"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Thunderbolt deals 4 damage to target creature with flying"

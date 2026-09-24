@@ -24,12 +24,10 @@ val PowerMatrix = card("Power Matrix") {
     activatedAbility {
         cost = Costs.Tap
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 1, t),
-            Effects.GrantKeyword(Keyword.FLYING, t),
-            Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),
+        effect = Effects.ModifyStats(1, 1, t) then
+            Effects.GrantKeyword(Keyword.FLYING, t) then
+            Effects.GrantKeyword(Keyword.FIRST_STRIKE, t) then
             Effects.GrantKeyword(Keyword.TRAMPLE, t)
-        )
     }
 
     metadata {

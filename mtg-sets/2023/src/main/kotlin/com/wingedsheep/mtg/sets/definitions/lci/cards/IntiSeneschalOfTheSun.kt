@@ -51,10 +51,8 @@ val IntiSeneschalOfTheSun = card("Inti, Seneschal of the Sun") {
             action = Effects.Discard(1),
             optional = true) {
             val attackingCreature = target(TargetFilter.AttackingCreature)
-            effect = Effects.Composite(listOf(
-                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, attackingCreature),
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, attackingCreature) then
                 Effects.GrantKeyword(Keyword.TRAMPLE, attackingCreature, Duration.EndOfTurn)
-            ))
         }
     }
 

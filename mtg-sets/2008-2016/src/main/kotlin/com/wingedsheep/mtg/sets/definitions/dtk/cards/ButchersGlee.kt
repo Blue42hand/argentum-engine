@@ -27,13 +27,9 @@ val ButchersGlee = card("Butcher's Glee") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Composite(
-                Effects.ModifyStats(3, 0, t),
-                Effects.GrantKeyword(Keyword.LIFELINK, t)
-            ),
+        effect = Effects.ModifyStats(3, 0, t) then
+            Effects.GrantKeyword(Keyword.LIFELINK, t) then
             Effects.Regenerate(t)
-        )
     }
 
     metadata {

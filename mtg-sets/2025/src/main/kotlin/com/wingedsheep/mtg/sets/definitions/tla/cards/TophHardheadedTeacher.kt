@@ -48,13 +48,11 @@ val TophHardheadedTeacher = card("Toph, Hardheaded Teacher") {
     triggeredAbility {
         trigger = Triggers.you.casts()
         val land = target(TargetFilter.Land.youControl())
-        effect = Effects.Composite(
-            Effects.Earthbend(1, land),
+        effect = Effects.Earthbend(1, land) then
             Effects.If(
                 Conditions.TriggeringSpellMatches(GameObjectFilter.Any.withSubtype("Lesson")),
                 Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, land),
-            ),
-        )
+            )
     }
 
     metadata {

@@ -30,13 +30,11 @@ val SongOfTotentanz = card("Song of Totentanz") {
         "Creatures you control gain haste until end of turn."
 
     spell {
-        effect = Effects.Composite(
-            woeRatToken(count = DynamicAmounts.xValue()),
+        effect = woeRatToken(count = DynamicAmounts.xValue()) then
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.youControl()),
                 Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
             )
-        )
     }
 
     metadata {

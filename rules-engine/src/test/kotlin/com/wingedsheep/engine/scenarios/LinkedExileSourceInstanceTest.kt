@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Deck
@@ -48,7 +47,7 @@ class LinkedExileSourceInstanceTest : FunSpec({
         typeLine = "Instant"
         spell {
             val creature = target(TargetFilter.Creature)
-            effect = Effects.Exile(creature).then(Effects.PutOntoBattlefield(creature))
+            effect = Effects.Exile(creature) then Effects.PutOntoBattlefield(creature)
         }
     }
     val banish = card("Linked Exile Banish") {

@@ -30,10 +30,7 @@ val LiberatedDwarf = card("Liberated Dwarf") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{R}"), Costs.SacrificeSelf)
         val t = target(TargetFilter.Creature.withColor(Color.GREEN))
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, t),
-            Effects.GrantKeyword(Keyword.FIRST_STRIKE, t)
-        )
+        effect = Effects.ModifyStats(1, 0, t) then Effects.GrantKeyword(Keyword.FIRST_STRIKE, t)
     }
     metadata {
         rarity = Rarity.COMMON

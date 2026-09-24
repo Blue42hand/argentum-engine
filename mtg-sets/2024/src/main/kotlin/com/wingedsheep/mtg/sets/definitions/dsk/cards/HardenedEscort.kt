@@ -29,10 +29,7 @@ val HardenedEscort = card("Hardened Escort") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val t = target(TargetFilter.OtherCreatureYouControl)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, t),
-            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
-        )
+        effect = Effects.ModifyStats(1, 0, t) then Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
     }
     metadata {
         rarity = Rarity.COMMON

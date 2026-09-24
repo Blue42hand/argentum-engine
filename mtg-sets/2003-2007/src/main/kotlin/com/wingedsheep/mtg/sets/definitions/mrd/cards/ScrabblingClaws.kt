@@ -61,10 +61,7 @@ val ScrabblingClaws = card("Scrabbling Claws") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.SacrificeSelf)
         val exiled = target(TargetFilter.CardInGraveyard)
-        effect = Effects.Composite(
-            Effects.Move(exiled, Zone.EXILE),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.Move(exiled, Zone.EXILE) then Effects.DrawCards(1)
         description = "{1}, Sacrifice this artifact: Exile target card from a graveyard. Draw a card."
     }
 

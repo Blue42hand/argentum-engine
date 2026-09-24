@@ -34,10 +34,7 @@ val SmitingHelix = card("Smiting Helix") {
 
     spell {
         val victim = target(Targets.Any)
-        effect = Effects.Composite(
-            Effects.DealDamage(3, victim),
-            Effects.GainLife(3)
-        )
+        effect = Effects.DealDamage(3, victim) then Effects.GainLife(3)
     }
 
     metadata {

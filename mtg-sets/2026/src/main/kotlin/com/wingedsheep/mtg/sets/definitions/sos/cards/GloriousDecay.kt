@@ -38,10 +38,7 @@ val GloriousDecay = card("Glorious Decay") {
             }
             mode("Exile target card from a graveyard. Draw a card") {
                 val t = target(TargetFilter.CardInGraveyard)
-                effect = Effects.Composite(
-                    Effects.Move(t, Zone.EXILE),
-                    Effects.DrawCards(1)
-                )
+                effect = Effects.Move(t, Zone.EXILE) then Effects.DrawCards(1)
             }
         }
     }

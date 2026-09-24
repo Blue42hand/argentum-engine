@@ -25,11 +25,9 @@ val FailedInspection = card("Failed Inspection") {
 
     spell {
         target(TargetFilter.SpellOnStack)
-        effect = Effects.Composite(
-            Effects.CounterSpell(),
-            Effects.DrawCards(1),
-            Patterns.Hand.discardCards(1),
-        )
+        effect = Effects.CounterSpell() then
+            Effects.DrawCards(1) then
+            Patterns.Hand.discardCards(1)
     }
 
     metadata {

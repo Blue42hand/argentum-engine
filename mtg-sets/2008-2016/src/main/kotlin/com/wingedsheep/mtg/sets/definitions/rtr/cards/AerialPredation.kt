@@ -29,10 +29,7 @@ val AerialPredation = card("Aerial Predation") {
 
     spell {
         val t = target(TargetFilter.Creature.withKeyword(Keyword.FLYING))
-        effect = Effects.Composite(
-            Effects.Destroy(t),
-            Effects.GainLife(2),
-        )
+        effect = Effects.Destroy(t) then Effects.GainLife(2)
     }
 
     metadata {

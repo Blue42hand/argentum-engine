@@ -61,10 +61,7 @@ val CollectiveBrutality = card("Collective Brutality") {
             }
             mode("Target opponent loses 2 life and you gain 2 life.") {
                 val opponent = target(Targets.Opponent)
-                effect = Effects.Composite(
-                    Effects.LoseLife(2, opponent),
-                    Effects.GainLife(2),
-                )
+                effect = Effects.LoseLife(2, opponent) then Effects.GainLife(2)
             }
         }
     }

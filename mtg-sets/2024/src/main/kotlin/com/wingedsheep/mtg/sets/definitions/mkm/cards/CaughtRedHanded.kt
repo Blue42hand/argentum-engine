@@ -42,12 +42,10 @@ val CaughtRedHanded = card("Caught Red-Handed") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GainControl(creature, Duration.EndOfTurn),
-            Effects.Untap(creature),
-            Effects.GrantKeyword(Keyword.HASTE, creature),
+        effect = Effects.GainControl(creature, Duration.EndOfTurn) then
+            Effects.Untap(creature) then
+            Effects.GrantKeyword(Keyword.HASTE, creature) then
             Effects.Suspect(creature)
-        )
     }
 
     metadata {

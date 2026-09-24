@@ -56,10 +56,7 @@ val FaunsbaneTroll = card("Faunsbane Troll") {
         )
         timing = TimingRule.SorcerySpeed
         val creature = target(TargetFilter.CreatureOpponentControls)
-        effect = Effects.Composite(
-            Effects.Fight(EffectTarget.Self, creature),
-            Effects.MarkExileOnDeath(creature),
-        )
+        effect = Effects.Fight(EffectTarget.Self, creature) then Effects.MarkExileOnDeath(creature)
         description = "This creature fights target creature you don't control. If that creature " +
             "would die this turn, exile it instead. Activate only as a sorcery."
     }

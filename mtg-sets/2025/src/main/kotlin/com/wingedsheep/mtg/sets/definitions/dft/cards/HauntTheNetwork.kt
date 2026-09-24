@@ -42,19 +42,17 @@ val HauntTheNetwork = card("Haunt the Network") {
             Zone.BATTLEFIELD,
             GameObjectFilter.Artifact
         )
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                power = 1,
-                toughness = 1,
-                creatureTypes = setOf("Thopter"),
-                keywords = setOf(Keyword.FLYING),
-                count = 2,
-                artifactToken = true,
-                imageUri = "https://cards.scryfall.io/normal/front/d/3/d38fc294-ad86-441e-96fe-4ca286a11218.jpg?1783907677",
-            ),
-            Effects.LoseLife(artifactsYouControl, opponent),
-            Effects.GainLife(artifactsYouControl),
-        )
+        effect = Effects.CreateToken(
+            power = 1,
+            toughness = 1,
+            creatureTypes = setOf("Thopter"),
+            keywords = setOf(Keyword.FLYING),
+            count = 2,
+            artifactToken = true,
+            imageUri = "https://cards.scryfall.io/normal/front/d/3/d38fc294-ad86-441e-96fe-4ca286a11218.jpg?1783907677",
+        ) then
+            Effects.LoseLife(artifactsYouControl, opponent) then
+            Effects.GainLife(artifactsYouControl)
     }
 
     metadata {

@@ -20,7 +20,7 @@ val FateholdCharm = card("Fatehold Charm") {
     spell {
         modal(chooseCount = 1) {
             mode("Draw a card. Empower Jace 2") {
-                effect = Effects.DrawCards(1).then(Patterns.Mechanic.empowerJace(2))
+                effect = Effects.DrawCards(1) then Patterns.Mechanic.empowerJace(2)
             }
             mode("Return target spell or creature to its owner's hand") {
                 val t = target(TargetSpellOrPermanent(permanentFilter = GameObjectFilter.Creature))

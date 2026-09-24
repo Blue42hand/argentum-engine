@@ -22,11 +22,9 @@ val ScrollOfAvacyn = card("Scroll of Avacyn") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.SacrificeSelf)
-        effect = Effects.DrawCards(1).then(
-            Effects.If(
-                condition = Conditions.ControlPermanentOfType(Subtype.ANGEL),
-                then = Effects.GainLife(5),
-            )
+        effect = Effects.DrawCards(1) then Effects.If(
+            condition = Conditions.ControlPermanentOfType(Subtype.ANGEL),
+            then = Effects.GainLife(5),
         )
         description = "{1}, Sacrifice this artifact: Draw a card. If you control an Angel, you gain 5 life."
     }

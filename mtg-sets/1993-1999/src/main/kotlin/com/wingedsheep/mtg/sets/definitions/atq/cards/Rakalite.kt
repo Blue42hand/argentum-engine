@@ -29,13 +29,11 @@ val Rakalite = card("Rakalite") {
     activatedAbility {
         cost = Costs.Mana("{2}")
         val t = target(Targets.Any)
-        effect = Effects.Composite(listOf(
-            Effects.PreventNextDamage(1, t),
+        effect = Effects.PreventNextDamage(1, t) then
             Effects.CreateDelayedTrigger(
                 step = Step.END,
                 effect = Effects.ReturnToHand(EffectTarget.Self)
             )
-        ))
         description = "{2}: Prevent the next 1 damage that would be dealt to any target this turn. " +
             "Return this artifact to its owner's hand at the beginning of the next end step."
     }

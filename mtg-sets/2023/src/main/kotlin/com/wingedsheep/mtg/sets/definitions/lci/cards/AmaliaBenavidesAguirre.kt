@@ -61,17 +61,15 @@ val AmaliaBenavidesAguirre = card("Amalia Benavides Aguirre") {
     // Whenever you gain life, Amalia explores, then wipe if power == 20.
     triggeredAbility {
         trigger = Triggers.you.gainsLife()
-        effect = Effects.Composite(listOf(
-            // Step 1: Amalia explores. Reveal top card; land → hand (no counter, no pause);
-            // nonland → +1/+1 counter on Amalia, then optional graveyard decision.
-            Effects.Explore(EffectTarget.Self),
+        // Step 1: Amalia explores. Reveal top card; land → hand (no counter, no pause);
+        // nonland → +1/+1 counter on Amalia, then optional graveyard decision.
+        effect = Effects.Explore(EffectTarget.Self) then
             // Step 2: After explore, check Amalia's projected power. If exactly 20, destroy
             // all other creatures (excludeSelf = true excludes Amalia as the source).
             Effects.If(
                 condition = Conditions.SourceMatches(GameObjectFilter.Creature.power(20)),
                 then = Patterns.Group.destroyAll(GroupFilter(GameObjectFilter.Creature, excludeSelf = true))
             )
-        ))
     }
 
     metadata {

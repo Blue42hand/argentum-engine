@@ -49,13 +49,11 @@ val TheWondrousWasp = card("The Wondrous Wasp") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val victim = target(TargetFilter.Creature, optional = true)
-        effect = Effects.Composite(
-            Effects.Tap(victim),
+        effect = Effects.Tap(victim) then
             Effects.RemoveAllAbilities(
                 victim,
                 Duration.WhileSourceOnBattlefield("The Wondrous Wasp")
-            ),
-        )
+            )
         description = "Wasp's Sting — When The Wondrous Wasp enters, tap up to one target " +
             "creature. It loses all abilities for as long as The Wondrous Wasp remains on the " +
             "battlefield."

@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
@@ -59,19 +58,17 @@ val CaptainHowlerSeaScourge = card("Captain Howler, Sea Scourge") {
     triggeredAbility {
         trigger = Triggers.you.discards(batch = true)
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(listOf(
-            Effects.ModifyStats(
-                power = DynamicAmounts.triggerDiscardCount() * 2,
-                toughness = DynamicAmounts.fixed(0),
-                target = creature
-            ),
+        effect = Effects.ModifyStats(
+            power = DynamicAmounts.triggerDiscardCount() * 2,
+            toughness = DynamicAmounts.fixed(0),
+            target = creature
+        ) then
             Effects.CreateDelayedTrigger(
                 effect = Effects.DrawCards(1),
                 trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer),
                 watchedTarget = creature,
                 expiry = DelayedTriggerExpiry.EndOfTurn
             )
-        ))
     }
 
     metadata {

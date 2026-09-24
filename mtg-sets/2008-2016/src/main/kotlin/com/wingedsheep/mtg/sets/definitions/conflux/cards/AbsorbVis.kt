@@ -31,10 +31,7 @@ val AbsorbVis = card("Absorb Vis") {
 
     spell {
         val t = target(Targets.Player)
-        effect = Effects.Composite(
-            Effects.LoseLife(4, t),
-            Effects.GainLife(4)
-        )
+        effect = Effects.LoseLife(4, t) then Effects.GainLife(4)
     }
 
     keywordAbility(KeywordAbility.basicLandcycling("{1}{B}"))

@@ -31,12 +31,7 @@ val LeavesFromTheVine = card("Leaves from the Vine") {
         "III — Draw a card if there's a creature or Lesson card in your graveyard."
 
     sagaChapter(1) {
-        effect = Effects.Composite(
-            listOf(
-                Patterns.Library.mill(3),
-                Effects.CreateFood()
-            )
-        )
+        effect = Patterns.Library.mill(3) then Effects.CreateFood()
     }
 
     sagaChapter(2) {

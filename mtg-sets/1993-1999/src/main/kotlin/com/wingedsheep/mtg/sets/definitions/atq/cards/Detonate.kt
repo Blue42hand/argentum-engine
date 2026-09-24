@@ -30,8 +30,8 @@ val Detonate = card("Detonate") {
 
     spell {
         val artifact = target(TargetFilter.Artifact.manaValueEqualsX())
-        effect = Effects.DealDamage(DynamicAmounts.xValue(), EffectTarget.TargetController)
-            .then(Effects.Destroy(artifact, noRegenerate = true))
+        effect = Effects.DealDamage(DynamicAmounts.xValue(), EffectTarget.TargetController) then
+            Effects.Destroy(artifact, noRegenerate = true)
     }
 
     metadata {

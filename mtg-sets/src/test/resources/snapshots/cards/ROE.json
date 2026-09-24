@@ -934,7 +934,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -953,7 +953,7 @@
                                     ]
                                 }
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target nonbasic land"
@@ -1758,7 +1758,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "tap": false
                 },
@@ -1767,7 +1767,7 @@
                     "filter": {
                         "baseFilter": "permanent"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]

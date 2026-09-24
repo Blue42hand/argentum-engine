@@ -33,14 +33,12 @@ val OozePatrol = card("Ooze Patrol") {
     toughness = 2
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Patterns.Library.mill(2),
+        effect = Patterns.Library.mill(2) then
             Effects.AddDynamicCounters(
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = DynamicAmounts.count(Player.You, Zone.GRAVEYARD, GameObjectFilter.CreatureOrArtifact),
                 target = EffectTarget.Self
             )
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

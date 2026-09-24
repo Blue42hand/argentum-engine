@@ -48,13 +48,11 @@ val InnerFlameIgniter = card("Inner-Flame Igniter") {
 
     activatedAbility {
         cost = Costs.Mana("{2}{R}")
-        effect = Patterns.Group.modifyStatsForAll(1, 0, creaturesYouControl)
-            .then(IncrementAbilityResolutionCountEffect)
-            .then(
-                Effects.If(
-                    condition = Conditions.SourceAbilityResolvedNTimes(3),
-                    then = Patterns.Group.grantKeywordToAll(Keyword.FIRST_STRIKE, creaturesYouControl)
-                )
+        effect = Patterns.Group.modifyStatsForAll(1, 0, creaturesYouControl) then
+            IncrementAbilityResolutionCountEffect then
+            Effects.If(
+                condition = Conditions.SourceAbilityResolvedNTimes(3),
+                then = Patterns.Group.grantKeywordToAll(Keyword.FIRST_STRIKE, creaturesYouControl)
             )
         description = "Creatures you control get +1/+0 until end of turn. If this is the third " +
             "time this ability has resolved this turn, creatures you control gain first strike " +

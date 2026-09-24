@@ -20,10 +20,8 @@ val SnakeskinVeil = card("Snakeskin Veil") {
 
     spell {
         val target = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(listOf(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target) then
             Effects.GrantKeyword(Keyword.HEXPROOF, target)
-        ))
     }
 
     metadata {

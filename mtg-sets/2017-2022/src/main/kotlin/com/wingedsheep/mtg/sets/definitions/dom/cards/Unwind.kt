@@ -22,15 +22,15 @@ val Unwind = card("Unwind") {
 
     spell {
         val noncreatureSpell = target(TargetFilter.NoncreatureSpellOnStack)
-        effect = Effects.CounterSpell()
-            .then(Effects.Pipeline {
+        effect = Effects.CounterSpell() then
+            Effects.Pipeline {
                 val lands = gather(CardSource.ControlledPermanents(Player.You, GameObjectFilter.Land))
                 val toUntap = chooseUpTo(3, from = lands)
                 run(Effects.TapCollection(
                     collection = toUntap,
                     tap = false
                 ))
-            })
+            }
     }
 
     metadata {

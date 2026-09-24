@@ -44,23 +44,21 @@ val EliteInterceptor = card("Elite Interceptor") {
         oracleText = "You may tap or untap target creature.\nDraw a card."
         spell {
             val creature = target(TargetFilter.Creature)
-            effect = Effects.Composite(
-                Effects.May(
-                    ModalEffect.chooseOne(
-                        Mode.noTarget(
-                            Effects.Tap(creature),
-                            "Tap that creature"
-                        ),
-                        Mode.noTarget(
-                            Effects.Untap(creature),
-                            "Untap that creature"
-                        ),
-                        countsAsModalSpell = false
+            effect = Effects.May(
+                ModalEffect.chooseOne(
+                    Mode.noTarget(
+                        Effects.Tap(creature),
+                        "Tap that creature"
                     ),
-                    descriptionOverride = "You may tap or untap target creature."
+                    Mode.noTarget(
+                        Effects.Untap(creature),
+                        "Untap that creature"
+                    ),
+                    countsAsModalSpell = false
                 ),
+                descriptionOverride = "You may tap or untap target creature."
+            ) then
                 Effects.DrawCards(1)
-            )
         }
     }
 

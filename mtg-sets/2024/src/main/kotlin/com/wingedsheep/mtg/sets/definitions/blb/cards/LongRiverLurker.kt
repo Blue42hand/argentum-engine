@@ -53,21 +53,16 @@ val LongRiverLurker = card("Long River Lurker") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(listOf(
-            Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature),
+        effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature) then
             Effects.CreateDelayedTrigger(
                 effect = Effects.May(
-                    effect = Effects.Composite(listOf(
-                        Effects.Move(creature, Zone.EXILE),
-                        Effects.Move(creature, Zone.BATTLEFIELD)
-                    )),
+                    effect = Effects.Move(creature, Zone.EXILE) then Effects.Move(creature, Zone.BATTLEFIELD),
                     descriptionOverride = "You may exile that creature. If you do, return it to the battlefield under its owner's control."
                 ),
                 trigger = Triggers.self.dealsCombatDamage(),
                 watchedTarget = creature,
                 expiry = DelayedTriggerExpiry.EndOfTurn
             )
-        ))
     }
 
     metadata {

@@ -37,10 +37,7 @@ val ForagingWickermaw = card("Foraging Wickermaw") {
     activatedAbility {
         cost = Costs.Mana("{1}")
         manaAbility = true
-        effect = Effects.Composite(
-            Effects.AddAnyColorMana(1),
-            Effects.BecomeChosenManaColor()
-        )
+        effect = Effects.AddAnyColorMana(1) then Effects.BecomeChosenManaColor()
         restrictions = listOf(ActivationRestriction.OncePerTurn)
         description = "{1}: Add one mana of any color. This creature becomes that color until end of turn. " +
             "Activate only once each turn."

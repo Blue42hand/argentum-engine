@@ -25,10 +25,8 @@ val BlazingCrescendo = card("Blazing Crescendo") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(3, 1, t),
+        effect = Effects.ModifyStats(3, 1, t) then
             Patterns.Exile.impulse(count = 1, expiry = MayPlayExpiry.UntilEndOfNextTurn)
-        )
     }
 
     metadata {

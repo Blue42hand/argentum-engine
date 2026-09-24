@@ -25,10 +25,7 @@ val Galestrike = card("Galestrike") {
     oracleText = "Return target tapped creature to its owner's hand.\nDraw a card."
     spell {
         val t = target(TargetFilter.Creature.tapped())
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.HAND),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.Move(t, Zone.HAND) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.UNCOMMON

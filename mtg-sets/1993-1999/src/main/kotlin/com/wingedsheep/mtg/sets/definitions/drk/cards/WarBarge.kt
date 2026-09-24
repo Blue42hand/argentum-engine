@@ -39,15 +39,13 @@ val WarBarge = card("War Barge") {
     activatedAbility {
         val creature = target(TargetFilter.Creature)
         cost = Costs.Mana("{3}")
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.ISLANDWALK, creature),
+        effect = Effects.GrantKeyword(Keyword.ISLANDWALK, creature) then
             Effects.CreateDelayedTrigger(
                 trigger = Triggers.self.leaves(),
                 watchedTarget = EffectTarget.Self,
                 effect = Effects.Destroy(creature, noRegenerate = true),
                 expiry = DelayedTriggerExpiry.EndOfTurn,
-            ),
-        )
+            )
         description = "{3}: Target creature gains islandwalk until end of turn. When this " +
             "artifact leaves the battlefield this turn, destroy that creature. A creature " +
             "destroyed this way can't be regenerated."

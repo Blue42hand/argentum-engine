@@ -21,10 +21,10 @@ val Overprotect = card("Overprotect") {
 
     spell {
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.ModifyStats(3, 3, creature)
-            .then(Effects.GrantKeyword(Keyword.TRAMPLE, creature))
-            .then(Effects.GrantKeyword(Keyword.HEXPROOF, creature))
-            .then(Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature))
+        effect = Effects.ModifyStats(3, 3, creature) then
+            Effects.GrantKeyword(Keyword.TRAMPLE, creature) then
+            Effects.GrantKeyword(Keyword.HEXPROOF, creature) then
+            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature)
     }
 
     metadata {

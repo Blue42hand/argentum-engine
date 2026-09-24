@@ -46,10 +46,8 @@ val SumalaSentry = card("Sumala Sentry") {
 
     triggeredAbility {
         trigger = Triggers.you.permanentTurnedFaceUp()
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.TriggeringEntity),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.TriggeringEntity) then
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-        )
         description = "Put a +1/+1 counter on that permanent and a +1/+1 counter on this creature."
     }
 

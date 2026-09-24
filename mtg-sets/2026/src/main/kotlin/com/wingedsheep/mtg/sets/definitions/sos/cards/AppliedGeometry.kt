@@ -39,16 +39,14 @@ val AppliedGeometry = card("Applied Geometry") {
 
     spell {
         val copyTarget = target(TargetFilter(GameObjectFilter.Permanent.youControl().notSubtype(Subtype("Aura"))))
-        effect = Effects.Composite(
-            Effects.CreateTokenCopyOfTarget(
-                target = copyTarget,
-                overridePower = 0,
-                overrideToughness = 0,
-                addCardTypes = setOf("CREATURE"),
-                addedSubtypes = setOf(Subtype.FRACTAL),
-            ),
-            Effects.AddCountersToCollection(CREATED_TOKENS, CounterType.PLUS_ONE_PLUS_ONE, 6),
-        )
+        effect = Effects.CreateTokenCopyOfTarget(
+            target = copyTarget,
+            overridePower = 0,
+            overrideToughness = 0,
+            addCardTypes = setOf("CREATURE"),
+            addedSubtypes = setOf(Subtype.FRACTAL),
+        ) then
+            Effects.AddCountersToCollection(CREATED_TOKENS, CounterType.PLUS_ONE_PLUS_ONE, 6)
     }
 
     metadata {

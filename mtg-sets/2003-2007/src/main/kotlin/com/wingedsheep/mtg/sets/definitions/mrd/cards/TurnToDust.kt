@@ -27,10 +27,7 @@ val TurnToDust = card("Turn to Dust") {
     oracleText = "Destroy target Equipment. Add {G}."
     spell {
         val t = target(TargetFilter(GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT)))
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            Effects.AddMana(Color.GREEN)
-        )
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then Effects.AddMana(Color.GREEN)
     }
     metadata {
         rarity = Rarity.COMMON

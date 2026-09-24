@@ -43,10 +43,7 @@ val Necrite = card("Necrite") {
             ),
         )
         effect = Effects.May(
-            Effects.Composite(
-                SacrificeSelfEffect,
-                Effects.Destroy(t, noRegenerate = true)
-            ),
+            SacrificeSelfEffect then Effects.Destroy(t, noRegenerate = true),
             descriptionOverride = "sacrifice this creature. If you do, destroy target creature " +
                 "defending player controls. It can't be regenerated",
         )

@@ -52,14 +52,12 @@ val PollenShieldHare = card("Pollen-Shield Hare") {
             "(Then exile this card. You may cast the creature later from exile.)"
         spell {
             val t = target(TargetFilter.CreatureYouControl)
-            effect = Effects.Composite(
-                Effects.GrantKeyword(Keyword.VIGILANCE, t),
+            effect = Effects.GrantKeyword(Keyword.VIGILANCE, t) then
                 Effects.ModifyStats(
                     DynamicAmounts.creaturesYouControl(),
                     DynamicAmounts.creaturesYouControl(),
                     t
                 )
-            )
         }
     }
 

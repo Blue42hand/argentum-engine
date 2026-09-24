@@ -38,15 +38,11 @@ val IngeniousLeonin = card("Ingenious Leonin") {
     activatedAbility {
         cost = Costs.Mana("{3}{W}")
         val t = target(TargetFilter.Creature.attacking().youControl().other())
-        effect = Effects.Composite(
-            listOf(
-                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t),
-                Effects.If(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype("Cat"), t),
-                    then = Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),
-                ),
-            ),
-        )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t) then
+            Effects.If(
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype("Cat"), t),
+                then = Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),
+            )
     }
 
     metadata {

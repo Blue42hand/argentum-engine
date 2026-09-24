@@ -57,9 +57,7 @@ val LobeliaSackvilleBaggins = card("Lobelia Sackville-Baggins") {
             target = exileTarget,
             destination = Zone.EXILE,
             fromZone = Zone.GRAVEYARD
-        ).then(
-            Effects.CreateTreasure(DynamicAmounts.powerOf(exileTarget))
-        )
+        ) then Effects.CreateTreasure(DynamicAmounts.powerOf(exileTarget))
     }
 
     metadata {

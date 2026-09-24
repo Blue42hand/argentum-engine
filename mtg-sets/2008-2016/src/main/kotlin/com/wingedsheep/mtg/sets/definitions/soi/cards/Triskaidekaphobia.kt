@@ -52,15 +52,11 @@ val Triskaidekaphobia = card("Triskaidekaphobia") {
 
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
-                eachPlayerWith13LosesTheGame.then(
-                    Effects.GainLife(1, EffectTarget.PlayerRef(Player.Each))
-                ),
+                eachPlayerWith13LosesTheGame then Effects.GainLife(1, EffectTarget.PlayerRef(Player.Each)),
                 "Each player with exactly 13 life loses the game, then each player gains 1 life."
             ),
             Mode.noTarget(
-                eachPlayerWith13LosesTheGame.then(
-                    Effects.LoseLife(1, EffectTarget.PlayerRef(Player.Each))
-                ),
+                eachPlayerWith13LosesTheGame then Effects.LoseLife(1, EffectTarget.PlayerRef(Player.Each)),
                 "Each player with exactly 13 life loses the game, then each player loses 1 life."
             )
         )

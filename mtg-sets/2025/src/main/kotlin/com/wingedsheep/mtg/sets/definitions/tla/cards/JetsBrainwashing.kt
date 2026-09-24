@@ -30,18 +30,14 @@ val JetsBrainwashing = card("Jet's Brainwashing") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.CantBlock(t),
+        effect = Effects.CantBlock(t) then
             Effects.If(
                 condition = WasKicked,
-                then = Effects.Composite(
-                    Effects.GainControl(t, Duration.EndOfTurn),
-                    Effects.Untap(t),
+                then = Effects.GainControl(t, Duration.EndOfTurn) then
+                    Effects.Untap(t) then
                     Effects.GrantKeyword(Keyword.HASTE, t),
-                ),
-            ),
-            Effects.CreateClue(),
-        )
+            ) then
+            Effects.CreateClue()
     }
 
     metadata {

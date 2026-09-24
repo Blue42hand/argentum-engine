@@ -26,8 +26,8 @@ val WildRide = card("Wild Ride") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(power = 3, toughness = 0, target = creature)
-            .then(Effects.GrantKeyword(Keyword.HASTE, creature, Duration.EndOfTurn))
+        effect = Effects.ModifyStats(power = 3, toughness = 0, target = creature) then
+            Effects.GrantKeyword(Keyword.HASTE, creature, Duration.EndOfTurn)
     }
 
     keywordAbility(KeywordAbility.harmonize("{4}{R}"))

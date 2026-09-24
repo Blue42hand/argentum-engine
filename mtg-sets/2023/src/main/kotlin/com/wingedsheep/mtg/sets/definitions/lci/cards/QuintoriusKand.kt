@@ -44,8 +44,8 @@ val QuintoriusKand = card("Quintorius Kand") {
     // Whenever you cast a spell from exile, deal 2 damage to each opponent and gain 2 life.
     triggeredAbility {
         trigger = Triggers.you.casts(requires = setOf(SpellCastPredicate.CastFromZone(Zone.EXILE)))
-        effect = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent), damageSource = EffectTarget.Self)
-            .then(Effects.GainLife(2))
+        effect = Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent), damageSource = EffectTarget.Self) then
+            Effects.GainLife(2)
     }
 
     // +1: Create a 3/2 red and white Spirit creature token.

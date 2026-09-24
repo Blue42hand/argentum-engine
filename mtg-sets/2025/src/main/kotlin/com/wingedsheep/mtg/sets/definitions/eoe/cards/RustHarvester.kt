@@ -45,7 +45,7 @@ val RustHarvester = card("Rust Harvester") {
             target = damageTarget
         )
         
-        effect = Effects.Composite(addCounterEffect, damageEffect)
+        effect = addCounterEffect then damageEffect
     }
 
     metadata {

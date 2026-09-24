@@ -45,10 +45,7 @@ val SigardasImprisonment = card("Sigarda's Imprisonment") {
 
     activatedAbility {
         cost = Costs.Mana("{4}{W}")
-        effect = Effects.Composite(
-            Effects.Exile(EffectTarget.EnchantedCreature),
-            Effects.CreateBlood(1),
-        )
+        effect = Effects.Exile(EffectTarget.EnchantedCreature) then Effects.CreateBlood(1)
         description = "{4}{W}: Exile enchanted creature. Create a Blood token."
     }
 

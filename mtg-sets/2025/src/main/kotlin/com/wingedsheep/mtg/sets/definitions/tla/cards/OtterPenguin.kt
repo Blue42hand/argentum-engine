@@ -27,10 +27,8 @@ val OtterPenguin = card("Otter-Penguin") {
 
     triggeredAbility {
         trigger = Triggers.you.drawsNth(2)
-        effect = Effects.Composite(listOf(
-            Effects.ModifyStats(1, 2, EffectTarget.Self),
+        effect = Effects.ModifyStats(1, 2, EffectTarget.Self) then
             Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, EffectTarget.Self)
-        ))
         description = "Whenever you draw your second card each turn, this creature gets " +
             "+1/+2 until end of turn and can't be blocked this turn."
     }

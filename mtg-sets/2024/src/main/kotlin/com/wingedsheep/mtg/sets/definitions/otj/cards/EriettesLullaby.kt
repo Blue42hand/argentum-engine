@@ -24,10 +24,7 @@ val EriettesLullaby = card("Eriette's Lullaby") {
     oracleText = "Destroy target tapped creature. You gain 2 life."
     spell {
         val t = target(TargetFilter.Creature.tapped())
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            Effects.GainLife(2)
-        )
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then Effects.GainLife(2)
     }
     metadata {
         rarity = Rarity.COMMON

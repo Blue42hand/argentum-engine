@@ -31,8 +31,7 @@ val CrystalSpray = card("Crystal Spray") {
 
     spell {
         val t = target(TargetSpellOrPermanent())
-        effect = Effects.ChangeWordInText(t)
-            .then(Effects.DrawCards(1))
+        effect = Effects.ChangeWordInText(t) then Effects.DrawCards(1)
     }
 
     metadata {

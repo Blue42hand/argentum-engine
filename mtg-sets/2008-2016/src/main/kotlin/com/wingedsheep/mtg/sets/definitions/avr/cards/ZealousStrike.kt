@@ -25,10 +25,7 @@ val ZealousStrike = card("Zealous Strike") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 2, t),
-            Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),
-        )
+        effect = Effects.ModifyStats(2, 2, t) then Effects.GrantKeyword(Keyword.FIRST_STRIKE, t)
     }
 
     metadata {

@@ -24,10 +24,7 @@ val UncagedFury = card("Uncaged Fury") {
     oracleText = "Target creature gets +1/+1 and gains double strike until end of turn."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 1, t),
-            Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, t)
-        )
+        effect = Effects.ModifyStats(1, 1, t) then Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, t)
     }
     metadata {
         rarity = Rarity.COMMON

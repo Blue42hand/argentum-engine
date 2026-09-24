@@ -51,18 +51,16 @@ val VileMutilator = card("Vile Mutilator") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            // First: each opponent sacrifices a nontoken enchantment of their choice.
-            Effects.Sacrifice(
-                filter = GameObjectFilter.Enchantment.nontoken(),
-                target = EffectTarget.PlayerRef(Player.EachOpponent),
-            ),
+        // First: each opponent sacrifices a nontoken enchantment of their choice.
+        effect = Effects.Sacrifice(
+            filter = GameObjectFilter.Enchantment.nontoken(),
+            target = EffectTarget.PlayerRef(Player.EachOpponent),
+        ) then
             // Then: each opponent sacrifices a nontoken creature of their choice.
             Effects.Sacrifice(
                 filter = GameObjectFilter.Creature.nontoken(),
                 target = EffectTarget.PlayerRef(Player.EachOpponent),
-            ),
-        )
+            )
         description = "When this creature enters, each opponent sacrifices a nontoken enchantment of " +
             "their choice, then sacrifices a nontoken creature of their choice."
     }

@@ -47,8 +47,8 @@ val FallOfGilGalad = card("Fall of Gil-galad") {
                 effect = Effects.DrawCards(2)
             ),
             target = mine
-        )
-            .then(Effects.Fight(mine, other))
+        ) then
+            Effects.Fight(mine, other)
     }
 
     metadata {

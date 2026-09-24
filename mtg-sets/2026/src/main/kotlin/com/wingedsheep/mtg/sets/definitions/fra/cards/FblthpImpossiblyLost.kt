@@ -40,14 +40,12 @@ val FblthpImpossiblyLost = card("Fblthp, Impossibly Lost") {
     triggeredAbility {
         trigger = Triggers.anOpponent.isDealtCombatDamage()
         triggerRestriction = Conditions.IsYourTurn
-        effect = Effects.Composite(
-            Effects.DrawCards(2),
+        effect = Effects.DrawCards(2) then
             Effects.If(
                 condition = Exists(player = Player.You, zone = Zone.LIBRARY, negate = true),
                 then = Effects.WinGame(message = "Fblthp, Impossibly Lost: your library has no cards in it.")
-            ),
+            ) then
             Effects.ShuffleIntoLibrary(EffectTarget.Self)
-        )
         description = "When one or more of your opponents are dealt combat damage during your turn, " +
             "draw two cards. If your library has no cards in it, you win the game. " +
             "Fblthp's owner shuffles him into their library."

@@ -33,10 +33,7 @@ val GnashingOfTeeth = card("Gnashing of Teeth") {
                 "Target creature gets -5/-5 until end of turn. If that creature would die this turn, exile it instead"
             ) {
                 val t = target(TargetFilter.Creature)
-                effect = Effects.Composite(
-                    Effects.ModifyStats(-5, -5, t),
-                    Effects.MarkExileOnDeath(t)
-                )
+                effect = Effects.ModifyStats(-5, -5, t) then Effects.MarkExileOnDeath(t)
             }
             mode("Creatures target player controls get -1/-1 until end of turn") {
                 val t = target(Targets.Player)

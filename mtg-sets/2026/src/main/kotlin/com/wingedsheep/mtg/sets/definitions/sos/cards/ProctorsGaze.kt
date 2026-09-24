@@ -22,13 +22,11 @@ val ProctorsGaze = card("Proctor's Gaze") {
     oracleText = "Return up to one target nonland permanent to its owner's hand. Search your library for a basic land card, put it onto the battlefield tapped, then shuffle."
     spell {
         val t = target(TargetFilter.NonlandPermanent, optional = true)
-        effect = Effects.ReturnToHand(t)
-            .then(
-                Patterns.Library.searchLibrary(
-                    filter = GameObjectFilter.BasicLand,
-                    destination = SearchDestination.BATTLEFIELD,
-                    entersTapped = true
-                )
+        effect = Effects.ReturnToHand(t) then
+            Patterns.Library.searchLibrary(
+                filter = GameObjectFilter.BasicLand,
+                destination = SearchDestination.BATTLEFIELD,
+                entersTapped = true
             )
     }
     metadata {

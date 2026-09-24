@@ -33,13 +33,11 @@ val HarvestriteHost = card("Harvestrite Host") {
                     .withSubtype(Subtype("Rabbit"))
                     .youControl()).enters()
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.ModifyStats(1, 0, creature)
-            .then(IncrementAbilityResolutionCountEffect)
-            .then(
-                Effects.If(
-                    condition = Conditions.SourceAbilityResolvedNTimes(2),
-                    then = Effects.DrawCards(1)
-                )
+        effect = Effects.ModifyStats(1, 0, creature) then
+            IncrementAbilityResolutionCountEffect then
+            Effects.If(
+                condition = Conditions.SourceAbilityResolvedNTimes(2),
+                then = Effects.DrawCards(1)
             )
     }
 

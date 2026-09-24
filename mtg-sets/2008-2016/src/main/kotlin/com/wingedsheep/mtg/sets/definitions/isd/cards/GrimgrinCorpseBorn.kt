@@ -40,24 +40,16 @@ val GrimgrinCorpseBorn = card("Grimgrin, Corpse-Born") {
 
     activatedAbility {
         cost = Costs.SacrificeAnother(GameObjectFilter.Creature)
-        effect = Effects.Composite(
-            listOf(
-                Effects.Untap(EffectTarget.Self),
-                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-            )
-        )
+        effect = Effects.Untap(EffectTarget.Self) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Sacrifice another creature: Untap Grimgrin and put a +1/+1 counter on it."
     }
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val creature = target(TargetFilter.CreatureOpponentControls)
-        effect = Effects.Composite(
-            listOf(
-                Effects.Destroy(creature),
-                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-            )
-        )
+        effect = Effects.Destroy(creature) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
     metadata {

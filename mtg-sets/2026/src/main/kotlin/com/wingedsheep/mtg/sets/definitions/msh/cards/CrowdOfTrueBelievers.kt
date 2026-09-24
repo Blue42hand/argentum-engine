@@ -37,10 +37,7 @@ val CrowdOfTrueBelievers = card("Crowd of True Believers") {
     activatedAbility {
         cost = Costs.Tap
         val attacker = target(TargetFilter.Creature.youControl().attackingAlone())
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, attacker),
-            Effects.GainLife(1),
-        )
+        effect = Effects.ModifyStats(1, 0, attacker) then Effects.GainLife(1)
         description = "{T}: Target creature you control that's attacking alone gets +1/+0 until " +
             "end of turn. You gain 1 life."
     }

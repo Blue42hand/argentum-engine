@@ -36,11 +36,9 @@ val WargTactics = card("Warg Tactics") {
                 "Put a +1/+1 counter on target creature you control. It gains trample and hexproof until end of turn. (It can't be the target of spells or abilities your opponents control.)"
             ) {
                 val t = target(TargetFilter.Creature.youControl())
-                effect = Effects.Composite(
-                    Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
-                    Effects.GrantKeyword(Keyword.TRAMPLE, t),
+                effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t) then
+                    Effects.GrantKeyword(Keyword.TRAMPLE, t) then
                     Effects.GrantKeyword(Keyword.HEXPROOF, t)
-                )
             }
         }
     }

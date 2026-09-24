@@ -30,17 +30,15 @@ val TeyoLightshieldExpert = card("Teyo, Lightshield Expert") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val permanent = target(TargetFilter.PermanentYouControl)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.HEXPROOF, permanent),
+        effect = Effects.GrantKeyword(Keyword.HEXPROOF, permanent) then
             Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature, permanent),
                 then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, permanent),
-            ),
+            ) then
             Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Planeswalker, permanent),
                 then = Effects.AddCounters(CounterType.LOYALTY, 1, permanent),
-            ),
-        )
+            )
         description = "When Teyo enters, target permanent you control gains hexproof until end of turn. " +
             "Put a +1/+1 counter on it if it's a creature. Put a loyalty counter on it if it's a planeswalker."
     }

@@ -47,8 +47,7 @@ private val WeddingAnnouncementFront = card("Wedding Announcement") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.INVITATION, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.INVITATION, 1, EffectTarget.Self) then
             Effects.If(
                 condition = Conditions.YouAttackedWithCreaturesThisTurn(GameObjectFilter.Creature, atLeast = 2),
                 then = Effects.DrawCards(1),
@@ -59,12 +58,11 @@ private val WeddingAnnouncementFront = card("Wedding Announcement") {
                     creatureTypes = setOf("Human"),
                     imageUri = "https://cards.scryfall.io/normal/front/7/d/7d13a93a-a43d-4cf5-8300-8341f3b7f1b1.jpg?1783924701",
                 ),
-            ),
+            ) then
             Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(CounterType.INVITATION, 3),
                 then = Effects.Transform(EffectTarget.Self),
-            ),
-        )
+            )
         description = "At the beginning of your end step, put an invitation counter on this " +
             "enchantment. If you attacked with two or more creatures this turn, draw a card. " +
             "Otherwise, create a 1/1 white Human creature token. Then if this enchantment has three " +

@@ -25,10 +25,7 @@ val StabbingPain = card("Stabbing Pain") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(-1, -1, t),
-            Effects.Tap(t)
-        )
+        effect = Effects.ModifyStats(-1, -1, t) then Effects.Tap(t)
     }
 
     metadata {

@@ -57,29 +57,25 @@ val WalkInClosetForgottenCellar = card("Walk-In Closet // Forgotten Cellar") {
 
         triggeredAbility {
             trigger = Triggers.self.doorUnlocked()
-            effect = Effects.Composite(
-                listOf(
-                    // ... you may cast spells from your graveyard this turn ...
-                    Effects.GrantStaticAbility(
-                        ability = MayCastFromGraveyard(filter = GameObjectFilter.Nonland),
-                        target = EffectTarget.Self,
-                        duration = Duration.EndOfTurn,
-                    ),
-                    // ... and if a card would be put into your graveyard from anywhere this turn,
-                    // exile it instead.
-                    Effects.GrantReplacementEffect(
-                        replacement = RedirectZoneChange(
-                            newDestination = Zone.EXILE,
-                            appliesTo = EventPattern.ZoneChangeEvent(
-                                filter = GameObjectFilter(controllerPredicate = ControllerPredicate.OwnedByYou),
-                                to = Zone.GRAVEYARD,
-                            ),
+            // ... you may cast spells from your graveyard this turn ...
+            effect = Effects.GrantStaticAbility(
+                ability = MayCastFromGraveyard(filter = GameObjectFilter.Nonland),
+                target = EffectTarget.Self,
+                duration = Duration.EndOfTurn,
+            ) then
+                // ... and if a card would be put into your graveyard from anywhere this turn,
+                // exile it instead.
+                Effects.GrantReplacementEffect(
+                    replacement = RedirectZoneChange(
+                        newDestination = Zone.EXILE,
+                        appliesTo = EventPattern.ZoneChangeEvent(
+                            filter = GameObjectFilter(controllerPredicate = ControllerPredicate.OwnedByYou),
+                            to = Zone.GRAVEYARD,
                         ),
-                        target = EffectTarget.Self,
-                        duration = Duration.EndOfTurn,
                     ),
-                ),
-            )
+                    target = EffectTarget.Self,
+                    duration = Duration.EndOfTurn,
+                )
             description = "When you unlock this door, you may cast spells from your graveyard this turn, " +
                 "and if a card would be put into your graveyard from anywhere this turn, exile it instead."
         }

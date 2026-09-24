@@ -36,10 +36,8 @@ val OriginOfMetalbending = card("Origin of Metalbending") {
                     "until end of turn."
             ) {
                 val c = target(TargetFilter.CreatureYouControl)
-                effect = Effects.Composite(
-                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, c),
-                    Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, c),
-                )
+                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, c) then
+                    Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, c)
             }
         }
     }

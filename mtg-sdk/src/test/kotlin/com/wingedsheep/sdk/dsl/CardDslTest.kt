@@ -523,10 +523,7 @@ class CardDslTest : DescribeSpec({
                 typeLine = "Sorcery"
 
                 spell {
-                    effect = Effects.Composite(
-                        Effects.DrawCards(3),
-                        Patterns.Hand.discardCards(2)
-                    )
+                    effect = Effects.DrawCards(3) then Patterns.Hand.discardCards(2)
                 }
             }
 
@@ -578,11 +575,9 @@ class CardDslTest : DescribeSpec({
                     val firstTarget = target(Targets.Any)
                     val secondTarget = target(Targets.Any)
 
-                    effect = Effects.Composite(
-                        Effects.DealDamage(1, firstTarget),
-                        Effects.DealDamage(1, secondTarget),
+                    effect = Effects.DealDamage(1, firstTarget) then
+                        Effects.DealDamage(1, secondTarget) then
                         Effects.DrawCards(1)
-                    )
                 }
             }
 
@@ -594,13 +589,13 @@ class CardDslTest : DescribeSpec({
             val composite = electrolyze.spellEffect as CompositeEffect
             composite.effects shouldHaveSize 3
 
-            // First effect targets BoundVariable("first target")
+            // First effect reads the first declared target
             val damage1 = composite.effects[0] as DealDamageEffect
-            damage1.target shouldBe EffectTarget.BoundVariable("first target")
+            damage1.target shouldBe EffectTarget.BoundVariable("t0")
 
-            // Second effect targets BoundVariable("second target")
+            // Second effect reads the second
             val damage2 = composite.effects[1] as DealDamageEffect
-            damage2.target shouldBe EffectTarget.BoundVariable("second target")
+            damage2.target shouldBe EffectTarget.BoundVariable("t1")
         }
     }
 

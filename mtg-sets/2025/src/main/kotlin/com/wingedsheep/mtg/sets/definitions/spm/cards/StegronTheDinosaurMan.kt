@@ -48,10 +48,8 @@ val StegronTheDinosaurMan = card("Stegron the Dinosaur Man") {
         cost = Costs.Composite(Costs.Mana("{1}{R}"), Costs.DiscardSelf)
         activateFromZone = Zone.HAND
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.ModifyStats(3, 1, creature, Duration.EndOfTurn),
+        effect = Effects.ModifyStats(3, 1, creature, Duration.EndOfTurn) then
             Effects.AddCreatureType("Dinosaur", creature, Duration.EndOfTurn)
-        )
     }
 
     metadata {

@@ -31,10 +31,8 @@ val RenegadeFreighter = card("Renegade Freighter") {
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 1, EffectTarget.Self),
+        effect = Effects.ModifyStats(1, 1, EffectTarget.Self) then
             Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self)
-        )
         description = "It gets +1/+1 and gains trample until end of turn."
     }
 

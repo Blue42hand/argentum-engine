@@ -58,14 +58,12 @@ val HiveheartShaman = card("Hiveheart Shaman") {
 
     activatedAbility {
         cost = Costs.Mana("{5}{G}")
-        effect = Effects.Composite(
-            Effects.CreateToken(power = 1, toughness = 1, colors = setOf(Color.GREEN), creatureTypes = setOf("Insect")),
+        effect = Effects.CreateToken(power = 1, toughness = 1, colors = setOf(Color.GREEN), creatureTypes = setOf("Insect")) then
             Effects.AddDynamicCounters(
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = DynamicAmounts.domain(),
                 target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
             )
-        )
         timing = TimingRule.SorcerySpeed
     }
 

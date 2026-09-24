@@ -22,9 +22,9 @@ val ShoreUp = card("Shore Up") {
 
     spell {
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.ModifyStats(1, 1, creature)
-            .then(Effects.GrantKeyword(Keyword.HEXPROOF, creature))
-            .then(Effects.Untap(creature))
+        effect = Effects.ModifyStats(1, 1, creature) then
+            Effects.GrantKeyword(Keyword.HEXPROOF, creature) then
+            Effects.Untap(creature)
     }
 
     metadata {

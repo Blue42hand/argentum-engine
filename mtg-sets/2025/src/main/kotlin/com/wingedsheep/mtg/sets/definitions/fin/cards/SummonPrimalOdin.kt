@@ -63,8 +63,7 @@ val SummonPrimalOdin = card("Summon: Primal Odin") {
 
     // III — Hall of Sorrow — Draw two cards. Each player loses 2 life.
     sagaChapter(3) {
-        effect = Effects.DrawCards(2) then
-            Effects.LoseLife(2, EffectTarget.PlayerRef(Player.Each))
+        effect = Effects.DrawCards(2) then Effects.LoseLife(2, EffectTarget.PlayerRef(Player.Each))
     }
 
     metadata {

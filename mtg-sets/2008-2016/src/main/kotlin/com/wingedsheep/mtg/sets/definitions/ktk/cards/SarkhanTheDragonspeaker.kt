@@ -54,14 +54,13 @@ val SarkhanTheDragonspeaker = card("Sarkhan, the Dragonspeaker") {
 
     // -6: Emblem with draw step and end step triggered abilities
     loyaltyAbility(-6) {
-        effect = Effects.Composite(
-            Effects.CreateGlobalTriggeredAbility(
-                ability = TriggeredAbility.create(
-                    trigger = Triggers.you.beginningOf(Step.DRAW),
-                    effect = Effects.DrawCards(2)
-                ),
-                descriptionOverride = "At the beginning of your draw step, draw two additional cards."
+        effect = Effects.CreateGlobalTriggeredAbility(
+            ability = TriggeredAbility.create(
+                trigger = Triggers.you.beginningOf(Step.DRAW),
+                effect = Effects.DrawCards(2)
             ),
+            descriptionOverride = "At the beginning of your draw step, draw two additional cards."
+        ) then
             Effects.CreateGlobalTriggeredAbility(
                 ability = TriggeredAbility.create(
                     trigger = Triggers.you.beginningOf(Step.END),
@@ -69,7 +68,6 @@ val SarkhanTheDragonspeaker = card("Sarkhan, the Dragonspeaker") {
                 ),
                 descriptionOverride = "At the beginning of your end step, discard your hand."
             )
-        )
     }
 
     metadata {

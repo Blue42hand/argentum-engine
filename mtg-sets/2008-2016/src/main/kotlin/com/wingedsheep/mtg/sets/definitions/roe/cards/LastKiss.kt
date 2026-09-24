@@ -29,8 +29,7 @@ val LastKiss = card("Last Kiss") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.DealDamage(2, creature)
-            .then(Effects.GainLife(2))
+        effect = Effects.DealDamage(2, creature) then Effects.GainLife(2)
     }
 
     metadata {

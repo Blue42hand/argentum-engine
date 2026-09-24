@@ -28,10 +28,7 @@ val HighwayRobber = card("Highway Robber") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(Targets.Opponent)
-        effect = Effects.Composite(
-            Effects.LoseLife(2, t),
-            Effects.GainLife(2)
-        )
+        effect = Effects.LoseLife(2, t) then Effects.GainLife(2)
     }
     metadata {
         rarity = Rarity.COMMON

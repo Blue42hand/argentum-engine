@@ -32,10 +32,8 @@ val ApocalypseRunner = card("Apocalypse Runner") {
     activatedAbility {
         cost = Costs.Tap
         val t = target(TargetFilter.Creature.powerAtMost(2).youControl())
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.LIFELINK, t),
+        effect = Effects.GrantKeyword(Keyword.LIFELINK, t) then
             Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, t)
-        )
     }
     keywordAbility(KeywordAbility.crew(3))
     metadata {

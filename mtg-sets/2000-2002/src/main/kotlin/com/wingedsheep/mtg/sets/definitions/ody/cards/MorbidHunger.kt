@@ -25,10 +25,7 @@ val MorbidHunger = card("Morbid Hunger") {
     oracleText = "Morbid Hunger deals 3 damage to any target. You gain 3 life.\nFlashback {7}{B}{B} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
     spell {
         val t = target(Targets.Any)
-        effect = Effects.Composite(
-            Effects.DealDamage(3, t),
-            Effects.GainLife(3)
-        )
+        effect = Effects.DealDamage(3, t) then Effects.GainLife(3)
     }
     keywordAbility(KeywordAbility.flashback("{7}{B}{B}"))
     metadata {

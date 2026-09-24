@@ -23,9 +23,9 @@ val IncrementalGrowth = card("Incremental Growth") {
         val first = target(TargetFilter.Creature)
         val second = target(TargetFilter.Creature)
         val third = target(TargetFilter.Creature)
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, first)
-            .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, second))
-            .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, third))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, first) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, second) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, third)
     }
 
     metadata {

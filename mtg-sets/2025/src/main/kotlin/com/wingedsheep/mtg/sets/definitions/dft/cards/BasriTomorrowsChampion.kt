@@ -42,10 +42,8 @@ val BasriTomorrowsChampion = card("Basri, Tomorrow's Champion") {
     triggeredAbility {
         trigger = Triggers.self.isCycled()
         val cats = GroupFilter(GameObjectFilter.Creature.withSubtype("Cat").youControl())
-        effect = Effects.Composite(
-            Patterns.Group.grantKeywordToAll(Keyword.HEXPROOF, cats),
-            Patterns.Group.grantKeywordToAll(Keyword.INDESTRUCTIBLE, cats),
-        )
+        effect = Patterns.Group.grantKeywordToAll(Keyword.HEXPROOF, cats) then
+            Patterns.Group.grantKeywordToAll(Keyword.INDESTRUCTIBLE, cats)
         description = "When you cycle this card, Cats you control gain hexproof and indestructible until end of turn."
     }
 

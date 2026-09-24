@@ -13,8 +13,7 @@ import com.wingedsheep.sdk.scripting.references.Player
  * Dina's Guidance — Secrets of Strixhaven #184
  * {1}{B}{G} · Instant
  *
- * Search your library for a creature card, reveal it, put it into your hand or graveyard, then
- * shuffle.
+ * Search your library for a creature card, reveal it, put it into your hand or graveyard, then * shuffle.
  *
  * A search tutor whose found card lands in a *player-chosen* zone (hand or graveyard). Modeled as
  * an atomic gather → choose → reveal → split-move pipeline:

@@ -39,10 +39,7 @@ val KioraOfSaltAndSand = card("Kiora of Salt and Sand") {
         trigger = Triggers.you.attacks()
         interveningIf = Conditions.YouActivatedLoyaltyAbilityThisTurn()
         val attacker = target(TargetFilter.AttackingCreature)
-        effect = Effects.Composite(
-            Effects.Untap(attacker),
-            Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, attacker),
-        )
+        effect = Effects.Untap(attacker) then Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, attacker)
         description = "Whenever you attack, if you've activated a loyalty ability this turn, untap " +
             "target attacking creature. It can't be blocked this turn."
     }

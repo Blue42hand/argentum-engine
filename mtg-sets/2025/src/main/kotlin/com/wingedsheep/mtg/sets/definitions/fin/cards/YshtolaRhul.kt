@@ -39,13 +39,11 @@ val YshtolaRhul = card("Y'shtola Rhul") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Move(creature, Zone.EXILE)
-            .then(Effects.Move(creature, Zone.BATTLEFIELD))
-            .then(
-                Effects.If(
-                    condition = Conditions.IsFirstEndStepOfTurn,
-                    then = Effects.AddAdditionalEndSteps(1)
-                )
+        effect = Effects.Move(creature, Zone.EXILE) then
+            Effects.Move(creature, Zone.BATTLEFIELD) then
+            Effects.If(
+                condition = Conditions.IsFirstEndStepOfTurn,
+                then = Effects.AddAdditionalEndSteps(1)
             )
         description = "At the beginning of your end step, exile target creature you control, then " +
             "return it to the battlefield under its owner's control. Then if it's the first end " +

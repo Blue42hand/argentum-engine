@@ -30,16 +30,14 @@ val AgrusKosWojekVeteran = card("Agrus Kos, Wojek Veteran") {
     toughness = 3
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                GroupFilter(GameObjectFilter.Creature.withColor(Color.RED).attacking()),
-                Effects.ModifyStats(2, 0, EffectTarget.IterationEntity)
-            ),
+        effect = Effects.ForEachInGroup(
+            GroupFilter(GameObjectFilter.Creature.withColor(Color.RED).attacking()),
+            Effects.ModifyStats(2, 0, EffectTarget.IterationEntity)
+        ) then
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withColor(Color.WHITE).attacking()),
                 Effects.ModifyStats(0, 2, EffectTarget.IterationEntity)
             )
-        )
     }
     metadata {
         rarity = Rarity.RARE

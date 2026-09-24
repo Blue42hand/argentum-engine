@@ -31,9 +31,9 @@ val DreamBeavers = card("Dream Beavers") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent))
-            .then(Effects.GainLife(1))
-            .then(Patterns.Library.scry(1))
+        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then
+            Effects.GainLife(1) then
+            Patterns.Library.scry(1)
     }
 
     metadata {

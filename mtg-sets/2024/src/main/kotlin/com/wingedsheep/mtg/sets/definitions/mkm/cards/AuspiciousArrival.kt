@@ -26,10 +26,7 @@ val AuspiciousArrival = card("Auspicious Arrival") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 2, creature),
-            Effects.Investigate()
-        )
+        effect = Effects.ModifyStats(2, 2, creature) then Effects.Investigate()
     }
 
     metadata {

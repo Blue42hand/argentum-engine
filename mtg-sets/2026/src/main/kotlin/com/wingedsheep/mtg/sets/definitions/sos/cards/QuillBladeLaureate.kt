@@ -40,10 +40,8 @@ val QuillBladeLaureate = card("Quill-Blade Laureate") {
         oracleText = "Target creature gets +1/+0 and gains double strike until end of turn."
         spell {
             val creature = target(TargetFilter.Creature)
-            effect = Effects.Composite(
-                Effects.ModifyStats(1, 0, creature),
-                Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, creature, Duration.EndOfTurn),
-            )
+            effect = Effects.ModifyStats(1, 0, creature) then
+                Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, creature, Duration.EndOfTurn)
         }
     }
 

@@ -28,10 +28,7 @@ val SavageGorilla = card("Savage Gorilla") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{U}{B}"), Costs.Tap, Costs.SacrificeSelf)
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(-3, -3, t),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.ModifyStats(-3, -3, t) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

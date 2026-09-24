@@ -33,7 +33,7 @@ val Fleshtaker = card("Fleshtaker") {
 
     triggeredAbility {
         trigger = Triggers.you.sacrificesAnother(GameObjectFilter.Creature)
-        effect = Effects.GainLife(1).then(Effects.Scry(1))
+        effect = Effects.GainLife(1) then Effects.Scry(1)
         description = "Whenever you sacrifice another creature, you gain 1 life and scry 1."
     }
 

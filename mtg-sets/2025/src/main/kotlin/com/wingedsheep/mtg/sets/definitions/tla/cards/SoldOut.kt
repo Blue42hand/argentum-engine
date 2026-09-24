@@ -35,7 +35,7 @@ val SoldOut = card("Sold Out") {
                     statePredicates = listOf(StatePredicate.WasDealtDamageThisTurn),
                 ), creature),
             then = Effects.CreateClue(),
-        ).then(Effects.Exile(creature))
+        ) then Effects.Exile(creature)
     }
 
     metadata {

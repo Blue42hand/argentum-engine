@@ -25,10 +25,7 @@ val Eject = card("Eject") {
 
     spell {
         val t = target(TargetFilter.NonlandPermanent)
-        effect = Effects.Composite(
-            Effects.ReturnToHand(t),
-            Effects.DrawCards(1),
-        )
+        effect = Effects.ReturnToHand(t) then Effects.DrawCards(1)
     }
 
     metadata {

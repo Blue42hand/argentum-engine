@@ -23,10 +23,7 @@ val MomentOfTriumph = card("Moment of Triumph") {
     oracleText = "Target creature gets +2/+2 until end of turn. You gain 2 life."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 2, t),
-            Effects.GainLife(2)
-        )
+        effect = Effects.ModifyStats(2, 2, t) then Effects.GainLife(2)
     }
     metadata {
         rarity = Rarity.COMMON

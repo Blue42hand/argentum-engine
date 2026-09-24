@@ -24,8 +24,7 @@ val MabelsMettle = card("Mabel's Mettle") {
         val primary = target(TargetFilter.Creature)
         // "other target creature" — must differ from the first target (CR 601.2c)
         val secondary = target(TargetOther(TargetObject(filter = TargetFilter.Creature, optional = true)))
-        effect = Effects.ModifyStats(2, 2, primary)
-            .then(Effects.ModifyStats(1, 1, secondary))
+        effect = Effects.ModifyStats(2, 2, primary) then Effects.ModifyStats(1, 1, secondary)
     }
 
     metadata {

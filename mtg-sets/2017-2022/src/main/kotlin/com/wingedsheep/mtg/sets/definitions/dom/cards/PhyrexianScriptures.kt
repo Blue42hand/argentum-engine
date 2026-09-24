@@ -30,10 +30,8 @@ val PhyrexianScriptures = card("Phyrexian Scriptures") {
 
     sagaChapter(1) {
         val creature = target(TargetFilter.Creature, optional = true)
-        effect = Effects.Composite(listOf(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
             Effects.AddCardType("ARTIFACT", creature)
-        ))
     }
 
     sagaChapter(2) {

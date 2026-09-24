@@ -24,10 +24,7 @@ val OzaisCruelty = card("Ozai's Cruelty") {
     oracleText = "Ozai's Cruelty deals 2 damage to target player. That player discards two cards."
     spell {
         val t = target(Targets.Player)
-        effect = Effects.Composite(
-            Effects.DealDamage(2, t),
-            Patterns.Hand.discardCards(2, t)
-        )
+        effect = Effects.DealDamage(2, t) then Patterns.Hand.discardCards(2, t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

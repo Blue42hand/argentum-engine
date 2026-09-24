@@ -28,7 +28,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *   [Targets] preset: `target(Targets.Player)`, `target(Targets.Any)`.
  *
  * The handle a declaration returns is how effects read the chosen target. Its binding id is minted
- * here, positionally, so authors never name a target: the targeting prompt the player sees is
+ * here, unique across the card, so authors never name a target: the targeting prompt the player sees is
  * derived from the requirement itself ([TargetRequirement.description]), never from a name.
  */
 interface TargetDeclarations {
@@ -113,13 +113,15 @@ interface TargetDeclarations {
 
 /**
  * The target list behind a builder's [TargetDeclarations]: requirements in declaration order, each
- * stamped with a positional binding id (`t0`, `t1`, …) unique within the list.
+ * stamped with a binding id (`t0`, `t1`, …) unique across the whole card being built — nested
+ * blocks (a reflexive or delayed trigger inside an ability) resolve their targets alongside the
+ * enclosing ones, so ids only unique per block would collide. Outside a card, ids count per list.
  */
 class TargetList : TargetDeclarations {
     private val declared = mutableListOf<TargetRequirement>()
 
     override fun declareTarget(requirement: TargetRequirement): String {
-        val id = "t${declared.size}"
+        val id = "t${com.wingedsheep.sdk.scripting.AbilityIdScope.nextTargetSlot() ?: declared.size}"
         declared += requirement.withId(id)
         return id
     }

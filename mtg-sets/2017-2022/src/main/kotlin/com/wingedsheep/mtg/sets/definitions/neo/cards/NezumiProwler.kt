@@ -36,8 +36,7 @@ val NezumiProwler = card("Nezumi Prowler") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter.CreatureYouControl)
-        effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, t) then
-            Effects.GrantKeyword(Keyword.LIFELINK, t)
+        effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, t) then Effects.GrantKeyword(Keyword.LIFELINK, t)
         description = "When this creature enters, target creature you control gains deathtouch " +
             "and lifelink until end of turn."
     }

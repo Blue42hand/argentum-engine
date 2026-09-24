@@ -47,13 +47,11 @@ val RavenEagle = card("Raven Eagle") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val exiled = target(TargetFilter.CardInGraveyard, optional = true)
-        effect = Effects.Composite(
-            Effects.Exile(exiled),
+        effect = Effects.Exile(exiled) then
             Effects.If(
                 condition = Conditions.TargetIsCreatureCard(0),
                 then = Effects.CreateClue()
             )
-        )
         description = "Whenever this creature enters, exile up to one target card from a graveyard. " +
             "If a creature card is exiled this way, create a Clue token."
     }
@@ -61,23 +59,18 @@ val RavenEagle = card("Raven Eagle") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val exiled = target(TargetFilter.CardInGraveyard, optional = true)
-        effect = Effects.Composite(
-            Effects.Exile(exiled),
+        effect = Effects.Exile(exiled) then
             Effects.If(
                 condition = Conditions.TargetIsCreatureCard(0),
                 then = Effects.CreateClue()
             )
-        )
         description = "Whenever this creature attacks, exile up to one target card from a graveyard. " +
             "If a creature card is exiled this way, create a Clue token."
     }
 
     triggeredAbility {
         trigger = Triggers.you.drawsNth(2)
-        effect = Effects.Composite(
-            Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.GainLife(1)
-        )
+        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(1)
         description = "Whenever you draw your second card each turn, each opponent loses 1 life and you gain 1 life."
     }
 

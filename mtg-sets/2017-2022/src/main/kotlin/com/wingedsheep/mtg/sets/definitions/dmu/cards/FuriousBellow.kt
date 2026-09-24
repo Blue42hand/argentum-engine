@@ -20,13 +20,9 @@ val FuriousBellow = card("Furious Bellow") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Composite(
-                Effects.ModifyStats(3, 0, t),
-                Effects.GrantKeyword(Keyword.FIRST_STRIKE, t)
-            ),
+        effect = Effects.ModifyStats(3, 0, t) then
+            Effects.GrantKeyword(Keyword.FIRST_STRIKE, t) then
             Effects.Scry(1)
-        )
     }
 
     metadata {

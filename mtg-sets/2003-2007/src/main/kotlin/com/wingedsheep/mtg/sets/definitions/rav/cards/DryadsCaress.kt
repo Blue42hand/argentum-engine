@@ -35,14 +35,12 @@ val DryadsCaress = card("Dryad's Caress") {
     spell {
         effect = Effects.GainLife(
             DynamicAmounts.allCreatures()
-        ).then(
-            Effects.If(
-                condition = Conditions.ManaSpentToCastIncludes(requiredWhite = 1),
-                then = Effects.ForEachInGroup(
-                    GroupFilter(GameObjectFilter.Creature.youControl()),
-                    Effects.Untap(EffectTarget.IterationEntity),
-                ),
-            )
+        ) then Effects.If(
+            condition = Conditions.ManaSpentToCastIncludes(requiredWhite = 1),
+            then = Effects.ForEachInGroup(
+                GroupFilter(GameObjectFilter.Creature.youControl()),
+                Effects.Untap(EffectTarget.IterationEntity),
+            ),
         )
     }
 

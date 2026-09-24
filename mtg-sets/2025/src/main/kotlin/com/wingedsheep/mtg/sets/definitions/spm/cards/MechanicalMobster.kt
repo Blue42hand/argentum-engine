@@ -36,10 +36,7 @@ val MechanicalMobster = card("Mechanical Mobster") {
         trigger = Triggers.self.enters()
         val exiled = target(TargetFilter.CardInGraveyard, optional = true)
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.Move(exiled, Zone.EXILE),
-            Effects.Connive(target = creature)
-        )
+        effect = Effects.Move(exiled, Zone.EXILE) then Effects.Connive(target = creature)
         description = "When this creature enters, exile up to one target card from a graveyard. Target creature you control connives."
     }
 

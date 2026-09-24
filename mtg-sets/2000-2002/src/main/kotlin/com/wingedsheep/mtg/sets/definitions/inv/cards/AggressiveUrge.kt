@@ -20,8 +20,7 @@ val AggressiveUrge = card("Aggressive Urge") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(power = 1, toughness = 1, target = t)
-            .then(Effects.DrawCards(1))
+        effect = Effects.ModifyStats(power = 1, toughness = 1, target = t) then Effects.DrawCards(1)
     }
 
     metadata {

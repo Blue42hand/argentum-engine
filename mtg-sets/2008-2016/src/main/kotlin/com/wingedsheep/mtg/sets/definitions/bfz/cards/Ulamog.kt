@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
  * Ulamog, the Ceaseless Hunger — Battle for Zendikar #15
@@ -44,7 +43,7 @@ val Ulamog = card("Ulamog, the Ceaseless Hunger") {
 
     triggeredAbility {
         trigger = Triggers.self.isCast()
-        val targets = target(TargetObject(filter = TargetFilter.Permanent, count = 2))
+        targets(TargetFilter.Permanent, count = 2)
         effect = Effects.ForEachTarget(
             Effects.Exile(EffectTarget.ContextTarget(0))
         )

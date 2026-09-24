@@ -33,9 +33,9 @@ val Daydream = card("Daydream") {
 
     spell {
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Move(creature, Zone.EXILE)
-            .then(Effects.Move(creature, Zone.BATTLEFIELD))
-            .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature))
+        effect = Effects.Move(creature, Zone.EXILE) then
+            Effects.Move(creature, Zone.BATTLEFIELD) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }
 
     keywordAbility(KeywordAbility.flashback("{2}{W}"))

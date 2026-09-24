@@ -40,12 +40,8 @@ val ConciliatorsDuelist = card("Conciliator's Duelist") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            listOf(
-                Effects.DrawCards(1, EffectTarget.Controller),
-                Effects.LoseLife(1, EffectTarget.PlayerRef(Player.Each)),
-            )
-        )
+        effect = Effects.DrawCards(1, EffectTarget.Controller) then
+            Effects.LoseLife(1, EffectTarget.PlayerRef(Player.Each))
     }
 
     triggeredAbility {
@@ -53,15 +49,11 @@ val ConciliatorsDuelist = card("Conciliator's Duelist") {
 
         val creature = target(TargetFilter.Creature, optional = true)
 
-        effect = Effects.Composite(
-            listOf(
-                Effects.Move(creature, Zone.EXILE),
-                Effects.CreateDelayedTrigger(
-                    step = Step.END,
-                    effect = Effects.Move(creature, Zone.BATTLEFIELD),
-                ),
+        effect = Effects.Move(creature, Zone.EXILE) then
+            Effects.CreateDelayedTrigger(
+                step = Step.END,
+                effect = Effects.Move(creature, Zone.BATTLEFIELD),
             )
-        )
     }
 
     metadata {

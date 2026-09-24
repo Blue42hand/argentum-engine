@@ -26,10 +26,7 @@ val DjerusResolve = card("Djeru's Resolve") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Untap(creature),
-            Effects.PreventDamage(target = creature)
-        )
+        effect = Effects.Untap(creature) then Effects.PreventDamage(target = creature)
     }
 
     keywordAbility(KeywordAbility.cycling("{2}"))

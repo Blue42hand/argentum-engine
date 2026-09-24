@@ -53,7 +53,7 @@ val MultiversalPassage = card("Multiversal Passage") {
                 // Then you may pay 2 life. If you don't, it enters tapped.
                 run(Effects.MayPay(
                     cost = Effects.PayLife(2),
-                    then = Effects.Composite(),
+                    then = Effects.Nothing,
                     otherwise = Effects.Tap(EffectTarget.Self),
                 ))
             }

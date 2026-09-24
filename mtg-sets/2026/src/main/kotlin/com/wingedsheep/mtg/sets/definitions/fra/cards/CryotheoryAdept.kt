@@ -23,7 +23,7 @@ val CryotheoryAdept = card("Cryotheory Adept") {
         activateFromZone = Zone.GRAVEYARD
         timing = TimingRule.SorcerySpeed
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(Effects.Tap(creature), Effects.AddCounters(CounterType.STUN, 1, creature))
+        effect = Effects.Tap(creature) then Effects.AddCounters(CounterType.STUN, 1, creature)
         description = "Tap target creature and put a stun counter on it."
     }
 

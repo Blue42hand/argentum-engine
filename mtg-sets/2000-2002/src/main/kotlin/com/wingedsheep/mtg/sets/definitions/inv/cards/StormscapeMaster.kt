@@ -34,10 +34,7 @@ val StormscapeMaster = card("Stormscape Master") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{B}{B}"), Costs.Tap)
         val t = target(Targets.Player)
-        effect = Effects.Composite(
-            Effects.LoseLife(2, t),
-            Effects.GainLife(2, EffectTarget.Controller)
-        )
+        effect = Effects.LoseLife(2, t) then Effects.GainLife(2, EffectTarget.Controller)
     }
 
     metadata {

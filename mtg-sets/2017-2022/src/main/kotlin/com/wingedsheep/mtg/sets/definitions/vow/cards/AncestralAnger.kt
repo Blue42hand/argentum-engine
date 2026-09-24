@@ -40,11 +40,9 @@ val AncestralAnger = card("Ancestral Anger") {
                 cardPredicates = listOf(CardPredicate.NameEquals("Ancestral Anger")),
             ),
         )
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.TRAMPLE, t),
-            Effects.ModifyStats(pump, DynamicAmounts.fixed(0), t),
-            Effects.DrawCards(1),
-        )
+        effect = Effects.GrantKeyword(Keyword.TRAMPLE, t) then
+            Effects.ModifyStats(pump, DynamicAmounts.fixed(0), t) then
+            Effects.DrawCards(1)
     }
 
     metadata {

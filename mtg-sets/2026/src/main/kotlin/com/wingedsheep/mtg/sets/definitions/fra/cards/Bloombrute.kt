@@ -26,10 +26,7 @@ val Bloombrute = card("Bloombrute") {
     activatedAbility {
         cost = Costs.Mana("{4}{G}{W}")
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.TRAMPLE, t),
-            Effects.GrantKeyword(Keyword.LIFELINK, t)
-        )
+        effect = Effects.GrantKeyword(Keyword.TRAMPLE, t) then Effects.GrantKeyword(Keyword.LIFELINK, t)
     }
 
     metadata {

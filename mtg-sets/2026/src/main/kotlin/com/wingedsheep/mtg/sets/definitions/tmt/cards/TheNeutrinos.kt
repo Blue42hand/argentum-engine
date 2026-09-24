@@ -44,8 +44,8 @@ val TheNeutrinos = card("The Neutrinos") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val creature = target(TargetFilter(GameObjectFilter.Creature.ownedByYou()), optional = true)
-        effect = Effects.Move(creature, Zone.EXILE)
-            .then(Effects.Move(creature, Zone.BATTLEFIELD, placement = ZonePlacement.TappedAndAttacking))
+        effect = Effects.Move(creature, Zone.EXILE) then
+            Effects.Move(creature, Zone.BATTLEFIELD, placement = ZonePlacement.TappedAndAttacking)
         description = "Whenever The Neutrinos attack, exile up to one target creature you own, then return it to the battlefield under your control tapped and attacking."
     }
 

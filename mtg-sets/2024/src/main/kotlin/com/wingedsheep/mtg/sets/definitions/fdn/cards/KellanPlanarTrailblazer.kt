@@ -70,12 +70,11 @@ val KellanPlanarTrailblazer = card("Kellan, Planar Trailblazer") {
         cost = Costs.Mana("{1}{R}")
         effect = Effects.If(
             condition = Conditions.SourceHasSubtype(Subtype.SCOUT),
-            then = Effects.Composite(
-                Effects.SetCreatureSubtypes(
-                    subtypes = setOf(Subtype.HUMAN.value, Subtype.FAERIE.value, Subtype.DETECTIVE.value),
-                    target = EffectTarget.Self,
-                    duration = Duration.Permanent
-                ),
+            then = Effects.SetCreatureSubtypes(
+                subtypes = setOf(Subtype.HUMAN.value, Subtype.FAERIE.value, Subtype.DETECTIVE.value),
+                target = EffectTarget.Self,
+                duration = Duration.Permanent
+            ) then
                 Effects.GrantTriggeredAbility(
                     ability = TriggeredAbility.create(
                         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer),
@@ -86,7 +85,6 @@ val KellanPlanarTrailblazer = card("Kellan, Planar Trailblazer") {
                     target = EffectTarget.Self,
                     duration = Duration.Permanent
                 )
-            )
         )
         description = "If Kellan is a Scout, it becomes a Human Faerie Detective and gains " +
             "\"Whenever Kellan deals combat damage to a player, exile the top card of your " +
@@ -98,24 +96,22 @@ val KellanPlanarTrailblazer = card("Kellan, Planar Trailblazer") {
         cost = Costs.Mana("{2}{R}")
         effect = Effects.If(
             condition = Conditions.SourceHasSubtype(Subtype.DETECTIVE),
-            then = Effects.Composite(
-                Effects.SetBasePowerAndToughness(
-                    power = 3,
-                    toughness = 2,
-                    target = EffectTarget.Self,
-                    duration = Duration.Permanent
-                ),
+            then = Effects.SetBasePowerAndToughness(
+                power = 3,
+                toughness = 2,
+                target = EffectTarget.Self,
+                duration = Duration.Permanent
+            ) then
                 Effects.SetCreatureSubtypes(
                     subtypes = setOf(Subtype.HUMAN.value, Subtype.FAERIE.value, Subtype.ROGUE.value),
                     target = EffectTarget.Self,
                     duration = Duration.Permanent
-                ),
+                ) then
                 Effects.GrantKeyword(
                     keyword = Keyword.DOUBLE_STRIKE,
                     target = EffectTarget.Self,
                     duration = Duration.Permanent
                 )
-            )
         )
         description = "If Kellan is a Detective, it becomes a 3/2 Human Faerie Rogue and gains double strike."
     }

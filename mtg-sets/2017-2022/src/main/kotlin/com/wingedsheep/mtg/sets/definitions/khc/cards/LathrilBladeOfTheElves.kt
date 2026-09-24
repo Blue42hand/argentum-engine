@@ -59,10 +59,7 @@ val LathrilBladeOfTheElves = card("Lathril, Blade of the Elves") {
                 excludeSelf = true
             )
         )
-        effect = Effects.Composite(
-            Effects.LoseLife(10, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.GainLife(10)
-        )
+        effect = Effects.LoseLife(10, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(10)
         description = "Each opponent loses 10 life and you gain 10 life."
     }
     metadata {

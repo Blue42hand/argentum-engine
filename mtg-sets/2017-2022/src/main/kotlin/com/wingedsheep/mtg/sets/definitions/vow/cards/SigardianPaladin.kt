@@ -68,10 +68,7 @@ val SigardianPaladin = card("Sigardian Paladin") {
         val t = target(
             TargetFilter(GameObjectFilter.Creature .youControl() .withCounter(CounterType.PLUS_ONE_PLUS_ONE)),
         )
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.TRAMPLE, t),
-            Effects.GrantKeyword(Keyword.LIFELINK, t),
-        )
+        effect = Effects.GrantKeyword(Keyword.TRAMPLE, t) then Effects.GrantKeyword(Keyword.LIFELINK, t)
         description = "{1}{G}{W}: Target creature you control with a +1/+1 counter on it gains " +
             "trample and lifelink until end of turn."
     }

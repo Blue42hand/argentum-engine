@@ -26,10 +26,8 @@ val TurtleDuck = card("Turtle-Duck") {
 
     activatedAbility {
         cost = Costs.Mana("{3}")
-        effect = Effects.Composite(
-            Effects.SetBasePower(EffectTarget.Self, DynamicAmounts.fixed(4), Duration.EndOfTurn),
-            Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self, Duration.EndOfTurn),
-        )
+        effect = Effects.SetBasePower(EffectTarget.Self, DynamicAmounts.fixed(4), Duration.EndOfTurn) then
+            Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.Self, Duration.EndOfTurn)
     }
 
     metadata {

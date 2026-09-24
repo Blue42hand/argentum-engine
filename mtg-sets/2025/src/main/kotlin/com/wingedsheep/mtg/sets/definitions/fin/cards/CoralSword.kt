@@ -31,10 +31,7 @@ val CoralSword = card("Coral Sword") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter.Creature.youControl())
-        effect = Effects.Composite(
-            Effects.AttachEquipment(t),
-            Effects.GrantKeyword(Keyword.FIRST_STRIKE, t)
-        )
+        effect = Effects.AttachEquipment(t) then Effects.GrantKeyword(Keyword.FIRST_STRIKE, t)
     }
     staticAbility {
         ability = ModifyStats(1, 0)

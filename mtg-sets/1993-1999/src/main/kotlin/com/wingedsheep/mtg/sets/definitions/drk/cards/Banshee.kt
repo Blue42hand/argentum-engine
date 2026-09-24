@@ -39,16 +39,14 @@ val Banshee = card("Banshee") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{X}"), Costs.Tap)
         val victim = target(Targets.Any)
-        effect = Effects.Composite(
-            Effects.DealDamage(
-                DynamicAmounts.xValue() / 2,
-                victim,
-            ),
+        effect = Effects.DealDamage(
+            DynamicAmounts.xValue() / 2,
+            victim,
+        ) then
             Effects.DealDamage(
                 DynamicAmounts.xValue() divRoundedUp 2,
                 EffectTarget.PlayerRef(Player.You),
-            ),
-        )
+            )
         description = "{X}, {T}: This creature deals half X damage, rounded down, to any target, " +
             "and half X damage, rounded up, to you."
     }

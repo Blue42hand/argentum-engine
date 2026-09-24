@@ -73,7 +73,7 @@ val TheRuinousWreckingCrew = card("The Ruinous Wrecking Crew") {
             dynamicMax = DynamicAmounts.castX(),
             // Mode 1 — rummage, unconditionally ("then", not "if you do").
             Mode.noTarget(
-                Patterns.Hand.discardCards(1).then(Effects.DrawCards(1)),
+                Patterns.Hand.discardCards(1) then Effects.DrawCards(1),
                 description = "Discard a card, then draw a card."
             ),
             // Mode 2 — target opponent loses 2 life.

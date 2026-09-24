@@ -40,19 +40,17 @@ val CoilingRebirth = card("Coiling Rebirth") {
             // Mode 2: Gift a card — opponent draws, return creature, then if nonlegendary create 1/1 copy
             mode("Promise a gift — opponent draws a card, return target creature card from your graveyard to the battlefield, then if it isn't legendary create a 1/1 token copy") {
                 val creatureInYourGraveyard = target(TargetFilter.CreatureInYourGraveyard)
-                effect = Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent))
-                    .then(returnToBattlefield(creatureInYourGraveyard))
-                    .then(
-                        Effects.If(
-                            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.nonlegendary(), creatureInYourGraveyard),
-                            then = Effects.CreateTokenCopyOfTarget(
-                                creatureInYourGraveyard,
-                                overridePower = 1,
-                                overrideToughness = 1
-                            )
+                effect = Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent)) then
+                    returnToBattlefield(creatureInYourGraveyard) then
+                    Effects.If(
+                        condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.nonlegendary(), creatureInYourGraveyard),
+                        then = Effects.CreateTokenCopyOfTarget(
+                            creatureInYourGraveyard,
+                            overridePower = 1,
+                            overrideToughness = 1
                         )
-                    )
-                    .then(Effects.GiftGiven())
+                    ) then
+                    Effects.GiftGiven()
             }
         )
     }

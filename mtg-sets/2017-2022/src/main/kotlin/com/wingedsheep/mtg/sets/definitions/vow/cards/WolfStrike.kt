@@ -35,13 +35,11 @@ val WolfStrike: CardDefinition = card("Wolf Strike") {
     spell {
         val t1 = target(TargetFilter.Creature.youControl())
         val t2 = target(TargetFilter.Creature.opponentControls())
-        effect = Effects.Composite(
-            Effects.If(
-                condition = Conditions.IsNight,
-                then = Effects.ModifyStats(2, 0, t1),
-            ),
-            Effects.DealDamage(DynamicAmounts.powerOf(t1), t2, damageSource = t1),
-        )
+        effect = Effects.If(
+            condition = Conditions.IsNight,
+            then = Effects.ModifyStats(2, 0, t1),
+        ) then
+            Effects.DealDamage(DynamicAmounts.powerOf(t1), t2, damageSource = t1)
     }
 
     metadata {

@@ -18,10 +18,7 @@ val AbandonAttachments = card("Abandon Attachments") {
 
     spell {
         effect = Effects.May(
-            Effects.Composite(listOf(
-                Patterns.Hand.discardCards(1),
-                Effects.DrawCards(2)
-            ))
+            Patterns.Hand.discardCards(1) then Effects.DrawCards(2)
         )
     }
 

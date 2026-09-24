@@ -42,10 +42,8 @@ val BalustradeWurm = card("Balustrade Wurm") {
         activateFromZone = Zone.GRAVEYARD
         timing = TimingRule.SorcerySpeed
         restrictions = listOf(ActivationRestriction.OnlyIfCondition(Conditions.Delirium()))
-        effect = Effects.Composite(
-            Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
+        effect = Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
             Effects.AddCounters(counterType = CounterType.FINALITY, count = 1, target = EffectTarget.Self)
-        )
     }
 
     metadata {

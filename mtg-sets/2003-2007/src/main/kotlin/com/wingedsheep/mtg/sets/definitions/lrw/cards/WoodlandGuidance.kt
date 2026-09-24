@@ -18,11 +18,9 @@ val WoodlandGuidance = card("Woodland Guidance") {
 
     spell {
         val card = target(TargetFilter(baseFilter = GameObjectFilter.Any.ownedByYou(), zone = Zone.GRAVEYARD))
-        effect = Effects.ReturnToHand(card).then(
-            Patterns.Mechanic.clash(
-                Patterns.Group.untapGroup(
-                    GroupFilter(GameObjectFilter.Land.withSubtype(Subtype.FOREST).youControl())
-                )
+        effect = Effects.ReturnToHand(card) then Patterns.Mechanic.clash(
+            Patterns.Group.untapGroup(
+                GroupFilter(GameObjectFilter.Land.withSubtype(Subtype.FOREST).youControl())
             )
         )
         selfExile()

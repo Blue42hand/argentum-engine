@@ -30,10 +30,8 @@ val ManticoreOfTheGauntlet = card("Manticore of the Gauntlet") {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.CreatureYouControl)
         val damaged = target(Targets.OpponentOrPlaneswalker)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, creature),
-            Effects.DealDamage(3, damaged),
-        )
+        effect = Effects.AddCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, creature) then
+            Effects.DealDamage(3, damaged)
     }
 
     metadata {

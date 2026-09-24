@@ -30,8 +30,7 @@ val WitheringGaze = card("Withering Gaze") {
     oracleText = "Target opponent reveals their hand. You draw a card for each Forest and green card in it."
     spell {
         val t = target(Targets.Opponent)
-        effect = Effects.Composite(
-            Effects.RevealHand(t),
+        effect = Effects.RevealHand(t) then
             Effects.DrawCards(
                 DynamicAmounts.count(
                     Player.TargetOpponent,
@@ -39,7 +38,6 @@ val WitheringGaze = card("Withering Gaze") {
                     (GameObjectFilter.Land.withSubtype(Subtype.FOREST) or GameObjectFilter.Any.withColor(Color.GREEN))
                 )
             )
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

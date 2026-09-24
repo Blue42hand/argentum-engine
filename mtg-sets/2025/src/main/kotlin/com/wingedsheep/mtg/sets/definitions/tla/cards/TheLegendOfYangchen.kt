@@ -148,10 +148,7 @@ private val TheLegendOfYangchenFront = card("The Legend of Yangchen") {
     sagaChapter(2) {
         val opponent = target(Targets.Opponent)
         effect = Effects.May(
-            Effects.Composite(
-                Effects.DrawCards(3, opponent),
-                Effects.DrawCards(3)
-            )
+            Effects.DrawCards(3, opponent) then Effects.DrawCards(3)
         )
     }
 

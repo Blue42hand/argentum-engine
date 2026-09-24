@@ -86,7 +86,7 @@ class ReflexiveTriggerFeasibilityTest : FunSpec({
         triggeredAbility {
             trigger = Triggers.you.attacks()
             effect = ReflexiveTriggerEffect(
-                action = Effects.DrawCards(1).then(Patterns.Hand.discardCards(1)),
+                action = Effects.DrawCards(1) then Patterns.Hand.discardCards(1),
                 optional = true,
                 reflexiveEffect = Effects.GainLife(3)
             )
@@ -126,10 +126,8 @@ class ReflexiveTriggerFeasibilityTest : FunSpec({
         triggeredAbility {
             trigger = Triggers.you.attacks()
             effect = ReflexiveTriggerEffect(
-                action = Effects.Composite(
-                    Effects.SelectTarget(TargetObject(filter = TargetFilter.CreatureYouControl), storeAs = "counterSource"),
-                    Effects.RemoveCounterOfAnyKind(EffectTarget.PipelineTarget("counterSource", 0))
-                ),
+                action = Effects.SelectTarget(TargetObject(filter = TargetFilter.CreatureYouControl), storeAs = "counterSource") then
+                    Effects.RemoveCounterOfAnyKind(EffectTarget.PipelineTarget("counterSource", 0)),
                 optional = true,
                 reflexiveEffect = Effects.GainLife(3)
             )

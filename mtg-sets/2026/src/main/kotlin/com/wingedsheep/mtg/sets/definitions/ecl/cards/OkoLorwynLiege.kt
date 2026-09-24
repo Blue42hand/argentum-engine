@@ -86,21 +86,17 @@ private val OkoShadowmoorScion = card("Oko, Shadowmoor Scion") {
     // −6: Choose a creature type. You get an emblem with "Creatures you control of the chosen
     //     type get +3/+3 and have vigilance and hexproof."
     loyaltyAbility(-6) {
-        effect = Effects.Composite(
-            listOf(
-                ChooseCreatureTypeEffect,
-                Effects.CreatePermanentEmblem(
-                    groupFilter = GroupFilter(
-                        baseFilter = GameObjectFilter.Creature.youControl(),
-                        chosenSubtypeKey = "chosenCreatureType"
-                    ),
-                    powerBonus = 3,
-                    toughnessBonus = 3,
-                    grantedKeywords = listOf(Keyword.VIGILANCE.name, Keyword.HEXPROOF.name),
-                    emblemDescription = "Creatures you control of the chosen type get +3/+3 and have vigilance and hexproof."
-                )
+        effect = ChooseCreatureTypeEffect then
+            Effects.CreatePermanentEmblem(
+                groupFilter = GroupFilter(
+                    baseFilter = GameObjectFilter.Creature.youControl(),
+                    chosenSubtypeKey = "chosenCreatureType"
+                ),
+                powerBonus = 3,
+                toughnessBonus = 3,
+                grantedKeywords = listOf(Keyword.VIGILANCE.name, Keyword.HEXPROOF.name),
+                emblemDescription = "Creatures you control of the chosen type get +3/+3 and have vigilance and hexproof."
             )
-        )
     }
 
     metadata {

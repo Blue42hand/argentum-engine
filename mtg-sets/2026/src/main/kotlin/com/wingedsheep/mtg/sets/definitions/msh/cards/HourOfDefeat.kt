@@ -24,10 +24,7 @@ val HourOfDefeat = card("Hour of Defeat") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Destroy(creature),
-            Patterns.Library.surveil(1)
-        )
+        effect = Effects.Destroy(creature) then Patterns.Library.surveil(1)
     }
 
     metadata {

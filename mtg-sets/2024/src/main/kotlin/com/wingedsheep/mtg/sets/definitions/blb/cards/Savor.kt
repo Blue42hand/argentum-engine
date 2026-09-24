@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
@@ -21,8 +20,7 @@ val Savor = card("Savor") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(-2, -2, creature)
-            .then(Effects.CreateFood(1))
+        effect = Effects.ModifyStats(-2, -2, creature) then Effects.CreateFood(1)
     }
 
     metadata {

@@ -30,13 +30,11 @@ val SouthPoleVoyager = card("South Pole Voyager") {
         trigger = Triggers.a(GameObjectFilter.Creature
                     .withSubtype(Subtype("Ally"))
                     .youControl()).enters()
-        effect = Effects.GainLife(1)
-            .then(IncrementAbilityResolutionCountEffect)
-            .then(
-                Effects.If(
-                    condition = Conditions.SourceAbilityResolvedNTimes(2),
-                    then = Effects.DrawCards(1)
-                )
+        effect = Effects.GainLife(1) then
+            IncrementAbilityResolutionCountEffect then
+            Effects.If(
+                condition = Conditions.SourceAbilityResolvedNTimes(2),
+                then = Effects.DrawCards(1)
             )
     }
 

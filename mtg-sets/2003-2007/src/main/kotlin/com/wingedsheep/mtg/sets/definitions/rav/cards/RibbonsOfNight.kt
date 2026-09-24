@@ -29,13 +29,11 @@ val RibbonsOfNight = card("Ribbons of Night") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.DealDamage(4, creature)
-            .then(Effects.GainLife(4))
-            .then(
-                Effects.If(
-                    condition = Conditions.ManaSpentToCastIncludes(requiredBlue = 1),
-                    then = Effects.DrawCards(1),
-                )
+        effect = Effects.DealDamage(4, creature) then
+            Effects.GainLife(4) then
+            Effects.If(
+                condition = Conditions.ManaSpentToCastIncludes(requiredBlue = 1),
+                then = Effects.DrawCards(1),
             )
     }
 

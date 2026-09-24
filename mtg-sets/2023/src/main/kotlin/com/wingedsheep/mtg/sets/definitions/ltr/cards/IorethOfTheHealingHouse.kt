@@ -33,12 +33,7 @@ val IorethOfTheHealingHouse = card("Ioreth of the Healing House") {
     activatedAbility {
         cost = Costs.Tap
         val (firstCreature, secondCreature) = targets(TargetFilter.Creature.legendary().other(), count = 2)
-        effect = Effects.Composite(
-            listOf(
-                Effects.Untap(firstCreature),
-                Effects.Untap(secondCreature)
-            )
-        )
+        effect = Effects.Untap(firstCreature) then Effects.Untap(secondCreature)
     }
 
     metadata {

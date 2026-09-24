@@ -23,16 +23,14 @@ val SummonersBane = card("Summoner's Bane") {
 
     spell {
         target(TargetFilter.CreatureSpellOnStack)
-        effect = Effects.Composite(
-            Effects.CounterSpell(),
+        effect = Effects.CounterSpell() then
             Effects.CreateToken(
                 power = 2,
                 toughness = 2,
                 colors = setOf(Color.BLUE),
                 creatureTypes = setOf("Illusion"),
                 imageUri = "https://cards.scryfall.io/normal/front/5/d/5dcbf662-7263-414a-b64b-ccf9aab20faa.jpg?1783942179"
-            ),
-        )
+            )
     }
 
     metadata {

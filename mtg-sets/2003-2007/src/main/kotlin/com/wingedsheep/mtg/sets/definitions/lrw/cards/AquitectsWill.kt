@@ -43,19 +43,15 @@ val AquitectsWill = card("Aquitect's Will") {
 
     spell {
         val land = target(TargetFilter.Land)
-        effect = Effects.AddCounters(CounterType.FLOOD, 1, land)
-            .then(
-                Effects.AddSubtype(
-                    subtype = "Island",
-                    target = land,
-                    duration = Duration.WhileAffectedHasCounter(CounterType.FLOOD)
-                )
-            )
-            .then(
-                Effects.If(
-                    condition = Conditions.YouControl(GameObjectFilter.Any.withSubtype("Merfolk")),
-                    then = Effects.DrawCards(1)
-                )
+        effect = Effects.AddCounters(CounterType.FLOOD, 1, land) then
+            Effects.AddSubtype(
+                subtype = "Island",
+                target = land,
+                duration = Duration.WhileAffectedHasCounter(CounterType.FLOOD)
+            ) then
+            Effects.If(
+                condition = Conditions.YouControl(GameObjectFilter.Any.withSubtype("Merfolk")),
+                then = Effects.DrawCards(1)
             )
     }
 

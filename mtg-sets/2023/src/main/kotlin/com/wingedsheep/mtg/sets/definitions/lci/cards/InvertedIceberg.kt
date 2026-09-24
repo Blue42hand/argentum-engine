@@ -50,10 +50,7 @@ private val InvertedIcebergFront = card("Inverted Iceberg") {
     // When this artifact enters, mill a card, then draw a card.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Patterns.Library.mill(1),
-            Effects.DrawCards(1)
-        )
+        effect = Patterns.Library.mill(1) then Effects.DrawCards(1)
     }
 
     // Craft with artifact {4}{U}{U} — exactly one artifact material.

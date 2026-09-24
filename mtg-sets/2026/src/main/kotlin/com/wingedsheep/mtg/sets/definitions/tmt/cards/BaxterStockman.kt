@@ -55,9 +55,9 @@ val BaxterStockman = card("Baxter Stockman") {
                 ).youControl()
             ),
         )
-        effect = Effects.ModifyStats(3, 0, creature)
-            .then(Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature, Duration.EndOfTurn))
-            .then(Effects.GrantKeyword(Keyword.VIGILANCE, creature, Duration.EndOfTurn))
+        effect = Effects.ModifyStats(3, 0, creature) then
+            Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature, Duration.EndOfTurn) then
+            Effects.GrantKeyword(Keyword.VIGILANCE, creature, Duration.EndOfTurn)
     }
 
     metadata {

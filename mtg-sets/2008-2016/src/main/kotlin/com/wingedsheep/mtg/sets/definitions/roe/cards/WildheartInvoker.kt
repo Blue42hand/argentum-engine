@@ -29,10 +29,7 @@ val WildheartInvoker = card("Wildheart Invoker") {
     activatedAbility {
         cost = Costs.Mana("{8}")
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(5, 5, t),
-            Effects.GrantKeyword(Keyword.TRAMPLE, t)
-        )
+        effect = Effects.ModifyStats(5, 5, t) then Effects.GrantKeyword(Keyword.TRAMPLE, t)
     }
     metadata {
         rarity = Rarity.COMMON

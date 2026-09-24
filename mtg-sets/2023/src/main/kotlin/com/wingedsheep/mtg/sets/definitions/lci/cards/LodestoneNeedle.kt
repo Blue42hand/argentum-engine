@@ -61,10 +61,8 @@ private val LodestoneNeedleFront = card("Lodestone Needle") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val permanent = target(TargetFilter(GameObjectFilter.CreatureOrArtifact), optional = true)
-        effect = Effects.Composite(
-            Effects.Tap(permanent),
+        effect = Effects.Tap(permanent) then
             Effects.AddCounters(counterType = CounterType.STUN, count = 2, target = permanent)
-        )
     }
 
     // Craft with artifact {2}{U} — exactly one artifact material.

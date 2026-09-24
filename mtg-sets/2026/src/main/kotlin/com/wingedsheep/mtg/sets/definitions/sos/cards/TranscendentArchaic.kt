@@ -48,16 +48,14 @@ val TranscendentArchaic = card("Transcendent Archaic") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         effect = Effects.May(
-            Effects.DrawCards(DynamicAmounts.colorsOfManaSpent())
-                .then(
-                    Effects.If(
-                        condition = Conditions.CompareAmounts(
-                            DynamicAmounts.colorsOfManaSpent(),
-                            ComparisonOperator.GTE,
-                            1,
-                        ),
-                        then = Effects.Discard(2),
+            Effects.DrawCards(DynamicAmounts.colorsOfManaSpent()) then
+                Effects.If(
+                    condition = Conditions.CompareAmounts(
+                        DynamicAmounts.colorsOfManaSpent(),
+                        ComparisonOperator.GTE,
+                        1,
                     ),
+                    then = Effects.Discard(2),
                 ),
         )
         description = "Converge — When this creature enters, you may draw X cards, where X is the " +

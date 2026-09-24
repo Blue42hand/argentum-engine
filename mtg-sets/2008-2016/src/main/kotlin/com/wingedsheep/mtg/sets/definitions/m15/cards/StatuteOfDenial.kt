@@ -28,12 +28,10 @@ val StatuteOfDenial = card("Statute of Denial") {
 
     spell {
         target(TargetFilter.SpellOnStack)
-        effect = Effects.CounterSpell()
-            .then(
-                Effects.If(
-                    condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.withColor(Color.BLUE)),
-                    then = Patterns.Hand.loot()
-                )
+        effect = Effects.CounterSpell() then
+            Effects.If(
+                condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.withColor(Color.BLUE)),
+                then = Patterns.Hand.loot()
             )
     }
 

@@ -35,16 +35,14 @@ val ViewFromAbove = card("View from Above") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.GrantKeyword(Keyword.FLYING, t)
-            .then(
-                Effects.If(
-                    condition = Exists(
-                            Player.You,
-                            Zone.BATTLEFIELD,
-                            GameObjectFilter.Permanent.withColor(Color.WHITE)
-                        ),
-                    then = Effects.ReturnToHand(EffectTarget.Self)
-                )
+        effect = Effects.GrantKeyword(Keyword.FLYING, t) then
+            Effects.If(
+                condition = Exists(
+                        Player.You,
+                        Zone.BATTLEFIELD,
+                        GameObjectFilter.Permanent.withColor(Color.WHITE)
+                    ),
+                then = Effects.ReturnToHand(EffectTarget.Self)
             )
     }
 

@@ -46,10 +46,7 @@ val AltarOfShadows = card("Altar of Shadows") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{7}"), Costs.Tap)
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Destroy(creature),
-            Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)
-        )
+        effect = Effects.Destroy(creature) then Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)
         description = "{7}, {T}: Destroy target creature. Then put a charge counter on this artifact."
     }
 

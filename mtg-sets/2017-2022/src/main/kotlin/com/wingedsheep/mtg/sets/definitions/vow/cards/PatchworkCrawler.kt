@@ -39,10 +39,8 @@ val PatchworkCrawler = card("Patchwork Crawler") {
     activatedAbility {
         cost = Costs.Mana("{2}{U}")
         val exiled = target(TargetFilter.CreatureInYourGraveyard)
-        effect = Effects.Composite(
-            Effects.ExileLinkedToSource(exiled),
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-        )
+        effect = Effects.ExileLinkedToSource(exiled) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Exile target creature card from your graveyard and put a +1/+1 counter " +
             "on Patchwork Crawler."
     }

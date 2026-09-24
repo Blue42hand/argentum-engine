@@ -41,10 +41,8 @@ val KravenTheHunter = card("Kraven the Hunter") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.opponentControls().hasGreatestPower()).dies()
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
+        effect = Effects.DrawCards(1) then
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-        )
     }
 
     metadata {

@@ -25,10 +25,7 @@ val Smash = card("Smash") {
     oracleText = "Destroy target artifact.\nDraw a card."
     spell {
         val t = target(TargetFilter.Artifact)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

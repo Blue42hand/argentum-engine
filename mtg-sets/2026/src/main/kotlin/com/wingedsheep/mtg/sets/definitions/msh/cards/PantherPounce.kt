@@ -25,12 +25,10 @@ val PantherPounce = card("Panther Pounce") {
     spell {
         val player = target(Targets.Player)
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Investigate(1, controller = player),
-            Effects.ModifyStats(1, 0, creature),
-            Effects.GrantKeyword(Keyword.FLYING, creature),
-            Effects.Untap(creature),
-        )
+        effect = Effects.Investigate(1, controller = player) then
+            Effects.ModifyStats(1, 0, creature) then
+            Effects.GrantKeyword(Keyword.FLYING, creature) then
+            Effects.Untap(creature)
     }
     metadata {
         rarity = Rarity.COMMON

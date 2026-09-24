@@ -23,13 +23,9 @@ val SteadyAim = card("Steady Aim") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Untap(t),
-            Effects.Composite(
-                Effects.ModifyStats(1, 4, t),
+        effect = Effects.Untap(t) then
+            Effects.ModifyStats(1, 4, t) then
                 Effects.GrantKeyword(Keyword.REACH, t)
-            )
-        )
     }
 
     metadata {

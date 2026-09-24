@@ -45,15 +45,13 @@ val SoulbrightFlamekin = card("Soulbright Flamekin") {
     activatedAbility {
         cost = Costs.Mana("{2}")
         val creature = target(TargetFilter.Creature)
-        effect = Effects.GrantKeyword(Keyword.TRAMPLE, creature, Duration.EndOfTurn)
-            .then(IncrementAbilityResolutionCountEffect)
-            .then(
-                Effects.If(
-                    condition = Conditions.SourceAbilityResolvedNTimes(3),
-                    then = Effects.May(
-                        effect = Effects.AddMana(Color.RED, 8),
-                        hint = "Add {R}{R}{R}{R}{R}{R}{R}{R}?"
-                    )
+        effect = Effects.GrantKeyword(Keyword.TRAMPLE, creature, Duration.EndOfTurn) then
+            IncrementAbilityResolutionCountEffect then
+            Effects.If(
+                condition = Conditions.SourceAbilityResolvedNTimes(3),
+                then = Effects.May(
+                    effect = Effects.AddMana(Color.RED, 8),
+                    hint = "Add {R}{R}{R}{R}{R}{R}{R}{R}?"
                 )
             )
         description = "Target creature gains trample until end of turn. If this is the third time " +

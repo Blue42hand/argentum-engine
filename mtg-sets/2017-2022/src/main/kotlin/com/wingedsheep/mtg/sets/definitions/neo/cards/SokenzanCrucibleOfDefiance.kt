@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
-import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -50,22 +49,18 @@ val SokenzanCrucibleOfDefiance = card("Sokenzan, Crucible of Defiance") {
         cost = Costs.Composite(Costs.Mana("{3}{R}"), Costs.DiscardSelf)
         activateFromZone = Zone.HAND
         genericCostReduction = DynamicAmounts.legendaryCreaturesYouControl()
-        effect = Effects.Composite(
-            listOf(
-                Effects.CreateToken(
-                    count = 2,
-                    power = 1,
-                    toughness = 1,
-                    colors = emptySet(),
-                    creatureTypes = setOf("Spirit"),
-                    imageUri = "https://cards.scryfall.io/normal/front/c/a/ca20548f-6324-4858-adbe-87303ff1ca52.jpg?1783923715"
-                ),
-                Effects.ForEachInCollection(
-                    CollectionSlot.CreatedTokens,
-                    Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
-                )
+        effect = Effects.CreateToken(
+            count = 2,
+            power = 1,
+            toughness = 1,
+            colors = emptySet(),
+            creatureTypes = setOf("Spirit"),
+            imageUri = "https://cards.scryfall.io/normal/front/c/a/ca20548f-6324-4858-adbe-87303ff1ca52.jpg?1783923715"
+        ) then
+            Effects.ForEachInCollection(
+                CollectionSlot.CreatedTokens,
+                Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
             )
-        )
     }
 
     metadata {

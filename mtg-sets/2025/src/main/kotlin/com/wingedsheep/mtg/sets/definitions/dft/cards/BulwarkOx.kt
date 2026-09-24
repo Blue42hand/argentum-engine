@@ -45,10 +45,8 @@ val BulwarkOx = card("Bulwark Ox") {
         cost = Costs.SacrificeSelf
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.Composite(
-                Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.IterationEntity),
+            Effects.GrantKeyword(Keyword.HEXPROOF, EffectTarget.IterationEntity) then
                 Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)
-            )
         )
     }
     keywordAbility(KeywordAbility.saddle(1))

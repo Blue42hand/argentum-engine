@@ -53,16 +53,14 @@ val SandstormSalvager = card("Sandstorm Salvager") {
         description = "{2}, {T}: Put a +1/+1 counter on each creature token you control. They " +
             "gain trample until end of turn."
         val creatureTokensYouControl = GroupFilter(GameObjectFilter.Creature.youControl().token())
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                filter = creatureTokensYouControl,
-                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
-            ),
+        effect = Effects.ForEachInGroup(
+            filter = creatureTokensYouControl,
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
+        ) then
             Effects.ForEachInGroup(
                 filter = creatureTokensYouControl,
                 effect = Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
             )
-        )
     }
 
     metadata {

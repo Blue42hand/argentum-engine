@@ -38,10 +38,8 @@ val LilianaTheRepentant = card("Liliana the Repentant") {
         isExhaust = true
         timing = TimingRule.SorcerySpeed
         val card = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.ownedByYou(), zone = Zone.GRAVEYARD))
-        effect = Effects.Composite(
-            Effects.Move(card, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-        )
+        effect = Effects.Move(card, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Return target creature or planeswalker card from your graveyard to the battlefield. " +
             "Put a +1/+1 counter on Liliana."
     }

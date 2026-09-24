@@ -34,12 +34,7 @@ val CallOfTheRing = card("Call of the Ring") {
     triggeredAbility {
         trigger = Triggers.you.isTemptedByTheRing(true)
         effect = Effects.May(
-            effect = Effects.Composite(
-                listOf(
-                    Effects.LoseLife(2, EffectTarget.Controller),
-                    Effects.DrawCards(1),
-                )
-            )
+            effect = Effects.LoseLife(2, EffectTarget.Controller) then Effects.DrawCards(1)
         )
     }
 

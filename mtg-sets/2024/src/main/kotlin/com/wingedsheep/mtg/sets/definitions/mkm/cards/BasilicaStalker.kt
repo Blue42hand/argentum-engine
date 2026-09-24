@@ -40,10 +40,7 @@ val BasilicaStalker = card("Basilica Stalker") {
 
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
-        effect = Effects.Composite(
-            Effects.GainLife(1),
-            Effects.Surveil(1)
-        )
+        effect = Effects.GainLife(1) then Effects.Surveil(1)
         description = "Whenever this creature deals combat damage to a player, you gain 1 life and surveil 1."
     }
 

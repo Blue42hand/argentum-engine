@@ -67,14 +67,12 @@ val NineLivesFamiliar = card("Nine-Lives Familiar") {
         )
         effect = Effects.CreateDelayedTrigger(
             step = Step.END,
-            effect = Effects.Composite(
-                Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
+            effect = Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
                 Effects.AddDynamicCounters(
                     counterType = CounterType.REVIVAL,
                     amount = DynamicAmounts.lastKnownSourceCounters(revivalCounters) - 1,
                     target = EffectTarget.Self
                 )
-            )
         )
     }
 

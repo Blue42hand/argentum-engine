@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Targets
 
 /**
@@ -38,8 +37,8 @@ val RakdosJoinsUp = card("Rakdos Joins Up") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter.CreatureInYourGraveyard)
-        effect = Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD)
-            .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t))
+        effect = Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t)
     }
 
     triggeredAbility {

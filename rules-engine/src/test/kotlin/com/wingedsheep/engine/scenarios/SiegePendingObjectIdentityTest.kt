@@ -58,9 +58,8 @@ class SiegePendingObjectIdentityTest : FunSpec({
             val removal = card("Identity Remove Defense") {
                 manaCost = "{0}"; typeLine = "Sorcery"
                 spell {
-                    effect = Effects.Composite(
-                        Effects.RemoveCounters(CounterType.DEFENSE, 3, EffectTarget.SpecificEntity(siege)),
-                        if (pause == "resolution") GatedEffect(Gate.MayDecide("Continue?"), Effects.GainLife(1))
+                    effect = Effects.RemoveCounters(CounterType.DEFENSE, 3, EffectTarget.SpecificEntity(siege)) then
+                        (if (pause == "resolution") GatedEffect(Gate.MayDecide("Continue?"), Effects.GainLife(1))
                         else Effects.GainLife(1))
                 }
             }

@@ -56,10 +56,8 @@ val GarrukWildspeaker = card("Garruk Wildspeaker") {
     loyaltyAbility(-4) {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.Composite(
-                Effects.ModifyStats(3, 3, EffectTarget.IterationEntity),
+            Effects.ModifyStats(3, 3, EffectTarget.IterationEntity) then
                 Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity)
-            )
         )
     }
 

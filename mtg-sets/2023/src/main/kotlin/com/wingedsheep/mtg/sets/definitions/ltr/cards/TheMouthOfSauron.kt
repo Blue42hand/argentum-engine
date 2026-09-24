@@ -38,8 +38,7 @@ val TheMouthOfSauron = card("The Mouth of Sauron") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val player = target(Targets.Player)
-        effect = Effects.Composite(
-            Patterns.Library.mill(3, player),
+        effect = Patterns.Library.mill(3, player) then
             Effects.Amass(
                 DynamicAmounts.count(
                     player.asPlayer,
@@ -48,7 +47,6 @@ val TheMouthOfSauron = card("The Mouth of Sauron") {
                 ),
                 "Orc"
             )
-        )
     }
 
     metadata {

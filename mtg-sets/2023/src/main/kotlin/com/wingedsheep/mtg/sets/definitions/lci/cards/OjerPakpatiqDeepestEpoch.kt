@@ -68,10 +68,8 @@ private val OjerPakpatiqDeepestEpochFront = card("Ojer Pakpatiq, Deepest Epoch")
 
     triggeredAbility {
         trigger = Triggers.self.dies()
-        effect = Effects.Composite(
-            Effects.ReturnSelfFromGraveyardTransformed(tapped = true),
-            Effects.AddCounters(CounterType.TIME, 3, EffectTarget.Self),
-        )
+        effect = Effects.ReturnSelfFromGraveyardTransformed(tapped = true) then
+            Effects.AddCounters(CounterType.TIME, 3, EffectTarget.Self)
         description = "When Ojer Pakpatiq dies, return it to the battlefield tapped and " +
             "transformed under its owner's control with three time counters on it."
     }
@@ -95,10 +93,8 @@ private val TempleOfCyclicalTime = card("Temple of Cyclical Time") {
 
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.Composite(
-            Effects.AddMana(Color.BLUE, 1),
-            Effects.RemoveCounters(CounterType.TIME, 1, EffectTarget.Self),
-        )
+        effect = Effects.AddMana(Color.BLUE, 1) then
+            Effects.RemoveCounters(CounterType.TIME, 1, EffectTarget.Self)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

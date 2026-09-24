@@ -25,11 +25,9 @@ val ToxinAnalysis = card("Toxin Analysis") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.DEATHTOUCH, t),
-            Effects.GrantKeyword(Keyword.LIFELINK, t),
+        effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, t) then
+            Effects.GrantKeyword(Keyword.LIFELINK, t) then
             Effects.Investigate()
-        )
     }
 
     metadata {

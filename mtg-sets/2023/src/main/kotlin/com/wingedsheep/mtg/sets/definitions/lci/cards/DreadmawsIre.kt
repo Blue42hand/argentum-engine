@@ -26,22 +26,18 @@ val DreadmawsIre = card("Dreadmaw's Ire") {
 
     spell {
         val t = target(TargetFilter.AttackingCreature)
-        effect = Effects.Composite(
-            listOf(
-                Effects.ModifyStats(2, 2, t),
-                Effects.GrantKeyword(Keyword.TRAMPLE, t),
-                Effects.GrantTriggeredAbility(
-                    ability = grantedTriggeredAbility {
-                        trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
-                        val artifact = target(TargetFilter(GameObjectFilter.Artifact.controlledByTriggeringPlayer()))
-                        effect = Effects.Destroy(artifact)
-                        description = "Whenever this creature deals combat damage to a player, " +
-                            "destroy target artifact that player controls."
-                    },
-                    target = t
-                )
+        effect = Effects.ModifyStats(2, 2, t) then
+            Effects.GrantKeyword(Keyword.TRAMPLE, t) then
+            Effects.GrantTriggeredAbility(
+                ability = grantedTriggeredAbility {
+                    trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
+                    val artifact = target(TargetFilter(GameObjectFilter.Artifact.controlledByTriggeringPlayer()))
+                    effect = Effects.Destroy(artifact)
+                    description = "Whenever this creature deals combat damage to a player, " +
+                        "destroy target artifact that player controls."
+                },
+                target = t
             )
-        )
     }
 
     metadata {

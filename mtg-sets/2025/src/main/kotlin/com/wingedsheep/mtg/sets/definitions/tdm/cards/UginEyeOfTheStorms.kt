@@ -66,7 +66,7 @@ val UginEyeOfTheStorms = card("Ugin, Eye of the Storms") {
     // +2: You gain 3 life and draw a card.
     loyaltyAbility(+2) {
         description = "You gain 3 life and draw a card."
-        effect = Effects.Composite(listOf(Effects.GainLife(3), Effects.DrawCards(1)))
+        effect = Effects.GainLife(3) then Effects.DrawCards(1)
     }
 
     // 0: Add {C}{C}{C}.

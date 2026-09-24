@@ -17,11 +17,9 @@ val TamsResistance = card("Tam's Resistance") {
 
     spell {
         val creature = target(TargetFilter.Creature, optional = true)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
-            Effects.GrantKeyword(Keyword.VIGILANCE, creature),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
+            Effects.GrantKeyword(Keyword.VIGILANCE, creature) then
             Patterns.Mechanic.empowerJace(4)
-        )
     }
 
     metadata {

@@ -31,14 +31,12 @@ val FaerieFencing = card("Faerie Fencing") {
         val t = target(TargetFilter.Creature)
         effect = Effects.If(
             condition = Conditions.CapturedAtCast("controlledFaerie"),
-            then = Effects.Composite(
-                Effects.ModifyStats(
-                    -DynamicAmounts.xValue(),
-                    -DynamicAmounts.xValue(),
-                    t
-                ),
-                Effects.ModifyStats(-3, -3, t)
-            ),
+            then = Effects.ModifyStats(
+                -DynamicAmounts.xValue(),
+                -DynamicAmounts.xValue(),
+                t
+            ) then
+                Effects.ModifyStats(-3, -3, t),
             otherwise = Effects.ModifyStats(
                 -DynamicAmounts.xValue(),
                 -DynamicAmounts.xValue(),

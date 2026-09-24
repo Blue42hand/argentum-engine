@@ -20,10 +20,8 @@ val BattleRageBlessing = card("Battle-Rage Blessing") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.DEATHTOUCH, t),
+        effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, t) then
             Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
-        )
     }
 
     metadata {

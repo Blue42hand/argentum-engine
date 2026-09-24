@@ -35,7 +35,7 @@ val MalametBattleGlyph = card("Malamet Battle Glyph") {
         effect = Effects.If(
             condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.enteredThisTurn(), mine),
             then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, mine)
-        ).then(Effects.Fight(mine, theirs))
+        ) then Effects.Fight(mine, theirs)
     }
 
     metadata {

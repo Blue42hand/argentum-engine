@@ -32,12 +32,8 @@ val GrandColiseum = card("Grand Coliseum") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = Effects.Composite(
-            listOf(
-                Effects.AddManaOfChoice(ManaColorSet.AnyColor, 1),
-                Effects.DealDamage(1, EffectTarget.Controller, damageSource = EffectTarget.Self)
-            )
-        )
+        effect = Effects.AddManaOfChoice(ManaColorSet.AnyColor, 1) then
+            Effects.DealDamage(1, EffectTarget.Controller, damageSource = EffectTarget.Self)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

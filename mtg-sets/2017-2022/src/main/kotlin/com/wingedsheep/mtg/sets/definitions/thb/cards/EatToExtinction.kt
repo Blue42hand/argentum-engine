@@ -27,10 +27,7 @@ val EatToExtinction = card("Eat to Extinction") {
 
     spell {
         val t = target(Targets.CreatureOrPlaneswalker)
-        effect = Effects.Composite(
-            Effects.Exile(t),
-            Effects.Surveil(1)
-        )
+        effect = Effects.Exile(t) then Effects.Surveil(1)
     }
 
     metadata {

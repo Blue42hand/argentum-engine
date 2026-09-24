@@ -58,8 +58,7 @@ val CaseOfTheFilchedFalcon = card("Case of the Filched Falcon") {
     solvedActivatedAbility {
         val permanent = target(TargetFilter(GameObjectFilter.Artifact.notCreature()))
         cost = Costs.Composite(Costs.Mana("{2}{U}"), Costs.SacrificeSelf)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 4, permanent),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 4, permanent) then
             Effects.BecomeCreature(
                 target = permanent,
                 power = 0,
@@ -68,7 +67,6 @@ val CaseOfTheFilchedFalcon = card("Case of the Filched Falcon") {
                 creatureTypes = setOf("Bird"),
                 duration = Duration.Permanent
             )
-        )
         description = "Put four +1/+1 counters on target noncreature artifact. It becomes a 0/0 " +
             "Bird creature with flying in addition to its other types."
     }

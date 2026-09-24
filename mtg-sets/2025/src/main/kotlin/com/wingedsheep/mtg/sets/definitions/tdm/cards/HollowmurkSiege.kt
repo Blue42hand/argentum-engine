@@ -72,8 +72,8 @@ val HollowmurkSiege = card("Hollowmurk Siege") {
         trigger = Triggers.you.attacks()
         triggerRestriction = SourceChosenModeIs("abzan")
         val attacker = target(TargetFilter.AttackingCreature)
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, attacker)
-            .then(Effects.GrantKeyword(Keyword.MENACE, attacker))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, attacker) then
+            Effects.GrantKeyword(Keyword.MENACE, attacker)
     }
 
     metadata {

@@ -55,24 +55,22 @@ val BristlebudFarmer = card("Bristlebud Farmer") {
                 GameObjectFilter.Any.withSubtype("Food"),
                 count = 1,
                 target = EffectTarget.Controller
-            ).then(
-                Effects.Pipeline {
-                    // Mill three cards.
-                    val milled = gather(CardSource.TopOfLibrary(3))
-                    toGraveyard(milled)
-                    // You may put a permanent card from among them into your hand.
-                    val toHandCards = chooseUpTo(
-                        1,
-                        from = milled,
-                        filter = GameObjectFilter.Permanent,
-                        showAllCards = true,
-                        prompt = "You may put a permanent card into your hand",
-                        selectedLabel = "Put in hand",
-                        remainderLabel = "Leave in graveyard"
-                    )
-                    toHand(toHandCards)
-                }
-            )
+            ) then Effects.Pipeline {
+                // Mill three cards.
+                val milled = gather(CardSource.TopOfLibrary(3))
+                toGraveyard(milled)
+                // You may put a permanent card from among them into your hand.
+                val toHandCards = chooseUpTo(
+                    1,
+                    from = milled,
+                    filter = GameObjectFilter.Permanent,
+                    showAllCards = true,
+                    prompt = "You may put a permanent card into your hand",
+                    selectedLabel = "Put in hand",
+                    remainderLabel = "Leave in graveyard"
+                )
+                toHand(toHandCards)
+            }
         )
         description = "You may sacrifice a Food. If you do, mill three cards. You may put a " +
             "permanent card from among them into your hand."

@@ -51,7 +51,7 @@ val Vibrance = card("Vibrance") {
             destination = SearchDestination.HAND,
             reveal = true,
             shuffleAfter = true
-        ).then(Effects.GainLife(2))
+        ) then Effects.GainLife(2)
     }
 
     metadata {

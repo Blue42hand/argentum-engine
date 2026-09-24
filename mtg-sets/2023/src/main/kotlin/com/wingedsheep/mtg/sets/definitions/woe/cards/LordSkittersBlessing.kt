@@ -63,8 +63,7 @@ val LordSkittersBlessing = card("Lord Skitter's Blessing") {
             1,
             GameObjectFilter.Creature.youControl().enchanted(),
         )
-        effect = Effects.LoseLife(1, EffectTarget.Controller)
-            .then(Effects.DrawCards(1))
+        effect = Effects.LoseLife(1, EffectTarget.Controller) then Effects.DrawCards(1)
         description = "At the beginning of your draw step, if you control an enchanted creature, " +
             "you lose 1 life and you draw an additional card."
     }

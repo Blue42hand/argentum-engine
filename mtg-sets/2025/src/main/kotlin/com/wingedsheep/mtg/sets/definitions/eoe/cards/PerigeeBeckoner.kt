@@ -47,16 +47,12 @@ val PerigeeBeckoner = card("Perigee Beckoner") {
             descriptionOverride = "When this creature dies, return it to the battlefield tapped under its owner's control."
         )
 
-        effect = Effects.Composite(
-            listOf(
-                Effects.ModifyStats(2, 0, creature),
-                Effects.GrantTriggeredAbility(
-                    ability = diesReturnTapped,
-                    target = creature,
-                    duration = Duration.EndOfTurn,
-                ),
+        effect = Effects.ModifyStats(2, 0, creature) then
+            Effects.GrantTriggeredAbility(
+                ability = diesReturnTapped,
+                target = creature,
+                duration = Duration.EndOfTurn,
             )
-        )
         description = "When this creature enters, until end of turn, another target creature you control " +
             "gets +2/+0 and gains \"When this creature dies, return it to the battlefield tapped under " +
             "its owner's control.\""

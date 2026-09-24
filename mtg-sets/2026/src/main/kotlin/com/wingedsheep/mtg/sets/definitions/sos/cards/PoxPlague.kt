@@ -45,26 +45,22 @@ val PoxPlague = card("Pox Plague") {
                 amount = DynamicAmounts.lifeTotal(Player.You) / 2,
                 target = EffectTarget.Controller,
             ),
-        ).then(
-            Effects.ForEachPlayer(
-                Player.ActivePlayerFirst,
-                Effects.Discard(
-                    count = DynamicAmounts.zone(Player.You, Zone.HAND).count() / 2,
-                    target = EffectTarget.Controller,
-                ),
-            )
-        ).then(
-            Effects.ForEachPlayer(
-                Player.ActivePlayerFirst,
-                Effects.Sacrifice(
-                    filter = GameObjectFilter.Permanent,
-                    count = DynamicAmounts.battlefield(
-                        Player.You,
-                        GameObjectFilter.Permanent,
-                    ).count() / 2,
-                    target = EffectTarget.Controller,
-                ),
-            )
+        ) then Effects.ForEachPlayer(
+            Player.ActivePlayerFirst,
+            Effects.Discard(
+                count = DynamicAmounts.zone(Player.You, Zone.HAND).count() / 2,
+                target = EffectTarget.Controller,
+            ),
+        ) then Effects.ForEachPlayer(
+            Player.ActivePlayerFirst,
+            Effects.Sacrifice(
+                filter = GameObjectFilter.Permanent,
+                count = DynamicAmounts.battlefield(
+                    Player.You,
+                    GameObjectFilter.Permanent,
+                ).count() / 2,
+                target = EffectTarget.Controller,
+            ),
         )
     }
 

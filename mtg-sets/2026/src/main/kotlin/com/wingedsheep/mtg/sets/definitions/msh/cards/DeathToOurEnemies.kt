@@ -44,10 +44,8 @@ val DeathToOurEnemies = card("Death to Our Enemies") {
 
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.Noncreature)
-        effect = Effects.Composite(
-            Effects.CreateTreasure(1, tapped = true),
-            Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self),
-        )
+        effect = Effects.CreateTreasure(1, tapped = true) then
+            Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self)
         description = "Whenever you cast a noncreature spell, create a tapped Treasure token and " +
             "put a plan counter on this enchantment."
     }

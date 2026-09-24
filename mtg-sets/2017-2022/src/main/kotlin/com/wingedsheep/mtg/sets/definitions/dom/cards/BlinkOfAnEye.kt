@@ -25,12 +25,10 @@ val BlinkOfAnEye = card("Blink of an Eye") {
 
     spell {
         val t = target(TargetFilter.NonlandPermanent)
-        effect = Effects.ReturnToHand(t)
-            .then(
-                Effects.If(
-                    condition = WasKicked,
-                    then = Effects.DrawCards(1)
-                )
+        effect = Effects.ReturnToHand(t) then
+            Effects.If(
+                condition = WasKicked,
+                then = Effects.DrawCards(1)
             )
     }
 

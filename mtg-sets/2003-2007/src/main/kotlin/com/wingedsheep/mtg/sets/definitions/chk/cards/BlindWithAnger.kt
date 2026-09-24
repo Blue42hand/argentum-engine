@@ -25,11 +25,9 @@ val BlindWithAnger = card("Blind with Anger") {
     oracleText = "Untap target nonlegendary creature and gain control of it until end of turn. That creature gains haste until end of turn."
     spell {
         val t = target(TargetFilter.Creature.nonlegendary())
-        effect = Effects.Composite(
-            Effects.Untap(t),
-            Effects.GainControl(t, Duration.EndOfTurn),
+        effect = Effects.Untap(t) then
+            Effects.GainControl(t, Duration.EndOfTurn) then
             Effects.GrantKeyword(Keyword.HASTE, t)
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

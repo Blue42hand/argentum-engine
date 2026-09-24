@@ -48,11 +48,9 @@ val GrishnakhBrashInstigator = card("Grishnákh, Brash Instigator") {
                     .nonlegendary()
                     .powerAtMostEntity(EffectTarget.AmassedArmy),
             )
-            effect = Effects.Composite(
-                Effects.GainControl(controlled, Duration.EndOfTurn),
-                Effects.Untap(controlled),
+            effect = Effects.GainControl(controlled, Duration.EndOfTurn) then
+                Effects.Untap(controlled) then
                 Effects.GrantKeyword(Keyword.HASTE, controlled, Duration.EndOfTurn)
-            )
         }
     }
 

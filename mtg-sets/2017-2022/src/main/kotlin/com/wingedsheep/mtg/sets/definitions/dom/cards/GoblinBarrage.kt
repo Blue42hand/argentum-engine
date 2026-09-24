@@ -37,10 +37,7 @@ val GoblinBarrage = card("Goblin Barrage") {
         // Kicked: 4 damage to target creature AND 4 damage to target player or planeswalker
         val kCreature = kickerTarget(TargetFilter.Creature)
         val kPlayerOrPw = kickerTarget(Targets.PlayerOrPlaneswalker)
-        kickerEffect = Effects.Composite(
-            Effects.DealDamage(4, kCreature),
-            Effects.DealDamage(4, kPlayerOrPw)
-        )
+        kickerEffect = Effects.DealDamage(4, kCreature) then Effects.DealDamage(4, kPlayerOrPw)
     }
 
     metadata {

@@ -44,21 +44,17 @@ val LostIsleCalling = card("Lost Isle Calling") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{4}{U}{U}"), Costs.ExileSelf)
         timing = TimingRule.SorcerySpeed
-        effect = Effects.Composite(
-            listOf(
-                Effects.DrawCards(
-                    DynamicAmounts.lastKnownSourceCounters(CounterType.VERSE)
+        effect = Effects.DrawCards(
+            DynamicAmounts.lastKnownSourceCounters(CounterType.VERSE)
+        ) then
+            Effects.If(
+                condition = Conditions.CompareAmounts(
+                    DynamicAmounts.lastKnownSourceCounters(CounterType.VERSE),
+                    ComparisonOperator.GTE,
+                    7
                 ),
-                Effects.If(
-                    condition = Conditions.CompareAmounts(
-                        DynamicAmounts.lastKnownSourceCounters(CounterType.VERSE),
-                        ComparisonOperator.GTE,
-                        7
-                    ),
-                    then = Effects.TakeExtraTurn()
-                )
+                then = Effects.TakeExtraTurn()
             )
-        )
     }
 
     metadata {

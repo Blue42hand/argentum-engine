@@ -51,11 +51,9 @@ private val VolatileArsonistFront = card("Volatile Arsonist") {
         val creature = target(TargetFilter.Creature, optional = true)
         val player = target(Targets.Player, optional = true)
         val planeswalker = target(TargetFilter.Planeswalker, optional = true)
-        effect = Effects.Composite(
-            Effects.DealDamage(1, creature, damageSource = EffectTarget.Self),
-            Effects.DealDamage(1, player, damageSource = EffectTarget.Self),
-            Effects.DealDamage(1, planeswalker, damageSource = EffectTarget.Self),
-        )
+        effect = Effects.DealDamage(1, creature, damageSource = EffectTarget.Self) then
+            Effects.DealDamage(1, player, damageSource = EffectTarget.Self) then
+            Effects.DealDamage(1, planeswalker, damageSource = EffectTarget.Self)
         description = "This creature deals 1 damage to each of up to one target creature, up to one " +
             "target player, and/or up to one target planeswalker."
     }
@@ -88,11 +86,9 @@ private val DireStrainAnarchist = card("Dire-Strain Anarchist") {
         val creature = target(TargetFilter.Creature, optional = true)
         val player = target(Targets.Player, optional = true)
         val planeswalker = target(TargetFilter.Planeswalker, optional = true)
-        effect = Effects.Composite(
-            Effects.DealDamage(2, creature, damageSource = EffectTarget.Self),
-            Effects.DealDamage(2, player, damageSource = EffectTarget.Self),
-            Effects.DealDamage(2, planeswalker, damageSource = EffectTarget.Self),
-        )
+        effect = Effects.DealDamage(2, creature, damageSource = EffectTarget.Self) then
+            Effects.DealDamage(2, player, damageSource = EffectTarget.Self) then
+            Effects.DealDamage(2, planeswalker, damageSource = EffectTarget.Self)
         description = "This creature deals 2 damage to each of up to one target creature, up to one " +
             "target player, and/or up to one target planeswalker."
     }

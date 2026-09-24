@@ -52,12 +52,8 @@ val HakodaSelflessCommander = card("Hakoda, Selfless Commander") {
         cost = Costs.SacrificeSelf
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreaturesYouControl,
-            Effects.Composite(
-                listOf(
-                    Effects.ModifyStats(0, 5, EffectTarget.IterationEntity),
-                    Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)
-                )
-            )
+            Effects.ModifyStats(0, 5, EffectTarget.IterationEntity) then
+                Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.IterationEntity)
         )
     }
 

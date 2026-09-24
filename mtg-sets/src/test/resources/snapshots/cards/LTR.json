@@ -611,7 +611,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
@@ -619,7 +619,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]
@@ -4808,18 +4808,18 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t1"
                             }
                         },
                         {
                             "type": "Fight",
                             "target1": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t1"
                             },
                             "target2": {
                                 "type": "BoundVariable",
-                                "name": "t1"
+                                "name": "t2"
                             }
                         }
                     ]
@@ -4829,7 +4829,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:you"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 },
                 "additionalTargetRequirements": [
                     {
@@ -4838,7 +4838,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "t1"
+                        "id": "t2"
                     }
                 ]
             }
@@ -5397,7 +5397,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -5408,7 +5408,7 @@
                             "filter": {
                                 "baseFilter": "artifact"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target artifact"
@@ -5422,7 +5422,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t2"
                         }
                     },
                     "targetRequirements": [
@@ -5431,7 +5431,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t2"
                         }
                     ],
                     "description": "Flame of Anor deals 5 damage to target creature"
@@ -5894,7 +5894,7 @@
                     "type": "AttachTargetEquipmentToCreature",
                     "equipmentTarget": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "creatureTarget": "Self"
                 },
@@ -5904,7 +5904,7 @@
                     "filter": {
                         "baseFilter": "artifact Equipment mv>=2 mv<=3 ctrl:you"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ],
@@ -6495,7 +6495,7 @@
                                 "type": "CopyTargetSpell",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             "targetRequirements": [
@@ -6505,7 +6505,7 @@
                                         "baseFilter": "instant|sorcery ctrl:you",
                                         "zone": "Stack"
                                     },
-                                    "id": "t0"
+                                    "id": "t1"
                                 }
                             ],
                             "description": "Copy target instant or sorcery spell you control. You may choose new targets for the copy"
@@ -7668,7 +7668,7 @@
                     "source": "Self",
                     "destination": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "drawCardOnMove": true
                 },
@@ -7679,7 +7679,7 @@
                             "baseFilter": "permanent ctrl:you",
                             "excludeSelf": true
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }
@@ -9090,7 +9090,7 @@
                             "type": "TapUntap",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0[0]"
+                                "name": "t1[0]"
                             },
                             "tap": false
                         },
@@ -9098,7 +9098,7 @@
                             "type": "TapUntap",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0[1]"
+                                "name": "t1[1]"
                             },
                             "tap": false
                         }
@@ -9117,7 +9117,7 @@
                             },
                             "excludeSelf": true
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }
@@ -9542,7 +9542,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -9553,7 +9553,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Pay {4} — destroy target creature",
@@ -12560,7 +12560,7 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t1"
                             }
                         },
                         {
@@ -12571,7 +12571,7 @@
                 },
                 "targetRequirement": {
                     "type": "AnyTarget",
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]
@@ -12635,7 +12635,7 @@
                                 "keyword": "INDESTRUCTIBLE",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             {
@@ -12650,7 +12650,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Target creature gains indestructible until end of turn"
@@ -12710,33 +12710,28 @@
                                 "type": "Composite",
                                 "effects": [
                                     {
-                                        "type": "Composite",
-                                        "effects": [
-                                            {
-                                                "type": "GatherCards",
-                                                "source": {
-                                                    "type": "TopOfLibrary",
-                                                    "count": {
-                                                        "type": "EntityProperty",
-                                                        "entity": "Self",
-                                                        "numericProperty": {
-                                                            "type": "CounterCount",
-                                                            "counterType": "INFLUENCE"
-                                                        }
-                                                    },
-                                                    "isMill": true
-                                                },
-                                                "storeAs": "milled"
-                                            },
-                                            {
-                                                "type": "MoveCollection",
-                                                "from": "milled",
-                                                "destination": {
-                                                    "type": "ToZone",
-                                                    "zone": "Graveyard"
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "TopOfLibrary",
+                                            "count": {
+                                                "type": "EntityProperty",
+                                                "entity": "Self",
+                                                "numericProperty": {
+                                                    "type": "CounterCount",
+                                                    "counterType": "INFLUENCE"
                                                 }
-                                            }
-                                        ]
+                                            },
+                                            "isMill": true
+                                        },
+                                        "storeAs": "milled"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "milled",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Graveyard"
+                                        }
                                     },
                                     {
                                         "type": "LoseLife",
@@ -15492,7 +15487,7 @@
                     "filter": {
                         "baseFilter": "creature"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             },
             {
@@ -15508,7 +15503,7 @@
                 },
                 "targetRequirement": {
                     "type": "TargetOpponent",
-                    "id": "t0"
+                    "id": "t2"
                 }
             }
         ]
@@ -17392,7 +17387,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "destination": "Battlefield",
                     "fromZone": "Graveyard"
@@ -17403,7 +17398,7 @@
                         "baseFilter": "creature own:you",
                         "zone": "Graveyard"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             },
             {
@@ -17427,7 +17422,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:you"
                     },
-                    "id": "t0"
+                    "id": "t2"
                 }
             }
         ]
@@ -17912,37 +17907,32 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "TopOfLibrary",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 3
-                                        },
-                                        "player": {
-                                            "type": "BoundVariable",
-                                            "name": "t0"
-                                        },
-                                        "isMill": true
-                                    },
-                                    "storeAs": "milled"
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 3
                                 },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "milled",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard",
-                                        "player": {
-                                            "type": "BoundVariable",
-                                            "name": "t0"
-                                        }
-                                    }
+                                "player": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                },
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard",
+                                "player": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
                                 }
-                            ]
+                            }
                         },
                         {
                             "type": "Amass",

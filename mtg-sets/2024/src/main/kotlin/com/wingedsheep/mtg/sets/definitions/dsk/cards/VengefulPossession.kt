@@ -24,18 +24,16 @@ val VengefulPossession = card("Vengeful Possession") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GainControl(t, Duration.EndOfTurn),
-            Effects.Untap(t),
-            Effects.GrantKeyword(Keyword.HASTE, t, Duration.EndOfTurn),
+        effect = Effects.GainControl(t, Duration.EndOfTurn) then
+            Effects.Untap(t) then
+            Effects.GrantKeyword(Keyword.HASTE, t, Duration.EndOfTurn) then
             Effects.May(
                 effect = Effects.IfYouDo(
                     action = Patterns.Hand.discardCards(1),
                     then = Effects.DrawCards(1),
                 ),
                 descriptionOverride = "You may discard a card. If you do, draw a card.",
-            ),
-        )
+            )
     }
 
     metadata {

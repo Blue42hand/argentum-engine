@@ -40,18 +40,16 @@ val Tracker = card("Tracker") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{G}{G}"), Costs.Tap)
         val prey = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.DealDamage(
-                DynamicAmounts.sourcePower(),
-                prey,
-                damageSource = EffectTarget.Self,
-            ),
+        effect = Effects.DealDamage(
+            DynamicAmounts.sourcePower(),
+            prey,
+            damageSource = EffectTarget.Self,
+        ) then
             Effects.DealDamage(
                 DynamicAmounts.powerOf(prey),
                 EffectTarget.Self,
                 damageSource = prey,
-            ),
-        )
+            )
         description = "{G}{G}, {T}: This creature deals damage equal to its power to target " +
             "creature. That creature deals damage equal to its power to this creature."
     }

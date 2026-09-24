@@ -58,13 +58,11 @@ private val GrizzledAnglerFront = card("Grizzled Angler") {
 
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.Composite(
-            Patterns.Library.mill(2),
+        effect = Patterns.Library.mill(2) then
             Effects.If(
                 condition = Conditions.CardsInGraveyardMatchingAtLeast(1, ColorlessCreatureCard),
                 then = Effects.Transform(EffectTarget.Self),
-            ),
-        )
+            )
         description = "Mill two cards. Then if there is a colorless creature card in your " +
             "graveyard, transform this creature."
     }

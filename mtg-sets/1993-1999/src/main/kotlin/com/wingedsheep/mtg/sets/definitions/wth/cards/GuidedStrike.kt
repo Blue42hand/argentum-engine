@@ -25,11 +25,9 @@ val GuidedStrike = card("Guided Strike") {
     oracleText = "Target creature gets +1/+0 and gains first strike until end of turn.\nDraw a card."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, t),
-            Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),
+        effect = Effects.ModifyStats(1, 0, t) then
+            Effects.GrantKeyword(Keyword.FIRST_STRIKE, t) then
             Effects.DrawCards(1)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

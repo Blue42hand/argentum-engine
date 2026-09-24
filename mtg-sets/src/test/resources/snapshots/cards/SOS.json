@@ -1091,7 +1091,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "destination": "Exile"
                 },
@@ -1102,7 +1102,7 @@
                         "baseFilter": {},
                         "zone": "Graveyard"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]
@@ -1427,7 +1427,7 @@
                                 "type": "Unprepare",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             "targetRequirements": [
@@ -1436,7 +1436,7 @@
                                     "filter": {
                                         "baseFilter": "creature"
                                     },
-                                    "id": "t0"
+                                    "id": "t1"
                                 }
                             ],
                             "description": "Target creature becomes unprepared"
@@ -1620,26 +1620,21 @@
                         "type": "Composite",
                         "effects": [
                             {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "GatherCards",
-                                        "source": {
-                                            "type": "FromZone",
-                                            "zone": "Hand"
-                                        },
-                                        "storeAs": "discardedHand"
-                                    },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "discardedHand",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Graveyard"
-                                        },
-                                        "moveType": "Discard"
-                                    }
-                                ]
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Hand"
+                                },
+                                "storeAs": "discardedHand"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "discardedHand",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                },
+                                "moveType": "Discard"
                             },
                             {
                                 "type": "DrawCards",
@@ -1664,26 +1659,21 @@
                         "type": "Composite",
                         "effects": [
                             {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "GatherCards",
-                                        "source": {
-                                            "type": "FromZone",
-                                            "zone": "Hand"
-                                        },
-                                        "storeAs": "discardedHand"
-                                    },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "discardedHand",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Graveyard"
-                                        },
-                                        "moveType": "Discard"
-                                    }
-                                ]
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Hand"
+                                },
+                                "storeAs": "discardedHand"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "discardedHand",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                },
+                                "moveType": "Discard"
                             },
                             {
                                 "type": "DrawCards",
@@ -2324,7 +2314,7 @@
                         "type": "CopyTargetSpell",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "addedTokenKeywords": [
                             "HASTE"
@@ -2338,7 +2328,7 @@
                                 "baseFilter": "creature ctrl:you",
                                 "zone": "Stack"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Copy target creature spell you control. The copy gains haste and \"At the beginning of the end step, sacrifice this token.\""
@@ -4379,7 +4369,7 @@
                             "type": "MoveToZone",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t1"
                             },
                             "destination": "Exile"
                         }
@@ -4391,7 +4381,7 @@
                         "filter": {
                             "baseFilter": "creature"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }
@@ -6412,7 +6402,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -6421,7 +6411,7 @@
                             "filter": {
                                 "baseFilter": "creature kw:flying"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Glorious Decay deals 4 damage to target creature with flying"
@@ -6434,7 +6424,7 @@
                                 "type": "MoveToZone",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t2"
                                 },
                                 "destination": "Exile"
                             },
@@ -6454,7 +6444,7 @@
                                 "baseFilter": {},
                                 "zone": "Graveyard"
                             },
-                            "id": "t0"
+                            "id": "t2"
                         }
                     ],
                     "description": "Exile target card from a graveyard. Draw a card"
@@ -8397,29 +8387,24 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "TopOfLibrary",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 1
-                                        },
-                                        "isMill": true
-                                    },
-                                    "storeAs": "milled"
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
                                 },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "milled",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard"
-                                    }
-                                }
-                            ]
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
                         },
                         {
                             "type": "AddCounters",
@@ -10027,7 +10012,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Battlefield"
                     },
@@ -10038,7 +10023,7 @@
                                 "baseFilter": "nonland permanent own:you",
                                 "zone": "Graveyard"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Return target nonland permanent card from your graveyard to the battlefield"
@@ -12322,12 +12307,12 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t1"
                             }
                         },
                         "targetRequirement": {
                             "type": "TargetOpponent",
-                            "id": "t0"
+                            "id": "t1"
                         }
                     },
                     "descriptionOverride": "Whenever you gain life, target opponent loses that much life."
@@ -12581,7 +12566,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -12592,7 +12577,7 @@
                             "filter": {
                                 "baseFilter": "enchantment"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target enchantment"
@@ -12602,7 +12587,7 @@
                         "type": "SetBaseStats",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t2"
                         },
                         "power": {
                             "type": "Fixed",
@@ -12620,7 +12605,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t2"
                         }
                     ],
                     "description": "Target creature has base power and toughness 5/5 until end of turn"
@@ -12982,7 +12967,7 @@
                             "type": "SkipNextTurn",
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t1"
                             },
                             "count": {
                                 "type": "VariableReference",
@@ -12994,7 +12979,7 @@
                 "targetRequirements": [
                     {
                         "type": "TargetOpponent",
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ],
                 "timing": "SorcerySpeed",
@@ -13160,25 +13145,20 @@
                     ]
                 },
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "AddMana",
-                            "color": "BLUE",
-                            "amount": {
-                                "type": "Fixed",
-                                "amount": 2
-                            }
-                        },
-                        {
-                            "type": "AddMana",
-                            "color": "RED",
-                            "amount": {
-                                "type": "Fixed",
-                                "amount": 3
-                            }
-                        }
-                    ]
+                    "type": "AddMana",
+                    "color": "BLUE",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                {
+                    "type": "AddMana",
+                    "color": "RED",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
                 }
             ]
         }
@@ -13298,57 +13278,52 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "RevealHand",
-                            "target": {
-                                "type": "BoundVariable",
-                                "name": "t0"
-                            }
-                        },
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "FromZone",
-                                "zone": "Hand",
-                                "player": {
-                                    "type": "BoundVariable",
-                                    "name": "t0"
-                                }
-                            },
-                            "storeAs": "gathered1"
-                        },
-                        {
-                            "type": "SelectFromCollection",
-                            "from": "gathered1",
-                            "selection": {
-                                "type": "ChooseExactly",
-                                "count": {
-                                    "type": "Fixed",
-                                    "amount": 1
-                                }
-                            },
-                            "filter": "nonland",
-                            "storeSelected": "selected2",
-                            "prompt": "Choose a nonland card to discard",
-                            "showAllCards": true,
-                            "alwaysPrompt": true
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "selected2",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Graveyard",
-                                "player": {
-                                    "type": "BoundVariable",
-                                    "name": "t0"
-                                }
-                            },
-                            "moveType": "Discard"
+                    "type": "RevealHand",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Hand",
+                        "player": {
+                            "type": "BoundVariable",
+                            "name": "t0"
                         }
-                    ]
+                    },
+                    "storeAs": "gathered1"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "gathered1",
+                    "selection": {
+                        "type": "ChooseExactly",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "filter": "nonland",
+                    "storeSelected": "selected2",
+                    "prompt": "Choose a nonland card to discard",
+                    "showAllCards": true,
+                    "alwaysPrompt": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "selected2",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard",
+                        "player": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
+                    },
+                    "moveType": "Discard"
                 },
                 {
                     "type": "AddCounters",
@@ -14336,7 +14311,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Exile"
                     },
@@ -14346,7 +14321,7 @@
                             "filter": {
                                 "baseFilter": "creature pow<=2"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Exile target creature with power 2 or less"
@@ -15667,13 +15642,13 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
                         {
                             "type": "TargetCreatureOrPlaneswalker",
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Steal the Show deals damage equal to the number of instant and sorcery cards in your graveyard to target creature or planeswalker"
@@ -16326,7 +16301,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "destination": "Library",
                     "placement": "Bottom"
@@ -16338,7 +16313,7 @@
                             "baseFilter": {},
                             "zone": "Graveyard"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }
@@ -18368,26 +18343,21 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "FromZone",
-                                "zone": "Graveyard",
-                                "filter": "instant|sorcery"
-                            },
-                            "storeAs": "gathered0"
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "gathered0",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Hand"
-                            }
-                        }
-                    ]
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Graveyard",
+                        "filter": "instant|sorcery"
+                    },
+                    "storeAs": "gathered0"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "gathered0",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    }
                 },
                 "RemoveMaximumHandSize"
             ]

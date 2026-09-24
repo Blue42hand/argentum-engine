@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Skycoach Conductor // All Aboard — Secrets of Strixhaven #67
@@ -54,8 +53,7 @@ val SkycoachConductor = card("Skycoach Conductor") {
             "battlefield under its owner's control."
         spell {
             val creature = target(TargetFilter(GameObjectFilter.Creature.notSubtype(Subtype("Pilot")).youControl()))
-            effect = Effects.Exile(creature)
-                .then(Effects.Move(creature, Zone.BATTLEFIELD))
+            effect = Effects.Exile(creature) then Effects.Move(creature, Zone.BATTLEFIELD)
         }
     }
 

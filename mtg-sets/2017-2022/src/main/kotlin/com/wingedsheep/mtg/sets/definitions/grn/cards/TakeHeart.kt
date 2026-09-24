@@ -20,10 +20,8 @@ val TakeHeart = card("Take Heart") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 2, creature),
+        effect = Effects.ModifyStats(2, 2, creature) then
             Effects.GainLife(DynamicAmounts.attackingCreaturesYouControl())
-        )
     }
 
     metadata {

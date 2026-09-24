@@ -43,17 +43,12 @@ val TorchTheTower = card("Torch the Tower") {
 
     spell {
         val permanent = target(Targets.CreatureOrPlaneswalker)
-        effect = Effects.Composite(
-            Effects.If(
-                condition = Conditions.WasBargained,
-                then = Effects.Composite(
-                    Effects.DealDamage(3, permanent),
-                    Effects.Scry(1),
-                ),
-                otherwise = Effects.DealDamage(2, permanent),
-            ),
-            Effects.MarkExileOnDeath(permanent),
-        )
+        effect = Effects.If(
+            condition = Conditions.WasBargained,
+            then = Effects.DealDamage(3, permanent) then Effects.Scry(1),
+            otherwise = Effects.DealDamage(2, permanent),
+        ) then
+            Effects.MarkExileOnDeath(permanent)
     }
 
     metadata {

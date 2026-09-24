@@ -28,16 +28,14 @@ val CribSwap = card("Crib Swap") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Move(creature, Zone.EXILE)
-            .then(
-                Effects.CreateToken(
-                    power = 1,
-                    toughness = 1,
-                    creatureTypes = setOf("Shapeshifter"),
-                    keywords = setOf(Keyword.CHANGELING),
-                    controller = EffectTarget.TargetController,
-                    imageUri = "https://cards.scryfall.io/normal/front/c/2/c2963ce1-f9d8-437a-9489-e0913a8b8d26.jpg?1767660071"
-                )
+        effect = Effects.Move(creature, Zone.EXILE) then
+            Effects.CreateToken(
+                power = 1,
+                toughness = 1,
+                creatureTypes = setOf("Shapeshifter"),
+                keywords = setOf(Keyword.CHANGELING),
+                controller = EffectTarget.TargetController,
+                imageUri = "https://cards.scryfall.io/normal/front/c/2/c2963ce1-f9d8-437a-9489-e0913a8b8d26.jpg?1767660071"
             )
     }
 

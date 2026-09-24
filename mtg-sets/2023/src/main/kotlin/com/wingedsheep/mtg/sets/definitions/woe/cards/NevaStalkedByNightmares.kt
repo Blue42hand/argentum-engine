@@ -70,10 +70,8 @@ val NevaStalkedByNightmares = card("Neva, Stalked by Nightmares") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Enchantment.youControl()).dies()
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
-            Patterns.Library.scry(1),
-        )
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Patterns.Library.scry(1)
         description = "Whenever an enchantment you control is put into a graveyard from the " +
             "battlefield, put a +1/+1 counter on Neva, then scry 1."
     }

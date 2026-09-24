@@ -85,8 +85,8 @@ val RakdosTheMuscle = card("Rakdos, the Muscle") {
 
     activatedAbility {
         cost = Costs.SacrificeAnother(GameObjectFilter.Creature)
-        effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self, Duration.EndOfTurn)
-            .then(Effects.Tap(EffectTarget.Self))
+        effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self, Duration.EndOfTurn) then
+            Effects.Tap(EffectTarget.Self)
         restrictions = listOf(ActivationRestriction.OncePerTurn)
         description = "Sacrifice another creature: Rakdos gains indestructible until end of turn. Tap it."
     }

@@ -48,10 +48,8 @@ val DemonicPact = card("Demonic Pact") {
             // • This enchantment deals 4 damage to any target and you gain 4 life.
             mode("This enchantment deals 4 damage to any target and you gain 4 life") {
                 val anyTarget = target(Targets.Any)
-                effect = Effects.Composite(
-                    Effects.DealDamage(4, anyTarget, damageSource = EffectTarget.Self),
+                effect = Effects.DealDamage(4, anyTarget, damageSource = EffectTarget.Self) then
                     Effects.GainLife(4)
-                )
             },
             // • Target opponent discards two cards.
             mode("Target opponent discards two cards") {

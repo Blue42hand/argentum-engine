@@ -25,15 +25,13 @@ val SpyNetwork = card("Spy Network") {
 
     spell {
         val t = target(Targets.Player)
-        effect = Effects.LookAtHand(t)
-            .then(
-                Effects.Pipeline {
-                    val targetTop = gather(CardSource.TopOfLibrary(1, t.asPlayer))
-                    toLibraryTop(targetTop, t.asPlayer)
-                }
-            )
-            .then(Effects.LookAtFaceDown(t, FaceDownLookScope.ALL_CONTROLLED_BY_TARGET_PLAYER))
-            .then(Patterns.Library.lookAtTopAndReorder(4))
+        effect = Effects.LookAtHand(t) then
+            Effects.Pipeline {
+                val targetTop = gather(CardSource.TopOfLibrary(1, t.asPlayer))
+                toLibraryTop(targetTop, t.asPlayer)
+            } then
+            Effects.LookAtFaceDown(t, FaceDownLookScope.ALL_CONTROLLED_BY_TARGET_PLAYER) then
+            Patterns.Library.lookAtTopAndReorder(4)
     }
 
     metadata {

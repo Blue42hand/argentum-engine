@@ -93,8 +93,7 @@ private val SoulcipherBoardFront = card("Soulcipher Board") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.ownedByYou().nontoken()).changesZone(to = Zone.GRAVEYARD)
-        effect = Effects.Composite(
-            Effects.RemoveCounters(CounterType.OMEN, 1, EffectTarget.Self),
+        effect = Effects.RemoveCounters(CounterType.OMEN, 1, EffectTarget.Self) then
             Effects.If(
                 condition = Conditions.CompareAmounts(
                     DynamicAmounts.countersOnSelf(CounterType.OMEN),
@@ -102,8 +101,7 @@ private val SoulcipherBoardFront = card("Soulcipher Board") {
                     0,
                 ),
                 then = Effects.Transform(EffectTarget.Self),
-            ),
-        )
+            )
         description = "Whenever a creature card is put into your graveyard from anywhere, remove " +
             "an omen counter from this artifact. Then if it has no omen counters on it, transform it."
     }
@@ -137,10 +135,7 @@ private val CipherboundSpirit = card("Cipherbound Spirit") {
 
     activatedAbility {
         cost = Costs.Mana("{3}{U}")
-        effect = Effects.Composite(
-            Effects.DrawCards(2),
-            Patterns.Hand.discardCards(1, EffectTarget.Controller),
-        )
+        effect = Effects.DrawCards(2) then Patterns.Hand.discardCards(1, EffectTarget.Controller)
         description = "Draw two cards, then discard a card."
     }
 

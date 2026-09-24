@@ -34,15 +34,13 @@ val RollingSpoil = card("Rolling Spoil") {
 
     spell {
         val land = target(TargetFilter.Land)
-        effect = Effects.Move(land, Zone.GRAVEYARD, byDestruction = true)
-            .then(
-                Effects.If(
-                    condition = Conditions.ManaSpentToCastIncludes(requiredBlack = 1),
-                    then = Effects.ForEachInGroup(
-                        GroupFilter(GameObjectFilter.Creature),
-                        Effects.ModifyStats(-1, -1, EffectTarget.IterationEntity),
-                    ),
-                )
+        effect = Effects.Move(land, Zone.GRAVEYARD, byDestruction = true) then
+            Effects.If(
+                condition = Conditions.ManaSpentToCastIncludes(requiredBlack = 1),
+                then = Effects.ForEachInGroup(
+                    GroupFilter(GameObjectFilter.Creature),
+                    Effects.ModifyStats(-1, -1, EffectTarget.IterationEntity),
+                ),
             )
     }
 

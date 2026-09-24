@@ -28,10 +28,7 @@ val DefiantStand = card("Defiant Stand") {
         castOnlyDuring(Step.DECLARE_ATTACKERS)
         castOnlyIf(YouWereAttackedThisStep)
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 3, t),
-            Effects.Untap(t)
-        )
+        effect = Effects.ModifyStats(1, 3, t) then Effects.Untap(t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

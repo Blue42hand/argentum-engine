@@ -26,8 +26,7 @@ val IllTimedExplosion = card("Ill-Timed Explosion") {
         "cards discarded this way."
 
     spell {
-        effect = Effects.Composite(
-            Effects.DrawCards(2),
+        effect = Effects.DrawCards(2) then
             Effects.ReflexiveTrigger(
                 action = Patterns.Hand.discardCards(2),
                 optional = true,
@@ -43,8 +42,7 @@ val IllTimedExplosion = card("Ill-Timed Explosion") {
                 descriptionOverride = "You may discard two cards. When you do, Ill-Timed " +
                     "Explosion deals damage to each creature equal to the greatest mana value " +
                     "among cards discarded this way.",
-            ),
-        )
+            )
     }
 
     metadata {

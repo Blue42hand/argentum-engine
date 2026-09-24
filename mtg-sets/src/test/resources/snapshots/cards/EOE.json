@@ -606,7 +606,7 @@
                                 "count": 2,
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             {
@@ -614,7 +614,7 @@
                                 "keyword": "LIFELINK",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             }
                         ]
@@ -625,7 +625,7 @@
                             "filter": {
                                 "baseFilter": "creature ctrl:you"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Put two +1/+1 counters on target creature you control. It gains lifelink until end of turn"
@@ -3655,7 +3655,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Graveyard",
                         "byDestruction": true
@@ -3666,7 +3666,7 @@
                             "filter": {
                                 "baseFilter": "artifact"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Destroy target artifact"
@@ -3984,13 +3984,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "TargetOpponent",
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }
@@ -5327,29 +5327,24 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "Composite",
-                            "effects": [
-                                {
-                                    "type": "GatherCards",
-                                    "source": {
-                                        "type": "TopOfLibrary",
-                                        "count": {
-                                            "type": "Fixed",
-                                            "amount": 3
-                                        },
-                                        "isMill": true
-                                    },
-                                    "storeAs": "milled"
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 3
                                 },
-                                {
-                                    "type": "MoveCollection",
-                                    "from": "milled",
-                                    "destination": {
-                                        "type": "ToZone",
-                                        "zone": "Graveyard"
-                                    }
-                                }
-                            ]
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
                         },
                         {
                             "type": "Composite",
@@ -6577,7 +6572,7 @@
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
@@ -6585,7 +6580,7 @@
                     "filter": {
                         "baseFilter": "creature ctrl:you"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 },
                 "descriptionOverride": "put a +1/+1 counter on target creature you control"
             },
@@ -10326,31 +10321,26 @@
                         "type": "Composite",
                         "effects": [
                             {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "GatherCards",
-                                        "source": {
-                                            "type": "BattlefieldMatching",
-                                            "filter": {
-                                                "cardPredicates": [
-                                                    "IsCreature",
-                                                    "ManaValueIsOdd"
-                                                ]
-                                            }
-                                        },
-                                        "storeAs": "destroyAll_gathered"
-                                    },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "destroyAll_gathered",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Graveyard"
-                                        },
-                                        "moveType": "Destroy"
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "BattlefieldMatching",
+                                    "filter": {
+                                        "cardPredicates": [
+                                            "IsCreature",
+                                            "ManaValueIsOdd"
+                                        ]
                                     }
-                                ]
+                                },
+                                "storeAs": "destroyAll_gathered"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "destroyAll_gathered",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                },
+                                "moveType": "Destroy"
                             },
                             {
                                 "type": "ForEach",
@@ -10403,31 +10393,26 @@
                         "type": "Composite",
                         "effects": [
                             {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "GatherCards",
-                                        "source": {
-                                            "type": "BattlefieldMatching",
-                                            "filter": {
-                                                "cardPredicates": [
-                                                    "IsCreature",
-                                                    "ManaValueIsEven"
-                                                ]
-                                            }
-                                        },
-                                        "storeAs": "destroyAll_gathered"
-                                    },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "destroyAll_gathered",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Graveyard"
-                                        },
-                                        "moveType": "Destroy"
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "BattlefieldMatching",
+                                    "filter": {
+                                        "cardPredicates": [
+                                            "IsCreature",
+                                            "ManaValueIsEven"
+                                        ]
                                     }
-                                ]
+                                },
+                                "storeAs": "destroyAll_gathered"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "destroyAll_gathered",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                },
+                                "moveType": "Destroy"
                             },
                             {
                                 "type": "ForEach",
@@ -12291,7 +12276,7 @@
                         },
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -12300,7 +12285,7 @@
                             "filter": {
                                 "baseFilter": "creature tapped"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Reroute Systems deals 2 damage to target tapped creature"
@@ -13654,26 +13639,21 @@
             "type": "Composite",
             "effects": [
                 {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "BattlefieldMatching",
-                                "filter": "creature"
-                            },
-                            "storeAs": "destroyAll_gathered"
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "destroyAll_gathered",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Graveyard"
-                            },
-                            "moveType": "Destroy"
-                        }
-                    ]
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "BattlefieldMatching",
+                        "filter": "creature"
+                    },
+                    "storeAs": "destroyAll_gathered"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "destroyAll_gathered",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    },
+                    "moveType": "Destroy"
                 },
                 {
                     "type": "ForEach",
@@ -15158,7 +15138,7 @@
                     "type": "TapUntap",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirements": [
@@ -15167,7 +15147,7 @@
                         "filter": {
                             "baseFilter": "creature|artifact"
                         },
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ],
                 "descriptionOverride": "Tap target artifact or creature."
@@ -16120,7 +16100,7 @@
                     "type": "MoveToZone",
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     },
                     "destination": "Graveyard",
                     "byDestruction": true
@@ -16131,7 +16111,7 @@
                     "filter": {
                         "baseFilter": "nonland permanent"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 },
                 "triggerRestriction": {
                     "type": "Compare",
@@ -17108,7 +17088,7 @@
                                     "count": 3,
                                     "target": {
                                         "type": "BoundVariable",
-                                        "name": "t0"
+                                        "name": "t1"
                                     }
                                 },
                                 {
@@ -17119,7 +17099,7 @@
                                             "type": "EntityMatches",
                                             "entity": {
                                                 "type": "BoundVariable",
-                                                "name": "t0"
+                                                "name": "t1"
                                             },
                                             "filter": "noncreature"
                                         }
@@ -17128,7 +17108,7 @@
                                         "type": "BecomeCreature",
                                         "target": {
                                             "type": "BoundVariable",
-                                            "name": "t0"
+                                            "name": "t1"
                                         },
                                         "power": {
                                             "type": "Fixed",
@@ -17151,7 +17131,7 @@
                             "filter": {
                                 "baseFilter": "artifact ctrl:you"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     },
                     "descriptionOverride": "At the beginning of combat on your turn, put three +1/+1 counters on target artifact you control. If it's not a creature, it becomes a 0/0 Robot artifact creature."

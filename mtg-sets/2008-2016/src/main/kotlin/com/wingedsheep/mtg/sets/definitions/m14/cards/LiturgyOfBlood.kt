@@ -20,10 +20,7 @@ val LiturgyOfBlood = card("Liturgy of Blood") {
 
     spell {
         val victim = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Destroy(victim),
-            Effects.AddMana(Color.BLACK, 3)
-        )
+        effect = Effects.Destroy(victim) then Effects.AddMana(Color.BLACK, 3)
     }
 
     metadata {

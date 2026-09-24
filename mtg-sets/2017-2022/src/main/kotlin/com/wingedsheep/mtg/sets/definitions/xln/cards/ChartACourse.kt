@@ -22,11 +22,9 @@ val ChartACourse = card("Chart a Course") {
     oracleText = "Draw two cards. Then discard a card unless you attacked this turn."
 
     spell {
-        effect = Effects.DrawCards(2).then(
-            Effects.If(
-                condition = Conditions.Not(Conditions.YouAttackedThisTurn),
-                then = Effects.Discard(1),
-            )
+        effect = Effects.DrawCards(2) then Effects.If(
+            condition = Conditions.Not(Conditions.YouAttackedThisTurn),
+            then = Effects.Discard(1),
         )
     }
 

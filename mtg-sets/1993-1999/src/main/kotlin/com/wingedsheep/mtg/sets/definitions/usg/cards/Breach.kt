@@ -24,10 +24,7 @@ val Breach = card("Breach") {
     oracleText = "Target creature gets +2/+0 and gains fear until end of turn. (It can't be blocked except by artifact creatures and/or black creatures.)"
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, t),
-            Effects.GrantKeyword(Keyword.FEAR, t)
-        )
+        effect = Effects.ModifyStats(2, 0, t) then Effects.GrantKeyword(Keyword.FEAR, t)
     }
     metadata {
         rarity = Rarity.COMMON

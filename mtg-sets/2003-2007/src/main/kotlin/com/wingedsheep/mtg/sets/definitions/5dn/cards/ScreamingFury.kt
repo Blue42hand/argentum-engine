@@ -24,10 +24,7 @@ val ScreamingFury = card("Screaming Fury") {
     oracleText = "Target creature gets +5/+0 and gains haste until end of turn."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(5, 0, t),
-            Effects.GrantKeyword(Keyword.HASTE, t)
-        )
+        effect = Effects.ModifyStats(5, 0, t) then Effects.GrantKeyword(Keyword.HASTE, t)
     }
     metadata {
         rarity = Rarity.COMMON

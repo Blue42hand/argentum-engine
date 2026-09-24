@@ -46,19 +46,15 @@ val ImmersturmPredator = card("Immersturm Predator") {
     triggeredAbility {
         trigger = Triggers.self.becomesTapped()
         val exiled = target(TargetFilter.CardInGraveyard, optional = true)
-        effect = Effects.Composite(
-            Effects.Move(exiled, Zone.EXILE),
+        effect = Effects.Move(exiled, Zone.EXILE) then
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-        )
     }
 
     // Sacrifice another creature: This creature gains indestructible until end of turn. Tap it.
     activatedAbility {
         cost = Costs.SacrificeAnother(GameObjectFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self),
+        effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self) then
             Effects.Tap(EffectTarget.Self)
-        )
     }
 
     metadata {

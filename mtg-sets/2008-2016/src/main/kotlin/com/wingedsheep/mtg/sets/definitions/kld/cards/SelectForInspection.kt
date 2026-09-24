@@ -25,10 +25,7 @@ val SelectForInspection = card("Select for Inspection") {
 
     spell {
         val t = target(TargetFilter.TappedCreature)
-        effect = Effects.Composite(
-            Effects.ReturnToHand(t),
-            Effects.Scry(1)
-        )
+        effect = Effects.ReturnToHand(t) then Effects.Scry(1)
     }
 
     metadata {

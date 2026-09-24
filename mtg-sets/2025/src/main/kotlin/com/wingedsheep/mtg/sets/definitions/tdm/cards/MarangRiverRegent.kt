@@ -53,7 +53,7 @@ val MarangRiverRegent = card("Marang River Regent") {
         oracleText = "Draw three cards, then discard a card. " +
             "(Then shuffle this card into its owner's library.)"
         spell {
-            effect = Effects.DrawCards(3).then(Effects.Discard(1))
+            effect = Effects.DrawCards(3) then Effects.Discard(1)
         }
     }
 

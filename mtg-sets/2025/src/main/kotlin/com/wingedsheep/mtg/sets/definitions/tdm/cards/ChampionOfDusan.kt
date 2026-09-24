@@ -36,8 +36,8 @@ val ChampionOfDusan = card("Champion of Dusan") {
 
     renew("{1}{G}") {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
-            .then(Effects.AddCounters(CounterType.TRAMPLE, 1, creature))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
+            Effects.AddCounters(CounterType.TRAMPLE, 1, creature)
     }
 
     metadata {

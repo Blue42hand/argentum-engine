@@ -86,16 +86,14 @@ private val GarrukRelentlessFront = card("Garruk Relentless") {
 
     loyaltyAbility(0) {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.DealDamage(3, creature),
+        effect = Effects.DealDamage(3, creature) then
             // "That creature deals damage equal to its power to him" — attributed to the creature,
             // so its power is read at resolution and its damage keywords apply.
             Effects.DealDamage(
                 DynamicAmounts.powerOf(creature),
                 EffectTarget.Self,
                 damageSource = creature,
-            ),
-        )
+            )
         description = "Garruk deals 3 damage to target creature. That creature deals damage equal " +
             "to its power to him."
     }
@@ -168,14 +166,12 @@ private val GarrukTheVeilCursed = card("Garruk, the Veil-Cursed") {
     loyaltyAbility(-3) {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            Effects.Composite(
-                Effects.ModifyStats(
-                    DynamicAmounts.creatureCardsInYourGraveyard(),
-                    DynamicAmounts.creatureCardsInYourGraveyard(),
-                    EffectTarget.IterationEntity,
-                ),
+            Effects.ModifyStats(
+                DynamicAmounts.creatureCardsInYourGraveyard(),
+                DynamicAmounts.creatureCardsInYourGraveyard(),
+                EffectTarget.IterationEntity,
+            ) then
                 Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.IterationEntity),
-            ),
         )
         description = "Creatures you control gain trample and get +X/+X until end of turn, where X " +
             "is the number of creature cards in your graveyard."

@@ -192,10 +192,7 @@ object PredefinedTokens {
                 Costs.Mana("{2}"),
                 Costs.SacrificeSelf
             )
-            effect = Effects.Composite(
-                Effects.Scry(1),
-                Effects.DrawCards(1)
-            )
+            effect = Effects.Scry(1) then Effects.DrawCards(1)
         }
 
         metadata {

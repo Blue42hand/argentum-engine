@@ -20,8 +20,7 @@ val AdamantWill = card("Adamant Will") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(2, 2, t)
-            .then(Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t))
+        effect = Effects.ModifyStats(2, 2, t) then Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
     }
 
     metadata {

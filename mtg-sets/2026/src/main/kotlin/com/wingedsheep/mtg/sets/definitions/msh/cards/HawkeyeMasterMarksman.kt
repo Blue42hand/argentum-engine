@@ -82,10 +82,7 @@ val HawkeyeMasterMarksman = card("Hawkeye, Master Marksman") {
                         effect = Effects.DealDamage(2, player)
                     },
                     Mode.noTarget(
-                        effect = Effects.Composite(
-                            Patterns.Hand.discardCards(1),
-                            Effects.DrawCards(1)
-                        ),
+                        effect = Patterns.Hand.discardCards(1) then Effects.DrawCards(1),
                         description = "Boomerang — Discard a card, then draw a card."
                     )
                 ),

@@ -43,10 +43,8 @@ val TheSpeedDemon = card("The Speed Demon") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
-        effect = Effects.Composite(
-            Effects.DrawCards(DynamicAmounts.speed(Player.You)),
-            Effects.LoseLife(DynamicAmounts.speed(Player.You), EffectTarget.Controller),
-        )
+        effect = Effects.DrawCards(DynamicAmounts.speed(Player.You)) then
+            Effects.LoseLife(DynamicAmounts.speed(Player.You), EffectTarget.Controller)
         description = "At the beginning of your end step, you draw X cards and lose X life, " +
             "where X is your speed."
     }

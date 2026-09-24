@@ -44,10 +44,8 @@ val PossessionEngine = card("Possession Engine") {
         trigger = Triggers.self.enters()
         val stolen = target(TargetFilter.CreatureOpponentControls)
         val whileControlled = Duration.WhileYouControlSource("this Vehicle")
-        effect = Effects.Composite(
-            Effects.GainControl(stolen, whileControlled),
-            Effects.CantAttackOrBlock(stolen, whileControlled),
-        )
+        effect = Effects.GainControl(stolen, whileControlled) then
+            Effects.CantAttackOrBlock(stolen, whileControlled)
         description = "When this Vehicle enters, gain control of target creature an opponent " +
             "controls for as long as you control this Vehicle. That creature can't attack or " +
             "block for as long as you control this Vehicle."

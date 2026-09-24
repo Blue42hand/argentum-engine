@@ -51,10 +51,7 @@ val SunDroplet = card("Sun Droplet") {
         effect = Effects.If(
             condition = Conditions.SourceHasCounter(CounterType.CHARGE),
             then = Effects.May(
-                Effects.Composite(
-                    Effects.RemoveCounters(CounterType.CHARGE, 1, EffectTarget.Self),
-                    Effects.GainLife(1),
-                ),
+                Effects.RemoveCounters(CounterType.CHARGE, 1, EffectTarget.Self) then Effects.GainLife(1),
                 descriptionOverride = "Remove a charge counter from Sun Droplet to gain 1 life?",
             ),
         )

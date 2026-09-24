@@ -52,11 +52,9 @@ val KirolHistoryBuff = card("Kirol, History Buff") {
         oracleText = "Mill a card. Put two +1/+1 counters on target creature. It gains trample until end of turn."
         spell {
             val creature = target(TargetFilter.Creature)
-            effect = Effects.Composite(
-                Patterns.Library.mill(1),
-                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature),
-                Effects.GrantKeyword(Keyword.TRAMPLE, creature, Duration.EndOfTurn),
-            )
+            effect = Patterns.Library.mill(1) then
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature) then
+                Effects.GrantKeyword(Keyword.TRAMPLE, creature, Duration.EndOfTurn)
         }
     }
 

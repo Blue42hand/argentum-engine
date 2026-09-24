@@ -24,10 +24,7 @@ val DesperateRavings = card("Desperate Ravings") {
     typeLine = "Instant"
     oracleText = "Draw two cards, then discard a card at random.\nFlashback {2}{U} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
     spell {
-        effect = Effects.Composite(
-            Effects.DrawCards(2),
-            Patterns.Hand.discardRandom(1)
-        )
+        effect = Effects.DrawCards(2) then Patterns.Hand.discardRandom(1)
     }
     keywordAbility(KeywordAbility.flashback("{2}{U}"))
     metadata {

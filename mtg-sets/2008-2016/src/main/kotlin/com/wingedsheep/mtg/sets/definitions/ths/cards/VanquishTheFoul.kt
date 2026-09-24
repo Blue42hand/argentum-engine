@@ -21,10 +21,7 @@ val VanquishTheFoul = card("Vanquish the Foul") {
 
     spell {
         val t = target(TargetFilter.Creature.powerAtLeast(4))
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            Effects.Scry(1)
-        )
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then Effects.Scry(1)
     }
 
     metadata {

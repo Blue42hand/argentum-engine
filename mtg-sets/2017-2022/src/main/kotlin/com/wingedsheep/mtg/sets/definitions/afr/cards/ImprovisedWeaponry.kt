@@ -19,10 +19,7 @@ val ImprovisedWeaponry = card("Improvised Weaponry") {
 
     spell {
         val t = target(Targets.Any)
-        effect = Effects.Composite(
-            Effects.DealDamage(2, t),
-            Effects.CreateTreasure(1)
-        )
+        effect = Effects.DealDamage(2, t) then Effects.CreateTreasure(1)
     }
 
     metadata {

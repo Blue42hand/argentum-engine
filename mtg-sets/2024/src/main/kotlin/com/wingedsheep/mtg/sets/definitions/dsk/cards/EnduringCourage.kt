@@ -36,10 +36,8 @@ val EnduringCourage = card("Enduring Courage") {
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, EffectTarget.TriggeringEntity, Duration.EndOfTurn),
+        effect = Effects.ModifyStats(2, 0, EffectTarget.TriggeringEntity, Duration.EndOfTurn) then
             Effects.GrantKeyword(Keyword.HASTE, EffectTarget.TriggeringEntity, Duration.EndOfTurn)
-        )
     }
 
     metadata {

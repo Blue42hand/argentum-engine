@@ -32,17 +32,15 @@ val DecreeOfSilence = card("Decree of Silence") {
     // Ability 1: Whenever an opponent casts a spell, counter that spell + depletion counter + sacrifice check
     triggeredAbility {
         trigger = Triggers.anOpponent.casts()
-        effect = Effects.CounterTriggeringSpell()
-            .then(Effects.AddCounters(CounterType.DEPLETION, 1, EffectTarget.Self))
-            .then(
-                Effects.If(
-                    condition = Conditions.CompareAmounts(
-                        DynamicAmounts.countersOnSelf(CounterType.DEPLETION),
-                        ComparisonOperator.GTE,
-                        3
-                    ),
-                    then = SacrificeSelfEffect
-                )
+        effect = Effects.CounterTriggeringSpell() then
+            Effects.AddCounters(CounterType.DEPLETION, 1, EffectTarget.Self) then
+            Effects.If(
+                condition = Conditions.CompareAmounts(
+                    DynamicAmounts.countersOnSelf(CounterType.DEPLETION),
+                    ComparisonOperator.GTE,
+                    3
+                ),
+                then = SacrificeSelfEffect
             )
     }
 

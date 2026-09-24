@@ -25,10 +25,7 @@ val Implode = card("Implode") {
     oracleText = "Destroy target land.\nDraw a card."
     spell {
         val t = target(TargetFilter.Land)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.GRAVEYARD, byDestruction = true),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.UNCOMMON

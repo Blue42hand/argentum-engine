@@ -49,12 +49,10 @@ val SlimeAgainstHumanity = card("Slime Against Humanity") {
             creatureTypes = setOf("Ooze"),
             keywords = setOf(Keyword.TRAMPLE),
             imageUri = "https://cards.scryfall.io/normal/front/5/4/54b37032-9660-4dfb-9629-c4e8eddc43b0.jpg?1783912608",
-        ).then(
-            Effects.AddDynamicCounters(
-                CounterType.PLUS_ONE_PLUS_ONE,
-                counterCount,
-                EffectTarget.PipelineTarget(CREATED_TOKENS, 0),
-            ),
+        ) then Effects.AddDynamicCounters(
+            CounterType.PLUS_ONE_PLUS_ONE,
+            counterCount,
+            EffectTarget.PipelineTarget(CREATED_TOKENS, 0),
         )
     }
 

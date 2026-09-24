@@ -53,8 +53,8 @@ val TriceratonCommander = card("Triceraton Commander") {
                 GameObjectFilter.Creature.withSubtype("Dinosaur").youControl(),
                 excludeSelf = true
             ),
-            effect = Effects.ModifyStats(1, 1, EffectTarget.IterationEntity)
-                .then(Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity, Duration.EndOfTurn))
+            effect = Effects.ModifyStats(1, 1, EffectTarget.IterationEntity) then
+                Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity, Duration.EndOfTurn)
         )
     }
 

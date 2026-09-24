@@ -54,16 +54,14 @@ private val HydaelynTheMothercrystal = card("Hydaelyn, the Mothercrystal") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val creature = target(TargetFilter.OtherCreatureYouControl)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
-            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature, Duration.UntilYourNextTurn),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
+            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature, Duration.UntilYourNextTurn) then
             Effects.If(
                 // "If that creature is legendary, draw a card." The +1/+1 target is the first (only)
                 // chosen target, so test it via ContextTarget(0) like Blessing of Belzenlok.
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary(), creature),
                 then = Effects.DrawCards(1),
-            ),
-        )
+            )
     }
 
     metadata {
@@ -99,10 +97,7 @@ private val VenatHeartOfHydaelynFront = card("Venat, Heart of Hydaelyn") {
         cost = Costs.Composite(Costs.Mana("{7}"), Costs.Tap)
         timing = TimingRule.SorcerySpeed
         val victim = target(TargetFilter.NonlandPermanent)
-        effect = Effects.Composite(
-            Effects.Exile(victim),
-            Effects.Transform(EffectTarget.Self),
-        )
+        effect = Effects.Exile(victim) then Effects.Transform(EffectTarget.Self)
     }
 
     metadata {

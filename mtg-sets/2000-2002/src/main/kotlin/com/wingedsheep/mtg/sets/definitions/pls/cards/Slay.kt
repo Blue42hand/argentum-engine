@@ -25,10 +25,7 @@ val Slay = card("Slay") {
     oracleText = "Destroy target green creature. It can't be regenerated.\nDraw a card."
     spell {
         val t = target(TargetFilter.Creature.withColor(Color.GREEN))
-        effect = Effects.Composite(
-            Effects.Destroy(t, noRegenerate = true),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.Destroy(t, noRegenerate = true) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.UNCOMMON

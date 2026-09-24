@@ -48,10 +48,8 @@ val QuicksilverBrashBlur = card("Quicksilver, Brash Blur") {
     activatedAbility {
         isPowerUp = true
         cost = Costs.Mana("{4}{R}")
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
             Effects.AddCounters(CounterType.DOUBLE_STRIKE, 1, EffectTarget.Self)
-        )
     }
 
     metadata {

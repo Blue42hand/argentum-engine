@@ -56,10 +56,8 @@ val GossipsTalent = card("Gossip's Talent") {
         triggeredAbility {
             trigger = Triggers.a(GameObjectFilter.Creature.youControl()).dealsCombatDamage(Recipient.AnyPlayer)
             effect = Effects.May(
-                Effects.Composite(listOf(
-                    Effects.Move(EffectTarget.TriggeringEntity, Zone.EXILE),
+                Effects.Move(EffectTarget.TriggeringEntity, Zone.EXILE) then
                     Effects.Move(EffectTarget.TriggeringEntity, Zone.BATTLEFIELD)
-                ))
             )
         }
     }

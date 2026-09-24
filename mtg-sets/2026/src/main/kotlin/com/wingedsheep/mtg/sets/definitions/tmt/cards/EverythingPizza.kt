@@ -50,13 +50,11 @@ val EverythingPizza = card("Everything Pizza") {
             Costs.Tap,
             Costs.SacrificeSelf
         )
-        effect = Effects.Composite(
-            Effects.GainLife(3, player),
-            Effects.DrawCards(1, player),
-            Effects.EachOpponentDiscards(1),
-            Effects.DealDamage(3, anyTarget, damageSource = EffectTarget.Self),
+        effect = Effects.GainLife(3, player) then
+            Effects.DrawCards(1, player) then
+            Effects.EachOpponentDiscards(1) then
+            Effects.DealDamage(3, anyTarget, damageSource = EffectTarget.Self) then
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, creature)
-        )
     }
 
     metadata {

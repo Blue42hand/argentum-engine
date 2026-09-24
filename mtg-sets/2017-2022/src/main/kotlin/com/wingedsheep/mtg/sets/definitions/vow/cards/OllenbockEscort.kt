@@ -31,10 +31,8 @@ val OllenbockEscort = card("Ollenbock Escort") {
         val t = target(
             TargetFilter(GameObjectFilter.Creature.withCounter(CounterType.PLUS_ONE_PLUS_ONE).youControl()),
         )
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.LIFELINK, t),
+        effect = Effects.GrantKeyword(Keyword.LIFELINK, t) then
             Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

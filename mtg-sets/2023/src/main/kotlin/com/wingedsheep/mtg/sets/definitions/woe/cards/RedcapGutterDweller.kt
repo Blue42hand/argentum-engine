@@ -63,10 +63,8 @@ val RedcapGutterDweller = card("Redcap Gutter-Dweller") {
                 count = 1,
                 excludeSource = true,
             ),
-            then = Effects.Composite(listOf(
-                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
                 Patterns.Exile.impulse(count = 1),
-            )),
         )
     }
 

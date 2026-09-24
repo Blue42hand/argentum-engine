@@ -28,8 +28,7 @@ val ClutchOfTheUndercity = card("Clutch of the Undercity") {
 
     spell {
         val permanent = target(TargetFilter.Permanent)
-        effect = Effects.ReturnToHand(permanent)
-            .then(Effects.LoseLife(3, EffectTarget.TargetController))
+        effect = Effects.ReturnToHand(permanent) then Effects.LoseLife(3, EffectTarget.TargetController)
     }
     transmute("{1}{U}{B}")
 

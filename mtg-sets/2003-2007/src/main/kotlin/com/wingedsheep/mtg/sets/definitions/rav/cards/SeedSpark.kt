@@ -36,18 +36,16 @@ val SeedSpark = card("Seed Spark") {
 
     spell {
         val permanent = target(TargetFilter.ArtifactOrEnchantment)
-        effect = Effects.Move(permanent, Zone.GRAVEYARD, byDestruction = true)
-            .then(
-                Effects.If(
-                    condition = Conditions.ManaSpentToCastIncludes(requiredGreen = 1),
-                    then = Effects.CreateToken(
-                        power = 1,
-                        toughness = 1,
-                        colors = setOf(Color.GREEN),
-                        creatureTypes = setOf("Saproling"),
-                        count = 2,
-                    ),
-                )
+        effect = Effects.Move(permanent, Zone.GRAVEYARD, byDestruction = true) then
+            Effects.If(
+                condition = Conditions.ManaSpentToCastIncludes(requiredGreen = 1),
+                then = Effects.CreateToken(
+                    power = 1,
+                    toughness = 1,
+                    colors = setOf(Color.GREEN),
+                    creatureTypes = setOf("Saproling"),
+                    count = 2,
+                ),
             )
     }
 

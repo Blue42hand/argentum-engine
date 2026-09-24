@@ -58,10 +58,7 @@ val InsideSource = card("Inside Source") {
         cost = Costs.Composite(Costs.Mana("{3}"), Costs.Tap)
         timing = TimingRule.SorcerySpeed
         val detective = target(TargetFilter.PermanentYouControl.withSubtype(Subtype.DETECTIVE))
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, detective),
-            Effects.GrantKeyword(Keyword.VIGILANCE, detective)
-        )
+        effect = Effects.ModifyStats(2, 0, detective) then Effects.GrantKeyword(Keyword.VIGILANCE, detective)
         description = "Target Detective you control gets +2/+0 and gains vigilance until end of turn."
     }
 

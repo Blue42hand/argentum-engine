@@ -40,22 +40,18 @@ val SnarlSong = card("Snarl Song") {
             creatureTypes = setOf("Fractal"),
             count = 2,
             imageUri = "https://cards.scryfall.io/normal/front/d/e/de564776-9d88-4533-8717-842eecdd0594.jpg?1775828279"
-        )
-            .then(
-                Effects.AddDynamicCounters(
-                    CounterType.PLUS_ONE_PLUS_ONE,
-                    DynamicAmounts.colorsOfManaSpent(),
-                    EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
-                )
-            )
-            .then(
-                Effects.AddDynamicCounters(
-                    CounterType.PLUS_ONE_PLUS_ONE,
-                    DynamicAmounts.colorsOfManaSpent(),
-                    EffectTarget.PipelineTarget(CREATED_TOKENS, 1)
-                )
-            )
-            .then(Effects.GainLife(DynamicAmounts.colorsOfManaSpent()))
+        ) then
+            Effects.AddDynamicCounters(
+                CounterType.PLUS_ONE_PLUS_ONE,
+                DynamicAmounts.colorsOfManaSpent(),
+                EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
+            ) then
+            Effects.AddDynamicCounters(
+                CounterType.PLUS_ONE_PLUS_ONE,
+                DynamicAmounts.colorsOfManaSpent(),
+                EffectTarget.PipelineTarget(CREATED_TOKENS, 1)
+            ) then
+            Effects.GainLife(DynamicAmounts.colorsOfManaSpent())
     }
 
     metadata {

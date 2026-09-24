@@ -30,8 +30,7 @@ val TemptWithBunnies = card("Tempt with Bunnies") {
 
     spell {
         effect = Patterns.Mechanic.temptingOffer(
-            offer = Effects.Composite(
-                Effects.DrawCards(1),
+            offer = Effects.DrawCards(1) then
                 Effects.CreateToken(
                     power = 1,
                     toughness = 1,
@@ -39,7 +38,6 @@ val TemptWithBunnies = card("Tempt with Bunnies") {
                     creatureTypes = setOf("Rabbit"),
                     imageUri = "https://cards.scryfall.io/normal/front/8/1/81de52ef-7515-4958-abea-fb8ebdcef93c.jpg?1783909772"
                 ),
-            ),
             description = offerText,
         )
     }

@@ -20,7 +20,7 @@ val SamsDesperateRescue = card("Sam's Desperate Rescue") {
 
     spell {
         val t = target(TargetFilter.CreatureInYourGraveyard)
-        effect = Effects.ReturnToHand(t).then(Effects.TheRingTemptsYou())
+        effect = Effects.ReturnToHand(t) then Effects.TheRingTemptsYou()
     }
 
     metadata {

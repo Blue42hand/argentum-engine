@@ -42,18 +42,16 @@ val AladdinsLamp = card("Aladdin's Lamp") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{X}"), Costs.Tap)
         effect = Effects.ReplaceNextDraw(
-            Effects.Composite(
-                Patterns.Library.lookAtTopAndKeep(
-                    count = DynamicAmounts.xValue(),
-                    keepCount = DynamicAmounts.fixed(1),
-                    keepDestination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Top),
-                    restDestination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom),
-                    restOrder = CardOrder.Random,
-                    selectedLabel = "Keep on top",
-                    remainderLabel = "Put on bottom at random"
-                ),
+            Patterns.Library.lookAtTopAndKeep(
+                count = DynamicAmounts.xValue(),
+                keepCount = DynamicAmounts.fixed(1),
+                keepDestination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Top),
+                restDestination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom),
+                restOrder = CardOrder.Random,
+                selectedLabel = "Keep on top",
+                remainderLabel = "Put on bottom at random"
+            ) then
                 Effects.DrawCards(1)
-            )
         )
         description = "{X}, {T}: The next time you would draw a card this turn, instead look at the top X " +
             "cards of your library, put all but one of them on the bottom of your library in a random " +

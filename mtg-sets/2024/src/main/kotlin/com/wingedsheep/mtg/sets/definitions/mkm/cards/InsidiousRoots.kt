@@ -70,18 +70,16 @@ val InsidiousRoots = card("Insidious Roots") {
 
     triggeredAbility {
         trigger = Triggers.oneOrMore(GameObjectFilter.Creature).leaveYourGraveyard()
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                power = 0,
-                toughness = 1,
-                colors = setOf(Color.GREEN),
-                creatureTypes = setOf("Plant"),
-            ),
+        effect = Effects.CreateToken(
+            power = 0,
+            toughness = 1,
+            colors = setOf(Color.GREEN),
+            creatureTypes = setOf("Plant"),
+        ) then
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withSubtype("Plant").youControl()),
                 Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
-            ),
-        )
+            )
         description = "Whenever one or more creature cards leave your graveyard, create a 0/1 " +
             "green Plant creature token, then put a +1/+1 counter on each Plant you control."
     }

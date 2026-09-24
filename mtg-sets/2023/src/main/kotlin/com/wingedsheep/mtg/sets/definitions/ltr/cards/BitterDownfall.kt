@@ -27,8 +27,7 @@ val BitterDownfall = card("Bitter Downfall") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Destroy(creature)
-            .then(Effects.LoseLife(2, EffectTarget.TargetController))
+        effect = Effects.Destroy(creature) then Effects.LoseLife(2, EffectTarget.TargetController)
     }
 
     staticAbility {

@@ -34,8 +34,7 @@ val WarriorsBlades = card("Warrior's Blades") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val anyTarget = target(Targets.Any)
-        effect = Effects.DealDamage(3, anyTarget)
-            .then(Effects.GainLife(3))
+        effect = Effects.DealDamage(3, anyTarget) then Effects.GainLife(3)
     }
 
     staticAbility {

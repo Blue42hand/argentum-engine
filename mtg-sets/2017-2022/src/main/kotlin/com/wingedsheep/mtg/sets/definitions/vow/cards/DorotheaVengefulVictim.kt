@@ -120,11 +120,9 @@ private val DorotheasRetribution = card("Dorothea's Retribution") {
                     keywords = setOf(Keyword.FLYING),
                     tapped = true,
                     attacking = true,
-                ).then(
-                    Effects.CreateDelayedTrigger(
-                        step = Step.END_COMBAT,
-                        effect = Effects.SacrificeTarget(EffectTarget.PipelineTarget(CREATED_TOKENS, 0)),
-                    ),
+                ) then Effects.CreateDelayedTrigger(
+                    step = Step.END_COMBAT,
+                    effect = Effects.SacrificeTarget(EffectTarget.PipelineTarget(CREATED_TOKENS, 0)),
                 ),
             )
         )

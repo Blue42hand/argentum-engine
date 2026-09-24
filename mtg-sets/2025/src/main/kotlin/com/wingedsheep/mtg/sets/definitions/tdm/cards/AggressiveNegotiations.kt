@@ -52,7 +52,7 @@ val AggressiveNegotiations = card("Aggressive Negotiations") {
                 prompt = "Choose a nonland card to exile"
             )
             exile(chosenCard, opponent.asPlayer)
-        }.then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature))
+        } then Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }
 
     metadata {

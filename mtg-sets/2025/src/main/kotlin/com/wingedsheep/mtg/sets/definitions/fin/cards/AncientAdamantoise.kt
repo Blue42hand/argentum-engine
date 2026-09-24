@@ -79,10 +79,7 @@ val AncientAdamantoise = card("Ancient Adamantoise") {
     triggeredAbility {
         trigger = Triggers.self.dies()
         triggerZone = Zone.GRAVEYARD
-        effect = Effects.Composite(
-            Effects.Exile(EffectTarget.Self),
-            Effects.CreateTreasure(count = 10, tapped = true)
-        )
+        effect = Effects.Exile(EffectTarget.Self) then Effects.CreateTreasure(count = 10, tapped = true)
     }
 
     metadata {

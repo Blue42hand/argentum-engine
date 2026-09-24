@@ -23,13 +23,9 @@ val SamutsSprint = card("Samut's Sprint") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Composite(
-                Effects.ModifyStats(2, 1, t),
-                Effects.GrantKeyword(Keyword.HASTE, t)
-            ),
+        effect = Effects.ModifyStats(2, 1, t) then
+            Effects.GrantKeyword(Keyword.HASTE, t) then
             Effects.Scry(1)
-        )
     }
 
     metadata {

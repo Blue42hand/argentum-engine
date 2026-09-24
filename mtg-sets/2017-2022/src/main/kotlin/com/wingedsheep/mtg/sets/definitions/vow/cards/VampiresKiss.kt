@@ -22,11 +22,9 @@ val VampiresKiss = card("Vampire's Kiss") {
 
     spell {
         val t = target(Targets.Player)
-        effect = Effects.Composite(
-            Effects.LoseLife(2, t),
-            Effects.GainLife(2, EffectTarget.Controller),
+        effect = Effects.LoseLife(2, t) then
+            Effects.GainLife(2, EffectTarget.Controller) then
             Effects.CreateBlood(2)
-        )
     }
 
     metadata {

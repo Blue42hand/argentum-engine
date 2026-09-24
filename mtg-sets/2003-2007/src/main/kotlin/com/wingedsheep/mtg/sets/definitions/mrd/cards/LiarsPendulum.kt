@@ -74,17 +74,15 @@ val LiarsPendulum = card("Liar's Pendulum") {
             )
             run(
                 Effects.May(
-                    effect = Effects.RevealHand(EffectTarget.Controller)
-                        .then(
-                            Effects.If(
-                                condition = Conditions.CompareAmounts(
-                                        DynamicAmounts.storedNumber("pendulumGuessedRight"),
-                                        ComparisonOperator.EQ,
-                                        0,
-                                    ),
-                                then = Effects.DrawCards(1),
-                                descriptionOverride = "If your opponent guessed wrong, draw a card.",
-                            )
+                    effect = Effects.RevealHand(EffectTarget.Controller) then
+                        Effects.If(
+                            condition = Conditions.CompareAmounts(
+                                    DynamicAmounts.storedNumber("pendulumGuessedRight"),
+                                    ComparisonOperator.EQ,
+                                    0,
+                                ),
+                            then = Effects.DrawCards(1),
+                            descriptionOverride = "If your opponent guessed wrong, draw a card.",
                         ),
                     descriptionOverride = "reveal your hand",
                 )

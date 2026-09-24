@@ -32,10 +32,8 @@ val WaylayingPirates = card("Waylaying Pirates") {
         trigger = Triggers.self.enters()
         interveningIf = Conditions.YouControl(GameObjectFilter.Artifact)
         val t = target(TargetFilter(GameObjectFilter.CreatureOrArtifact.opponentControls()))
-        effect = Effects.Composite(
-            Effects.Tap(t),
+        effect = Effects.Tap(t) then
             Effects.AddCounters(counterType = CounterType.STUN, count = 1, target = t)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

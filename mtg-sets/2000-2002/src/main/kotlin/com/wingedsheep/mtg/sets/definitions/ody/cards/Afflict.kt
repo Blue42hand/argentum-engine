@@ -24,10 +24,7 @@ val Afflict = card("Afflict") {
     oracleText = "Target creature gets -1/-1 until end of turn.\nDraw a card."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(-1, -1, t),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.ModifyStats(-1, -1, t) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

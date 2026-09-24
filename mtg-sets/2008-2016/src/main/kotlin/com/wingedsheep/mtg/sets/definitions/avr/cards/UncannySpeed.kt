@@ -24,10 +24,7 @@ val UncannySpeed = card("Uncanny Speed") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(3, 0, t),
-            Effects.GrantKeyword(Keyword.HASTE, t),
-        )
+        effect = Effects.ModifyStats(3, 0, t) then Effects.GrantKeyword(Keyword.HASTE, t)
     }
 
     metadata {

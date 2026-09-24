@@ -29,9 +29,9 @@ val WaterWings = card("Water Wings") {
 
     spell {
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.SetBasePowerAndToughness(4, 4, creature)
-            .then(Effects.GrantKeyword(Keyword.FLYING, creature))
-            .then(Effects.GrantKeyword(Keyword.HEXPROOF, creature))
+        effect = Effects.SetBasePowerAndToughness(4, 4, creature) then
+            Effects.GrantKeyword(Keyword.FLYING, creature) then
+            Effects.GrantKeyword(Keyword.HEXPROOF, creature)
     }
 
     metadata {

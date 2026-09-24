@@ -28,8 +28,8 @@ val ThoughtShucker = card("Thought Shucker") {
 
     activatedAbility {
         cost = Costs.Mana("{1}{U}")
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-            .then(Effects.DrawCards(1))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.DrawCards(1)
         restrictions = listOf(
             ActivationRestriction.All(
                 ActivationRestriction.OnlyIfCondition(Conditions.CardsInGraveyardAtLeast(7)),

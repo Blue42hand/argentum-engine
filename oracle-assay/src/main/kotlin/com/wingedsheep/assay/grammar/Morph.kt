@@ -102,9 +102,7 @@ object Morph {
      */
     private val turnTargetFaceUpAndSacrifice: Phrase<CardScript> = run {
         fun scriptFor(filter: GameObjectFilter) = CardScript(
-            spellEffect = TurnFaceUpEffect(Targets.bound()).then(
-                CreateDelayedTriggerEffect(step = Step.END, effect = SacrificeTargetEffect(Targets.bound()))
-            ),
+            spellEffect = TurnFaceUpEffect(Targets.bound()) then CreateDelayedTriggerEffect(step = Step.END, effect = SacrificeTargetEffect(Targets.bound())),
             targetRequirements = listOf(Targets.permanent(filter)),
         )
         phrase(

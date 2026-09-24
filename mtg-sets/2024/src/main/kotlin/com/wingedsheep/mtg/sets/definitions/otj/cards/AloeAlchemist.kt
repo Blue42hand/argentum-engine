@@ -33,10 +33,8 @@ val AloeAlchemist = card("Aloe Alchemist") {
     triggeredAbility {
         trigger = Triggers.self.becomesPlotted()
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(power = 3, toughness = 2, target = t),
+        effect = Effects.ModifyStats(power = 3, toughness = 2, target = t) then
             Effects.GrantKeyword(Keyword.TRAMPLE, target = t)
-        )
     }
 
     metadata {

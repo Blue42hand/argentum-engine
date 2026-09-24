@@ -25,10 +25,8 @@ val IncineratingBlast = card("Incinerating Blast") {
     oracleText = "Incinerating Blast deals 6 damage to target creature.\nYou may discard a card. If you do, draw a card."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.DealDamage(6, t),
+        effect = Effects.DealDamage(6, t) then
             Effects.May(effect = Effects.IfYouDo(action = Patterns.Hand.discardCards(1), then = Effects.DrawCards(1)))
-        )
     }
     metadata {
         rarity = Rarity.COMMON

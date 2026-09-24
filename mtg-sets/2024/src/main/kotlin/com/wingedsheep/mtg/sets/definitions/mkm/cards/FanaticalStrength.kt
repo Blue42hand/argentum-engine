@@ -24,10 +24,7 @@ val FanaticalStrength = card("Fanatical Strength") {
     oracleText = "Target creature gets +3/+3 and gains trample until end of turn."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(3, 3, t),
-            Effects.GrantKeyword(Keyword.TRAMPLE, t)
-        )
+        effect = Effects.ModifyStats(3, 3, t) then Effects.GrantKeyword(Keyword.TRAMPLE, t)
     }
     metadata {
         rarity = Rarity.COMMON

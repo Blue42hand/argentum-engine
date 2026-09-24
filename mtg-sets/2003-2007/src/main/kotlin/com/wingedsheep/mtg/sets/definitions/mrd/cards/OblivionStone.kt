@@ -35,13 +35,11 @@ val OblivionStone = card("Oblivion Stone") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{5}"), Costs.Tap, Costs.SacrificeSelf)
-        effect = Effects.Composite(
-            Effects.DestroyAll(GameObjectFilter.NonlandPermanent.withoutCounter(CounterType.FATE)),
+        effect = Effects.DestroyAll(GameObjectFilter.NonlandPermanent.withoutCounter(CounterType.FATE)) then
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Permanent.withCounter(CounterType.FATE)),
                 Effects.RemoveAllCountersOfType(CounterType.FATE, EffectTarget.IterationEntity)
             )
-        )
         description = "{5}, {T}, Sacrifice this artifact: Destroy each nonland permanent without " +
             "a fate counter on it, then remove all fate counters from all permanents."
     }

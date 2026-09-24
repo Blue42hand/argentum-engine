@@ -57,10 +57,8 @@ val GalufsFinalAct = card("Galuf's Final Act") {
                 "equal to its power on up to one target creature."
         }
 
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, t, Duration.EndOfTurn),
+        effect = Effects.ModifyStats(1, 0, t, Duration.EndOfTurn) then
             Effects.GrantTriggeredAbility(diesGrantCounters, t, Duration.EndOfTurn)
-        )
     }
 
     metadata {

@@ -35,10 +35,7 @@ val ReturnTriumphant = card("Return Triumphant") {
 
     spell {
         val t = target(TargetFilter(GameObjectFilter.Creature.ownedByYou().manaValueAtMost(3), zone = Zone.GRAVEYARD))
-        effect = Effects.Composite(
-            Effects.PutOntoBattlefield(t),
-            Effects.CreateRoleToken("Young Hero Role", t)
-        )
+        effect = Effects.PutOntoBattlefield(t) then Effects.CreateRoleToken("Young Hero Role", t)
     }
 
     metadata {

@@ -30,7 +30,7 @@ val DiviningDuelist = card("Divining Duelist") {
                 val creature = target(TargetFilter.Creature)
                 effect = Effects.Untap(creature)
             },
-            Mode(effect = Effects.Composite(Effects.DrawCards(1), Effects.Discard(1)), description = "Draw a card, then discard a card.")
+            Mode(effect = Effects.DrawCards(1) then Effects.Discard(1), description = "Draw a card, then discard a card.")
         )
     }
 

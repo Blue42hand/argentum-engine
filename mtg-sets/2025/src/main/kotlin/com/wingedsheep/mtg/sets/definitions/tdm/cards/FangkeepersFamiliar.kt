@@ -46,7 +46,7 @@ val FangkeepersFamiliar = card("Fangkeeper's Familiar") {
         trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
-                Effects.GainLife(3).then(Patterns.Library.surveil(3)),
+                Effects.GainLife(3) then Patterns.Library.surveil(3),
                 "You gain 3 life and surveil 3"
             ),
             mode("Destroy target enchantment") {

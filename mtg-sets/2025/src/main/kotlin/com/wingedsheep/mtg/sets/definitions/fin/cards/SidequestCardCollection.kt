@@ -58,10 +58,7 @@ private val SidequestCardCollectionFront = card("Sidequest: Card Collection") {
     // When this enchantment enters, draw three cards, then discard two cards.
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.DrawCards(3),
-            Effects.Discard(2),
-        )
+        effect = Effects.DrawCards(3) then Effects.Discard(2)
     }
 
     // At the beginning of your end step, if eight or more cards are in your graveyard,

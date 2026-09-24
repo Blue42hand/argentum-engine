@@ -55,10 +55,8 @@ val SecretInvasion = card("Secret Invasion") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter(GameObjectFilter.Creature.notAttachedToBySource()), optional = true)
-        effect = Effects.Composite(
-            Effects.ExileUntilLeaves(creature),
+        effect = Effects.ExileUntilLeaves(creature) then
             Effects.BecomeCopyOfLinkedExile(EffectTarget.EnchantedCreature)
-        )
     }
 
     // LTB: return the exiled card to its owner's control.

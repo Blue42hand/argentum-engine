@@ -25,16 +25,14 @@ val AssaultOnOsgiliath = card("Assault on Osgiliath") {
         "an Army, create a 0/0 black Orc Army creature token first.)"
 
     spell {
-        effect = Effects.Amass(DynamicAmounts.xValue(), "Orc")
-            .then(
-                Effects.ForEachInGroup(
-                    filter = GroupFilter(
-                        com.wingedsheep.sdk.scripting.GameObjectFilter.Creature
-                            .withAnySubtype("Goblin", "Orc").youControl()
-                    ),
-                    effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, EffectTarget.IterationEntity, Duration.EndOfTurn)
-                        .then(Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn))
-                )
+        effect = Effects.Amass(DynamicAmounts.xValue(), "Orc") then
+            Effects.ForEachInGroup(
+                filter = GroupFilter(
+                    com.wingedsheep.sdk.scripting.GameObjectFilter.Creature
+                        .withAnySubtype("Goblin", "Orc").youControl()
+                ),
+                effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, EffectTarget.IterationEntity, Duration.EndOfTurn) then
+                    Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity, Duration.EndOfTurn)
             )
     }
 

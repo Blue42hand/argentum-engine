@@ -25,10 +25,7 @@ val Expedite = card("Expedite") {
     oracleText = "Target creature gains haste until end of turn.\nDraw a card."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.HASTE, t),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.GrantKeyword(Keyword.HASTE, t) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

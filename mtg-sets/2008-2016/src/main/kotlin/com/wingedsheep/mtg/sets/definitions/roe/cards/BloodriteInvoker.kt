@@ -38,10 +38,7 @@ val BloodriteInvoker = card("Bloodrite Invoker") {
     activatedAbility {
         cost = Costs.Mana("{8}")
         val victim = target(Targets.Player)
-        effect = Effects.Composite(
-            Effects.LoseLife(3, victim),
-            Effects.GainLife(3)
-        )
+        effect = Effects.LoseLife(3, victim) then Effects.GainLife(3)
     }
 
     metadata {

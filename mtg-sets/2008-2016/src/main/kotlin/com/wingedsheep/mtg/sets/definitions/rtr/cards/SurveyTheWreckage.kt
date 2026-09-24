@@ -26,15 +26,13 @@ val SurveyTheWreckage = card("Survey the Wreckage") {
 
     spell {
         val t = target(TargetFilter.Land)
-        effect = Effects.Composite(
-            Effects.Destroy(t),
+        effect = Effects.Destroy(t) then
             Effects.CreateToken(
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.RED),
                 creatureTypes = setOf("Goblin"),
-            ),
-        )
+            )
     }
 
     metadata {

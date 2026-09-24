@@ -56,8 +56,7 @@ class DashMechanicTest : FunSpec({
         typeLine = "Sorcery"
         spell {
             val creature = target(TargetFilter.CreatureYouControl)
-            effect = Effects.Move(creature, Zone.EXILE)
-                .then(Effects.Move(creature, Zone.BATTLEFIELD))
+            effect = Effects.Move(creature, Zone.EXILE) then Effects.Move(creature, Zone.BATTLEFIELD)
         }
     }
 

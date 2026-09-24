@@ -34,9 +34,9 @@ val SavantiRomeroTimesExile = card("Savanti Romero, Time's Exile") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
         val counterAmount = DynamicAmounts.countersOnSelf(null)
-        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
-            .then(Effects.DrawCards(counterAmount))
-            .then(Effects.LoseLife(counterAmount, EffectTarget.Controller))
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+            Effects.DrawCards(counterAmount) then
+            Effects.LoseLife(counterAmount, EffectTarget.Controller)
     }
 
     metadata {

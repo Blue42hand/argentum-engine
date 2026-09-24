@@ -36,15 +36,13 @@ val GrabTheReins = card("Grab the Reins") {
         ) {
             mode("Gain control of target creature until end of turn; it gains haste") {
                 val creature = target(TargetFilter.Creature)
-                effect = Effects.Composite(
-                    Effects.GainControl(creature, Duration.EndOfTurn),
-                    Effects.GrantKeyword(Keyword.HASTE, creature),
-                )
+                effect = Effects.GainControl(creature, Duration.EndOfTurn) then
+                    Effects.GrantKeyword(Keyword.HASTE, creature)
             }
             mode("Sacrifice a creature; deal damage equal to its power to any target") {
                 val damageTarget = target(Targets.Any)
-                effect = Effects.SacrificeOwn(GameObjectFilter.Creature)
-                    .then(Effects.DealDamage(DynamicAmounts.sacrificedPower(), damageTarget))
+                effect = Effects.SacrificeOwn(GameObjectFilter.Creature) then
+                    Effects.DealDamage(DynamicAmounts.sacrificedPower(), damageTarget)
             }
         }
     }

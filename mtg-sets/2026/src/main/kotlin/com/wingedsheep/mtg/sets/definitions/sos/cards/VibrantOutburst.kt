@@ -20,10 +20,7 @@ val VibrantOutburst = card("Vibrant Outburst") {
     spell {
         val t1 = target(Targets.Any)
         val t2 = target(TargetFilter.Creature, optional = true)
-        effect = Effects.Composite(
-            Effects.DealDamage(3, t1),
-            Effects.Tap(t2)
-        )
+        effect = Effects.DealDamage(3, t1) then Effects.Tap(t2)
     }
     metadata {
         rarity = Rarity.UNCOMMON

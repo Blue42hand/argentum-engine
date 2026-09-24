@@ -47,7 +47,7 @@ val WarOfTheLastAlliance = card("War of the Last Alliance") {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
             effect = Effects.GrantKeyword(Keyword.DOUBLE_STRIKE, EffectTarget.IterationEntity, Duration.EndOfTurn)
-        ).then(Effects.TheRingTemptsYou())
+        ) then Effects.TheRingTemptsYou()
     }
 
     metadata {

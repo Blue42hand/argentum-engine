@@ -37,13 +37,9 @@ val CuriousColossus = card("Curious Colossus") {
         val opponent = target(Targets.Opponent)
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(GameObjectFilter.Creature.targetPlayerControls(opponent)),
-            effect = Effects.Composite(
-                listOf(
-                    Effects.RemoveAllAbilities(EffectTarget.IterationEntity, Duration.Permanent),
-                    Effects.AddCreatureType("Coward", EffectTarget.IterationEntity, Duration.Permanent),
-                    Effects.SetBasePowerAndToughness(1, 1, EffectTarget.IterationEntity, Duration.Permanent)
-                )
-            )
+            effect = Effects.RemoveAllAbilities(EffectTarget.IterationEntity, Duration.Permanent) then
+                Effects.AddCreatureType("Coward", EffectTarget.IterationEntity, Duration.Permanent) then
+                Effects.SetBasePowerAndToughness(1, 1, EffectTarget.IterationEntity, Duration.Permanent)
         )
     }
 

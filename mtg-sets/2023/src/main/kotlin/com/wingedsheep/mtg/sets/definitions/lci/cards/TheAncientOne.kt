@@ -78,8 +78,7 @@ val TheAncientOne = card("The Ancient One") {
     // player mills cards equal to its mana value.
     activatedAbility {
         cost = Costs.Mana("{2}{U}{B}")
-        effect = Effects.Composite(
-            Effects.DrawCards(1, EffectTarget.Controller),
+        effect = Effects.DrawCards(1, EffectTarget.Controller) then
             Effects.ReflexiveTrigger(
                 action = Patterns.Hand.discardCards(1),
                 optional = false) {
@@ -89,7 +88,6 @@ val TheAncientOne = card("The Ancient One") {
                     player
                 )
             }
-        )
     }
 
     metadata {

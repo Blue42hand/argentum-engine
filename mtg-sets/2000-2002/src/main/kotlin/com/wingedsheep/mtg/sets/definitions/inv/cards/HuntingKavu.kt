@@ -30,10 +30,7 @@ val HuntingKavu = card("Hunting Kavu") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{R}{G}"), Costs.Tap)
         val attacker = target(TargetFilter(GameObjectFilter.Creature.attacking().withoutKeyword(Keyword.FLYING)))
-        effect = Effects.Composite(
-            Effects.Exile(EffectTarget.Self),
-            Effects.Exile(attacker)
-        )
+        effect = Effects.Exile(EffectTarget.Self) then Effects.Exile(attacker)
     }
 
     metadata {

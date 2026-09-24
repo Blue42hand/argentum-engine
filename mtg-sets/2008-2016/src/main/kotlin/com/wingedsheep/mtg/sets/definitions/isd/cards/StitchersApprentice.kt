@@ -28,15 +28,13 @@ val StitchersApprentice = card("Stitcher's Apprentice") {
     toughness = 2
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{U}"), Costs.Tap)
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                power = 2,
-                toughness = 2,
-                colors = setOf(Color.BLUE),
-                creatureTypes = setOf("Homunculus")
-            ),
+        effect = Effects.CreateToken(
+            power = 2,
+            toughness = 2,
+            colors = setOf(Color.BLUE),
+            creatureTypes = setOf("Homunculus")
+        ) then
             Effects.SacrificeOwn(GameObjectFilter.Creature)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

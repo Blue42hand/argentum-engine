@@ -28,10 +28,8 @@ val CoordinatedAssault = card("Coordinated Assault") {
     spell {
         target = TargetObject(filter = TargetFilter.Creature, count = 2, optional = true)
         effect = Effects.ForEachTarget(
-            Effects.Composite(
-                Effects.ModifyStats(1, 0, target = EffectTarget.ContextTarget(0)),
+            Effects.ModifyStats(1, 0, target = EffectTarget.ContextTarget(0)) then
                 Effects.GrantKeyword(Keyword.FIRST_STRIKE, target = EffectTarget.ContextTarget(0)),
-            ),
         )
     }
 

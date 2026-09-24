@@ -39,14 +39,12 @@ val DelifsCube = card("Delif's Cube") {
         effect = Effects.CreateDelayedTrigger(
             trigger = Triggers.a().attacksAndIsntBlocked(),
             watchedTarget = t,
-            effect = Effects.Composite(
-                Effects.GrantKeyword(
-                    AbilityFlag.ASSIGNS_NO_COMBAT_DAMAGE,
-                    EffectTarget.TriggeringEntity,
-                    Duration.EndOfTurn,
-                ),
+            effect = Effects.GrantKeyword(
+                AbilityFlag.ASSIGNS_NO_COMBAT_DAMAGE,
+                EffectTarget.TriggeringEntity,
+                Duration.EndOfTurn,
+            ) then
                 Effects.AddCounters(CounterType.CUBE, 1, EffectTarget.Self),
-            ),
             expiry = DelayedTriggerExpiry.EndOfTurn,
             fireOnce = true,
         )

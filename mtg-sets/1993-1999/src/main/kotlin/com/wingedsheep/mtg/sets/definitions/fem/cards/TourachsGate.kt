@@ -53,12 +53,10 @@ val TourachsGate = card("Tourach's Gate") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        effect = Effects.RemoveCounters(CounterType.TIME, 1, EffectTarget.Self)
-            .then(
-                Effects.If(
-                    condition = Conditions.Not(Conditions.SourceCounterCountAtLeast(CounterType.TIME, 1)),
-                    then = SacrificeSelfEffect
-                )
+        effect = Effects.RemoveCounters(CounterType.TIME, 1, EffectTarget.Self) then
+            Effects.If(
+                condition = Conditions.Not(Conditions.SourceCounterCountAtLeast(CounterType.TIME, 1)),
+                then = SacrificeSelfEffect
             )
         description = "At the beginning of your upkeep, remove a time counter from this Aura. If there are no time counters on this Aura, sacrifice it."
     }

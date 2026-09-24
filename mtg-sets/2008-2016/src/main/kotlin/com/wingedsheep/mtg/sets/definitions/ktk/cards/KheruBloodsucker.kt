@@ -29,8 +29,7 @@ val KheruBloodsucker = card("Kheru Bloodsucker") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl().toughnessAtLeast(4)).dies()
-        effect = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent))
-            .then(Effects.GainLife(2))
+        effect = Effects.LoseLife(2, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(2)
     }
 
     activatedAbility {

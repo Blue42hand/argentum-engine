@@ -28,8 +28,7 @@ val AerialBoost = card("Aerial Boost") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(2, 2, creature) then
-            Effects.GrantKeyword(Keyword.FLYING, creature)
+        effect = Effects.ModifyStats(2, 2, creature) then Effects.GrantKeyword(Keyword.FLYING, creature)
     }
 
     metadata {

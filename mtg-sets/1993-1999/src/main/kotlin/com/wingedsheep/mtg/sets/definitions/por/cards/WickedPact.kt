@@ -26,12 +26,10 @@ val WickedPact = card("Wicked Pact") {
     oracleText = "Destroy two target nonblack creatures. You lose 5 life."
     spell {
         targets(TargetFilter.Creature.notColor(Color.BLACK), count = 2)
-        effect = Effects.Composite(
-            Effects.ForEachTarget(
-                Effects.Move(EffectTarget.ContextTarget(0), Zone.GRAVEYARD, byDestruction = true)
-            ),
+        effect = Effects.ForEachTarget(
+            Effects.Move(EffectTarget.ContextTarget(0), Zone.GRAVEYARD, byDestruction = true)
+        ) then
             Effects.LoseLife(5, EffectTarget.Controller)
-        )
     }
     metadata {
         rarity = Rarity.RARE

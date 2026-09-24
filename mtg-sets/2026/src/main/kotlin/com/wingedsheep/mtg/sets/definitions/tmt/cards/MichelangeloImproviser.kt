@@ -39,10 +39,8 @@ val MichelangeloImproviser = card("Michelangelo, Improviser") {
 
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
-        effect = Effects.Composite(
-            Patterns.Hand.putFromHand(GameObjectFilter.Creature, count = 1),
+        effect = Patterns.Hand.putFromHand(GameObjectFilter.Creature, count = 1) then
             Patterns.Hand.putFromHand(GameObjectFilter.Land, count = 1)
-        )
     }
 
     metadata {

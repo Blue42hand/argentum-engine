@@ -25,8 +25,7 @@ val RiptideSurvivor = card("Riptide Survivor") {
 
     triggeredAbility {
         trigger = Triggers.self.turnedFaceUp()
-        effect = Patterns.Hand.discardCards(2, EffectTarget.Controller)
-            .then(Effects.DrawCards(3))
+        effect = Patterns.Hand.discardCards(2, EffectTarget.Controller) then Effects.DrawCards(3)
     }
 
     morph = "{1}{U}{U}"

@@ -71,13 +71,11 @@ val OcelotPride = card("Ocelot Pride") {
             colors = setOf(Color.WHITE),
             creatureTypes = setOf("Cat"),
             imageUri = "https://cards.scryfall.io/normal/front/7/4/74bacab2-a4c6-4ba5-a208-6bd09ae4cf9f.jpg?1783911119"
-        ).then(
-            Effects.If(
-                condition = Conditions.YouHaveCitysBlessing,
-                then = Effects.ForEachInGroup(
-                    filter = GroupFilter(GameObjectFilter.Token.youControl().enteredThisTurn()),
-                    effect = Effects.CreateTokenCopyOfTarget(target = EffectTarget.IterationEntity)
-                )
+        ) then Effects.If(
+            condition = Conditions.YouHaveCitysBlessing,
+            then = Effects.ForEachInGroup(
+                filter = GroupFilter(GameObjectFilter.Token.youControl().enteredThisTurn()),
+                effect = Effects.CreateTokenCopyOfTarget(target = EffectTarget.IterationEntity)
             )
         )
     }

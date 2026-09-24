@@ -29,10 +29,8 @@ val CephalidInkshrouder = card("Cephalid Inkshrouder") {
     toughness = 1
     activatedAbility {
         cost = Costs.DiscardCard
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.SHROUD, EffectTarget.Self),
+        effect = Effects.GrantKeyword(Keyword.SHROUD, EffectTarget.Self) then
             Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, EffectTarget.Self)
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

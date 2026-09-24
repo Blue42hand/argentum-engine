@@ -42,19 +42,17 @@ val BrillianceUnleashed = card("Brilliance Unleashed") {
                     target = artifactCard,
                     destination = Zone.BATTLEFIELD,
                     fromZone = Zone.GRAVEYARD,
-                ).then(
-                    Effects.If(
-                        condition = Conditions.Not(
-                            Conditions.TargetMatchesFilter(GameObjectFilter.Creature, artifactCard)
-                        ),
-                        then = Effects.BecomeCreature(
-                            target = artifactCard,
-                            power = 3,
-                            toughness = 3,
-                            keywords = setOf(Keyword.FLYING),
-                            creatureTypes = setOf("Robot"),
-                            duration = Duration.Permanent,
-                        )
+                ) then Effects.If(
+                    condition = Conditions.Not(
+                        Conditions.TargetMatchesFilter(GameObjectFilter.Creature, artifactCard)
+                    ),
+                    then = Effects.BecomeCreature(
+                        target = artifactCard,
+                        power = 3,
+                        toughness = 3,
+                        keywords = setOf(Keyword.FLYING),
+                        creatureTypes = setOf("Robot"),
+                        duration = Duration.Permanent,
                     )
                 )
             }

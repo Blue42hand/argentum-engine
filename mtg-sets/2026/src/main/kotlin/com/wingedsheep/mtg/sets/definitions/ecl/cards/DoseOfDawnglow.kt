@@ -25,15 +25,11 @@ val DoseOfDawnglow = card("Dose of Dawnglow") {
 
     spell {
         val creature = target(TargetFilter.CreatureInYourGraveyard)
-        effect = Effects.Composite(
-            listOf(
-                Effects.PutOntoBattlefield(creature),
-                Effects.If(
-                    condition = Conditions.Not(Conditions.IsYourMainPhase),
-                    then = Patterns.Mechanic.blight(2)
-                )
+        effect = Effects.PutOntoBattlefield(creature) then
+            Effects.If(
+                condition = Conditions.Not(Conditions.IsYourMainPhase),
+                then = Patterns.Mechanic.blight(2)
             )
-        )
     }
 
     metadata {

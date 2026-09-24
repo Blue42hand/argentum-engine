@@ -38,8 +38,7 @@ val FungalPlots = card("Fungal Plots") {
         // "two Saprolings" is a bare tribal noun — any permanent that's a Saproling, not only a
         // creature one. See WirewoodSymbiote for the same correction.
         cost = Costs.SacrificeMultiple(2, GameObjectFilter.Permanent.withSubtype("Saproling"))
-        effect = Effects.GainLife(2)
-            .then(Effects.DrawCards(1))
+        effect = Effects.GainLife(2) then Effects.DrawCards(1)
     }
 
     metadata {

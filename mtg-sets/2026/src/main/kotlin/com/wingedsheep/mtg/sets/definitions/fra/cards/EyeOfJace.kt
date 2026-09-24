@@ -24,17 +24,13 @@ val EyeOfJace = card("Eye of Jace") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
-        effect = Effects.Composite(
-            Patterns.Library.surveil(1),
+        effect = Patterns.Library.surveil(1) then
             Effects.If(
                 condition = Conditions.CardsInGraveyardAtLeast(7),
-                then = Effects.Composite(
-                    Effects.SacrificeTarget(EffectTarget.Self),
-                    Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent)),
+                then = Effects.SacrificeTarget(EffectTarget.Self) then
+                    Effects.DealDamage(2, EffectTarget.PlayerRef(Player.EachOpponent)) then
                     Effects.GainLife(2)
-                )
             )
-        )
         description = "At the beginning of your upkeep, surveil 1. Then if there are seven or more cards " +
             "in your graveyard, sacrifice this artifact, it deals 2 damage to each opponent, and you gain 2 life."
     }

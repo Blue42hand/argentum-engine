@@ -23,10 +23,7 @@ val GerrardsCommand = card("Gerrard's Command") {
     oracleText = "Untap target creature. It gets +3/+3 until end of turn."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Untap(t),
-            Effects.ModifyStats(3, 3, t)
-        )
+        effect = Effects.Untap(t) then Effects.ModifyStats(3, 3, t)
     }
     metadata {
         rarity = Rarity.COMMON

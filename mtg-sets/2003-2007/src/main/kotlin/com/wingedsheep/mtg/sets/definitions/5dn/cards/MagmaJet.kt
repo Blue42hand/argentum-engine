@@ -24,10 +24,7 @@ val MagmaJet = card("Magma Jet") {
     oracleText = "Magma Jet deals 2 damage to any target. Scry 2."
     spell {
         val t = target(Targets.Any)
-        effect = Effects.Composite(
-            Effects.DealDamage(2, t),
-            Patterns.Library.scry(2)
-        )
+        effect = Effects.DealDamage(2, t) then Patterns.Library.scry(2)
     }
     metadata {
         rarity = Rarity.UNCOMMON

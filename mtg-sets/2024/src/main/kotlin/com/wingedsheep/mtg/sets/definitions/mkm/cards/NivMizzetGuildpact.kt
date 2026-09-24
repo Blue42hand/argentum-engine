@@ -47,11 +47,9 @@ val NivMizzetGuildpact = card("Niv-Mizzet, Guildpact") {
         val damaged = target(Targets.Any)
         val drawer = target(Targets.Player)
         val colorPairs = DynamicAmounts.colorPairsAmongPermanents()
-        effect = Effects.Composite(
-            Effects.DealDamage(colorPairs, damaged),
-            Effects.DrawCards(colorPairs, drawer),
-            Effects.GainLife(colorPairs),
-        )
+        effect = Effects.DealDamage(colorPairs, damaged) then
+            Effects.DrawCards(colorPairs, drawer) then
+            Effects.GainLife(colorPairs)
     }
 
     metadata {

@@ -22,10 +22,8 @@ val CollectiveDefiance = card("Collective Defiance") {
         modal(chooseCount = 3, minChooseCount = 1, additionalManaCostPerExtraMode = "{1}") {
             mode("Target player discards their hand, then draws that many cards.") {
                 val player = target(Targets.Player)
-                effect = Effects.Composite(
-                    Patterns.Hand.discardHand(player),
-                    Effects.DrawCards(Patterns.Hand.discardedHand.count, player),
-                )
+                effect = Patterns.Hand.discardHand(player) then
+                    Effects.DrawCards(Patterns.Hand.discardedHand.count, player)
             }
             mode("Collective Defiance deals 4 damage to target creature.") {
                 val creature = target(TargetFilter.Creature)

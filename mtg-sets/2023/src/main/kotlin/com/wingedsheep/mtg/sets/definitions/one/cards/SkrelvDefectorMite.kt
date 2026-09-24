@@ -42,11 +42,9 @@ val SkrelvDefectorMite = card("Skrelv, Defector Mite") {
         cost = AbilityCost.Composite(listOf(Costs.Mana(ManaCost.parse("{W}")), AbilityCost.Tap))
         val t = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.ChooseColorThen(
-            Effects.Composite(listOf(
-                Effects.GrantToxic(1, t),
-                Effects.GrantHexproofFromChosenColor(t),
+            Effects.GrantToxic(1, t) then
+                Effects.GrantHexproofFromChosenColor(t) then
                 Effects.GrantCantBeBlockedByChosenColor(t)
-            ))
         )
     }
 
@@ -54,11 +52,9 @@ val SkrelvDefectorMite = card("Skrelv, Defector Mite") {
         cost = AbilityCost.Composite(listOf(Costs.PayLife(2), AbilityCost.Tap))
         val t = target(TargetFilter.OtherCreatureYouControl)
         effect = Effects.ChooseColorThen(
-            Effects.Composite(listOf(
-                Effects.GrantToxic(1, t),
-                Effects.GrantHexproofFromChosenColor(t),
+            Effects.GrantToxic(1, t) then
+                Effects.GrantHexproofFromChosenColor(t) then
                 Effects.GrantCantBeBlockedByChosenColor(t)
-            ))
         )
     }
 

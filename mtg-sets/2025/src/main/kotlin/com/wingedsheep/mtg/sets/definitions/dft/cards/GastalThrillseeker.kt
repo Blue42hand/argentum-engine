@@ -43,10 +43,7 @@ val GastalThrillseeker = card("Gastal Thrillseeker") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val opponent = target(Targets.Opponent)
-        effect = Effects.Composite(
-            Effects.DealDamage(1, opponent, damageSource = EffectTarget.Self),
-            Effects.GainLife(1),
-        )
+        effect = Effects.DealDamage(1, opponent, damageSource = EffectTarget.Self) then Effects.GainLife(1)
         description = "When this creature enters, it deals 1 damage to target opponent and you gain 1 life."
     }
 

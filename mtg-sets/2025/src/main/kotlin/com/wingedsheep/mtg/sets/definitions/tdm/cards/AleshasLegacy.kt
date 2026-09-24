@@ -21,10 +21,8 @@ val AleshasLegacy = card("Alesha's Legacy") {
 
     spell {
         val target = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(listOf(
-            Effects.GrantKeyword(Keyword.DEATHTOUCH, target),
-            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, target),
-        ))
+        effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, target) then
+            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, target)
     }
 
     metadata {

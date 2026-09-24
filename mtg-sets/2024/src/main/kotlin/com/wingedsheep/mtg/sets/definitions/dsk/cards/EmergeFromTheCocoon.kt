@@ -24,10 +24,7 @@ val EmergeFromTheCocoon = card("Emerge from the Cocoon") {
     oracleText = "Return target creature card from your graveyard to the battlefield. You gain 3 life."
     spell {
         val t = target(TargetFilter.CreatureInYourGraveyard)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
-            Effects.GainLife(3)
-        )
+        effect = Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then Effects.GainLife(3)
     }
     metadata {
         rarity = Rarity.COMMON

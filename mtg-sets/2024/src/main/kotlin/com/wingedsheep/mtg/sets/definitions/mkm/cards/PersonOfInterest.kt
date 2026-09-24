@@ -34,15 +34,13 @@ val PersonOfInterest = card("Person of Interest") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Composite(
-            Effects.Suspect(EffectTarget.Self),
+        effect = Effects.Suspect(EffectTarget.Self) then
             Effects.CreateToken(
                 power = 2,
                 toughness = 2,
                 colors = setOf(Color.WHITE, Color.BLUE),
                 creatureTypes = setOf("Detective")
             )
-        )
     }
 
     metadata {

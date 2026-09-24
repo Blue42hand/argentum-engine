@@ -50,15 +50,13 @@ private val GraspingShadowsFront = card("Grasping Shadows") {
 
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Creature.youControl()).attacks(setOf(AttackPredicate.Alone))
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.TriggeringEntity),
-            Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.TriggeringEntity),
-            Effects.AddCounters(CounterType.DREAD, 1, EffectTarget.Self),
+        effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.TriggeringEntity) then
+            Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.TriggeringEntity) then
+            Effects.AddCounters(CounterType.DREAD, 1, EffectTarget.Self) then
             Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(CounterType.DREAD, 3),
                 then = Effects.Transform(EffectTarget.Self),
-            ),
-        )
+            )
         description = "Whenever a creature you control attacks alone, it gains deathtouch and " +
             "lifelink until end of turn. Put a dread counter on Grasping Shadows. Then if " +
             "there are three or more dread counters on it, transform it."
@@ -92,10 +90,7 @@ private val ShadowsLair = card("Shadows' Lair") {
             Costs.Tap,
             Costs.RemoveCounterFromSelf(CounterType.DREAD, 1),
         )
-        effect = Effects.Composite(
-            Effects.DrawCards(1),
-            Effects.LoseLife(1, EffectTarget.PlayerRef(Player.You)),
-        )
+        effect = Effects.DrawCards(1) then Effects.LoseLife(1, EffectTarget.PlayerRef(Player.You))
     }
 
     metadata {

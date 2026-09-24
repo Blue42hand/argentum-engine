@@ -16,11 +16,9 @@ val AcademicAscent = card("Academic Ascent") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 2, creature),
-            Effects.GrantKeyword(Keyword.FLYING, creature),
+        effect = Effects.ModifyStats(2, 2, creature) then
+            Effects.GrantKeyword(Keyword.FLYING, creature) then
             Patterns.Mechanic.empowerJace(2)
-        )
     }
 
     metadata {

@@ -23,10 +23,7 @@ val Suplex = card("Suplex") {
         modal(chooseCount = 1) {
             mode("Suplex deals 3 damage to target creature. If that creature would die this turn, exile it instead") {
                 val t = target(TargetFilter.Creature)
-                effect = Effects.Composite(
-                    Effects.DealDamage(3, t),
-                    Effects.MarkExileOnDeath(t)
-                )
+                effect = Effects.DealDamage(3, t) then Effects.MarkExileOnDeath(t)
             }
             mode("Exile target artifact") {
                 val t = target(TargetFilter.Artifact)

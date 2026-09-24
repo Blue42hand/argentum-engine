@@ -37,8 +37,8 @@ val MonoistCircuitFeeder = card("Monoist Circuit-Feeder") {
 
         val artifactCount = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count()
 
-        effect = Effects.ModifyStats(artifactCount, DynamicAmounts.fixed(0), ally)
-            .then(Effects.ModifyStats(DynamicAmounts.fixed(0), 0 - artifactCount, enemy))
+        effect = Effects.ModifyStats(artifactCount, DynamicAmounts.fixed(0), ally) then
+            Effects.ModifyStats(DynamicAmounts.fixed(0), 0 - artifactCount, enemy)
     }
 
     metadata {

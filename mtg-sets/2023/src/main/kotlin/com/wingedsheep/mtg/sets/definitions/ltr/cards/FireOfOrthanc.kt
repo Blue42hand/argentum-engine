@@ -23,11 +23,9 @@ val FireOfOrthanc = card("Fire of Orthanc") {
 
     spell {
         val t = target(TargetFilter(GameObjectFilter.Artifact.or(GameObjectFilter.Land)))
-        effect = Effects.Destroy(t)
-            .then(
-                Effects.CantBlockGroup(
-                    GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING))
-                )
+        effect = Effects.Destroy(t) then
+            Effects.CantBlockGroup(
+                GroupFilter(GameObjectFilter.Creature.withoutKeyword(Keyword.FLYING))
             )
     }
 

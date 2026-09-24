@@ -40,10 +40,7 @@ val ParasiticStrix = card("Parasitic Strix") {
         trigger = Triggers.self.enters()
         interveningIf = Conditions.YouControl(GameObjectFilter.Permanent.withColor(Color.BLACK))
         val victim = target(Targets.Player)
-        effect = Effects.Composite(
-            Effects.LoseLife(2, victim),
-            Effects.GainLife(2)
-        )
+        effect = Effects.LoseLife(2, victim) then Effects.GainLife(2)
     }
 
     metadata {

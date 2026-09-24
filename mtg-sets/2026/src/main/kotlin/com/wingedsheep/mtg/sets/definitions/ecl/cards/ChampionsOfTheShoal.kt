@@ -38,13 +38,13 @@ val ChampionsOfTheShoal = card("Champions of the Shoal") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val victim = target(TargetFilter.Creature, optional = true)
-        effect = Effects.Tap(victim).then(Effects.AddCounters(CounterType.STUN, 1, victim))
+        effect = Effects.Tap(victim) then Effects.AddCounters(CounterType.STUN, 1, victim)
     }
 
     triggeredAbility {
         trigger = Triggers.self.becomesTapped()
         val victim = target(TargetFilter.Creature, optional = true)
-        effect = Effects.Tap(victim).then(Effects.AddCounters(CounterType.STUN, 1, victim))
+        effect = Effects.Tap(victim) then Effects.AddCounters(CounterType.STUN, 1, victim)
     }
 
     triggeredAbility {

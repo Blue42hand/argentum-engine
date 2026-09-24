@@ -55,7 +55,7 @@ val TempestHart = card("Tempest Hart") {
         oracleText = "Draw two cards, then discard two cards. " +
             "(Then exile this card. You may cast the creature later from exile.)"
         spell {
-            effect = Effects.DrawCards(2).then(Effects.Discard(2))
+            effect = Effects.DrawCards(2) then Effects.Discard(2)
         }
     }
 

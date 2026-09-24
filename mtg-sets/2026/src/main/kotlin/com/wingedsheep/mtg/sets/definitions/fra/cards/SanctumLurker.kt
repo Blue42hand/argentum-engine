@@ -39,8 +39,8 @@ val SanctumLurker = card("Sanctum Lurker") {
     staticAbility {
         ability = GrantActivatedAbility(
             ability = grantedLoyaltyAbility(+2) {
-                effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent))
-                    .then(Effects.GainLife(1))
+                effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)) then
+                    Effects.GainLife(1)
                 description = "This planeswalker deals 1 damage to each opponent and you gain 1 life."
             },
             filter = GroupFilter(GameObjectFilter.Planeswalker.youControl())

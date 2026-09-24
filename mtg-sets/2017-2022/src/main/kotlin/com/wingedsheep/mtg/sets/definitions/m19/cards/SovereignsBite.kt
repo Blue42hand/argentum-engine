@@ -19,10 +19,7 @@ val SovereignsBite = card("Sovereign's Bite") {
 
     spell {
         val t = target(Targets.Player)
-        effect = Effects.Composite(
-            Effects.LoseLife(3, t),
-            Effects.GainLife(3)
-        )
+        effect = Effects.LoseLife(3, t) then Effects.GainLife(3)
     }
 
     metadata {

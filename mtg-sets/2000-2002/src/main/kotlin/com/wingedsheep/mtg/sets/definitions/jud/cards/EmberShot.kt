@@ -24,10 +24,7 @@ val EmberShot = card("Ember Shot") {
     oracleText = "Ember Shot deals 3 damage to any target.\nDraw a card."
     spell {
         val t = target(Targets.Any)
-        effect = Effects.Composite(
-            Effects.DealDamage(3, t),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.DealDamage(3, t) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

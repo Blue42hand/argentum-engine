@@ -32,8 +32,7 @@ val StrengthOfWill = card("Strength of Will") {
 
     spell {
         val creature = target(TargetFilter.Creature.youControl())
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature),
+        effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature) then
             Effects.GrantTriggeredAbility(
                 ability = TriggeredAbility.create(
                     trigger = Triggers.self.isDealtDamage(),
@@ -44,8 +43,7 @@ val StrengthOfWill = card("Strength of Will") {
                     ),
                 ),
                 target = creature,
-            ),
-        )
+            )
     }
 
     metadata {

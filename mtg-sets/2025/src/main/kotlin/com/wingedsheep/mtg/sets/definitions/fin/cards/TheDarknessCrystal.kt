@@ -73,7 +73,7 @@ val TheDarknessCrystal = card("The Darkness Crystal") {
             placement = ZonePlacement.Tapped,
             controllerOverride = EffectTarget.Controller,
             fromZone = Zone.EXILE,
-        ).then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t))
+        ) then Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t)
     }
 
     metadata {

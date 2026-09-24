@@ -39,13 +39,11 @@ val JinxedChoker = card("Jinxed Choker") {
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
         val opponent = target(Targets.Opponent)
-        effect = Effects.Composite(
-            Effects.GiveControl(
-                permanent = EffectTarget.Self,
-                newController = opponent,
-            ),
-            Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self),
-        )
+        effect = Effects.GiveControl(
+            permanent = EffectTarget.Self,
+            newController = opponent,
+        ) then
+            Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)
     }
 
     triggeredAbility {

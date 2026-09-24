@@ -49,13 +49,11 @@ val CrimestopperSprite = card("Crimestopper Sprite") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Tap(creature),
+        effect = Effects.Tap(creature) then
             Effects.If(
                 condition = Conditions.WasEvidenceCollected,
                 then = Effects.AddCounters(CounterType.STUN, 1, creature),
-            ),
-        )
+            )
         description = "When this creature enters, tap target creature. If evidence was collected, " +
             "put a stun counter on it."
     }

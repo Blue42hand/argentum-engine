@@ -32,8 +32,7 @@ val NovelNunchaku = card("Novel Nunchaku") {
         trigger = Triggers.self.enters()
         val yourCreature = target(TargetFilter.CreatureYouControl)
         val opponentCreature = target(TargetFilter.CreatureOpponentControls, optional = true)
-        effect = Effects.AttachEquipment(yourCreature)
-            .then(Effects.Fight(yourCreature, opponentCreature))
+        effect = Effects.AttachEquipment(yourCreature) then Effects.Fight(yourCreature, opponentCreature)
         description = "When this Equipment enters, attach it to target creature you control. When you do, equipped creature fights up to one target creature an opponent controls."
     }
 

@@ -50,18 +50,16 @@ val HallOfEchoes = card("Hall of Echoes") {
     activatedAbility {
         cost = Costs.Mana("{5}")
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.EachPermanentBecomesCopyOfTarget(
-                target = creature,
-                affected = EffectTarget.Self,
-                duration = Duration.EndOfTurn,
-            ),
+        effect = Effects.EachPermanentBecomesCopyOfTarget(
+            target = creature,
+            affected = EffectTarget.Self,
+            duration = Duration.EndOfTurn,
+        ) then
             Effects.GrantStaticAbility(
                 ability = LegendRuleDoesNotApplyTo(GameObjectFilter.Permanent),
                 target = EffectTarget.Controller,
                 duration = Duration.EndOfTurn,
-            ),
-        )
+            )
         description = "{5}: This land becomes a copy of target creature you control until end of " +
             "turn. The \"legend rule\" doesn't apply to permanents you control this turn."
     }

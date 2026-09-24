@@ -20,10 +20,7 @@ val RidingRedHare = card("Riding Red Hare") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(3, 3, t),
-            Effects.GrantKeyword(Keyword.HORSEMANSHIP, t)
-        )
+        effect = Effects.ModifyStats(3, 3, t) then Effects.GrantKeyword(Keyword.HORSEMANSHIP, t)
     }
 
     metadata {

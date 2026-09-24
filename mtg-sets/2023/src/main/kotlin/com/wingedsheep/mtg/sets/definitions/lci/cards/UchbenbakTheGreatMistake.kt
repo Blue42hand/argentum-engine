@@ -55,10 +55,8 @@ val UchbenbakTheGreatMistake = card("Uchbenbak, the Great Mistake") {
                 Conditions.CardsInGraveyardMatchingAtLeast(8, GameObjectFilter.Permanent)
             )
         )
-        effect = Effects.Composite(
-            Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
+        effect = Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
             Effects.AddCounters(counterType = CounterType.FINALITY, count = 1, target = EffectTarget.Self)
-        )
     }
 
     metadata {

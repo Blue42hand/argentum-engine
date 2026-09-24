@@ -54,10 +54,9 @@ val DeepfathomEcho = card("Deepfathom Echo") {
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
-        effect = Effects.Composite(listOf(
-            // Step 1: This creature explores (unconditional). Reveals top library card; land → hand,
-            // nonland → +1/+1 counter on this creature + optional graveyard put (CR 701.44).
-            Effects.Explore(EffectTarget.Self),
+        // Step 1: This creature explores (unconditional). Reveals top library card; land → hand,
+        // nonland → +1/+1 counter on this creature + optional graveyard put (CR 701.44).
+        effect = Effects.Explore(EffectTarget.Self) then
             // Step 2: The controller may have this creature become a copy of another creature
             // they control until end of turn. Target selection happens inside the Effects.May so
             // it is only asked when the player accepts, and does not bind at stack-placement time.
@@ -71,7 +70,6 @@ val DeepfathomEcho = card("Deepfathom Echo") {
                     ))
                 }
             )
-        ))
     }
 
     metadata {

@@ -25,10 +25,7 @@ val RatOut = card("Rat Out") {
 
     spell {
         val t = target(TargetFilter.Creature, optional = true)
-        effect = Effects.Composite(
-            Effects.ModifyStats(-1, -1, t),
-            woeRatToken()
-        )
+        effect = Effects.ModifyStats(-1, -1, t) then woeRatToken()
     }
 
     metadata {

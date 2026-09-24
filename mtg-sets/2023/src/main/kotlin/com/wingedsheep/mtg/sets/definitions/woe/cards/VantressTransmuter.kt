@@ -33,10 +33,7 @@ val VantressTransmuter = card("Vantress Transmuter") {
             "(Then exile this card. You may cast the creature later from exile.)"
         spell {
             val t = target(TargetFilter.Creature)
-            effect = Effects.Composite(
-                Effects.Tap(t),
-                Effects.CreateRoleToken("Cursed Role", t)
-            )
+            effect = Effects.Tap(t) then Effects.CreateRoleToken("Cursed Role", t)
         }
     }
 

@@ -62,18 +62,17 @@ val EmrakulTheExigentDoom = card("Emrakul, the Exigent Doom") {
         cost = Costs.Composite(Costs.Mana("{3}"), Costs.ExileSelf)
         activateFromZone = Zone.HAND
         val land = target(TargetFilter.Land)
-        effect = Effects.Composite(
-            Effects.GrantActivatedAbility(
-                ability = ActivatedAbility(
-                    id = AbilityId.next(),
-                    cost = AbilityCost.Tap,
-                    effect = Effects.AddColorlessMana(2),
-                    isManaAbility = true,
-                    timing = TimingRule.ManaAbility
-                ),
-                target = land,
-                duration = Duration.UntilSourceCastFromExile
+        effect = Effects.GrantActivatedAbility(
+            ability = ActivatedAbility(
+                id = AbilityId.next(),
+                cost = AbilityCost.Tap,
+                effect = Effects.AddColorlessMana(2),
+                isManaAbility = true,
+                timing = TimingRule.ManaAbility
             ),
+            target = land,
+            duration = Duration.UntilSourceCastFromExile
+        ) then
             Effects.Pipeline {
                 val exiledEmrakul = gather(
                     CardSource.FromZone(
@@ -84,7 +83,6 @@ val EmrakulTheExigentDoom = card("Emrakul, the Exigent Doom") {
                 )
                 run(Effects.GrantMayPlayFromExile(from = exiledEmrakul, expiry = MayPlayExpiry.Permanent))
             }
-        )
         description = "{3}, Exile this card from your hand: Target land gains \"{T}: Add {C}{C}\" until " +
             "this card is cast from exile. You may cast this card for as long as it remains exiled."
     }

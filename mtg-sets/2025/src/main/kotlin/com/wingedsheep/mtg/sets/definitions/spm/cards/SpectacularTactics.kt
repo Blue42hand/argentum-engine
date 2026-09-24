@@ -25,10 +25,8 @@ val SpectacularTactics = card("Spectacular Tactics") {
         modal(chooseCount = 1) {
             mode("Put a +1/+1 counter on target creature you control. It gains hexproof until end of turn") {
                 val t = target(TargetFilter.Creature.youControl())
-                effect = Effects.Composite(
-                    Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
+                effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t) then
                     Effects.GrantKeyword(Keyword.HEXPROOF, t)
-                )
             }
             mode("Destroy target creature with power 4 or greater") {
                 val t = target(TargetFilter.Creature.powerAtLeast(4))

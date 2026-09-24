@@ -22,10 +22,7 @@ val GiftOfStrength = card("Gift of Strength") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(listOf(
-            Effects.ModifyStats(3, 3, creature),
-            Effects.GrantKeyword(Keyword.REACH, creature)
-        ))
+        effect = Effects.ModifyStats(3, 3, creature) then Effects.GrantKeyword(Keyword.REACH, creature)
     }
 
     metadata {

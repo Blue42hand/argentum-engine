@@ -23,10 +23,7 @@ val BurningCloak = card("Burning Cloak") {
     oracleText = "Target creature gets +2/+0 until end of turn. Burning Cloak deals 2 damage to that creature."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, t),
-            Effects.DealDamage(2, t)
-        )
+        effect = Effects.ModifyStats(2, 0, t) then Effects.DealDamage(2, t)
     }
     metadata {
         rarity = Rarity.COMMON

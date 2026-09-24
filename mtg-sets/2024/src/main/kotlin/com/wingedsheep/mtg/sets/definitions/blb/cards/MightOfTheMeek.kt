@@ -25,14 +25,12 @@ val MightOfTheMeek = card("Might of the Meek") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.GrantKeyword(Keyword.TRAMPLE, creature)
-            .then(
-                Effects.If(
-                    condition = Conditions.ControlCreatureOfType(Subtype("Mouse")),
-                    then = Effects.ModifyStats(1, 0, creature)
-                )
-            )
-            .then(Effects.DrawCards(1))
+        effect = Effects.GrantKeyword(Keyword.TRAMPLE, creature) then
+            Effects.If(
+                condition = Conditions.ControlCreatureOfType(Subtype("Mouse")),
+                then = Effects.ModifyStats(1, 0, creature)
+            ) then
+            Effects.DrawCards(1)
     }
 
     metadata {

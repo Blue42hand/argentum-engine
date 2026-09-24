@@ -33,7 +33,7 @@ val MeatLockerDrownedDiner = card("Meat Locker // Drowned Diner") {
         triggeredAbility {
             trigger = Triggers.self.doorUnlocked()
             val t = target(TargetFilter.Creature, optional = true)
-            effect = Effects.Tap(t).then(Effects.AddCounters(CounterType.STUN, 2, t))
+            effect = Effects.Tap(t) then Effects.AddCounters(CounterType.STUN, 2, t)
             description = "When you unlock this door, tap up to one target creature and put two stun counters on it."
         }
     }

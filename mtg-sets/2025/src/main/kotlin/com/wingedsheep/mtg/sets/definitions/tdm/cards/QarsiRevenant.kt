@@ -33,11 +33,9 @@ val QarsiRevenant = card("Qarsi Revenant") {
 
     renew("{2}{B}") {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(listOf(
-            Effects.AddCounters(CounterType.FLYING, 1, creature),
-            Effects.AddCounters(CounterType.DEATHTOUCH, 1, creature),
+        effect = Effects.AddCounters(CounterType.FLYING, 1, creature) then
+            Effects.AddCounters(CounterType.DEATHTOUCH, 1, creature) then
             Effects.AddCounters(CounterType.LIFELINK, 1, creature)
-        ))
     }
 
     metadata {

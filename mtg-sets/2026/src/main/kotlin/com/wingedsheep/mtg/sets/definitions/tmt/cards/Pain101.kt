@@ -41,16 +41,12 @@ val Pain101 = card("Pain 101") {
             descriptionOverride = "When this creature dies, return it to the battlefield tapped under its owner's control."
         )
 
-        effect = Effects.Composite(
-            listOf(
-                Effects.GrantKeyword(Keyword.DEATHTOUCH, creature, Duration.EndOfTurn),
-                Effects.GrantTriggeredAbility(
-                    ability = diesReturnTapped,
-                    target = creature,
-                    duration = Duration.EndOfTurn,
-                ),
+        effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, creature, Duration.EndOfTurn) then
+            Effects.GrantTriggeredAbility(
+                ability = diesReturnTapped,
+                target = creature,
+                duration = Duration.EndOfTurn,
             )
-        )
     }
 
     metadata {

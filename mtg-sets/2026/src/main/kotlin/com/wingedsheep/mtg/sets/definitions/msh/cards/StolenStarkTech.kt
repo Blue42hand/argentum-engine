@@ -44,8 +44,8 @@ val StolenStarkTech = card("Stolen Stark Tech") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.AttachEquipment(creature)
-            .then(Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature, Duration.EndOfTurn))
+        effect = Effects.AttachEquipment(creature) then
+            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature, Duration.EndOfTurn)
     }
 
     staticAbility {

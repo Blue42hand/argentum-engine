@@ -35,8 +35,7 @@ val StreambedAquitects = card("Streambed Aquitects") {
     activatedAbility {
         val merfolk = target(TargetFilter.Creature.withSubtype(Subtype.MERFOLK))
         cost = AbilityCost.Tap
-        effect = Effects.ModifyStats(1, 1, merfolk) then
-            Effects.GrantKeyword(Keyword.ISLANDWALK, merfolk)
+        effect = Effects.ModifyStats(1, 1, merfolk) then Effects.GrantKeyword(Keyword.ISLANDWALK, merfolk)
         description = "{T}: Target Merfolk creature gets +1/+1 and gains islandwalk until end of turn."
     }
 

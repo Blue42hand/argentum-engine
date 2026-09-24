@@ -69,12 +69,10 @@ private fun TriggeredAbilityBuilder.returnVampireRider() {
         TargetFilter(GameObjectFilter.Any.withSubtype("Vampire").ownedByYou(), zone = Zone.GRAVEYARD),
         optional = true,
     )
-    effect = Effects.Composite(
-        Effects.Move(returned, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
-        Effects.AddCounters(counterType = CounterType.FINALITY, count = 1, target = returned),
+    effect = Effects.Move(returned, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD) then
+        Effects.AddCounters(counterType = CounterType.FINALITY, count = 1, target = returned) then
         Effects.LoseLife(
             DynamicAmounts.manaValueOf(returned),
             EffectTarget.Controller,
-        ),
-    )
+        )
 }

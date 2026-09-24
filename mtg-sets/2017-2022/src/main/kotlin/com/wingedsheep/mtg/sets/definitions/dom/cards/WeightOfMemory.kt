@@ -20,8 +20,7 @@ val WeightOfMemory = card("Weight of Memory") {
 
     spell {
         val t = target(Targets.Player)
-        effect = Effects.DrawCards(3)
-            .then(Patterns.Library.mill(3, t))
+        effect = Effects.DrawCards(3) then Patterns.Library.mill(3, t)
     }
 
     metadata {

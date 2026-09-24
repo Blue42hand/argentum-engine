@@ -32,8 +32,7 @@ val JudgmentBolt = card("Judgment Bolt") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.DealDamage(5, t),
+        effect = Effects.DealDamage(5, t) then
             Effects.DealDamage(
                 DynamicAmounts.count(
                     Player.You,
@@ -41,8 +40,7 @@ val JudgmentBolt = card("Judgment Bolt") {
                     GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT),
                 ),
                 EffectTarget.TargetController,
-            ),
-        )
+            )
     }
 
     metadata {

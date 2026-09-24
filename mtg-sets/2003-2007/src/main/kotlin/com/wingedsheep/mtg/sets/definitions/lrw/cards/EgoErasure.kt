@@ -39,10 +39,8 @@ val EgoErasure = card("Ego Erasure") {
         val player = target(Targets.Player)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.targetPlayerControls(player)),
-            Effects.Composite(
-                Effects.ModifyStats(-2, 0, EffectTarget.IterationEntity),
+            Effects.ModifyStats(-2, 0, EffectTarget.IterationEntity) then
                 Effects.LoseAllCreatureTypes(EffectTarget.IterationEntity)
-            )
         )
     }
 

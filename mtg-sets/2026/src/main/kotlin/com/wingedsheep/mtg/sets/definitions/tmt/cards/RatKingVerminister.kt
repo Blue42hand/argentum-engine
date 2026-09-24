@@ -43,7 +43,7 @@ val RatKingVerminister = card("Rat King, Verminister") {
             toughness = 1,
             colors = setOf(Color.BLACK),
             creatureTypes = setOf("Rat")
-        ).then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self))
+        ) then Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Disappear — At the beginning of your end step, if a permanent left the battlefield under your control this turn, create a 1/1 black Rat creature token and put a +1/+1 counter on Rat King."
     }
 

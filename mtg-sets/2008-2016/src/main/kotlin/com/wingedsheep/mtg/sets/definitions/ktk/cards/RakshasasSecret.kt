@@ -19,8 +19,7 @@ val RakshasasSecret = card("Rakshasa's Secret") {
 
     spell {
         val t = target(Targets.Opponent)
-        effect = Patterns.Hand.discardCards(2, t)
-            .then(Patterns.Library.mill(2))
+        effect = Patterns.Hand.discardCards(2, t) then Patterns.Library.mill(2)
     }
 
     metadata {

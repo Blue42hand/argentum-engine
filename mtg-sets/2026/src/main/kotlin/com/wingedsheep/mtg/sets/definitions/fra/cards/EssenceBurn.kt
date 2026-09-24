@@ -16,10 +16,7 @@ val EssenceBurn = card("Essence Burn") {
 
     spell {
         val permanent = target(TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.withAnyColor(Color.BLACK, Color.GREEN)))
-        effect = Effects.Composite(
-            Effects.DealDamage(5, permanent),
-            Effects.MarkExileOnDeath(permanent)
-        )
+        effect = Effects.DealDamage(5, permanent) then Effects.MarkExileOnDeath(permanent)
     }
 
     metadata {

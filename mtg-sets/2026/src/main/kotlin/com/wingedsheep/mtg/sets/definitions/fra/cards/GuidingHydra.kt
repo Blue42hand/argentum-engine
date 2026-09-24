@@ -36,13 +36,11 @@ val GuidingHydra = card("Guiding Hydra") {
         effect = Effects.If(
             condition = Conditions.SourceHasCounter(CounterType.PLUS_ONE_PLUS_ONE),
             then = Effects.May(
-                Effects.Composite(
-                    Effects.RemoveCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                Effects.RemoveCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
                     Effects.ForEachInGroup(
                         GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
                         Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
                     ),
-                ),
             ),
         )
         description = "At the beginning of combat on your turn, you may remove a +1/+1 counter from " +

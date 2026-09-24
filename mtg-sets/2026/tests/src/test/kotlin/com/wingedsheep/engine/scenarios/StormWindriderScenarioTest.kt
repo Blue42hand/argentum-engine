@@ -43,7 +43,7 @@ class StormWindriderScenarioTest : FunSpec({
         spell {
             val a = target(TargetFilter.Creature)
             val b = target(TargetFilter.Creature)
-            effect = Effects.ModifyStats(1, 1, a).then(Effects.ModifyStats(1, 1, b))
+            effect = Effects.ModifyStats(1, 1, a) then Effects.ModifyStats(1, 1, b)
         }
     }
 

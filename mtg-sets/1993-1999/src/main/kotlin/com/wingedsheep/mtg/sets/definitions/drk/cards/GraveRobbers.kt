@@ -30,10 +30,7 @@ val GraveRobbers = card("Grave Robbers") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{B}"), Costs.Tap)
         val artifact = target(TargetFilter(GameObjectFilter.Artifact, zone = Zone.GRAVEYARD))
-        effect = Effects.Composite(
-            Effects.Exile(artifact, fromZone = Zone.GRAVEYARD),
-            Effects.GainLife(2)
-        )
+        effect = Effects.Exile(artifact, fromZone = Zone.GRAVEYARD) then Effects.GainLife(2)
     }
 
     metadata {

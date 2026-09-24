@@ -21,10 +21,7 @@ val GrislyRitual = card("Grisly Ritual") {
 
     spell {
         val t = target(Targets.CreatureOrPlaneswalker)
-        effect = Effects.Composite(
-            Effects.Destroy(t),
-            Effects.CreateBlood(2),
-        )
+        effect = Effects.Destroy(t) then Effects.CreateBlood(2)
     }
 
     metadata {

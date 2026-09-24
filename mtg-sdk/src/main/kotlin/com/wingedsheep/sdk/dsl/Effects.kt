@@ -236,7 +236,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPlayer
  * Effects.DealDamage(3, EffectTarget.ContextTarget(0))
  * Effects.DrawCards(2)
  * Effects.GainLife(5)
- * Effects.Composite(effect1, effect2)
+ * effect1 then effect2
  * ```
  */
 object Effects {
@@ -298,7 +298,7 @@ object Effects {
      *
      * The targets among which the total is split come from the ability's own target requirement,
      * not from here — so the requirement decides whether the wording is "1, 2, or 3 target
-     * creatures" (`TargetCreature(count = 3, minCount = 1)`) or "any number of target creatures
+     * creatures" (`targets(TargetFilter.Creature, count = 3, minCount = 1)`) or "any number of target creatures
      * and/or planeswalkers" (`TargetObject(unlimited = true, …)`). Because each chosen target must
      * be assigned at least 1 damage (CR 601.2d), cap the requirement's target count at the total:
      * pass `dynamicMaxCount = DynamicAmount.Fixed(total)` on an `unlimited` requirement, or let a
@@ -668,7 +668,7 @@ object Effects {
     fun UnlessYouWaterbend(amount: Int, otherwise: Effect): Effect =
         GatedEffect(
             gate = Gate.MayPay(PayManaCostEffect(ManaCost.parse("{$amount}"), waterbend = true)),
-            then = Composite(),
+            then = Nothing,
             otherwise = otherwise,
             descriptionOverride =
                 "${otherwise.description.replaceFirstChar { it.uppercase() }} unless you waterbend {$amount}"
@@ -694,7 +694,7 @@ object Effects {
      *
      * The counter recipient is selected at resolution, *after* a nonland card has actually been
      * discarded — so the player never picks a target up front or when the discard is a land. Pass the
-     * recipient's [requirement] (e.g. `Targets.CreatureYouControl`); do NOT also declare it as a
+     * recipient's [requirement] (e.g. `TargetObject(filter = TargetFilter.CreatureYouControl)`); do NOT also declare it as a
      * cast-time `target(...)` on the ability. See [HandPatterns.conniveTargeting].
      */
     fun ConniveTargeting(requirement: TargetRequirement): Effect =
@@ -3934,13 +3934,14 @@ object Effects {
     // =========================================================================
 
     /**
-     * Combine multiple effects.
+     * Do nothing — the empty sequence, for a branch that has no effect ("otherwise, nothing
+     * happens"). Sequencing effects is `a then b`; see [Effect.then].
      */
-    fun Composite(vararg effects: Effect): Effect =
-        CompositeEffect(effects.toList())
+    val Nothing: Effect = CompositeEffect(emptyList())
 
     /**
-     * Combine multiple effects from a list.
+     * Combine a *computed* list of effects — one built by mapping over data, or one that needs a
+     * [descriptionOverride]. A written-out sequence is `a then b then c` ([Effect.then]).
      *
      * @param stopOnError when true, abort the remaining effects if one fails.
      * @param descriptionOverride render a single hand-written sentence instead of joining sub-effects.
@@ -4000,7 +4001,7 @@ object Effects {
      *
      * ```kotlin
      * Effects.ReflexiveTrigger(action = Effects.PayMana("{U}")) {
-     *     val attacker = target("another target attacking creature", Targets.OtherAttackingCreature)
+     *     val attacker = target(TargetFilter.AttackingCreature.other())
      *     effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, attacker)
      * }
      * ```
@@ -4546,7 +4547,7 @@ object Effects {
      * spell still fails to resolve. Pass [makePlotted] = true for "it becomes plotted" (the
      * card's owner may cast it for free on a later turn), or [fixedAlternativeManaCost] for the
      * **Airbend** stack branch ("its owner may cast it for {2} rather than its mana cost" — Aang,
-     * Swift Savior). Pair with `Targets.Spell`.
+     * Swift Savior). Pair with `target(TargetFilter.SpellOnStack)`.
      *
      * [linkToSource] = true records the exiled card in the source's linked-exile pile so a later
      * ability of the same source can refer to "the exiled card" — Spell Queller's leaves-the-
@@ -5462,7 +5463,7 @@ object Effects {
 
     /**
      * Insert a single additional (postcombat) main phase. The atomic counterpart to [AddCombatPhase];
-     * `Effects.Composite(listOf(AddCombatPhase, AddMainPhase))` reproduces "an additional combat phase
+     * `AddCombatPhase then AddMainPhase` reproduces "an additional combat phase
      * followed by an additional main phase" (Aggravated Assault, All-Out Assault). CR 500.8 / 505.1a.
      */
     val AddMainPhase: Effect = com.wingedsheep.sdk.scripting.effects.AddMainPhaseEffect
@@ -6313,8 +6314,7 @@ object Effects {
      * spell (it chains again), targeted by [copyTarget].
      *
      * ```kotlin
-     * val permanent = TargetPermanent(filter = TargetFilter.NoncreaturePermanent)
-     * val t = target("target noncreature permanent", permanent)
+     * val t = target(TargetFilter.NoncreaturePermanent)
      * effect = Effects.ChainCopy(Effects.Destroy(t), t, CopyRecipient.TARGET_CONTROLLER, copyTarget = permanent)
      * ```
      */

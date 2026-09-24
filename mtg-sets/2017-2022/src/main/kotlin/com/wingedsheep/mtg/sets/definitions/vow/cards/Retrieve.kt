@@ -34,12 +34,7 @@ val Retrieve = card("Retrieve") {
             TargetFilter(GameObjectFilter.NoncreaturePermanent.ownedByYou(), zone = Zone.GRAVEYARD),
             optional = true,
         )
-        effect = Effects.Composite(
-            listOf(
-                Effects.ReturnToHand(creature),
-                Effects.ReturnToHand(noncreature)
-            )
-        )
+        effect = Effects.ReturnToHand(creature) then Effects.ReturnToHand(noncreature)
     }
 
     metadata {

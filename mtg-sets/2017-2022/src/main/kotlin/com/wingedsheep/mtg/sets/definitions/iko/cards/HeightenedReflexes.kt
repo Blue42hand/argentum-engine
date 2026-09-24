@@ -24,10 +24,8 @@ val HeightenedReflexes = card("Heightened Reflexes") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 0, creature),
+        effect = Effects.ModifyStats(1, 0, creature) then
             Effects.AddCounters(CounterType.FIRST_STRIKE, 1, creature)
-        )
     }
 
     metadata {

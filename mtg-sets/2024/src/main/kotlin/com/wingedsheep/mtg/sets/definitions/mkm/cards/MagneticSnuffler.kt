@@ -62,12 +62,10 @@ val MagneticSnuffler = card("Magnetic Snuffler") {
                 zone = Zone.GRAVEYARD
             ),
         )
-        effect = Effects.PutOntoBattlefieldUnderYourControl(equipment)
-            .then(
-                Effects.AttachTargetEquipmentToCreature(
-                    equipmentTarget = equipment,
-                    creatureTarget = EffectTarget.Self
-                )
+        effect = Effects.PutOntoBattlefieldUnderYourControl(equipment) then
+            Effects.AttachTargetEquipmentToCreature(
+                equipmentTarget = equipment,
+                creatureTarget = EffectTarget.Self
             )
         description = "When this creature enters, return target Equipment card from your " +
             "graveyard to the battlefield attached to this creature."

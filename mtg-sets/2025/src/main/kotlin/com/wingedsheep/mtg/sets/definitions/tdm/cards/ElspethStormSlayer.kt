@@ -56,11 +56,9 @@ val ElspethStormSlayer = card("Elspeth, Storm Slayer") {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
-        ).then(
-            Effects.ForEachInGroup(
-                filter = GroupFilter.AllCreaturesYouControl,
-                effect = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity, Duration.UntilYourNextTurn)
-            )
+        ) then Effects.ForEachInGroup(
+            filter = GroupFilter.AllCreaturesYouControl,
+            effect = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.IterationEntity, Duration.UntilYourNextTurn)
         )
     }
 

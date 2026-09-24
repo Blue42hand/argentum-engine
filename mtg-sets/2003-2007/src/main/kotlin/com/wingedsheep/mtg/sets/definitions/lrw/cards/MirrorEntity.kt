@@ -50,15 +50,13 @@ val MirrorEntity = card("Mirror Entity") {
         cost = Costs.Mana("{X}")
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreaturesYouControl,
-            Effects.Composite(
-                Effects.SetBasePowerAndToughness(
-                    power = DynamicAmounts.xValue(),
-                    toughness = DynamicAmounts.xValue(),
-                    target = EffectTarget.IterationEntity,
-                    duration = Duration.EndOfTurn
-                ),
+            Effects.SetBasePowerAndToughness(
+                power = DynamicAmounts.xValue(),
+                toughness = DynamicAmounts.xValue(),
+                target = EffectTarget.IterationEntity,
+                duration = Duration.EndOfTurn
+            ) then
                 Effects.GrantKeyword(Keyword.CHANGELING, EffectTarget.IterationEntity, Duration.EndOfTurn)
-            )
         )
         description = "Until end of turn, creatures you control have base power and toughness " +
             "X/X and gain all creature types."

@@ -33,10 +33,7 @@ val BurnerRocket = card("Burner Rocket") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter.Creature.youControl())
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, t),
-            Effects.GrantKeyword(Keyword.TRAMPLE, t)
-        )
+        effect = Effects.ModifyStats(2, 0, t) then Effects.GrantKeyword(Keyword.TRAMPLE, t)
     }
     keywordAbility(KeywordAbility.crew(1))
     metadata {

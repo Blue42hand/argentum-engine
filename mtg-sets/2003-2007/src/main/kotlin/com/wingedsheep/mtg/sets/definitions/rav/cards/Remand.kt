@@ -33,12 +33,7 @@ val Remand = card("Remand") {
 
     spell {
         target(TargetFilter.SpellOnStack)
-        effect = Effects.Composite(
-            listOf(
-                Effects.CounterSpellToHand(),
-                Effects.DrawCards(1)
-            )
-        )
+        effect = Effects.CounterSpellToHand() then Effects.DrawCards(1)
     }
 
     metadata {

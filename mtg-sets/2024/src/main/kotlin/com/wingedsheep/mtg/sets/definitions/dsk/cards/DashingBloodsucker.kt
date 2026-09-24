@@ -35,10 +35,8 @@ val DashingBloodsucker = card("Dashing Bloodsucker") {
     // Eerie trigger — part 1: whenever an enchantment you control enters
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Enchantment.youControl()).enters()
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, EffectTarget.Self),
-            Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self),
-        )
+        effect = Effects.ModifyStats(2, 0, EffectTarget.Self) then
+            Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self)
         description = "Eerie — Whenever an enchantment you control enters, Dashing Bloodsucker " +
             "gets +2/+0 and gains lifelink until end of turn."
     }
@@ -46,10 +44,8 @@ val DashingBloodsucker = card("Dashing Bloodsucker") {
     // Eerie trigger — part 2: whenever you fully unlock a Room
     triggeredAbility {
         trigger = Triggers.you.fullyUnlocksARoom()
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, EffectTarget.Self),
-            Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self),
-        )
+        effect = Effects.ModifyStats(2, 0, EffectTarget.Self) then
+            Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.Self)
         description = "Eerie — Whenever you fully unlock a Room, Dashing Bloodsucker gets +2/+0 " +
             "and gains lifelink until end of turn."
     }

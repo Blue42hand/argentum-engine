@@ -33,8 +33,7 @@ val VigorbloomVanguard = card("Vigorbloom Vanguard") {
         oracleText = "Put a +1/+1 counter on target creature. You gain 1 life."
         spell {
             val creature = target(TargetFilter.Creature)
-            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
-                .then(Effects.GainLife(1))
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then Effects.GainLife(1)
         }
     }
 

@@ -25,19 +25,15 @@ val BovineIntervention = card("Bovine Intervention") {
 
     spell {
         val permanent = target(TargetFilter.CreatureOrArtifact)
-        effect = Effects.Composite(
-            listOf(
-                Effects.Destroy(permanent),
-                Effects.CreateToken(
-                    power = 2,
-                    toughness = 2,
-                    colors = setOf(Color.WHITE),
-                    creatureTypes = setOf("Ox"),
-                    controller = EffectTarget.TargetController,
-                    imageUri = "https://cards.scryfall.io/normal/front/c/e/cee3ecef-4566-4164-af39-89cb0bbbffeb.jpg?1712316060"
-                )
+        effect = Effects.Destroy(permanent) then
+            Effects.CreateToken(
+                power = 2,
+                toughness = 2,
+                colors = setOf(Color.WHITE),
+                creatureTypes = setOf("Ox"),
+                controller = EffectTarget.TargetController,
+                imageUri = "https://cards.scryfall.io/normal/front/c/e/cee3ecef-4566-4164-af39-89cb0bbbffeb.jpg?1712316060"
             )
-        )
     }
 
     metadata {

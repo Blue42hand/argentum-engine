@@ -13,8 +13,7 @@ val CastAwayDoubt = card("Cast Away Doubt") {
     oracleText = "Draw two cards. Cast Away Doubt deals 2 damage to each player."
 
     spell {
-        effect = Effects.DrawCards(2)
-            .then(Effects.DealDamage(2, EffectTarget.PlayerRef(Player.Each)))
+        effect = Effects.DrawCards(2) then Effects.DealDamage(2, EffectTarget.PlayerRef(Player.Each))
     }
 
     metadata {

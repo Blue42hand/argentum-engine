@@ -35,10 +35,7 @@ val ObsessivePursuit = card("Obsessive Pursuit") {
 
     // "When this enchantment enters and at the beginning of your upkeep" — one ability that triggers
     // off two events; modeled as two triggered abilities sharing the same effect.
-    val loseLifeAndClue = Effects.Composite(
-        Effects.LoseLife(1, EffectTarget.Controller),
-        Effects.CreateClue(),
-    )
+    val loseLifeAndClue = Effects.LoseLife(1, EffectTarget.Controller) then Effects.CreateClue()
 
     triggeredAbility {
         trigger = Triggers.self.enters()
@@ -53,18 +50,16 @@ val ObsessivePursuit = card("Obsessive Pursuit") {
     triggeredAbility {
         trigger = Triggers.you.attacks()
         val attacker = target(TargetFilter.AttackingCreature)
-        effect = Effects.Composite(
-            Effects.AddDynamicCounters(
-                CounterType.PLUS_ONE_PLUS_ONE,
-                DynamicAmounts.permanentsSacrificedThisTurn(),
-                attacker,
-            ),
+        effect = Effects.AddDynamicCounters(
+            CounterType.PLUS_ONE_PLUS_ONE,
+            DynamicAmounts.permanentsSacrificedThisTurn(),
+            attacker,
+        ) then
             // X is the per-controller "permanents sacrificed this turn" count; lifelink only when X >= 3.
             Effects.If(
                 condition = Conditions.YouSacrificedPermanentsThisTurn(atLeast = 3),
                 then = Effects.GrantKeyword(Keyword.LIFELINK, attacker),
-            ),
-        )
+            )
     }
 
     metadata {

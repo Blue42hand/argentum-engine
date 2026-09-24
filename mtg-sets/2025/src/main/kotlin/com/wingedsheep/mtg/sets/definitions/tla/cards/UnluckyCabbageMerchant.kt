@@ -50,16 +50,14 @@ val UnluckyCabbageMerchant = card("Unlucky Cabbage Merchant") {
     triggeredAbility {
         trigger = Triggers.you.sacrifices(GameObjectFilter.Artifact.withSubtype("Food"))
         effect = Effects.May(
-            effect = Effects.Composite(
-                Patterns.Library.searchLibrary(
-                    filter = Filters.BasicLand,
-                    destination = SearchDestination.BATTLEFIELD,
-                    entersTapped = true,
-                    shuffleAfter = false
-                ),
-                Effects.PutOnBottomOfLibrary(EffectTarget.Self),
-                Effects.ShuffleLibrary()
-            ),
+            effect = Patterns.Library.searchLibrary(
+                filter = Filters.BasicLand,
+                destination = SearchDestination.BATTLEFIELD,
+                entersTapped = true,
+                shuffleAfter = false
+            ) then
+                Effects.PutOnBottomOfLibrary(EffectTarget.Self) then
+                Effects.ShuffleLibrary(),
             descriptionOverride = "You may search your library for a basic land card and put it onto the battlefield tapped",
             hint = "If you search this way, put this creature on the bottom of its owner's library, then shuffle"
         )

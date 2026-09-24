@@ -59,8 +59,7 @@ val SkemfarElderhall = card("Skemfar Elderhall") {
             ),
             optional = true,
         )
-        effect = Effects.Composite(
-            Effects.ModifyStats(-2, -2, victim),
+        effect = Effects.ModifyStats(-2, -2, victim) then
             Effects.CreateToken(
                 power = 1,
                 toughness = 1,
@@ -68,7 +67,6 @@ val SkemfarElderhall = card("Skemfar Elderhall") {
                 creatureTypes = setOf("Elf", "Warrior"),
                 count = 2
             )
-        )
         timing = TimingRule.SorcerySpeed
     }
 

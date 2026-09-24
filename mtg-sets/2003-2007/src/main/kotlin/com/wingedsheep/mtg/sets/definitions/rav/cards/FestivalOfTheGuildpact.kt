@@ -29,8 +29,8 @@ val FestivalOfTheGuildpact = card("Festival of the Guildpact") {
     oracleText = "Prevent the next X damage that would be dealt to you this turn.\nDraw a card."
 
     spell {
-        effect = Effects.PreventNextDamage(DynamicAmounts.xValue(), EffectTarget.Controller)
-            .then(Effects.DrawCards(1))
+        effect = Effects.PreventNextDamage(DynamicAmounts.xValue(), EffectTarget.Controller) then
+            Effects.DrawCards(1)
     }
 
     metadata {

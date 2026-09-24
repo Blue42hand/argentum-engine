@@ -25,11 +25,9 @@ val TheChaseIsOn = card("The Chase Is On") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(3, 0, creature),
-            Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature),
+        effect = Effects.ModifyStats(3, 0, creature) then
+            Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature) then
             Effects.Investigate()
-        )
     }
 
     metadata {

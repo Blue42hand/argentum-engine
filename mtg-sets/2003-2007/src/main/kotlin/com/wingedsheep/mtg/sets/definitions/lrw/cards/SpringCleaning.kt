@@ -15,10 +15,8 @@ val SpringCleaning = card("Spring Cleaning") {
 
     spell {
         val enchantment = target(TargetFilter.Enchantment)
-        effect = Effects.Destroy(enchantment).then(
-            Patterns.Mechanic.clash(
-                Effects.DestroyAll(GameObjectFilter.Enchantment.opponentControls())
-            )
+        effect = Effects.Destroy(enchantment) then Patterns.Mechanic.clash(
+            Effects.DestroyAll(GameObjectFilter.Enchantment.opponentControls())
         )
     }
 

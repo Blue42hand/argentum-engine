@@ -20,8 +20,7 @@ val Smother = card("Smother") {
 
     spell {
         val t = target(TargetFilter.Creature.manaValueAtMost(3))
-        effect = Effects.CantBeRegenerated(t) then
-                Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
+        effect = Effects.CantBeRegenerated(t) then Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
     }
 
     metadata {

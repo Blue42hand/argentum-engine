@@ -77,8 +77,7 @@ val KaitoCunningInfiltrator = card("Kaito, Cunning Infiltrator") {
     //     Draw a card, then discard a card.
     loyaltyAbility(+1) {
         val creature = target(TargetFilter.CreatureYouControl, optional = true)
-        effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature) then
-            Patterns.Hand.loot()
+        effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature) then Patterns.Hand.loot()
     }
 
     // −2: Create a 2/1 blue Ninja creature token.

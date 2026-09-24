@@ -41,8 +41,8 @@ val RangersOfIthilien = card("Rangers of Ithilien") {
             TargetFilter(GameObjectFilter.Creature.powerLessThanEntity(EffectTarget.Self)),
             optional = true,
         )
-        effect = Effects.GainControl(creature, Duration.WhileYouControlSource("Rangers of Ithilien"))
-            .then(Effects.TheRingTemptsYou())
+        effect = Effects.GainControl(creature, Duration.WhileYouControlSource("Rangers of Ithilien")) then
+            Effects.TheRingTemptsYou()
     }
 
     metadata {

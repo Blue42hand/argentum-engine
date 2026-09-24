@@ -24,10 +24,8 @@ val HorridVigor = card("Horrid Vigor") {
     oracleText = "Target creature gains deathtouch and indestructible until end of turn."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.DEATHTOUCH, t),
+        effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, t) then
             Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

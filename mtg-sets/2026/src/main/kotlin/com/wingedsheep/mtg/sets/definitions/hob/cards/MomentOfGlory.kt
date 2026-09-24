@@ -41,16 +41,14 @@ val MomentOfGlory = card("Moment of Glory") {
 
     spell {
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then
             Effects.If(
                 condition = Conditions.WasCastFromGraveyard,
                 then = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.youControl()).otherThanTarget(),
                     Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity),
                 ),
-            ),
-        )
+            )
     }
 
     keywordAbility(KeywordAbility.flashback("{4}{W}"))

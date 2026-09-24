@@ -28,10 +28,7 @@ val ThundersongTrumpeter = card("Thundersong Trumpeter") {
     activatedAbility {
         cost = Costs.Tap
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.CantAttack(t),
-            Effects.CantBlock(t)
-        )
+        effect = Effects.CantAttack(t) then Effects.CantBlock(t)
     }
 
     metadata {

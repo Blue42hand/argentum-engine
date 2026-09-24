@@ -26,13 +26,11 @@ val TakenByNightmares = card("Taken by Nightmares") {
     oracleText = "Exile target creature. If you control an enchantment, scry 2."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Exile(t),
+        effect = Effects.Exile(t) then
             Effects.If(
                 condition = Conditions.YouControl(GameObjectFilter.Enchantment),
                 then = Patterns.Library.scry(2)
             )
-        )
     }
     metadata {
         rarity = Rarity.UNCOMMON

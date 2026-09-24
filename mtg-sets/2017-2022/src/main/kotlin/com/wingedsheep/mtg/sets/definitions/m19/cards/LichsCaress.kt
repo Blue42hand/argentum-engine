@@ -23,10 +23,7 @@ val LichsCaress = card("Lich's Caress") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Destroy(creature),
-            Effects.GainLife(3)
-        )
+        effect = Effects.Destroy(creature) then Effects.GainLife(3)
     }
 
     metadata {

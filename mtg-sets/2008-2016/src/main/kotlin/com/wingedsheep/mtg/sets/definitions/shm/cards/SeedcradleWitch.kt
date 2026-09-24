@@ -31,10 +31,7 @@ val SeedcradleWitch = card("Seedcradle Witch") {
     activatedAbility {
         cost = Costs.Mana("{2}{G}{W}")
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(3, 3, creature),
-            Effects.Untap(creature)
-        )
+        effect = Effects.ModifyStats(3, 3, creature) then Effects.Untap(creature)
     }
 
     metadata {

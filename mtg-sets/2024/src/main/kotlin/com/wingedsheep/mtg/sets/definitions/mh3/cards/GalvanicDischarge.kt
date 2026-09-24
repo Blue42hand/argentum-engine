@@ -29,11 +29,9 @@ val GalvanicDischarge = card("Galvanic Discharge") {
 
     spell {
         val t = target(Targets.CreatureOrPlaneswalker)
-        effect = Effects.Composite(
-            Effects.GetEnergy(3),
-            Effects.PayCounters(CounterType.ENERGY, storeAmountAs = "paid"),
+        effect = Effects.GetEnergy(3) then
+            Effects.PayCounters(CounterType.ENERGY, storeAmountAs = "paid") then
             Effects.DealDamage(DynamicAmounts.storedNumber("paid"), t)
-        )
     }
 
     metadata {

@@ -45,7 +45,7 @@ val SelesnyaSanctuary = card("Selesnya Sanctuary") {
 
     activatedAbility {
         cost = AbilityCost.Tap
-        effect = Effects.AddMana(Color.GREEN).then(Effects.AddMana(Color.WHITE))
+        effect = Effects.AddMana(Color.GREEN) then Effects.AddMana(Color.WHITE)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

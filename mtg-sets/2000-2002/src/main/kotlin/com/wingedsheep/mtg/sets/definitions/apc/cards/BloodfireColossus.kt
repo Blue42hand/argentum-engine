@@ -30,10 +30,8 @@ val BloodfireColossus = card("Bloodfire Colossus") {
     toughness = 6
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{R}"), Costs.SacrificeSelf)
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), Effects.DealDamage(6, EffectTarget.IterationEntity)),
+        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), Effects.DealDamage(6, EffectTarget.IterationEntity)) then
             Effects.ForEachPlayer(Player.Each, Effects.DealDamage(6, EffectTarget.Controller))
-        )
     }
     metadata {
         rarity = Rarity.RARE

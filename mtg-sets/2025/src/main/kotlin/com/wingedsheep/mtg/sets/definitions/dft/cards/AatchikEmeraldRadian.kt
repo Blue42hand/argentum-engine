@@ -51,10 +51,8 @@ val AatchikEmeraldRadian = card("Aatchik, Emerald Radian") {
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.youControl().withSubtype(Subtype.INSECT)).dies()
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
             Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent))
-        )
     }
 
     metadata {

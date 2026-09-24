@@ -47,21 +47,17 @@ val AvatarsWrath = card("Avatar's Wrath") {
 
     spell {
         target(TargetFilter.Creature, optional = true)
-        effect = Effects.Composite(
-            listOf(
-                // Airbend every creature except the chosen (up to one) target.
-                Effects.AirbendAll(
-                    filter = GameObjectFilter.Creature,
-                    excludeSelf = false,
-                    excludeChosenTargets = true
-                ),
-                // Your opponents can't cast spells from non-hand zones until your next turn.
-                Effects.CantCastSpellsFromNonHandZones(
-                    target = EffectTarget.PlayerRef(Player.EachOpponent),
-                    duration = Duration.UntilYourNextTurn
-                )
+        // Airbend every creature except the chosen (up to one) target.
+        effect = Effects.AirbendAll(
+            filter = GameObjectFilter.Creature,
+            excludeSelf = false,
+            excludeChosenTargets = true
+        ) then
+            // Your opponents can't cast spells from non-hand zones until your next turn.
+            Effects.CantCastSpellsFromNonHandZones(
+                target = EffectTarget.PlayerRef(Player.EachOpponent),
+                duration = Duration.UntilYourNextTurn
             )
-        )
         // "Exile Avatar's Wrath." — the resolved sorcery is exiled instead of going to the
         // graveyard (engine-honored via CardScript.selfExileOnResolve in StackResolver).
         selfExile()

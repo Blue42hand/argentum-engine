@@ -55,14 +55,13 @@ val DarkLeoAndShredder = card("Dark Leo & Shredder") {
 
     triggeredAbility {
         trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer)
-        effect = Effects.Composite(
-            Effects.CreateToken(
-                power = 1,
-                toughness = 1,
-                colors = setOf(Color.BLACK),
-                creatureTypes = setOf("Ninja"),
-                imageUri = "https://cards.scryfall.io/normal/front/a/7/a7b76498-d696-40d1-b7c7-91657525b44f.jpg?1771590477"
-            ),
+        effect = Effects.CreateToken(
+            power = 1,
+            toughness = 1,
+            colors = setOf(Color.BLACK),
+            creatureTypes = setOf("Ninja"),
+            imageUri = "https://cards.scryfall.io/normal/front/a/7/a7b76498-d696-40d1-b7c7-91657525b44f.jpg?1771590477"
+        ) then
             Effects.If(
                 condition = Conditions.YouControlAtLeast(5, GameObjectFilter.Creature.withSubtype("Ninja")),
                 then = Effects.LoseHalfLife(
@@ -71,7 +70,6 @@ val DarkLeoAndShredder = card("Dark Leo & Shredder") {
                     lifePlayer = Player.TriggeringPlayer
                 )
             )
-        )
     }
 
     metadata {

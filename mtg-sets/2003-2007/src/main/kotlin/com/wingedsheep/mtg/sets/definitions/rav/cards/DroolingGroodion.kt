@@ -39,12 +39,7 @@ val DroolingGroodion = card("Drooling Groodion") {
         )
         val pumped = target(TargetFilter.Creature)
         val weakened = target(TargetOther(TargetObject(filter = TargetFilter.Creature)))
-        effect = Effects.Composite(
-            listOf(
-                Effects.ModifyStats(2, 2, pumped),
-                Effects.ModifyStats(-2, -2, weakened)
-            )
-        )
+        effect = Effects.ModifyStats(2, 2, pumped) then Effects.ModifyStats(-2, -2, weakened)
         description = "Target creature gets +2/+2 until end of turn. Another target creature gets " +
             "-2/-2 until end of turn."
     }

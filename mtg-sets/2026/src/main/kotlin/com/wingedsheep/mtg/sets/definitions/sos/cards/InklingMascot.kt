@@ -30,10 +30,7 @@ val InklingMascot = card("Inkling Mascot") {
     toughness = 2
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature))
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self),
-            Patterns.Library.surveil(1)
-        )
+        effect = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self) then Patterns.Library.surveil(1)
     }
     metadata {
         rarity = Rarity.COMMON

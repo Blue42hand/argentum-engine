@@ -46,10 +46,8 @@ val InvasionSubmersible = card("Invasion Submersible") {
         isExhaust = true
         hasWaterbend = true
         cost = Costs.Mana("{3}")
-        effect = Effects.Composite(
-            Effects.AddCardType("Creature", EffectTarget.Self),
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, EffectTarget.Self),
-        )
+        effect = Effects.AddCardType("Creature", EffectTarget.Self) then
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, EffectTarget.Self)
     }
 
     metadata {

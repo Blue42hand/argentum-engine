@@ -104,11 +104,10 @@ private val ZenosYaeGalvusFront = card("Zenos yae Galvus") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val chosen = target(TargetFilter.CreatureOpponentControls, optional = true)
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(
-                filter = GroupFilter.AllCreatures.other().otherThanTarget(),
-                effect = Effects.ModifyStats(-2, -2, EffectTarget.IterationEntity)
-            ),
+        effect = Effects.ForEachInGroup(
+            filter = GroupFilter.AllCreatures.other().otherThanTarget(),
+            effect = Effects.ModifyStats(-2, -2, EffectTarget.IterationEntity)
+        ) then
             Effects.If(
                 condition = Conditions.EntityMatches(
                     chosen,
@@ -122,7 +121,6 @@ private val ZenosYaeGalvusFront = card("Zenos yae Galvus") {
                     effect = Effects.Transform(EffectTarget.Self)
                 )
             )
-        )
         description = "My First Friend — When Zenos yae Galvus enters, choose a creature an " +
             "opponent controls. Until end of turn, creatures other than Zenos yae Galvus and the " +
             "chosen creature get -2/-2. When the chosen creature leaves the battlefield, transform " +

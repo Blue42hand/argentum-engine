@@ -27,10 +27,8 @@ val TidyConclusion = card("Tidy Conclusion") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Destroy(t),
+        effect = Effects.Destroy(t) then
             Effects.GainLife(DynamicAmounts.battlefield(Player.You, GameObjectFilter.Artifact).count())
-        )
     }
 
     metadata {

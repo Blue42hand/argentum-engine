@@ -21,8 +21,7 @@ val CrashTheRamparts = card("Crash the Ramparts") {
 
     spell {
         val boosted = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(3, 3, boosted) then
-            Effects.GrantKeyword(Keyword.TRAMPLE, boosted)
+        effect = Effects.ModifyStats(3, 3, boosted) then Effects.GrantKeyword(Keyword.TRAMPLE, boosted)
     }
 
     metadata {

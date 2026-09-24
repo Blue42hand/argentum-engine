@@ -44,12 +44,7 @@ val OverwhelmingSurge = card("Overwhelming Surge") {
             mode("Deal 3 damage to target creature and destroy target noncreature artifact") {
                 val creature = target(TargetFilter.Creature)
                 val artifact = target(NoncreatureArtifact)
-                effect = Effects.Composite(
-                    listOf(
-                        Effects.DealDamage(3, creature),
-                        Effects.Destroy(artifact),
-                    )
-                )
+                effect = Effects.DealDamage(3, creature) then Effects.Destroy(artifact)
             }
         }
     }

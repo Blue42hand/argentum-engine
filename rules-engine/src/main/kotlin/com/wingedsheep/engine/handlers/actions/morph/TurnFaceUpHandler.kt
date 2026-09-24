@@ -386,7 +386,7 @@ class TurnFaceUpHandler(
             else -> {
                 val flip: com.wingedsheep.sdk.scripting.effects.Effect =
                     faceUpEffect
-                        ?.let { Effects.Composite(TurnFaceUpEffect(EffectTarget.Self), it) }
+                        ?.let { TurnFaceUpEffect(EffectTarget.Self) then it }
                         ?: TurnFaceUpEffect(EffectTarget.Self)
                 return when (
                     val result = costPaymentService.pay(

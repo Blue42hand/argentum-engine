@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.station
@@ -52,28 +51,24 @@ val KavaronMemorialWorld = card("Kavaron, Memorial World") {
         )
         effect = Effects.If(
             condition = charge12,
-            then = Effects.Composite(
-                listOf(
-                    // Create a 2/2 colorless Robot artifact creature token
-                    Effects.CreateToken(
-                        power = 2,
-                        toughness = 2,
-                        colors = setOf(), // colorless
-                        creatureTypes = setOf("Robot"),
-                        artifactToken = true,
-                        imageUri = "https://cards.scryfall.io/normal/front/c/4/c46f9a07-005c-44b7-8057-b2f00b274dd6.jpg?1756281130"
-                    ),
-                    // Creatures you control get +1/+0 and gain haste until end of turn
-                    Effects.ForEachInGroup(
-                        GroupFilter.AllCreaturesYouControl,
-                        Effects.ModifyStats(1, 0, EffectTarget.IterationEntity)
-                    ),
-                    Effects.ForEachInGroup(
-                        GroupFilter.AllCreaturesYouControl,
-                        Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
-                    )
+            // Create a 2/2 colorless Robot artifact creature token
+            then = Effects.CreateToken(
+                power = 2,
+                toughness = 2,
+                colors = setOf(), // colorless
+                creatureTypes = setOf("Robot"),
+                artifactToken = true,
+                imageUri = "https://cards.scryfall.io/normal/front/c/4/c46f9a07-005c-44b7-8057-b2f00b274dd6.jpg?1756281130"
+            ) then
+                // Creatures you control get +1/+0 and gain haste until end of turn
+                Effects.ForEachInGroup(
+                    GroupFilter.AllCreaturesYouControl,
+                    Effects.ModifyStats(1, 0, EffectTarget.IterationEntity)
+                ) then
+                Effects.ForEachInGroup(
+                    GroupFilter.AllCreaturesYouControl,
+                    Effects.GrantKeyword(Keyword.HASTE, EffectTarget.IterationEntity)
                 )
-            )
         )
     }
 

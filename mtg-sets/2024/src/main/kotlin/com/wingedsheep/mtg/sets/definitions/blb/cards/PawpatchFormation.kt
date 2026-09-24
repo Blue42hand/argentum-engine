@@ -42,12 +42,7 @@ val PawpatchFormation = card("Pawpatch Formation") {
             },
             // Mode 3: Draw a card, create a Food token
             Mode.noTarget(
-                Effects.Composite(
-                    listOf(
-                        Effects.DrawCards(1),
-                        Effects.CreateFood()
-                    )
-                ),
+                Effects.DrawCards(1) then Effects.CreateFood(),
                 "Draw a card. Create a Food token."
             )
         )

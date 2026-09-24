@@ -49,20 +49,18 @@ val SandmanShiftingScoundrel = card("Sandman, Shifting Scoundrel") {
         cost = Costs.Mana("{3}{G}{G}")
         activateFromZone = Zone.GRAVEYARD
         val landTarget = target(TargetFilter(GameObjectFilter.Land.ownedByYou(), zone = Zone.GRAVEYARD))
-        effect = Effects.Composite(
-            Effects.Move(
-                EffectTarget.Self,
-                Zone.BATTLEFIELD,
-                placement = ZonePlacement.Tapped,
-                fromZone = Zone.GRAVEYARD,
-            ),
+        effect = Effects.Move(
+            EffectTarget.Self,
+            Zone.BATTLEFIELD,
+            placement = ZonePlacement.Tapped,
+            fromZone = Zone.GRAVEYARD,
+        ) then
             Effects.Move(
                 landTarget,
                 Zone.BATTLEFIELD,
                 placement = ZonePlacement.Tapped,
                 fromZone = Zone.GRAVEYARD,
-            ),
-        )
+            )
     }
 
     metadata {

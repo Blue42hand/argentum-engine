@@ -42,8 +42,7 @@ val PhantomTrain = card("Phantom Train") {
 
     activatedAbility {
         cost = Costs.SacrificeAnother(GameObjectFilter.CreatureOrArtifact)
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
             Effects.BecomeCreature(
                 target = EffectTarget.Self,
                 power = 4,
@@ -52,7 +51,6 @@ val PhantomTrain = card("Phantom Train") {
                 addTypes = setOf("ARTIFACT"),
                 duration = Duration.EndOfTurn
             )
-        )
         description = "Sacrifice another artifact or creature: Put a +1/+1 counter on this Vehicle. " +
             "It becomes a Spirit artifact creature in addition to its other types until end of turn."
     }

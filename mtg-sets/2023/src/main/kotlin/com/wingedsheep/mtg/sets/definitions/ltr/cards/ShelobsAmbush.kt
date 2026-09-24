@@ -21,9 +21,9 @@ val ShelobsAmbush = card("Shelob's Ambush") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.ModifyStats(1, 2, creature)
-            .then(Effects.GrantKeyword(Keyword.DEATHTOUCH, creature))
-            .then(Effects.CreateFood(1))
+        effect = Effects.ModifyStats(1, 2, creature) then
+            Effects.GrantKeyword(Keyword.DEATHTOUCH, creature) then
+            Effects.CreateFood(1)
     }
 
     metadata {

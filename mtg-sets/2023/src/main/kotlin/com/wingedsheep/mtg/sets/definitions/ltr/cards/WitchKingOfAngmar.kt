@@ -46,13 +46,13 @@ val WitchKingOfAngmar = card("Witch-king of Angmar") {
         effect = Effects.Sacrifice(
             filter = GameObjectFilter.Creature.dealtCombatDamageToSourceControllerThisTurn(),
             target = EffectTarget.PlayerRef(Player.EachOpponent)
-        ).then(Effects.TheRingTemptsYou())
+        ) then Effects.TheRingTemptsYou()
     }
 
     activatedAbility {
         cost = Costs.DiscardCard
-        effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self, Duration.EndOfTurn)
-            .then(Effects.Tap(EffectTarget.Self))
+        effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self, Duration.EndOfTurn) then
+            Effects.Tap(EffectTarget.Self)
     }
 
     metadata {

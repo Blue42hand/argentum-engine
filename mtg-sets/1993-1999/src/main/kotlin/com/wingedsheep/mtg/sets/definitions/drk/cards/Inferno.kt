@@ -25,10 +25,8 @@ val Inferno = card("Inferno") {
     typeLine = "Instant"
     oracleText = "Inferno deals 6 damage to each creature and each player."
     spell {
-        effect = Effects.Composite(
-            Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), Effects.DealDamage(6, EffectTarget.IterationEntity)),
+        effect = Effects.ForEachInGroup(GroupFilter(GameObjectFilter.Creature), Effects.DealDamage(6, EffectTarget.IterationEntity)) then
             Effects.ForEachPlayer(Player.Each, Effects.DealDamage(6, EffectTarget.Controller))
-        )
     }
     metadata {
         rarity = Rarity.RARE

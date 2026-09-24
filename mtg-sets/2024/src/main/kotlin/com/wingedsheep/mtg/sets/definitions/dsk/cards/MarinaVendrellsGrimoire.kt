@@ -59,13 +59,11 @@ val MarinaVendrellsGrimoire = card("Marina Vendrell's Grimoire") {
     // Whenever you lose life, discard that many cards. Then if you have no cards in hand, you lose the game.
     triggeredAbility {
         trigger = Triggers.you.losesLife()
-        effect = Effects.Composite(
-            Effects.Discard(DynamicAmounts.triggerLifeLost()),
+        effect = Effects.Discard(DynamicAmounts.triggerLifeLost()) then
             Effects.If(
                 condition = Conditions.EmptyHand,
                 then = Effects.LoseGame()
             )
-        )
     }
 
     metadata {

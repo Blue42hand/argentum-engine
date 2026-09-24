@@ -927,12 +927,12 @@
                             },
                             "target": {
                                 "type": "BoundVariable",
-                                "name": "t0"
+                                "name": "t1"
                             }
                         },
                         "targetRequirement": {
                             "type": "AnyTarget",
-                            "id": "t0"
+                            "id": "t1"
                         },
                         "descriptionOverride": "Whenever you cast a spell, this emblem deals 5 damage to any target."
                     },
@@ -1904,13 +1904,13 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirements": [
                     {
                         "type": "AnyTarget",
-                        "id": "t0"
+                        "id": "t1"
                     }
                 ]
             }
@@ -1999,7 +1999,7 @@
                         "type": "MoveToZone",
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         },
                         "destination": "Hand"
                     },
@@ -2010,7 +2010,7 @@
                                 "baseFilter": "creature own:you",
                                 "zone": "Graveyard"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Return target creature card from your graveyard to your hand"
@@ -4310,7 +4310,7 @@
                     },
                     "target": {
                         "type": "BoundVariable",
-                        "name": "t0"
+                        "name": "t1"
                     }
                 },
                 "targetRequirement": {
@@ -4318,7 +4318,7 @@
                     "filter": {
                         "baseFilter": "creature|planeswalker ctrl:opponent"
                     },
-                    "id": "t0"
+                    "id": "t1"
                 }
             }
         ]
@@ -4540,7 +4540,7 @@
                         "count": 1,
                         "target": {
                             "type": "BoundVariable",
-                            "name": "t0"
+                            "name": "t1"
                         }
                     },
                     "targetRequirements": [
@@ -4549,7 +4549,7 @@
                             "filter": {
                                 "baseFilter": "creature"
                             },
-                            "id": "t0"
+                            "id": "t1"
                         }
                     ],
                     "description": "Put a +1/+1 counter on target creature"

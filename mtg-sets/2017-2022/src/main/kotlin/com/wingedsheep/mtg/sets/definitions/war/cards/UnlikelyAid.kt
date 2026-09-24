@@ -24,10 +24,7 @@ val UnlikelyAid = card("Unlikely Aid") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(2, 0, t),
-            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
-        )
+        effect = Effects.ModifyStats(2, 0, t) then Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t)
     }
 
     metadata {

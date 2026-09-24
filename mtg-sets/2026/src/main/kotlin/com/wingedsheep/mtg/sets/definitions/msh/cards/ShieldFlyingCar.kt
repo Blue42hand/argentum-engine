@@ -52,13 +52,11 @@ val ShieldFlyingCar = card("S.H.I.E.L.D. Flying Car") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val creature = target(TargetFilter.CreatureYouControl, optional = true)
-        effect = Effects.Composite(
-            Effects.Exile(creature),
+        effect = Effects.Exile(creature) then
             Effects.CreateDelayedTrigger(
                 step = Step.END,
                 effect = Effects.Move(creature, Zone.BATTLEFIELD)
             )
-        )
     }
 
     keywordAbility(KeywordAbility.crew(1))

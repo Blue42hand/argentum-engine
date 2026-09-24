@@ -41,8 +41,7 @@ val DarkEndurance = card("Dark Endurance") {
     spell {
         val target = target(TargetFilter.Creature)
         
-        effect = Effects.ModifyStats(2, 0, target)
-            .then(Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, target))
+        effect = Effects.ModifyStats(2, 0, target) then Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, target)
     }
 
     metadata {

@@ -32,8 +32,7 @@ val MazeOfShadows = card("Maze of Shadows") {
     activatedAbility {
         cost = Costs.Tap
         val shadowAttacker = target(TargetFilter.AttackingCreature.withKeyword(Keyword.SHADOW))
-        effect = Effects.Untap(shadowAttacker)
-            .then(Effects.PreventCombatDamageToAndBy(shadowAttacker))
+        effect = Effects.Untap(shadowAttacker) then Effects.PreventCombatDamageToAndBy(shadowAttacker)
         description = "{T}: Untap target attacking creature with shadow. Prevent all combat damage " +
             "that would be dealt to and dealt by that creature this turn."
     }

@@ -29,8 +29,7 @@ val ThoughtweftLieutenant = card("Thoughtweft Lieutenant") {
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Permanent.youControl().withSubtype("Kithkin")).enters()
         val creature = target(TargetFilter.CreatureYouControl)
-        effect = Effects.ModifyStats(1, 1, creature)
-            .then(Effects.GrantKeyword(Keyword.TRAMPLE, creature))
+        effect = Effects.ModifyStats(1, 1, creature) then Effects.GrantKeyword(Keyword.TRAMPLE, creature)
     }
 
     metadata {

@@ -54,15 +54,13 @@ val MarshalsPathcruiser = card("Marshals' Pathcruiser") {
     activatedAbility {
         cost = Costs.Mana("{W}{U}{B}{R}{G}")
         isExhaust = true
-        effect = Effects.Composite(
-            Effects.BecomeCreature(
-                target = EffectTarget.Self,
-                power = 6,
-                toughness = 5,
-                duration = Duration.Permanent
-            ),
+        effect = Effects.BecomeCreature(
+            target = EffectTarget.Self,
+            power = 6,
+            toughness = 5,
+            duration = Duration.Permanent
+        ) then
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
-        )
         description = "Exhaust — {W}{U}{B}{R}{G}: This Vehicle becomes an artifact creature. " +
             "Put two +1/+1 counters on it."
     }

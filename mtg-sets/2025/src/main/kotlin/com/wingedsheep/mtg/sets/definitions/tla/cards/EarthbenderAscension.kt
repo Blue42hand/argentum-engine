@@ -53,15 +53,13 @@ val EarthbenderAscension = card("Earthbender Ascension") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val land = target(TargetFilter.Land.youControl())
-        effect = Effects.Composite(
-            Effects.Earthbend(2, land),
+        effect = Effects.Earthbend(2, land) then
             Patterns.Library.searchLibrary(
                 filter = Filters.BasicLand,
                 destination = SearchDestination.BATTLEFIELD,
                 entersTapped = true,
                 shuffleAfter = true
             )
-        )
         description = "When this enchantment enters, earthbend 2. Then search your library for a basic land card, put it onto the battlefield tapped, then shuffle."
     }
 
@@ -70,8 +68,7 @@ val EarthbenderAscension = card("Earthbender Ascension") {
     // you control. It gains trample until end of turn.
     triggeredAbility {
         trigger = Triggers.a(GameObjectFilter.Land.youControl()).enters()
-        effect = Effects.Composite(
-            Effects.AddCounters(CounterType.QUEST, 1, EffectTarget.Self),
+        effect = Effects.AddCounters(CounterType.QUEST, 1, EffectTarget.Self) then
             Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(CounterType.QUEST, 4),
                 then = Effects.Pipeline {
@@ -88,7 +85,6 @@ val EarthbenderAscension = card("Earthbender Ascension") {
                     ))
                 }
             )
-        )
         description = "Landfall — Whenever a land you control enters, put a quest counter on this enchantment. When you do, if it has four or more quest counters on it, put a +1/+1 counter on target creature you control. It gains trample until end of turn."
     }
 

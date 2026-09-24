@@ -143,51 +143,46 @@
                         "type": "Composite",
                         "effects": [
                             {
-                                "type": "Composite",
-                                "effects": [
-                                    {
-                                        "type": "GatherCards",
-                                        "source": {
-                                            "type": "TopOfLibrary",
-                                            "count": "XValue"
-                                        },
-                                        "storeAs": "looked"
-                                    },
-                                    {
-                                        "type": "SelectFromCollection",
-                                        "from": "looked",
-                                        "selection": {
-                                            "type": "ChooseExactly",
-                                            "count": {
-                                                "type": "Fixed",
-                                                "amount": 1
-                                            }
-                                        },
-                                        "storeSelected": "kept",
-                                        "storeRemainder": "rest",
-                                        "selectedLabel": "Keep on top",
-                                        "remainderLabel": "Put on bottom at random"
-                                    },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "kept",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Library",
-                                            "placement": "Top"
-                                        }
-                                    },
-                                    {
-                                        "type": "MoveCollection",
-                                        "from": "rest",
-                                        "destination": {
-                                            "type": "ToZone",
-                                            "zone": "Library",
-                                            "placement": "Bottom"
-                                        },
-                                        "order": "Random"
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "TopOfLibrary",
+                                    "count": "XValue"
+                                },
+                                "storeAs": "looked"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "looked",
+                                "selection": {
+                                    "type": "ChooseExactly",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
                                     }
-                                ]
+                                },
+                                "storeSelected": "kept",
+                                "storeRemainder": "rest",
+                                "selectedLabel": "Keep on top",
+                                "remainderLabel": "Put on bottom at random"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "kept",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Library",
+                                    "placement": "Top"
+                                }
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "rest",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Library",
+                                    "placement": "Bottom"
+                                },
+                                "order": "Random"
                             },
                             {
                                 "type": "DrawCards",
@@ -3423,7 +3418,7 @@
                                 "type": "RemoveDamageShield",
                                 "target": {
                                     "type": "BoundVariable",
-                                    "name": "t0"
+                                    "name": "t1"
                                 }
                             },
                             "targetRequirements": [
@@ -3432,7 +3427,7 @@
                                     "filter": {
                                         "baseFilter": "land"
                                     },
-                                    "id": "t0"
+                                    "id": "t1"
                                 }
                             ],
                             "description": "The next time target land would be destroyed this turn, remove all damage marked on it instead"

@@ -32,10 +32,8 @@ val AshrootAnimist = card("Ashroot Animist") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val t = target(TargetFilter.OtherCreatureYouControl)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.TRAMPLE, t),
+        effect = Effects.GrantKeyword(Keyword.TRAMPLE, t) then
             Effects.ModifyStats(DynamicAmounts.sourcePower(), DynamicAmounts.sourcePower(), t)
-        )
     }
     metadata {
         rarity = Rarity.RARE

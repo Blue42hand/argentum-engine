@@ -33,10 +33,8 @@ val WitchEngine = card("Witch Engine") {
     activatedAbility {
         cost = Costs.Tap
         val t = target(Targets.Opponent)
-        effect = Effects.Composite(
-            Effects.AddMana(Color.BLACK, 4),
+        effect = Effects.AddMana(Color.BLACK, 4) then
             Effects.GiveControl(permanent = EffectTarget.Self, newController = t)
-        )
     }
     metadata {
         rarity = Rarity.RARE

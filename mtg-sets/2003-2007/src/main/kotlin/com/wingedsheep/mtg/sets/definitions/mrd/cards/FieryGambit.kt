@@ -59,35 +59,27 @@ val FieryGambit = card("Fiery Gambit") {
             threshold,
         )
 
-        effect = Effects.FlipCoinsUntilLoss(storeWinsAs = "fieryGambitWins")
-            .then(
-                Effects.If(
-                    condition = wonAtLeast(1),
-                    then = Effects.DealDamage(3, creature),
-                    descriptionOverride = "If you win one or more flips, Fiery Gambit deals 3 " +
-                        "damage to target creature.",
-                )
-            )
-            .then(
-                Effects.If(
-                    condition = wonAtLeast(2),
-                    then = Effects.DealDamage(6, EffectTarget.PlayerRef(Player.EachOpponent)),
-                    descriptionOverride = "If you win two or more flips, Fiery Gambit deals 6 " +
-                        "damage to each opponent.",
-                )
-            )
-            .then(
-                Effects.If(
-                    condition = wonAtLeast(3),
-                    then = Effects.DrawCards(9)
-                        .then(
-                            Patterns.Group.untapGroup(
-                                GroupFilter(GameObjectFilter.Land.youControl())
-                            )
-                        ),
-                    descriptionOverride = "If you win three or more flips, draw nine cards and " +
-                        "untap all lands you control.",
-                )
+        effect = Effects.FlipCoinsUntilLoss(storeWinsAs = "fieryGambitWins") then
+            Effects.If(
+                condition = wonAtLeast(1),
+                then = Effects.DealDamage(3, creature),
+                descriptionOverride = "If you win one or more flips, Fiery Gambit deals 3 " +
+                    "damage to target creature.",
+            ) then
+            Effects.If(
+                condition = wonAtLeast(2),
+                then = Effects.DealDamage(6, EffectTarget.PlayerRef(Player.EachOpponent)),
+                descriptionOverride = "If you win two or more flips, Fiery Gambit deals 6 " +
+                    "damage to each opponent.",
+            ) then
+            Effects.If(
+                condition = wonAtLeast(3),
+                then = Effects.DrawCards(9) then
+                    Patterns.Group.untapGroup(
+                        GroupFilter(GameObjectFilter.Land.youControl())
+                    ),
+                descriptionOverride = "If you win three or more flips, draw nine cards and " +
+                    "untap all lands you control.",
             )
     }
 

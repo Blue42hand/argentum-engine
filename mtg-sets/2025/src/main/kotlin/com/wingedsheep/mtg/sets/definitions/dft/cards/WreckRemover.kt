@@ -39,10 +39,7 @@ val WreckRemover = card("Wreck Remover") {
     triggeredAbility {
         trigger = Triggers.self.enters()
         val t = target(TargetFilter.CardInGraveyard, optional = true)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.EXILE),
-            Effects.GainLife(1)
-        )
+        effect = Effects.Move(t, Zone.EXILE) then Effects.GainLife(1)
         description = "Whenever this creature enters or attacks, exile up to one target card from " +
             "a graveyard. You gain 1 life."
     }
@@ -50,10 +47,7 @@ val WreckRemover = card("Wreck Remover") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val t = target(TargetFilter.CardInGraveyard, optional = true)
-        effect = Effects.Composite(
-            Effects.Move(t, Zone.EXILE),
-            Effects.GainLife(1)
-        )
+        effect = Effects.Move(t, Zone.EXILE) then Effects.GainLife(1)
         description = "Whenever this creature enters or attacks, exile up to one target card from " +
             "a graveyard. You gain 1 life."
     }

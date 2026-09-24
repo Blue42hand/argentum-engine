@@ -29,11 +29,9 @@ val ConsumingAshes = card("Consuming Ashes") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Exile(creature).then(
-            Effects.If(
-                condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(3), creature),
-                then = Patterns.Library.surveil(2)
-            )
+        effect = Effects.Exile(creature) then Effects.If(
+            condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(3), creature),
+            then = Patterns.Library.surveil(2)
         )
     }
 

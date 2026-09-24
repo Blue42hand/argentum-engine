@@ -43,12 +43,10 @@ val Kitnap = card("Kitnap") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Tap(EffectTarget.EnchantedCreature)
-            .then(
-                Effects.If(
-                    condition = Conditions.Not(Conditions.GiftWasPromised),
-                    then = Effects.AddCounters(CounterType.STUN, 3, EffectTarget.EnchantedCreature)
-                )
+        effect = Effects.Tap(EffectTarget.EnchantedCreature) then
+            Effects.If(
+                condition = Conditions.Not(Conditions.GiftWasPromised),
+                then = Effects.AddCounters(CounterType.STUN, 3, EffectTarget.EnchantedCreature)
             )
     }
 

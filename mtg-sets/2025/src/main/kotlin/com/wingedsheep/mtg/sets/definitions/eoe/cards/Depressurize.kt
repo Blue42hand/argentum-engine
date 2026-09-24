@@ -24,13 +24,11 @@ val Depressurize = card("Depressurize") {
         val target = target(TargetFilter.Creature)
         
         // Apply -3/-0 debuff
-        effect = Effects.ModifyStats(-3, 0, target)
-            .then(
-                // Then destroy if power is 0 or less
-                Effects.If(
-                    condition = Conditions.TargetPowerAtMost(DynamicAmounts.fixed(0), target),
-                    then = Effects.Destroy(target)
-                )
+        effect = Effects.ModifyStats(-3, 0, target) then
+            // Then destroy if power is 0 or less
+            Effects.If(
+                condition = Conditions.TargetPowerAtMost(DynamicAmounts.fixed(0), target),
+                then = Effects.Destroy(target)
             )
     }
 

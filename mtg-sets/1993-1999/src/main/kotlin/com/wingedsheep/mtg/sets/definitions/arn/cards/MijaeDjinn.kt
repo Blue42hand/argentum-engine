@@ -25,7 +25,7 @@ val MijaeDjinn = card("Mijae Djinn") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         effect = Effects.FlipCoin(
-            lostEffect = Effects.RemoveFromCombat(EffectTarget.Self).then(Effects.Tap(EffectTarget.Self)),
+            lostEffect = Effects.RemoveFromCombat(EffectTarget.Self) then Effects.Tap(EffectTarget.Self),
         )
     }
 

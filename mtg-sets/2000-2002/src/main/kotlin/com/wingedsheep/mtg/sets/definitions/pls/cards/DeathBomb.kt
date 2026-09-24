@@ -28,10 +28,7 @@ val DeathBomb = card("Death Bomb") {
     additionalCost(Costs.additional.SacrificePermanent(GameObjectFilter.Creature))
     spell {
         val t = target(TargetFilter.Creature.notColor(Color.BLACK))
-        effect = Effects.Composite(
-            Effects.Destroy(t, noRegenerate = true),
-            Effects.GainLife(2, t)
-        )
+        effect = Effects.Destroy(t, noRegenerate = true) then Effects.GainLife(2, t)
     }
     metadata {
         rarity = Rarity.COMMON

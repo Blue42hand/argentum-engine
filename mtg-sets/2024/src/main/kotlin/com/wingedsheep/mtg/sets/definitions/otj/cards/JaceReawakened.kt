@@ -45,7 +45,7 @@ val JaceReawakened = card("Jace Reawakened") {
 
     // +1: Draw a card, then discard a card.
     loyaltyAbility(+1) {
-        effect = Effects.DrawCards(1).then(Patterns.Hand.discardCards(1))
+        effect = Effects.DrawCards(1) then Patterns.Hand.discardCards(1)
     }
 
     // +1: You may exile a nonland card with mana value 3 or less from your hand. If you do, it becomes plotted.

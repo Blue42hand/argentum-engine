@@ -20,7 +20,7 @@ class FacadeBoundaryTest : FunSpec({
 
     /** Forbidden construction → human-readable facade hint. */
     val forbidden = listOf(
-        Regex("""\bCompositeEffect\s*\(""") to "Effects.Composite(...)",
+        Regex("""\bCompositeEffect\s*\(""") to "`a then b` (Effects.Composite(...) for a computed list)",
         Regex("""\bMoveToZoneEffect\s*\(""") to "Effects.Move(...) (or Effects.Destroy/Exile/ReturnToHand/…)",
         Regex("""\bForEachInGroupEffect\s*\(""") to "Effects.ForEachInGroup(...)",
         Regex("""\bAdditionalCost\.[A-Z]""") to "Costs.additional.*",
@@ -101,7 +101,7 @@ class FacadeBoundaryTest : FunSpec({
     }
 
     /**
-     * A card names the targets it reads — `val creature = target("target creature", …)`, a mode's
+     * A card holds the targets it reads — `val creature = target(TargetFilter.Creature)`, a mode's
      * or reflexive trigger's own `target(…)`, `handle.asPlayer` for a player-typed slot — rather
      * than counting positions with `ContextTarget(i)` / `Player.ContextPlayer(i)`, which silently
      * shift when a requirement is added, made optional or reordered.
@@ -130,6 +130,45 @@ class FacadeBoundaryTest : FunSpec({
             "Card definitions must read targets through named handles (target(…) / targets(…) / .asPlayer).\n" +
                 violations.joinToString("\n")
         ) {
+            violations shouldBe emptyList()
+        }
+    }
+
+    /**
+     * One spelling per concept, for the two things nearly every card writes:
+     *
+     * - **A target** is `target(filter)` / `targets(filter, count = …)` for an object and
+     *   `target(Targets.X)` for any other shape. The handle's binding id is minted by the DSL and
+     *   the prompt the player sees is derived from the requirement, so a card never names one, and
+     *   never spells the long form `target(TargetObject(…))` the filter overloads already cover.
+     * - **A sequence** is `a then b then c`. `Effects.Composite(…)` stays for a *computed* list (one
+     *   built with `map`, or carrying a `descriptionOverride`); an empty one is `Effects.Nothing`.
+     */
+    test("card definitions spell targets and sequences one way") {
+        val rules = listOf(
+            Regex("""(?<![\w.])(target|targets|kickerTarget|cleaveTarget)\(\s*TargetObject\(""") to
+                "target(TargetFilter…, optional = …) / targets(TargetFilter…, count = …)",
+            Regex("""(?<![\w.])(target|targets|kickerTarget|cleaveTarget)\(\s*"""") to
+                "target(requirement) — the DSL mints the binding id and derives the prompt",
+            Regex("""(?<![\w.])(TargetPlayer|TargetOpponent|AnyTarget|TargetCreatureOrPlaneswalker|TargetPlayerOrPlaneswalker|TargetOpponentOrPlaneswalker|TargetCreatureOrPlayer|TargetPermanentOrPlayer)\(\s*\)""") to
+                "the Targets.* preset",
+            Regex("""\.then\(""") to "infix `a then b`",
+            Regex("""\bEffects\.Composite\(\s*(listOf\(|Effects\.|Patterns\.|emptyList\(|\))""") to
+                "`a then b then c` (or Effects.Nothing)",
+        )
+        val violations = mutableListOf<String>()
+
+        SetSourceRoots.definitionFiles().forEach { path ->
+            val code = blankStringLiterals(stripCommentsAndImports(path.readText()).joinToString("\n"))
+            for ((regex, hint) in rules) {
+                regex.findAll(code).forEach { match ->
+                    val line = code.substring(0, match.range.first).count { it == '\n' } + 1
+                    violations += "${SetSourceRoots.relativize(path)}:$line  →  use $hint instead of `${match.value.trim()}`"
+                }
+            }
+        }
+
+        withClue("Card definitions must spell targets and sequences one way.\n" + violations.joinToString("\n")) {
             violations shouldBe emptyList()
         }
     }

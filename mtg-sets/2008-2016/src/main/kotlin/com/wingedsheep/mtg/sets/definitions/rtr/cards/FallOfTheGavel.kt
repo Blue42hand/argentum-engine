@@ -25,10 +25,7 @@ val FallOfTheGavel = card("Fall of the Gavel") {
 
     spell {
         val t = target(TargetFilter.SpellOnStack)
-        effect = Effects.Composite(
-            Effects.CounterSpell(),
-            Effects.GainLife(5),
-        )
+        effect = Effects.CounterSpell() then Effects.GainLife(5)
     }
 
     metadata {

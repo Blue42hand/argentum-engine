@@ -27,11 +27,11 @@ val ForceAway = card("Force Away") {
     spell {
         val creature = target(TargetFilter.Creature)
 
-        effect = Effects.ReturnToHand(creature)
-            .then(Effects.If(
+        effect = Effects.ReturnToHand(creature) then
+            Effects.If(
                 condition = Exists(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature.powerAtLeast(4)),
                 then = Effects.May(Patterns.Hand.loot())
-            ))
+            )
     }
 
     metadata {

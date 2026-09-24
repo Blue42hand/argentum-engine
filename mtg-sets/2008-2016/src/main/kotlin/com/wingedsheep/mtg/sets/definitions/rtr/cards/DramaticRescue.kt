@@ -24,10 +24,7 @@ val DramaticRescue = card("Dramatic Rescue") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ReturnToHand(t),
-            Effects.GainLife(2),
-        )
+        effect = Effects.ReturnToHand(t) then Effects.GainLife(2)
     }
 
     metadata {

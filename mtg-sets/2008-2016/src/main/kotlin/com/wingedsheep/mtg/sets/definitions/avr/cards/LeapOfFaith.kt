@@ -25,10 +25,7 @@ val LeapOfFaith = card("Leap of Faith") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.GrantKeyword(Keyword.FLYING, creature),
-            Effects.PreventDamage(target = creature)
-        )
+        effect = Effects.GrantKeyword(Keyword.FLYING, creature) then Effects.PreventDamage(target = creature)
     }
 
     metadata {

@@ -78,13 +78,12 @@ val IrohTeaMaster = card("Iroh, Tea Master") {
                     permanent = permanent,
                     newController = opponent
                 ),
-                then = Effects.Composite(
-                    Effects.CreateToken(
-                        power = 1,
-                        toughness = 1,
-                        colors = setOf(Color.WHITE),
-                        creatureTypes = setOf("Ally")
-                    ),
+                then = Effects.CreateToken(
+                    power = 1,
+                    toughness = 1,
+                    colors = setOf(Color.WHITE),
+                    creatureTypes = setOf("Ally")
+                ) then
                     Effects.AddDynamicCounters(
                         counterType = CounterType.PLUS_ONE_PLUS_ONE,
                         amount = DynamicAmounts.battlefield(
@@ -94,8 +93,7 @@ val IrohTeaMaster = card("Iroh, Tea Master") {
                             )
                         ).count(),
                         target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
-                    )
-                ),
+                    ),
                 successCriterion = SuccessCriterion.ControlChanged
             ),
             descriptionOverride = "You may have target opponent gain control of target permanent " +

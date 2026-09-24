@@ -26,10 +26,8 @@ val MacabreWaltz = card("Macabre Waltz") {
     oracleText = "Return up to two target creature cards from your graveyard to your hand, then discard a card."
     spell {
         targets(TargetFilter.CreatureInYourGraveyard, count = 2, optional = true)
-        effect = Effects.Composite(
-            Effects.ForEachTarget(Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND)),
+        effect = Effects.ForEachTarget(Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND)) then
             Patterns.Hand.discardCards(1)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

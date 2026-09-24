@@ -45,7 +45,7 @@ val CharmingScoundrel = card("Charming Scoundrel") {
         trigger = Triggers.self.enters()
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
-                Effects.Discard(1).then(Effects.DrawCards(1)),
+                Effects.Discard(1) then Effects.DrawCards(1),
                 "Discard a card, then draw a card."
             ),
             Mode.noTarget(

@@ -29,10 +29,7 @@ val MelancholicPoet = card("Melancholic Poet") {
     toughness = 2
     triggeredAbility {
         trigger = Triggers.you.casts(GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature))
-        effect = Effects.Composite(
-            Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
-            Effects.GainLife(1)
-        )
+        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(1)
     }
     metadata {
         rarity = Rarity.COMMON

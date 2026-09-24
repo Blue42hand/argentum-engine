@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Narset's Rebuke
@@ -28,17 +27,11 @@ val NarsetsRebuke = card("Narset's Rebuke") {
 
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.DealDamage(5, creature)
-            .then(
-                Effects.Composite(
-                    listOf(
-                        Effects.AddMana(Color.BLUE),
-                        Effects.AddMana(Color.RED),
-                        Effects.AddMana(Color.WHITE),
-                        Effects.MarkExileOnDeath(creature)
-                    )
-                )
-            )
+        effect = Effects.DealDamage(5, creature) then
+            Effects.AddMana(Color.BLUE) then
+                Effects.AddMana(Color.RED) then
+                Effects.AddMana(Color.WHITE) then
+                Effects.MarkExileOnDeath(creature)
     }
 
     metadata {

@@ -29,13 +29,11 @@ val NephaliaSmuggler = card("Nephalia Smuggler") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{3}{U}"), Costs.Tap)
         val creature = target(TargetFilter.OtherCreatureYouControl)
-        effect = Effects.Exile(creature)
-            .then(
-                Effects.Move(
-                    creature,
-                    Zone.BATTLEFIELD,
-                    controllerOverride = EffectTarget.Controller,
-                ),
+        effect = Effects.Exile(creature) then
+            Effects.Move(
+                creature,
+                Zone.BATTLEFIELD,
+                controllerOverride = EffectTarget.Controller,
             )
     }
 

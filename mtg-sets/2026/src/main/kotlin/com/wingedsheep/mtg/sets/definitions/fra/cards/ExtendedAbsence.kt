@@ -15,9 +15,9 @@ val ExtendedAbsence = card("Extended Absence") {
 
     spell {
         val permanent = target(Targets.CreatureOrPlaneswalker)
-        effect = Effects.Exile(permanent)
-            .then(Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)))
-            .then(Effects.GainLife(1))
+        effect = Effects.Exile(permanent) then
+            Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent)) then
+            Effects.GainLife(1)
     }
 
     metadata {

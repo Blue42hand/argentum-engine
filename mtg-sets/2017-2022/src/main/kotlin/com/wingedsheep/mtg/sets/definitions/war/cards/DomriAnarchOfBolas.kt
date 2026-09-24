@@ -39,9 +39,7 @@ val DomriAnarchOfBolas = card("Domri, Anarch of Bolas") {
         effect = Effects.AddManaInAnyCombination(
             amount = 1,
             allowedColors = setOf(Color.RED, Color.GREEN)
-        ).then(
-            Effects.GrantSpellsCantBeCountered(spellFilter = GameObjectFilter.Creature)
-        )
+        ) then Effects.GrantSpellsCantBeCountered(spellFilter = GameObjectFilter.Creature)
     }
 
     // −2: Target creature you control fights target creature you don't control.

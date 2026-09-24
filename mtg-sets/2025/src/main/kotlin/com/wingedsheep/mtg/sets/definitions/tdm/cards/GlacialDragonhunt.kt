@@ -57,7 +57,7 @@ val GlacialDragonhunt = card("Glacial Dragonhunt") {
             // creature is chosen as it goes on the stack, not picked during resolution.
             ifNotEmpty(discarded, filter = GameObjectFilter.Nonland) {
                 run(Effects.ReflexiveTrigger(
-                    action = Effects.Composite(emptyList()),
+                    action = Effects.Nothing,
                     optional = false,
                     descriptionOverride = "Glacial Dragonhunt deals 3 damage to target creature"
                 ) {

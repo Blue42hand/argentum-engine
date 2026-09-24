@@ -66,6 +66,5 @@ private fun thunderOfUnityDelayedTrigger(): Effect =
         trigger = Triggers.a(GameObjectFilter.Creature.youControl()).enters(),
         fireOnce = false,
         expiry = DelayedTriggerExpiry.EndOfTurn,
-        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then
-            Effects.GainLife(1)
+        effect = Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)) then Effects.GainLife(1)
     )

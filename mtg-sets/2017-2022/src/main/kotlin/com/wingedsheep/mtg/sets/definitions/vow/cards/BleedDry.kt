@@ -18,10 +18,7 @@ val BleedDry = card("Bleed Dry") {
     oracleText = "Target creature gets -13/-13 until end of turn. If that creature would die this turn, exile it instead."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(-13, -13, t),
-            Effects.MarkExileOnDeath(t)
-        )
+        effect = Effects.ModifyStats(-13, -13, t) then Effects.MarkExileOnDeath(t)
     }
     metadata {
         rarity = Rarity.COMMON

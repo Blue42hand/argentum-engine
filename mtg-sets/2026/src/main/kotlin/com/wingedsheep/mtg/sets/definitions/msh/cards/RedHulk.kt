@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
@@ -57,7 +58,7 @@ val RedHulk = card("Red Hulk") {
         ) {
             // "When you do, he deals damage equal to the number of +1/+1 counters on him to any
             //  other target."
-            val otherTarget = target(TargetOther(AnyTarget()))
+            val otherTarget = target(TargetOther(Targets.Any))
             effect = Effects.DealDamage(
                 amount = DynamicAmounts.countersOnSelf(CounterType.PLUS_ONE_PLUS_ONE),
                 target = otherTarget,

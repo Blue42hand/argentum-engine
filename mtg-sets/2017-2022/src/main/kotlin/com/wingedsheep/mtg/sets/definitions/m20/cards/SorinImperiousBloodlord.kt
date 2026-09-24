@@ -45,13 +45,11 @@ val SorinImperiousBloodlord = card("Sorin, Imperious Bloodlord") {
 
     loyaltyAbility(+1) {
         val t = target(TargetFilter.CreatureYouControl)
-        effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, t, Duration.EndOfTurn)
-            .then(Effects.GrantKeyword(Keyword.LIFELINK, t, Duration.EndOfTurn))
-            .then(
-                Effects.If(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype("Vampire"), t),
-                    then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t),
-                )
+        effect = Effects.GrantKeyword(Keyword.DEATHTOUCH, t, Duration.EndOfTurn) then
+            Effects.GrantKeyword(Keyword.LIFELINK, t, Duration.EndOfTurn) then
+            Effects.If(
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype("Vampire"), t),
+                then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t),
             )
     }
 
@@ -70,12 +68,7 @@ val SorinImperiousBloodlord = card("Sorin, Imperious Bloodlord") {
                 "any target and you gain 3 life.",
         ) {
             val anyTarget = target(Targets.Any)
-            effect = Effects.Composite(
-                listOf(
-                    Effects.DealDamage(3, anyTarget),
-                    Effects.GainLife(3),
-                )
-            )
+            effect = Effects.DealDamage(3, anyTarget) then Effects.GainLife(3)
         }
     }
 

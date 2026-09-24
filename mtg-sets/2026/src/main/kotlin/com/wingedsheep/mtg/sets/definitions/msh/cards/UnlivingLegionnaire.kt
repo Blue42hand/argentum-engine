@@ -41,10 +41,8 @@ val UnlivingLegionnaire = card("Unliving Legionnaire") {
         isPowerUp = true
         cost = Costs.Mana("{5}{B}{B}")
         val corpse = target(TargetFilter.CreatureInYourGraveyard, optional = true)
-        effect = Effects.Composite(
-            Effects.ReturnToHand(corpse),
+        effect = Effects.ReturnToHand(corpse) then
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
-        )
     }
 
     metadata {

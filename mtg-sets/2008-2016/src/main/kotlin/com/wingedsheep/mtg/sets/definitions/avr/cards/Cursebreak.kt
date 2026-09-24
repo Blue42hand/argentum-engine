@@ -24,10 +24,7 @@ val Cursebreak = card("Cursebreak") {
 
     spell {
         val enchantment = target(TargetFilter.Enchantment)
-        effect = Effects.Composite(
-            Effects.Destroy(enchantment),
-            Effects.GainLife(2),
-        )
+        effect = Effects.Destroy(enchantment) then Effects.GainLife(2)
     }
 
     metadata {

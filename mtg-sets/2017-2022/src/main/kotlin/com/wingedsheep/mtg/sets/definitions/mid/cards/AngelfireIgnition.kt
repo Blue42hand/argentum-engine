@@ -27,14 +27,12 @@ val AngelfireIgnition = card("Angelfire Ignition") {
     oracleText = "Put two +1/+1 counters on target creature. It gains vigilance, trample, lifelink, indestructible, and haste until end of turn.\nFlashback {2}{R}{W} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = t),
-            Effects.GrantKeyword(Keyword.VIGILANCE, t),
-            Effects.GrantKeyword(Keyword.TRAMPLE, t),
-            Effects.GrantKeyword(Keyword.LIFELINK, t),
-            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t),
+        effect = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = t) then
+            Effects.GrantKeyword(Keyword.VIGILANCE, t) then
+            Effects.GrantKeyword(Keyword.TRAMPLE, t) then
+            Effects.GrantKeyword(Keyword.LIFELINK, t) then
+            Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t) then
             Effects.GrantKeyword(Keyword.HASTE, t)
-        )
     }
     keywordAbility(KeywordAbility.flashback("{2}{R}{W}"))
     metadata {

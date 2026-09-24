@@ -67,7 +67,7 @@ private fun bounceUnlessControllerPays(creature: EffectTarget) = Effects.MayPay(
             payer = Player.ControllerOf("target creature")
         ),
     decisionMaker = EffectTarget.TargetController,
-    then = Effects.Composite(emptyList()),
+    then = Effects.Nothing,
     otherwise = Effects.ReturnToHand(creature),
     descriptionOverride = "Return target creature to its owner's hand unless its controller pays {1}."
 )

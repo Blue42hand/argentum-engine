@@ -24,11 +24,9 @@ val SpideryGrasp = card("Spidery Grasp") {
     oracleText = "Untap target creature. It gets +2/+4 and gains reach until end of turn. (It can block creatures with flying.)"
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.Untap(t),
-            Effects.ModifyStats(2, 4, t),
+        effect = Effects.Untap(t) then
+            Effects.ModifyStats(2, 4, t) then
             Effects.GrantKeyword(Keyword.REACH, t)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

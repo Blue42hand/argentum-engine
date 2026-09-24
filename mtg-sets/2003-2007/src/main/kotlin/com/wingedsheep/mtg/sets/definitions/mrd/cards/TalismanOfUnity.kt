@@ -34,19 +34,13 @@ val TalismanOfUnity = card("Talisman of Unity") {
     }
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.Composite(
-            Effects.AddMana(Color.GREEN),
-            Effects.DealDamage(1, EffectTarget.PlayerRef(Player.You))
-        )
+        effect = Effects.AddMana(Color.GREEN) then Effects.DealDamage(1, EffectTarget.PlayerRef(Player.You))
         manaAbility = true
         timing = TimingRule.ManaAbility
     }
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.Composite(
-            Effects.AddMana(Color.WHITE),
-            Effects.DealDamage(1, EffectTarget.PlayerRef(Player.You))
-        )
+        effect = Effects.AddMana(Color.WHITE) then Effects.DealDamage(1, EffectTarget.PlayerRef(Player.You))
         manaAbility = true
         timing = TimingRule.ManaAbility
     }

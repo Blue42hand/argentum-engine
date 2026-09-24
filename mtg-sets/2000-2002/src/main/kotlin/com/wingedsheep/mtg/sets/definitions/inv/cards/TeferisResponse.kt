@@ -40,13 +40,11 @@ val TeferisResponse = card("Teferi's Response") {
         // Targets either a spell or an activated/triggered ability on the stack. The
         // outer filter pins controller=opponent and requires at least one of the chosen
         // targets to be a land you control (via CardPredicate.TargetsMatching).
-        effect = Effects.Composite(
-            // Destroy the source permanent BEFORE countering — at this point the stack
-            // entity still carries its ability component so we can read sourceId.
-            Effects.DestroySourceOfTargetedAbility(),
-            Effects.CounterSpellOrAbility(),
+        // Destroy the source permanent BEFORE countering — at this point the stack
+        // entity still carries its ability component so we can read sourceId.
+        effect = Effects.DestroySourceOfTargetedAbility() then
+            Effects.CounterSpellOrAbility() then
             Effects.DrawCards(2)
-        )
     }
 
     metadata {

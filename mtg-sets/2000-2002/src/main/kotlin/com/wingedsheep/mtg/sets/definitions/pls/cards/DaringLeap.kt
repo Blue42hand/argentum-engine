@@ -24,11 +24,9 @@ val DaringLeap = card("Daring Leap") {
     oracleText = "Target creature gets +1/+1 and gains flying and first strike until end of turn."
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.ModifyStats(1, 1, t),
-            Effects.GrantKeyword(Keyword.FLYING, t),
+        effect = Effects.ModifyStats(1, 1, t) then
+            Effects.GrantKeyword(Keyword.FLYING, t) then
             Effects.GrantKeyword(Keyword.FIRST_STRIKE, t)
-        )
     }
     metadata {
         rarity = Rarity.COMMON

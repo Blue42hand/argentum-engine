@@ -58,7 +58,7 @@ val StingBilbosSword = card("Sting, Bilbo's Sword") {
             CounterType.HONE,
             DynamicAmounts.battlefield(Player.TargetOpponent, GameObjectFilter.Creature).count(),
             EffectTarget.Self,
-        ).then(Effects.AttachEquipment(creature))
+        ) then Effects.AttachEquipment(creature)
         description = "When Sting enters, put a hone counter on Sting for each creature target " +
             "opponent controls. Attach Sting to up to one target creature you control."
     }

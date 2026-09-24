@@ -24,10 +24,7 @@ val Peek = card("Peek") {
     oracleText = "Look at target player's hand.\nDraw a card."
     spell {
         val t = target(Targets.Player)
-        effect = Effects.Composite(
-            Effects.LookAtHand(t),
-            Effects.DrawCards(1)
-        )
+        effect = Effects.LookAtHand(t) then Effects.DrawCards(1)
     }
     metadata {
         rarity = Rarity.COMMON

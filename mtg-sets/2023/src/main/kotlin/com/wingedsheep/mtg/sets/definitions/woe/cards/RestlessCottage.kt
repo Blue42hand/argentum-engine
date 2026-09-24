@@ -72,10 +72,7 @@ val RestlessCottage = card("Restless Cottage") {
     triggeredAbility {
         trigger = Triggers.self.attacks()
         val exiled = target(TargetFilter.CardInGraveyard, optional = true)
-        effect = Effects.Composite(
-            Effects.CreateFood(),
-            Effects.Move(exiled, Zone.EXILE),
-        )
+        effect = Effects.CreateFood() then Effects.Move(exiled, Zone.EXILE)
         description = "Whenever this land attacks, create a Food token and exile up to one target " +
             "card from a graveyard."
     }

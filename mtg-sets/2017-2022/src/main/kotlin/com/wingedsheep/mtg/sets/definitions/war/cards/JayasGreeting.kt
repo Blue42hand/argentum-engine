@@ -21,10 +21,7 @@ val JayasGreeting = card("Jaya's Greeting") {
 
     spell {
         val t = target(TargetFilter.Creature)
-        effect = Effects.Composite(
-            Effects.DealDamage(3, t),
-            Effects.Scry(1)
-        )
+        effect = Effects.DealDamage(3, t) then Effects.Scry(1)
     }
 
     metadata {

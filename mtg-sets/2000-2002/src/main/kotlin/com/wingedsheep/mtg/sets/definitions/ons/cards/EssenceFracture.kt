@@ -23,8 +23,7 @@ val EssenceFracture = card("Essence Fracture") {
 
     spell {
         val (c1, c2) = targets(TargetFilter.Creature, count = 2)
-        effect = Effects.Move(c1, Zone.HAND) then
-                Effects.Move(c2, Zone.HAND)
+        effect = Effects.Move(c1, Zone.HAND) then Effects.Move(c2, Zone.HAND)
     }
 
     keywordAbility(KeywordAbility.Cycling(ManaCost.parse("{2}{U}")))

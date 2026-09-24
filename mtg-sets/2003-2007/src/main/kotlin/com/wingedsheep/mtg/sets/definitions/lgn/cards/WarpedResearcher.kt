@@ -25,10 +25,8 @@ val WarpedResearcher = card("Warped Researcher") {
 
     triggeredAbility {
         trigger = Triggers.anyPlayer.cycles()
-        effect = Effects.Composite(listOf(
-            Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self),
+        effect = Effects.GrantKeyword(Keyword.FLYING, EffectTarget.Self) then
             Effects.GrantKeyword(Keyword.SHROUD, EffectTarget.Self)
-        ))
     }
 
     metadata {

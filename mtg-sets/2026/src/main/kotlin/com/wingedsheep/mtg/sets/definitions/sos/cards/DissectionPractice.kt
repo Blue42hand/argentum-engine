@@ -25,10 +25,10 @@ val DissectionPractice = card("Dissection Practice") {
         val opponent = target(Targets.Opponent)
         val pumped = target(TargetFilter.Creature, optional = true)
         val weakened = target(TargetFilter.Creature, optional = true)
-        effect = Effects.LoseLife(1, opponent)
-            .then(Effects.GainLife(1))
-            .then(Effects.ModifyStats(1, 1, pumped))
-            .then(Effects.ModifyStats(-1, -1, weakened))
+        effect = Effects.LoseLife(1, opponent) then
+            Effects.GainLife(1) then
+            Effects.ModifyStats(1, 1, pumped) then
+            Effects.ModifyStats(-1, -1, weakened)
     }
     metadata {
         rarity = Rarity.UNCOMMON
