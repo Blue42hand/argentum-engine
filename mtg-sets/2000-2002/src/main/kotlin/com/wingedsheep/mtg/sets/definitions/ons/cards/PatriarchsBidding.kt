@@ -7,9 +7,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.EachPlayerChoosesCreatureTypeEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -30,22 +27,18 @@ val PatriarchsBidding = card("Patriarch's Bidding") {
         effect = Effects.Composite(
             listOf(
                 EachPlayerChoosesCreatureTypeEffect(storeAs = "biddingTypes"),
-                ForEachPlayerEffect(
+                Effects.ForEachPlayer(
                     players = Player.ActivePlayerFirst,
-                    effects = listOf(
-                        GatherCardsEffect(
-                            source = CardSource.FromZone(
+                    Effects.Pipeline {
+                        val toReturn = gather(
+                            CardSource.FromZone(
                                 zone = Zone.GRAVEYARD,
                                 player = Player.You,
                                 filter = GameObjectFilter.Creature.withSubtypeInStoredList("biddingTypes")
-                            ),
-                            storeAs = "toReturn"
-                        ),
-                        MoveCollectionEffect(
-                            from = "toReturn",
-                            destination = CardDestination.ToZone(Zone.BATTLEFIELD)
+                            )
                         )
-                    )
+                        move(toReturn, CardDestination.ToZone(Zone.BATTLEFIELD))
+                    }
                 )
             )
         )

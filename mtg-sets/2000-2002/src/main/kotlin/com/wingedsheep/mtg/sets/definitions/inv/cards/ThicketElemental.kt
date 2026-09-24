@@ -8,9 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.conditions.WasKicked
 import com.wingedsheep.sdk.scripting.effects.CardDestination
-import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.RevealCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -41,28 +38,15 @@ val ThicketElemental = card("Thicket Elemental") {
         trigger = Triggers.EntersBattlefield
         interveningIf = WasKicked
         effect = Effects.May(
-            Effects.Composite(
-                listOf(
-                    GatherUntilMatchEffect(
-                        filter = GameObjectFilter.Creature,
-                        storeMatch = "found",
-                        storeRevealed = "allRevealed"
-                    ),
-                    // fromZone/toZone tag this as a zone-transition reveal so the client shows
-                    // the full reveal overlay including the matched creature (which lands on the
-                    // battlefield in the same update).
-                    RevealCollectionEffect(
-                        from = "allRevealed",
-                        fromZone = Zone.LIBRARY,
-                        toZone = Zone.BATTLEFIELD
-                    ),
-                    MoveCollectionEffect(
-                        from = "found",
-                        destination = CardDestination.ToZone(Zone.BATTLEFIELD)
-                    ),
-                    ShuffleLibraryEffect()
-                )
-            )
+            Effects.Pipeline {
+                val (found, allRevealed) = gatherUntilMatch(GameObjectFilter.Creature)
+                // fromZone/toZone tag this as a zone-transition reveal so the client shows
+                // the full reveal overlay including the matched creature (which lands on the
+                // battlefield in the same update).
+                reveal(allRevealed, fromZone = Zone.LIBRARY, toZone = Zone.BATTLEFIELD)
+                move(found, CardDestination.ToZone(Zone.BATTLEFIELD))
+                run(ShuffleLibraryEffect())
+            }
         )
     }
 

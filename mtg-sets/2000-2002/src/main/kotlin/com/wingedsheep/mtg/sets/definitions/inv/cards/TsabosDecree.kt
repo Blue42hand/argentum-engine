@@ -4,15 +4,9 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ChooseCreatureTypeEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.CantBeRegeneratedEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -44,45 +38,33 @@ val TsabosDecree = card("Tsabo's Decree") {
 
     spell {
         val targetPlayer = target("target player", TargetPlayer())
-        effect = Effects.Composite(
-            listOf(
-                ChooseCreatureTypeEffect,
-                // Target player reveals their hand and discards all creature cards of that type.
-                RevealHandEffect(targetPlayer),
-                GatherCardsEffect(
-                    source = CardSource.FromZone(
-                        zone = Zone.HAND,
-                        player = Player.ContextPlayer(0),
-                        filter = GameObjectFilter.Creature,
-                    ),
-                    storeAs = "tsaboHand",
+        effect = Effects.Pipeline {
+            run(ChooseCreatureTypeEffect)
+            // Target player reveals their hand and discards all creature cards of that type.
+            run(RevealHandEffect(targetPlayer))
+            val tsaboHand = gather(
+                CardSource.FromZone(
+                    zone = Zone.HAND,
+                    player = Player.ContextPlayer(0),
+                    filter = GameObjectFilter.Creature,
+                )
+            )
+            val tsaboDiscard = selectAll(from = tsaboHand, matchChosenCreatureType = true)
+            discard(tsaboDiscard, Player.ContextPlayer(0))
+            // Then destroy all creatures of that type that player controls; no regeneration.
+            run(Effects.ForEachInGroup(
+                filter = GroupFilter(
+                    baseFilter = GameObjectFilter.Creature.targetPlayerControls(),
+                    chosenSubtypeKey = "chosenCreatureType",
                 ),
-                SelectFromCollectionEffect(
-                    from = "tsaboHand",
-                    selection = SelectionMode.All,
-                    matchChosenCreatureType = true,
-                    storeSelected = "tsaboDiscard",
-                ),
-                MoveCollectionEffect(
-                    from = "tsaboDiscard",
-                    destination = CardDestination.ToZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),
-                    moveType = MoveType.Discard,
-                ),
-                // Then destroy all creatures of that type that player controls; no regeneration.
-                Effects.ForEachInGroup(
-                    filter = GroupFilter(
-                        baseFilter = GameObjectFilter.Creature.targetPlayerControls(),
-                        chosenSubtypeKey = "chosenCreatureType",
-                    ),
-                    effect = Effects.Composite(
-                        listOf(
-                            CantBeRegeneratedEffect(EffectTarget.IterationEntity),
-                            Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, byDestruction = true),
-                        ),
+                effect = Effects.Composite(
+                    listOf(
+                        CantBeRegeneratedEffect(EffectTarget.IterationEntity),
+                        Effects.Move(EffectTarget.IterationEntity, Zone.GRAVEYARD, byDestruction = true),
                     ),
                 ),
-            ),
-        )
+            ))
+        }
     }
 
     metadata {

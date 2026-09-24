@@ -1,16 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.ons.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.EachPlayerChoosesCreatureTypeEffect
-import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -28,23 +22,14 @@ val HarshMercy = card("Harsh Mercy") {
 
     spell {
         effect = EachPlayerChoosesCreatureTypeEffect(storeAs = "chosenTypes")
-            .then(Effects.Composite(listOf(
-                GatherCardsEffect(
-                    source = CardSource.BattlefieldMatching(filter = GameObjectFilter.Creature),
-                    storeAs = "destroyAll_gathered"
-                ),
-                FilterCollectionEffect(
-                    from = "destroyAll_gathered",
-                    filter = GameObjectFilter.Any.withoutSubtypeInStoredList("chosenTypes"),
-                    storeMatching = "destroyAll_filtered"
-                ),
-                MoveCollectionEffect(
-                    from = "destroyAll_filtered",
-                    destination = CardDestination.ToZone(Zone.GRAVEYARD),
-                    moveType = MoveType.Destroy,
-                    noRegenerate = true
+            .then(Effects.Pipeline {
+                val destroyAllGathered = gather(CardSource.BattlefieldMatching(filter = GameObjectFilter.Creature))
+                val destroyAllFiltered = filter(
+                    destroyAllGathered,
+                    GameObjectFilter.Any.withoutSubtypeInStoredList("chosenTypes")
                 )
-            )))
+                destroy(destroyAllFiltered, noRegenerate = true)
+            })
     }
 
     metadata {

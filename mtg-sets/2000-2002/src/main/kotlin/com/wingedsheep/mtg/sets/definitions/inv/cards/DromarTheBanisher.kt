@@ -2,16 +2,12 @@ package com.wingedsheep.mtg.sets.definitions.inv.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -44,21 +40,15 @@ val DromarTheBanisher = card("Dromar, the Banisher") {
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}{U}"),
             then = Effects.ChooseColorThen(
-                then = Effects.Composite(
-                    listOf(
-                        GatherCardsEffect(
-                            source = CardSource.BattlefieldMatching(
-                                filter = GameObjectFilter.Creature.withChosenColor(),
-                                player = Player.Each,
-                            ),
-                            storeAs = "dromarBounce",
-                        ),
-                        MoveCollectionEffect(
-                            from = "dromarBounce",
-                            destination = CardDestination.ToZone(Zone.HAND),
-                        ),
-                    ),
-                ),
+                then = Effects.Pipeline {
+                    val dromarBounce = gather(
+                        CardSource.BattlefieldMatching(
+                            filter = GameObjectFilter.Creature.withChosenColor(),
+                            player = Player.Each,
+                        )
+                    )
+                    toHand(dromarBounce)
+                },
                 prompt = "Choose a color",
             ),
         )
