@@ -1059,6 +1059,51 @@ class ActivateAbilityHandler(
         }
 
         // -------------------------------------------------------------------
+        // Put-from-hand-on-library cost-choice pause (Leashling). Which card goes back is always
+        // the player's choice — it decides their next draw — so pause whenever the choice isn't
+        // pre-filled and there is more than one way to pay. An exactly-sized hand is forced and
+        // CostHandler pays it without a prompt.
+        // -------------------------------------------------------------------
+        val putOnLibraryCost = extractPutOnLibraryCost(effectiveCost)
+        if (putOnLibraryCost != null && action.costPayment?.cardsPutOnLibrary.isNullOrEmpty()) {
+            val candidates = costHandler.findMatchingCardsUnified(
+                state,
+                state.getZone(com.wingedsheep.engine.state.ZoneKey(action.playerId, Zone.HAND)),
+                putOnLibraryCost.filter,
+                action.playerId
+            )
+            if (candidates.size < putOnLibraryCost.count) {
+                return ExecutionResult.error(state, "Not enough cards in hand to pay ${putOnLibraryCost.description}")
+            }
+            if (candidates.size > putOnLibraryCost.count) {
+                val n = putOnLibraryCost.count
+                val prompt = "Choose ${if (n == 1) "a card" else "$n cards"} to put on top of your library for $sourceName"
+                return state.suspendForDecision(
+                    question = { decisionId ->
+                        com.wingedsheep.engine.core.SelectCardsDecision(
+                            id = decisionId,
+                            playerId = action.playerId,
+                            prompt = prompt,
+                            context = com.wingedsheep.engine.core.DecisionContext(
+                                sourceId = action.sourceId,
+                                sourceName = sourceName,
+                                phase = com.wingedsheep.engine.core.DecisionPhase.CASTING
+                            ),
+                            options = candidates,
+                            minSelections = n,
+                            maxSelections = n
+                        )
+                    },
+                    answer = com.wingedsheep.engine.core.ActivateAbilityPutOnLibraryContinuation(
+                        action = action,
+                        candidates = candidates,
+                        count = n
+                    )
+                )
+            }
+        }
+
+        // -------------------------------------------------------------------
         // VariablePermanents cost-choice pause (legal-actions submission path).
         //
         // "Exile/sacrifice one or more [filter] you control" (Fabrication Foundry, Radiant Lotus).
@@ -1332,6 +1377,7 @@ class ActivateAbilityHandler(
         val costChoices = CostPaymentChoices(
             sacrificeChoices = action.costPayment?.sacrificedPermanents ?: emptyList(),
             discardChoices = action.costPayment?.discardedCards ?: emptyList(),
+            putOnLibraryChoices = action.costPayment?.cardsPutOnLibrary ?: emptyList(),
             exileChoices = exileChoices,
             variablePermanentChoices = action.costPayment?.variableCostPermanents ?: emptyList(),
             tapChoices = firstTapSlice,
@@ -1696,7 +1742,12 @@ class ActivateAbilityHandler(
                 // permanent is already in the graveyard (CR 113.7a); without the snapshots the
                 // amount resolves to 0 and the ability produces nothing.
                 sacrificedPermanents = sacrificedSnapshots,
-                manaColorChoice = action.manaColorChoice,
+                // Dropped when another player chooses the color at resolution (Spectral
+                // Searchlight) — the activator has no say in it, whatever the client sent.
+                manaColorChoice = action.manaColorChoice.takeUnless {
+                    com.wingedsheep.engine.mechanics.mana.ManaColorChoiceTiming
+                        .chosenByAnotherPlayerAtResolution(finalEffect)
+                },
                 // Mana abilities resolve without a stack component, so their activation-time
                 // provenance must enter the effect context here. The concrete id remains useful
                 // even when this lookup branch could not prove a definition-scoped identity.
@@ -2782,6 +2833,14 @@ class ActivateAbilityHandler(
      * to detect that an activation needs to pause for a sacrifice-target selection when the player
      * controls more matching permanents than the cost requires (Sage of Lat-Nam, Atog, …).
      */
+    private fun extractPutOnLibraryCost(cost: AbilityCost): CostAtom.PutFromHandOnTopOfLibrary? = when (cost) {
+        is AbilityCost.Atom -> cost.atom as? CostAtom.PutFromHandOnTopOfLibrary
+        is AbilityCost.Composite -> cost.costs.firstNotNullOfOrNull {
+            (it as? AbilityCost.Atom)?.atom as? CostAtom.PutFromHandOnTopOfLibrary
+        }
+        else -> null
+    }
+
     private fun extractSacrificeCost(cost: AbilityCost): CostAtom.Sacrifice? = when (cost) {
         is AbilityCost.Atom -> cost.atom as? CostAtom.Sacrifice
         is AbilityCost.Composite -> cost.costs.firstNotNullOfOrNull {

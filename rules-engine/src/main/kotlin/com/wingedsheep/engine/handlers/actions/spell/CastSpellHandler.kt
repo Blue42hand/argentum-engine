@@ -57,6 +57,7 @@ import com.wingedsheep.engine.mechanics.layers.Layer
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.engine.mechanics.layers.addFloatingEffect
 import com.wingedsheep.engine.mechanics.mana.AlternativePaymentHandler
+import com.wingedsheep.engine.mechanics.mana.AdditionalManaForCounters
 import com.wingedsheep.engine.mechanics.mana.TapForGeneric
 import com.wingedsheep.engine.mechanics.mana.CostCalculator
 import com.wingedsheep.engine.mechanics.mana.ManaPool
@@ -125,6 +126,7 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.engine.handlers.effects.TargetResolutionUtils.toEntityId
 import com.wingedsheep.engine.state.components.player.GrantedSpellKeywordsComponent
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
+import com.wingedsheep.engine.state.components.stack.AdditionalEntryCounters
 import com.wingedsheep.engine.state.components.stack.EntitySnapshot
 import com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComponent
 import com.wingedsheep.engine.state.components.stack.captureEntitySnapshots
@@ -657,6 +659,17 @@ class CastSpellHandler(
             if (spliceError != null) return spliceError
         }
 
+        // "As an additional cost to cast creature spells, you may pay any amount of mana"
+        // (Chorus of the Conclave). The amount is client-supplied, so it must be non-negative and
+        // backed by a grant that applies to this very spell. A face-down cast is excluded: the
+        // grant's filter can't be checked against the hidden card, and the enumerator never offers it.
+        if (action.additionalManaForCounters < 0) return "Additional mana paid can't be negative"
+        if (action.additionalManaForCounters > 0) {
+            if (action.castFaceDown) return "Additional mana for counters can't be paid for a face-down spell"
+            AdditionalManaForCounters.applicableGrant(state, action.playerId, action.cardId, cardRegistry)
+                ?: return "No permanent you control lets you pay additional mana for this spell"
+        }
+
         // Calculate effective cost (free if PlayWithoutPayingCostComponent is present, or if a
         // MayCastWithoutPayingManaCost battlefield source (e.g. Weftwalking) is the chosen alt).
         val playForFreeFromComponent = zoneResolver.hasPlayWithoutPayingCost(state, action.playerId, action.cardId)
@@ -734,7 +747,9 @@ class CastSpellHandler(
             }
             val targetRequirements = buildList {
                 addAll(baseTargetReqs)
-                (transformedFace ?: cardDef).script.auraTarget?.let { add(it) }
+                // The cast-time choice: Dream Leash narrows it to a tapped permanent. The stack
+                // captures the plain enchant restriction instead (below), so 608.2b doesn't re-check it.
+                (transformedFace ?: cardDef).script.castAuraTarget?.let { add(it) }
                 // Splice (CR 702.47d): targets for the added text are chosen normally, as part of
                 // casting this spell. They sit after the main spell's own requirements, so the flat
                 // target list splits into the main slice followed by one slice per spliced card.
@@ -1190,6 +1205,12 @@ class CastSpellHandler(
         // branch above, which *replaces* effectiveCost outright and would otherwise wipe it.
         if (action.splicedCardIds.isNotEmpty()) {
             effectiveCost = SpliceCasts.addSpliceCosts(effectiveCost, state, action.splicedCardIds, cardRegistry)
+        }
+
+        // "You may pay any amount of mana" as an additional cost (Chorus of the Conclave) — like
+        // splice, on top of whatever pays for the spell itself. Legality is checked in validate().
+        if (action.additionalManaForCounters > 0) {
+            effectiveCost = effectiveCost + ManaCost.parse("{${action.additionalManaForCounters}}")
         }
 
         // Apply sacrifice-for-cost-reduction before validating payment
@@ -1968,6 +1989,7 @@ class CastSpellHandler(
                     is CostAtom.Unattach,
                     is CostAtom.ExileFromGraveyardForTotal,
                     is CostAtom.ExileTopOfLibrary,
+                    is CostAtom.PutFromHandOnTopOfLibrary,
                     is CostAtom.Mill -> {}
                     is CostAtom.RemoveCounters -> {
                         val needed = when (val c = atom.count) {
@@ -2531,6 +2553,18 @@ class CastSpellHandler(
             }
         }
 
+        // "You may pay any amount of mana" as an additional cost (Chorus of the Conclave): {N}
+        // generic on top of whatever pays for the spell — a free or alternative cast still owes it
+        // (CR 601.2f). validate() has already checked that a grant applies.
+        // The grant is read *now*, before any cost is paid: the payment was announced while the
+        // source was on the battlefield (CR 601.2b), so sacrificing that source to another cost of
+        // this same spell doesn't take the counters back.
+        val additionalEntryCounters = if (action.additionalManaForCounters > 0) {
+            effectiveCost = effectiveCost + ManaCost.parse("{${action.additionalManaForCounters}}")
+            AdditionalManaForCounters.applicableGrant(currentState, action.playerId, action.cardId, cardRegistry)
+                ?.let { AdditionalEntryCounters(it.counterType, action.additionalManaForCounters) }
+        } else null
+
         // Process additional costs (sacrifice, exile, etc.)
         val sacrificedSnapshots = mutableListOf<EntitySnapshot>()
         var exiledCardCount = 0
@@ -2865,6 +2899,7 @@ class CastSpellHandler(
                         is CostAtom.Unattach,
                         is CostAtom.ExileFromGraveyardForTotal,
                         is CostAtom.ExileTopOfLibrary,
+                        is CostAtom.PutFromHandOnTopOfLibrary,
                         is CostAtom.Mill -> {}
                         is CostAtom.RemoveCounters -> {
                             val resolvedRemovals = resolveDistributedCounterRemovalsForPayment(action)
@@ -3651,6 +3686,7 @@ class CastSpellHandler(
             // True when the spell's waterbend additional cost was paid (Avatar) — mandatory costs
             // always, optional "you may waterbend {N}" only when the player elected it.
             wasWaterbendPaid = cardDef?.script?.spellWaterbend?.let { !it.optional || action.wasWaterbendPaid } == true,
+            additionalEntryCounters = additionalEntryCounters,
             // Gift (CR 702.174a): the promised opponent, elected as part of casting. Only honored
             // for a card that actually has gift — validate() rejects the flag otherwise.
             giftRecipient = action.giftRecipient?.takeIf { cardDef?.giftKeyword() != null },

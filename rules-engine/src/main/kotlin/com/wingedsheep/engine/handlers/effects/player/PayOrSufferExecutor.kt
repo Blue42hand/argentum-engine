@@ -112,6 +112,8 @@ class PayOrSufferExecutor(
                 is CostAtom.ReturnToHand ->
                     handleReturnToHandCost(state, effect, context, atom, sourceId, sourceCard.name, payingPlayerId)
                 is CostAtom.RevealFromHand -> EffectResult.error(state, "RevealCard payment for PayOrSuffer not yet implemented")
+                // No printed punisher asks for it; fails closed (and canPay below reports it unpayable).
+                is CostAtom.PutFromHandOnTopOfLibrary -> EffectResult.error(state, "PutFromHandOnTopOfLibrary payment for PayOrSuffer not yet implemented")
                 is CostAtom.PutCountersOnSelf -> EffectResult.error(state, "PutCountersOnSelf is an activated-ability cost, not a PayOrSuffer cost")
                 // Tourach's Chant / Thelon's Chant — "unless they put a -1/-1 counter on a creature
                 // they control". The payer picks which of their permanents takes it.
@@ -1010,6 +1012,7 @@ class PayOrSufferExecutor(
                 is CostAtom.ReturnToHand ->
                     findBounceCandidates(state, playerId, atom, sourceId).size >= atom.count
                 is CostAtom.RevealFromHand -> false
+                is CostAtom.PutFromHandOnTopOfLibrary -> false
                 is CostAtom.PutCountersOnSelf -> false
                 // Unpayable with nothing to put the counter on — which is exactly the punisher
                 // clause's teeth: a player with no creatures takes the damage.

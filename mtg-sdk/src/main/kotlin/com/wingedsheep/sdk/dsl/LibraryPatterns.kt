@@ -548,7 +548,8 @@ object LibraryPatterns {
         effects.add(
             GatherCardsEffect(
                 source = CardSource.FromZone(Zone.LIBRARY, Player.You, filter),
-                storeAs = "searchable"
+                storeAs = "searchable",
+                search = true
             )
         )
 
@@ -608,7 +609,8 @@ object LibraryPatterns {
         effects.add(
             GatherCardsEffect(
                 source = CardSource.FromMultipleZones(zones, Player.You, filter),
-                storeAs = "searchable"
+                storeAs = "searchable",
+                search = Zone.LIBRARY in zones
             )
         )
 
@@ -870,7 +872,8 @@ object LibraryPatterns {
         effects = listOf(
             GatherCardsEffect(
                 source = CardSource.FromZone(Zone.LIBRARY, Player.You, filter),
-                storeAs = "searchable"
+                storeAs = "searchable",
+                search = true
             ),
             SelectFromCollectionEffect(
                 from = "searchable",

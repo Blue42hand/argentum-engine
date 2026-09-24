@@ -84,7 +84,8 @@ class LegalActionEnumerator(
         }
 
         // Normal priority: enumerate all action categories
-        return enumerators.flatMap { it.enumerate(context) }
+        return com.wingedsheep.engine.legalactions.enumerators.AdditionalManaForCountersOffer
+            .annotate(context, enumerators.flatMap { it.enumerate(context) })
     }
 
     /**
