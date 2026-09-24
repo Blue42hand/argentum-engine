@@ -1121,6 +1121,7 @@ class CastSpellHandler(
                 com.wingedsheep.engine.core.TargetRequirementInfo(
                     index = index,
                     description = req.description,
+                    mustDifferFromEarlier = req is com.wingedsheep.sdk.scripting.targets.TargetOther,
                     minTargets = req.effectiveMinCount,
                     maxTargets = maxTargets
                 )

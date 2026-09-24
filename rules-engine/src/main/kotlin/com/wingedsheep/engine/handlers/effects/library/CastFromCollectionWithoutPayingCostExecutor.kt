@@ -313,6 +313,7 @@ class CastFromCollectionWithoutPayingCostExecutor(
                 TargetRequirementInfo(
                     index = index,
                     description = requirement.description,
+                    mustDifferFromEarlier = requirement is com.wingedsheep.sdk.scripting.targets.TargetOther,
                     minTargets = requirement.effectiveMinCount,
                     maxTargets = requirement.count,
                 )

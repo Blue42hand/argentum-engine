@@ -260,7 +260,8 @@ class LegalActionEnricher(
         xConstrainsManaValue = xConstrainsManaValue,
         xConstrainsManaValueExactly = xConstrainsManaValueExactly,
         xConstrainsPower = xConstrainsPower,
-        xConstrainsCount = xConstrainsCount
+        xConstrainsCount = xConstrainsCount,
+        mustDifferFromEarlier = mustDifferFromEarlier
     )
 
     private fun AdditionalCostData.toDto() = AdditionalCostInfo(
