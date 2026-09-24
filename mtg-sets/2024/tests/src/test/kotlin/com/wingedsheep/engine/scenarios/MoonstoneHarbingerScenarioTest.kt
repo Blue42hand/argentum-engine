@@ -84,6 +84,20 @@ class MoonstoneHarbingerScenarioTest : ScenarioTestBase() {
                 game.state.projectedState.getPower(mirkwood) shouldBe 3
             }
 
+            test("gaining then losing life in one turn still triggers only once") {
+                val game = board()
+                val mirkwood = game.findPermanent("Mirkwood Bats")!!
+
+                game.castSpell(1, "Renewed Faith").error shouldBe null
+                game.resolveStack()
+                game.castSpellTargetingPlayer(1, "Shock", 1).error shouldBe null
+                game.resolveStack()
+
+                withClue("Gain and loss are one ability, so the once-each-turn limit spans both") {
+                    game.state.projectedState.getPower(mirkwood) shouldBe 3
+                }
+            }
+
             test("gaining life during an opponent's turn does nothing") {
                 val game = board(activePlayer = 2)
                 val mirkwood = game.findPermanent("Mirkwood Bats")!!

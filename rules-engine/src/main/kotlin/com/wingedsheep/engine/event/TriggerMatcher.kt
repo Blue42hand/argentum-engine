@@ -792,11 +792,6 @@ class TriggerMatcher(
             // Replacement-effect-only: a life payment reaches triggers as the LifeChangedEvent it
             // produces (matched by LifeLossEvent above), never as a payment event of its own.
             is EventPattern.LifePaymentEvent -> false
-            is EventPattern.LifeGainOrLossEvent -> {
-                event is LifeChangedEvent &&
-                    event.oldLife != event.newLife &&
-                    matchesPlayer(state, trigger.player, event.playerId, controllerId)
-            }
             is EventPattern.PlayerLostGameEvent -> {
                 event is com.wingedsheep.engine.core.PlayerLostEvent &&
                     matchesPlayer(state, trigger.player, event.playerId, controllerId)

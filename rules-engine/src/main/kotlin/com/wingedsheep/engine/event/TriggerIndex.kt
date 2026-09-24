@@ -266,7 +266,6 @@ class TriggerIndex(
                 is SdkGameEvent.PhasesInEvent -> listOf(TriggerCategory.PHASES_IN)
                 is SdkGameEvent.LifeGainEvent -> listOf(TriggerCategory.LIFE_GAIN)
                 is SdkGameEvent.LifeLossEvent -> listOf(TriggerCategory.LIFE_LOSS)
-                is SdkGameEvent.LifeGainOrLossEvent -> listOf(TriggerCategory.LIFE_GAIN, TriggerCategory.LIFE_LOSS)
                 is SdkGameEvent.BecomesTargetEvent -> listOf(TriggerCategory.BECOMES_TARGET)
                 is SdkGameEvent.TurnFaceUpEvent -> listOf(TriggerCategory.TURN_FACE_UP)
                 is SdkGameEvent.CreatureTurnedFaceUpEvent -> listOf(TriggerCategory.TURN_FACE_UP)

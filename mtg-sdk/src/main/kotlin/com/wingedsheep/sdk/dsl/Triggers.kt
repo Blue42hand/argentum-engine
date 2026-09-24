@@ -833,9 +833,6 @@ class PlayerTriggerSubject internal constructor(private val player: Player) {
     /** "loses life" — the amount is `TRIGGER_LIFE_LOST`. */
     fun losesLife(): TriggerSpec = spec(LifeLossEvent(player))
 
-    /** "gains or loses life". */
-    fun gainsOrLosesLife(): TriggerSpec = spec(LifeGainOrLossEvent(player))
-
     /** "loses the game" (CR 104.3). */
     fun losesGame(): TriggerSpec = spec(PlayerLostGameEvent(player))
 
