@@ -2,19 +2,16 @@ package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.SelectionRestriction
-import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.dsl.Effects
 
 /**
  * Scout for Survivors {2}{W}
@@ -23,14 +20,9 @@ import com.wingedsheep.sdk.dsl.Effects
  * Return up to three target creature cards with total mana value 3 or less
  * from your graveyard to the battlefield. Put a +1/+1 counter on each of them.
  *
- * Implementation note: cards are chosen at resolution via a SelectFromCollection
- * pipeline rather than as cast-time targets, because the SDK has no multi-target
- * validator with a cross-target sum constraint. For graveyard targets this has
- * no observable consequence on any current card — hexproof/shroud don't apply
- * in the graveyard, no printed trigger fires from being targeted in the
- * graveyard, and no printed counterspell branches on a spell's target count
- * for graveyard targets. The visible difference is cosmetic: the spell sits on
- * the stack with no `targets` list until it resolves.
+ * The creature cards are real targets chosen as the spell is cast (CR 601.2c), with the summed
+ * mana value capped by [TargetObject.totalManaValueAtMost]. Any target that has left the graveyard
+ * by resolution is dropped (CR 608.2b); the rest come back with their counter.
  */
 val ScoutForSurvivors = card("Scout for Survivors") {
     manaCost = "{2}{W}"
@@ -39,29 +31,21 @@ val ScoutForSurvivors = card("Scout for Survivors") {
     oracleText = "Return up to three target creature cards with total mana value 3 or less from your graveyard to the battlefield. Put a +1/+1 counter on each of them."
 
     spell {
+        target(
+            "up to three target creature cards with total mana value 3 or less from your graveyard",
+            TargetObject(
+                count = 3,
+                optional = true,
+                filter = TargetFilter.CreatureInYourGraveyard,
+                totalManaValueAtMost = DynamicAmount.Fixed(3)
+            )
+        )
         effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.FromZone(
-                        zone = Zone.GRAVEYARD,
-                        player = Player.You,
-                        filter = GameObjectFilter.Creature
-                    ),
-                    storeAs = "graveyardCreatures"
-                ),
-                SelectFromCollectionEffect(
-                    from = "graveyardCreatures",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(3)),
-                    restrictions = listOf(SelectionRestriction.TotalManaValueAtMost(3)),
-                    storeSelected = "chosen",
-                    prompt = "Choose up to three creature cards with total mana value 3 or less",
-                    selectedLabel = "Return to the battlefield with a +1/+1 counter"
-                ),
-                MoveCollectionEffect(
-                    from = "chosen",
-                    destination = CardDestination.ToZone(Zone.BATTLEFIELD),
-                    addCounterType = CounterType.PLUS_ONE_PLUS_ONE
-                )
+            GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "survivors"),
+            MoveCollectionEffect(
+                from = "survivors",
+                destination = CardDestination.ToZone(Zone.BATTLEFIELD),
+                addCounterType = CounterType.PLUS_ONE_PLUS_ONE
             )
         )
     }

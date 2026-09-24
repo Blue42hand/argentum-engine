@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
@@ -19,9 +18,10 @@ import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.ReturnFace
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.SelectionRestriction
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -47,10 +47,11 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * transform loop follows Dion, Bahamut's Dominant — an [Effects.ExileAndReturnTransformed]
  * on the front's sorcery-speed activated ability and again (with [ReturnFace.FRONT]) at the
  * eikon's final chapter. Note the Saga has no "Sacrifice after III" clause: chapter III
- * flips it back to the front face rather than sacrificing it. Flames of Rebirth is the
- * Michelangelo's Technique idiom — gather creature cards from the graveyard, choose any
- * number capped at total mana value 6 ([SelectionRestriction.TotalManaValueAtMost]), and move
- * the chosen ones to the battlefield; unchosen cards stay in the graveyard. Rising Flames'
+ * flips it back to the front face rather than sacrificing it. Flames of Rebirth
+ * targets: the chapter ability chooses any number of creature cards in your graveyard as it
+ * goes on the stack (CR 603.3d), their summed mana value capped at 6 by
+ * [TargetObject.totalManaValueAtMost], and returns whichever are still there on resolution.
+ * Rising Flames'
  * damage feeds the back face's lifelink automatically.
  */
 private val PhoenixWardenOfFire = card("Phoenix, Warden of Fire") {
@@ -81,25 +82,17 @@ private val PhoenixWardenOfFire = card("Phoenix, Warden of Fire") {
     // value 6 or less from your graveyard to the battlefield. Exile Phoenix, then return it
     // to the battlefield (front face up).
     sagaChapter(3) {
+        target(
+            "any number of target creature cards with total mana value 6 or less from your graveyard",
+            TargetObject(
+                unlimited = true,
+                filter = TargetFilter.CreatureInYourGraveyard,
+                totalManaValueAtMost = DynamicAmount.Fixed(6),
+            )
+        )
         effect = Effects.Composite(
             listOf(
-                GatherCardsEffect(
-                    source = CardSource.FromZone(
-                        Zone.GRAVEYARD,
-                        Player.You,
-                        GameObjectFilter.Creature,
-                    ),
-                    storeAs = "graveyardCreatures",
-                ),
-                SelectFromCollectionEffect(
-                    from = "graveyardCreatures",
-                    selection = SelectionMode.ChooseAnyNumber,
-                    restrictions = listOf(SelectionRestriction.TotalManaValueAtMost(6)),
-                    storeSelected = "toBattlefield",
-                    prompt = "Return any number of creature cards with total mana value 6 or " +
-                        "less to the battlefield",
-                    selectedLabel = "Return to the battlefield",
-                ),
+                GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "toBattlefield"),
                 MoveCollectionEffect(
                     from = "toBattlefield",
                     destination = CardDestination.ToZone(Zone.BATTLEFIELD, Player.You),
