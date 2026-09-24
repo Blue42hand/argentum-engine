@@ -10,8 +10,6 @@ import com.wingedsheep.sdk.dsl.champion
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.TapUntapCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -54,18 +52,15 @@ val MistbindClique = card("Mistbind Clique") {
     triggeredAbility {
         trigger = Triggers.championedWith()
         val player = target("target player", Targets.Player)
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.BattlefieldMatching(
-                        filter = GameObjectFilter.Land.targetPlayerControls(player),
-                        player = Player.Each
-                    ),
-                    storeAs = "mistbindClique_lands"
-                ),
-                TapUntapCollectionEffect("mistbindClique_lands", tap = true)
+        effect = Effects.Pipeline {
+            val mistbindCliqueLands = gather(
+                CardSource.BattlefieldMatching(
+                    filter = GameObjectFilter.Land.targetPlayerControls(player),
+                    player = Player.Each
+                )
             )
-        )
+            run(Effects.TapCollection(mistbindCliqueLands, tap = true))
+        }
         description = "When a Faerie is championed with this creature, tap all lands target " +
             "player controls."
     }

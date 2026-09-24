@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffe
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Ashling the Pilgrim — Lorwyn #149
@@ -61,36 +60,33 @@ val AshlingThePilgrim = card("Ashling the Pilgrim") {
             .then(
                 Effects.If(
                     condition = Conditions.SourceAbilityResolvedNTimes(3),
-                    then = Effects.Composite(
-                        listOf(
-                            Effects.StoreNumber(
-                                "ashlingRemovedCounters",
-                                DynamicAmounts.countersOnSelf(
-                                    CounterType.PLUS_ONE_PLUS_ONE
-                                ),
-                            ),
-                            Effects.RemoveAllCountersOfType(
-                                CounterType.PLUS_ONE_PLUS_ONE,
-                                EffectTarget.Self,
-                            ),
-                            Effects.ForEachInGroup(
-                                GroupFilter.AllCreatures,
-                                DealDamageEffect(
-                                    DynamicAmount.VariableReference("ashlingRemovedCounters"),
-                                    EffectTarget.IterationEntity,
-                                ),
-                            ),
-                            Effects.ForEachPlayer(
-                                Player.Each,
-                                listOf(
-                                    Effects.DealDamage(
-                                        DynamicAmount.VariableReference("ashlingRemovedCounters"),
-                                        EffectTarget.Controller,
-                                    )
-                                ),
-                            ),
+                    then = Effects.Pipeline {
+                        val ashlingRemovedCounters = storeNumber(
+                            DynamicAmounts.countersOnSelf(
+                                CounterType.PLUS_ONE_PLUS_ONE
+                            )
                         )
-                    )
+                        run(Effects.RemoveAllCountersOfType(
+                            CounterType.PLUS_ONE_PLUS_ONE,
+                            EffectTarget.Self,
+                        ))
+                        run(Effects.ForEachInGroup(
+                            GroupFilter.AllCreatures,
+                            DealDamageEffect(
+                                ashlingRemovedCounters.amount,
+                                EffectTarget.IterationEntity,
+                            ),
+                        ))
+                        run(Effects.ForEachPlayer(
+                            Player.Each,
+                            listOf(
+                                Effects.DealDamage(
+                                    ashlingRemovedCounters.amount,
+                                    EffectTarget.Controller,
+                                )
+                            ),
+                        ))
+                    }
                 )
             )
         description = "Put a +1/+1 counter on Ashling. If this is the third time this ability has " +

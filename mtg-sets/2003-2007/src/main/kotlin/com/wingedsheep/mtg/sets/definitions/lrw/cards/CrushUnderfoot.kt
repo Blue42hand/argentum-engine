@@ -6,9 +6,7 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
-import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
@@ -59,23 +57,22 @@ val CrushUnderfoot = card("Crush Underfoot") {
 
     spell {
         val victim = target("target creature", Targets.Creature)
-        effect = Effects.Composite(
-            SelectTargetEffect(
-                requirement = TargetCreature(
+        effect = Effects.Pipeline {
+            val crushGiant = selectTarget(
+                TargetCreature(
                     filter = TargetFilter.Creature.youControl().withSubtype(Subtype.GIANT),
                     id = "a Giant creature you control"
-                ),
-                storeAs = "crushGiant"
-            ),
-            DealDamageEffect(
+                )
+            )
+            run(DealDamageEffect(
                 amount = DynamicAmount.EntityProperty(
-                    EffectTarget.PipelineTarget("crushGiant"),
+                    crushGiant.asTarget,
                     EntityNumericProperty.Power
                 ),
                 target = victim,
-                damageSource = EffectTarget.PipelineTarget("crushGiant")
-            )
-        )
+                damageSource = crushGiant.asTarget
+            ))
+        }
     }
 
     metadata {

@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /** Lightning Coils — Mirrodin #198. */
 val LightningCoils = card("Lightning Coils") {
@@ -38,14 +37,11 @@ val LightningCoils = card("Lightning Coils") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         interveningIf = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 5)
-        effect = Effects.Composite(
-            Effects.StoreNumber(
-                "removedChargeCounters",
-                DynamicAmounts.countersOnSelf(CounterType.CHARGE),
-            ),
-            Effects.RemoveAllCountersOfType(CounterType.CHARGE, EffectTarget.Self),
-            Effects.CreateToken(
-                count = DynamicAmount.VariableReference("removedChargeCounters"),
+        effect = Effects.Pipeline {
+            val removedChargeCounters = storeNumber(DynamicAmounts.countersOnSelf(CounterType.CHARGE))
+            run(Effects.RemoveAllCountersOfType(CounterType.CHARGE, EffectTarget.Self))
+            run(Effects.CreateToken(
+                count = removedChargeCounters.amount,
                 power = 3,
                 toughness = 1,
                 colors = setOf(Color.RED),
@@ -53,8 +49,8 @@ val LightningCoils = card("Lightning Coils") {
                 keywords = setOf(Keyword.HASTE),
                 exileAtStep = Step.END,
                 imageUri = "https://cards.scryfall.io/normal/front/e/4/e4a9051b-f964-43f9-877b-ea4f17620ecb.jpg?1783915251",
-            ),
-        )
+            ))
+        }
     }
 
     metadata {

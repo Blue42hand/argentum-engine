@@ -10,14 +10,9 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Auratouched Mage
@@ -47,38 +42,30 @@ val AuratouchedMage = card("Auratouched Mage") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.FromZone(
+        effect = Effects.Pipeline {
+            val searchable = gather(
+                CardSource.FromZone(
                     Zone.LIBRARY,
                     Player.You,
                     GameObjectFilter.Enchantment.withSubtype("Aura").couldEnchant(EffectTarget.Self)
-                ),
-                storeAs = "searchable"
-            ),
-            SelectFromCollectionEffect(
-                from = "searchable",
-                selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                storeSelected = "found",
-                prompt = "Search for an Aura card that could enchant Auratouched Mage"
-            ),
-            Effects.If(
-                Conditions.SourceInZone(Zone.BATTLEFIELD),
-                MoveCollectionEffect(
-                    from = "found",
-                    destination = CardDestination.ToZone(Zone.BATTLEFIELD),
-                    attachTo = EffectTarget.Self
-                ),
-                MoveCollectionEffect(
-                    from = "found",
-                    destination = CardDestination.ToZone(Zone.HAND),
-                    revealed = true
                 )
-            ),
-            ShuffleLibraryEffect(),
+            )
+            val found = chooseUpTo(
+                1,
+                from = searchable,
+                prompt = "Search for an Aura card that could enchant Auratouched Mage"
+            )
+            run(Effects.If(
+                Conditions.SourceInZone(Zone.BATTLEFIELD),
+                Effects.Pipeline {
+                    move(found, CardDestination.ToZone(Zone.BATTLEFIELD), attachTo = EffectTarget.Self)
+                },
+                Effects.Pipeline { toHand(found, revealed = true) }
+            ))
+            run(ShuffleLibraryEffect())
             // CR 701.23 — the search happened whether or not anything was found.
-            EmitLibrarySearchedEventEffect
-        )
+            run(EmitLibrarySearchedEventEffect)
+        }
     }
 
     metadata {

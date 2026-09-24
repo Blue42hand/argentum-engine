@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
@@ -69,18 +68,12 @@ val SoulFoundry = card("Soul Foundry") {
         // No `description` override on the ability itself: the generated label carries the
         // *resolved* cost ("{3}, {T}: …" for an imprinted three-drop), which is the whole point of
         // a defined X, and an ability-level override would freeze the printed "{X}" instead.
-        effect = Effects.Composite(
-            effects = listOf(
-                GatherCardsEffect(
-                    source = CardSource.FromLinkedExile(),
-                    storeAs = "foundryImprinted"
-                ),
-                Effects.CreateTokenCopyOfTarget(
-                    target = EffectTarget.PipelineTarget("foundryImprinted")
-                )
-            ),
-            descriptionOverride = "Create a token that's a copy of the exiled card."
-        )
+        effect = Effects.Pipeline(descriptionOverride = "Create a token that's a copy of the exiled card.") {
+            val foundryImprinted = gather(CardSource.FromLinkedExile())
+            run(Effects.CreateTokenCopyOfTarget(
+                target = foundryImprinted.asTarget
+            ))
+        }
     }
 
     metadata {

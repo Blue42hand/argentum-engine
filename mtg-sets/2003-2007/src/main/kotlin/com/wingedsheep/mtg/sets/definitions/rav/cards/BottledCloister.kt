@@ -6,12 +6,8 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
-import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
@@ -45,39 +41,21 @@ val BottledCloister = card("Bottled Cloister") {
 
     triggeredAbility {
         trigger = Triggers.EachOpponentUpkeep
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.FromZone(Zone.HAND, Player.You, GameObjectFilter.Any),
-                storeAs = "cloisterHand"
-            ),
-            MoveCollectionEffect(
-                from = "cloisterHand",
-                destination = CardDestination.ToZone(Zone.EXILE),
-                faceDown = FaceDownMode.HIDDEN,
-                linkToSource = true
-            )
-        )
+        effect = Effects.Pipeline {
+            val cloisterHand = gather(CardSource.FromZone(Zone.HAND, Player.You, GameObjectFilter.Any))
+            exile(cloisterHand, faceDown = FaceDownMode.HIDDEN, linkToSource = true)
+        }
     }
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.FromLinkedExile(),
-                storeAs = "cloisterExiled"
-            ),
-            FilterCollectionEffect(
-                from = "cloisterExiled",
-                filter = GameObjectFilter.Any.ownedByYou(),
-                storeMatching = "cloisterMine"
-            ),
-            MoveCollectionEffect(
-                from = "cloisterMine",
-                destination = CardDestination.ToZone(Zone.HAND)
-            ),
+        effect = Effects.Pipeline {
+            val cloisterExiled = gather(CardSource.FromLinkedExile())
+            val cloisterMine = filter(cloisterExiled, GameObjectFilter.Any.ownedByYou())
+            toHand(cloisterMine)
             // "then draw a card" — unconditional; it happens even with an empty pile.
-            Effects.DrawCards(1)
-        )
+            run(Effects.DrawCards(1))
+        }
     }
 
     metadata {

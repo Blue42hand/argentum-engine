@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -64,17 +63,11 @@ val IsochronScepter = card("Isochron Scepter") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
         effect = Effects.May(
-            Effects.Composite(
-                GatherCardsEffect(
-                    source = CardSource.FromLinkedExile(),
-                    storeAs = "scepterImprinted"
-                ),
-                Effects.CopyCollectionIntoCollection(
-                    from = "scepterImprinted",
-                    storeAs = "scepterCopy"
-                ),
-                Effects.CastFromCollectionWithoutPayingCost("scepterCopy")
-            ),
+            Effects.Pipeline {
+                val scepterImprinted = gather(CardSource.FromLinkedExile())
+                val scepterCopy = copyCards(scepterImprinted)
+                run(Effects.CastFromCollectionWithoutPayingCost(scepterCopy))
+            },
             descriptionOverride = "You may copy the exiled card and cast the copy without paying its mana cost."
         )
     }

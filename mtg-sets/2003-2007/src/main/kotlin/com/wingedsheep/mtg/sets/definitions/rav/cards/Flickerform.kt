@@ -11,8 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -46,38 +44,30 @@ val Flickerform = card("Flickerform") {
 
     activatedAbility {
         cost = Costs.Mana("{2}{W}{W}")
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.BattlefieldMatching(GameObjectFilter.Creature.attachedToBySource()),
-                storeAs = "flickerHost"
-            ),
-            GatherCardsEffect(
-                source = CardSource.AttachedTo(
+        effect = Effects.Pipeline {
+            val flickerHost = gather(CardSource.BattlefieldMatching(GameObjectFilter.Creature.attachedToBySource()))
+            val flickerAuras = gather(
+                CardSource.AttachedTo(
                     EffectTarget.EnchantedCreature,
                     GameObjectFilter.Enchantment.withSubtype("Aura")
-                ),
-                storeAs = "flickerAuras"
-            ),
-            MoveCollectionEffect(from = "flickerHost", destination = CardDestination.ToZone(Zone.EXILE)),
-            MoveCollectionEffect(from = "flickerAuras", destination = CardDestination.ToZone(Zone.EXILE)),
-            CreateDelayedTriggerEffect(
-                step = Step.END,
-                effect = Effects.Composite(
-                    MoveCollectionEffect(
-                        from = "flickerHost",
-                        destination = CardDestination.ToZone(Zone.BATTLEFIELD),
-                        underOwnersControl = true
-                    ),
-                    MoveCollectionEffect(
-                        from = "flickerAuras",
-                        destination = CardDestination.ToZone(Zone.BATTLEFIELD),
-                        underOwnersControl = true,
-                        attachTo = EffectTarget.PipelineTarget("flickerHost")
-                    )
-                ),
-                carryCollections = listOf("flickerHost", "flickerAuras")
+                )
             )
-        )
+            exile(flickerHost)
+            exile(flickerAuras)
+            run(CreateDelayedTriggerEffect(
+                step = Step.END,
+                effect = Effects.Pipeline {
+                    move(flickerHost, CardDestination.ToZone(Zone.BATTLEFIELD), underOwnersControl = true)
+                    move(
+                        flickerAuras,
+                        CardDestination.ToZone(Zone.BATTLEFIELD),
+                        underOwnersControl = true,
+                        attachTo = flickerHost.asTarget
+                    )
+                },
+                carryCollections = listOf(flickerHost.key, flickerAuras.key)
+            ))
+        }
         description = "{2}{W}{W}: Exile enchanted creature and all Auras attached to it. At the beginning of " +
             "the next end step, return that card to the battlefield under its owner's control. If you do, " +
             "return the other cards exiled this way to the battlefield under their owners' control attached " +

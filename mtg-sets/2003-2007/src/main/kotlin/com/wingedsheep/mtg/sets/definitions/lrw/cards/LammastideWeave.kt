@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.namedFromVariable
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -42,23 +43,18 @@ val LammastideWeave = card("Lammastide Weave") {
 
     spell {
         target("target player", Targets.Player)
-        effect = Effects.Composite(
-            listOf(
-                Effects.ChooseCardName(
-                    storeAs = "weaveChosenName",
-                    prompt = "Choose a card name",
+        effect = Effects.Pipeline {
+            val weaveChosenName = chooseCardName(prompt = "Choose a card name")
+            run(Patterns.Library.mill(1, EffectTarget.ContextTarget(0)))
+            run(Effects.If(
+                condition = Conditions.CollectionContainsMatch(
+                    "milled",
+                    GameObjectFilter.Any.namedFromVariable(weaveChosenName),
                 ),
-                Patterns.Library.mill(1, EffectTarget.ContextTarget(0)),
-                Effects.If(
-                    condition = Conditions.CollectionContainsMatch(
-                        "milled",
-                        GameObjectFilter.Any.namedFromVariable("weaveChosenName"),
-                    ),
-                    then = Effects.GainLife(DynamicAmount.ManaValueSumOfCollection("milled")),
-                ),
-                Effects.DrawCards(1),
-            )
-        )
+                then = Effects.GainLife(DynamicAmount.ManaValueSumOfCollection("milled")),
+            ))
+            run(Effects.DrawCards(1))
+        }
     }
 
     metadata {

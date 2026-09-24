@@ -14,17 +14,9 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.AddManaEffect
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
-import com.wingedsheep.sdk.scripting.effects.GrantPlayWithoutPayingCostEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -61,37 +53,23 @@ val HowltoothHollow = card("Howltooth Hollow") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(
-                        count = DynamicAmount.Fixed(4),
-                        player = Player.You
-                    ),
-                    storeAs = "hideawayTop"
-                ),
-                SelectFromCollectionEffect(
-                    from = "hideawayTop",
-                    selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                    storeSelected = "hideawayPicked",
-                    storeRemainder = "hideawayRest",
-                    prompt = "Choose a card to exile face down",
-                    selectedLabel = "Exile face down",
-                    remainderLabel = "Put on bottom of library"
-                ),
-                MoveCollectionEffect(
-                    from = "hideawayPicked",
-                    destination = CardDestination.ToZone(Zone.EXILE),
-                    faceDown = FaceDownMode.HIDDEN,
-                    linkToSource = true
-                ),
-                MoveCollectionEffect(
-                    from = "hideawayRest",
-                    destination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom),
-                    order = CardOrder.Random
+        effect = Effects.Pipeline {
+            val hideawayTop = gather(
+                CardSource.TopOfLibrary(
+                    count = DynamicAmount.Fixed(4),
+                    player = Player.You
                 )
             )
-        )
+            val (hideawayPicked, hideawayRest) = chooseExactlySplit(
+                1,
+                from = hideawayTop,
+                prompt = "Choose a card to exile face down",
+                selectedLabel = "Exile face down",
+                remainderLabel = "Put on bottom of library"
+            )
+            exile(hideawayPicked, faceDown = FaceDownMode.HIDDEN, linkToSource = true)
+            toLibraryBottom(hideawayRest, order = CardOrder.Random)
+        }
     }
 
     activatedAbility {
@@ -103,16 +81,11 @@ val HowltoothHollow = card("Howltooth Hollow") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{B}"), Costs.Tap)
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.FromLinkedExile(),
-                    storeAs = "hideawayLinked"
-                ),
-                GrantMayPlayFromExileEffect("hideawayLinked"),
-                GrantPlayWithoutPayingCostEffect("hideawayLinked")
-            )
-        )
+        effect = Effects.Pipeline {
+            val hideawayLinked = gather(CardSource.FromLinkedExile())
+            run(Effects.GrantMayPlayFromExile(hideawayLinked))
+            run(Effects.GrantPlayWithoutPayingCost(hideawayLinked))
+        }
         restrictions = listOf(
             ActivationRestriction.OnlyIfCondition(
                 Compare(

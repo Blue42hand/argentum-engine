@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 
@@ -37,25 +35,24 @@ val TemporalCascade = card("Temporal Cascade") {
             additionalManaCostPerExtraMode = "{2}",
         ) {
             mode("Each player shuffles their hand and graveyard into their library") {
-                effect = ForEachPlayerEffect(
+                effect = Effects.ForEachPlayer(
                     players = Player.Each,
-                    effects = listOf(
-                        GatherCardsEffect(
-                            source = CardSource.FromMultipleZones(
+                    Effects.Pipeline {
+                        val temporalCascadeCards = gather(
+                            CardSource.FromMultipleZones(
                                 zones = listOf(Zone.HAND, Zone.GRAVEYARD),
                                 player = Player.You,
-                            ),
-                            storeAs = "temporalCascadeCards",
-                        ),
-                        MoveCollectionEffect(
-                            from = "temporalCascadeCards",
-                            destination = CardDestination.ToZone(
+                            )
+                        )
+                        move(
+                            temporalCascadeCards,
+                            CardDestination.ToZone(
                                 Zone.LIBRARY,
                                 Player.You,
                                 ZonePlacement.Shuffled,
-                            ),
-                        ),
-                    ),
+                            )
+                        )
+                    },
                 )
             }
             mode(
