@@ -90,7 +90,7 @@ val AbigalePoetLaureate = card("Abigale, Poet Laureate") {
         typeLine = "Sorcery"
         spell {
             val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-            effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+            effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
         }
     }
     triggeredAbility {
@@ -193,7 +193,7 @@ val AdditiveEvolution = card("Additive Evolution") {
                 creatureTypes = setOf("Fractal")
             ),
             AddCountersEffect(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 count = 3,
                 target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
             )
@@ -203,7 +203,7 @@ val AdditiveEvolution = card("Additive Evolution") {
         trigger = Triggers.BeginCombat
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = Effects.Composite(
-            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t),
+            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
             Effects.GrantKeyword(Keyword.VIGILANCE, t)
         )
     }
@@ -257,7 +257,7 @@ val AdventurousEater = card("Adventurous Eater") {
         spell {
             val t = target("target", TargetCreature(filter = TargetFilter.Creature))
             effect = Effects.Composite(
-                AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t),
+                AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
                 GainLifeEffect(1)
             )
         }
@@ -464,7 +464,7 @@ val AntiquitiesOnTheLoose = card("Antiquities on the Loose") {
                 condition = Conditions.Not(Conditions.WasCastFromHand),
                 effect = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.SPIRIT).youControl()),
-                    AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                    AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
                 )
             )
         )
@@ -790,7 +790,7 @@ val AscendantDustspeaker = card("Ascendant Dustspeaker") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val t = target("target", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     triggeredAbility {
         trigger = Triggers.BeginCombat
@@ -927,7 +927,7 @@ val BertaWiseExtrapolator = card("Berta, Wise Extrapolator") {
     increment()
     triggeredAbility {
         trigger = TriggerSpec(
-            EventPattern.CountersPlacedEvent(counterType = Counters.PLUS_ONE_PLUS_ONE, filter = GameObjectFilter.Any),
+            EventPattern.CountersPlacedEvent(counterType = CounterType.PLUS_ONE_PLUS_ONE, filter = GameObjectFilter.Any),
             TriggerBinding.SELF
         )
         effect = Effects.AddManaOfChoice()
@@ -942,7 +942,7 @@ val BertaWiseExtrapolator = card("Berta, Wise Extrapolator") {
                 creatureTypes = setOf("Fractal")
             ),
             Effects.AddDynamicCounters(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = DynamicAmount.XValue,
                 target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
             )
@@ -1081,7 +1081,7 @@ val BlechLoafingPest = card("Blech, Loafing Pest") {
                     listOf(Subtype("Pest"), Subtype.BAT, Subtype.INSECT, Subtype.SNAKE, Subtype.SPIDER)
                 ).youControl()
             ),
-            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         )
     }
     metadata {
@@ -1801,10 +1801,10 @@ val ComfortingCounsel = card("Comforting Counsel") {
     oracleText = "Whenever you gain life, put a growth counter on this enchantment.\nAs long as there are five or more growth counters on this enchantment, creatures you control get +3/+3."
     triggeredAbility {
         trigger = Triggers.YouGainLife
-        effect = AddCountersEffect(counterType = Counters.GROWTH, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.GROWTH, count = 1, target = EffectTarget.Self)
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.GROWTH, 5)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.GROWTH, 5)
         ability = ModifyStats(
             powerBonus = 3,
             toughnessBonus = 3,
@@ -1919,7 +1919,7 @@ val CostOfBrilliance = card("Cost of Brilliance") {
         effect = Effects.Composite(
             DrawCardsEffect(2, t1),
             LoseLifeEffect(2, t1),
-            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t2)
+            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t2)
         )
     }
     metadata {
@@ -2006,7 +2006,7 @@ val Daydream = card("Daydream") {
         effect = Effects.Composite(
             Effects.Exile(t),
             Effects.Move(t, Zone.BATTLEFIELD),
-            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
         )
     }
     keywordAbility(KeywordAbility.flashback("{2}{W}"))
@@ -2151,7 +2151,7 @@ val DelugeVirtuoso = card("Deluge Virtuoso") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.Composite(
             Effects.Tap(t),
-            AddCountersEffect(counterType = Counters.STUN, count = 1, target = t)
+            AddCountersEffect(counterType = CounterType.STUN, count = 1, target = t)
         )
     }
     opus {
@@ -2199,11 +2199,11 @@ val DiaryOfDreams = card("Diary of Dreams") {
     oracleText = "Whenever you cast an instant or sorcery spell, put a page counter on this artifact.\n{5}, {T}: Draw a card. This ability costs {1} less to activate for each page counter on this artifact."
     triggeredAbility {
         trigger = Triggers.YouCastInstantOrSorcery
-        effect = AddCountersEffect(counterType = Counters.PAGE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PAGE, count = 1, target = EffectTarget.Self)
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{5}"), Costs.Tap)
-        genericCostReduction = DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.PAGE))
+        genericCostReduction = DynamicAmounts.countersOnSelf(CounterType.PAGE)
         effect = DrawCardsEffect(1)
     }
     metadata {
@@ -2248,7 +2248,7 @@ val DigSiteInventory = card("Dig Site Inventory") {
     spell {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = Effects.Composite(
-            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t),
+            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
             Effects.GrantKeyword(Keyword.VIGILANCE, t)
         )
     }
@@ -2618,7 +2618,7 @@ val Efflorescence = card("Efflorescence") {
     spell {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Composite(
-            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 2, target = t),
+            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = t),
             ConditionalEffect(
                 condition = Conditions.YouGainedLifeThisTurn,
                 effect = Effects.Composite(
@@ -3126,7 +3126,7 @@ val EmilVastlandsRoamer = card("Emil, Vastlands Roamer") {
     staticAbility {
         ability = GrantKeyword(
             Keyword.TRAMPLE,
-            GroupFilter(GameObjectFilter.Creature.withCounter(Counters.PLUS_ONE_PLUS_ONE).youControl())
+            GroupFilter(GameObjectFilter.Creature.withCounter(CounterType.PLUS_ONE_PLUS_ONE).youControl())
         )
     }
     // STRUCTURE needs human wiring: PutCounters
@@ -4049,7 +4049,7 @@ val FractalAnomaly = card("Fractal Anomaly") {
                 creatureTypes = setOf("Fractal")
             ),
             Effects.AddDynamicCounters(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = DynamicAmount.TurnTracking(Player.You, TurnTracker.CARDS_DRAWN),
                 target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
             )
@@ -4103,7 +4103,7 @@ val FractalMascot = card("Fractal Mascot") {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.Composite(
             Effects.Tap(t),
-            AddCountersEffect(counterType = Counters.STUN, count = 1, target = t)
+            AddCountersEffect(counterType = CounterType.STUN, count = 1, target = t)
         )
     }
     metadata {
@@ -4325,7 +4325,7 @@ val GerminationPracticum = card("Germination Practicum") {
         paradigm()
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 2, target = EffectTarget.Self)
+            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = EffectTarget.Self)
         )
     }
     metadata {
@@ -4475,7 +4475,7 @@ val GraduationDay = card("Graduation Day") {
             spellFilter = GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature)
         )
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     metadata {
         rarity = Rarity.UNCOMMON
@@ -4689,8 +4689,8 @@ val GrowthCurve = card("Growth Curve") {
     spell {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = Effects.Composite(
-            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t),
-            Effects.DoubleCounters(Counters.PLUS_ONE_PLUS_ONE, t)
+            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
+            Effects.DoubleCounters(CounterType.PLUS_ONE_PLUS_ONE, t)
         )
     }
     metadata {
@@ -4746,7 +4746,7 @@ val HardenedAcademic = card("Hardened Academic") {
     triggeredAbility {
         trigger = Triggers.CardsLeaveYourGraveyard()
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     metadata {
         rarity = Rarity.RARE
@@ -5549,7 +5549,7 @@ val JadziStewardOfFate = card("Jadzi, Steward of Fate") {
                 Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.FRACTAL).youControl()),
                     Effects.AddDynamicCounters(
-                        counterType = Counters.PLUS_ONE_PLUS_ONE,
+                        counterType = CounterType.PLUS_ONE_PLUS_ONE,
                         amount = DynamicAmount.XValue,
                         target = EffectTarget.Self
                     )
@@ -5716,7 +5716,7 @@ val KirolHistoryBuff = card("Kirol, History Buff") {
             effect = Effects.Composite(
                 GatherCardsEffect(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)), storeAs = "milledThisWay"),
                 MoveCollectionEffect(from = "milledThisWay", destination = CardDestination.ToZone(Zone.GRAVEYARD)),
-                AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 2, target = t),
+                AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = t),
                 Effects.GrantKeyword(Keyword.TRAMPLE, t)
             )
         }
@@ -5850,7 +5850,7 @@ val LecturingScornmage = card("Lecturing Scornmage") {
         trigger = Triggers.youCastSpell(
             spellFilter = GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature)
         )
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.UNCOMMON
@@ -6272,7 +6272,7 @@ val MageTowerReferee = card("Mage Tower Referee") {
     toughness = 1
     triggeredAbility {
         trigger = Triggers.youCastSpell(spellFilter = GameObjectFilter.Multicolored)
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.COMMON
@@ -6804,7 +6804,7 @@ val MoltenCoreMaestro = card("Molten-Core Maestro") {
     triggeredAbility {
         trigger = Triggers.YouCastInstantOrSorcery
         effect = Effects.Composite(
-            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self),
+            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self),
             ConditionalEffect(
                 condition = Compare(
                     DynamicAmount.ContextProperty(ContextPropertyKey.MANA_SPENT_ON_TRIGGERING_SPELL),
@@ -7196,7 +7196,7 @@ val OldGrowthEducator = card("Old-Growth Educator") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         triggerCondition = Conditions.YouGainedLifeThisTurn
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 2, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.UNCOMMON
@@ -7581,7 +7581,7 @@ val PensiveProfessor = card("Pensive Professor") {
     increment()
     triggeredAbility {
         trigger = TriggerSpec(
-            EventPattern.CountersPlacedEvent(counterType = Counters.PLUS_ONE_PLUS_ONE, filter = GameObjectFilter.Any),
+            EventPattern.CountersPlacedEvent(counterType = CounterType.PLUS_ONE_PLUS_ONE, filter = GameObjectFilter.Any),
             TriggerBinding.SELF
         )
         effect = DrawCardsEffect(1)
@@ -7629,7 +7629,7 @@ val PestMascot = card("Pest Mascot") {
     keywords(Keyword.TRAMPLE)
     triggeredAbility {
         trigger = Triggers.YouGainLife
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.COMMON
@@ -8294,7 +8294,7 @@ val Procrastinate = card("Procrastinate") {
         effect = Effects.Composite(
             Effects.Tap(t),
             Effects.AddDynamicCounters(
-                counterType = Counters.STUN,
+                counterType = CounterType.STUN,
                 amount = DynamicAmount.Multiply(DynamicAmount.XValue, 2),
                 target = t
             )
@@ -8865,7 +8865,7 @@ val RapierWit = card("Rapier Wit") {
             Effects.Tap(t),
             ConditionalEffect(
                 condition = Conditions.IsYourTurn,
-                effect = AddCountersEffect(counterType = Counters.STUN, count = 1, target = t)
+                effect = AddCountersEffect(counterType = CounterType.STUN, count = 1, target = t)
             ),
             DrawCardsEffect(1)
         )
@@ -9073,7 +9073,7 @@ val RenderSpeechless = card("Render Speechless") {
                     moveType = MoveType.Discard
                 )
             ),
-            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 2, target = t2)
+            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = t2)
         )
     }
     metadata {
@@ -9572,7 +9572,7 @@ val ScoldingAdministrator = card("Scolding Administrator") {
         trigger = Triggers.youCastSpell(
             spellFilter = GameObjectFilter.InstantOrSorcery.targetsMatching(GameObjectFilter.Creature)
         )
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     triggeredAbility {
         trigger = Triggers.Dies
@@ -9856,7 +9856,7 @@ val SilverquillCharm = card("Silverquill Charm") {
         modal(chooseCount = 1) {
             mode("Put two +1/+1 counters on target creature") {
                 val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-                effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 2, target = t)
+                effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = t)
             }
             mode("Exile target creature with power 2 or less") {
                 val t = target("target", TargetCreature(filter = TargetFilter.Creature.powerAtMost(2)))
@@ -10102,7 +10102,7 @@ val SnarlSong = card("Snarl Song") {
                 count = 2
             ),
             Effects.AddDynamicCounters(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature),
                 target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
             ),
@@ -10473,7 +10473,7 @@ val SpiritMascot = card("Spirit Mascot") {
     toughness = 2
     triggeredAbility {
         trigger = Triggers.CardsLeaveYourGraveyard()
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.COMMON
@@ -10842,7 +10842,7 @@ val StirringHopesinger = card("Stirring Hopesinger") {
         )
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         )
     }
     metadata {
@@ -12542,7 +12542,7 @@ val WildHypothesis = card("Wild Hypothesis") {
                 creatureTypes = setOf("Fractal")
             ),
             Effects.AddDynamicCounters(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = DynamicAmount.XValue,
                 target = EffectTarget.PipelineTarget(CREATED_TOKENS, 0)
             ),

@@ -1,6 +1,6 @@
 package com.wingedsheep.sdk.scripting
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -70,7 +70,7 @@ object Fabricate {
             binding = TriggerBinding.SELF,
             activeZones = setOf(Zone.BATTLEFIELD),
             effect = Effects.May(
-                effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, n, EffectTarget.Self),
+                effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, n, EffectTarget.Self),
                 otherwise = CreateTokenEffect(
                     count = DynamicAmount.Fixed(n),
                     power = 1,

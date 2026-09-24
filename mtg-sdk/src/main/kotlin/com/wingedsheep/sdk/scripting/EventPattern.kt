@@ -1,5 +1,6 @@
 package com.wingedsheep.sdk.scripting
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.BendType
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
@@ -54,7 +55,7 @@ enum class ExploreReveal { ANY, LAND, NONLAND }
  *
  * Supporting filter types are organized in the events/ subdirectory:
  * - EventFilters.kt - RecipientFilter, SourceFilter, DamageType,
- *                     CounterTypeFilter, ControllerFilter, Player
+ *                     ControllerFilter, Player
  * - Zone.kt - Zone enumeration
  */
 @Serializable
@@ -200,17 +201,17 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
      *
      * Examples:
      * - "counters would be placed" → CounterPlacementEvent()
-     * - "+1/+1 counters on creatures you control" → CounterPlacementEvent(counterType = CounterTypeFilter.PlusOnePlusOne, recipient = RecipientFilter.CreatureYouControl)
+     * - "+1/+1 counters on creatures you control" → CounterPlacementEvent(counterType = CounterType.PLUS_ONE_PLUS_ONE, recipient = RecipientFilter.CreatureYouControl)
      */
     @SerialName("CounterPlacementEvent")
     @Serializable
     data class CounterPlacementEvent(
-        val counterType: CounterTypeFilter = CounterTypeFilter.Any,
+        val counterType: CounterType? = null,
         val recipient: RecipientFilter = RecipientFilter.Any
     ) : EventPattern {
         override val description: String = buildString {
-            if (counterType != CounterTypeFilter.Any) {
-                append(counterType.description)
+            if (counterType != null) {
+                append(counterType.printed)
                 append(" ")
             }
             append("counters would be placed on ")
@@ -2145,19 +2146,19 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
      *
      * Examples:
      * - "Whenever you put one or more +1/+1 counters on a creature you control"
-     *   → CountersPlacedEvent(counterType = Counters.PLUS_ONE_PLUS_ONE, filter = GameObjectFilter.Creature.youControl())
+     *   → CountersPlacedEvent(counterType = CounterType.PLUS_ONE_PLUS_ONE, filter = GameObjectFilter.Creature.youControl())
      * - "Whenever you put one or more +1/+1 counters on one or more other Heroes you control"
-     *   → CountersPlacedEvent(counterType = Counters.PLUS_ONE_PLUS_ONE, placedBy = Player.You,
+     *   → CountersPlacedEvent(counterType = CounterType.PLUS_ONE_PLUS_ONE, placedBy = Player.You,
      *     filter = GameObjectFilter.Creature.youControl().withSubtype(Subtype.HERO), batch = true)
      *     with [TriggerBinding.OTHER]
      *
-     * @property counterType The counter type to match (e.g., "+1/+1", "LORE")
+     * @property counterType The counter type to match, or `null` for counters of any kind.
      * @property filter Filter for the permanent receiving counters
      */
     @SerialName("CountersPlacedEvent")
     @Serializable
     data class CountersPlacedEvent(
-        val counterType: String,
+        val counterType: CounterType?,
         val filter: GameObjectFilter = GameObjectFilter.Any,
         /**
          * When true, the trigger fires only the first time counters are put on the affected
@@ -2216,7 +2217,7 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
         val batch: Boolean = false
     ) : EventPattern {
         override val description: String = buildString {
-            val typeLabel = if (counterType == com.wingedsheep.sdk.core.Counters.ANY) "" else "$counterType "
+            val typeLabel = counterType?.let { "${it.printed} " } ?: ""
             if (placedBy != null) {
                 append("${placedBy.description} put one or more ${typeLabel}counters on ")
             } else {
@@ -2250,14 +2251,13 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
      *
      * Examples:
      * - "When the last defense counter is removed from this permanent"
-     *   → CountersRemovedEvent(counterType = Counters.DEFENSE, lastRemoved = true) with
+     *   → CountersRemovedEvent(counterType = CounterType.DEFENSE, lastRemoved = true) with
      *     [TriggerBinding.SELF]
      * - "Whenever one or more +1/+1 counters are removed from a creature you control"
-     *   → CountersRemovedEvent(counterType = Counters.PLUS_ONE_PLUS_ONE, filter =
+     *   → CountersRemovedEvent(counterType = CounterType.PLUS_ONE_PLUS_ONE, filter =
      *     GameObjectFilter.Creature.youControl())
      *
-     * @property counterType The counter type to match, or [com.wingedsheep.sdk.core.Counters.ANY]
-     *   for counters of any kind.
+     * @property counterType The counter type to match, or `null` for counters of any kind.
      * @property filter Filter for the permanent the counters were removed from.
      * @property lastRemoved When true, fires only for the removal that takes the permanent's count
      *   of [counterType] to zero.
@@ -2265,7 +2265,7 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
     @SerialName("CountersRemovedEvent")
     @Serializable
     data class CountersRemovedEvent(
-        val counterType: String,
+        val counterType: CounterType?,
         val filter: GameObjectFilter = GameObjectFilter.Any,
         val lastRemoved: Boolean = false,
         /**
@@ -2277,7 +2277,7 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
         val byDamagePrevention: Boolean = false,
     ) : EventPattern {
         override val description: String = buildString {
-            val typeLabel = if (counterType == com.wingedsheep.sdk.core.Counters.ANY) "" else "$counterType "
+            val typeLabel = counterType?.let { "${it.printed} " } ?: ""
             if (lastRemoved) {
                 append("the last ${typeLabel}counter is removed from ")
             } else {

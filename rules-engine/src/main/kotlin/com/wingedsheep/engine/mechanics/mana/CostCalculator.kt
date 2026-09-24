@@ -1055,15 +1055,13 @@ class CostCalculator(
         state: GameState,
         playerId: EntityId,
         filter: GameObjectFilter,
-        counterType: String
+        counterType: CounterType
     ): Int {
         val projected = state.projectedState
         val context = PredicateContext(controllerId = playerId)
-        val ct = CounterType.entries.find { it.name.equals(counterType, ignoreCase = true) }
-            ?: return 0
         return state.controlledBattlefield(playerId).count { entityId ->
             val counters = state.getEntity(entityId)?.get<CountersComponent>()
-            if ((counters?.getCount(ct) ?: 0) <= 0) return@count false
+            if ((counters?.getCount(counterType) ?: 0) <= 0) return@count false
             predicateEvaluator.matches(state, projected, entityId, filter, context)
         }
     }

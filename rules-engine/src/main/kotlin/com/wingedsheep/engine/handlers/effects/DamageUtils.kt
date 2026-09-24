@@ -447,7 +447,7 @@ object DamageUtils {
             if (removed > 0) {
                 events.add(
                     com.wingedsheep.engine.core.CountersRemovedEvent(
-                        targetId, CounterType.DEFENSE.name, removed, targetName,
+                        targetId, CounterType.DEFENSE, removed, targetName,
                         remainingCount = currentDefense - removed
                     )
                 )
@@ -475,7 +475,7 @@ object DamageUtils {
                 }
                 // CR 702.80 / 122.6a: the -1/-1 counters are put on the creature by the wither
                 // source's controller, so "whenever you put counters" triggers see them as yours.
-                events.add(CountersAddedEvent(targetId, CounterType.MINUS_ONE_MINUS_ONE.name, effectiveAmount,
+                events.add(CountersAddedEvent(targetId, CounterType.MINUS_ONE_MINUS_ONE, effectiveAmount,
                     newState.getEntity(targetId)?.get<CardComponent>()?.name ?: "Creature",
                     placedBy = newState.projectedState.getController(sourceId)))
                 // Wither only changes the FORM of the damage (CR 702.80a); the creature was still
@@ -929,7 +929,7 @@ object DamageUtils {
         state: GameState,
         placerId: EntityId,
         targetId: EntityId,
-        counterType: String
+        counterType: CounterType
     ): GameState {
         if (!state.projectedState.isCreature(targetId)) return state
         val byController = state.projectedState.getController(targetId) == placerId
@@ -993,7 +993,7 @@ object DamageUtils {
     fun recordCounterPlacement(
         state: GameState,
         targetId: EntityId,
-        counterType: String,
+        counterType: CounterType,
         placerId: EntityId? = null,
         byController: Boolean = false
     ): Pair<GameState, Boolean> {
@@ -2925,11 +2925,7 @@ object DamageUtils {
                 val events = mutableListOf<EngineGameEvent>()
                 var newState = state
 
-                // Convert the printed counter name to its CounterType. `fromName` is the shared
-                // parse: it knows the symbolic stat names ("+1/+1", "-1/-1") that `valueOf` alone
-                // cannot reach.
-                val counterType = CounterType.fromName(effect.counterType)
-                    ?: CounterType.PLUS_ONE_PLUS_ONE
+                val counterType = effect.counterType
 
                 val currentCounters = counterHolder.get<CountersComponent>() ?: CountersComponent()
                 val updatedCounters = currentCounters.withAdded(counterType, amount)

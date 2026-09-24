@@ -218,7 +218,7 @@ fun untapOrConsumeStun(
             c.with(counters.withRemoved(CounterType.PLUS_ONE_PLUS_ONE, 1)).without<TappedComponent>()
         }
         return newState to listOf(
-            CountersRemovedEvent(entityId, CounterType.PLUS_ONE_PLUS_ONE.name, 1, cardName),
+            CountersRemovedEvent(entityId, CounterType.PLUS_ONE_PLUS_ONE, 1, cardName),
             UntappedEvent(entityId, cardName),
         )
     }

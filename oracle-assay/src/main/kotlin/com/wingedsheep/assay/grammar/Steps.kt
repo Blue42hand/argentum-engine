@@ -9,6 +9,7 @@ import com.wingedsheep.assay.syntax.phrase
 import com.wingedsheep.assay.syntax.separated
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.scripting.references.Player
@@ -1328,11 +1329,11 @@ object Steps {
      */
     private val putCountersOnTargetPermanent: List<Phrase<CardScript>> =
         Targets.singularQuantifiers.flatMap { quantifier ->
-            fun scriptFor(kind: String, count: Int, filter: GameObjectFilter) = CardScript(
+            fun scriptFor(kind: CounterType, count: Int, filter: GameObjectFilter) = CardScript(
                 spellEffect = Effects.AddCounters(kind, count, Targets.bound()),
                 targetRequirements = listOf(quantifier.requirement(1, filter)),
             )
-            fun dynamicScriptFor(kind: String, amount: DynamicAmount, filter: GameObjectFilter) = CardScript(
+            fun dynamicScriptFor(kind: CounterType, amount: DynamicAmount, filter: GameObjectFilter) = CardScript(
                 spellEffect = Effects.AddDynamicCounters(kind, amount, Targets.bound()),
                 targetRequirements = listOf(quantifier.requirement(1, filter)),
             )
@@ -3369,7 +3370,7 @@ object Steps {
      * the same effect with a different [EffectTarget], so a reader that ignored it would let each
      * rule print the others' sentence.
      */
-    internal fun countersAdded(effect: Effect?, target: EffectTarget): Pair<String, Int>? {
+    internal fun countersAdded(effect: Effect?, target: EffectTarget): Pair<CounterType, Int>? {
         val add = effect as? AddCountersEffect ?: return null
         if (add.target != target) return null
         return add.counterType to add.count
@@ -3384,7 +3385,7 @@ object Steps {
      * `AddDynamicCountersEffect`, and a rule that could read either would be able to print one
      * model two ways. [Amounts.namesX] is the other half of that split.
      */
-    internal fun dynamicCountersAdded(effect: Effect?, target: EffectTarget): Pair<String, DynamicAmount>? {
+    internal fun dynamicCountersAdded(effect: Effect?, target: EffectTarget): Pair<CounterType, DynamicAmount>? {
         val add = effect as? AddDynamicCountersEffect ?: return null
         if (add.target != target) return null
         return add.counterType to add.amount

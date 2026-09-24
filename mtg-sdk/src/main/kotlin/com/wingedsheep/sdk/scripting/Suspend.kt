@@ -1,6 +1,6 @@
 package com.wingedsheep.sdk.scripting
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -47,7 +47,7 @@ object Suspend {
     /** "this card has a time counter on it" — used as the intervening-if gate and the cast condition. */
     private val hasTimeCounter = EntityMatches(
         EffectTarget.Self,
-        GameObjectFilter.Any.copy(statePredicates = listOf(StatePredicate.HasCounter("TIME")))
+        GameObjectFilter.Any.copy(statePredicates = listOf(StatePredicate.HasCounter(CounterType.TIME)))
     )
 
     /**
@@ -63,7 +63,7 @@ object Suspend {
         interveningIf = hasTimeCounter,
         effect = CompositeEffect(
             listOf(
-                RemoveCountersEffect(Counters.TIME, 1, EffectTarget.Self),
+                RemoveCountersEffect(CounterType.TIME, 1, EffectTarget.Self),
                 Effects.If(
                     condition = NotCondition(hasTimeCounter),
                     // CR 702.62f — "they may play it without paying its mana cost." The optional

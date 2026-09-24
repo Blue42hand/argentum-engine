@@ -847,7 +847,7 @@ internal fun EmitCtx.deliriumConditionDsl(condNode: JsonElement?): String? {
  * "this permanent has N or more +1/+1 counters on it"
  * (`PermanentPassesFilter(ThisPermanent, HasNumberCountersOfType(GreaterThanOrEqualTo Integer N,
  * PTCounter(1,1)))`, Vadmir, New Blood) -> the `Conditions.SourceCounterCountAtLeast(
- * Counters.PLUS_ONE_PLUS_ONE, N)` DSL string, or null when the subject isn't ThisPermanent, the
+ * CounterType.PLUS_ONE_PLUS_ONE, N)` DSL string, or null when the subject isn't ThisPermanent, the
  * comparison isn't `>= N`, or the counter isn't the bare ±1/±1 counter. Used by the [ifRuleBlock]
  * static gates (Vadmir's "menace and lifelink at 4+ counters"). The predicate reads the source's
  * counter map under projection, so the gated keywords appear/vanish as counters cross the threshold.
@@ -1061,7 +1061,7 @@ internal fun EmitCtx.ifRuleBlock(rule: JsonObject): List<Stmt>? {
     //   creatures you control get +3/+3."
     //   If(PermanentPassesFilter(ThisPermanent, HasNumberCountersOfType(>= 5, GrowthCounter)))
     //     [ EachPermanentLayerEffect(creatures you control, [AdjustPT(3,3)]) ]
-    // -> the same gated lord, gated on Conditions.SourceCounterCountAtLeast(Counters.GROWTH, 5).
+    // -> the same gated lord, gated on Conditions.SourceCounterCountAtLeast(CounterType.GROWTH, 5).
     // Only the "during YOUR turn", "you gained life this turn", or "N+ counters on this permanent"
     // gates render; any other condition declines (-> SCAFFOLD). The lord renderer itself still
     // declines any group/ability it can't reproduce exactly.
@@ -1704,10 +1704,10 @@ private fun spellOf(effect: Dsl): List<Stmt> = listOf(Sub(Block("spell", listOf(
  *  MayAction must NOT also set the ability's `optional = true`). */
 private val SELF_OPTIONAL_ACTIONS = setOf("PutACardFromHandOnBattlefield")
 
-/** The IR "<Keyword>Counter" kinds the emitter renders as a Named CounterTypeFilter, each mapped to its
- *  `Counters` string constant. Restricted to the keyword counters the engine grants as a keyword
+/** The IR "<Keyword>Counter" kinds the emitter renders as a counter type, each mapped to its
+ *  `CounterType` constant. Restricted to the keyword counters the engine grants as a keyword
  *  (mirrors StateProjector.KEYWORD_COUNTER_MAP), which all have a known constant. Any other counter kind
- *  declines -> SCAFFOLD rather than emit a non-compiling `Counters.X`. */
+ *  declines -> SCAFFOLD rather than emit a non-compiling `CounterType.X`. */
 private val KEYWORD_COUNTER_CONSTANT = mapOf(
     "FlyingCounter" to "FLYING",
     "FirstStrikeCounter" to "FIRST_STRIKE",
@@ -2331,7 +2331,7 @@ internal fun EmitCtx.triggerMayOnceEachTurnBlock(rule: JsonObject): List<Stmt>? 
  *    spell from your hand this turn") -> `Conditions.Not(Conditions.YouCastSpellsThisTurn(1, fromZone = Zone.HAND))`
  *    (Canyon Crab).
  *  - `PermanentPassesFilter(ThisPermanent, HasNoCountersOfType(<counter>))` ("this creature doesn't
- *    have a <counter> counter on it") -> `Conditions.Not(Conditions.SourceHasCounter(CounterTypeFilter.Named("<counter>")))`
+ *    have a <counter> counter on it") -> `Conditions.Not(Conditions.SourceHasCounter(CounterType.<COUNTER>))`
  *    (Inventive Wingsmith).
  *  - `PlayerPassesFilter(You, ControlsA(And(Other(ThatEnteringPermanent), IsAnOutlaw)))` ("you
  *    control another outlaw") -> `Conditions.YouControlAtLeast(2, <outlaw filter>)` — the entering
@@ -2499,7 +2499,7 @@ private fun EmitCtx.singleInterveningIfDsl(cond: JsonObject): String? {
         jsonContains(cond, "_Permanents", "HasNoCountersOfType")
     ) {
         val counter = counterNameForFilter(cond) ?: return null
-        return "Conditions.Not(Conditions.SourceHasCounter(CounterTypeFilter.Named(\"$counter\")))"
+        return "Conditions.Not(Conditions.SourceHasCounter($counter))"
     }
     // "this enchantment isn't a creature" — PermanentPassesFilter(ThisPermanent, IsNonCardtype Creature)
     // (Emergent Haunting's end-step "becomes a creature" gate, which self-disables once animated).
@@ -2687,12 +2687,12 @@ private fun EmitCtx.youCastNumSpellsThisTurnDsl(cond: JsonObject): String? {
     return "Conditions.YouCastSpellsThisTurn($n)"
 }
 
-/** The "<counter> counter" name for a `HasNoCountersOfType(<CounterType>)` node, mapped to the engine's
- *  `CounterTypeFilter.Named` string, or null for a counter kind we don't name. */
+/** The "<counter> counter" kind for a `HasNoCountersOfType(<CounterType>)` node, as the `CounterType`
+ *  constant the DSL names it by, or null for a counter kind we don't name. */
 private fun counterNameForFilter(cond: JsonObject): String? {
     val noCounters = cond.nodesTagged("HasNoCountersOfType").firstOrNull() ?: return null
     return when ((noCounters["args"] as? JsonObject)?.strField("_CounterType")) {
-        "FlyingCounter" -> "flying"
+        "FlyingCounter" -> "CounterType.FLYING"
         else -> null
     }
 }
@@ -3591,7 +3591,7 @@ internal fun EmitCtx.asEntersBlock(rule: JsonObject, condition: String? = null):
                     arg("filter", "GameObjectFilter.Creature"),
                     arg("sourceZone", "Zone.GRAVEYARD"),
                     arg("maxCards", "DynamicAmount.XValue"),
-                    arg("counterType", "CounterTypeFilter.PlusOnePlusOne"),
+                    arg("counterType", "CounterType.PLUS_ONE_PLUS_ONE"),
                     arg("countersPerCard", "3"),
                 )))
             )))
@@ -3645,13 +3645,13 @@ internal fun EmitCtx.asEntersBlock(rule: JsonObject, condition: String? = null):
                         if (pt?.getOrNull(0).asInt() != 1 || pt?.getOrNull(1).asInt() != 1) { reasons.add("AsPermanentEnters"); return null }
                     }
                     // A keyword counter (e.g. a lifelink counter, Dust Animus). The IR names it
-                    // "<Keyword>Counter"; map to a Named CounterTypeFilter via the Counters string constant.
+                    // "<Keyword>Counter"; map to its CounterType constant.
                     // Restricted to the keyword counters the engine grants as a keyword
-                    // (StateProjector.KEYWORD_COUNTER_MAP) — these have a known `Counters` constant. Any
+                    // (StateProjector.KEYWORD_COUNTER_MAP) — these have a known `CounterType` constant. Any
                     // other "*Counter" kind (a ShieldCounter, a homebrew marker) has no validated constant,
-                    // so it declines -> SCAFFOLD rather than emit a non-compiling `Counters.X`.
+                    // so it declines -> SCAFFOLD rather than emit a non-compiling `CounterType.X`.
                     kind in KEYWORD_COUNTER_CONSTANT -> {
-                        ewArgs.add(arg("counterType", "CounterTypeFilter.Named(Counters.${KEYWORD_COUNTER_CONSTANT[kind]})"))
+                        ewArgs.add(arg("counterType", "CounterType.${KEYWORD_COUNTER_CONSTANT[kind]}"))
                     }
                     else -> { reasons.add("AsPermanentEnters"); return null }
                 }
@@ -3676,7 +3676,7 @@ internal fun EmitCtx.asEntersBlock(rule: JsonObject, condition: String? = null):
                     // +1/+1 -> default-filter EntersWithCounters (the PlusOnePlusOne default), no explicit arg.
                     px == 1 && py == 1 -> null
                     // -1/-1 (Patched Plaything) -> explicit MinusOneMinusOne filter.
-                    px == -1 && py == -1 -> arg("counterType", "CounterTypeFilter.MinusOneMinusOne")
+                    px == -1 && py == -1 -> arg("counterType", "CounterType.MINUS_ONE_MINUS_ONE")
                     else -> { reasons.add("AsPermanentEnters"); return null }
                 }
                 val countNode = a.getOrNull(0) as? JsonObject
@@ -4196,10 +4196,10 @@ internal fun EmitCtx.abilityCostDsl(node: JsonElement?): String? {
                     // hand-authored golden's bare filter. Strip it.
                     val filter = (costFilterDsl(subArgs.getOrNull(2)) ?: "GameObjectFilter.Any")
                         .removeSuffix(".youControl()")
-                    // [counter] is already the qualified `Counters.X` constant (its value is the
-                    // counter-type string, e.g. Counters.PLUS_ONE_PLUS_ONE == "+1/+1"); pass it
+                    // [counter] is already the qualified `CounterType.X` constant (its value is the
+                    // counter-type string, e.g. CounterType.PLUS_ONE_PLUS_ONE == "+1/+1"); pass it
                     // unquoted like the RemoveCounterFromSelf sibling above. Quoting it would emit the
-                    // literal string "Counters.PLUS_ONE_PLUS_ONE" as the counter type — a card whose
+                    // literal string "CounterType.PLUS_ONE_PLUS_ONE" as the counter type — a card whose
                     // cost removes a counter kind that never exists.
                     "Costs.RemoveCounters($n, $counter, $filter)"
                 }
@@ -4392,7 +4392,7 @@ private fun EmitCtx.activationRestrictionLines(rule: JsonObject): List<String>? 
  *
  * The only shape rendered is the per-counter self-reduction: a single `CostReduceGeneric 1` reduction
  * scaled by `TheTotalNumberOfCountersOfTypeAmongPermanents(<named passive counter>, ThisPermanent)`, which maps to
- * `genericCostReduction = DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.X))`. Any other
+ * `genericCostReduction = DynamicAmounts.countersOnSelf(CounterType.X)`. Any other
  * reduction symbol, amount, game-number source, or subject declines rather than guess.
  */
 private fun EmitCtx.activationCostReductionLines(rule: JsonObject): List<String>? {
@@ -4416,19 +4416,19 @@ private fun EmitCtx.activationCostReductionLines(rule: JsonObject): List<String>
     val constant = passiveCounterConstant(gnArgs.getOrNull(0)) ?: run { reasons.add("activated-modifiers"); return null }
     if (!jsonContains(gnArgs.getOrNull(1), "_Permanent", "ThisPermanent")) { reasons.add("activated-modifiers"); return null }
     return listOf(
-        "        genericCostReduction = DynamicAmounts.countersOnSelf(CounterTypeFilter.Named($constant))",
+        "        genericCostReduction = DynamicAmounts.countersOnSelf($constant)",
     )
 }
 
-/** A mtgish `_CounterType` node for a passive storage counter -> the `Counters.*` string constant the
- *  count-reading sites (`DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(...))`) take, or null for a
+/** A mtgish `_CounterType` node for a passive storage counter -> the `CounterType` constant the
+ *  count-reading sites (`DynamicAmounts.countersOnSelf(...)`) take, or null for a
  *  counter kind we don't name. Mirrors the passive-counter rows in [counterTypeDsl]. */
 private fun passiveCounterConstant(counterNode: JsonElement?): String? =
     when ((counterNode as? JsonObject)?.strField("_CounterType")) {
-        "LootCounter" -> "Counters.LOOT"
-        "GrowthCounter" -> "Counters.GROWTH"
-        "NestCounter" -> "Counters.NEST"
-        "PageCounter" -> "Counters.PAGE"
+        "LootCounter" -> "CounterType.LOOT"
+        "GrowthCounter" -> "CounterType.GROWTH"
+        "NestCounter" -> "CounterType.NEST"
+        "PageCounter" -> "CounterType.PAGE"
         else -> null
     }
 

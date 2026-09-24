@@ -3479,7 +3479,7 @@ class TriggerDetector(
         val registry = cardRegistry
 
         // Find all LORE counter addition events
-        val loreEvents = events.filterIsInstance<CountersAddedEvent>().filter { it.counterType == "LORE" }
+        val loreEvents = events.filterIsInstance<CountersAddedEvent>().filter { it.counterType == CounterType.LORE }
         if (loreEvents.isEmpty()) return
 
         for (event in loreEvents) {

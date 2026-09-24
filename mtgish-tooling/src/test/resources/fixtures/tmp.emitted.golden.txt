@@ -3422,7 +3422,7 @@ val Energizer = card("Energizer") {
     toughness = 2
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.RARE
@@ -3737,7 +3737,7 @@ val FeveredConvulsions = card("Fevered Convulsions") {
     activatedAbility {
         cost = Costs.Mana("{2}{B}{B}")
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = AddCountersEffect(counterType = Counters.MINUS_ONE_MINUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.MINUS_ONE_MINUS_ONE, count = 1, target = t)
     }
     metadata {
         rarity = Rarity.RARE
@@ -10831,7 +10831,7 @@ val Souldrinker = card("Souldrinker") {
     toughness = 2
     activatedAbility {
         cost = Costs.PayLife(3)
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.UNCOMMON

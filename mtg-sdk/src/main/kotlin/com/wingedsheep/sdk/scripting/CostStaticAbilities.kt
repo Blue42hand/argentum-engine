@@ -1,5 +1,6 @@
 package com.wingedsheep.sdk.scripting
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.text.TextReplacer
@@ -604,9 +605,9 @@ sealed interface CostReductionSource {
     @Serializable
     data class PermanentsWithCounterYouControl(
         val filter: GameObjectFilter,
-        val counterType: String
+        val counterType: CounterType
     ) : CostReductionSource {
-        override val description: String = "${filter.description} you control with a $counterType counter on it"
+        override val description: String = "${filter.description} you control with a ${counterType.printed} counter on it"
     }
 
     /**

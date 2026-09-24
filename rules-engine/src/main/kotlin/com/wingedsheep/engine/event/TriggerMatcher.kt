@@ -9,7 +9,6 @@ import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PipelineState
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
-import com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
@@ -24,6 +23,7 @@ import com.wingedsheep.engine.state.components.player.ManaSpentOnSpellsThisTurnC
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.state.components.stack.SpellOnStackComponent
 import com.wingedsheep.engine.state.components.stack.TargetsComponent
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
@@ -857,9 +857,8 @@ class TriggerMatcher(
                 if (event.amount <= 0) return false
                 if (binding == TriggerBinding.SELF && event.entityId != sourceId) return false
                 if (binding == TriggerBinding.OTHER && event.entityId == sourceId) return false
-                // Counters.ANY is the wildcard "counters of any type" sentinel.
-                if (trigger.counterType != com.wingedsheep.sdk.core.Counters.ANY &&
-                    !counterTypesMatch(trigger.counterType, event.counterType)) return false
+                // A null counterType is the wildcard "counters of any type".
+                if (trigger.counterType != null && trigger.counterType != event.counterType) return false
                 // "…removed from this creature **this way**": only the removal a
                 // PreventDamageByRemovingCounter replacement performed counts (Magma Pummeler).
                 if (trigger.byDamagePrevention && !event.byDamagePrevention) return false
@@ -2183,14 +2182,10 @@ class TriggerMatcher(
             // gone; gate against the counters captured on the event (LKI). For non-leave triggers
             // (e.g. ETB, to=BATTLEFIELD) the entity is live, so read its current counters.
             if (event.fromZone == Zone.BATTLEFIELD) {
-                (event.lastKnown?.counters ?: emptyMap()).any { (type, count) ->
-                    count > 0 && counterTypesMatch(predicate.counterType, type)
-                }
+                (event.lastKnown?.counters?.get(predicate.counterType) ?: 0) > 0
             } else {
                 val counters = state.getEntity(event.entityId)?.get<CountersComponent>()
-                counters?.counters?.entries?.any { (type, count) ->
-                    count > 0 && counterTypesMatch(predicate.counterType, counterTypeToString(type))
-                } ?: false
+                (counters?.getCount(predicate.counterType) ?: 0) > 0
             }
         }
         com.wingedsheep.sdk.scripting.predicates.StatePredicate.HasAnyCounter -> {
@@ -2440,12 +2435,8 @@ class TriggerMatcher(
         // / "whenever you put counters on ~"). OTHER restricts to any *other* permanent.
         if (binding == TriggerBinding.SELF && event.entityId != sourceId) return false
         if (binding == TriggerBinding.OTHER && event.entityId == sourceId) return false
-        // Counters.ANY is the wildcard "counters of any type" sentinel.
-        if (trigger.counterType != com.wingedsheep.sdk.core.Counters.ANY &&
-            !counterTypesMatch(trigger.counterType, event.counterType)
-        ) {
-            return false
-        }
+        // A null counterType is the wildcard "counters of any type".
+        if (trigger.counterType != null && trigger.counterType != event.counterType) return false
         // "First time counters this turn" intervening-if (Stalwart Successor).
         if (trigger.firstTimeEachTurn && !event.firstThisTurn) return false
         // Placer restriction (CR 122.6 / 122.6a): "Whenever YOU put counters ...". A placement the
@@ -2472,33 +2463,12 @@ class TriggerMatcher(
     }
 
     /**
-     * Compare counter type strings, normalizing different representations to allow matching
-     * between trigger specs (e.g., "+1/+1") and event strings (which may be "+1/+1",
-     * "plus_one_plus_one", "PLUS_ONE_PLUS_ONE", etc.).
-     */
-    private fun counterTypesMatch(triggerType: String, eventType: String): Boolean {
-        if (triggerType == eventType) return true
-        return normalizeCounterType(triggerType) == normalizeCounterType(eventType)
-    }
-
-    /**
      * How many counters of [counterType] [entityId] still has — the "did that removal take the
-     * last one?" half of [EventPattern.CountersRemovedEvent.lastRemoved]. Counter names are stored
-     * normalized on the component, so the lookup goes through the same normalization the type
-     * match uses. A missing entity counts as zero: a permanent that has already left has none.
+     * last one?" half of [EventPattern.CountersRemovedEvent.lastRemoved]. A missing entity counts as
+     * zero: a permanent that has already left has none.
      */
-    private fun remainingCounters(state: GameState, entityId: EntityId, counterType: String): Int {
-        val counters = state.getEntity(entityId)?.get<CountersComponent>() ?: return 0
-        return counters.counters.entries
-            .filter { (type, _) -> counterTypesMatch(counterType, counterTypeToString(type)) }
-            .sumOf { (_, count) -> count }
-    }
-
-    private fun normalizeCounterType(type: String): String =
-        type.lowercase()
-            .replace("+1/+1", "plus_one_plus_one")
-            .replace("-1/-1", "minus_one_minus_one")
-            .replace(" ", "_")
+    private fun remainingCounters(state: GameState, entityId: EntityId, counterType: CounterType): Int =
+        state.getEntity(entityId)?.get<CountersComponent>()?.getCount(counterType) ?: 0
 
     /**
      * Live check for whether [entityId] has an Equipment (or, when [equipment] is false, an Aura)

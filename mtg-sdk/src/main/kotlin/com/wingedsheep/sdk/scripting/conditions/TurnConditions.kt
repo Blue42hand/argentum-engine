@@ -1,5 +1,6 @@
 package com.wingedsheep.sdk.scripting.conditions
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
@@ -379,11 +380,11 @@ data class PlayerPlayedLandThisTurn(
 @SerialName("PutCounterKindOnCreatureThisTurn")
 @Serializable
 data class PutCounterKindOnCreatureThisTurn(
-    val counterType: String? = null,
+    val counterType: CounterType? = null,
     val player: Player = Player.You
 ) : Condition {
     override val description: String =
-        "if ${player.description} put one or more ${counterType?.plus(" ") ?: ""}counters on a " +
+        "if ${player.description} put one or more ${counterType?.let { "${it.printed} " } ?: ""}counters on a " +
             "creature this turn"
 }
 

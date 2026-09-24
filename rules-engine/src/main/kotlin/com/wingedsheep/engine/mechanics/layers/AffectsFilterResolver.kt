@@ -31,7 +31,6 @@ import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.state.components.identity.RoomComponent
 import com.wingedsheep.engine.state.components.identity.HasMorphAbilityComponent
 import com.wingedsheep.engine.state.components.identity.MorphDataComponent
-import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.model.EntityId
@@ -189,7 +188,7 @@ internal class AffectsFilterResolver {
                 }.toSet()
             }
             is AffectsFilter.CreaturesWithCounter -> {
-                val counterType = parseCounterType(filter.counterType) ?: return emptySet()
+                val counterType = filter.counterType
                 state.getBattlefield().filter { entityId ->
                     val container = state.getEntity(entityId) ?: return@filter false
                     val card = container.get<CardComponent>() ?: return@filter false
@@ -198,7 +197,7 @@ internal class AffectsFilterResolver {
                 }.toSet()
             }
             is AffectsFilter.OwnCreaturesWithCounter -> {
-                val counterType = parseCounterType(filter.counterType) ?: return emptySet()
+                val counterType = filter.counterType
                 val sourceController = projectedController(state, sourceId, projectedValues)
                     ?: return emptySet()
                 state.getBattlefield().filter { entityId ->
@@ -212,7 +211,7 @@ internal class AffectsFilterResolver {
                 }.toSet()
             }
             is AffectsFilter.LandsWithCounter -> {
-                val counterType = parseCounterType(filter.counterType) ?: return emptySet()
+                val counterType = filter.counterType
                 state.getBattlefield().filter { entityId ->
                     val container = state.getEntity(entityId) ?: return@filter false
                     val card = container.get<CardComponent>() ?: return@filter false
@@ -729,8 +728,7 @@ internal class AffectsFilterResolver {
         }
         is StatePredicate.HasCounter -> {
             val counters = container.get<CountersComponent>()
-            val counterType = parseCounterType(predicate.counterType)
-            counters != null && counterType != null && counters.getCount(counterType) > 0
+            counters != null && counters.getCount(predicate.counterType) > 0
         }
         StatePredicate.HasLockedDoor ->
             container.get<RoomComponent>()?.lockedFaces?.isNotEmpty() == true
@@ -1017,17 +1015,5 @@ internal class AffectsFilterResolver {
     ): EntityId? {
         return projectedValues[entityId]?.controllerId
             ?: state.getEntity(entityId)?.get<ControllerComponent>()?.playerId
-    }
-
-    private fun parseCounterType(counterTypeString: String): CounterType? {
-        return when (counterTypeString) {
-            "+1/+1" -> CounterType.PLUS_ONE_PLUS_ONE
-            "-1/-1" -> CounterType.MINUS_ONE_MINUS_ONE
-            else -> try {
-                CounterType.valueOf(counterTypeString.uppercase().replace(' ', '_'))
-            } catch (e: IllegalArgumentException) {
-                null
-            }
-        }
     }
 }

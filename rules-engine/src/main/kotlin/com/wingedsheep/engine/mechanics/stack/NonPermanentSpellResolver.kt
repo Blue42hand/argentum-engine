@@ -770,7 +770,7 @@ internal class NonPermanentSpellResolver(
                     ?: com.wingedsheep.engine.state.components.battlefield.CountersComponent()
                 c.with(current.withAdded(counterType, 1))
             }
-            events.add(CountersAddedEvent(cardId, counterType.name, 1, cardName))
+            events.add(CountersAddedEvent(cardId, counterType, 1, cardName))
         }
         return updated
     }

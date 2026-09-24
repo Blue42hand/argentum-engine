@@ -65,7 +65,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.RedirectZoneChange
 import com.wingedsheep.sdk.scripting.RedirectZoneChangeWithEffect
 import com.wingedsheep.sdk.scripting.ZoneChangeCause
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.predicates.evaluateWith
@@ -159,7 +158,7 @@ object ZoneMovementUtils {
             c.with(sagaComponent)
                 .with(current.withAdded(CounterType.LORE, 1))
         }
-        return newState to listOf(CountersAddedEvent(entityId, "LORE", 1, cardComponent.name))
+        return newState to listOf(CountersAddedEvent(entityId, CounterType.LORE, 1, cardComponent.name))
     }
 
     /**
@@ -205,8 +204,8 @@ object ZoneMovementUtils {
         if (container.has<FaceDownComponent>()) return state to emptyList()
         val cardComponent = container.get<CardComponent>() ?: return state to emptyList()
         val cardDef = cardRegistry.getCard(cardComponent.cardDefinitionId)
-        val (filter, amount) = when {
-            cardComponent.isPlaneswalker -> CounterTypeFilter.Loyalty to cardDef?.startingLoyalty
+        val (counterType, amount) = when {
+            cardComponent.isPlaneswalker -> CounterType.LOYALTY to cardDef?.startingLoyalty
             cardComponent.isBattle ->
                 com.wingedsheep.engine.mechanics.battle.Battles.DEFENSE_COUNTER to cardDef?.startingDefense
             else -> return state to emptyList()
@@ -214,7 +213,7 @@ object ZoneMovementUtils {
         if (amount == null) return state to emptyList()
 
         return EntersWithReplacements.placeEntryCounters(
-            state, entityId, filter, amount, controllerId, cardComponent.name
+            state, entityId, counterType, amount, controllerId, cardComponent.name
         )
     }
 
@@ -973,17 +972,7 @@ object ZoneMovementUtils {
             return newState to emptyList()
         }
         if (effect is com.wingedsheep.sdk.scripting.effects.AddCountersEffect && entityId != null) {
-            val counterType = try {
-                com.wingedsheep.sdk.core.CounterType.valueOf(
-                    effect.counterType.uppercase()
-                        .replace(' ', '_')
-                        .replace('+', 'P')
-                        .replace('-', 'M')
-                        .replace("/", "_")
-                )
-            } catch (_: IllegalArgumentException) {
-                com.wingedsheep.sdk.core.CounterType.PLUS_ONE_PLUS_ONE
-            }
+            val counterType = effect.counterType
             val current = state.getEntity(entityId)?.get<CountersComponent>() ?: CountersComponent()
             val newState = state.updateEntity(entityId) { container ->
                 container.with(current.withAdded(counterType, effect.count))

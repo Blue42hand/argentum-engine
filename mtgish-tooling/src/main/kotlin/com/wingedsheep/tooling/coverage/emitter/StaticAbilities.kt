@@ -41,7 +41,7 @@ internal fun gatedStaticAbilityStmt(cond: String, ability: Dsl): Stmt =
  * [abilities] and is a creature with base power/toughness [P/T]." Renders one threshold-gated
  * `staticAbility { }` row per granted ability — `GrantCardType("CREATURE", …)` for the animate, plus a
  * `GrantKeyword(...)` per listed keyword — each gated on
- * `Conditions.SourceCounterCountAtLeast(Counters.CHARGE, N)`. The base P/T (args[2]) is the card's
+ * `Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, N)`. The base P/T (args[2]) is the card's
  * printed power/toughness, already emitted on the card, so it needs no separate row.
  *
  * Only *bare keyword* abilities render. A threshold that grants a triggered or activated ability (or any
@@ -56,7 +56,7 @@ internal fun EmitCtx.stationAnimateBlock(rule: JsonObject): List<Stmt>? {
         ?.takeIf { it.strField("_GameRange") == "ValueOrBigger" }
         ?.get("args").asInt() ?: return scaffoldStation()
     val abilityRules = (args.getOrNull(1) as? JsonArray)?.filterIsInstance<JsonObject>() ?: emptyList()
-    val cond = "Conditions.SourceCounterCountAtLeast(Counters.CHARGE, $n)"
+    val cond = "Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, $n)"
     val stmts = mutableListOf<Stmt>()
     stmts.add(gatedStaticAbilityStmt(cond, call("GrantCardType", arg("\"CREATURE\""), arg("GroupFilter.source()"))))
     for (ar in abilityRules) {

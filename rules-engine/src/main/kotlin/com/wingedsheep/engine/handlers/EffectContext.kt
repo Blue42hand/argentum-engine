@@ -8,6 +8,7 @@ import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.state.components.stack.EntitySnapshot
 import com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComponent
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.ChoiceSlot
@@ -200,13 +201,13 @@ data class EffectContext(
     /** LKI snapshots for [tappedPermanents] (Rule 113.7a). See [EntitySnapshot]. */
     val tappedEntitySnapshots: List<EntitySnapshot> = emptyList(),
     /**
-     * Counters (counter-type-string → count) the source had the moment a self-exile /
+     * Counters (kind → count) the source had the moment a self-exile /
      * self-sacrifice cost wiped them (CR 113.7a). Read by
      * [com.wingedsheep.sdk.scripting.values.DynamicAmount.LastKnownSourceCounters] so an effect
      * like "Draw a card for each verse counter on this. If it had seven or more..." (Lost Isle
      * Calling) sees the pre-cost count rather than zero.
      */
-    val lastKnownSourceCounters: Map<String, Int> = emptyMap(),
+    val lastKnownSourceCounters: Map<CounterType, Int> = emptyMap(),
     /**
      * Frozen projected P/T (and subtypes/supertypes) the source had the moment a self-exile /
      * self-sacrifice cost moved it off the battlefield (CR 113.7a / 608.2h — "as it last existed

@@ -1160,7 +1160,7 @@ internal class CombatDamageManager(
             newState = newState.updateEntity(targetId) { container ->
                 container.with(counters.withAdded(CounterType.POISON, toxicAmount))
             }
-            events.add(CountersAddedEvent(targetId, CounterType.POISON.name, toxicAmount, "Player"))
+            events.add(CountersAddedEvent(targetId, CounterType.POISON, toxicAmount, "Player"))
         }
 
         // Reflection (Harsh Justice)
@@ -1256,7 +1256,7 @@ internal class CombatDamageManager(
         } else if (removed > 0) {
             events.add(
                 com.wingedsheep.engine.core.CountersRemovedEvent(
-                    targetId, counterType.name, removed, targetName,
+                    targetId, counterType, removed, targetName,
                     remainingCount = currentCount - removed
                 )
             )
@@ -1380,7 +1380,7 @@ internal class CombatDamageManager(
                 newState = newState.updateEntity(targetId) { container ->
                     container.with(counters.withAdded(CounterType.POISON, toxicAmount))
                 }
-                events.add(CountersAddedEvent(targetId, CounterType.POISON.name, toxicAmount, "Player"))
+                events.add(CountersAddedEvent(targetId, CounterType.POISON, toxicAmount, "Player"))
             }
         } else if (isPlaneswalker || isBattle) {
             if (targetId !in newState.getBattlefield()) return newState
@@ -1417,13 +1417,11 @@ internal class CombatDamageManager(
                     com.wingedsheep.engine.handlers.effects.DamageUtils.recordCounterPlacement(
                         newState,
                         targetId,
-                        com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString(
-                            com.wingedsheep.sdk.core.CounterType.MINUS_ONE_MINUS_ONE
-                        ),
+                        com.wingedsheep.sdk.core.CounterType.MINUS_ONE_MINUS_ONE,
                         placerId = projected.getController(sourceId),
                     )
                 newState = afterMark
-                events.add(CountersAddedEvent(targetId, com.wingedsheep.sdk.core.CounterType.MINUS_ONE_MINUS_ONE.name, amount,
+                events.add(CountersAddedEvent(targetId, com.wingedsheep.sdk.core.CounterType.MINUS_ONE_MINUS_ONE, amount,
                     newState.getEntity(targetId)?.get<CardComponent>()?.name ?: "Creature", firstThisTurn,
                     placedBy = projected.getController(sourceId)))
                 // Wither only changes the FORM of the damage (CR 702.80a); the creature was still

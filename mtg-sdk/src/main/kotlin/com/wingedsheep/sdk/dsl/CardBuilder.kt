@@ -1150,8 +1150,8 @@ class SpellBuilder {
      * battlefield transformed under its owner's control with a finality counter on it." See
      * [CardScript.returnTransformedFromGraveyardOnResolve].
      */
-    fun returnTransformedFromGraveyard(vararg counters: CounterType) {
-        returnTransformedFromGraveyard = ReturnTransformedFromGraveyard(counters.toList())
+    fun returnTransformedFromGraveyard(counters: List<CounterType>) {
+        returnTransformedFromGraveyard = ReturnTransformedFromGraveyard(counters)
     }
 
     internal val returnTransformedFromGraveyardMarker: ReturnTransformedFromGraveyard?

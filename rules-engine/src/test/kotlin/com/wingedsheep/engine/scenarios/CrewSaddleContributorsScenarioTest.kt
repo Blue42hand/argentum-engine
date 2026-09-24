@@ -57,7 +57,7 @@ class CrewSaddleContributorsScenarioTest : FunSpec({
                 "target creature that saddled it this turn",
                 TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.crewedOrSaddledSourceThisTurn()))
             )
-            effect = Effects.AddCounters("+1/+1", 1, saddler)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, saddler)
         }
     }
 

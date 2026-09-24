@@ -4,7 +4,6 @@ import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.support.ScenarioTestBase
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Phase
@@ -54,7 +53,7 @@ class StationMechanicTest : ScenarioTestBase() {
         activatedAbility {
             cost = Costs.TapPermanents(count = 1, filter = GameObjectFilter.Creature, excludeSelf = true)
             effect = Effects.AddDynamicCounters(
-                counterType = Counters.CHARGE,
+                counterType = CounterType.CHARGE,
                 amount = DynamicAmount.EntityProperty(EntityReference.TappedAsCost(), EntityNumericProperty.Power),
                 target = EffectTarget.Self
             )

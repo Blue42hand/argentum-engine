@@ -403,20 +403,20 @@ val AtmosphericGreenhouse = card("Atmospheric Greenhouse") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         )
     }
     station()
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 8)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 8)
         ability = GrantCardType("CREATURE", GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 8)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 8)
         ability = GrantKeyword(Keyword.FLYING.name, GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 8)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 8)
         ability = GrantKeyword(Keyword.TRAMPLE.name, GroupFilter.source())
     }
     metadata {
@@ -746,7 +746,7 @@ val BiosynthicBurst = card("Biosynthic Burst") {
     spell {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
         effect = Effects.Composite(
-            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t),
+            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
             Effects.GrantKeyword(Keyword.REACH, t),
             Effects.GrantKeyword(Keyword.TRAMPLE, t),
             Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t),
@@ -1502,7 +1502,7 @@ val CosmograndZenith = card("Cosmogrand Zenith") {
             Mode.noTarget(
                 Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.youControl()),
-                    AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                    AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
                 ),
                 "Put a +1/+1 counter on each creature you control"
             )
@@ -1794,7 +1794,7 @@ val DawnstrikeVanguard = card("Dawnstrike Vanguard") {
         triggerCondition = Conditions.YouControlAtLeast(2, GameObjectFilter.Creature.tapped())
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl(), excludeSelf = true),
-            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         )
     }
     metadata {
@@ -2184,12 +2184,12 @@ val DrixFatemaker = card("Drix Fatemaker") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     staticAbility {
         ability = GrantKeyword(
             Keyword.TRAMPLE,
-            GroupFilter(GameObjectFilter.Creature.withCounter(Counters.PLUS_ONE_PLUS_ONE).youControl())
+            GroupFilter(GameObjectFilter.Creature.withCounter(CounterType.PLUS_ONE_PLUS_ONE).youControl())
         )
     }
     // STRUCTURE needs human wiring: Warp
@@ -3135,7 +3135,7 @@ val FrontlineWarRager = card("Frontline War-Rager") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         triggerCondition = Conditions.YouControlAtLeast(2, GameObjectFilter.Creature.tapped())
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.COMMON
@@ -3283,15 +3283,15 @@ val GalvanizingSawship = card("Galvanizing Sawship") {
     oracleText = "Station (Tap another creature you control: Put charge counters equal to its power on this Spacecraft. Station only as a sorcery. It's an artifact creature at 3+.)\n3+ | Flying, haste"
     station()
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 3)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 3)
         ability = GrantCardType("CREATURE", GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 3)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 3)
         ability = GrantKeyword(Keyword.FLYING.name, GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 3)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 3)
         ability = GrantKeyword(Keyword.HASTE.name, GroupFilter.source())
     }
     metadata {
@@ -3696,12 +3696,12 @@ val HaliyaAscendantCadet = card("Haliya, Ascendant Cadet") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     triggeredAbility {
         trigger = Triggers.Attacks
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     // STRUCTURE needs human wiring: trigger-shape
     metadata {
@@ -3921,7 +3921,7 @@ val Honor = card("Honor") {
     spell {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Composite(
-            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t),
+            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
             DrawCardsEffect(1)
         )
     }
@@ -4340,7 +4340,7 @@ val IllvoiOperative = card("Illvoi Operative") {
     toughness = 1
     triggeredAbility {
         trigger = Triggers.NthSpellCast(2, Player.You)
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.COMMON
@@ -4533,7 +4533,7 @@ val IntrepidTenderfoot = card("Intrepid Tenderfoot") {
     toughness = 2
     activatedAbility {
         cost = Costs.Mana("{3}")
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
         timing = TimingRule.SorcerySpeed
     }
     metadata {
@@ -5371,7 +5371,7 @@ val Mechanozoa = card("Mechanozoa") {
         )
         effect = Effects.Composite(
             Effects.Tap(t),
-            AddCountersEffect(counterType = Counters.STUN, count = 1, target = t)
+            AddCountersEffect(counterType = CounterType.STUN, count = 1, target = t)
         )
     }
     // STRUCTURE needs human wiring: Warp
@@ -5752,7 +5752,7 @@ val MmmenonUthrosExile = card("Mm'menon, Uthros Exile") {
             binding = TriggerBinding.ANY
         )
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     metadata {
         rarity = Rarity.UNCOMMON
@@ -6360,7 +6360,7 @@ val Ouroboroid = card("Ouroboroid") {
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
             Effects.AddDynamicCounters(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = DynamicAmounts.sourcePower(),
                 target = EffectTarget.Self
             )
@@ -6524,11 +6524,11 @@ val PinnacleKillShip = card("Pinnacle Kill-Ship") {
     }
     station()
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 7)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 7)
         ability = GrantCardType("CREATURE", GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 7)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 7)
         ability = GrantKeyword(Keyword.FLYING.name, GroupFilter.source())
     }
     metadata {
@@ -6901,7 +6901,7 @@ val RaybladeTrooper = card("Rayblade Trooper") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     // STRUCTURE needs human wiring: trigger-shape
     metadata {
@@ -7133,11 +7133,11 @@ val RescueSkiff = card("Rescue Skiff") {
     }
     station()
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 10)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 10)
         ability = GrantCardType("CREATURE", GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 10)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 10)
         ability = GrantKeyword(Keyword.FLYING.name, GroupFilter.source())
     }
     metadata {
@@ -8586,7 +8586,7 @@ val SunsetSaboteur = card("Sunset Saboteur") {
     triggeredAbility {
         trigger = Triggers.Attacks
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     metadata {
         rarity = Rarity.RARE
@@ -8635,7 +8635,7 @@ val SunstarChaplain = card("Sunstar Chaplain") {
         trigger = Triggers.YourEndStep
         triggerCondition = Conditions.YouControlAtLeast(2, GameObjectFilter.Creature.tapped())
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     // STRUCTURE needs human wiring: activated-cost
     metadata {
@@ -8717,7 +8717,7 @@ val SunstarLightsmith = card("Sunstar Lightsmith") {
     triggeredAbility {
         trigger = Triggers.NthSpellCast(2, Player.You)
         effect = Effects.Composite(
-            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self),
+            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self),
             DrawCardsEffect(1)
         )
     }
@@ -8862,11 +8862,11 @@ val SusurianDirgecraft = card("Susurian Dirgecraft") {
     }
     station()
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 7)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 7)
         ability = GrantCardType("CREATURE", GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 7)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 7)
         ability = GrantKeyword(Keyword.FLYING.name, GroupFilter.source())
     }
     metadata {
@@ -10056,11 +10056,11 @@ val UthrosScanship = card("Uthros Scanship") {
     }
     station()
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 8)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 8)
         ability = GrantCardType("CREATURE", GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 8)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 8)
         ability = GrantKeyword(Keyword.FLYING.name, GroupFilter.source())
     }
     metadata {
@@ -10346,11 +10346,11 @@ val WarmakerGunship = card("Warmaker Gunship") {
     }
     station()
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 6)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 6)
         ability = GrantCardType("CREATURE", GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 6)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 6)
         ability = GrantKeyword(Keyword.FLYING.name, GroupFilter.source())
     }
     metadata {
@@ -10466,15 +10466,15 @@ val WedgelightRammer = card("Wedgelight Rammer") {
     }
     station()
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 9)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 9)
         ability = GrantCardType("CREATURE", GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 9)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 9)
         ability = GrantKeyword(Keyword.FLYING.name, GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 9)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 9)
         ability = GrantKeyword(Keyword.FIRST_STRIKE.name, GroupFilter.source())
     }
     metadata {
@@ -10523,7 +10523,7 @@ val WeftbladeEnhancer = card("Weftblade Enhancer") {
         trigger = Triggers.EntersBattlefield
         val t = target("target", TargetCreature(optional = true, count = 2, filter = TargetFilter.Creature))
         effect = ForEachTargetEffect(
-            listOf(Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
+            listOf(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
         )
     }
     // STRUCTURE needs human wiring: Warp
@@ -10657,11 +10657,11 @@ val WurmwallSweeper = card("Wurmwall Sweeper") {
     }
     station()
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 4)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 4)
         ability = GrantCardType("CREATURE", GroupFilter.source())
     }
     staticAbility {
-        condition = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 4)
+        condition = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 4)
         ability = GrantKeyword(Keyword.FLYING.name, GroupFilter.source())
     }
     metadata {

@@ -9,7 +9,6 @@ import com.wingedsheep.engine.handlers.CostHandler
 import com.wingedsheep.engine.handlers.CostPaymentChoices
 import com.wingedsheep.engine.handlers.costs.GraveyardTotalExileResolver
 import com.wingedsheep.engine.handlers.effects.bend.BendEvents
-import com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString
 import com.wingedsheep.engine.mechanics.mana.AlternativePaymentHandler
 import com.wingedsheep.engine.mechanics.mana.ManaPool
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
@@ -25,6 +24,7 @@ import com.wingedsheep.engine.state.components.stack.captureEntitySnapshots
 import com.wingedsheep.engine.state.components.stack.projectedTypeLine
 import com.wingedsheep.sdk.core.BendType
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AbilityCost
@@ -36,7 +36,7 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 internal data class ActivationCostSnapshots(
     val sacrificed: List<EntitySnapshot>,
     val tapped: List<EntitySnapshot>,
-    val lastKnownSourceCounters: Map<String, Int>,
+    val lastKnownSourceCounters: Map<CounterType, Int>,
     val lastKnownSourceSnapshot: EntitySnapshot?,
     val lastKnownSourceAttachments: List<EntityId>,
     val revealedNotedCreatureType: String?,
@@ -423,13 +423,12 @@ internal class ActivationCostPayer(
         // Snapshot the source's counters before a self-exile / self-sacrifice cost wipes them
         // (CR 113.7a / 122.2), so the effect can read the pre-cost count via
         // DynamicAmount.LastKnownSourceCounters (Lost Isle Calling).
-        val lastKnownSourceCounters: Map<String, Int> =
+        val lastKnownSourceCounters: Map<CounterType, Int> =
             if (movesSource) {
                 state.getEntity(action.sourceId)
                     ?.get<CountersComponent>()
                     ?.counters
-                    ?.filterValues { it > 0 }
-                    ?.mapKeys { (type, _) -> counterTypeToString(type) } ?: emptyMap()
+                    ?.filterValues { it > 0 } ?: emptyMap()
             } else emptyMap()
 
         // Snapshot the source's projected characteristics before a self-exile / self-sacrifice cost

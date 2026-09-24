@@ -7,7 +7,6 @@ import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
-import com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString
 import com.wingedsheep.engine.mechanics.layers.Layer
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.engine.mechanics.layers.addFloatingEffect
@@ -26,7 +25,6 @@ import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.EntersWithKeywords
 import com.wingedsheep.sdk.scripting.Vanishing
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 
 /**
  * Applies "enters with …" replacement effects (CR 614.1c) — counters
@@ -79,10 +77,10 @@ object EntersWithReplacements {
                 val current = state.getEntity(entityId)?.get<CountersComponent>() ?: CountersComponent()
                 var newState = state.updateEntity(entityId) { c -> c.with(current.withAdded(counterType, count)) }
                 val (afterMark, firstThisTurn) = DamageUtils.recordCounterPlacement(
-                    newState, entityId, counterTypeToString(counterType), byController = true
+                    newState, entityId, counterType, byController = true
                 )
                 newState = afterMark
-                events.add(CountersAddedEvent(entityId, "+1/+1", count, entityName, firstThisTurn, placedBy = controllerId))
+                events.add(CountersAddedEvent(entityId, CounterType.PLUS_ONE_PLUS_ONE, count, entityName, firstThisTurn, placedBy = controllerId))
                 newState to events
             }
             com.wingedsheep.sdk.dsl.RIOT_MODE_HASTE -> {
@@ -238,30 +236,29 @@ object EntersWithReplacements {
     fun placeEntryCounters(
         state: GameState,
         entityId: EntityId,
-        counterType: CounterTypeFilter,
+        counterType: CounterType,
         count: Int,
         controllerId: EntityId,
         entityName: String,
     ): Pair<GameState, List<GameEvent>> {
         if (count <= 0) return state to emptyList()
-        val resolved = resolveCounterType(counterType)
         val modifiedCount = ReplacementEffectUtils.applyCounterPlacementModifiers(
-            state, entityId, resolved, count, placerId = controllerId
+            state, entityId, counterType, count, placerId = controllerId
         )
         val current = state.getEntity(entityId)?.get<CountersComponent>() ?: CountersComponent()
         var newState = state.updateEntity(entityId) { c ->
-            c.with(current.withAdded(resolved, modifiedCount))
+            c.with(current.withAdded(counterType, modifiedCount))
         }
         // CR 122.6a — the entering object's controller is the one putting these counters on, so the
         // marker records both axes and a "you've put +1/+1 counters on it this turn" filter (Kid
         // Loki) sees a creature that *entered* with them.
         val (afterMark, firstThisTurn) = DamageUtils.recordCounterPlacement(
-            newState, entityId, counterTypeToString(resolved), byController = true
+            newState, entityId, counterType, byController = true
         )
         newState = afterMark
         return newState to listOf(
             CountersAddedEvent(
-                entityId, counterType.description, modifiedCount, entityName, firstThisTurn,
+                entityId, counterType, modifiedCount, entityName, firstThisTurn,
                 placedBy = controllerId
             )
         )
@@ -349,7 +346,7 @@ object EntersWithReplacements {
                             )
                             if (!conditionEvaluator.evaluate(newState, effect.condition!!, condContext)) continue
                         }
-                        val counterType = resolveCounterType(effect.counterType)
+                        val counterType = effect.counterType
                         val modifiedCount = ReplacementEffectUtils.applyCounterPlacementModifiers(
                             newState, enteringEntityId, counterType, effect.count, placerId = enteringControllerId
                         )
@@ -358,15 +355,15 @@ object EntersWithReplacements {
                             c.with(current.withAdded(counterType, modifiedCount))
                         }
                         val (afterMark, firstThisTurn) = DamageUtils.recordCounterPlacement(
-                            newState, enteringEntityId, counterTypeToString(counterType), byController = true
+                            newState, enteringEntityId, counterType, byController = true
                         )
                         newState = afterMark
-                        events.add(CountersAddedEvent(enteringEntityId, effect.counterType.description, modifiedCount, entityName, firstThisTurn, placedBy = enteringControllerId))
+                        events.add(CountersAddedEvent(enteringEntityId, counterType, modifiedCount, entityName, firstThisTurn, placedBy = enteringControllerId))
                     }
                     is EntersWithDynamicCounters -> {
                         if (!effect.otherOnly) continue
                         if (!matchesEnterFilter(effect.appliesTo, enteringEntityId, sourceId, sourceControllerId, newState)) continue
-                        val counterType = resolveCounterType(effect.counterType)
+                        val counterType = effect.counterType
                         // An "enters with N counters" count always describes the ENTERING object,
                         // not the replacement source — the counters go on the entering permanent and
                         // any "it" in the count refers to it (CR 121.6 / 614). Mirror the self path
@@ -390,10 +387,10 @@ object EntersWithReplacements {
                                 c.with(current.withAdded(counterType, modifiedCount))
                             }
                             val (afterMark, firstThisTurn) = DamageUtils.recordCounterPlacement(
-                                newState, enteringEntityId, counterTypeToString(counterType), byController = true
+                                newState, enteringEntityId, counterType, byController = true
                             )
                             newState = afterMark
-                            events.add(CountersAddedEvent(enteringEntityId, effect.counterType.description, modifiedCount, entityName, firstThisTurn, placedBy = enteringControllerId))
+                            events.add(CountersAddedEvent(enteringEntityId, counterType, modifiedCount, entityName, firstThisTurn, placedBy = enteringControllerId))
                         }
                     }
                     is EntersWithKeywords -> {
@@ -507,26 +504,6 @@ object EntersWithReplacements {
         return predicateEvaluator.matches(state, state.projectedState, enteringEntityId, filter, predicateContext)
     }
 
-    fun resolveCounterType(filter: CounterTypeFilter): CounterType {
-        return when (filter) {
-            is CounterTypeFilter.Any -> CounterType.PLUS_ONE_PLUS_ONE
-            is CounterTypeFilter.PlusOnePlusOne -> CounterType.PLUS_ONE_PLUS_ONE
-            is CounterTypeFilter.MinusOneMinusOne -> CounterType.MINUS_ONE_MINUS_ONE
-            is CounterTypeFilter.PlusOnePlusZero -> CounterType.PLUS_ONE_PLUS_ZERO
-            is CounterTypeFilter.PlusZeroPlusOne -> CounterType.PLUS_ZERO_PLUS_ONE
-            is CounterTypeFilter.MinusOneMinusZero -> CounterType.MINUS_ONE_MINUS_ZERO
-            is CounterTypeFilter.MinusZeroMinusOne -> CounterType.MINUS_ZERO_MINUS_ONE
-            is CounterTypeFilter.Loyalty -> CounterType.LOYALTY
-            is CounterTypeFilter.Named -> {
-                try {
-                    CounterType.valueOf(filter.name.uppercase().replace(' ', '_'))
-                } catch (_: IllegalArgumentException) {
-                    CounterType.PLUS_ONE_PLUS_ONE
-                }
-            }
-        }
-    }
-
     /**
      * Apply a graveyard-cast entry rider (The Tomb of Aclazotz) to a permanent that just resolved
      * onto the battlefield after being cast from the graveyard under a rider-bearing
@@ -554,7 +531,7 @@ object EntersWithReplacements {
                 val current = c.get<CountersComponent>() ?: CountersComponent()
                 c.with(current.withAdded(counter, 1))
             }
-            events.add(CountersAddedEvent(entityId, counter.name, 1, name))
+            events.add(CountersAddedEvent(entityId, counter, 1, name))
         }
         // Gate on the entering permanent's *base* type — the projected state isn't recomputed yet at
         // this ETB point, so it wouldn't yet see the just-resolved permanent as a creature.

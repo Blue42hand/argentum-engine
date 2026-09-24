@@ -1,5 +1,6 @@
 package com.wingedsheep.sdk.scripting
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
@@ -942,7 +943,7 @@ data class GameObjectFilter(
      * this turn"; `Conditions.SourceReceivedCounterThisTurn` is this predicate under `SourceMatches`.
      */
     fun receivedCounterThisTurn(
-        counterType: String? = null,
+        counterType: CounterType? = null,
         placedByController: Boolean = false
     ) = copy(
         statePredicates = statePredicates +
@@ -1272,12 +1273,12 @@ data class GameObjectFilter(
     )
 
     /** Must have a counter of the specified type */
-    fun withCounter(counterType: String) = copy(
+    fun withCounter(counterType: CounterType) = copy(
         statePredicates = statePredicates + StatePredicate.HasCounter(counterType)
     )
 
     /** Must not have a counter of the specified type. Other counter types are allowed. */
-    fun withoutCounter(counterType: String) = copy(
+    fun withoutCounter(counterType: CounterType) = copy(
         statePredicates = statePredicates + StatePredicate.Not(StatePredicate.HasCounter(counterType))
     )
 

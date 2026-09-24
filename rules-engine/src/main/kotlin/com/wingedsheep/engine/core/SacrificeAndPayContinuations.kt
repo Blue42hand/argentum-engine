@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.core
 
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
@@ -101,7 +102,7 @@ data class PayOrSufferContinuation(
     val namedTargets: Map<String, ChosenTarget> = emptyMap(),
     val manaCost: ManaCost? = null,
     val zone: Zone? = null,
-    val counterType: String? = null,
+    val counterType: CounterType? = null,
     /**
      * How many counters of [counterType] the payment places, for
      * [PayOrSufferCostType.PUT_COUNTERS]. Distinct from [requiredCount], which is how many

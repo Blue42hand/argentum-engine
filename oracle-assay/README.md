@@ -965,10 +965,9 @@ arrives in every context already wired. That is the opposite trade from a prefix
 worked examples now sit either side of it.
 
 **Two leaves, and both of them own a spelling no rule above them can see.** `Primitives.counterKind`
-reads the noun and is gated on `CounterType.fromName` — the SDK's own answer to "is this a counter",
-the same function `StatePredicate.HasCounter` parses with — because the model field is a bare
-`String` and an ungated leaf would read *any* word as a kind and round-trip a counter Magic does not
-have. That is `creatureSubtype`'s argument, and the "Elves" → `Elve` failure it exists to prevent.
+reads the noun and is gated on `CounterType.KNOWN` — the SDK's own answer to "is this a counter" —
+because `CounterType` is open and an ungated leaf would read *any* word as a kind and round-trip a
+counter Magic does not have. That is `creatureSubtype`'s argument, and the "Elves" → `Elve` failure it exists to prevent.
 
 The second leaf is the **indefinite article**, and it is inside the leaf for `statModifiers`' reason:
 English picks "a" or "an" from the sound of the next word, so two rules — one per article — would
@@ -3279,9 +3278,8 @@ the fix only widens what already worked.
 
 **What it named next.** Six of those 18 non-+1/+1 lines still decline, and on nothing this band owns:
 `oil`, `study`, `echo`, `void`, `scream` and `isolation` are counter kinds `CounterType` does not name,
-so `Primitives.counterKind`'s gate rejects the word. That gate is the right place for it —
-`CounterTypeFilter.Named` fails open to +1/+1 — so the fix is SDK vocabulary, one justified enum entry
-per kind, and six cards behind it.
+so `Primitives.counterKind`'s gate rejects the word. That gate is the right place for it, so the fix
+is SDK vocabulary, one justified `CounterType` constant per kind, and six cards behind it.
 
 ## The chosen count
 

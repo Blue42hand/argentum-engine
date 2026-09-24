@@ -1272,7 +1272,7 @@ data class RepeatWhileEffect(
  * Example (Rottenmouth Viper - for each blight counter):
  * ```kotlin
  * RepeatDynamicTimesEffect(
- *     amount = DynamicAmounts.countersOnSelf(CounterTypeFilter.Named("blight")),
+ *     amount = DynamicAmounts.countersOnSelf(CounterType.BLIGHT),
  *     body = ForEachPlayerEffect(
  *         players = Player.EachOpponent,
  *         effects = listOf(chooseAction)

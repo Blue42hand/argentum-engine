@@ -467,7 +467,7 @@ val BeornsHospitality = card("Beorn's Hospitality") {
     triggeredAbility {
         trigger = Triggers.entersBattlefield(filter = GameObjectFilter.Land.youControl(), binding = TriggerBinding.ANY)
         val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     // STRUCTURE needs human wiring: CreatePermanentLayerEffect
     metadata {
@@ -548,12 +548,12 @@ val BifurMelodicRider = card("Bifur, Melodic Rider") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     triggeredAbility {
         trigger = Triggers.Attacks
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     // STRUCTURE needs human wiring: If
     metadata {
@@ -3251,7 +3251,7 @@ val GuardianOfTheHalls = card("Guardian of the Halls") {
     keywords(Keyword.TRAMPLE)
     activatedAbility {
         cost = Costs.Mana("{5}{G}{G}")
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 3, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 3, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.COMMON
@@ -4501,7 +4501,7 @@ val NastyLittleRabbit = card("Nasty Little Rabbit") {
     triggeredAbility {
         trigger = Triggers.BeginCombat
         triggerCondition = Conditions.YouControl(GameObjectFilter.Creature.powerAtLeast(4))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.UNCOMMON
@@ -5219,7 +5219,7 @@ val RavenhillFlock = card("Ravenhill Flock") {
     keywords(Keyword.FLYING)
     triggeredAbility {
         trigger = Triggers.YouDraw
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.UNCOMMON
@@ -6962,7 +6962,7 @@ val TrollNegotiations = card("Troll Negotiations") {
         val t1 = target("t1", TargetCreature(filter = TargetFilter.Creature.youControl()))
         val t2 = target("t2", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.Composite(
-            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 2, target = t1),
+            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = t1),
             Effects.Fight(t1, t2)
         )
     }
@@ -7200,7 +7200,7 @@ val WargTactics = card("Warg Tactics") {
             ) {
                 val t = target("target", TargetCreature(filter = TargetFilter.Creature.youControl()))
                 effect = Effects.Composite(
-                    AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t),
+                    AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t),
                     Effects.GrantKeyword(Keyword.TRAMPLE, t),
                     Effects.GrantKeyword(Keyword.HEXPROOF, t)
                 )
@@ -7349,7 +7349,7 @@ val WilderlandScrounger = card("Wilderland Scrounger") {
         triggerCondition = Conditions.YouControl(GameObjectFilter.Creature.powerAtLeast(4))
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         )
     }
     metadata {

@@ -5,6 +5,7 @@ import com.wingedsheep.assay.syntax.alternate
 import com.wingedsheep.assay.syntax.bind
 import com.wingedsheep.assay.syntax.phrase
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.ManaCost
@@ -167,7 +168,7 @@ object SelfSteps {
         subject: Phrase<Unit>,
         tag: String,
     ): List<Phrase<CardScript>> {
-        fun scriptFor(kind: String, count: Int) =
+        fun scriptFor(kind: CounterType, count: Int) =
             CardScript(spellEffect = Effects.AddCounters(kind, count, target))
         fun rule(template: String, name: String, quantity: Phrase<*>?) =
             phrase(template, name = name) {
@@ -188,7 +189,7 @@ object SelfSteps {
         // Oracle's spellings, over the SDK's dynamic counter effect — and no bare-"X" row, for the
         // reason [Amounts.namesX] gives: this clause is one [Triggers] lifts, and the announced X is
         // silently zero anywhere it lands but a spell.
-        fun dynamicScriptFor(kind: String, amount: DynamicAmount) =
+        fun dynamicScriptFor(kind: CounterType, amount: DynamicAmount) =
             CardScript(spellEffect = Effects.AddDynamicCounters(kind, amount, target))
         val defined = phrase<CardScript>(
             "put X {kind} counters on {self}${Amounts.WHERE_X}",

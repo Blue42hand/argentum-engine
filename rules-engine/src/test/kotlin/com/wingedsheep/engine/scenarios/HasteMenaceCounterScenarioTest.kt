@@ -1,7 +1,7 @@
 package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.support.ScenarioTestBase
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
@@ -32,7 +32,7 @@ class HasteMenaceCounterScenarioTest : ScenarioTestBase() {
         oracleText = "Put a haste counter on target creature."
         spell {
             val t = target("target creature", Targets.Creature)
-            effect = Effects.AddCounters(Counters.HASTE, 1, t)
+            effect = Effects.AddCounters(CounterType.HASTE, 1, t)
         }
     }
 
@@ -42,7 +42,7 @@ class HasteMenaceCounterScenarioTest : ScenarioTestBase() {
         oracleText = "Put a menace counter on target creature."
         spell {
             val t = target("target creature", Targets.Creature)
-            effect = Effects.AddCounters(Counters.MENACE, 1, t)
+            effect = Effects.AddCounters(CounterType.MENACE, 1, t)
         }
     }
 

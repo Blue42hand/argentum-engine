@@ -4291,7 +4291,7 @@ val ElvishVanguard = card("Elvish Vanguard") {
             filter = GameObjectFilter.Creature.withSubtype(Subtype.ELF),
             binding = TriggerBinding.OTHER
         )
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.RARE
@@ -7043,7 +7043,7 @@ val InvigoratingBoon = card("Invigorating Boon") {
         trigger = Triggers.AnyPlayerCycles
         optional = true
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     metadata {
         rarity = Rarity.UNCOMMON

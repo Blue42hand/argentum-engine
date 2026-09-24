@@ -1,5 +1,6 @@
 package com.wingedsheep.sdk.scripting.filters.unified
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
@@ -460,7 +461,7 @@ data class TargetFilter(
     fun withoutCounters() = copy(baseFilter = baseFilter.withoutCounters())
 
     /** Must not have a counter of the given type; other counter types are allowed. */
-    fun withoutCounter(counterType: String) = copy(baseFilter = baseFilter.withoutCounter(counterType))
+    fun withoutCounter(counterType: CounterType) = copy(baseFilter = baseFilter.withoutCounter(counterType))
 
     /** Must be tapped */
     fun tapped() = copy(baseFilter = baseFilter.tapped())

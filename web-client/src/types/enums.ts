@@ -582,6 +582,9 @@ export enum CounterType {
   CUBE = 'CUBE',
   TIDE = 'TIDE',
   JUDGMENT = 'JUDGMENT',
+  BLOODLINE = 'BLOODLINE',
+  INVITATION = 'INVITATION',
+  IMPOSTOR = 'IMPOSTOR',
 }
 
 export const CounterTypeDisplayNames: Record<CounterType, string> = {
@@ -689,6 +692,9 @@ export const CounterTypeDisplayNames: Record<CounterType, string> = {
   [CounterType.CUBE]: 'Cube',
   [CounterType.TIDE]: 'Tide',
   [CounterType.JUDGMENT]: 'Judgment',
+  [CounterType.BLOODLINE]: 'Bloodline',
+  [CounterType.INVITATION]: 'Invitation',
+  [CounterType.IMPOSTOR]: 'Impostor',
 }
 
 /**

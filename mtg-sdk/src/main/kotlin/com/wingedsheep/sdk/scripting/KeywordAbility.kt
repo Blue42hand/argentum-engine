@@ -1,5 +1,6 @@
 package com.wingedsheep.sdk.scripting
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
@@ -78,7 +79,7 @@ sealed interface KeywordAbility {
      * - `Ward(WardCost.Discard())`           — "Ward—Discard a card"
      * - `Ward(WardCost.Sacrifice(filter))`   — "Ward—Sacrifice a Food"
      * - `Ward(WardCost.CollectEvidence(4))`  — "Ward—Collect evidence 4"
-     * - `Ward(WardCost.PlayerCounters(Counters.POISON, 5))` — "Ward—Get five poison counters"
+     * - `Ward(WardCost.PlayerCounters(CounterType.POISON, 5))` — "Ward—Get five poison counters"
      * - `Ward(WardCost.Choice(...))`         — "Ward—Discard a card or pay {2}"
      */
     @SerialName("Ward")
@@ -1170,10 +1171,10 @@ sealed interface KeywordAbility {
 
         /**
          * Create Ward with a cost paid in counters placed on the paying player — e.g.
-         * `wardPlayerCounters(Counters.POISON, 5)` for "Ward—Get five poison counters."
-         * (The Serpent Society). [counterType] is a `Counters.*` symbol.
+         * `wardPlayerCounters(CounterType.POISON, 5)` for "Ward—Get five poison counters."
+         * (The Serpent Society).
          */
-        fun wardPlayerCounters(counterType: String, amount: Int): KeywordAbility =
+        fun wardPlayerCounters(counterType: CounterType, amount: Int): KeywordAbility =
             Ward(WardCost.PlayerCounters(counterType, amount))
 
         /**

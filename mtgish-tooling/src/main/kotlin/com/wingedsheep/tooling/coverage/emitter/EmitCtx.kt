@@ -457,7 +457,7 @@ internal fun EmitCtx.dynamicAmountExpr(node: JsonElement?): Dsl? {
             ) return null
             val reader = if (sourceSacrificedByCost) "DynamicAmounts.lastKnownSourceCounters"
                          else "DynamicAmounts.countersOnSelf"
-            return call(reader, arg("CounterTypeFilter.Any"))
+            return call(reader, arg("null"))
         }
         "LifeTotalOfPlayer" -> {
             val player = if (jsonContains(node, "_Player", "Opponent")) "Player.EachOpponent" else "Player.You"

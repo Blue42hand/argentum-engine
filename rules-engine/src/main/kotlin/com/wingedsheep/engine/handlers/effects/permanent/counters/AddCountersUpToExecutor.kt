@@ -54,7 +54,7 @@ class AddCountersUpToExecutor(
         val decision = { decisionId: String -> ChooseNumberDecision(
             id = decisionId,
             playerId = context.controllerId,
-            prompt = "Put how many ${effect.counterType} counters on $targetName? (0-$max)",
+            prompt = "Put how many ${effect.counterType.printed} counters on $targetName? (0-$max)",
             context = DecisionContext(
                 sourceId = context.sourceId,
                 sourceName = sourceName,

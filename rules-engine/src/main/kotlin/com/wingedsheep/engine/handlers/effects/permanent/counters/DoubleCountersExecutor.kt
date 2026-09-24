@@ -50,9 +50,8 @@ class DoubleCountersExecutor : EffectExecutor<DoubleCountersEffect> {
         val toDouble = if (namedType == null) {
             counters.counters.filterValues { it > 0 }.toList()
         } else {
-            val type = resolveCounterType(namedType)
-            val existing = counters.getCount(type)
-            if (existing > 0) listOf(type to existing) else emptyList()
+            val existing = counters.getCount(namedType)
+            if (existing > 0) listOf(namedType to existing) else emptyList()
         }
         if (toDouble.isEmpty()) {
             return EffectResult.success(state, emptyList())
@@ -78,7 +77,7 @@ class DoubleCountersExecutor : EffectExecutor<DoubleCountersEffect> {
             }
             events.add(
                 CountersAddedEvent(
-                    targetId, counterTypeToString(counterType), added, entityName,
+                    targetId, counterType, added, entityName,
                     firstThisTurn, placedBy = context.controllerId
                 )
             )
@@ -86,7 +85,7 @@ class DoubleCountersExecutor : EffectExecutor<DoubleCountersEffect> {
             // kinds landed: doubling +1/+1 counters must satisfy "you've put one or more +1/+1
             // counters on it this turn" (Kid Loki), which a kind-less mark could not.
             newState = DamageUtils.markCounterPlacedOnCreature(
-                newState, context.controllerId, targetId, counterTypeToString(counterType)
+                newState, context.controllerId, targetId, counterType
             )
             firstThisTurn = false
         }

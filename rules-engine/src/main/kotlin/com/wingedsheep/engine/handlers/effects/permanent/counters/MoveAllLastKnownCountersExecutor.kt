@@ -56,9 +56,8 @@ class MoveAllLastKnownCountersExecutor : EffectExecutor<MoveAllLastKnownCounters
         // carried on the first emitted event so it fires the intervening-if trigger once.
         var firstThisTurn = DamageUtils.isFirstCounterThisTurn(state, targetId)
 
-        for ((counterTypeString, count) in lastKnown) {
+        for ((counterType, count) in lastKnown) {
             if (count <= 0) continue
-            val counterType = resolveCounterType(counterTypeString)
 
             val modifiedCount = ReplacementEffectUtils.applyCounterPlacementModifiers(
                 newState, targetId, counterType, count, placerId = context.controllerId
@@ -69,12 +68,12 @@ class MoveAllLastKnownCountersExecutor : EffectExecutor<MoveAllLastKnownCounters
             newState = newState.updateEntity(targetId) { container ->
                 container.with(current.withAdded(counterType, modifiedCount))
             }
-            events.add(CountersAddedEvent(targetId, counterTypeString, modifiedCount, targetName, firstThisTurn, placedBy = context.controllerId))
+            events.add(CountersAddedEvent(targetId, counterType, modifiedCount, targetName, firstThisTurn, placedBy = context.controllerId))
             // Per kind, inside the loop — see DoubleCountersExecutor: the marker records which
             // kinds landed, so a kind-less mark would not satisfy a type-scoped counter-history
             // filter.
             newState = DamageUtils.markCounterPlacedOnCreature(
-                newState, context.controllerId, targetId, counterTypeString
+                newState, context.controllerId, targetId, counterType
             )
             firstThisTurn = false
         }

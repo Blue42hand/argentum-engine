@@ -42,14 +42,12 @@ import com.wingedsheep.engine.state.components.player.LandDropsComponent
 import com.wingedsheep.engine.state.components.player.PlayerTurnsTakenComponent
 import com.wingedsheep.engine.state.components.player.CombatDamageReceivedThisTurnComponent
 import com.wingedsheep.engine.state.components.player.WasDealtCombatDamageThisTurnComponent
-import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.*
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.conditions.APlayerControlsMostOfSubtype
 import com.wingedsheep.sdk.scripting.conditions.AnOpponentLifeAtMost
 import com.wingedsheep.sdk.scripting.conditions.IsDay

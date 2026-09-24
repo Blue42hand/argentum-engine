@@ -469,10 +469,8 @@ class SacrificeAndPayContinuationResumer(
             return executePayOrSufferConsequence(state, continuation, checkForMore)
         }
 
-        val counterName = continuation.counterType
+        val counterType = continuation.counterType
             ?: return ExecutionResult.error(state, "Put-counters payment has no counter type")
-        val counterType = com.wingedsheep.engine.handlers.effects.permanent.counters
-            .resolveCounterType(counterName)
 
         // Counters put on to pay a cost are an ordinary counter placement (CR 121.6), so this runs
         // the same four-step chokepoint as CostHandler's PutCountersOnSelf and AddCountersExecutor:
@@ -494,16 +492,12 @@ class SacrificeAndPayContinuationResumer(
             newState = newState.updateEntity(permanentId) { c ->
                 c.with(counters.withAdded(counterType, modifiedCount))
             }.let {
-                DamageUtils.markCounterPlacedOnCreature(
-                    it, placerId, permanentId,
-                    com.wingedsheep.engine.handlers.effects.permanent.counters
-                        .counterTypeToString(counterType)
-                )
+                DamageUtils.markCounterPlacedOnCreature(it, placerId, permanentId, counterType)
             }
             events.add(
                 CountersAddedEvent(
                     permanentId,
-                    counterName,
+                    counterType,
                     modifiedCount,
                     container.get<CardComponent>()?.name ?: "Permanent",
                     firstThisTurn,

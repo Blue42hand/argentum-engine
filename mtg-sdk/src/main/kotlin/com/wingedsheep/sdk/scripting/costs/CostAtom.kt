@@ -1,5 +1,6 @@
 package com.wingedsheep.sdk.scripting.costs
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
@@ -379,7 +380,7 @@ sealed interface CostAtom : TextReplaceable<CostAtom> {
     @SerialName("AtomRemoveCounters")
     @Serializable
     data class RemoveCounters(
-        val counterType: String? = null,
+        val counterType: CounterType? = null,
         val count: DynamicAmount = DynamicAmount.Fixed(1),
         val filter: GameObjectFilter = GameObjectFilter.Permanent,
         val self: Boolean = false
@@ -390,7 +391,7 @@ sealed interface CostAtom : TextReplaceable<CostAtom> {
         }
         override val description: String get() = buildString {
             append("remove ")
-            val counterTypeString = if (counterType != null) "$counterType counter" else "counter"
+            val counterTypeString = if (counterType != null) "${counterType.printed} counter" else "counter"
             val isSingle = count is DynamicAmount.Fixed && count.amount == 1
             when (count) {
                 is DynamicAmount.XValue -> append("X ${counterTypeString}s")
@@ -427,12 +428,12 @@ sealed interface CostAtom : TextReplaceable<CostAtom> {
     @SerialName("AtomPutCountersOnSelf")
     @Serializable
     data class PutCountersOnSelf(
-        val counterType: String,
+        val counterType: CounterType,
         val count: Int = 1,
     ) : CostAtom {
         override val description: String get() = buildString {
             append("put ")
-            append(quantify(count, "$counterType counter"))
+            append(quantify(count, "${counterType.printed} counter"))
             append(" on this permanent")
         }
     }
@@ -450,14 +451,14 @@ sealed interface CostAtom : TextReplaceable<CostAtom> {
     @SerialName("AtomPutCountersOnPermanent")
     @Serializable
     data class PutCountersOnPermanent(
-        val counterType: String,
+        val counterType: CounterType,
         val count: Int = 1,
         val filter: GameObjectFilter = GameObjectFilter.Permanent,
     ) : CostAtom {
         override val selectionCount: Int get() = 1
         override val description: String get() = buildString {
             append("put ")
-            append(quantify(count, "$counterType counter"))
+            append(quantify(count, "${counterType.printed} counter"))
             append(" on ")
             append(filter.indefiniteArticle)
             append(" ")

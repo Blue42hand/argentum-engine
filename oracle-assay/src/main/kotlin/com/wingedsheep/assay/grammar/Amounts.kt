@@ -14,7 +14,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.predicates.ControllerPredicate
 import com.wingedsheep.sdk.scripting.values.Aggregation
 import com.wingedsheep.sdk.scripting.values.CardNumericProperty
@@ -334,12 +334,12 @@ object Amounts {
         phrase("the number of {kind} counters on {self}", name = "a count of the source's counters") {
             slot("kind", Primitives.counterKind)
             slot("self", Primitives.self)
-            build { DynamicAmounts.countersOnSelf(Primitives.counterFilter(it.value("kind"))) }
+            build { DynamicAmounts.countersOnSelf(it.value("kind")) }
             match { amount ->
                 val property = (amount as? DynamicAmount.EntityProperty) ?: return@match null
                 val counter = (property.numericProperty as? EntityNumericProperty.CounterCount)
                     ?: return@match null
-                val kind = Primitives.counterKindOf(counter.counterType) ?: return@match null
+                val kind = counter.counterType ?: return@match null
                 if (amount != DynamicAmounts.countersOnSelf(counter.counterType)) return@match null
                 bind("kind" to kind, "self" to Unit)
             }
@@ -479,9 +479,8 @@ object Amounts {
                 DynamicAmount.AggregateZone(Player.You, Zone.GRAVEYARD, aggregation = Aggregation.DISTINCT_TYPES),
             ),
             // "the number of +1/+1 counters on ~" — a tally of the source's own counters, which the SDK
-            // reads as a property of an entity rather than as a count of a zone. The kind is a slot for
-            // [Primitives.counterFilter]'s reason: `CounterTypeFilter` has dedicated cases for the
-            // stat-changing kinds and a `Named` fallback for the rest, and one leaf spells both.
+            // reads as a property of an entity rather than as a count of a zone. The kind is a slot:
+            // one leaf spells every kind the SDK names.
             counterCount,
         ) + turnTallyCounts,
     )
@@ -688,7 +687,7 @@ object Amounts {
     }
 
     /** "+1/+1 counters on it" / "+1/+1 counter on ~" — a tally of the source's own counters. */
-    private val plusOneCounters: DynamicAmount = DynamicAmounts.countersOnSelf(CounterTypeFilter.PlusOnePlusOne)
+    private val plusOneCounters: DynamicAmount = DynamicAmounts.countersOnSelf(CounterType.PLUS_ONE_PLUS_ONE)
 
     // ---------------------------------------------------------------------------------------
     // The clauses

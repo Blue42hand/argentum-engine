@@ -4,7 +4,7 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.references.Player
@@ -36,7 +36,7 @@ import kotlinx.serialization.Serializable
  * ModifyCounterPlacement(
  *     modifier = 1,
  *     appliesTo = EventPattern.CounterPlacementEvent(
- *         counterType = CounterTypeFilter.PlusOnePlusOne,
+ *         counterType = CounterType.PLUS_ONE_PLUS_ONE,
  *         recipient = RecipientFilter.CreatureYouControl
  *     )
  * )
@@ -268,7 +268,7 @@ data class CreateAdditionalToken(
 data class DoubleCounterPlacement(
     val placedByYou: Boolean = false,
     override val appliesTo: EventPattern = EventPattern.CounterPlacementEvent(
-        counterType = CounterTypeFilter.PlusOnePlusOne,
+        counterType = CounterType.PLUS_ONE_PLUS_ONE,
         recipient = RecipientFilter.CreatureYouControl
     )
 ) : ReplacementEffect {
@@ -298,7 +298,7 @@ data class DoubleCounterPlacement(
 data class ModifyCounterPlacement(
     val modifier: Int = 1,
     override val appliesTo: EventPattern = EventPattern.CounterPlacementEvent(
-        counterType = CounterTypeFilter.PlusOnePlusOne,
+        counterType = CounterType.PLUS_ONE_PLUS_ONE,
         recipient = RecipientFilter.CreatureYouControl
     ),
     val placedByYou: Boolean = false
@@ -547,7 +547,7 @@ data class PermanentsEnterTapped(
 @SerialName("EntersWithCounters")
 @Serializable
 data class EntersWithCounters(
-    val counterType: CounterTypeFilter = CounterTypeFilter.PlusOnePlusOne,
+    val counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE,
     val count: Int,
     val selfOnly: Boolean = false,
     val condition: Condition? = null,
@@ -558,7 +558,7 @@ data class EntersWithCounters(
     )
 ) : ReplacementEffect {
     override val description: String = buildString {
-        append("If ${appliesTo.description}, it enters with $count ${counterType.description} counters")
+        append("If ${appliesTo.description}, it enters with $count ${counterType.printed} counters")
         if (condition != null) append(" if ${condition.description}")
     }
 
@@ -582,7 +582,7 @@ data class EntersWithCounters(
 @SerialName("EntersWithDynamicCounters")
 @Serializable
 data class EntersWithDynamicCounters(
-    val counterType: CounterTypeFilter = CounterTypeFilter.PlusOnePlusOne,
+    val counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE,
     val count: DynamicAmount,
     val otherOnly: Boolean = false,
     override val appliesTo: EventPattern = EventPattern.ZoneChangeEvent(
@@ -592,7 +592,7 @@ data class EntersWithDynamicCounters(
     override val activeZones: Set<Zone> = setOf(Zone.BATTLEFIELD),
 ) : ReplacementEffect {
     override val description: String =
-        "If ${appliesTo.description}, it enters with ${count.description} ${counterType.description} counters"
+        "If ${appliesTo.description}, it enters with ${count.description} ${counterType.printed} counters"
 
     override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
         val newAppliesTo = appliesTo.applyTextReplacement(replacer)
@@ -760,7 +760,7 @@ enum class CounterRemovalAmount {
 @SerialName("PreventDamageByRemovingCounter")
 @Serializable
 data class PreventDamageByRemovingCounter(
-    val counterType: CounterTypeFilter = CounterTypeFilter.PlusOnePlusOne,
+    val counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE,
     /**
      * How many counters the prevention spends. [CounterRemovalAmount.One] is the printed default
      * (Unbreathing Horde, shield counters); [CounterRemovalAmount.EqualToDamage] is Magma
@@ -781,12 +781,12 @@ data class PreventDamageByRemovingCounter(
 ) : ReplacementEffect {
     override val description: String = buildString {
         append("If ${appliesTo.description}")
-        if (requiresCounter) append(" while it has a ${counterType.description} counter on it")
+        if (requiresCounter) append(" while it has a ${counterType.printed} counter on it")
         append(", prevent that damage and remove ")
         append(
             when (removalAmount) {
-                CounterRemovalAmount.One -> "a ${counterType.description} counter"
-                CounterRemovalAmount.EqualToDamage -> "that many ${counterType.description} counters"
+                CounterRemovalAmount.One -> "a ${counterType.printed} counter"
+                CounterRemovalAmount.EqualToDamage -> "that many ${counterType.printed} counters"
             }
         )
         append(" from it")
@@ -926,7 +926,7 @@ data class HalveDamage(
  * - Fated Firepower ("If a source you control would deal damage to an opponent or a
  *   permanent an opponent controls, it deals that much damage plus an amount of damage
  *   equal to the number of fire counters on this enchantment instead.") →
- *   `ModifyDamageAmount(dynamicModifier = DynamicAmounts.countersOnSelf(CounterTypeFilter.Named("fire")),
+ *   `ModifyDamageAmount(dynamicModifier = DynamicAmounts.countersOnSelf(CounterType.FIRE),
  *                       appliesTo = DamageEvent(source = SourceFilter.YouControl,
  *                                               recipient = RecipientFilter.OpponentOrPermanentTheyControl))`.
  *
@@ -1952,7 +1952,7 @@ data class EntersWithChoice(
  *
  * @param filter Which cards can be revealed (default: creatures sharing a creature type with this)
  * @param revealSource Which zone to reveal from (default: HAND)
- * @param counterType Counter type description (default: "+1/+1")
+ * @param counterType Counter type (default: +1/+1)
  * @param countersPerReveal How many counters per revealed card
  *
  * Examples:
@@ -1966,7 +1966,7 @@ data class EntersWithRevealCounters(
         cardPredicates = listOf(CardPredicate.IsCreature, CardPredicate.SharesCreatureTypeWithSource)
     ),
     val revealSource: Zone = Zone.HAND,
-    val counterType: String = "+1/+1",
+    val counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE,
     val countersPerReveal: Int,
     override val appliesTo: EventPattern = EventPattern.ZoneChangeEvent(
         filter = GameObjectFilter.Creature.youControl(),
@@ -1974,7 +1974,7 @@ data class EntersWithRevealCounters(
     )
 ) : ReplacementEffect {
     override val description: String =
-        "As this creature enters, you may reveal any number of cards from your ${revealSource.name.lowercase()} that match. For each card revealed this way, put $countersPerReveal $counterType counter${if (countersPerReveal > 1) "s" else ""} on it."
+        "As this creature enters, you may reveal any number of cards from your ${revealSource.name.lowercase()} that match. For each card revealed this way, put $countersPerReveal ${counterType.printed} counter${if (countersPerReveal > 1) "s" else ""} on it."
 
     override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
         val newFilter = filter.applyTextReplacement(replacer)
@@ -1998,7 +1998,7 @@ data class EntersWithExileCounters(
     val filter: GameObjectFilter,
     val sourceZone: Zone = Zone.GRAVEYARD,
     val maxCards: DynamicAmount,
-    val counterType: CounterTypeFilter = CounterTypeFilter.PlusOnePlusOne,
+    val counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE,
     val countersPerCard: Int = 1,
     override val appliesTo: EventPattern = EventPattern.ZoneChangeEvent(
         filter = GameObjectFilter.Any,
@@ -2007,7 +2007,7 @@ data class EntersWithExileCounters(
 ) : ReplacementEffect {
     override val description: String =
         "As this permanent enters, exile up to ${maxCards.description} matching cards from your " +
-            "${sourceZone.name.lowercase()}. It enters with $countersPerCard ${counterType.description} " +
+            "${sourceZone.name.lowercase()}. It enters with $countersPerCard ${counterType.printed} " +
             "counter${if (countersPerCard == 1) "" else "s"} for each card exiled this way."
 
     override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
@@ -2055,8 +2055,8 @@ data class EntersWithExileCounters(
 data class EntersWithDevour(
     val multiplier: Int,
     val sacrificeFilter: GameObjectFilter = GameObjectFilter.Creature,
-    val counterType: CounterTypeFilter =
-        CounterTypeFilter.PlusOnePlusOne,
+    val counterType: CounterType =
+        CounterType.PLUS_ONE_PLUS_ONE,
     val variant: String = "",
     override val appliesTo: EventPattern = EventPattern.ZoneChangeEvent(
         filter = GameObjectFilter.Any,
@@ -2076,7 +2076,7 @@ data class EntersWithDevour(
         append("s. It enters with ")
         append(multiplier)
         append(" times that many ")
-        append(counterType.description)
+        append(counterType.printed)
         append(" counters on it.)")
     }
 
@@ -2132,7 +2132,7 @@ enum class DamageCounterRecipient {
  *   `DamageEvent(recipient = CreatureOpponentControls, source = YouControl,
  *   damageType = NonCombat)`, counters on the [DamagedPermanent].
  *
- * @param counterType The type of counter to add (e.g., "depletion", "-1/-1")
+ * @param counterType The type of counter to add (e.g. [CounterType.DEPLETION], [CounterType.MINUS_ONE_MINUS_ONE])
  * @param sacrificeThreshold If non-null, sacrifice this permanent when it has
  *        this many or more counters of the specified type (state-triggered ability).
  *        Only meaningful together with [DamageCounterRecipient.ReplacementHost].
@@ -2148,7 +2148,7 @@ enum class DamageCounterRecipient {
 @SerialName("ReplaceDamageWithCounters")
 @Serializable
 data class ReplaceDamageWithCounters(
-    val counterType: String,
+    val counterType: CounterType,
     val sacrificeThreshold: Int? = null,
     override val appliesTo: EventPattern = EventPattern.DamageEvent(
         recipient = RecipientFilter.You
@@ -2161,11 +2161,11 @@ data class ReplaceDamageWithCounters(
             DamageCounterRecipient.ReplacementHost -> "this permanent"
             DamageCounterRecipient.DamagedPermanent -> "that permanent"
         }
-        append("If ${appliesTo.description}, put that many $counterType counters on $where")
+        append("If ${appliesTo.description}, put that many ${counterType.printed} counters on $where")
         if (damagedPlayerMills) append(" and that player mills that many cards")
         append(" instead")
         if (sacrificeThreshold != null) {
-            append(". When there are $sacrificeThreshold or more $counterType counters on this permanent, sacrifice it")
+            append(". When there are $sacrificeThreshold or more ${counterType.printed} counters on this permanent, sacrifice it")
         }
     }
 

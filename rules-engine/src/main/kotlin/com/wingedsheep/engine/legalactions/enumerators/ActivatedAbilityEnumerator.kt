@@ -2,7 +2,6 @@ package com.wingedsheep.engine.legalactions.enumerators
 
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.handlers.effects.composite.asConditional
-import com.wingedsheep.engine.handlers.effects.permanent.counters.resolveCounterType
 import com.wingedsheep.engine.mechanics.SummoningSicknessRules
 import com.wingedsheep.engine.mechanics.mana.TapForGeneric
 import com.wingedsheep.engine.legalactions.*
@@ -387,7 +386,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                             }
                             if (atom.self) {
                                 val counters = container.get<CountersComponent>()
-                                val type = atom.counterType?.let { resolveCounterType(it) }
+                                val type = atom.counterType?.let { it }
                                 val available = if (type != null) counters?.getCount(type) ?: 0
                                 else counters?.counters?.values?.sum() ?: 0
                                 if (needed > 0 && available < needed) continue
@@ -637,7 +636,7 @@ class ActivatedAbilityEnumerator : ActionEnumerator {
                                         }
                                         val available = if (atom.self) {
                                             val counters = container.get<CountersComponent>()
-                                            val type = atom.counterType?.let { resolveCounterType(it) }
+                                            val type = atom.counterType?.let { it }
                                             if (type != null) counters?.getCount(type) ?: 0
                                             else counters?.counters?.values?.sum() ?: 0
                                         } else {

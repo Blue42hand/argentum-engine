@@ -1,7 +1,7 @@
 package com.wingedsheep.sdk.dsl
 
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -30,7 +30,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  * cycle); defaults to +1/+1 counters.
  */
 fun CardBuilder.convergeEntersWithCounters(
-    counterType: CounterTypeFilter = CounterTypeFilter.PlusOnePlusOne,
+    counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE,
 ) {
     replacementEffect(
         EntersWithDynamicCounters(

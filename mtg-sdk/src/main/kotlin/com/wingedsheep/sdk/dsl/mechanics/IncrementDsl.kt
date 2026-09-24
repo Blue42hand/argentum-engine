@@ -1,6 +1,6 @@
 package com.wingedsheep.sdk.dsl
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.conditions.AnyCondition
@@ -48,7 +48,7 @@ fun CardBuilder.increment() {
         TriggeredAbility.create(
             trigger = Triggers.YouCastSpell.event,
             binding = Triggers.YouCastSpell.binding,
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             interveningIf = incrementCondition,
             descriptionOverride = "Increment (Whenever you cast a spell, if the amount of mana " +
                 "you spent is greater than this creature's power or toughness, put a +1/+1 " +

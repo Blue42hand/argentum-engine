@@ -5,7 +5,6 @@ import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.player.SkipNextTurnComponent
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
@@ -71,7 +70,7 @@ class PowerUpKeywordScenarioTest : ScenarioTestBase() {
         activatedAbility {
             isPowerUp = true
             cost = Costs.Mana("{5}{U}{U}{U}")
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         }
     }
 
@@ -89,7 +88,7 @@ class PowerUpKeywordScenarioTest : ScenarioTestBase() {
         activatedAbility {
             isPowerUp = true
             cost = Costs.Mana("{C}{W}{U}{B}{R}{G}")
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         }
     }
 
@@ -118,7 +117,7 @@ class PowerUpKeywordScenarioTest : ScenarioTestBase() {
         oracleText = "{5}{U}{U}{U}: Put a +1/+1 counter on this creature."
         activatedAbility {
             cost = Costs.Mana("{5}{U}{U}{U}")
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         }
     }
 
@@ -162,7 +161,7 @@ class PowerUpKeywordScenarioTest : ScenarioTestBase() {
         activatedAbility {
             isPowerUp = true
             cost = Costs.Mana("{U}")
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         }
     }
 
@@ -179,7 +178,7 @@ class PowerUpKeywordScenarioTest : ScenarioTestBase() {
         activatedAbility {
             isPowerUp = true
             cost = Costs.Mana("{U}")
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         }
     }
 

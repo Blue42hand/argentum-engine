@@ -764,7 +764,7 @@ val BloodcrazedNeonate = card("Bloodcrazed Neonate") {
     }
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.COMMON
@@ -1268,7 +1268,7 @@ val ChampionOfTheParish = card("Champion of the Parish") {
             filter = GameObjectFilter.Creature.withSubtype(Subtype.HUMAN).youControl(),
             binding = TriggerBinding.OTHER
         )
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.RARE
@@ -2627,7 +2627,7 @@ val FalkenrathMarauders = card("Falkenrath Marauders") {
     keywords(Keyword.FLYING, Keyword.HASTE)
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 2, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.RARE
@@ -3210,7 +3210,7 @@ val GavonyTownship = card("Gavony Township") {
         cost = Costs.Composite(Costs.Mana("{2}{G}{W}"), Costs.Tap)
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         )
     }
     metadata {
@@ -5266,7 +5266,7 @@ val MikaeusTheLunarch = card("Mikaeus, the Lunarch") {
     replacementEffect(EntersWithDynamicCounters(count = DynamicAmount.XValue))
     activatedAbility {
         cost = Costs.Tap
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     // STRUCTURE needs human wiring: activated-cost
     metadata {
@@ -6416,7 +6416,7 @@ val RakishHeir = card("Rakish Heir") {
             sourceFilter = GameObjectFilter.Creature.withSubtype(Subtype.VAMPIRE).youControl(),
             binding = TriggerBinding.ANY
         )
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.UNCOMMON
@@ -8040,7 +8040,7 @@ val StromkirkNoble = card("Stromkirk Noble") {
     }
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.RARE
@@ -8082,7 +8082,7 @@ val StromkirkPatrol = card("Stromkirk Patrol") {
     toughness = 3
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.COMMON
@@ -8342,7 +8342,7 @@ val TravelPreparations = card("Travel Preparations") {
     spell {
         val t = target("target", TargetCreature(optional = true, count = 2, filter = TargetFilter.Creature))
         effect = ForEachTargetEffect(
-            listOf(Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
+            listOf(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
         )
     }
     keywordAbility(KeywordAbility.flashback("{1}{W}"))

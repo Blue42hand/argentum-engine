@@ -38,8 +38,6 @@ import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.values.EntityReference
 import com.wingedsheep.sdk.scripting.values.TurnTracker
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
-import com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString
 import com.wingedsheep.sdk.scripting.references.Player
 import kotlin.math.max
 import kotlin.math.min
@@ -231,10 +229,7 @@ class DynamicAmountEvaluator(
             is DynamicAmount.LastKnownSourceCounters -> {
                 val snapshot = context.lastKnownSourceCounters
                     .ifEmpty { context.triggerContext?.lastKnownCounters ?: emptyMap() }
-                when (val filter = amount.counterType) {
-                    is CounterTypeFilter.Any -> snapshot.values.sum()
-                    else -> snapshot[counterTypeToString(resolveCounterType(filter))] ?: 0
-                }
+                amount.counterType?.let { snapshot[it] ?: 0 } ?: snapshot.values.sum()
             }
 
             // Total damage dealt to the source this turn, summed across every source-controller.
@@ -327,7 +322,7 @@ class DynamicAmountEvaluator(
             is DynamicAmount.PlayerCounterCount -> {
                 val playerIds = resolveUnifiedPlayerIds(state, amount.player, context)
                 val playerId = playerIds.firstOrNull() ?: return 0
-                counterCountOf(state, playerId, CounterTypeFilter.Named(amount.counterType))
+                counterCountOf(state, playerId, amount.counterType)
             }
 
             // Unlocked doors among Rooms the player controls (CR 709.5). Reads per-face door
@@ -1564,35 +1559,12 @@ class DynamicAmountEvaluator(
     }
 
     /**
-     * Count of counters of the kind described by [filter] on the permanent [entityId]. Counters
-     * are physically stored on the permanent (base state, layer-independent), so this reads
-     * [CountersComponent] directly. [CounterTypeFilter.Any] sums every kind present.
+     * Count of [counterType] counters on [entityId]. Counters are physically stored on the permanent
+     * (base state, layer-independent), so this reads [CountersComponent] directly. A `null`
+     * [counterType] sums every kind present.
      */
-    private fun counterCountOf(state: GameState, entityId: EntityId, filter: CounterTypeFilter): Int {
+    private fun counterCountOf(state: GameState, entityId: EntityId, counterType: CounterType?): Int {
         val counters = state.getEntity(entityId)?.get<CountersComponent>() ?: return 0
-        return when (filter) {
-            is CounterTypeFilter.Any -> counters.counters.values.sum()
-            else -> counters.getCount(resolveCounterType(filter))
-        }
-    }
-
-    private fun resolveCounterType(filter: CounterTypeFilter): CounterType {
-        return when (filter) {
-            is CounterTypeFilter.Any -> CounterType.PLUS_ONE_PLUS_ONE
-            is CounterTypeFilter.PlusOnePlusOne -> CounterType.PLUS_ONE_PLUS_ONE
-            is CounterTypeFilter.MinusOneMinusOne -> CounterType.MINUS_ONE_MINUS_ONE
-            is CounterTypeFilter.PlusOnePlusZero -> CounterType.PLUS_ONE_PLUS_ZERO
-            is CounterTypeFilter.PlusZeroPlusOne -> CounterType.PLUS_ZERO_PLUS_ONE
-            is CounterTypeFilter.MinusOneMinusZero -> CounterType.MINUS_ONE_MINUS_ZERO
-            is CounterTypeFilter.MinusZeroMinusOne -> CounterType.MINUS_ZERO_MINUS_ONE
-            is CounterTypeFilter.Loyalty -> CounterType.LOYALTY
-            is CounterTypeFilter.Named -> {
-                try {
-                    CounterType.valueOf(filter.name.uppercase().replace(' ', '_'))
-                } catch (_: IllegalArgumentException) {
-                    CounterType.PLUS_ONE_PLUS_ONE
-                }
-            }
-        }
+        return counterType?.let(counters::getCount) ?: counters.counters.values.sum()
     }
 }

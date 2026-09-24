@@ -727,7 +727,7 @@ data object MayPlayLandsFromGraveyard : StaticAbility {
  * with an empty stack).
  *
  * @property filter Which exiled cards may be played — e.g.
- *   `GameObjectFilter.Any.ownedByOpponent().withCounter(Counters.STASH)` for "cards you don't own
+ *   `GameObjectFilter.Any.ownedByOpponent().withCounter(CounterType.STASH)` for "cards you don't own
  *   with stash counters on them". Ownership predicates work here because cards in exile carry an
  *   owner but no controller.
  * @property condition Optional gate re-evaluated on every read, so the permission opens and closes

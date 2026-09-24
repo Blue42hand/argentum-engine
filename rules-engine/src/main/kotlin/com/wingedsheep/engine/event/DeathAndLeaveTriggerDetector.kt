@@ -8,7 +8,7 @@ import com.wingedsheep.engine.state.components.battlefield.DamageDealtToCreature
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.state.components.identity.TokenComponent
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.EventPattern
@@ -399,7 +399,7 @@ class DeathAndLeaveTriggerDetector(
                         destination = Zone.BATTLEFIELD
                     ),
                     AddCountersEffect(
-                        counterType = Counters.MINUS_ONE_MINUS_ONE,
+                        counterType = CounterType.MINUS_ONE_MINUS_ONE,
                         count = 1,
                         target = EffectTarget.Self
                     )
@@ -451,7 +451,7 @@ class DeathAndLeaveTriggerDetector(
                         destination = Zone.BATTLEFIELD
                     ),
                     AddCountersEffect(
-                        counterType = Counters.PLUS_ONE_PLUS_ONE,
+                        counterType = CounterType.PLUS_ONE_PLUS_ONE,
                         count = 1,
                         target = EffectTarget.Self
                     )

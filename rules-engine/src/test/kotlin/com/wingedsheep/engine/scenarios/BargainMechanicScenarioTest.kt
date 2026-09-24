@@ -104,7 +104,7 @@ class BargainMechanicScenarioTest : ScenarioTestBase() {
         triggeredAbility {
             trigger = Triggers.EntersBattlefield
             interveningIf = Conditions.WasBargained
-            effect = Effects.AddCounters("+1/+1", 2, EffectTarget.Self)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         }
     }
 
@@ -158,7 +158,7 @@ class BargainMechanicScenarioTest : ScenarioTestBase() {
         triggeredAbility {
             trigger = Triggers.EntersBattlefield
             interveningIf = WasKicked
-            effect = Effects.AddCounters("+1/+1", 2, EffectTarget.Self)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         }
     }
 

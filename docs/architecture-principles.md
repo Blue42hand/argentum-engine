@@ -861,7 +861,7 @@ data class MultiplyTokenCreation(
 data class ModifyCounterPlacement(
     val modifier: Int,
     override val appliesTo: EventPattern = EventPattern.CounterPlacementEvent(
-        counterType = CounterTypeFilter.PlusOnePlusOne,
+        counterType = CounterType.PLUS_ONE_PLUS_ONE,
         recipient = RecipientFilter.CreatureYouControl
     )
 ) : ReplacementEffect

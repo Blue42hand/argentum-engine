@@ -4344,7 +4344,7 @@ val GolgariGuildmage = card("Golgari Guildmage") {
     activatedAbility {
         cost = Costs.Mana("{4}{G}")
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     metadata {
         rarity = Rarity.UNCOMMON
@@ -6482,7 +6482,7 @@ val Necroplasm = card("Necroplasm") {
     toughness = 1
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     // STRUCTURE needs human wiring: DestroyEachPermanent
     metadata {
@@ -8566,7 +8566,7 @@ val ShamblingShell = card("Shambling Shell") {
     activatedAbility {
         cost = Costs.SacrificeSelf
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
     }
     keywordAbility(KeywordAbility.dredge(3))
     metadata {
@@ -10576,7 +10576,7 @@ val VinelasherKudzu = card("Vinelasher Kudzu") {
     toughness = 1
     triggeredAbility {
         trigger = Triggers.entersBattlefield(filter = GameObjectFilter.Land.youControl(), binding = TriggerBinding.ANY)
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.RARE
