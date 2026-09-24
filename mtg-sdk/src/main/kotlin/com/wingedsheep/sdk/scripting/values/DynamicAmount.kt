@@ -833,7 +833,9 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     @SerialName("VariableReference")
     @Serializable
     data class VariableReference(val variableName: String) : DynamicAmount {
-        override val description: String = "the stored $variableName"
+        // Pipeline keys are generated names, never card text: render the value in words.
+        override val description: String =
+            if (variableName.endsWith("_count")) "the number of those cards" else "that much"
     }
 
     /**

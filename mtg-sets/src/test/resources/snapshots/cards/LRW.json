@@ -18544,7 +18544,7 @@
                             "variableName": "number0"
                         }
                     },
-                    "descriptionOverride": "Clash with an opponent. If you win, you gain the stored number0 life"
+                    "descriptionOverride": "Clash with an opponent. If you win, you gain that much life"
                 }
             ]
         },
