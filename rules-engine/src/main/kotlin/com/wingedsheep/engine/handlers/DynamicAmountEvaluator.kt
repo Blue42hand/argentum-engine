@@ -1282,6 +1282,9 @@ class DynamicAmountEvaluator(
                 .distinct()
             is Player.Each -> state.activePlayers
             is Player.Any -> state.activePlayers
+            // "those players" recorded by a `StorePlayer` step earlier in this resolution.
+            is Player.InCollection ->
+                TargetResolutionUtils.playersInCollection(state, context, player.collection)
             is Player.ContextPlayer, is Player.BoundVariable -> {
                 val target = (
                     if (player is Player.ContextPlayer) context.positionalTarget(player.index)

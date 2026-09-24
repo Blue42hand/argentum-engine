@@ -147,6 +147,19 @@ sealed interface Player {
     }
 
     /**
+     * "Those players" — every player recorded in the pipeline collection [collection] (written by
+     * [com.wingedsheep.sdk.scripting.effects.StorePlayerEffect]), iterated in APNAP order (CR 101.4)
+     * and skipping anyone who has left the game. A plural reference: it is read by
+     * `ForEachPlayer(Player.InCollection(...), …)`, not by single-player slots. An empty or missing
+     * collection means nobody — never every player.
+     */
+    @SerialName("InCollection")
+    @Serializable
+    data class InCollection(val collection: String) : Player {
+        override val description: String = "those players"
+    }
+
+    /**
      * The player currently being considered as a target (CR 115). Bound by the engine's
      * target enumerator/validator to each candidate player in turn while evaluating a
      * [com.wingedsheep.sdk.scripting.targets.TargetPlayer.restriction] /
@@ -353,6 +366,7 @@ sealed interface Player {
             TargetPlayer -> "target player's"
             ControllerOfIterationEntity -> "its controller's"
             EachTargetedPlayer -> "those players'"
+            is InCollection -> "those players'"
             Each -> "each player's"
             ActivePlayerFirst -> "each player's"
             EachOpponent -> "each opponent's"
