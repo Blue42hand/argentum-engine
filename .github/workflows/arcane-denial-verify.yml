@@ -32,15 +32,22 @@ jobs:
       - name: Canonical printing — Scryfall
         run: python3 scripts/check-card-printing.py "Arcane Denial"
 
-      - name: Dump Scryfall printing evidence
-        if: failure()
+      - name: Persist Scryfall printing evidence
+        if: always()
         run: |
           python3 - <<'PY'
           import json, time, urllib.request
           from pathlib import Path
 
           wanted = {"c13", "c16", "cmr", "voc", "woc", "otc", "soc", "msc"}
-          rows = json.loads(Path.home().joinpath(".cache/scryfall/printings/arcane-denial.json").read_text())
+          cache = Path.home().joinpath(".cache/scryfall/printings/arcane-denial.json")
+          output = Path("arcane-denial-printings.jsonl")
+          if not cache.exists():
+              output.write_text("", encoding="utf-8")
+              raise SystemExit(0)
+
+          rows = json.loads(cache.read_text(encoding="utf-8"))
+          evidence = []
           for row in rows:
               if row["set_code"] not in wanted:
                   continue
@@ -51,7 +58,7 @@ jobs:
               )
               with urllib.request.urlopen(req) as resp:
                   card = json.loads(resp.read().decode("utf-8"))
-              print(json.dumps({
+              evidence.append({
                   "set_code": card["set"],
                   "set_name": card["set_name"],
                   "collector_number": card["collector_number"],
@@ -61,8 +68,17 @@ jobs:
                   "image_uri": (card.get("image_uris") or {}).get("normal"),
                   "released_at": card["released_at"],
                   "rarity": card["rarity"],
-              }, sort_keys=True))
+              })
+          output.write_text("\n".join(json.dumps(row, sort_keys=True) for row in evidence) + "\n", encoding="utf-8")
           PY
+
+      - name: Upload Scryfall printing evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arcane-denial-printings
+          path: arcane-denial-printings.jsonl
+          if-no-files-found: error
 
       - name: Verify snapshot stays clean
         if: success()
