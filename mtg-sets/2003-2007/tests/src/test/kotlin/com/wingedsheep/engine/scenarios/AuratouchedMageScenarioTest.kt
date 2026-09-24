@@ -1,7 +1,6 @@
 package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.SelectCardsDecision
-import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
 import com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent
 import com.wingedsheep.engine.support.ScenarioTestBase
@@ -129,7 +128,7 @@ class AuratouchedMageScenarioTest : ScenarioTestBase() {
                 withClue("the enters trigger is waiting on the stack") { game.state.stack.size shouldBe 1 }
 
                 // The Mage leaves in response to its trigger.
-                game.state = ZoneTransitionService.moveToZone(game.state, mage, Zone.GRAVEYARD).state
+                game.state = zones.moveToZone(game.state, mage, Zone.GRAVEYARD).state
                 game.resolveStack()
 
                 val decision = game.getPendingDecision()

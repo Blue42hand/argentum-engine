@@ -74,7 +74,14 @@ import com.wingedsheep.engine.state.components.stack.TargetsComponent
  * - ControllerPredicate (youControl, opponentControls)
  * - GameObjectFilter (composed from the above predicates)
  */
-class PredicateEvaluator {
+class PredicateEvaluator(
+    /**
+     * Printed definitions, for the few predicates that read a candidate's script rather than its
+     * components (an Aura's enchant restriction for [CardPredicate.CouldEnchant]). Those predicates
+     * fail closed on an evaluator built without one.
+     */
+    private val cardRegistry: com.wingedsheep.engine.registry.CardRegistry? = null
+) {
 
     /**
      * Evaluate a GameObjectFilter against an entity using projected state.
@@ -887,8 +894,7 @@ class PredicateEvaluator {
             is CardPredicate.CouldEnchant -> {
                 if (!card.typeLine.isAura) return false
                 val hostId = resolveEntityReference(state, predicate.reference, context, projected) ?: return false
-                val registry = com.wingedsheep.engine.handlers.effects.ZoneTransitionService.cardRegistryOrNull()
-                    ?: return false
+                val registry = cardRegistry ?: return false
                 com.wingedsheep.engine.handlers.predicates.EnchantRestriction.couldAttach(
                     state, projected, this, registry, entityId, card, hostId,
                     controllerId = context?.controllerId ?: return false

@@ -1,4 +1,5 @@
 package com.wingedsheep.engine.handlers.actions.ability
+import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.sdk.dsl.Patterns
 
 import com.wingedsheep.engine.core.CardCycledEvent
@@ -38,6 +39,7 @@ import com.wingedsheep.engine.core.Outcome
  * then shuffle. Typecycling triggers cycling abilities per MTG rules.
  */
 class TypecycleCardHandler(
+    private val zones: ZoneTransitionService,
     private val cardRegistry: CardRegistry,
     private val manaSolver: ManaSolver,
     private val effectExecutorRegistry: EffectExecutorRegistry,
@@ -189,8 +191,7 @@ class TypecycleCardHandler(
         // card-intrinsic discard replacement applies (madness, CR 702.35a). Both events land
         // before CardCycledEvent, so a card that triggers on both (CR 702.29d) sees them in the
         // order they happened.
-        val discardResult = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
-            .discardCards(currentState, action.playerId, listOf(action.cardId), asCyclingCost = true)
+        val discardResult = zones.discardCards(currentState, action.playerId, listOf(action.cardId), asCyclingCost = true)
         currentState = discardResult.state
         events.addAll(discardResult.events)
 
@@ -262,6 +263,7 @@ class TypecycleCardHandler(
     companion object {
         fun create(services: EngineServices): TypecycleCardHandler {
             return TypecycleCardHandler(
+                services.zones,
                 services.cardRegistry,
                 services.manaSolver,
                 services.effectExecutorRegistry,

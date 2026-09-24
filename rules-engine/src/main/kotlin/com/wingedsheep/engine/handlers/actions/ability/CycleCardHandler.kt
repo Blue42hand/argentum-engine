@@ -14,6 +14,7 @@ import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.EngineServices
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.actions.ActionHandler
+import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.handlers.effects.drawing.DrawCardsExecutor
 import com.wingedsheep.engine.mechanics.mana.ManaAbilitySideEffectExecutor
 import com.wingedsheep.engine.mechanics.mana.ManaPool
@@ -40,6 +41,7 @@ import com.wingedsheep.engine.core.Outcome
  * and draw a new card. It's an activated ability from hand.
  */
 class CycleCardHandler(
+    private val zones: ZoneTransitionService,
     private val cardRegistry: CardRegistry,
     private val manaSolver: ManaSolver,
     private val manaAbilitySideEffectExecutor: ManaAbilitySideEffectExecutor,
@@ -246,8 +248,7 @@ class CycleCardHandler(
         // cast (CR 702.35a), which is the classic Fiery Temper line. The discard event and the
         // zone change land before CardCycledEvent, so a card that triggers on both (CR 702.29d)
         // sees them in the order they happened.
-        val discardResult = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
-            .discardCards(currentState, action.playerId, listOf(action.cardId), asCyclingCost = true)
+        val discardResult = zones.discardCards(currentState, action.playerId, listOf(action.cardId), asCyclingCost = true)
         currentState = discardResult.state
         events.addAll(discardResult.events)
 
@@ -292,6 +293,7 @@ class CycleCardHandler(
     companion object {
         fun create(services: EngineServices): CycleCardHandler {
             return CycleCardHandler(
+                services.zones,
                 services.cardRegistry,
                 services.manaSolver,
                 services.manaAbilitySideEffectExecutor,

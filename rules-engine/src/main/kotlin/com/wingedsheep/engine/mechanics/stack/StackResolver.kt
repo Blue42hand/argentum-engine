@@ -3,6 +3,7 @@ package com.wingedsheep.engine.mechanics.stack
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.EffectHandler
 import com.wingedsheep.engine.handlers.PredicateEvaluator
+import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
@@ -32,8 +33,9 @@ import com.wingedsheep.sdk.scripting.targets.*
  * - [SpellCounterer] — countering and exiling stack objects
  */
 class StackResolver(
+    private val zones: ZoneTransitionService,
     private val cardRegistry: CardRegistry,
-    private val effectHandler: EffectHandler = EffectHandler(cardRegistry = cardRegistry),
+    private val effectHandler: EffectHandler = EffectHandler(zones, cardRegistry = cardRegistry),
     private val staticAbilityHandler: StaticAbilityHandler = StaticAbilityHandler(cardRegistry),
     private val predicateEvaluator: PredicateEvaluator = PredicateEvaluator()
 ) {
@@ -43,7 +45,7 @@ class StackResolver(
     private val targetValidator = ResolutionTargetValidator(predicateEvaluator)
     private val entersWithChoicePrompt = EntersWithChoicePrompt(cardRegistry)
     private val permanentEntry = PermanentEntry(cardRegistry, staticAbilityHandler)
-    private val nonPermanentSpellResolver = NonPermanentSpellResolver(cardRegistry, effectHandler, predicateEvaluator)
+    private val nonPermanentSpellResolver = NonPermanentSpellResolver(zones, cardRegistry, effectHandler, predicateEvaluator)
     private val spellResolver = SpellResolver(
         cardRegistry = cardRegistry,
         predicateEvaluator = predicateEvaluator,

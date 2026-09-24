@@ -81,6 +81,7 @@ internal class ReturnedForAlternativeCost(
  * alternative cost and cast permission add up to — since both validation and payment read them.
  */
 internal class CastCostPayer(
+    private val zones: ZoneTransitionService,
     private val cardRegistry: CardRegistry,
     private val costHandler: CostHandler,
     private val costCalculator: CostCalculator,
@@ -267,7 +268,7 @@ internal class CastCostPayer(
             val lifeToPay = SpellCosts.lifeToPay(SpellCostCheck(ledger.state, ledger.action, costHandler, predicateEvaluator), cost)
             if (lifeToPay == 0) continue
             val (afterPayment, paymentEvents) =
-                LifePaymentService.pay(ledger.state, ledger.playerId, lifeToPay) ?: continue
+                LifePaymentService.pay(zones, ledger.state, ledger.playerId, lifeToPay) ?: continue
             ledger.state = afterPayment
             ledger.events.addAll(paymentEvents)
         }
@@ -414,6 +415,7 @@ internal class CastCostPayer(
     private fun payGraveyardForage(ledger: SpellCostLedger): String? {
         val action = ledger.action
         return when (val forageResult = ForageCostResolver.pay(
+            zones,
             ledger.state, action.playerId,
             exileChoices = action.additionalCostPayment?.exiledCards ?: emptyList(),
             sacrificeChoices = action.additionalCostPayment?.sacrificedPermanents ?: emptyList(),
@@ -449,7 +451,7 @@ internal class CastCostPayer(
         if (action.targets.isEmpty()) return
         val additionalLifeCost = costCalculator.calculateAdditionalLifeCost(ledger.state, action.playerId, action.targets)
         if (additionalLifeCost <= 0) return
-        LifePaymentService.pay(ledger.state, action.playerId, additionalLifeCost)
+        LifePaymentService.pay(zones, ledger.state, action.playerId, additionalLifeCost)
             ?.let { (afterPayment, paymentEvents) ->
                 ledger.state = afterPayment
                 ledger.events.addAll(paymentEvents)
@@ -496,7 +498,7 @@ internal class CastCostPayer(
     }
 
     private fun returnToHand(ledger: SpellCostLedger, permId: EntityId) {
-        val bounceResult = ZoneTransitionService.moveToZone(ledger.state, permId, Zone.HAND)
+        val bounceResult = zones.moveToZone(ledger.state, permId, Zone.HAND)
         ledger.state = bounceResult.state
         ledger.events.addAll(bounceResult.events)
     }
