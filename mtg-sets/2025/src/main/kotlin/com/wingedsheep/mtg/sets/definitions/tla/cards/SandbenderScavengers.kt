@@ -59,20 +59,19 @@ val SandbenderScavengers = card("Sandbender Scavengers") {
         effect = Effects.ReflexiveTrigger(
             action = Effects.Exile(EffectTarget.Self),
             optional = true,
-            reflexiveEffect = Effects.PutOntoBattlefield(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(
-                TargetObject(
-                    filter = TargetFilter(
-                        baseFilter = GameObjectFilter.Creature.ownedByYou()
-                            .manaValueAtMostDynamic(DynamicAmounts.sourcePower()),
-                        zone = Zone.GRAVEYARD
-                    )
-                )
-            ),
             descriptionOverride = "You may exile this creature. When you do, return target creature " +
                 "card with mana value less than or equal to this creature's power from your " +
                 "graveyard to the battlefield."
-        )
+        ) {
+            val creature = target("target creature", TargetObject(
+                filter = TargetFilter(
+                    baseFilter = GameObjectFilter.Creature.ownedByYou()
+                        .manaValueAtMostDynamic(DynamicAmounts.sourcePower()),
+                    zone = Zone.GRAVEYARD
+                )
+            ))
+            effect = Effects.PutOntoBattlefield(creature)
+        }
         description = "When this creature dies, you may exile it. When you do, return target creature " +
             "card with mana value less than or equal to this creature's power from your graveyard " +
             "to the battlefield."

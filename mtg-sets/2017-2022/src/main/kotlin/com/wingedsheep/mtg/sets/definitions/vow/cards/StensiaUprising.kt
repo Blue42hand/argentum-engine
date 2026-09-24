@@ -62,15 +62,16 @@ val StensiaUprising = card("Stensia Uprising") {
                 then = Effects.ReflexiveTrigger(
                     action = Effects.SacrificeTarget(EffectTarget.Self),
                     optional = true,
-                    reflexiveEffect = Effects.DealDamage(
-                        amount = 7,
-                        target = EffectTarget.ContextTarget(0),
-                        damageSource = EffectTarget.Self
-                    ),
-                    reflexiveTargetRequirements = listOf(Targets.Any),
                     descriptionOverride = "You may sacrifice this enchantment. When you do, " +
                         "it deals 7 damage to any target."
-                )
+                ) {
+                    val anyTarget = target("target any", Targets.Any)
+                    effect = Effects.DealDamage(
+                        amount = 7,
+                        target = anyTarget,
+                        damageSource = EffectTarget.Self
+                    )
+                }
             )
         )
         description = "At the beginning of your end step, create a 1/1 red Human creature token. " +

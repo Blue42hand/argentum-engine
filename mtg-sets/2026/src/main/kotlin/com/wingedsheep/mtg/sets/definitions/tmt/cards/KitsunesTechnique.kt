@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.divRoundedUp
 import com.wingedsheep.sdk.dsl.sneak
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.references.Player
 
 /**
  * Kitsune's Technique
@@ -36,7 +35,7 @@ val KitsunesTechnique = card("Kitsune's Technique") {
     spell {
         val opponent = target("target opponent", Targets.Opponent)
         effect = Patterns.Library.mill(
-            count = DynamicAmounts.count(Player.ContextPlayer(0), Zone.LIBRARY) divRoundedUp 2,
+            count = DynamicAmounts.count(opponent.asPlayer, Zone.LIBRARY) divRoundedUp 2,
             target = opponent
         )
     }

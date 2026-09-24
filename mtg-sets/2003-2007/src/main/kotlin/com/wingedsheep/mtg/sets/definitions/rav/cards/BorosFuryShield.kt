@@ -46,7 +46,7 @@ val BorosFuryShield = card("Boros Fury-Shield") {
                 Effects.If(
                     condition = Conditions.ManaSpentToCastIncludes(requiredRed = 1),
                     then = Effects.DealDamage(
-                        DynamicAmounts.targetPower(0),
+                        DynamicAmounts.powerOf(creature),
                         EffectTarget.TargetController
                     )
                 )

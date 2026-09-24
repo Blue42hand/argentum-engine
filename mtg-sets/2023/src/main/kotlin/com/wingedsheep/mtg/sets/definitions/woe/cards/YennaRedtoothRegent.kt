@@ -69,9 +69,7 @@ val YennaRedtoothRegent = card("Yenna, Redtooth Regent") {
             target = enchantment,
             removedSupertypes = setOf(Supertype.LEGENDARY),
         ) then Effects.If(
-            condition = Conditions.TargetMatchesFilter(
-                GameObjectFilter.Enchantment.withSubtype(Subtype.AURA)
-            ),
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Enchantment.withSubtype(Subtype.AURA), enchantment),
             then = Effects.Untap(EffectTarget.Self) then Effects.Scry(2),
         )
         description = "Choose target enchantment you control that doesn't have the same name as " +

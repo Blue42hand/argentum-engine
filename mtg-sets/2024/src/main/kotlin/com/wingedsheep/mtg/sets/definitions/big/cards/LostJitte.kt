@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.Mode
@@ -58,16 +59,14 @@ val LostJitte = card("Lost Jitte") {
     activatedAbility {
         cost = Costs.RemoveCounterFromSelf(CounterType.CHARGE)
         effect = ModalEffect.chooseOne(
-            Mode.withTarget(
-                Effects.Untap(EffectTarget.ContextTarget(0)),
-                Targets.Land,
-                "Untap target land"
-            ),
-            Mode.withTarget(
-                Effects.CantBlock(EffectTarget.ContextTarget(0)),
-                Targets.Creature,
-                "Target creature can't block this turn"
-            ),
+            mode("Untap target land") {
+                val land = target("target land", Targets.Land)
+                effect = Effects.Untap(land)
+            },
+            mode("Target creature can't block this turn") {
+                val creature = target("target creature", Targets.Creature)
+                effect = Effects.CantBlock(creature)
+            },
             Mode.noTarget(
                 Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.EquippedCreature),
                 "Put a +1/+1 counter on equipped creature"

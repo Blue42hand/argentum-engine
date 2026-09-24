@@ -5,13 +5,12 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
-import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Hunter Sliver
@@ -42,12 +41,14 @@ val HunterSliver = card("Hunter Sliver") {
     // Grant the provoke triggered ability to all Slivers (functional)
     staticAbility {
         ability = GrantTriggeredAbility(
-            ability = TriggeredAbility.create(
-                trigger = Triggers.Attacks.event,
-                binding = Triggers.Attacks.binding,
-                effect = Effects.May(Effects.Provoke(EffectTarget.ContextTarget(0))),
-                targetRequirement = Targets.CreatureOpponentControls
-            ),
+            ability = grantedTriggeredAbility {
+                trigger = Triggers.Attacks
+                val creatureOpponentControls = target(
+                    "target creature opponent controls",
+                    Targets.CreatureOpponentControls
+                )
+                effect = Effects.May(Effects.Provoke(creatureOpponentControls))
+            },
             filter = sliverFilter
         )
     }

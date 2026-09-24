@@ -50,12 +50,12 @@ val JaceTheMindSculptor = card("Jace, the Mind Sculptor") {
         "into their library."
 
     loyaltyAbility(+2) {
-        target("target player", Targets.Player)
+        val player2 = target("target player", Targets.Player)
         effect = Effects.Pipeline {
             val top = gather(
                 CardSource.TopOfLibrary(
                     count = 1,
-                    player = Player.ContextPlayer(0)
+                    player = player2.asPlayer
                 )
             )
             val toBottom = chooseUpTo(
@@ -64,7 +64,7 @@ val JaceTheMindSculptor = card("Jace, the Mind Sculptor") {
                 prompt = "Put that card on the bottom of that player's library?",
                 selectedLabel = "Put on the bottom of that player's library"
             )
-            toLibraryBottom(toBottom, player = Player.ContextPlayer(0))
+            toLibraryBottom(toBottom, player = player2.asPlayer)
         }
     }
 
@@ -89,18 +89,18 @@ val JaceTheMindSculptor = card("Jace, the Mind Sculptor") {
     }
 
     loyaltyAbility(-12) {
-        target("target player", Targets.Player)
+        val player = target("target player", Targets.Player)
         effect = Effects.Pipeline {
             val library = gather(
-                CardSource.FromZone(Zone.LIBRARY, Player.ContextPlayer(0), GameObjectFilter.Any)
+                CardSource.FromZone(Zone.LIBRARY, player.asPlayer, GameObjectFilter.Any)
             )
-            exile(library, owner = Player.ContextPlayer(0))
+            exile(library, owner = player.asPlayer)
             val hand = gather(
-                CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0), GameObjectFilter.Any)
+                CardSource.FromZone(Zone.HAND, player.asPlayer, GameObjectFilter.Any)
             )
             move(
                 hand,
-                CardDestination.ToZone(Zone.LIBRARY, Player.ContextPlayer(0), ZonePlacement.Shuffled)
+                CardDestination.ToZone(Zone.LIBRARY, player.asPlayer, ZonePlacement.Shuffled)
             )
         }
     }

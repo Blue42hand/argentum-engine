@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 /**
@@ -40,25 +38,25 @@ val ParkerLuck = card("Parker Luck") {
         trigger = Triggers.YourEndStep
         // "two target players" — a single count-2 requirement; the engine enforces the two
         // chosen players are distinct (CR 115.1b). Referenced positionally as targets 0 and 1.
-        target("players", TargetPlayer(count = 2))
+        val (firstPlayer, secondPlayer) = targets("players", TargetPlayer(count = 2))
         effect = Effects.Pipeline {
             // Both target players reveal the top card of their library.
-            val revealedA = gather(CardSource.TopOfLibrary(1, Player.ContextPlayer(0)))
+            val revealedA = gather(CardSource.TopOfLibrary(1, firstPlayer.asPlayer))
             reveal(revealedA)
-            val revealedB = gather(CardSource.TopOfLibrary(1, Player.ContextPlayer(1)))
+            val revealedB = gather(CardSource.TopOfLibrary(1, secondPlayer.asPlayer))
             reveal(revealedB)
             // Each loses life equal to the mana value of the OTHER player's revealed card.
             run(Effects.LoseLife(
                 DynamicAmounts.manaValueOf(revealedB),
-                EffectTarget.ContextTarget(0),
+                firstPlayer,
             ))
             run(Effects.LoseLife(
                 DynamicAmounts.manaValueOf(revealedA),
-                EffectTarget.ContextTarget(1),
+                secondPlayer,
             ))
             // Then each puts the card they revealed into their hand.
-            toHand(revealedA, Player.ContextPlayer(0))
-            toHand(revealedB, Player.ContextPlayer(1))
+            toHand(revealedA, firstPlayer.asPlayer)
+            toHand(revealedB, secondPlayer.asPlayer)
         }
     }
 

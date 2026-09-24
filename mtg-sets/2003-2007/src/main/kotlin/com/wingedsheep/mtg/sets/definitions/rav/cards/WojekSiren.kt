@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Wojek Siren
@@ -35,7 +34,7 @@ val WojekSiren = card("Wojek Siren") {
                 1,
                 1,
                 GroupFilter(
-                    GameObjectFilter.Creature.sharingColorWith(EffectTarget.ContextTarget(0))
+                    GameObjectFilter.Creature.sharingColorWith(radiant)
                 ).otherThanTarget()
             )
     }

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 val MeandersGuide = card("Meanders Guide") {
@@ -37,20 +36,18 @@ val MeandersGuide = card("Meanders Guide") {
                 )
                 run(Effects.Tap(merfolkToTap.asTarget))
             },
-            optional = true,
-            reflexiveEffect = Effects.Move(
-                target = EffectTarget.ContextTarget(0),
-                destination = Zone.BATTLEFIELD
-            ),
-            reflexiveTargetRequirements = listOf(
-                TargetObject(
-                    filter = TargetFilter(
-                        GameObjectFilter.Creature.ownedByYou().manaValueAtMost(3),
-                        zone = Zone.GRAVEYARD
-                    )
+            optional = true) {
+            val creature = target("target creature", TargetObject(
+                filter = TargetFilter(
+                    GameObjectFilter.Creature.ownedByYou().manaValueAtMost(3),
+                    zone = Zone.GRAVEYARD
                 )
+            ))
+            effect = Effects.Move(
+                target = creature,
+                destination = Zone.BATTLEFIELD
             )
-        )
+        }
     }
 
     metadata {

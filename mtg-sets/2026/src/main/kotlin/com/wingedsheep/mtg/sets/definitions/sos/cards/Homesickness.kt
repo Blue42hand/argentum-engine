@@ -35,9 +35,9 @@ val Homesickness = card("Homesickness") {
         "it instead.)"
 
     spell {
-        target("target player", TargetPlayer())
+        val player = target("target player", TargetPlayer())
         target("up to two target creatures", TargetCreature(count = 2, optional = true))
-        effect = Effects.DrawCards(2, EffectTarget.ContextTarget(0)).then(
+        effect = Effects.DrawCards(2, player).then(
             Effects.ForEachTarget(
                 Effects.If(
                     condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature),

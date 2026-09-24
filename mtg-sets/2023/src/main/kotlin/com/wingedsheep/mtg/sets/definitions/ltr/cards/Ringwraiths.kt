@@ -41,7 +41,7 @@ val Ringwraiths = card("Ringwraiths") {
         val creature = target("creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.ModifyStats(-3, -3, creature).then(
             Effects.If(
-                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.legendary(), 0),
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.legendary(), creature),
                 then = Effects.LoseLife(3, EffectTarget.PlayerRef(Player.ControllerOf("target creature")))
             )
         )

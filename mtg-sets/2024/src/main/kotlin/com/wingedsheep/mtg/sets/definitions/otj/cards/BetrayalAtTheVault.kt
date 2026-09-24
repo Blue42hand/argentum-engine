@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetOther
 
@@ -39,27 +38,27 @@ val BetrayalAtTheVault = card("Betrayal at the Vault") {
 
     spell {
         // Target 0: the source — a creature you control.
-        target("creature you control", Targets.CreatureYouControl)
+        val creatureYouControl = target("creature you control", Targets.CreatureYouControl)
         // Targets 1 & 2: two other target creatures (distinct from the source and each other).
-        target(
+        val firstOtherCreature = target(
             "first other target creature",
             TargetOther(baseRequirement = TargetObject(filter = TargetFilter.Creature))
         )
-        target(
+        val secondOtherCreature = target(
             "second other target creature",
             TargetOther(baseRequirement = TargetObject(filter = TargetFilter.Creature))
         )
 
-        val sourcePower = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0))
+        val sourcePower = DynamicAmounts.powerOf(creatureYouControl)
         effect = Effects.DealDamage(
             amount = sourcePower,
-            target = EffectTarget.ContextTarget(1),
-            damageSource = EffectTarget.ContextTarget(0)
+            target = firstOtherCreature,
+            damageSource = creatureYouControl
         ).then(
             Effects.DealDamage(
                 amount = sourcePower,
-                target = EffectTarget.ContextTarget(2),
-                damageSource = EffectTarget.ContextTarget(0)
+                target = secondOtherCreature,
+                damageSource = creatureYouControl
             )
         )
     }

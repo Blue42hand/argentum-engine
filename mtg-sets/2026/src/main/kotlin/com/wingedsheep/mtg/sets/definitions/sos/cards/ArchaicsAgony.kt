@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Archaic's Agony
@@ -49,7 +48,7 @@ val ArchaicsAgony = card("Archaic's Agony") {
             run(Effects.DealDamage(DynamicAmounts.colorsOfManaSpent(), creature))
             val exiledByAgony = gather(
                 CardSource.TopOfLibrary(
-                    count = DynamicAmounts.propertyOf(EffectTarget.ContextTarget(0), EntityNumericProperty.ExcessMarkedDamage),
+                    count = DynamicAmounts.propertyOf(creature, EntityNumericProperty.ExcessMarkedDamage),
                     player = Player.You,
                 )
             )

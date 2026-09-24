@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -42,7 +41,7 @@ val TemporalIntervention = card("Temporal Intervention") {
         val t = target("target opponent", TargetOpponent())
         effect = Effects.Pipeline {
             run(Effects.RevealHand(t))
-            val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val hand = gather(CardSource.FromZone(Zone.HAND, t.asPlayer))
             val toDiscard = chooseExactly(
                 1,
                 from = hand,
@@ -52,7 +51,7 @@ val TemporalIntervention = card("Temporal Intervention") {
                 alwaysPrompt = true,
                 showAllCards = true
             )
-            discard(toDiscard, Player.ContextPlayer(0))
+            discard(toDiscard, t.asPlayer)
         }
     }
 

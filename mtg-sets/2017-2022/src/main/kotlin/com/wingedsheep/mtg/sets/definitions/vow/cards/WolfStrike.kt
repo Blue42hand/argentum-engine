@@ -41,7 +41,7 @@ val WolfStrike: CardDefinition = card("Wolf Strike") {
                 condition = Conditions.IsNight,
                 then = Effects.ModifyStats(2, 0, t1),
             ),
-            Effects.DealDamage(DynamicAmounts.targetPower(0), t2, damageSource = t1),
+            Effects.DealDamage(DynamicAmounts.powerOf(t1), t2, damageSource = t1),
         )
     }
 

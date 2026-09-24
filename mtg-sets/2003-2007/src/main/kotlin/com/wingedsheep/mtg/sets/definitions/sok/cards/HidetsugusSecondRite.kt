@@ -34,7 +34,7 @@ val HidetsugusSecondRite = card("Hidetsugu's Second Rite") {
         val targetPlayer = target("target player", Targets.Player)
         effect = Effects.If(
             condition = Conditions.CompareAmounts(
-                DynamicAmounts.lifeTotal(Player.ContextPlayer(0)),
+                DynamicAmounts.lifeTotal(targetPlayer.asPlayer),
                 ComparisonOperator.EQ,
                 10,
             ),

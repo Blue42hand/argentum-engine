@@ -64,15 +64,16 @@ val ClaimTheKingdom = card("Claim the Kingdom") {
         effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeTarget(EffectTarget.Self),
             optional = false,
-            reflexiveEffect = Effects.AddCounters(
-                CounterType.INDESTRUCTIBLE,
-                1,
-                EffectTarget.ContextTarget(0),
-            ),
-            reflexiveTargetRequirements = listOf(Targets.CreatureYouControl),
             descriptionOverride = "Sacrifice this enchantment. When you do, put an indestructible " +
                 "counter on target creature you control.",
-        )
+        ) {
+            val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+            effect = Effects.AddCounters(
+                CounterType.INDESTRUCTIBLE,
+                1,
+                creatureYouControl,
+            )
+        }
         description = "When the fourth plan counter is put on this enchantment, sacrifice it. " +
             "When you do, put an indestructible counter on target creature you control."
     }

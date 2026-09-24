@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
 /**
@@ -54,7 +53,7 @@ val DistendedMindbender = card("Distended Mindbender") {
         val opponent = target("target opponent", TargetOpponent())
         effect = Effects.Pipeline {
             run(Effects.RevealHand(opponent))
-            val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val hand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
             val cheap = chooseExactly(
                 1, from = hand,
                 filter = GameObjectFilter.Nonland.manaValueAtMost(3),
@@ -71,12 +70,12 @@ val DistendedMindbender = card("Distended Mindbender") {
             )
             move(
                 cheap,
-                CardDestination.ToZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),
+                CardDestination.ToZone(Zone.GRAVEYARD, opponent.asPlayer),
                 moveType = MoveType.Discard,
             )
             move(
                 expensive,
-                CardDestination.ToZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),
+                CardDestination.ToZone(Zone.GRAVEYARD, opponent.asPlayer),
                 moveType = MoveType.Discard,
             )
         }

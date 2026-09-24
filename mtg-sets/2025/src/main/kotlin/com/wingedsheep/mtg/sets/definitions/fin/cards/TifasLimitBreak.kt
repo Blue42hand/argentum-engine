@@ -40,16 +40,16 @@ val TifasLimitBreak = card("Tifa's Limit Break") {
             tier("Meteor Strikes", "{2}", "Double target creature's power and toughness until end of turn.") {
                 val creature = target("target creature", Targets.Creature)
                 effect = Effects.ModifyStats(
-                    power = DynamicAmounts.targetPower(0),
-                    toughness = DynamicAmounts.targetToughness(0),
+                    power = DynamicAmounts.powerOf(creature),
+                    toughness = DynamicAmounts.toughnessOf(creature),
                     target = creature
                 )
             }
             tier("Final Heaven", "{6}{G}", "Triple target creature's power and toughness until end of turn.") {
                 val creature = target("target creature", Targets.Creature)
                 effect = Effects.ModifyStats(
-                    power = DynamicAmounts.targetPower(0) * 2,
-                    toughness = DynamicAmounts.targetToughness(0) * 2,
+                    power = DynamicAmounts.powerOf(creature) * 2,
+                    toughness = DynamicAmounts.toughnessOf(creature) * 2,
                     target = creature
                 )
             }

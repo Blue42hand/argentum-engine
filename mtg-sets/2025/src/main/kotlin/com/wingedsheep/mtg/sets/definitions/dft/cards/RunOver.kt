@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.CostReductionSource
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Run Over
@@ -40,7 +39,7 @@ val RunOver = card("Run Over") {
         val mine = target("creature you control", Targets.CreatureYouControl)
         val theirs = target("creature an opponent controls", Targets.CreatureOpponentControls)
         effect = Effects.DealDamage(
-            amount = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)),
+            amount = DynamicAmounts.powerOf(mine),
             target = theirs,
             damageSource = mine,
         )

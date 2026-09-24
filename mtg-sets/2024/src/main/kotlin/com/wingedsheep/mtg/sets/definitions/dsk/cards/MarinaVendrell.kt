@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -56,11 +55,11 @@ val MarinaVendrell = card("Marina Vendrell") {
     activatedAbility {
         cost = Costs.Tap
         timing = TimingRule.SorcerySpeed
-        target(
+        val room = target(
             "target Room",
             TargetObject(filter = TargetFilter(GameObjectFilter.Any.withSubtype(Subtype.ROOM).youControl())),
         )
-        effect = Effects.LockOrUnlockDoor(EffectTarget.ContextTarget(0))
+        effect = Effects.LockOrUnlockDoor(room)
         description = "{T}: Lock or unlock a door of target Room you control. Activate only as a sorcery."
     }
 

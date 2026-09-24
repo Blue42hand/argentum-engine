@@ -8,13 +8,11 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedActivatedAbility
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.AbilityId
-import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -57,17 +55,16 @@ val FriendlyNeighborhood = card("Friendly Neighborhood") {
 
     staticAbility {
         ability = GrantActivatedAbility(
-            ability = ActivatedAbility(
-                id = AbilityId.generate(),
-                cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap),
+            ability = grantedActivatedAbility {
+                cost = Costs.Composite(Costs.Mana("{1}"), Costs.Tap)
+                val creature = target("target creature", TargetCreature())
                 effect = Effects.ModifyStats(
                     power = DynamicAmounts.count(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature),
                     toughness = DynamicAmounts.count(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature),
-                    target = EffectTarget.ContextTarget(0)
-                ),
-                targetRequirements = listOf(TargetCreature()),
+                    target = creature
+                )
                 timing = TimingRule.SorcerySpeed
-            )
+            }
         )
     }
 

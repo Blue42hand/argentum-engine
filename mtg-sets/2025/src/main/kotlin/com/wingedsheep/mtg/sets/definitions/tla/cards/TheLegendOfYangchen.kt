@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.scripting.targets.TargetOther
@@ -150,10 +149,10 @@ private val TheLegendOfYangchenFront = card("The Legend of Yangchen") {
 
     // II — You may have target opponent draw three cards. If you do, draw three cards.
     sagaChapter(2) {
-        target("target opponent", TargetOpponent())
+        val opponent = target("target opponent", TargetOpponent())
         effect = Effects.May(
             Effects.Composite(
-                Effects.DrawCards(3, EffectTarget.ContextTarget(0)),
+                Effects.DrawCards(3, opponent),
                 Effects.DrawCards(3)
             )
         )

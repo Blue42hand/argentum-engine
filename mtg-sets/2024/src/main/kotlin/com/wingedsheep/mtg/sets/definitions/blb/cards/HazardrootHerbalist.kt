@@ -31,7 +31,7 @@ val HazardrootHerbalist = card("Hazardroot Herbalist") {
         val creature = target("creature you control", TargetCreature(filter = TargetFilter.CreatureYouControl))
         effect = Effects.ModifyStats(1, 0, creature)
             .then(Effects.If(
-                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Token, targetIndex = 0),
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Token, creature),
                 then = Effects.GrantKeyword(Keyword.DEATHTOUCH, creature)
             ))
     }

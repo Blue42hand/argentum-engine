@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Sonic Shrieker — Tarkir: Dragonstorm #226
@@ -46,7 +45,7 @@ val SonicShrieker = card("Sonic Shrieker") {
             Effects.GainLife(2),
             Effects.If(
                 condition = Conditions.TargetIsPlayer(0),
-                then = Effects.Discard(1, EffectTarget.ContextTarget(0))
+                then = Effects.Discard(1, anyTarget)
             )
         ))
         description = "When this creature enters, it deals 2 damage to any target and you gain 2 life. " +

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
 /**
@@ -45,12 +44,12 @@ val RagMan = card("Rag Man") {
             val ragManCandidates = gather(
                 CardSource.FromZone(
                     zone = Zone.HAND,
-                    player = Player.ContextPlayer(0),
+                    player = victim.asPlayer,
                     filter = GameObjectFilter.Creature,
                 )
             )
             val ragManVictim = chooseRandom(1, from = ragManCandidates)
-            discard(ragManVictim, Player.ContextPlayer(0))
+            discard(ragManVictim, victim.asPlayer)
         }
         description = "{B}{B}{B}, {T}: Target opponent reveals their hand and discards a creature " +
             "card at random. Activate only during your turn."

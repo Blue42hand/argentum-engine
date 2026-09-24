@@ -49,7 +49,7 @@ val WaltzOfRage = card("Waltz of Rage") {
             Effects.ForEachInGroup(
                 filter = GroupFilter(GameObjectFilter.Creature).otherThanTarget(),
                 effect = Effects.DealDamage(
-                    amount = DynamicAmounts.targetPower(0),
+                    amount = DynamicAmounts.powerOf(chosen),
                     target = EffectTarget.IterationEntity,
                     damageSource = chosen
                 )

@@ -57,14 +57,14 @@ val OkoTheRingleader = card("Oko, the Ringleader") {
 
     triggeredAbility {
         trigger = Triggers.BeginCombat
-        target(
+        val creatureYouControl = target(
             "creature you control",
             TargetCreature(filter = TargetFilter.CreatureYouControl, optional = true),
         )
         effect = Effects.Composite(
             listOf(
                 Effects.EachPermanentBecomesCopyOfTarget(
-                    target = EffectTarget.ContextTarget(0),
+                    target = creatureYouControl,
                     duration = Duration.EndOfTurn,
                     affected = EffectTarget.Self,
                 ),

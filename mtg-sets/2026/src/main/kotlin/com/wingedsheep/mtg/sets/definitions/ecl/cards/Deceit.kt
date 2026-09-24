@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
@@ -60,7 +59,7 @@ val Deceit = card("Deceit") {
         val opponent = target("target opponent", TargetOpponent())
         effect = Effects.Pipeline {
             run(Effects.RevealHand(opponent))
-            val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val hand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
             val toDiscard = chooseExactly(
                 1,
                 from = hand,
@@ -70,7 +69,7 @@ val Deceit = card("Deceit") {
                 alwaysPrompt = true,
                 showAllCards = true
             )
-            discard(toDiscard, Player.ContextPlayer(0))
+            discard(toDiscard, opponent.asPlayer)
         }
     }
 

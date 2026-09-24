@@ -44,15 +44,16 @@ val BoilerbilgesRipper = card("Boilerbilges Ripper") {
                 run(Effects.SacrificeTarget(permanentToSacrifice.asTarget))
             },
             optional = true,
-            reflexiveEffect = Effects.DealDamage(
-                amount = 2,
-                target = EffectTarget.ContextTarget(0),
-                damageSource = EffectTarget.Self
-            ),
-            reflexiveTargetRequirements = listOf(Targets.Any),
             descriptionOverride = "You may sacrifice another creature or enchantment. When you do, " +
                 "this creature deals 2 damage to any target."
-        )
+        ) {
+            val anyTarget = target("target any", Targets.Any)
+            effect = Effects.DealDamage(
+                amount = 2,
+                target = anyTarget,
+                damageSource = EffectTarget.Self
+            )
+        }
         description = "When this creature enters, you may sacrifice another creature or enchantment. " +
             "When you do, this creature deals 2 damage to any target."
     }

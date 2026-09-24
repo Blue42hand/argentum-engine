@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Razor Rings {1}{W}
@@ -34,7 +33,7 @@ val RazorRings = card("Razor Rings") {
         effect = Effects.Composite(
             Effects.DealDamage(4, creature),
             Effects.GainLife(
-                DynamicAmounts.propertyOf(EffectTarget.ContextTarget(0), EntityNumericProperty.ExcessMarkedDamage)
+                DynamicAmounts.propertyOf(creature, EntityNumericProperty.ExcessMarkedDamage)
             )
         )
     }

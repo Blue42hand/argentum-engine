@@ -25,9 +25,7 @@ val LightningDart = card("Lightning Dart") {
     spell {
         val t = target("target creature", Targets.Creature)
         effect = Effects.If(
-            condition = Conditions.TargetMatchesFilter(
-                Filters.Creature.withAnyColor(Color.WHITE, Color.BLUE)
-            ),
+            condition = Conditions.TargetMatchesFilter(Filters.Creature.withAnyColor(Color.WHITE, Color.BLUE), t),
             then = Effects.DealDamage(4, t),
             otherwise = Effects.DealDamage(1, t)
         )

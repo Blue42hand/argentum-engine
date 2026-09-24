@@ -6,11 +6,11 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Yuriko, Hope from the Shadows — X is counted as the mode resolves (CR 608.2h) and then locked in
@@ -33,15 +33,14 @@ val YurikoHopeFromTheShadows = card("Yuriko, Hope from the Shadows") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = ModalEffect.chooseOne(
-            Mode.withTarget(
-                Effects.ModifyStats(
+            mode("Target creature gets -X/-0 until end of turn, where X is the number of cards in your graveyard.") {
+                val creature = target("target creature", Targets.Creature)
+                effect = Effects.ModifyStats(
                     power = -DynamicAmounts.cardsInYourGraveyard(),
                     toughness = DynamicAmounts.fixed(0),
-                    target = EffectTarget.ContextTarget(0),
-                ),
-                Targets.Creature,
-                "Target creature gets -X/-0 until end of turn, where X is the number of cards in your graveyard.",
-            ),
+                    target = creature,
+                )
+            },
             Mode(effect = Effects.Surveil(2), description = "Surveil 2."),
         )
     }

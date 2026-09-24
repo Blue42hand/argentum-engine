@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Piercing Exhale
@@ -52,7 +51,7 @@ val PiercingExhale = card("Piercing Exhale") {
             val beheld = chooseUpTo(1, from = beholdable, prompt = "You may behold a Dragon")
             reveal(beheld)
             run(Effects.DealDamage(
-                amount = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)),
+                amount = DynamicAmounts.powerOf(myCreature),
                 target = victim,
                 damageSource = myCreature
             ))

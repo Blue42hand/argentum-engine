@@ -74,11 +74,11 @@ val AlacrianArmory = card("Alacrian Armory") {
         )
         effect = Effects.Composite(
             Effects.If(
-                condition = Conditions.TargetMatchesFilter(Mount),
+                condition = Conditions.TargetMatchesFilter(Mount, permanent),
                 then = Effects.BecomeSaddled(permanent)
             ),
             Effects.If(
-                condition = Conditions.TargetMatchesFilter(Vehicle),
+                condition = Conditions.TargetMatchesFilter(Vehicle, permanent),
                 then = Effects.AddCardType(
                     cardType = "CREATURE",
                     target = permanent,

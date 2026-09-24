@@ -864,6 +864,9 @@ object DynamicAmounts {
     /** [entity]'s mana value. */
     fun manaValueOf(entity: EffectTarget.SingleEntity): DynamicAmount = propertyOf(entity, EntityNumericProperty.ManaValue)
 
+    /** The amount of mana spent to cast [entity] (a spell) — reduced by cost reductions, unlike its mana value. */
+    fun manaSpentToCast(entity: EffectTarget.SingleEntity): DynamicAmount = propertyOf(entity, EntityNumericProperty.ManaSpent)
+
     /** The number of [type] counters on [entity] (`null` = counters of any kind). */
     fun countersOn(entity: EffectTarget.SingleEntity, type: CounterType?): DynamicAmount =
         propertyOf(entity, EntityNumericProperty.CounterCount(type))

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
 /**
@@ -51,14 +50,14 @@ val ChimneyImp = card("Chimney Imp") {
         val opponent = target("target opponent", TargetOpponent())
         trigger = Triggers.Dies
         effect = Effects.Pipeline {
-            val impHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val impHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
             val impTucked = chooseExactly(
                 1,
                 from = impHand,
                 chooser = Chooser.TargetPlayer,
                 prompt = "Choose a card to put on top of your library"
             )
-            toLibraryTop(impTucked, Player.ContextPlayer(0), order = CardOrder.Preserve)
+            toLibraryTop(impTucked, opponent.asPlayer, order = CardOrder.Preserve)
         }
         description = "When this creature dies, target opponent puts a card from their hand " +
             "on top of their library."

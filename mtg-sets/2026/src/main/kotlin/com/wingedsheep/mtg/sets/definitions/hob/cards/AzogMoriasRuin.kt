@@ -41,13 +41,13 @@ val AzogMoriasRuin = card("Azog, Moria's Ruin") {
         )
 
         val resolveForItsController = Effects.Pipeline {
-            val targetPower = storeNumber(DynamicAmounts.targetPower())
+            val targetPower = storeNumber(DynamicAmounts.powerOf(creature))
             run(Effects.Destroy(creature))
             run(Effects.ForEachPlayer(Player.ControllerOf("that creature"), Effects.Amass(targetPower.amount, "Goblin")))
         }
 
         effect = Effects.If(
-            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.youControl()),
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.youControl(), creature),
             then = resolveForItsController.then(Effects.DrawCards(1)),
             otherwise = resolveForItsController,
         )

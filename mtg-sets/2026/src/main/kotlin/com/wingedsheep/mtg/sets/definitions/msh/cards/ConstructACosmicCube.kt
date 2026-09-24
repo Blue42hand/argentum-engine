@@ -75,11 +75,12 @@ val ConstructACosmicCube = card("Construct a Cosmic Cube") {
         effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeTarget(EffectTarget.Self),
             optional = false,
-            reflexiveEffect = Effects.HijackNextTurn(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(Targets.Opponent),
             descriptionOverride = "Sacrifice this enchantment. When you do, you control target " +
                 "opponent during their next turn.",
-        )
+        ) {
+            val opponent = target("target opponent", Targets.Opponent)
+            effect = Effects.HijackNextTurn(opponent)
+        }
         description = "When the seventh plan counter is put on this enchantment, sacrifice it. " +
             "When you do, you control target opponent during their next turn."
     }

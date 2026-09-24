@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
 /**
@@ -44,7 +43,7 @@ val CerebralConfiscation = card("Cerebral Confiscation") {
                 val opponent = target("target opponent", TargetOpponent())
                 effect = Effects.Pipeline {
                     run(Effects.RevealHand(opponent))
-                    val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+                    val hand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
                     val chosen = chooseExactly(
                         1, from = hand,
                         filter = GameObjectFilter.Nonland,
@@ -54,7 +53,7 @@ val CerebralConfiscation = card("Cerebral Confiscation") {
                     )
                     move(
                         chosen,
-                        CardDestination.ToZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),
+                        CardDestination.ToZone(Zone.GRAVEYARD, opponent.asPlayer),
                         moveType = MoveType.Discard
                     )
                 }

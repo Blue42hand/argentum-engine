@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
@@ -35,15 +33,15 @@ val RenderSpeechless = card("Render Speechless") {
         "player discards that card.\nPut two +1/+1 counters on up to one target creature."
 
     spell {
-        target("target opponent", TargetOpponent())
+        val opponent = target("target opponent", TargetOpponent())
         val creature = target("up to one target creature", TargetCreature(optional = true))
         effect = Effects.Composite(
             // Targeted discard: reveal the opponent's hand (target 0), the controller chooses a nonland
             // card from it, that player discards it. The opponent is the first chosen target, addressed
             // by Player.ContextPlayer(0) for both the gather source and the discard destination.
             Effects.Pipeline {
-                run(Effects.RevealHand(EffectTarget.ContextTarget(0)))
-                val opponentHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+                run(Effects.RevealHand(opponent))
+                val opponentHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
                 val toDiscard = chooseExactly(
                     1,
                     from = opponentHand,
@@ -53,7 +51,7 @@ val RenderSpeechless = card("Render Speechless") {
                     alwaysPrompt = true,
                     showAllCards = true
                 )
-                discard(toDiscard, Player.ContextPlayer(0))
+                discard(toDiscard, opponent.asPlayer)
             },
             // Two +1/+1 counters on the optional creature (target 1). No-ops when no creature is chosen.
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature),

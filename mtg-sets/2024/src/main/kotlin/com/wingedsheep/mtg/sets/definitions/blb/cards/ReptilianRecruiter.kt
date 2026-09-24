@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.conditions.AnyCondition
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Reptilian Recruiter {3}{R}{R}
@@ -44,7 +43,7 @@ val ReptilianRecruiter = card("Reptilian Recruiter") {
                 listOf(
                     // Target creature's power is 2 or less
                     Conditions.CompareAmounts(
-                        DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)),
+                        DynamicAmounts.powerOf(creature),
                         ComparisonOperator.LTE,
                         2
                     ),

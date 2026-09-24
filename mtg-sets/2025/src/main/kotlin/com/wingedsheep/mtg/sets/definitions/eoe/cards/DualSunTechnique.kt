@@ -28,7 +28,7 @@ val DualSunTechnique = card("Dual-Sun Technique") {
             .then(
                 // Draw a card if the target has a +1/+1 counter
                 Effects.If(
-                    condition = Conditions.TargetHasCounter(CounterType.PLUS_ONE_PLUS_ONE),
+                    condition = Conditions.TargetHasCounter(CounterType.PLUS_ONE_PLUS_ONE, target),
                     then = Effects.DrawCards(1, com.wingedsheep.sdk.scripting.targets.EffectTarget.Controller)
                 )
             )

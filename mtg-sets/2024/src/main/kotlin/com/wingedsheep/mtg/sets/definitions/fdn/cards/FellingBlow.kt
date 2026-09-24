@@ -29,7 +29,7 @@ val FellingBlow = card("Felling Blow") {
         val t2 = target("t2", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.Composite(
             Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t1),
-            Effects.DealDamage(DynamicAmounts.targetPower(0), t2, damageSource = t1)
+            Effects.DealDamage(DynamicAmounts.powerOf(t1), t2, damageSource = t1)
         )
     }
     metadata {

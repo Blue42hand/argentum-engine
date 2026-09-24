@@ -5,10 +5,9 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -56,20 +55,18 @@ val DreamshackleGeist = card("Dreamshackle Geist") {
         trigger = Triggers.BeginCombat
         effect = Effects.Modal(
             modes = listOf(
-                Mode.withTarget(
-                    Effects.Tap(EffectTarget.ContextTarget(0)),
-                    TargetCreature(),
-                    "Tap target creature"
-                ),
-                Mode.withTarget(
-                    Effects.GrantKeyword(
+                mode("Tap target creature") {
+                    val creature = target("target creature", TargetCreature())
+                    effect = Effects.Tap(creature)
+                },
+                mode("Target creature doesn't untap during its controller's next untap step") {
+                    val creature = target("target creature", TargetCreature())
+                    effect = Effects.GrantKeyword(
                         AbilityFlag.DOESNT_UNTAP,
-                        EffectTarget.ContextTarget(0),
+                        creature,
                         Duration.UntilAfterAffectedControllersNextUntap,
-                    ),
-                    TargetCreature(),
-                    "Target creature doesn't untap during its controller's next untap step"
-                )
+                    )
+                }
             ),
             chooseCount = 1,
             minChooseCount = 0,

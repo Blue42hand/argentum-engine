@@ -30,7 +30,7 @@ val RiteOfTheSerpent = card("Rite of the Serpent") {
         val creature = target("target creature", Targets.Creature)
         // Check counter condition before destroying (counters are removed on zone change)
         effect = Effects.If(
-            condition = Conditions.TargetHasCounter(CounterType.PLUS_ONE_PLUS_ONE),
+            condition = Conditions.TargetHasCounter(CounterType.PLUS_ONE_PLUS_ONE, creature),
             then = Effects.CreateToken(
                 power = 1,
                 toughness = 1,

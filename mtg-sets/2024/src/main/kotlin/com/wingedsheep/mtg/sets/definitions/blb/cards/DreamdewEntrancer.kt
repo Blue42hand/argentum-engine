@@ -38,7 +38,7 @@ val DreamdewEntrancer = card("Dreamdew Entrancer") {
         effect = Effects.Tap(t)
             .then(Effects.AddCounters(CounterType.STUN, 3, t))
             .then(Effects.If(
-                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.youControl(), targetIndex = 0),
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.youControl(), t),
                 then = Effects.DrawCards(2)
             ))
     }

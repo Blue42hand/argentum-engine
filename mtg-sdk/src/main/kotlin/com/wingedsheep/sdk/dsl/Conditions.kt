@@ -530,21 +530,33 @@ object Conditions {
      * Used for cards like Unified Strike.
      */
     fun TargetPowerAtMost(amount: DynamicAmount, targetIndex: Int = 0): ConditionInterface =
-        Compare(DynamicAmount.EntityProperty(EffectTarget.ContextTarget(targetIndex), EntityNumericProperty.Power), ComparisonOperator.LTE, amount)
+        TargetPowerAtMost(amount, EffectTarget.ContextTarget(targetIndex))
+
+    /** [target]'s power is at most [amount]. */
+    fun TargetPowerAtMost(amount: DynamicAmount, target: EffectTarget.SingleEntity): ConditionInterface =
+        Compare(DynamicAmount.EntityProperty(target, EntityNumericProperty.Power), ComparisonOperator.LTE, amount)
 
     /**
      * If the target spell's mana value is at most the given dynamic amount.
      * Used for conditional counterspells like Dispersal Shield.
      */
     fun TargetSpellManaValueAtMost(amount: DynamicAmount, targetIndex: Int = 0): ConditionInterface =
-        Compare(DynamicAmount.EntityProperty(EffectTarget.ContextTarget(targetIndex), EntityNumericProperty.ManaValue), ComparisonOperator.LTE, amount)
+        TargetSpellManaValueAtMost(amount, EffectTarget.ContextTarget(targetIndex))
+
+    /** [target] (a spell handle)'s mana value is at most [amount]. */
+    fun TargetSpellManaValueAtMost(amount: DynamicAmount, target: EffectTarget.SingleEntity): ConditionInterface =
+        Compare(DynamicAmount.EntityProperty(target, EntityNumericProperty.ManaValue), ComparisonOperator.LTE, amount)
 
     /**
      * If the target permanent has at least one counter of the given type.
      * Used for cards like Bring Low: "If that creature has a +1/+1 counter on it"
      */
     fun TargetHasCounter(counterType: CounterType, targetIndex: Int = 0): ConditionInterface =
-        Compare(DynamicAmount.EntityProperty(EffectTarget.ContextTarget(targetIndex), EntityNumericProperty.CounterCount(counterType)), ComparisonOperator.GTE, DynamicAmount.Fixed(1))
+        TargetHasCounter(counterType, EffectTarget.ContextTarget(targetIndex))
+
+    /** [target] (a target handle) has at least one [counterType] counter on it. */
+    fun TargetHasCounter(counterType: CounterType, target: EffectTarget.SingleEntity): ConditionInterface =
+        Compare(DynamicAmount.EntityProperty(target, EntityNumericProperty.CounterCount(counterType)), ComparisonOperator.GTE, DynamicAmount.Fixed(1))
 
     /**
      * If the chosen target at [targetIndex] matches a GameObjectFilter. Resolution-only; a player
@@ -553,6 +565,10 @@ object Conditions {
      */
     fun TargetMatchesFilter(filter: GameObjectFilter, targetIndex: Int = 0): ConditionInterface =
         EntityMatches(EffectTarget.ContextTarget(targetIndex), filter)
+
+    /** [target] (a target handle) matches [filter] as this resolves — "if that creature is legendary". */
+    fun TargetMatchesFilter(filter: GameObjectFilter, target: EffectTarget): ConditionInterface =
+        EntityMatches(target, filter)
 
     /**
      * If the chosen target at [targetIndex] is a creature *card*, tested by the underlying card's

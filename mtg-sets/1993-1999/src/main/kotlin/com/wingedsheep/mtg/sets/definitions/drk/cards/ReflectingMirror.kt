@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Reflecting Mirror
@@ -48,7 +47,7 @@ val ReflectingMirror = card("Reflecting Mirror") {
             condition = Conditions.CompareAmounts(
                 DynamicAmounts.xValue(),
                 ComparisonOperator.GTE,
-                DynamicAmounts.manaValueOf(EffectTarget.ContextTarget(0)) * 2,
+                DynamicAmounts.manaValueOf(spellOrAbilityWithSingleTarget) * 2,
             ),
             then = Effects.ChangeTarget(
                 newTargetMustBePlayer = true,

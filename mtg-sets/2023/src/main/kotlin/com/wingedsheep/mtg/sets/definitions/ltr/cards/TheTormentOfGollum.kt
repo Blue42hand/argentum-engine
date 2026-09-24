@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
 /**
@@ -31,7 +30,7 @@ val TheTormentOfGollum = card("The Torment of Gollum") {
         val opponent = target("target opponent", TargetOpponent())
         effect = Effects.Pipeline {
             run(Effects.RevealHand(opponent))
-            val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val hand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
             val toDiscard = chooseExactly(
                 1,
                 from = hand,
@@ -39,7 +38,7 @@ val TheTormentOfGollum = card("The Torment of Gollum") {
                 filter = GameObjectFilter.Nonland,
                 prompt = "Choose a nonland card to discard"
             )
-            discard(toDiscard, Player.ContextPlayer(0))
+            discard(toDiscard, opponent.asPlayer)
             run(Effects.Amass(2, "Orc"))
         }
     }

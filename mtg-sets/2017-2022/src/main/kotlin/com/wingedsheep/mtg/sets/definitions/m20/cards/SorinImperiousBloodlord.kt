@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -50,7 +49,7 @@ val SorinImperiousBloodlord = card("Sorin, Imperious Bloodlord") {
             .then(Effects.GrantKeyword(Keyword.LIFELINK, t, Duration.EndOfTurn))
             .then(
                 Effects.If(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype("Vampire")),
+                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype("Vampire"), t),
                     then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t),
                 )
             )
@@ -67,16 +66,17 @@ val SorinImperiousBloodlord = card("Sorin, Imperious Bloodlord") {
                 run(Effects.SacrificeTarget(vampireToSacrifice.asTarget))
             },
             optional = true,
-            reflexiveEffect = Effects.Composite(
-                listOf(
-                    Effects.DealDamage(3, EffectTarget.ContextTarget(0)),
-                    Effects.GainLife(3),
-                )
-            ),
-            reflexiveTargetRequirements = listOf(Targets.Any),
             descriptionOverride = "You may sacrifice a Vampire. When you do, Sorin deals 3 damage to " +
                 "any target and you gain 3 life.",
-        )
+        ) {
+            val anyTarget = target("target any", Targets.Any)
+            effect = Effects.Composite(
+                listOf(
+                    Effects.DealDamage(3, anyTarget),
+                    Effects.GainLife(3),
+                )
+            )
+        }
     }
 
     loyaltyAbility(-3) {

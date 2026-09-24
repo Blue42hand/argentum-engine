@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Nimble Hobbit
@@ -48,11 +47,14 @@ val NimbleHobbit = card("Nimble Hobbit") {
                     )
                 )
             ),
-            optional = true,
+            optional = true) {
             // "When you do, tap target creature an opponent controls."
-            reflexiveEffect = Effects.Tap(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(Targets.CreatureOpponentControls)
-        )
+            val creatureOpponentControls = target(
+                "target creature opponent controls",
+                Targets.CreatureOpponentControls
+            )
+            effect = Effects.Tap(creatureOpponentControls)
+        }
     }
 
     metadata {

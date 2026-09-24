@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Ant-Man, Colony Commander — Marvel Super Heroes #201 (uncommon)
@@ -60,14 +59,15 @@ val AntManColonyCommander = card("Ant-Man, Colony Commander") {
             // "you may pay {1}"
             action = Effects.PayMana("{1}"),
             optional = true,
+        ) {
             // "When you do, put a +1/+1 counter on target creature."
-            reflexiveEffect = Effects.AddCounters(
+            val creature = target("target creature", Targets.Creature)
+            effect = Effects.AddCounters(
                 CounterType.PLUS_ONE_PLUS_ONE,
                 1,
-                EffectTarget.ContextTarget(0),
-            ),
-            reflexiveTargetRequirements = listOf(Targets.Creature),
-        )
+                creature,
+            )
+        }
         description = "Whenever Ant-Man attacks, you may pay {1}. When you do, put a +1/+1 " +
             "counter on target creature."
     }

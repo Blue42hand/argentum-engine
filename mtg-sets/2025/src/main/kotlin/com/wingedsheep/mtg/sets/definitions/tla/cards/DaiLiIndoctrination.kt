@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
@@ -40,7 +39,7 @@ val DaiLiIndoctrination = card("Dai Li Indoctrination") {
                 val opponent = target("target opponent", TargetOpponent())
                 effect = Effects.Pipeline {
                     run(Effects.RevealHand(opponent))
-                    val opponentHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+                    val opponentHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
                     val toDiscard = chooseExactly(
                         1,
                         from = opponentHand,
@@ -50,7 +49,7 @@ val DaiLiIndoctrination = card("Dai Li Indoctrination") {
                         alwaysPrompt = true,
                         showAllCards = true
                     )
-                    discard(toDiscard, Player.ContextPlayer(0))
+                    discard(toDiscard, opponent.asPlayer)
                 }
             }
             mode("Earthbend 2") {

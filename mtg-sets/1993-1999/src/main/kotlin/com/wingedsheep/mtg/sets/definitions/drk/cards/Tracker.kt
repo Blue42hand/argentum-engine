@@ -47,7 +47,7 @@ val Tracker = card("Tracker") {
                 damageSource = EffectTarget.Self,
             ),
             Effects.DealDamage(
-                DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)),
+                DynamicAmounts.powerOf(prey),
                 EffectTarget.Self,
                 damageSource = prey,
             ),

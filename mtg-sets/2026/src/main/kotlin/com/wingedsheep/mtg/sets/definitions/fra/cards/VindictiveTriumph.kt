@@ -43,7 +43,7 @@ val VindictiveTriumph = card("Vindictive Triumph") {
     spell {
         val permanent = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
         effect = Effects.If(
-            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.manaValueAtMost(3)),
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.manaValueAtMost(3), permanent),
             then = Effects.Pipeline {
                 val targeted = gather(CardSource.ChosenTargets)
                 val exiled = moveTracked(targeted, CardDestination.ToZone(Zone.EXILE))

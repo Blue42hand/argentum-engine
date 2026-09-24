@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 /**
  * Soul Search — Murders at Karlov Manor #232
  * {W}{B} · Sorcery
@@ -41,10 +40,10 @@ val SoulSearch = card("Soul Search") {
         "creature token with flying."
 
     spell {
-        target("opponent", Targets.Opponent)
+        val opponent = target("opponent", Targets.Opponent)
         effect = Effects.Pipeline {
             val exiledCard = runStoringCollection {
-                Patterns.Hand.revealHandAndExileChosen(storeExiledAs = it, target = EffectTarget.ContextTarget(0))
+                Patterns.Hand.revealHandAndExileChosen(storeExiledAs = it, target = opponent)
             }
             run(Effects.If(
                 condition = whenMatches(exiledCard, Filters.ManaValueAtMost(1)),

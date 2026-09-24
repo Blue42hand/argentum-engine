@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Inti, Seneschal of the Sun
@@ -50,13 +49,13 @@ val IntiSeneschalOfTheSun = card("Inti, Seneschal of the Sun") {
         trigger = Triggers.YouAttack
         effect = Effects.ReflexiveTrigger(
             action = Effects.Discard(1),
-            optional = true,
-            reflexiveEffect = Effects.Composite(listOf(
-                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)),
-                Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.ContextTarget(0), Duration.EndOfTurn)
-            )),
-            reflexiveTargetRequirements = listOf(Targets.AttackingCreature)
-        )
+            optional = true) {
+            val attackingCreature = target("target attacking creature", Targets.AttackingCreature)
+            effect = Effects.Composite(listOf(
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, attackingCreature),
+                Effects.GrantKeyword(Keyword.TRAMPLE, attackingCreature, Duration.EndOfTurn)
+            ))
+        }
     }
 
     // "Whenever you discard one or more cards, exile the top card of your library. You may

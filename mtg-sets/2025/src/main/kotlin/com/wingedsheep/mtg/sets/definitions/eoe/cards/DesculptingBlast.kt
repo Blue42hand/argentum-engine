@@ -26,7 +26,7 @@ val DesculptingBlast = card("Desculpting Blast") {
         // Check attacking status before the return so the permanent is still on the battlefield
         effect = Effects.Composite(
             Effects.If(
-                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent.attacking()),
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent.attacking(), permanent),
                 then = Effects.CreateDroneToken()
             ),
             Effects.ReturnToHand(permanent)

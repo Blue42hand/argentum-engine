@@ -43,7 +43,7 @@ val RaftSecurityOfficer = card("Raft Security Officer") {
         val restrained = target("target creature", TargetCreature())
         effect = Effects.Tap(restrained)
         genericCostReduction = DynamicAmounts.conditional(
-            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.powerAtMost(3)),
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.powerAtMost(3), restrained),
             ifTrue = 1,
             ifFalse = 0,
         )

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Glacial Dragonhunt — Tarkir: Dragonstorm #188
@@ -60,13 +59,14 @@ val GlacialDragonhunt = card("Glacial Dragonhunt") {
                 run(Effects.ReflexiveTrigger(
                     action = Effects.Composite(emptyList()),
                     optional = false,
-                    reflexiveTargetRequirements = listOf(Targets.Creature),
+                    descriptionOverride = "Glacial Dragonhunt deals 3 damage to target creature"
+                ) {
                     // No `damageSource = Self`: by the time the reflexive ability resolves the
                     // spell has left the stack, so its source is the ability's recorded source
                     // (the default), not the new graveyard object.
-                    reflexiveEffect = Effects.DealDamage(3, EffectTarget.ContextTarget(0)),
-                    descriptionOverride = "Glacial Dragonhunt deals 3 damage to target creature"
-                ))
+                    val creature = target("target creature", Targets.Creature)
+                    effect = Effects.DealDamage(3, creature)
+                })
             }
         }
     }

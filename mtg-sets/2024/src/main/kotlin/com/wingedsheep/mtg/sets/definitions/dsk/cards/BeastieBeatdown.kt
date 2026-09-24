@@ -40,7 +40,7 @@ val BeastieBeatdown = card("Beastie Beatdown") {
                 condition = Conditions.Delirium(),
                 then = Effects.AddCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = yours),
             ),
-            Effects.DealDamage(DynamicAmounts.targetPower(0), theirs, damageSource = yours),
+            Effects.DealDamage(DynamicAmounts.powerOf(yours), theirs, damageSource = yours),
         )
     }
 

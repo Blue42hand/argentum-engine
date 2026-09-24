@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ActivationRestriction
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 /**
@@ -50,10 +48,10 @@ val WandOfIth = card("Wand of Ith") {
         val victim = target("target player", TargetPlayer())
         restrictions = listOf(ActivationRestriction.OnlyDuringYourTurn)
 
-        val payer = EffectTarget.ContextTarget(0)
+        val payer = victim
 
         effect = Effects.Pipeline {
-            val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val hand = gather(CardSource.FromZone(Zone.HAND, victim.asPlayer))
             val revealed = chooseRandom(1, from = hand)
             reveal(revealed)
             val (land, nonland) = filterSplit(revealed, GameObjectFilter.Land)
@@ -64,14 +62,14 @@ val WandOfIth = card("Wand of Ith") {
             ifNotEmpty(land) {
                 run(Effects.PayOrSuffer(
                     cost = Costs.pay.PayLife(1),
-                    suffer = Effects.Pipeline { discard(land, Player.ContextPlayer(0)) },
+                    suffer = Effects.Pipeline { discard(land, victim.asPlayer) },
                     player = payer,
                 ))
             }
             ifNotEmpty(nonland) {
                 run(Effects.PayOrSuffer(
                     cost = Costs.pay.PayDynamicLife(DynamicAmounts.manaValueSumOf(nonland)),
-                    suffer = Effects.Pipeline { discard(nonland, Player.ContextPlayer(0)) },
+                    suffer = Effects.Pipeline { discard(nonland, victim.asPlayer) },
                     player = payer,
                 ))
             }

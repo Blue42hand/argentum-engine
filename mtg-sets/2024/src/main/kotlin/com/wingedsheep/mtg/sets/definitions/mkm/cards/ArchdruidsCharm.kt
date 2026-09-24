@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Archdruid's Charm — Murders at Karlov Manor #151
@@ -112,7 +111,7 @@ val ArchdruidsCharm = card("Archdruid's Charm") {
                 effect = Effects.Composite(
                     Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, yours),
                     Effects.DealDamage(
-                        amount = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)),
+                        amount = DynamicAmounts.powerOf(yours),
                         target = theirs,
                         damageSource = yours,
                     ),

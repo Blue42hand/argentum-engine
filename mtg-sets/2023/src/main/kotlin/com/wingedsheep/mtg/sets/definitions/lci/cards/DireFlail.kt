@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -130,18 +129,19 @@ private val DireBlunderbuss = card("Dire Blunderbuss") {
                         run(Effects.SacrificeTarget(toSacrifice.asTarget))
                     },
                     optional = true,
+                    descriptionOverride = "You may sacrifice an artifact other than Dire Blunderbuss. " +
+                        "When you do, this creature deals damage equal to its power to target creature."
+                ) {
                     // "When you do, this creature deals damage equal to its power to
                     // target creature." Source of the granted ability = the equipped
                     // creature, so sourcePower() is its (buffed) power and the damage
                     // source defaults to it.
-                    reflexiveEffect = Effects.DealDamage(
+                    val creature = target("target creature", Targets.Creature)
+                    effect = Effects.DealDamage(
                         DynamicAmounts.sourcePower(),
-                        EffectTarget.ContextTarget(0)
-                    ),
-                    reflexiveTargetRequirements = listOf(Targets.Creature),
-                    descriptionOverride = "You may sacrifice an artifact other than Dire Blunderbuss. " +
-                        "When you do, this creature deals damage equal to its power to target creature."
-                )
+                        creature
+                    )
+                }
             ),
             filter = Filters.EquippedCreature
         )

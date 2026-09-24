@@ -56,7 +56,7 @@ val NurturingPixie = card("Nurturing Pixie") {
         )
         effect = Effects.ReturnToHand(t).then(
             Effects.If(
-                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent),
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent, t),
                 then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             ),
         )

@@ -6,10 +6,10 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Atalya, Samite Master
@@ -39,11 +39,10 @@ val AtalyaSamiteMaster = card("Atalya, Samite Master") {
         cost = Costs.Composite(Costs.Mana("{X}"), Costs.Tap)
         xManaRestriction = setOf(Color.WHITE)
         effect = ModalEffect.chooseOne(
-            Mode.withTarget(
-                Effects.PreventNextDamage(DynamicAmounts.xValue(), EffectTarget.ContextTarget(0)),
-                Targets.Creature,
-                "Prevent the next X damage that would be dealt to target creature this turn"
-            ),
+            mode("Prevent the next X damage that would be dealt to target creature this turn") {
+                val creature = target("target creature", Targets.Creature)
+                effect = Effects.PreventNextDamage(DynamicAmounts.xValue(), creature)
+            },
             Mode.noTarget(
                 Effects.GainLife(DynamicAmounts.xValue()),
                 "You gain X life"

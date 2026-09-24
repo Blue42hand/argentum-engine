@@ -32,11 +32,11 @@ val SupremeInquisitor = card("Supreme Inquisitor") {
         cost = Costs.TapPermanents(5, GameObjectFilter.Creature.withSubtype("Wizard"))
         effect = Effects.Pipeline {
             val searchable = gather(
-                CardSource.FromZone(Zone.LIBRARY, Player.ContextPlayer(0), GameObjectFilter.Any),
+                CardSource.FromZone(Zone.LIBRARY, player.asPlayer, GameObjectFilter.Any),
                 search = true
             )
             val exiled = chooseUpTo(5, from = searchable, chooser = Chooser.Controller)
-            exile(exiled, Player.ContextPlayer(0))
+            exile(exiled, player.asPlayer)
             run(Effects.ShuffleLibrary(player))
         }
     }

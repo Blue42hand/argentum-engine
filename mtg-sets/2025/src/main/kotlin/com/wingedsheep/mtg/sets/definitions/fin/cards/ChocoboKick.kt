@@ -39,12 +39,12 @@ val ChocoboKick = card("Chocobo Kick") {
         effect = Effects.If(
             condition = WasKicked,
             then = Effects.DealDamage(
-                DynamicAmounts.targetPower(0) * 2,
+                DynamicAmounts.powerOf(yourCreature) * 2,
                 theirCreature,
                 damageSource = yourCreature
             ),
             otherwise = Effects.DealDamage(
-                DynamicAmounts.targetPower(0),
+                DynamicAmounts.powerOf(yourCreature),
                 theirCreature,
                 damageSource = yourCreature
             )

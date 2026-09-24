@@ -40,7 +40,7 @@ val UnstableExperiment = card("Unstable Experiment") {
             TargetCreature(optional = true, filter = TargetFilter.CreatureYouControl)
         )
         effect = Effects.DrawCards(1, drawer) then Effects.If(
-            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature, targetIndex = 1),
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature, creature),
             then = Effects.Connive(creature)
         )
     }

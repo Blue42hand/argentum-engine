@@ -7,12 +7,11 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
@@ -51,37 +50,36 @@ val GetawayGlamer = card("Getaway Glamer") {
     spell {
         effect = Effects.Modal(
             modes = listOf(
-                Mode(
+                mode("+ {1} — Exile target nontoken creature. Return it to the " +
+                    "battlefield under its owner's control at the beginning of the next end step.") {
+                    val creature = target(
+                        "target creature",
+                        TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.nontoken()))
+                    )
+                    additionalManaCost = "{1}"
                     effect = Effects.Composite(
-                        Effects.Move(EffectTarget.ContextTarget(0), Zone.EXILE),
+                        Effects.Move(creature, Zone.EXILE),
                         Effects.CreateDelayedTrigger(
                             step = Step.END,
-                            effect = Effects.Move(EffectTarget.ContextTarget(0), Zone.BATTLEFIELD)
+                            effect = Effects.Move(creature, Zone.BATTLEFIELD)
                         )
-                    ),
-                    targetRequirements = listOf(
-                        TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.nontoken()))
-                    ),
-                    description = "+ {1} — Exile target nontoken creature. Return it to the " +
-                        "battlefield under its owner's control at the beginning of the next end step.",
-                    additionalManaCost = "{1}"
-                ),
-                Mode(
+                    )
+                },
+                mode("+ {2} — Destroy target creature if no other creature has greater power.") {
+                    val creature = target("target creature", Targets.Creature)
+                    additionalManaCost = "{2}"
                     effect = Effects.If(
                         condition = Conditions.CompareAmounts(
-                            left = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)),
+                            left = DynamicAmounts.powerOf(creature),
                             operator = ComparisonOperator.GTE,
                             right = DynamicAmounts.battlefield(
                                 Player.Each,
                                 GameObjectFilter.Creature
                             ).maxPower()
                         ),
-                        then = Effects.Destroy(EffectTarget.ContextTarget(0))
-                    ),
-                    targetRequirements = listOf(Targets.Creature),
-                    description = "+ {2} — Destroy target creature if no other creature has greater power.",
-                    additionalManaCost = "{2}"
-                )
+                        then = Effects.Destroy(creature)
+                    )
+                }
             ),
             chooseCount = 2,
             minChooseCount = 1

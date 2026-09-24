@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Steal the Show
@@ -44,7 +43,7 @@ val StealTheShow = card("Steal the Show") {
             mode("Target player discards any number of cards, then draws that many cards") {
                 val player = target("target player", Targets.Player)
                 effect = Effects.Pipeline {
-                    val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+                    val hand = gather(CardSource.FromZone(Zone.HAND, player.asPlayer))
                     val discarded = chooseAnyNumber(
                         from = hand,
                         chooser = Chooser.TargetPlayer,
@@ -52,13 +51,13 @@ val StealTheShow = card("Steal the Show") {
                     )
                     move(
                         discarded,
-                        CardDestination.ToZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),
+                        CardDestination.ToZone(Zone.GRAVEYARD, player.asPlayer),
                         moveType = MoveType.Discard
                     )
                     run(
                         Effects.DrawCards(
                             discarded.count,
-                            EffectTarget.ContextTarget(0)
+                            player
                         )
                     )
                 }

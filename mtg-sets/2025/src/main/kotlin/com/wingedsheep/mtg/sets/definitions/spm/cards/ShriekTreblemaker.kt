@@ -47,10 +47,10 @@ val ShriekTreblemaker = card("Shriek, Treblemaker") {
         trigger = Triggers.FirstMainPhase
         effect = Effects.ReflexiveTrigger(
             action = Effects.Discard(1),
-            optional = true,
-            reflexiveEffect = Effects.CantBlock(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(Targets.Creature)
-        )
+            optional = true) {
+            val creature = target("target creature", Targets.Creature)
+            effect = Effects.CantBlock(creature)
+        }
     }
 
     // "Sonic Blast — Whenever a creature an opponent controls dies, Shriek deals 1 damage to that player."

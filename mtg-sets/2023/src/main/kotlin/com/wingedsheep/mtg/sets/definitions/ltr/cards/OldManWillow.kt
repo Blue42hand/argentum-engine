@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Old Man Willow
@@ -37,11 +35,14 @@ val OldManWillow = card("Old Man Willow") {
                 filter = GameObjectFilter.Creature.youControl() or GameObjectFilter.Token.youControl(),
                 excludeSource = true
             ),
-            optional = true,
+            optional = true) {
             // "When you do, target creature an opponent controls gets -2/-2 until end of turn."
-            reflexiveEffect = Effects.ModifyStats(-2, -2, EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(Targets.CreatureOpponentControls)
-        )
+            val creatureOpponentControls = target(
+                "target creature opponent controls",
+                Targets.CreatureOpponentControls
+            )
+            effect = Effects.ModifyStats(-2, -2, creatureOpponentControls)
+        }
     }
 
     metadata {

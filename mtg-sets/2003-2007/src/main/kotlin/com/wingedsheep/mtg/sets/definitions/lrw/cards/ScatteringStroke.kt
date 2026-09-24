@@ -55,9 +55,9 @@ val ScatteringStroke = card("Scattering Stroke") {
         "choice of the top or bottom. A player wins if their card had a greater mana value.)"
 
     spell {
-        target("target spell", Targets.Spell)
+        val spellTarget = target("target spell", Targets.Spell)
         effect = Effects.Pipeline {
-            val manaValue = storeNumber(DynamicAmounts.targetManaValue())
+            val manaValue = storeNumber(DynamicAmounts.manaValueOf(spellTarget))
             run(Effects.CounterSpell())
             run(
                 Patterns.Mechanic.clash(

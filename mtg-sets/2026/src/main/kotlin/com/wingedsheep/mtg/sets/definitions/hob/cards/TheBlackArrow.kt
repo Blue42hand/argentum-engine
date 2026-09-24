@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * The Black Arrow — The Hobbit #171
@@ -53,11 +52,8 @@ val TheBlackArrow = card("The Black Arrow") {
         effect = Effects.Composite(
             Effects.DealDamage(1, anyTarget),
             Effects.If(
-                condition = Conditions.TargetMatchesFilter(
-                    GameObjectFilter.Any.withSubtype(Subtype.DRAGON),
-                    targetIndex = 0
-                ),
-                then = Effects.Destroy(EffectTarget.ContextTarget(0))
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.withSubtype(Subtype.DRAGON), anyTarget),
+                then = Effects.Destroy(anyTarget)
             )
         )
         description = "When The Black Arrow enters, it deals 1 damage to any target. " +

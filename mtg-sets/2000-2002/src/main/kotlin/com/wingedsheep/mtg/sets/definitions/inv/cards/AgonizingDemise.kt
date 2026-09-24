@@ -43,7 +43,7 @@ val AgonizingDemise = card("Agonizing Demise") {
         effect = Effects.CantBeRegenerated(creature) then
             Effects.If(
                 condition = WasKicked,
-                then = Effects.DealDamage(DynamicAmounts.targetPower(0), EffectTarget.TargetController)
+                then = Effects.DealDamage(DynamicAmounts.powerOf(creature), EffectTarget.TargetController)
             ) then
             Effects.Destroy(creature)
     }

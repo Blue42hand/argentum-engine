@@ -36,7 +36,7 @@ val ThickestInTheThicket = card("Thickest in the Thicket") {
         val creature = target("creature", Targets.Creature)
         effect = Effects.AddDynamicCounters(
             CounterType.PLUS_ONE_PLUS_ONE,
-            DynamicAmounts.targetPower(0),
+            DynamicAmounts.powerOf(creature),
             creature
         )
     }

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 /**
@@ -30,7 +29,7 @@ val Addle = card("Addle") {
         effect = Effects.ChooseColorThen(
             then = Effects.Pipeline {
                 run(Effects.RevealHand(targetPlayer))
-                val targetHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+                val targetHand = gather(CardSource.FromZone(Zone.HAND, targetPlayer.asPlayer))
                 val toDiscard = chooseExactly(
                     1,
                     from = targetHand,
@@ -42,7 +41,7 @@ val Addle = card("Addle") {
                     alwaysPrompt = true,
                     showAllCards = true
                 )
-                discard(toDiscard, Player.ContextPlayer(0))
+                discard(toDiscard, targetPlayer.asPlayer)
             },
         )
     }

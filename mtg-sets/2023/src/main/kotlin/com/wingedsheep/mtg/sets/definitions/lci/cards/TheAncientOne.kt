@@ -82,13 +82,13 @@ val TheAncientOne = card("The Ancient One") {
             Effects.DrawCards(1, EffectTarget.Controller),
             Effects.ReflexiveTrigger(
                 action = Patterns.Hand.discardCards(1),
-                optional = false,
-                reflexiveEffect = Patterns.Library.mill(
+                optional = false) {
+                val player = target("target player", Targets.Player)
+                effect = Patterns.Library.mill(
                     DynamicAmounts.manaValueOf(Patterns.Hand.discarded),
-                    EffectTarget.ContextTarget(0)
-                ),
-                reflexiveTargetRequirements = listOf(Targets.Player)
-            )
+                    player
+                )
+            }
         )
     }
 

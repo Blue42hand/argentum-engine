@@ -5,9 +5,8 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.TriggeredAbility
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -56,15 +55,14 @@ val ProfessorDellianFel = card("Professor Dellian Fel") {
     // −6: Emblem with "Whenever you gain life, target opponent loses that much life."
     loyaltyAbility(-6) {
         effect = Effects.CreateGlobalTriggeredAbility(
-            ability = TriggeredAbility.create(
-                trigger = Triggers.YouGainLife.event,
-                binding = Triggers.YouGainLife.binding,
-                targetRequirement = Targets.Opponent,
+            ability = grantedTriggeredAbility {
+                trigger = Triggers.YouGainLife
+                val opponent = target("target opponent", Targets.Opponent)
                 effect = Effects.LoseLife(
                     amount = DynamicAmounts.triggerLifeGained(),
-                    target = EffectTarget.ContextTarget(0)
+                    target = opponent
                 )
-            ),
+            },
             descriptionOverride = "Whenever you gain life, target opponent loses that much life."
         )
     }

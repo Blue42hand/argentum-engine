@@ -31,7 +31,7 @@ val BiteDown = card("Bite Down") {
             "target creature or planeswalker you don't control",
             TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls())),
         )
-        effect = Effects.DealDamage(DynamicAmounts.targetPower(0), t2, damageSource = t1)
+        effect = Effects.DealDamage(DynamicAmounts.powerOf(t1), t2, damageSource = t1)
     }
     metadata {
         rarity = Rarity.COMMON

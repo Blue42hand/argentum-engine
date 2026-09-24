@@ -70,12 +70,12 @@ val LilianaOfTheVeil = card("Liliana of the Veil") {
     // −6: Separate all permanents target player controls into two piles. That player sacrifices
     //     all permanents in the pile of their choice.
     loyaltyAbility(-6) {
-        target("target player", Targets.Player)
+        val player = target("target player", Targets.Player)
         effect = Effects.Pipeline(
             descriptionOverride = "Separate all permanents target player controls into two piles. " +
                 "That player sacrifices all permanents in the pile of their choice."
         ) {
-            val theirPermanents = gather(CardSource.ControlledPermanents(Player.ContextPlayer(0)))
+            val theirPermanents = gather(CardSource.ControlledPermanents(player.asPlayer))
             val (pileA, pileB) = chooseAnyNumberSplit(
                 from = theirPermanents,
                 chooser = Chooser.Controller,

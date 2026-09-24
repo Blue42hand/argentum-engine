@@ -35,7 +35,7 @@ val RallyTheRighteous = card("Rally the Righteous") {
             Effects.ModifyStats(2, 0, radiant) then
             Effects.ForEachInGroup(
                 filter = GroupFilter(
-                    GameObjectFilter.Creature.sharingColorWith(EffectTarget.ContextTarget(0))
+                    GameObjectFilter.Creature.sharingColorWith(radiant)
                 ).otherThanTarget(),
                 effect = Effects.Untap(EffectTarget.IterationEntity) then
                     Effects.ModifyStats(2, 0, EffectTarget.IterationEntity)

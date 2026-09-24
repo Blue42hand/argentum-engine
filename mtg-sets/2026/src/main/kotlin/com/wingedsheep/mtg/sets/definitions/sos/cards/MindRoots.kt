@@ -39,7 +39,7 @@ val MindRoots = card("Mind Roots") {
         val player = target("player", TargetPlayer())
         effect = Effects.Pipeline {
             // Target player discards two cards (they choose).
-            val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val hand = gather(CardSource.FromZone(Zone.HAND, player.asPlayer))
             val discarded = chooseExactly(
                 2, from = hand,
                 chooser = Chooser.TargetPlayer,
@@ -47,7 +47,7 @@ val MindRoots = card("Mind Roots") {
             )
             moveTracked(
                 discarded,
-                CardDestination.ToZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),
+                CardDestination.ToZone(Zone.GRAVEYARD, player.asPlayer),
                 moveType = MoveType.Discard
             )
             // Of the cards discarded this way, you may put up to one land onto the battlefield

@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -72,17 +71,21 @@ val FeralEncounter = card("Feral Encounter") {
             run(Effects.GrantMayPlayFromExile(feralExiled))
             run(Effects.CreateDelayedTrigger(
                 step = Step.BEGIN_COMBAT,
-                timing = DelayedTriggerTiming.THIS_TURN_ONLY,
-                targetRequirement = TargetCreature(filter = TargetFilter.Creature.youControl()),
-                additionalTargetRequirements = listOf(
-                    TargetCreature(optional = true, filter = TargetFilter.Creature.opponentControls())
-                ),
-                effect = Effects.DealDamage(
-                    DynamicAmounts.targetPower(0),
-                    EffectTarget.ContextTarget(1),
-                    damageSource = EffectTarget.ContextTarget(0)
+                timing = DelayedTriggerTiming.THIS_TURN_ONLY) {
+                val firstCreature = target(
+                    "target first creature",
+                    TargetCreature(filter = TargetFilter.Creature.youControl())
                 )
-            ))
+                val secondCreature = target(
+                    "target second creature",
+                    TargetCreature(optional = true, filter = TargetFilter.Creature.opponentControls())
+                )
+                effect = Effects.DealDamage(
+                    DynamicAmounts.powerOf(firstCreature),
+                    secondCreature,
+                    damageSource = firstCreature
+                )
+            })
         }
     }
 

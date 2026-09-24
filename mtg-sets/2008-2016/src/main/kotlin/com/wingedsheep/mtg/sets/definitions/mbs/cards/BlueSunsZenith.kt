@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Blue Sun's Zenith — Mirrodin Besieged #20 (canonical / earliest real printing, 2011)
@@ -24,8 +23,8 @@ val BlueSunsZenith = card("Blue Sun's Zenith") {
     oracleText = "Target player draws X cards. Shuffle Blue Sun's Zenith into its owner's library."
 
     spell {
-        target("target player", Targets.Player)
-        effect = Effects.DrawCards(DynamicAmounts.xValue(), EffectTarget.ContextTarget(0))
+        val player = target("target player", Targets.Player)
+        effect = Effects.DrawCards(DynamicAmounts.xValue(), player)
         selfShuffleIntoLibrary()
     }
 

@@ -78,7 +78,7 @@ val TheSkullsporeNexus = card("The Skullspore Nexus") {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
         val creature = target("creature whose power to double", Targets.Creature)
         effect = Effects.ModifyStats(
-            power = DynamicAmounts.targetPower(0),
+            power = DynamicAmounts.powerOf(creature),
             toughness = DynamicAmounts.fixed(0),
             target = creature
         )

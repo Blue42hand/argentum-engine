@@ -29,7 +29,7 @@ val SeedshipImpact = card("Seedship Impact") {
         effect = Effects.Move(target, Zone.GRAVEYARD, byDestruction = true)
             .then(
                 Effects.If(
-                    condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(2)),
+                    condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(2), target),
                     then = Effects.CreateLander()
                 )
             )

@@ -52,12 +52,8 @@ val DomriAnarchOfBolas = card("Domri, Anarch of Bolas") {
         // no creature deals or is dealt damage (per the printed ruling on this card).
         effect = Effects.If(
             condition = Conditions.All(
-                Conditions.TargetMatchesFilter(
-                    GameObjectFilter.Creature.youControl(), targetIndex = 0
-                ),
-                Conditions.TargetMatchesFilter(
-                    GameObjectFilter.Creature.opponentControls(), targetIndex = 1
-                )
+                Conditions.TargetMatchesFilter(GameObjectFilter.Creature.youControl(), yours),
+                Conditions.TargetMatchesFilter(GameObjectFilter.Creature.opponentControls(), theirs)
             ),
             then = Effects.Fight(yours, theirs)
         )

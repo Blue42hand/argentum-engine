@@ -3,12 +3,12 @@ package com.wingedsheep.mtg.sets.definitions.big.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
@@ -46,13 +46,12 @@ val OltecMatterweaver = card("Oltec Matterweaver") {
                 ),
                 "Create a 1/1 colorless Gnome artifact creature token"
             ),
-            Mode.withTarget(
-                Effects.CreateTokenCopyOfTarget(target = EffectTarget.ContextTarget(0)),
-                TargetPermanent(
+            mode("Create a token that's a copy of target artifact token you control") {
+                val artifact = target("target artifact", TargetPermanent(
                     filter = TargetFilter(GameObjectFilter.Artifact.token().youControl())
-                ),
-                "Create a token that's a copy of target artifact token you control"
-            )
+                ))
+                effect = Effects.CreateTokenCopyOfTarget(target = artifact)
+            }
         )
     }
 

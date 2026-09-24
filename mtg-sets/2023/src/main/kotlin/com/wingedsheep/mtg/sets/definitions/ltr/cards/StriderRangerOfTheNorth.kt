@@ -33,7 +33,7 @@ val StriderRangerOfTheNorth = card("Strider, Ranger of the North") {
         effect = Effects.ModifyStats(1, 1, creature)
             .then(
                 Effects.If(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.powerAtLeast(4)),
+                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.powerAtLeast(4), creature),
                     then = Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature)
                 )
             )

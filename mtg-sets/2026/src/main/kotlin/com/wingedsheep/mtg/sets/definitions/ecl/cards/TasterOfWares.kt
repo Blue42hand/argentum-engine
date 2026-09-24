@@ -60,7 +60,7 @@ val TasterOfWares = card("Taster of Wares") {
                 ).count()
             )
             // Gather opponent's hand
-            val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val hand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
             // Opponent chooses X cards to reveal
             val revealed = chooseExactly(
                 goblinCount.amount,
@@ -79,7 +79,7 @@ val TasterOfWares = card("Taster of Wares") {
                 prompt = "Choose one of the revealed cards to exile"
             )
             // That player exiles it
-            exile(chosen, Player.ContextPlayer(0))
+            exile(chosen, opponent.asPlayer)
             // If the exiled card is an instant or sorcery, grant cast-from-exile
             val instantOrSorcery = filter(chosen, GameObjectFilter.InstantOrSorcery)
             run(Effects.GrantMayPlayFromExile(

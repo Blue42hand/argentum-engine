@@ -35,10 +35,10 @@ val GeneralTraagHeartOfStone = card("General Traag, Heart of Stone") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeOwn(GameObjectFilter.Artifact, excludeSource = true),
-            optional = true,
-            reflexiveEffect = Effects.DealDamage(4, EffectTarget.ContextTarget(0), damageSource = EffectTarget.Self),
-            reflexiveTargetRequirements = listOf(Targets.Creature)
-        )
+            optional = true) {
+            val creature = target("target creature", Targets.Creature)
+            effect = Effects.DealDamage(4, creature, damageSource = EffectTarget.Self)
+        }
         description = "When General Traag enters, you may sacrifice another artifact. When you do, General Traag deals 4 damage to target creature."
     }
 

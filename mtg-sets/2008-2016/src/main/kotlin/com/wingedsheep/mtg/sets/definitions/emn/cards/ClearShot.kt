@@ -28,7 +28,7 @@ val ClearShot = card("Clear Shot") {
         val t2 = target("t2", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.Composite(
             Effects.ModifyStats(1, 1, t1),
-            Effects.DealDamage(DynamicAmounts.targetPower(0), t2, damageSource = t1)
+            Effects.DealDamage(DynamicAmounts.powerOf(t1), t2, damageSource = t1)
         )
     }
     metadata {

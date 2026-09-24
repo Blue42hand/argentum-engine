@@ -25,7 +25,7 @@ val BringLow = card("Bring Low") {
         val creature = target("target creature", Targets.Creature)
         effect = Effects.DealDamage(
             amount = DynamicAmounts.conditional(
-                condition = Conditions.TargetHasCounter(CounterType.PLUS_ONE_PLUS_ONE),
+                condition = Conditions.TargetHasCounter(CounterType.PLUS_ONE_PLUS_ONE, creature),
                 ifTrue = 5,
                 ifFalse = 3
             ),

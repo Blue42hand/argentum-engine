@@ -10,12 +10,12 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 
@@ -35,15 +35,17 @@ val SylvanScavenging = card("Sylvan Scavenging") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         effect = ModalEffect.chooseOne(
-            Mode.withTarget(
-                Effects.AddCounters(
+            mode("Put a +1/+1 counter on target creature you control") {
+                val creature = target(
+                    "target creature",
+                    TargetCreature(filter = TargetFilter.Creature.youControl())
+                )
+                effect = Effects.AddCounters(
                     counterType = CounterType.PLUS_ONE_PLUS_ONE,
                     count = 1,
-                    target = EffectTarget.ContextTarget(0)
-                ),
-                TargetCreature(filter = TargetFilter.Creature.youControl()),
-                "Put a +1/+1 counter on target creature you control"
-            ),
+                    target = creature
+                )
+            },
             Mode.noTarget(
                 Effects.If(
                     condition = Conditions.YouControl(GameObjectFilter.Creature.powerAtLeast(4)),

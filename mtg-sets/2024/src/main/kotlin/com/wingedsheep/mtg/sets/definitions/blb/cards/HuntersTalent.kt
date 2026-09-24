@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Exists
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Hunter's Talent {G}
@@ -42,7 +41,7 @@ val HuntersTalent = card("Hunter's Talent") {
         val myCreature = target("creature you control", Targets.CreatureYouControl)
         val theirCreature = target("creature you don't control", Targets.CreatureOpponentControls)
         effect = Effects.DealDamage(
-            amount = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)),
+            amount = DynamicAmounts.powerOf(myCreature),
             target = theirCreature,
             damageSource = myCreature
         )

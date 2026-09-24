@@ -31,7 +31,7 @@ val ElectrostaticBolt = card("Electrostatic Bolt") {
         val creature = target("target creature", Targets.Creature)
         effect = Effects.DealDamage(
             amount = DynamicAmounts.conditional(
-                condition = Conditions.TargetMatchesFilter(GameObjectFilter.ArtifactCreature),
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.ArtifactCreature, creature),
                 ifTrue = 4,
                 ifFalse = 2
             ),

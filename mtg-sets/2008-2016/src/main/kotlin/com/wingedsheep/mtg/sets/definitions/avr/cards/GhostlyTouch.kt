@@ -4,11 +4,10 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
-import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Ghostly Touch
@@ -41,21 +40,20 @@ val GhostlyTouch = card("Ghostly Touch") {
 
     staticAbility {
         ability = GrantTriggeredAbility(
-            TriggeredAbility.create(
-                trigger = Triggers.Attacks.event,
-                binding = Triggers.Attacks.binding,
+            grantedTriggeredAbility {
+                trigger = Triggers.Attacks
+                val permanent = target("target permanent", Targets.Permanent)
                 effect = Effects.May(
                     Effects.Modal(
                         modes = listOf(
-                            Mode.noTarget(Effects.Tap(EffectTarget.ContextTarget(0))),
-                            Mode.noTarget(Effects.Untap(EffectTarget.ContextTarget(0)))
+                            Mode.noTarget(Effects.Tap(permanent)),
+                            Mode.noTarget(Effects.Untap(permanent))
                         ),
                         chooseCount = 1,
                         countsAsModalSpell = false
                     )
-                ),
-                targetRequirement = Targets.Permanent
-            )
+                )
+            }
         )
     }
 

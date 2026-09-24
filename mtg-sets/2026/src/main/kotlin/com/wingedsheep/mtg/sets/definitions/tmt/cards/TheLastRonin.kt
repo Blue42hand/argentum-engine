@@ -46,14 +46,12 @@ val TheLastRonin = card("The Last Ronin") {
         // after the mill so you can grab a creature it just put into the graveyard.
         effect = Effects.ReflexiveTrigger(
             action = Patterns.Library.mill(4),
-            optional = false,
-            reflexiveEffect = Effects.ReturnToHand(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(
-                TargetObject(
-                    filter = TargetFilter(GameObjectFilter.Creature.ownedByYou(), zone = Zone.GRAVEYARD)
-                )
-            )
-        )
+            optional = false) {
+            val creature = target("target creature", TargetObject(
+                filter = TargetFilter(GameObjectFilter.Creature.ownedByYou(), zone = Zone.GRAVEYARD)
+            ))
+            effect = Effects.ReturnToHand(creature)
+        }
     }
 
     sagaChapter(3) {

@@ -40,7 +40,7 @@ val CrackedSkull = card("Cracked Skull") {
         val player = target("target player", Targets.Player)
         effect = Effects.Pipeline {
             run(Effects.LookAtHand(player))
-            val targetHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val targetHand = gather(CardSource.FromZone(Zone.HAND, player.asPlayer))
             val toDiscard = chooseUpTo(
                 1,
                 from = targetHand,
@@ -50,7 +50,7 @@ val CrackedSkull = card("Cracked Skull") {
                 showAllCards = true,
                 alwaysPrompt = true
             )
-            discard(toDiscard, Player.ContextPlayer(0))
+            discard(toDiscard, player.asPlayer)
         }
     }
 

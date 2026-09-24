@@ -20,7 +20,7 @@ val ProphesiedEnd = card("Prophesied End") {
         // branch is picked first and each branch destroys before anything else. "Its controller"
         // then resolves through last-known information.
         effect = Effects.If(
-            condition = Conditions.Not(Conditions.TargetMatchesFilter(GameObjectFilter.Creature.attacking())),
+            condition = Conditions.Not(Conditions.TargetMatchesFilter(GameObjectFilter.Creature.attacking(), creature)),
             then = Effects.Composite(
                 Effects.Destroy(creature),
                 Effects.DrawCards(1, EffectTarget.TargetController),

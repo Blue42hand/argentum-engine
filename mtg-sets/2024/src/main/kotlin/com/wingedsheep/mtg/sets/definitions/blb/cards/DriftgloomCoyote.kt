@@ -43,7 +43,7 @@ val DriftgloomCoyote = card("Driftgloom Coyote") {
         )
         // Check power condition first (while creature is still on battlefield), then exile
         effect = Effects.If(
-            condition = Conditions.TargetPowerAtMost(DynamicAmounts.fixed(2)),
+            condition = Conditions.TargetPowerAtMost(DynamicAmounts.fixed(2), creature),
             then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         ).then(Effects.ExileUntilLeaves(creature))
     }

@@ -27,9 +27,7 @@ val Thwip = card("Thwip!") {
             .then(Effects.GrantKeyword(Keyword.FLYING, t))
             .then(
                 Effects.If(
-                    condition = Conditions.TargetMatchesFilter(
-                        GameObjectFilter.Creature.withSubtype(Subtype.SPIDER), targetIndex = 0
-                    ),
+                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.SPIDER), t),
                     then = Effects.GainLife(2)
                 )
             )

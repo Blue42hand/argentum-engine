@@ -44,10 +44,10 @@ val KlawSonicSubjugator = card("Klaw, Sonic Subjugator") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        target("target player", Targets.Player)
+        val player = target("target player", Targets.Player)
         effect = Effects.Pipeline {
             // 1. Gather the target player's hand.
-            val klawHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val klawHand = gather(CardSource.FromZone(Zone.HAND, player.asPlayer))
             // 2. That player reveals 1 + creature cards in your graveyard of them.
             val klawRevealed = chooseExactly(
                 1 + DynamicAmounts.creatureCardsInYourGraveyard(),
@@ -63,7 +63,7 @@ val KlawSonicSubjugator = card("Klaw, Sonic Subjugator") {
                 prompt = "Choose a card that player discards"
             )
             // 4. That player discards it.
-            discard(klawChosen, Player.ContextPlayer(0))
+            discard(klawChosen, player.asPlayer)
         }
         description = "Sonic Attack — When Klaw enters, target player reveals a number of cards " +
             "from their hand equal to one plus the number of creature cards in your graveyard. " +

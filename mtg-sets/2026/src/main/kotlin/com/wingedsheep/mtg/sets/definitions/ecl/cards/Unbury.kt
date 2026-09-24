@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
@@ -38,11 +39,13 @@ val Unbury = card("Unbury") {
 
     spell {
         effect = ModalEffect.chooseOne(
-            Mode.withTarget(
-                Effects.ReturnToHand(EffectTarget.ContextTarget(0)),
-                TargetObject(filter = TargetFilter.CreatureInYourGraveyard),
-                "Return target creature card from your graveyard to your hand"
-            ),
+            mode("Return target creature card from your graveyard to your hand") {
+                val creatureInYourGraveyard = target(
+                    "target creature in your graveyard",
+                    TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
+                )
+                effect = Effects.ReturnToHand(creatureInYourGraveyard)
+            },
             Mode.withTarget(
                 Effects.ForEachTarget(Effects.ReturnToHand(EffectTarget.ContextTarget(0))),
                 TargetObject(

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Ty Lee, Artful Acrobat
@@ -36,11 +35,11 @@ val TyLeeArtfulAcrobat = card("Ty Lee, Artful Acrobat") {
         effect = Effects.ReflexiveTrigger(
             // "you may pay {1}"
             action = Effects.PayMana("{1}"),
-            optional = true,
+            optional = true) {
             // "When you do, target creature can't block this turn."
-            reflexiveEffect = Effects.CantBlock(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(Targets.Creature)
-        )
+            val creature = target("target creature", Targets.Creature)
+            effect = Effects.CantBlock(creature)
+        }
     }
 
     metadata {

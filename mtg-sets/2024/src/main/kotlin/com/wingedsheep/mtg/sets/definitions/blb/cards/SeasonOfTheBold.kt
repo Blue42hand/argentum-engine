@@ -3,13 +3,13 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.TriggeredAbility
+import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.BudgetMode
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.EventPattern.SpellCastEvent
 import com.wingedsheep.sdk.scripting.TriggerBinding
@@ -60,15 +60,14 @@ val SeasonOfTheBold = card("Season of the Bold") {
                 BudgetMode(
                     cost = 3,
                     effect = Effects.CreateGlobalTriggeredAbility(
-                        ability = TriggeredAbility.create(
-                            trigger = SpellCastEvent(player = Player.You),
-                            binding = TriggerBinding.ANY,
+                        ability = grantedTriggeredAbility {
+                            trigger = TriggerSpec(SpellCastEvent(player = Player.You), TriggerBinding.ANY)
+                            val creature = target("target creature", TargetCreature(optional = true))
                             effect = Effects.DealDamage(
                                 amount = 2,
-                                target = EffectTarget.ContextTarget(0)
-                            ),
-                            targetRequirement = TargetCreature(optional = true)
-                        ),
+                                target = creature
+                            )
+                        },
                         duration = Duration.UntilYourNextTurn
                     ),
                     description = "Until the end of your next turn, whenever you cast a spell, Season of the Bold deals 2 damage to up to one target creature"

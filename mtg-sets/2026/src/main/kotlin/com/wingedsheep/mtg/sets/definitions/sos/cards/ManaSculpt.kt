@@ -48,7 +48,7 @@ val ManaSculpt = card("Mana Sculpt") {
                 step = Step.PRECOMBAT_MAIN,
                 fireOnPlayer = EffectTarget.PlayerRef(Player.You),
                 timing = DelayedTriggerTiming.CURRENT_TURN_OR_LATER,
-                effect = Effects.AddColorlessMana(DynamicAmounts.targetManaSpent(0)),
+                effect = Effects.AddColorlessMana(DynamicAmounts.manaSpentToCast(spell)),
             ),
         ) then Effects.CounterSpell()
     }

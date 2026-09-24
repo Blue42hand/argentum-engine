@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 /**
@@ -50,8 +48,8 @@ val DreadFugue = card("Dread Fugue") {
 
         // Printed (brackets present): choose a nonland card with mana value 2 or less to discard.
         effect = Effects.Pipeline {
-            run(Effects.RevealHand(EffectTarget.ContextTarget(0)))
-            val revealedHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            run(Effects.RevealHand(player))
+            val revealedHand = gather(CardSource.FromZone(Zone.HAND, player.asPlayer))
             val toDiscard = chooseExactly(
                 1,
                 from = revealedHand,
@@ -61,13 +59,13 @@ val DreadFugue = card("Dread Fugue") {
                 alwaysPrompt = true,
                 showAllCards = true
             )
-            discard(toDiscard, Player.ContextPlayer(0))
+            discard(toDiscard, player.asPlayer)
         }
 
         // Cleaved (brackets removed): choose any nonland card to discard (no mana-value cap).
         cleaveEffect = Effects.Pipeline {
-            run(Effects.RevealHand(EffectTarget.ContextTarget(0)))
-            val revealedHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            run(Effects.RevealHand(player))
+            val revealedHand = gather(CardSource.FromZone(Zone.HAND, player.asPlayer))
             val toDiscard = chooseExactly(
                 1,
                 from = revealedHand,
@@ -77,7 +75,7 @@ val DreadFugue = card("Dread Fugue") {
                 alwaysPrompt = true,
                 showAllCards = true
             )
-            discard(toDiscard, Player.ContextPlayer(0))
+            discard(toDiscard, player.asPlayer)
         }
     }
 

@@ -35,12 +35,9 @@ val EssenceFlux = card("Essence Flux") {
             .then(Effects.Move(creature, Zone.BATTLEFIELD))
             .then(
                 Effects.If(
-                    condition = Conditions.TargetMatchesFilter(
-                        filter = GameObjectFilter(
+                    condition = Conditions.TargetMatchesFilter(GameObjectFilter(
                             cardPredicates = listOf(CardPredicate.HasSubtype(Subtype("Spirit")))
-                        ),
-                        targetIndex = 0
-                    ),
+                        ), creature),
                     then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
                 )
             )

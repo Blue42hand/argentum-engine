@@ -61,7 +61,7 @@ private val HydaelynTheMothercrystal = card("Hydaelyn, the Mothercrystal") {
             Effects.If(
                 // "If that creature is legendary, draw a card." The +1/+1 target is the first (only)
                 // chosen target, so test it via ContextTarget(0) like Blessing of Belzenlok.
-                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary()),
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary(), creature),
                 then = Effects.DrawCards(1),
             ),
         )

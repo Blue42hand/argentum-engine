@@ -64,9 +64,7 @@ val UnyieldingGatekeeper = card("Unyielding Gatekeeper") {
         trigger = Triggers.TurnedFaceUp
         val permanent = target("another target nonland permanent", Targets.OtherNonlandPermanent)
         effect = Effects.If(
-            condition = Conditions.TargetMatchesFilter(
-                GameObjectFilter.NonlandPermanent.youControl()
-            ),
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.NonlandPermanent.youControl(), permanent),
             then = Effects.Move(permanent, Zone.EXILE)
                 .then(
                     Effects.Move(

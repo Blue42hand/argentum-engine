@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Bullseye, Death Dealer (MSH #209) — {2}{B/R} Legendary Creature — Human Assassin Villain, 2/3
@@ -76,11 +75,12 @@ val BullseyeDeathDealer = card("Bullseye, Death Dealer") {
                 )
             ),
             optional = true,
-            reflexiveEffect = Effects.DealDamage(2, EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(Targets.Any),
             descriptionOverride = "You may sacrifice an artifact or discard a nonland card. " +
                 "When you do, Bullseye deals 2 damage to any target.",
-        )
+        ) {
+            val anyTarget = target("target any", Targets.Any)
+            effect = Effects.DealDamage(2, anyTarget)
+        }
         description = "When Bullseye enters, you may sacrifice an artifact or discard a nonland " +
             "card. When you do, Bullseye deals 2 damage to any target."
     }

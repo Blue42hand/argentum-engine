@@ -37,8 +37,8 @@ val DivineResilience = card("Divine Resilience") {
 
     spell {
         // Unkicked: one target creature you control gains indestructible.
-        target = Targets.CreatureYouControl
-        effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.ContextTarget(0))
+        val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+        effect = Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creatureYouControl)
 
         // Kicked: any number of target creatures you control gain indestructible.
         kickerTarget = TargetObject(

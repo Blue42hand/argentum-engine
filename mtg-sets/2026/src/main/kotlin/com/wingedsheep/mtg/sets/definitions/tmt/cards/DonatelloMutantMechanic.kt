@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
@@ -46,9 +45,9 @@ val DonatelloMutantMechanic = card("Donatello, Mutant Mechanic") {
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, art)
             .then(
                 Effects.If(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Noncreature),
+                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Noncreature, art),
                     then = Effects.BecomeCreature(
-                        target = EffectTarget.ContextTarget(0),
+                        target = art,
                         power = 0,
                         toughness = 0,
                         creatureTypes = setOf("Robot"),

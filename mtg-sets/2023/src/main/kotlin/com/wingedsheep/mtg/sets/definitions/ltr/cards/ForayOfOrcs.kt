@@ -31,13 +31,16 @@ val ForayOfOrcs = card("Foray of Orcs") {
     spell {
         effect = Effects.ReflexiveTrigger(
             action = Effects.Amass(2, "Orc"),
-            optional = false,
-            reflexiveEffect = Effects.DealDamage(
+            optional = false) {
+            val creatureOpponentControls = target(
+                "target creature opponent controls",
+                Targets.CreatureOpponentControls
+            )
+            effect = Effects.DealDamage(
                 amount = DynamicAmounts.powerOf(EffectTarget.AmassedArmy),
-                target = EffectTarget.ContextTarget(0)
-            ),
-            reflexiveTargetRequirements = listOf(Targets.CreatureOpponentControls)
-        )
+                target = creatureOpponentControls
+            )
+        }
     }
 
     metadata {

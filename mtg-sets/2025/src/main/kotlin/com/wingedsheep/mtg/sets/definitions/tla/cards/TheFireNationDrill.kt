@@ -42,10 +42,13 @@ val TheFireNationDrill = card("The Fire Nation Drill") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ReflexiveTrigger(
             action = Effects.Tap(EffectTarget.Self),
-            optional = true,
-            reflexiveEffect = Effects.Destroy(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(Targets.CreatureWithPowerAtMost(4))
-        )
+            optional = true) {
+            val creatureWithPowerAtMost = target(
+                "target creature with power at most",
+                Targets.CreatureWithPowerAtMost(4)
+            )
+            effect = Effects.Destroy(creatureWithPowerAtMost)
+        }
     }
 
     activatedAbility {

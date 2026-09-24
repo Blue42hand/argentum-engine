@@ -46,9 +46,7 @@ val IngeniousLeonin = card("Ingenious Leonin") {
             listOf(
                 Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t),
                 Effects.If(
-                    condition = Conditions.TargetMatchesFilter(
-                        GameObjectFilter.Creature.withSubtype("Cat"),
-                    ),
+                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype("Cat"), t),
                     then = Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),
                 ),
             ),

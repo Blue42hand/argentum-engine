@@ -39,7 +39,7 @@ val MoonlightHunt = card("Moonlight Hunt") {
         "Wolf or a Werewolf deals damage equal to its power to that creature."
 
     spell {
-        target("creature you don't control", Targets.CreatureOpponentControls)
+        val creatureYouDonTControl = target("creature you don't control", Targets.CreatureOpponentControls)
 
         effect = Effects.ForEachInGroup(
             filter = GroupFilter(
@@ -47,7 +47,7 @@ val MoonlightHunt = card("Moonlight Hunt") {
             ),
             effect = Effects.DealDamage(
                 amount = DynamicAmounts.powerOf(EffectTarget.IterationEntity),
-                target = EffectTarget.ContextTarget(0),
+                target = creatureYouDonTControl,
                 damageSource = EffectTarget.IterationEntity,
             ),
         )

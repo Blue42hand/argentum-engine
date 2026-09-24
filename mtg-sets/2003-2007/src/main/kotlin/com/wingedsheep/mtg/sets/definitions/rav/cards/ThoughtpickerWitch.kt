@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.references.Player
 
 /**
  * Thoughtpicker Witch — Ravnica: City of Guilds #109
@@ -38,17 +37,17 @@ val ThoughtpickerWitch = card("Thoughtpicker Witch") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}"), Costs.Sacrifice(GameObjectFilter.Creature))
-        target("target opponent", Targets.Opponent)
+        val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Pipeline {
-            val peeked = gather(CardSource.TopOfLibrary(2, Player.ContextPlayer(0)))
+            val peeked = gather(CardSource.TopOfLibrary(2, opponent.asPlayer))
             val (toExile, toTop) = chooseExactlySplit(
                 1,
                 from = peeked,
                 selectedLabel = "Exile",
                 remainderLabel = "Leave on top of that player's library"
             )
-            exile(toExile, Player.ContextPlayer(0))
-            toLibraryTop(toTop, Player.ContextPlayer(0), order = CardOrder.Preserve)
+            exile(toExile, opponent.asPlayer)
+            toLibraryTop(toTop, opponent.asPlayer, order = CardOrder.Preserve)
         }
         description = "{1}, Sacrifice a creature: Look at the top two cards of target opponent's " +
             "library, then exile one of them."

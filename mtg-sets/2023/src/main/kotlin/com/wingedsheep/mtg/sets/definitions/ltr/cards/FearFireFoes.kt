@@ -33,9 +33,9 @@ val FearFireFoes = card("Fear, Fire, Foes!") {
     oracleText = "Damage can't be prevented this turn. Fear, Fire, Foes! deals X damage to target creature and 1 damage to each other creature with the same controller."
 
     spell {
-        target("target creature", Targets.Creature)
+        val creature = target("target creature", Targets.Creature)
         effect = Effects.DamageCantBePreventedThisTurn()
-            .then(Effects.DealDamage(DynamicAmounts.xValue(), EffectTarget.ContextTarget(0)))
+            .then(Effects.DealDamage(DynamicAmounts.xValue(), creature))
             .then(
                 Patterns.Group.dealDamageToAll(
                     1,

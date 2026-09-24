@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
@@ -40,7 +39,7 @@ val EgoDrain = card("Ego Drain") {
             // 1. Target opponent reveals their hand.
             run(Effects.RevealHand(opponent))
             // 2. Gather it so you can pick the card to strip.
-            val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val hand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
             // 3. You choose a nonland card from it.
             val chosen = chooseExactly(
                 1, from = hand,
@@ -52,7 +51,7 @@ val EgoDrain = card("Ego Drain") {
             // 4. That player discards it (MoveType.Discard so discard triggers see it).
             move(
                 chosen,
-                CardDestination.ToZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),
+                CardDestination.ToZone(Zone.GRAVEYARD, opponent.asPlayer),
                 moveType = MoveType.Discard
             )
             // 5. The Faerie rider.

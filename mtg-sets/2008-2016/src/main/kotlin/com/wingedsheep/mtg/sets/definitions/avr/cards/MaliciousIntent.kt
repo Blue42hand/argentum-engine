@@ -4,11 +4,9 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedActivatedAbility
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.AbilityId
-import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -36,12 +34,11 @@ val MaliciousIntent = card("Malicious Intent") {
 
     staticAbility {
         ability = GrantActivatedAbility(
-            ability = ActivatedAbility(
-                id = AbilityId.generate(),
-                cost = Costs.Tap,
-                effect = Effects.CantBlock(EffectTarget.ContextTarget(0)),
-                targetRequirements = listOf(TargetCreature())
-            )
+            ability = grantedActivatedAbility {
+                cost = Costs.Tap
+                val creature = target("target creature", TargetCreature())
+                effect = Effects.CantBlock(creature)
+            }
         )
     }
 

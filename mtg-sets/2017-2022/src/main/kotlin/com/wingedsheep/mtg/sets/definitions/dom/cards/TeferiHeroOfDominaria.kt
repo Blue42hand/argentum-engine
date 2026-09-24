@@ -5,12 +5,11 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Teferi, Hero of Dominaria
@@ -58,12 +57,14 @@ val TeferiHeroOfDominaria = card("Teferi, Hero of Dominaria") {
     // −8: You get an emblem with "Whenever you draw a card, exile target permanent an opponent controls."
     loyaltyAbility(-8) {
         effect = Effects.CreateGlobalTriggeredAbility(
-            ability = TriggeredAbility.create(
-                trigger = Triggers.YouDraw.event,
-                binding = Triggers.YouDraw.binding,
-                effect = Effects.Exile(EffectTarget.ContextTarget(0)),
-                targetRequirement = Targets.PermanentOpponentControls
-            ),
+            ability = grantedTriggeredAbility {
+                trigger = Triggers.YouDraw
+                val permanentOpponentControls = target(
+                    "target permanent opponent controls",
+                    Targets.PermanentOpponentControls
+                )
+                effect = Effects.Exile(permanentOpponentControls)
+            },
             descriptionOverride = "Whenever you draw a card, exile target permanent an opponent controls."
         )
     }

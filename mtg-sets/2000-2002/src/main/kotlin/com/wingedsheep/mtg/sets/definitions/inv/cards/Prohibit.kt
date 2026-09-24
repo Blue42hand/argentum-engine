@@ -33,11 +33,11 @@ val Prohibit = card("Prohibit") {
         effect = Effects.If(
             condition = WasKicked,
             then = Effects.If(
-                condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(4)),
+                condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(4), spell),
                 then = Effects.CounterSpell()
             ),
             otherwise = Effects.If(
-                condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(2)),
+                condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(2), spell),
                 then = Effects.CounterSpell()
             )
         )

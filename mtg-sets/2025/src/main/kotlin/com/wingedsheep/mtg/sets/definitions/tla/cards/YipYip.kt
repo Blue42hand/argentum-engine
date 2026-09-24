@@ -29,7 +29,7 @@ val YipYip = card("Yip Yip!") {
         effect = Effects.Composite(
             Effects.ModifyStats(2, 2, t),
             Effects.If(
-                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.withSubtype(Subtype.ALLY)),
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.withSubtype(Subtype.ALLY), t),
                 then = Effects.GrantKeyword(Keyword.FLYING, t),
             ),
         )

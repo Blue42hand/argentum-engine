@@ -70,10 +70,10 @@ val LaughingJasperFlint = card("Laughing Jasper Flint") {
                         Player.You,
                         Filters.OutlawCreature,
                     ).count(),
-                    player = Player.ContextPlayer(0),
+                    player = opponent.asPlayer,
                 )
             )
-            exile(stolenCards, Player.ContextPlayer(0))
+            exile(stolenCards, opponent.asPlayer)
             run(Effects.GrantMayPlayFromExile(
                 from = stolenCards,
                 expiry = MayPlayExpiry.EndOfTurn,

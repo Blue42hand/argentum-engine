@@ -65,7 +65,7 @@ val GraveResearcher = card("Grave Researcher") {
             effect = Effects.Composite(
                 Effects.Move(creatureCardInGraveyard, Zone.BATTLEFIELD),
                 Effects.LoseLife(
-                    DynamicAmounts.manaValueOf(EffectTarget.ContextTarget(0)),
+                    DynamicAmounts.manaValueOf(creatureCardInGraveyard),
                     EffectTarget.Controller,
                 ),
             )

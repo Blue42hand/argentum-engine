@@ -43,7 +43,7 @@ val BatheInLight = card("Bathe in Light") {
             Effects.GrantProtectionFromChosenColor(radiant) then
                 Effects.ForEachInGroup(
                     filter = GroupFilter(
-                        GameObjectFilter.Creature.sharingColorWith(EffectTarget.ContextTarget(0))
+                        GameObjectFilter.Creature.sharingColorWith(radiant)
                     ).otherThanTarget(),
                     effect = Effects.GrantProtectionFromChosenColor(EffectTarget.IterationEntity)
                 )

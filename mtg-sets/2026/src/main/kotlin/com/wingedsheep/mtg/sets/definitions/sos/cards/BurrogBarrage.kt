@@ -43,7 +43,7 @@ val BurrogBarrage = card("Burrog Barrage") {
             condition = Conditions.YouCastSpellsThisTurn(2, GameObjectFilter.InstantOrSorcery),
             then = Effects.ModifyStats(1, 0, own),
         ) then Effects.DealDamage(
-            DynamicAmounts.targetPower(0),
+            DynamicAmounts.powerOf(own),
             foe,
             damageSource = own,
         )

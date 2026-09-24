@@ -29,9 +29,9 @@ val ShadowOfTheEnemy = card("Shadow of the Enemy") {
         val player = target("target player", Targets.Player)
         effect = Effects.Pipeline {
             val exiledCreatures = gather(
-                CardSource.FromZone(Zone.GRAVEYARD, Player.ContextPlayer(0), GameObjectFilter.Creature)
+                CardSource.FromZone(Zone.GRAVEYARD, player.asPlayer, GameObjectFilter.Creature)
             )
-            exile(exiledCreatures, Player.ContextPlayer(0))
+            exile(exiledCreatures, player.asPlayer)
             run(Effects.GrantMayPlayFromExile(
                 from = exiledCreatures,
                 expiry = MayPlayExpiry.Permanent,

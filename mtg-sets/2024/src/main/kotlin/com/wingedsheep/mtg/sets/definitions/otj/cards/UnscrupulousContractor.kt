@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -48,13 +47,14 @@ val UnscrupulousContractor = card("Unscrupulous Contractor") {
                 run(Effects.SacrificeTarget(creatureToSacrifice.asTarget))
             },
             optional = true,
-            reflexiveEffect = Effects.Composite(listOf(
-                Effects.DrawCards(2, EffectTarget.ContextTarget(0)),
-                Effects.LoseLife(2, EffectTarget.ContextTarget(0))
-            )),
-            reflexiveTargetRequirements = listOf(Targets.Player),
             descriptionOverride = "You may sacrifice a creature. When you do, target player draws two cards and loses 2 life."
-        )
+        ) {
+            val player = target("target player", Targets.Player)
+            effect = Effects.Composite(listOf(
+                Effects.DrawCards(2, player),
+                Effects.LoseLife(2, player)
+            ))
+        }
         description = "When this creature enters, you may sacrifice a creature. When you do, target player draws two cards and loses 2 life."
     }
 

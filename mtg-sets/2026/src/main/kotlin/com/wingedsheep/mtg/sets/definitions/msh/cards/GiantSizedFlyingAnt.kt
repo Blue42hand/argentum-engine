@@ -5,10 +5,9 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Giant-Sized Flying Ant
@@ -43,16 +42,14 @@ val GiantSizedFlyingAnt = card("Giant-Sized Flying Ant") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = ModalEffect.chooseOne(
-            Mode.withTarget(
-                Effects.Tap(EffectTarget.ContextTarget(0)),
-                Targets.NonlandPermanent,
-                "Tap target nonland permanent"
-            ),
-            Mode.withTarget(
-                Effects.Untap(EffectTarget.ContextTarget(0)),
-                Targets.NonlandPermanent,
-                "Untap target nonland permanent"
-            )
+            mode("Tap target nonland permanent") {
+                val nonlandPermanent = target("target nonland permanent", Targets.NonlandPermanent)
+                effect = Effects.Tap(nonlandPermanent)
+            },
+            mode("Untap target nonland permanent") {
+                val nonlandPermanent = target("target nonland permanent", Targets.NonlandPermanent)
+                effect = Effects.Untap(nonlandPermanent)
+            }
         )
     }
 

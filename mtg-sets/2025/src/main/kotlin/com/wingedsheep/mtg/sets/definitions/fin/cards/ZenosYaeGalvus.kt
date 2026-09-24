@@ -115,7 +115,7 @@ private val ZenosYaeGalvusFront = card("Zenos yae Galvus") {
             ),
             Effects.If(
                 condition = Conditions.EntityMatches(
-                    EffectTarget.ContextTarget(0),
+                    chosen,
                     GameObjectFilter.Creature
                 ),
                 then = Effects.CreateDelayedTrigger(

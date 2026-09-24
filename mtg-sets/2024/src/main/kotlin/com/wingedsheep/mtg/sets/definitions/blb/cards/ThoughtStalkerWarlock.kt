@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 
@@ -42,12 +41,12 @@ val ThoughtStalkerWarlock = card("Thought-Stalker Warlock") {
         effect = Effects.If(
             // "If THEY lost life this turn" — bound to the chosen target opponent,
             // not any opponent (matters in multiplayer)
-            condition = Conditions.PlayerLostLifeThisTurn(Player.ContextPlayer(0)),
+            condition = Conditions.PlayerLostLifeThisTurn(opponent.asPlayer),
             // If they lost life: reveal hand, controller chooses nonland, discard it
             then = Effects.Pipeline {
                 run(Effects.RevealHand(opponent))
                 val nonlandCards = gather(
-                    CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0), GameObjectFilter.Nonland)
+                    CardSource.FromZone(Zone.HAND, opponent.asPlayer, GameObjectFilter.Nonland)
                 )
                 val chosenCard = chooseExactly(
                     1,
@@ -55,7 +54,7 @@ val ThoughtStalkerWarlock = card("Thought-Stalker Warlock") {
                     chooser = Chooser.Controller,
                     prompt = "Choose a nonland card to discard"
                 )
-                discard(chosenCard, Player.ContextPlayer(0))
+                discard(chosenCard, opponent.asPlayer)
             },
             // Otherwise: they discard a card (their choice)
             otherwise = Patterns.Hand.discardCards(1, opponent)

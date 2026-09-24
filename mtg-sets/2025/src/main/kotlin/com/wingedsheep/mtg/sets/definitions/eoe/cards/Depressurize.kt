@@ -28,7 +28,7 @@ val Depressurize = card("Depressurize") {
             .then(
                 // Then destroy if power is 0 or less
                 Effects.If(
-                    condition = Conditions.TargetPowerAtMost(DynamicAmounts.fixed(0)),
+                    condition = Conditions.TargetPowerAtMost(DynamicAmounts.fixed(0), target),
                     then = Effects.Destroy(target)
                 )
             )

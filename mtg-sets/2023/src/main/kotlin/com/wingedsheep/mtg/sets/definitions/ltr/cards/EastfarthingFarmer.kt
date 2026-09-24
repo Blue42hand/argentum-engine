@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -31,16 +30,17 @@ val EastfarthingFarmer = card("Eastfarthing Farmer") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ReflexiveTrigger(
             action = Effects.CreateFood(),
-            optional = false,
-            reflexiveEffect = Effects.ModifyStats(
-                DynamicAmounts.battlefield(Player.You, GameObjectFilter.Any.withSubtype("Food")).count(),
-                DynamicAmounts.battlefield(Player.You, GameObjectFilter.Any.withSubtype("Food")).count(),
-                EffectTarget.ContextTarget(0)
-            ),
-            reflexiveTargetRequirements = listOf(
+            optional = false) {
+            val creatureYouControl = target(
+                "target creature you control",
                 TargetCreature(filter = TargetFilter.CreatureYouControl)
             )
-        )
+            effect = Effects.ModifyStats(
+                DynamicAmounts.battlefield(Player.You, GameObjectFilter.Any.withSubtype("Food")).count(),
+                DynamicAmounts.battlefield(Player.You, GameObjectFilter.Any.withSubtype("Food")).count(),
+                creatureYouControl
+            )
+        }
     }
 
     metadata {

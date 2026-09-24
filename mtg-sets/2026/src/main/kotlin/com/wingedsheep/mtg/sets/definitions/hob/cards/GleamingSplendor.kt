@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 /**
@@ -42,11 +41,11 @@ val GleamingSplendor = card("Gleaming Splendor") {
 
     activatedAbility {
         cost = Costs.Mana("{2}{W}")
-        target("two target players", TargetPlayer(count = 2))
+        val (firstPlayer, secondPlayer) = targets("two target players", TargetPlayer(count = 2))
         effect = Effects.Composite(
             listOf(
-                Effects.DrawCards(1, EffectTarget.ContextTarget(0)),
-                Effects.DrawCards(1, EffectTarget.ContextTarget(1)),
+                Effects.DrawCards(1, firstPlayer),
+                Effects.DrawCards(1, secondPlayer),
             )
         )
         description = "Two target players each draw a card."

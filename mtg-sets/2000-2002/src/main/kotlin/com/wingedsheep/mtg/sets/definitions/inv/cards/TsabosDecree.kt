@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ChooseCreatureTypeEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 import com.wingedsheep.sdk.dsl.Effects
@@ -43,12 +42,12 @@ val TsabosDecree = card("Tsabo's Decree") {
             val tsaboHand = gather(
                 CardSource.FromZone(
                     zone = Zone.HAND,
-                    player = Player.ContextPlayer(0),
+                    player = targetPlayer.asPlayer,
                     filter = GameObjectFilter.Creature,
                 )
             )
             val tsaboDiscard = selectAll(from = tsaboHand, matchChosenCreatureType = true)
-            discard(tsaboDiscard, Player.ContextPlayer(0))
+            discard(tsaboDiscard, targetPlayer.asPlayer)
             // Then destroy all creatures of that type that player controls; no regeneration.
             run(Effects.ForEachInGroup(
                 filter = GroupFilter(

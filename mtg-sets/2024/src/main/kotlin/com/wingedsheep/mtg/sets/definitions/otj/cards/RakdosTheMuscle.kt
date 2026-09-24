@@ -68,10 +68,10 @@ val RakdosTheMuscle = card("Rakdos, the Muscle") {
             val rakdosExiled = gather(
                 CardSource.TopOfLibrary(
                     count = rakdosManaValueX,
-                    player = Player.ContextPlayer(0),
+                    player = targetPlayer.asPlayer,
                 )
             )
-            exile(rakdosExiled, Player.ContextPlayer(0))
+            exile(rakdosExiled, targetPlayer.asPlayer)
             run(Effects.GrantMayPlayFromExile(
                 from = rakdosExiled,
                 expiry = MayPlayExpiry.UntilNextEndStep,

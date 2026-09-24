@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -43,18 +44,17 @@ val WildfireHowl = card("Wildfire Howl") {
                 "Don't promise a gift — deal 2 damage to each creature"
             ),
             // Mode 2: Gift a card — opponent draws, then 1 damage to any target, then 2 damage to each creature
-            Mode.withTarget(
-                Effects.Composite(
+            mode("Promise a gift — an opponent draws a card, then deal 1 damage to any target and 2 damage to each creature") {
+                val anyTarget = target("target any", Targets.Any)
+                effect = Effects.Composite(
                     listOf(
                         Effects.DrawCards(1, EffectTarget.PlayerRef(Player.ChosenOpponent)),
-                        Effects.DealDamage(1, EffectTarget.ContextTarget(0)),
+                        Effects.DealDamage(1, anyTarget),
                         damageToEachCreature,
                         Effects.GiftGiven()
                     )
-                ),
-                Targets.Any,
-                "Promise a gift — an opponent draws a card, then deal 1 damage to any target and 2 damage to each creature"
-            )
+                )
+            }
         )
     }
 

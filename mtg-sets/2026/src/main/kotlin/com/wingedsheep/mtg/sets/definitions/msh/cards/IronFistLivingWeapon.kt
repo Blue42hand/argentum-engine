@@ -5,9 +5,8 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedActivatedAbility
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.AbilityId
-import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -46,17 +45,16 @@ val IronFistLivingWeapon = card("Iron Fist, Living Weapon") {
     triggeredAbility {
         trigger = Triggers.youCastSpellTargeting(GameObjectFilter.Creature.youControl())
         effect = Effects.GrantActivatedAbility(
-            ability = ActivatedAbility(
-                id = AbilityId.generate(),
-                cost = Costs.Tap,
+            ability = grantedActivatedAbility {
+                cost = Costs.Tap
+                val otherTarget = target("target other", TargetOther(baseRequirement = AnyTarget()))
                 effect = Effects.DealDamage(
                     DynamicAmounts.sourcePower(),
-                    EffectTarget.ContextTarget(0)
-                ),
-                targetRequirements = listOf(TargetOther(baseRequirement = AnyTarget())),
-                descriptionOverride = "{T}: Iron Fist deals damage equal to his power to any " +
+                    otherTarget
+                )
+                description = "{T}: Iron Fist deals damage equal to his power to any " +
                     "other target"
-            ),
+            },
             target = EffectTarget.Self
         )
         description = "Whenever you cast a spell that targets a creature you control, Iron Fist " +

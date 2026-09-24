@@ -70,8 +70,8 @@ val WorldWarHulk = card("World War Hulk") {
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.Composite(
             Effects.ModifyStats(
-                power = DynamicAmounts.targetPower(),
-                toughness = DynamicAmounts.targetToughness(),
+                power = DynamicAmounts.powerOf(creature),
+                toughness = DynamicAmounts.toughnessOf(creature),
                 target = creature
             ),
             Effects.GrantKeyword(Keyword.TRAMPLE, creature)

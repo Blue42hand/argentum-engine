@@ -110,7 +110,7 @@ val TheSuperHeroCivilWar = card("The Super Hero Civil War") {
             TargetOther(TargetCreature(optional = true)),
         )
         effect = Effects.If(
-            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature, targetIndex = 1),
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature, other),
             then = Effects.Fight(mine, other),
         )
     }

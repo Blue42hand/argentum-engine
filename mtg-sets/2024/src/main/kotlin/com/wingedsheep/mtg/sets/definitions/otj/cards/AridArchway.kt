@@ -50,7 +50,7 @@ val AridArchway = card("Arid Archway") {
         // bounce + surveil (true branch) or just bounce (false branch).
         effect = Effects.If(
             condition = Conditions.All(
-                Conditions.TargetMatchesFilter(GameObjectFilter.Land.withSubtype(Subtype.DESERT)),
+                Conditions.TargetMatchesFilter(GameObjectFilter.Land.withSubtype(Subtype.DESERT), land),
                 Conditions.Not(Conditions.TargetIsSource()),
             ),
             then = Effects.ReturnToHand(land).then(Patterns.Library.surveil(1)),

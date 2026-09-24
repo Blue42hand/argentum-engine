@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.Mode
@@ -52,16 +53,15 @@ val DailyBugleReporters = card("Daily Bugle Reporters") {
                 target = TargetCreature(count = 2, optional = true),
                 description = "Puff Piece — Put a +1/+1 counter on each of up to two target creatures."
             ),
-            Mode.withTarget(
-                effect = Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND),
-                target = TargetObject(
+            mode("Investigative Journalism — Return target creature card with mana value 2 or less from your graveyard to your hand.") {
+                val creature = target("target creature", TargetObject(
                     filter = TargetFilter(
                         GameObjectFilter.Creature.ownedByYou().manaValueAtMost(2),
                         zone = Zone.GRAVEYARD
                     )
-                ),
-                description = "Investigative Journalism — Return target creature card with mana value 2 or less from your graveyard to your hand."
-            )
+                ))
+                effect = Effects.Move(creature, Zone.HAND)
+            }
         )
         description = "When this creature enters, choose one — Puff Piece — Put a +1/+1 counter on each of up to two target creatures. • Investigative Journalism — Return target creature card with mana value 2 or less from your graveyard to your hand."
     }

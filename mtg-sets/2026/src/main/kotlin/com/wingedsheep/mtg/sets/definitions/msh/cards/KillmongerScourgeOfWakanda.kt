@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -51,13 +50,15 @@ val KillmongerScourgeOfWakanda = card("Killmonger, Scourge of Wakanda") {
                 run(Effects.SacrificeTarget(killmongerSacrifice.asTarget))
             },
             optional = true,
-            reflexiveEffect = Effects.Destroy(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(
-                TargetPermanent(filter = TargetFilter.NonlandPermanentOpponentControls),
-            ),
             descriptionOverride = "You may sacrifice another creature. When you do, destroy target " +
                 "nonland permanent an opponent controls.",
-        )
+        ) {
+            val nonlandPermanentOpponentControls = target(
+                "target nonland permanent opponent controls",
+                TargetPermanent(filter = TargetFilter.NonlandPermanentOpponentControls)
+            )
+            effect = Effects.Destroy(nonlandPermanentOpponentControls)
+        }
         description = "When Killmonger enters, you may sacrifice another creature. When you do, " +
             "destroy target nonland permanent an opponent controls."
     }

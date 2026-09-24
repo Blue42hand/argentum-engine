@@ -3,9 +3,8 @@ package com.wingedsheep.mtg.sets.definitions.rav.cards
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedActivatedAbility
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.AbilityId
-import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
@@ -36,16 +35,15 @@ val FlameFusillade = card("Flame Fusillade") {
         effect = Effects.ForEachInGroup(
             GroupFilter.AllPermanentsYouControl,
             Effects.GrantActivatedAbility(
-                ability = ActivatedAbility(
-                    id = AbilityId.generate(),
-                    cost = Costs.Tap,
+                ability = grantedActivatedAbility {
+                    cost = Costs.Tap
+                    val anyTarget = target("target any", AnyTarget())
                     effect = Effects.DealDamage(
                         amount = 1,
-                        target = EffectTarget.ContextTarget(0),
+                        target = anyTarget,
                         damageSource = EffectTarget.Self
-                    ),
-                    targetRequirements = listOf(AnyTarget())
-                ),
+                    )
+                },
                 target = EffectTarget.IterationEntity,
                 duration = Duration.EndOfTurn
             )

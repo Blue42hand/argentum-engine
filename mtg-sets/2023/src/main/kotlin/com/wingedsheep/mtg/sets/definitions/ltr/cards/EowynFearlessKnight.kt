@@ -55,7 +55,7 @@ val EowynFearlessKnight = card("Éowyn, Fearless Knight") {
         // feeding each color to GrantProtectionFromChosenColor via the chosen-color context.
         effect = Effects.Composite(
             Effects.ForEachColorOf(
-                source = EffectTarget.ContextTarget(0),
+                source = victim,
                 effect = Effects.ForEachInGroup(
                     GroupFilter(GameObjectFilter.Creature.legendary().youControl()),
                     Effects.GrantProtectionFromChosenColor(EffectTarget.IterationEntity)

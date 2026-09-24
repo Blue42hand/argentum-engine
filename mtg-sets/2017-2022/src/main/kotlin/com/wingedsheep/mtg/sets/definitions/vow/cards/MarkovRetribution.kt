@@ -48,7 +48,7 @@ val MarkovRetribution = card("Markov Retribution") {
                     TargetCreature(filter = TargetFilter.Creature.withSubtype("Vampire").youControl())
                 )
                 val victim = target("another target creature", TargetOther(TargetCreature()))
-                effect = Effects.DealDamage(DynamicAmounts.targetPower(0), victim, damageSource = vampire)
+                effect = Effects.DealDamage(DynamicAmounts.powerOf(vampire), victim, damageSource = vampire)
             }
             mode(
                 "Creatures you control get +1/+0 until end of turn and target Vampire you " +
@@ -62,7 +62,7 @@ val MarkovRetribution = card("Markov Retribution") {
                 effect = Effects.Composite(
                     listOf(
                         pumpAll,
-                        Effects.DealDamage(DynamicAmounts.targetPower(0), victim, damageSource = vampire)
+                        Effects.DealDamage(DynamicAmounts.powerOf(vampire), victim, damageSource = vampire)
                     )
                 )
             }

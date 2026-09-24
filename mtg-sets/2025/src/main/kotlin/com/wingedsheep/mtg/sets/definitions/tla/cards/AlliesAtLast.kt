@@ -40,7 +40,7 @@ val AlliesAtLast = card("Allies at Last") {
 
     spell {
         // Declared first so the victim is a stable target across the per-creature loop.
-        target("creature an opponent controls", Targets.CreatureOpponentControls)
+        val creatureOpponentControls = target("creature an opponent controls", Targets.CreatureOpponentControls)
         target(
             "up to two creatures you control",
             TargetCreature(
@@ -60,7 +60,7 @@ val AlliesAtLast = card("Allies at Last") {
                 collection = allies,
                 effect = Effects.DealDamage(
                     amount = DynamicAmounts.powerOf(EffectTarget.IterationEntity),
-                    target = EffectTarget.ContextTarget(0),
+                    target = creatureOpponentControls,
                     damageSource = EffectTarget.IterationEntity,
                 ),
             ))

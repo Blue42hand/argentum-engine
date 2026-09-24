@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CostGating
 import com.wingedsheep.sdk.scripting.CostModification
@@ -79,11 +80,13 @@ val RallyTheMonastery = card("Rally the Monastery") {
                 description = "Up to two target creatures you control each get +2/+2 until end of turn"
             ),
             // Destroy target creature with power 4 or greater.
-            Mode.withTarget(
-                effect = Effects.Destroy(EffectTarget.ContextTarget(0)),
-                target = TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.powerAtLeast(4))),
-                description = "Destroy target creature with power 4 or greater"
-            )
+            mode("Destroy target creature with power 4 or greater") {
+                val creature = target(
+                    "target creature",
+                    TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.powerAtLeast(4)))
+                )
+                effect = Effects.Destroy(creature)
+            }
         )
     }
 

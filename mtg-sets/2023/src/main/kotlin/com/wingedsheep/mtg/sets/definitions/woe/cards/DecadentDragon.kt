@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
 /**
@@ -62,12 +61,12 @@ val DecadentDragon = card("Decadent Dragon") {
             "at and play those cards for as long as they remain exiled. " +
             "(Then exile this card. You may cast the creature later from exile.)"
         spell {
-            target("target opponent", TargetOpponent())
+            val opponent = target("target opponent", TargetOpponent())
             effect = Effects.Pipeline {
                 val stolen = gather(
                     CardSource.TopOfLibrary(
                         2,
-                        Player.ContextPlayer(0),
+                        opponent.asPlayer,
                     )
                 )
                 exile(stolen, faceDown = FaceDownMode.HIDDEN)

@@ -28,7 +28,7 @@ val HuatlisFinalStrike = card("Huatli's Final Strike") {
         val t2 = target("t2", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
         effect = Effects.Composite(
             Effects.ModifyStats(1, 0, t1),
-            Effects.DealDamage(DynamicAmounts.targetPower(0), t2, damageSource = t1)
+            Effects.DealDamage(DynamicAmounts.powerOf(t1), t2, damageSource = t1)
         )
     }
     metadata {

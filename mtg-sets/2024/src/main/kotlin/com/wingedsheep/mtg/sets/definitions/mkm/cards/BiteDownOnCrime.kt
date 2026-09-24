@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 
 /**
@@ -71,7 +70,7 @@ val BiteDownOnCrime = card("Bite Down on Crime") {
         effect = Effects.Composite(
             Effects.ModifyStats(power = 2, toughness = 0, target = yours),
             Effects.DealDamage(
-                amount = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)),
+                amount = DynamicAmounts.powerOf(yours),
                 target = theirs,
                 damageSource = yours,
             ),

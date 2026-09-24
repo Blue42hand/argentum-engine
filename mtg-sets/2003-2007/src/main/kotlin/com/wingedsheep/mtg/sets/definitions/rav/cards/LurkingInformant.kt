@@ -39,17 +39,17 @@ val LurkingInformant = card("Lurking Informant") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
-        target("target player", Targets.Player)
+        val player = target("target player", Targets.Player)
         effect = Effects.Pipeline {
-            val peeked = gather(CardSource.TopOfLibrary(1, Player.ContextPlayer(0)))
+            val peeked = gather(CardSource.TopOfLibrary(1, player.asPlayer))
             val (toGraveyardCards, toTop) = chooseUpToSplit(
                 1,
                 from = peeked,
                 selectedLabel = "Put into that player's graveyard",
                 remainderLabel = "Leave on top of that player's library"
             )
-            toGraveyard(toGraveyardCards, Player.ContextPlayer(0))
-            toLibraryTop(toTop, Player.ContextPlayer(0), order = CardOrder.Preserve)
+            toGraveyard(toGraveyardCards, player.asPlayer)
+            toLibraryTop(toTop, player.asPlayer, order = CardOrder.Preserve)
         }
         description = "{2}, {T}: Look at the top card of target player's library. You may put " +
             "that card into that player's graveyard."

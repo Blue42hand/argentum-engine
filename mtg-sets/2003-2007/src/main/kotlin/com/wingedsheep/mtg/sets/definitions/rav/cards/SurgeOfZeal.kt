@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Surge of Zeal
@@ -36,7 +35,7 @@ val SurgeOfZeal = card("Surge of Zeal") {
             Patterns.Group.grantKeywordToAll(
                 Keyword.HASTE,
                 GroupFilter(
-                    GameObjectFilter.Creature.sharingColorWith(EffectTarget.ContextTarget(0))
+                    GameObjectFilter.Creature.sharingColorWith(radiant)
                 ).otherThanTarget()
             )
     }

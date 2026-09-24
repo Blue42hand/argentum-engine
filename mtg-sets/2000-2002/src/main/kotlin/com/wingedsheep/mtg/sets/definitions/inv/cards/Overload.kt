@@ -20,14 +20,14 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Destroy target artifact if its mana value is 2 or less. If this spell was kicked,
  * destroy that artifact if its mana value is 5 or less instead.
  */
-private fun destroyIfManaValueAtMost(max: Int): Effect =
+private fun destroyIfManaValueAtMost(artifact: EffectTarget.SingleEntity, max: Int): Effect =
     Effects.If(
         condition = Conditions.CompareAmounts(
-            left = DynamicAmounts.manaValueOf(EffectTarget.ContextTarget(0)),
+            left = DynamicAmounts.manaValueOf(artifact),
             operator = ComparisonOperator.LTE,
             right = max
         ),
-        then = Effects.Destroy(EffectTarget.ContextTarget(0))
+        then = Effects.Destroy(artifact)
     )
 
 val Overload = card("Overload") {
@@ -44,8 +44,8 @@ val Overload = card("Overload") {
         val artifact = target("target artifact", Targets.Artifact)
         effect = Effects.If(
             condition = WasKicked,
-            then = destroyIfManaValueAtMost(5),
-            otherwise = destroyIfManaValueAtMost(2)
+            then = destroyIfManaValueAtMost(artifact, 5),
+            otherwise = destroyIfManaValueAtMost(artifact, 2)
         )
     }
 

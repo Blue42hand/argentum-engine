@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Aura Mutation
@@ -31,7 +30,7 @@ val AuraMutation = card("Aura Mutation") {
     spell {
         val t = target("target", Targets.Enchantment)
         effect = Effects.Destroy(t) then Effects.CreateToken(
-            count = DynamicAmounts.manaValueOf(EffectTarget.ContextTarget(0)),
+            count = DynamicAmounts.manaValueOf(t),
             power = 1,
             toughness = 1,
             colors = setOf(Color.GREEN),

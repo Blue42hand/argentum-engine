@@ -52,17 +52,18 @@ val RedHulk = card("Red Hulk") {
             // "put a +1/+1 counter on him"
             action = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             optional = false,
-            // "When you do, he deals damage equal to the number of +1/+1 counters on him to any
-            //  other target."
-            reflexiveEffect = Effects.DealDamage(
-                amount = DynamicAmounts.countersOnSelf(CounterType.PLUS_ONE_PLUS_ONE),
-                target = EffectTarget.ContextTarget(0),
-                damageSource = EffectTarget.Self,
-            ),
-            reflexiveTargetRequirements = listOf(TargetOther(AnyTarget())),
             descriptionOverride = "Put a +1/+1 counter on him. When you do, he deals damage equal " +
                 "to the number of +1/+1 counters on him to any other target.",
-        )
+        ) {
+            // "When you do, he deals damage equal to the number of +1/+1 counters on him to any
+            //  other target."
+            val otherTarget = target("target other", TargetOther(AnyTarget()))
+            effect = Effects.DealDamage(
+                amount = DynamicAmounts.countersOnSelf(CounterType.PLUS_ONE_PLUS_ONE),
+                target = otherTarget,
+                damageSource = EffectTarget.Self,
+            )
+        }
         description = "Enrage — Whenever Red Hulk is dealt damage, put a +1/+1 counter on him. " +
             "When you do, he deals damage equal to the number of +1/+1 counters on him to any " +
             "other target."

@@ -32,9 +32,7 @@ val ElderCathar = card("Elder Cathar") {
         trigger = Triggers.Dies
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.If(
-            condition = Conditions.TargetMatchesFilter(
-                GameObjectFilter.Creature.withSubtype(Subtype.HUMAN),
-            ),
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.HUMAN), creature),
             then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature),
             otherwise = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
         )

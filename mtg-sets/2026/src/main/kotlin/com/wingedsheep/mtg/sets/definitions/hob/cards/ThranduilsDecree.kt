@@ -41,7 +41,7 @@ val ThranduilsDecree = card("Thranduil's Decree") {
     spell {
         val spell = target("target spell", Targets.Spell)
         effect = Effects.If(
-            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent),
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent, spell),
             then = Effects.CounterSpellToExile(grantFreeCast = true),
             otherwise = Effects.CounterSpell()
         )

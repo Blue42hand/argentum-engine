@@ -4,12 +4,12 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedActivatedAbility
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityCost
-import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Unfortunate Accident {B}
@@ -37,12 +37,11 @@ val UnfortunateAccident = card("Unfortunate Accident") {
     spell {
         effect = Effects.Modal(
             modes = listOf(
-                Mode(
-                    effect = Effects.Destroy(EffectTarget.ContextTarget(0)),
-                    targetRequirements = listOf(Targets.Creature),
-                    description = "+ {2}{B} — Destroy target creature.",
+                mode("+ {2}{B} — Destroy target creature.") {
+                    val creature = target("target creature", Targets.Creature)
                     additionalManaCost = "{2}{B}"
-                ),
+                    effect = Effects.Destroy(creature)
+                },
                 Mode(
                     effect = Effects.CreateToken(
                         count = 1,
@@ -51,12 +50,15 @@ val UnfortunateAccident = card("Unfortunate Accident") {
                         colors = setOf(Color.RED),
                         creatureTypes = setOf("Mercenary"),
                         activatedAbilities = listOf(
-                            ActivatedAbility(
-                                cost = AbilityCost.Tap,
-                                effect = Effects.ModifyStats(1, 0, EffectTarget.ContextTarget(0)),
-                                targetRequirements = listOf(Targets.CreatureYouControl),
+                            grantedActivatedAbility {
+                                cost = AbilityCost.Tap
+                                val creatureYouControl = target(
+                                    "target creature you control",
+                                    Targets.CreatureYouControl
+                                )
+                                effect = Effects.ModifyStats(1, 0, creatureYouControl)
                                 timing = TimingRule.SorcerySpeed
-                            )
+                            }
                         ),
                         imageUri = "https://cards.scryfall.io/normal/front/5/f/5f04607f-eed2-462e-897f-82e41e5f7049.jpg?1712316319"
                     ),

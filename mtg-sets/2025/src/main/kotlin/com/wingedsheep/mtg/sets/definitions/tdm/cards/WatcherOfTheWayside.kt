@@ -28,9 +28,9 @@ val WatcherOfTheWayside = card("Watcher of the Wayside") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        target("target player", Targets.Player)
+        val player = target("target player", Targets.Player)
         effect = Effects.Composite(
-            Patterns.Library.mill(2, EffectTarget.ContextTarget(0)),
+            Patterns.Library.mill(2, player),
             Effects.GainLife(2, EffectTarget.Controller)
         )
     }

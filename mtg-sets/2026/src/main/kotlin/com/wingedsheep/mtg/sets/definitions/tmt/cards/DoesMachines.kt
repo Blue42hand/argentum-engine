@@ -73,7 +73,7 @@ val DoesMachines = card("Does Machines") {
             effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, target)
                 .then(
                     Effects.If(
-                        condition = Conditions.Not(Conditions.TargetMatchesFilter(GameObjectFilter.Creature)),
+                        condition = Conditions.Not(Conditions.TargetMatchesFilter(GameObjectFilter.Creature, target)),
                         then = Effects.BecomeCreature(
                             target = target,
                             power = 0,

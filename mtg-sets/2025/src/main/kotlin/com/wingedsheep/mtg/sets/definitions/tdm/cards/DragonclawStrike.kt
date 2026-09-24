@@ -40,8 +40,8 @@ val DragonclawStrike = card("Dragonclaw Strike") {
             TargetCreature(optional = true, filter = TargetFilter.CreatureOpponentControls)
         )
         effect = Effects.ModifyStats(
-            power = DynamicAmounts.targetPower(0),
-            toughness = DynamicAmounts.targetToughness(0),
+            power = DynamicAmounts.powerOf(yourCreature),
+            toughness = DynamicAmounts.toughnessOf(yourCreature),
             target = yourCreature
         ).then(Effects.Fight(yourCreature, opponentCreature))
     }

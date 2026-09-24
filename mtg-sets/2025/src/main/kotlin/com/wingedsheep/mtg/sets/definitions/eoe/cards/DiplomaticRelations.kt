@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Diplomatic Relations
@@ -31,7 +30,7 @@ val DiplomaticRelations = card("Diplomatic Relations") {
             listOf(
                 Effects.ModifyStats(1, 0, myCreature),
                 Effects.DealDamage(
-                    amount = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)),
+                    amount = DynamicAmounts.powerOf(myCreature),
                     target = theirCreature,
                     damageSource = myCreature
                 )

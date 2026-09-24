@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CopyExceptions
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -87,7 +86,7 @@ val KayaSpiritsJustice = card("Kaya, Spirits' Justice") {
             filter = GameObjectFilter.Creature.youControl(),
             includeTokens = true,
         )
-        target("token you control", Targets.TokenYouControl)
+        val tokenYouControl = target("token you control", Targets.TokenYouControl)
         effect = Effects.Pipeline {
             // "from among them" — the exiled batch, narrowed to creature cards that are still in
             // exile when this resolves.
@@ -109,7 +108,7 @@ val KayaSpiritsJustice = card("Kaya, Spirits' Justice") {
                 Effects.EachPermanentBecomesCopyOfTarget(
                     target = chosen.asTarget,
                     duration = Duration.EndOfTurn,
-                    affected = EffectTarget.ContextTarget(0),
+                    affected = tokenYouControl,
                     sourceFromAnyZone = true,
                     exceptions = CopyExceptions(addedKeywords = setOf(Keyword.FLYING)),
                 )
@@ -155,8 +154,8 @@ val KayaSpiritsJustice = card("Kaya, Spirits' Justice") {
     // -2: Exile target creature you control. For each other player, exile up to one target creature
     // that player controls.
     loyaltyAbility(-2) {
-        target("creature you control", TargetCreature(filter = TargetFilter.CreatureYouControl))
-        target(
+        val creatureYouControl = target("creature you control", TargetCreature(filter = TargetFilter.CreatureYouControl))
+        val creatureThatPlayerControls = target(
             "creature that player controls",
             TargetCreature(
                 filter = TargetFilter.CreatureOpponentControls,
@@ -168,8 +167,8 @@ val KayaSpiritsJustice = card("Kaya, Spirits' Justice") {
         )
         effect = Effects.Composite(
             listOf(
-                Effects.Exile(EffectTarget.ContextTarget(0)),
-                Effects.Exile(EffectTarget.ContextTarget(1)),
+                Effects.Exile(creatureYouControl),
+                Effects.Exile(creatureThatPlayerControls),
             )
         )
         description = "Exile target creature you control. For each other player, exile up to one " +

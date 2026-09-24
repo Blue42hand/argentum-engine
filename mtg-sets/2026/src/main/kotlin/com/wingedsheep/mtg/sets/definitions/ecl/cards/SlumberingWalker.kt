@@ -46,20 +46,18 @@ val SlumberingWalker = card("Slumbering Walker") {
         triggerRestriction = Conditions.SourceHasCounter(CounterType.MINUS_ONE_MINUS_ONE)
         effect = Effects.ReflexiveTrigger(
             action = Effects.RemoveCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, EffectTarget.Self),
-            optional = true,
-            reflexiveEffect = Effects.Move(
-                target = EffectTarget.ContextTarget(0),
-                destination = Zone.BATTLEFIELD
-            ),
-            reflexiveTargetRequirements = listOf(
-                TargetObject(
-                    filter = TargetFilter(
-                        GameObjectFilter.Creature.ownedByYou().powerAtMost(2),
-                        zone = Zone.GRAVEYARD
-                    )
+            optional = true) {
+            val creature = target("target creature", TargetObject(
+                filter = TargetFilter(
+                    GameObjectFilter.Creature.ownedByYou().powerAtMost(2),
+                    zone = Zone.GRAVEYARD
                 )
+            ))
+            effect = Effects.Move(
+                target = creature,
+                destination = Zone.BATTLEFIELD
             )
-        )
+        }
     }
 
     metadata {

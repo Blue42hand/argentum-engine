@@ -40,11 +40,9 @@ val TurtleVan = card("Turtle Van") {
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, crewer)
             .then(
                 Effects.If(
-                    condition = Conditions.TargetMatchesFilter(
-                        GameObjectFilter.Creature.withAnyOfSubtypes(
+                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withAnyOfSubtypes(
                             listOf(Subtype("Mutant"), Subtype("Ninja"), Subtype("Turtle"))
-                        )
-                    ),
+                        ), crewer),
                     then = Effects.DoubleCounters(CounterType.PLUS_ONE_PLUS_ONE, crewer)
                 )
             )

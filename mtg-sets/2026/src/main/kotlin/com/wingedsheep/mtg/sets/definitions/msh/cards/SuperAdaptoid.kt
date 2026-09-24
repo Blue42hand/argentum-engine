@@ -43,11 +43,11 @@ private val ADAPTABLE_KEYWORDS: List<Pair<Keyword, CounterType>> = listOf(
  * applies its parts in order against the updated state, so he never stacks two counters for one
  * keyword).
  */
-private fun absorbKeywords(): Effect = Effects.Composite(
+private fun absorbKeywords(creature: EffectTarget): Effect = Effects.Composite(
     ADAPTABLE_KEYWORDS.map { (keyword, counter) ->
         Effects.If(
             condition = Conditions.All(
-                Conditions.TargetMatchesFilter(GameObjectFilter.Any.withKeyword(keyword)),
+                Conditions.TargetMatchesFilter(GameObjectFilter.Any.withKeyword(keyword), creature),
                 Conditions.Not(Conditions.SourceHasKeyword(keyword)),
             ),
             then = Effects.AddCounters(counter, 1, EffectTarget.Self),
@@ -96,8 +96,8 @@ val SuperAdaptoid = card("Super-Adaptoid") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        target("another target creature", TargetCreature(filter = TargetFilter.OtherCreature))
-        effect = absorbKeywords()
+        val otherCreature = target("another target creature", TargetCreature(filter = TargetFilter.OtherCreature))
+        effect = absorbKeywords(otherCreature)
         description = "Whenever Super-Adaptoid enters, choose another target creature. If that " +
             "creature has haste and Super-Adaptoid doesn't, put a haste counter on " +
             "Super-Adaptoid. Do the same for flying, first strike, double strike, deathtouch, " +
@@ -106,8 +106,8 @@ val SuperAdaptoid = card("Super-Adaptoid") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        target("another target creature", TargetCreature(filter = TargetFilter.OtherCreature))
-        effect = absorbKeywords()
+        val otherCreature = target("another target creature", TargetCreature(filter = TargetFilter.OtherCreature))
+        effect = absorbKeywords(otherCreature)
         description = "Whenever Super-Adaptoid attacks, choose another target creature. If that " +
             "creature has haste and Super-Adaptoid doesn't, put a haste counter on " +
             "Super-Adaptoid. Do the same for flying, first strike, double strike, deathtouch, " +

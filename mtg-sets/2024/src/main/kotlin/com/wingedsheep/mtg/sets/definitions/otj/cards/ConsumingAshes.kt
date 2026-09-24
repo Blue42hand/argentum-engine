@@ -31,7 +31,7 @@ val ConsumingAshes = card("Consuming Ashes") {
         val creature = target("creature", Targets.Creature)
         effect = Effects.Exile(creature).then(
             Effects.If(
-                condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(3)),
+                condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(3), creature),
                 then = Patterns.Library.surveil(2)
             )
         )

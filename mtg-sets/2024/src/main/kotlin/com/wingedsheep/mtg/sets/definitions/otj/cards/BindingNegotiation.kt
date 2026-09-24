@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
 /**
@@ -43,7 +42,7 @@ val BindingNegotiation = card("Binding Negotiation") {
         effect = Effects.Pipeline {
             // Reveal the opponent's hand.
             run(Effects.RevealHand(opponent))
-            val opponentHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val opponentHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
             // "You may choose a nonland card from it." — optional (ChooseUpTo 1).
             val toDiscard = chooseUpTo(
                 1,
@@ -55,7 +54,7 @@ val BindingNegotiation = card("Binding Negotiation") {
                 showAllCards = true
             )
             // "If you do, they discard it."
-            discard(toDiscard, Player.ContextPlayer(0))
+            discard(toDiscard, opponent.asPlayer)
             // "Otherwise, you may put a face-up exiled card they own into their graveyard."
             // Fires only if no card was discarded (toDiscard is empty).
             run(Effects.If(
@@ -64,7 +63,7 @@ val BindingNegotiation = card("Binding Negotiation") {
                     val theirExile = gather(
                         CardSource.FromZone(
                             zone = Zone.EXILE,
-                            player = Player.ContextPlayer(0),
+                            player = opponent.asPlayer,
                             filter = GameObjectFilter.Any.faceUp()
                         )
                     )
@@ -78,7 +77,7 @@ val BindingNegotiation = card("Binding Negotiation") {
                     )
                     move(
                         toBin,
-                        CardDestination.ToZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),
+                        CardDestination.ToZone(Zone.GRAVEYARD, opponent.asPlayer),
                         moveType = MoveType.Default
                     )
                 }

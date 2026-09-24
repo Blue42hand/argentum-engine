@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
@@ -51,11 +52,13 @@ val GearbaneOrangutan = card("Gearbane Orangutan") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = ModalEffect.chooseOne(
-            Mode.withTarget(
-                Effects.Destroy(EffectTarget.ContextTarget(0)),
-                TargetPermanent(optional = true, filter = TargetFilter.Artifact),
-                "Destroy up to one target artifact"
-            ),
+            mode("Destroy up to one target artifact") {
+                val artifact = target(
+                    "target artifact",
+                    TargetPermanent(optional = true, filter = TargetFilter.Artifact)
+                )
+                effect = Effects.Destroy(artifact)
+            },
             Mode.noTarget(
                 Effects.IfYouDo(
                     action = Effects.Sacrifice(

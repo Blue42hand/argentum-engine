@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
@@ -67,26 +66,25 @@ val BolgOfTheNorth = card("Bolg of the North") {
                 run(Effects.SacrificeTarget(toSacrifice.asTarget))
             },
             optional = true,
-            reflexiveEffect = Effects.Composite(
+            descriptionOverride = "You may sacrifice another creature. When you do, Bolg deals " +
+                "damage equal to that creature's power to another target creature. If excess " +
+                "damage was dealt this way, amass Goblins X, where X is that excess damage.",
+        ) {
+            val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature.other()))
+            effect = Effects.Composite(
                 Effects.DealDamage(
                     DynamicAmounts.storedNumber("bolgSacrificedPower"),
-                    EffectTarget.ContextTarget(0),
+                    creature,
                 ),
                 Effects.If(
                     condition = Conditions.IfTargetTookExcessDamage(),
                     then = Effects.Amass(
-                        DynamicAmounts.propertyOf(EffectTarget.ContextTarget(0), EntityNumericProperty.ExcessMarkedDamage),
+                        DynamicAmounts.propertyOf(creature, EntityNumericProperty.ExcessMarkedDamage),
                         "Goblin",
                     ),
                 ),
-            ),
-            reflexiveTargetRequirements = listOf(
-                TargetCreature(filter = TargetFilter.Creature.other()),
-            ),
-            descriptionOverride = "You may sacrifice another creature. When you do, Bolg deals " +
-                "damage equal to that creature's power to another target creature. If excess " +
-                "damage was dealt this way, amass Goblins X, where X is that excess damage.",
-        )
+            )
+        }
         description = "When Bolg enters, you may sacrifice another creature. When you do, Bolg " +
             "deals damage equal to that creature's power to another target creature. If excess " +
             "damage was dealt this way, amass Goblins X, where X is that excess damage."

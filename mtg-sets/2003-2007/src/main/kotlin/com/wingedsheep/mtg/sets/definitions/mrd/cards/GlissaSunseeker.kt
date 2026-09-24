@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Glissa Sunseeker — Mirrodin #120
@@ -36,7 +35,7 @@ val GlissaSunseeker = card("Glissa Sunseeker") {
         cost = Costs.Tap
         effect = Effects.If(
             condition = Conditions.CompareAmounts(
-                left = DynamicAmounts.manaValueOf(EffectTarget.ContextTarget(0)),
+                left = DynamicAmounts.manaValueOf(artifact),
                 operator = ComparisonOperator.EQ,
                 right = DynamicAmounts.unspentMana(Player.You),
             ),

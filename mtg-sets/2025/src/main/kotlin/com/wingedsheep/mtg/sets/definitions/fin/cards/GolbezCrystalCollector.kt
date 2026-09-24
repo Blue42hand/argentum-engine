@@ -64,7 +64,7 @@ val GolbezCrystalCollector = card("Golbez, Crystal Collector") {
                 Effects.If(
                     condition = Conditions.YouControlAtLeast(8, GameObjectFilter.Artifact.youControl()),
                     then = Effects.LoseLife(
-                        DynamicAmounts.targetPower(0),
+                        DynamicAmounts.powerOf(creatureCard),
                         EffectTarget.PlayerRef(Player.EachOpponent),
                     ),
                 ),

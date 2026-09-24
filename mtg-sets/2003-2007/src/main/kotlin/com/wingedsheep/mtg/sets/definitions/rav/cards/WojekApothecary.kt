@@ -44,7 +44,7 @@ val WojekApothecary = card("Wojek Apothecary") {
         effect = Effects.PreventNextDamage(1, patient) then
             Effects.ForEachInGroup(
                 GroupFilter(
-                    GameObjectFilter.Creature.sharingColorWith(EffectTarget.ContextTarget(0))
+                    GameObjectFilter.Creature.sharingColorWith(patient)
                 ).otherThanTarget(),
                 Effects.PreventNextDamage(1, EffectTarget.IterationEntity)
             )

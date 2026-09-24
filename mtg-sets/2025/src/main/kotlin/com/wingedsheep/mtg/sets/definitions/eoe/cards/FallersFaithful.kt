@@ -42,11 +42,9 @@ val FallersFaithful = card("Faller's Faithful") {
             TargetCreature(optional = true, filter = TargetFilter.OtherCreature)
         )
         effect = Effects.If(
-            condition = Conditions.TargetMatchesFilter(
-                GameObjectFilter.Creature.copy(
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.copy(
                     statePredicates = listOf(StatePredicate.Not(StatePredicate.WasDealtDamageThisTurn))
-                )
-            ),
+                ), creature),
             then = Effects.DrawCards(2, EffectTarget.TargetController)
         ).then(Effects.Destroy(creature))
         description = "When this creature enters, destroy up to one other target creature. " +

@@ -507,9 +507,13 @@ class Differential(private val touchstone: Touchstone = Touchstone()) {
      * wrote an `id` — makes the comparison about *which requirement an effect reads*, which is the
      * thing that carries meaning. It stays closed on the case that matters: `ContextTarget(1)`
      * normalizes to `slot_1` and still diverges from anything reading `slot_0`.
+     *
+     * `Player.ContextPlayer(i)` is the same positional reference in a player-typed slot, and its
+     * named form — `Player.BoundVariable`, what a card's `handle.asPlayer` builds — deliberately
+     * shares `BoundVariable`'s serial name, so it folds the same way.
      */
     private fun positionalReference(element: JsonObject): JsonElement? {
-        if ((element["type"] as? JsonPrimitive)?.content != "ContextTarget") return null
+        if ((element["type"] as? JsonPrimitive)?.content !in setOf("ContextTarget", "ContextPlayer")) return null
         val index = (element["index"] as? JsonPrimitive)?.content?.toIntOrNull() ?: return null
         return JsonObject(
             mapOf("type" to JsonPrimitive("BoundVariable"), "name" to JsonPrimitive(slotName(index)))

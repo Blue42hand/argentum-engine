@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ReduceEquipCost
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Éowyn, Lady of Rohan
@@ -44,7 +43,7 @@ val EowynLadyOfRohan = card("Éowyn, Lady of Rohan") {
         trigger = Triggers.BeginCombat
         val creature = target("target creature", Targets.Creature)
         effect = Effects.If(
-            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.equipped(), targetIndex = 0),
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.equipped(), creature),
             // Target is equipped: it gains first strike AND vigilance.
             then = Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature, Duration.EndOfTurn)
                 .then(Effects.GrantKeyword(Keyword.VIGILANCE, creature, Duration.EndOfTurn)),

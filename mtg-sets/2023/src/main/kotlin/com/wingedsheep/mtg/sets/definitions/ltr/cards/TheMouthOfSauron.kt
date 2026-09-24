@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * The Mouth of Sauron
@@ -38,12 +37,12 @@ val TheMouthOfSauron = card("The Mouth of Sauron") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        target("target player", Targets.Player)
+        val player = target("target player", Targets.Player)
         effect = Effects.Composite(
-            Patterns.Library.mill(3, EffectTarget.ContextTarget(0)),
+            Patterns.Library.mill(3, player),
             Effects.Amass(
                 DynamicAmounts.count(
-                    Player.ContextPlayer(0),
+                    player.asPlayer,
                     Zone.GRAVEYARD,
                     GameObjectFilter.InstantOrSorcery
                 ),

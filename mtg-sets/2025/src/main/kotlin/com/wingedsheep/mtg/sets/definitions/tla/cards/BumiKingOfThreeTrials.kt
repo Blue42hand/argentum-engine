@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.Mode
@@ -73,19 +74,17 @@ val BumiKingOfThreeTrials = card("Bumi, King of Three Trials") {
                 description = "Put three +1/+1 counters on Bumi."
             ),
             // Mode 2 — target player scries 3.
-            Mode.withTarget(
-                Effects.Scry(3, EffectTarget.ContextTarget(0)),
-                Targets.Player,
-                description = "Target player scries 3."
-            ),
+            mode("Target player scries 3.") {
+                val player = target("target player", Targets.Player)
+                effect = Effects.Scry(3, player)
+            },
             // Mode 3 — Earthbend 3.
-            Mode.withTarget(
-                Effects.Earthbend(3, EffectTarget.ContextTarget(0)),
-                TargetObject(filter = TargetFilter.Land.youControl()),
-                description = "Earthbend 3. (Target land you control becomes a 0/0 creature with " +
-                    "haste that's still a land. Put three +1/+1 counters on it. When it dies or is " +
-                    "exiled, return it to the battlefield tapped.)"
-            )
+            mode("Earthbend 3. (Target land you control becomes a 0/0 creature with " +
+                "haste that's still a land. Put three +1/+1 counters on it. When it dies or is " +
+                "exiled, return it to the battlefield tapped.)") {
+                val land = target("target land", TargetObject(filter = TargetFilter.Land.youControl()))
+                effect = Effects.Earthbend(3, land)
+            }
         )
         description = "When Bumi enters, choose up to X, where X is the number of Lesson cards in " +
             "your graveyard — • Put three +1/+1 counters on Bumi. • Target player scries 3. " +

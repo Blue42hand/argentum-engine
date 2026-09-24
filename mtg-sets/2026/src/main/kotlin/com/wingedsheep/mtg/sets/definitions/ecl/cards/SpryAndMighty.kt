@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.minus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Spry and Mighty
@@ -34,8 +33,8 @@ val SpryAndMighty = card("Spry and Mighty") {
 
         // X = |power(c1) - power(c2)| = max(p1 - p2, p2 - p1). Frozen into a stored number
         // so the first ModifyStats doesn't skew the second's reading of projected power.
-        val p1 = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0))
-        val p2 = DynamicAmounts.powerOf(EffectTarget.ContextTarget(1))
+        val p1 = DynamicAmounts.powerOf(c1)
+        val p2 = DynamicAmounts.powerOf(c2)
         val diff = DynamicAmounts.max(
             p1 - p2,
             p2 - p1

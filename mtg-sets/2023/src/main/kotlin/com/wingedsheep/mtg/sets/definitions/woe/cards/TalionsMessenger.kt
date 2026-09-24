@@ -57,17 +57,16 @@ val TalionsMessenger = card("Talion's Messenger") {
             Effects.ReflexiveTrigger(
                 action = Patterns.Hand.discardCards(1),
                 optional = false,
-                reflexiveEffect = Effects.AddCounters(
+            ) {
+                val permanent = target("target permanent", TargetPermanent(
+                    filter = TargetFilter.Permanent.withSubtype("Faerie").youControl()
+                ))
+                effect = Effects.AddCounters(
                     CounterType.PLUS_ONE_PLUS_ONE,
                     1,
-                    EffectTarget.ContextTarget(0),
-                ),
-                reflexiveTargetRequirements = listOf(
-                    TargetPermanent(
-                        filter = TargetFilter.Permanent.withSubtype("Faerie").youControl()
-                    )
-                ),
-            ),
+                    permanent,
+                )
+            },
         )
         description = "Whenever you attack with one or more Faeries, draw a card, then discard a " +
             "card. When you discard a card this way, put a +1/+1 counter on target Faerie you control."

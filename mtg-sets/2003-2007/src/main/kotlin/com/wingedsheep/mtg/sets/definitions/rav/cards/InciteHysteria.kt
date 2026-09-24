@@ -35,7 +35,7 @@ val InciteHysteria = card("Incite Hysteria") {
         effect = Effects.CantBlock(radiant) then
             Effects.ForEachInGroup(
                 GroupFilter(
-                    GameObjectFilter.Creature.sharingColorWith(EffectTarget.ContextTarget(0))
+                    GameObjectFilter.Creature.sharingColorWith(radiant)
                 ).otherThanTarget(),
                 Effects.CantBlock(EffectTarget.IterationEntity)
             )

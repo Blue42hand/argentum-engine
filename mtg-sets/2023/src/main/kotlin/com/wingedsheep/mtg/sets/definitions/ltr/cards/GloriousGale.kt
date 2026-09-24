@@ -25,9 +25,9 @@ val GloriousGale = card("Glorious Gale") {
     oracleText = "Counter target creature spell. If it was a legendary spell, the Ring tempts you."
 
     spell {
-        target("creature spell", Targets.CreatureSpell)
+        val creatureSpell = target("creature spell", Targets.CreatureSpell)
         effect = Effects.If(
-            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary(), 0),
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.legendary(), creatureSpell),
             then = Effects.TheRingTemptsYou()
         ).then(Effects.CounterSpell())
     }

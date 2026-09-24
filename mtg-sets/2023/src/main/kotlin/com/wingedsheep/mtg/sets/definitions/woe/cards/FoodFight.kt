@@ -5,10 +5,9 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedActivatedAbility
 import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.AbilityId
-import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -33,20 +32,19 @@ val FoodFight = card("Food Fight") {
 
     staticAbility {
         ability = GrantActivatedAbility(
-            ability = ActivatedAbility(
-                id = AbilityId.generate(),
-                cost = Costs.Composite(Costs.Mana("{2}"), Costs.SacrificeSelf),
+            ability = grantedActivatedAbility {
+                cost = Costs.Composite(Costs.Mana("{2}"), Costs.SacrificeSelf)
+                val anyTarget = target("target any", AnyTarget())
                 effect = Effects.DealDamage(
                     1 + DynamicAmounts.count(
                         Player.You,
                         Zone.BATTLEFIELD,
                         GameObjectFilter.Any.named("Food Fight")
                     ),
-                    EffectTarget.ContextTarget(0),
+                    anyTarget,
                     damageSource = EffectTarget.Self
-                ),
-                targetRequirement = AnyTarget()
-            ),
+                )
+            },
             filter = GroupFilter(GameObjectFilter.Artifact.youControl())
         )
     }

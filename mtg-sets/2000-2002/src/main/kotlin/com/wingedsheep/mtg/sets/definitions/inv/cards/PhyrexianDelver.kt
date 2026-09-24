@@ -36,7 +36,7 @@ val PhyrexianDelver = card("Phyrexian Delver") {
         effect = Effects.Composite(
             Effects.Move(returned, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
             Effects.LoseLife(
-                DynamicAmounts.manaValueOf(EffectTarget.ContextTarget(0)),
+                DynamicAmounts.manaValueOf(returned),
                 EffectTarget.Controller,
             ),
         )

@@ -2,10 +2,9 @@ package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreatureOrPlaneswalker
 import com.wingedsheep.sdk.dsl.Costs
 
@@ -34,20 +33,24 @@ val FeedTheCycle = card("Feed the Cycle") {
     spell {
         effect = ModalEffect.chooseOne(
             // Mode 1: Pay {B} additional — total mana cost becomes {1}{B}{B}
-            Mode(
-                effect = Effects.Destroy(EffectTarget.ContextTarget(0)),
-                targetRequirements = listOf(TargetCreatureOrPlaneswalker()),
-                description = "Pay {B} — destroy target creature or planeswalker",
-                additionalManaCost = "{B}",
+            mode("Pay {B} — destroy target creature or planeswalker") {
+                val creatureOrPlaneswalker = target(
+                    "target creature or planeswalker",
+                    TargetCreatureOrPlaneswalker()
+                )
+                additionalManaCost = "{B}"
                 additionalCosts = emptyList()
-            ),
+                effect = Effects.Destroy(creatureOrPlaneswalker)
+            },
             // Mode 2: Forage — total mana cost stays {1}{B} plus forage
-            Mode(
-                effect = Effects.Destroy(EffectTarget.ContextTarget(0)),
-                targetRequirements = listOf(TargetCreatureOrPlaneswalker()),
-                description = "Forage — destroy target creature or planeswalker",
+            mode("Forage — destroy target creature or planeswalker") {
+                val creatureOrPlaneswalker = target(
+                    "target creature or planeswalker",
+                    TargetCreatureOrPlaneswalker()
+                )
                 additionalCosts = listOf(Costs.additional.Forage)
-            ),
+                effect = Effects.Destroy(creatureOrPlaneswalker)
+            },
             countsAsModalSpell = false
         )
     }

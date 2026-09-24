@@ -22,7 +22,7 @@ val Goatnap = card("Goatnap") {
             Effects.Untap(t),
             Effects.GrantKeyword(Keyword.HASTE, t),
             Effects.If(
-                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.withSubtype("Goat")),
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.withSubtype("Goat"), t),
                 then = Effects.ModifyStats(3, 0, t)
             )
         )

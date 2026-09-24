@@ -4,9 +4,9 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -32,22 +32,22 @@ val CruelclawsHeist = card("Cruelclaw's Heist") {
         "Target opponent reveals their hand. You choose a nonland card from it. Exile that card. If the gift was promised, you may cast that card for as long as it remains exiled, and mana of any type can be spent to cast it."
 
     // Common pipeline for both modes: reveal hand, choose nonland, exile
-    val revealChooseExile = listOf(Patterns.Hand.revealHandAndExileChosen(target = EffectTarget.ContextTarget(0)))
+    fun revealChooseExile(opponent: EffectTarget) = Patterns.Hand.revealHandAndExileChosen(target = opponent)
 
     spell {
         effect = Patterns.Mechanic.giftSpell(
             // Mode 1: No gift — reveal, choose nonland, exile (can't cast it)
-            Mode.withTarget(
-                Effects.Composite(revealChooseExile),
-                Targets.Opponent,
-                "Don't promise a gift — exile a nonland card from target opponent's hand"
-            ),
+            mode("Don't promise a gift — exile a nonland card from target opponent's hand") {
+                val opponent = target("target opponent", Targets.Opponent)
+                effect = Effects.Composite(revealChooseExile(opponent))
+            },
             // Mode 2: Gift a card — opponent draws, then reveal, choose nonland, exile
             //         with permanent cast-from-exile permission
-            Mode.withTarget(
-                Effects.Composite(
-                    listOf(Effects.DrawCards(1, EffectTarget.ContextTarget(0))) +
-                    revealChooseExile +
+            mode("Promise a gift — an opponent draws a card, then exile a nonland card from target opponent's hand (you may cast it from exile)") {
+                val opponent = target("target opponent", Targets.Opponent)
+                effect = Effects.Composite(
+                    listOf(Effects.DrawCards(1, opponent)) +
+                    listOf(revealChooseExile(opponent)) +
                     listOf(
                         Effects.GrantMayPlayFromExile(
                             from = "chosenCard",
@@ -57,10 +57,8 @@ val CruelclawsHeist = card("Cruelclaw's Heist") {
                         )
                     ) +
                     listOf(Effects.GiftGiven())
-                ),
-                Targets.Opponent,
-                "Promise a gift — an opponent draws a card, then exile a nonland card from target opponent's hand (you may cast it from exile)"
-            )
+                )
+            }
         )
     }
 

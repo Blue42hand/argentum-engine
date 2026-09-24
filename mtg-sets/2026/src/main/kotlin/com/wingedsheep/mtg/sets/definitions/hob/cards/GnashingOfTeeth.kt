@@ -42,7 +42,7 @@ val GnashingOfTeeth = card("Gnashing of Teeth") {
             mode("Creatures target player controls get -1/-1 until end of turn") {
                 val t = target("target", TargetPlayer())
                 effect = Effects.ForEachInGroup(
-                    GroupFilter(GameObjectFilter.Creature.targetPlayerControls(EffectTarget.ContextTarget(0))),
+                    GroupFilter(GameObjectFilter.Creature.targetPlayerControls(t)),
                     Effects.ModifyStats(-1, -1, EffectTarget.IterationEntity)
                 )
             }

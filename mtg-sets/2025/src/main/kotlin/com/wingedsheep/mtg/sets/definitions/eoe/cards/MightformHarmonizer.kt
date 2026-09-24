@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Mightform Harmonizer
@@ -30,9 +29,9 @@ val MightformHarmonizer = card("Mightform Harmonizer") {
         trigger = Triggers.LandYouControlEnters
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.ModifyStats(
-            power = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)),
+            power = DynamicAmounts.powerOf(creature),
             toughness = DynamicAmounts.fixed(0),
-            target = EffectTarget.ContextTarget(0)
+            target = creature
         )
         description = "Whenever a land you control enters, double the power of target creature you control until end of turn."
     }

@@ -6,11 +6,9 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.divRoundedUp
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Rush of Dread {1}{B}{B}
@@ -43,41 +41,38 @@ val RushOfDread = card("Rush of Dread") {
     spell {
         effect = Effects.Modal(
             modes = listOf(
-                Mode(
+                mode("+ {1} — Target opponent sacrifices half the creatures they " +
+                    "control of their choice, rounded up.") {
+                    val opponent = target("target opponent", Targets.Opponent)
+                    additionalManaCost = "{1}"
                     effect = Effects.Sacrifice(
                         filter = GameObjectFilter.Creature,
                         count = DynamicAmounts.battlefield(
-                            Player.ContextPlayer(0),
+                            opponent.asPlayer,
                             GameObjectFilter.Creature
                         ).count() divRoundedUp 2,
-                        target = EffectTarget.ContextTarget(0)
-                    ),
-                    targetRequirements = listOf(Targets.Opponent),
-                    description = "+ {1} — Target opponent sacrifices half the creatures they " +
-                        "control of their choice, rounded up.",
-                    additionalManaCost = "{1}"
-                ),
-                Mode(
+                        target = opponent
+                    )
+                },
+                mode("+ {2} — Target opponent discards half the cards in their hand, rounded up.") {
+                    val opponent = target("target opponent", Targets.Opponent)
+                    additionalManaCost = "{2}"
                     effect = Effects.Discard(
                         count = DynamicAmounts.zone(
-                            Player.ContextPlayer(0),
+                            opponent.asPlayer,
                             Zone.HAND
                         ).count() divRoundedUp 2,
-                        target = EffectTarget.ContextTarget(0)
-                    ),
-                    targetRequirements = listOf(Targets.Opponent),
-                    description = "+ {2} — Target opponent discards half the cards in their hand, rounded up.",
+                        target = opponent
+                    )
+                },
+                mode("+ {2} — Target opponent loses half their life, rounded up.") {
+                    val opponent = target("target opponent", Targets.Opponent)
                     additionalManaCost = "{2}"
-                ),
-                Mode(
                     effect = Effects.LoseLife(
-                        amount = DynamicAmounts.lifeTotal(Player.ContextPlayer(0)) divRoundedUp 2,
-                        target = EffectTarget.ContextTarget(0)
-                    ),
-                    targetRequirements = listOf(Targets.Opponent),
-                    description = "+ {2} — Target opponent loses half their life, rounded up.",
-                    additionalManaCost = "{2}"
-                )
+                        amount = DynamicAmounts.lifeTotal(opponent.asPlayer) divRoundedUp 2,
+                        target = opponent
+                    )
+                }
             ),
             chooseCount = 3,
             minChooseCount = 1

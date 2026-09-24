@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -40,11 +41,13 @@ val RavenousSailback = card("Ravenous Sailback") {
                     effect = Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self),
                     description = "This creature gains haste until end of turn."
                 ),
-                Mode.withTarget(
-                    effect = Effects.Destroy(EffectTarget.ContextTarget(0)),
-                    target = Targets.ArtifactOrEnchantment,
-                    description = "Destroy target artifact or enchantment."
-                )
+                mode("Destroy target artifact or enchantment.") {
+                    val artifactOrEnchantment = target(
+                        "target artifact or enchantment",
+                        Targets.ArtifactOrEnchantment
+                    )
+                    effect = Effects.Destroy(artifactOrEnchantment)
+                }
             ),
             chooseCount = 1
         )

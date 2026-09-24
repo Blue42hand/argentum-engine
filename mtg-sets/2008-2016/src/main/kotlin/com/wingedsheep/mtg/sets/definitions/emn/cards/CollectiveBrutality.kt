@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.costs.CostAtom
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
@@ -43,7 +42,7 @@ val CollectiveBrutality = card("Collective Brutality") {
                 val opponent = target("reveal opponent", TargetOpponent())
                 effect = Effects.Pipeline {
                     run(Effects.RevealHand(opponent))
-                    val opponentHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+                    val opponentHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
                     val toDiscard = chooseExactly(
                         1,
                         from = opponentHand,
@@ -53,7 +52,7 @@ val CollectiveBrutality = card("Collective Brutality") {
                         alwaysPrompt = true,
                         showAllCards = true
                     )
-                    discard(toDiscard, Player.ContextPlayer(0))
+                    discard(toDiscard, opponent.asPlayer)
                 }
             }
             mode("Target creature gets -2/-2 until end of turn.") {

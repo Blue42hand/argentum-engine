@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.conditions.IsYourTurn
 import com.wingedsheep.sdk.scripting.conditions.YouControlSource
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.references.Player
 
 /**
  * Hama, the Bloodbender
@@ -62,7 +61,7 @@ val HamaTheBloodbender: CardDefinition = card("Hama, the Bloodbender") {
             val hamaGraveyard = gather(
                 CardSource.FromZone(
                     zone = Zone.GRAVEYARD,
-                    player = Player.ContextPlayer(0),
+                    player = opponent.asPlayer,
                     filter = GameObjectFilter.Noncreature and GameObjectFilter.Nonland,
                 )
             )
@@ -74,7 +73,7 @@ val HamaTheBloodbender: CardDefinition = card("Hama, the Bloodbender") {
             // The exiled card is owned by the target opponent — keep it in that player's
             // exile (a graveyard→exile move doesn't collapse to owner automatically the way a
             // battlefield→exile move does).
-            val hamaExiled = moveTracked(hamaChosen, CardDestination.ToZone(Zone.EXILE, Player.ContextPlayer(0)))
+            val hamaExiled = moveTracked(hamaChosen, CardDestination.ToZone(Zone.EXILE, opponent.asPlayer))
             // For as long as you control Hama, you may cast the exiled card during your turn by
             // waterbending {its mana value} rather than paying its mana cost.
             run(Effects.WaterbendCastFromExile(

@@ -5,12 +5,11 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Collision Course
@@ -37,25 +36,23 @@ val CollisionCourse = card("Collision Course") {
     spell {
         effect = ModalEffect.chooseOne(
             // Mode 1: deal X damage to target creature
-            Mode(
+            mode("Deals X damage to target creature, where X is the number of " +
+                "creatures and/or Vehicles you control") {
+                val creature = target("target creature", Targets.Creature)
                 effect = Effects.DealDamage(
                     amount = DynamicAmounts.count(
                         Player.You,
                         Zone.BATTLEFIELD,
                         GameObjectFilter.CreatureOrVehicle,
                     ),
-                    target = EffectTarget.ContextTarget(0),
-                ),
-                targetRequirements = listOf(Targets.Creature),
-                description = "Deals X damage to target creature, where X is the number of " +
-                    "creatures and/or Vehicles you control",
-            ),
+                    target = creature,
+                )
+            },
             // Mode 2: destroy target artifact
-            Mode(
-                effect = Effects.Destroy(EffectTarget.ContextTarget(0)),
-                targetRequirements = listOf(Targets.Artifact),
-                description = "Destroy target artifact",
-            ),
+            mode("Destroy target artifact") {
+                val artifact = target("target artifact", Targets.Artifact)
+                effect = Effects.Destroy(artifact)
+            },
         )
     }
 

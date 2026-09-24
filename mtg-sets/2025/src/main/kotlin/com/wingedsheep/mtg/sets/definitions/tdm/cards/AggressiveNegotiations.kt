@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -46,7 +45,7 @@ val AggressiveNegotiations = card("Aggressive Negotiations") {
             val revealedNonland = gather(
                 CardSource.FromZone(
                     zone = Zone.HAND,
-                    player = Player.ContextPlayer(0),
+                    player = opponent.asPlayer,
                     filter = GameObjectFilter.Nonland,
                 )
             )
@@ -56,7 +55,7 @@ val AggressiveNegotiations = card("Aggressive Negotiations") {
                 chooser = Chooser.Controller,
                 prompt = "Choose a nonland card to exile"
             )
-            exile(chosenCard, Player.ContextPlayer(0))
+            exile(chosenCard, opponent.asPlayer)
         }.then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature))
     }
 

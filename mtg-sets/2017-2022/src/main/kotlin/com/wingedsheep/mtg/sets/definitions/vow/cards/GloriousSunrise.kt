@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.ActivatedAbility
@@ -15,7 +16,6 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
@@ -65,7 +65,8 @@ val GloriousSunrise = card("Glorious Sunrise") {
                 ),
                 "Creatures you control get +1/+1 and gain trample until end of turn"
             ),
-            Mode.withTarget(
+            mode("Target land gains \"{T}: Add {G}{G}{G}\" until end of turn") {
+                val land = target("target land", TargetPermanent(filter = TargetFilter.Land))
                 effect = Effects.GrantActivatedAbility(
                     ability = ActivatedAbility(
                         id = AbilityId.generate(),
@@ -73,11 +74,9 @@ val GloriousSunrise = card("Glorious Sunrise") {
                         effect = Effects.AddMana(Color.GREEN, 3),
                         isManaAbility = true
                     ),
-                    target = EffectTarget.ContextTarget(0)
-                ),
-                target = TargetPermanent(filter = TargetFilter.Land),
-                description = "Target land gains \"{T}: Add {G}{G}{G}\" until end of turn"
-            ),
+                    target = land
+                )
+            },
             Mode.noTarget(
                 Effects.If(
                     condition = Conditions.YouControl(GameObjectFilter.Creature.powerAtLeast(3)),

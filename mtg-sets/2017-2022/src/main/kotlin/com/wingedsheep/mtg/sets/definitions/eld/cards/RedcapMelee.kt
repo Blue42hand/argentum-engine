@@ -47,7 +47,7 @@ val RedcapMelee = card("Redcap Melee") {
     spell {
         val t = target("target creature or planeswalker", Targets.CreatureOrPlaneswalker)
         effect = Effects.DealDamage(4, t) then Effects.If(
-            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent.notColor(Color.RED)),
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent.notColor(Color.RED), t),
             then = Effects.SacrificeOwn(Filters.Land)
         )
     }

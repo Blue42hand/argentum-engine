@@ -45,15 +45,15 @@ val VincentsLimitBreak = card("Vincent's Limit Break") {
         tiered {
             tier("Galian Beast", "{0}", "3/2.") {
                 val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
-                effect = transform(3, 2)
+                effect = transform(creatureYouControl, 3, 2)
             }
             tier("Death Gigas", "{1}", "5/2.") {
                 val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
-                effect = transform(5, 2)
+                effect = transform(creatureYouControl, 5, 2)
             }
             tier("Hellmasker", "{3}", "7/2.") {
                 val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
-                effect = transform(7, 2)
+                effect = transform(creatureYouControl, 7, 2)
             }
         }
     }
@@ -73,7 +73,7 @@ val VincentsLimitBreak = card("Vincent's Limit Break") {
  * turn, but a creature that dies during that window leaves the ability to resolve from the
  * graveyard (mirrors the Earthbend "return tapped" composition).
  */
-private fun transform(power: Int, toughness: Int): Effect {
+private fun transform(creature: EffectTarget, power: Int, toughness: Int): Effect {
     val diesReturnTapped = TriggeredAbility.create(
         trigger = Triggers.Dies.event,
         binding = Triggers.Dies.binding,
@@ -86,7 +86,7 @@ private fun transform(power: Int, toughness: Int): Effect {
         descriptionOverride = "When this creature dies, return it to the battlefield tapped under its owner's control."
     )
     return Effects.Composite(
-        Effects.SetBasePowerAndToughness(power, toughness, EffectTarget.ContextTarget(0), Duration.EndOfTurn),
-        Effects.GrantTriggeredAbility(diesReturnTapped, EffectTarget.ContextTarget(0), Duration.EndOfTurn)
+        Effects.SetBasePowerAndToughness(power, toughness, creature, Duration.EndOfTurn),
+        Effects.GrantTriggeredAbility(diesReturnTapped, creature, Duration.EndOfTurn)
     )
 }

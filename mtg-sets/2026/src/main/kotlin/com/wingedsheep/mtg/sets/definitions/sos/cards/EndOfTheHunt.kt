@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CollectionFilter
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.MoveType
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
 /**
@@ -46,7 +45,7 @@ val EndOfTheHunt = card("End of the Hunt") {
             val controlled = gather(
                 CardSource.BattlefieldMatching(
                     filter = GameObjectFilter.CreatureOrPlaneswalker,
-                    player = Player.ContextPlayer(0)
+                    player = opponent.asPlayer
                 )
             )
             val greatestManaValue = filter(controlled, CollectionFilter.GreatestManaValue)

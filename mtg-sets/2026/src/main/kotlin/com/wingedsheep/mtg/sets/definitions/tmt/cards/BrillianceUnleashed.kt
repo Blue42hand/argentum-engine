@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
@@ -38,23 +37,23 @@ val BrillianceUnleashed = card("Brilliance Unleashed") {
                 effect = Effects.DealDamage(5, creature)
             }
             mode("Return target artifact card in your graveyard to the battlefield. If it isn't an artifact creature card, it's a 3/3 Robot artifact creature with flying") {
-                val target = target("target", TargetObject(
+                val artifactCard = target("target artifact card in your graveyard", TargetObject(
                     filter = TargetFilter(
                         baseFilter = GameObjectFilter.Artifact.ownedByYou(),
                         zone = Zone.GRAVEYARD,
                     )
                 ))
                 effect = Effects.Move(
-                    target = com.wingedsheep.sdk.scripting.targets.EffectTarget.ContextTarget(0),
+                    target = artifactCard,
                     destination = Zone.BATTLEFIELD,
                     fromZone = Zone.GRAVEYARD,
                 ).then(
                     Effects.If(
                         condition = Conditions.Not(
-                            Conditions.TargetMatchesFilter(GameObjectFilter.Creature)
+                            Conditions.TargetMatchesFilter(GameObjectFilter.Creature, artifactCard)
                         ),
                         then = Effects.BecomeCreature(
-                            target = com.wingedsheep.sdk.scripting.targets.EffectTarget.ContextTarget(0),
+                            target = artifactCard,
                             power = 3,
                             toughness = 3,
                             keywords = setOf(Keyword.FLYING),

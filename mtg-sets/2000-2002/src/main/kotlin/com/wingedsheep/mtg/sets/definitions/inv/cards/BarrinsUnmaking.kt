@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.TargetSharesMostCommonColor
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Barrin's Unmaking (INV 46)
@@ -27,10 +26,10 @@ val BarrinsUnmaking = card("Barrin's Unmaking") {
         "with the most common color among all permanents or a color tied for most common."
 
     spell {
-        target("target permanent", Targets.Permanent)
+        val permanent = target("target permanent", Targets.Permanent)
         effect = Effects.If(
             condition = TargetSharesMostCommonColor(),
-            then = Effects.ReturnToHand(EffectTarget.ContextTarget(0))
+            then = Effects.ReturnToHand(permanent)
         )
     }
 

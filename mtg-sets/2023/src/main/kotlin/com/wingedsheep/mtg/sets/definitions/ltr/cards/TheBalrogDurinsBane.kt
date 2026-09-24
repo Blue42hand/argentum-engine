@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.CantBeBlockedExceptBy
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
@@ -71,11 +70,11 @@ val TheBalrogDurinsBane = card("The Balrog, Durin's Bane") {
     // When The Balrog dies, destroy target artifact or creature an opponent controls.
     triggeredAbility {
         trigger = Triggers.Dies
-        target(
+        val artifactOrCreatureOpponentControls = target(
             "target artifact or creature an opponent controls",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.CreatureOrArtifact.opponentControls())),
         )
-        effect = Effects.Destroy(EffectTarget.ContextTarget(0))
+        effect = Effects.Destroy(artifactOrCreatureOpponentControls)
     }
 
     metadata {

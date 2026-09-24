@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.otj.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 /**
  * Return the Favor
  * {R}{R}
@@ -43,13 +43,15 @@ val ReturnTheFavor = card("Return the Favor") {
         effect = Effects.Modal(
             modes = listOf(
                 // + {1} — Copy target instant/sorcery spell, activated ability, or triggered ability.
-                Mode(
-                    effect = Effects.CopyTargetSpellOrAbility(target = EffectTarget.ContextTarget(0)),
-                    targetRequirements = listOf(Targets.InstantSorcerySpellOrAbility),
-                    description = "+ {1} — Copy target instant spell, sorcery spell, activated " +
-                        "ability, or triggered ability. You may choose new targets for the copy.",
+                mode("+ {1} — Copy target instant spell, sorcery spell, activated " +
+                    "ability, or triggered ability. You may choose new targets for the copy.") {
+                    val instantSorcerySpellOrAbility = target(
+                        "target instant sorcery spell or ability",
+                        Targets.InstantSorcerySpellOrAbility
+                    )
                     additionalManaCost = "{1}"
-                ),
+                    effect = Effects.CopyTargetSpellOrAbility(target = instantSorcerySpellOrAbility)
+                },
                 // + {1} — Change the target of target spell or ability with a single target.
                 Mode(
                     effect = Effects.ChangeTarget(),

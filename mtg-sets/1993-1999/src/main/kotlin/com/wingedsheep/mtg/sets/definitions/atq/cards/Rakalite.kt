@@ -30,7 +30,7 @@ val Rakalite = card("Rakalite") {
         cost = Costs.Mana("{2}")
         val t = target("any target", Targets.Any)
         effect = Effects.Composite(listOf(
-            Effects.PreventNextDamage(1, EffectTarget.ContextTarget(0)),
+            Effects.PreventNextDamage(1, t),
             Effects.CreateDelayedTrigger(
                 step = Step.END,
                 effect = Effects.ReturnToHand(EffectTarget.Self)

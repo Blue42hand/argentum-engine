@@ -41,7 +41,7 @@ val WeedStrangle = card("Weed Strangle") {
     spell {
         val creature = target("target creature", Targets.Creature)
         effect = Effects.Pipeline {
-            val toughness = storeNumber(DynamicAmounts.targetToughness())
+            val toughness = storeNumber(DynamicAmounts.toughnessOf(creature))
             run(Effects.Destroy(creature))
             run(Patterns.Mechanic.clash(Effects.GainLife(toughness.amount)))
         }

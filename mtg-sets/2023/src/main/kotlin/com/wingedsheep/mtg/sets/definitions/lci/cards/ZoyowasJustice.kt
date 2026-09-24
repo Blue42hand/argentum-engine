@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Zoyowa's Justice
@@ -45,7 +44,7 @@ val ZoyowasJustice = card("Zoyowa's Justice") {
             listOf(
                 Effects.ShuffleIntoLibrary(permanent),
                 Effects.Discover(
-                    DynamicAmounts.manaValueOf(EffectTarget.ContextTarget(0))
+                    DynamicAmounts.manaValueOf(permanent)
                 )
             )
         )

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 /**
@@ -49,7 +48,7 @@ val Void = card("Void") {
                 val voidDiscard = gather(
                     CardSource.FromZone(
                         zone = Zone.HAND,
-                        player = Player.ContextPlayer(0),
+                        player = targetPlayer.asPlayer,
                         filter = GameObjectFilter(
                             cardPredicates = listOf(
                                 CardPredicate.IsNonland,
@@ -58,7 +57,7 @@ val Void = card("Void") {
                         ),
                     )
                 )
-                discard(voidDiscard, Player.ContextPlayer(0))
+                discard(voidDiscard, targetPlayer.asPlayer)
             },
         )
     }

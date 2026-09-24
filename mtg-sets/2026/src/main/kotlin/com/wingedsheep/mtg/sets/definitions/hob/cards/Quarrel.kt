@@ -26,7 +26,7 @@ val Quarrel = card("Quarrel") {
     spell {
         val t1 = target("t1", TargetCreature(filter = TargetFilter.Creature.youControl()))
         val t2 = target("t2", TargetCreature(filter = TargetFilter.Creature.opponentControls()))
-        effect = Effects.DealDamage(DynamicAmounts.targetPower(0), t2, damageSource = t1)
+        effect = Effects.DealDamage(DynamicAmounts.powerOf(t1), t2, damageSource = t1)
     }
     metadata {
         rarity = Rarity.COMMON

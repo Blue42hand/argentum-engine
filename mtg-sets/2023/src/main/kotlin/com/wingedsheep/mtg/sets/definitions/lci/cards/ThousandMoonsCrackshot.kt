@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Thousand Moons Crackshot
@@ -32,11 +31,11 @@ val ThousandMoonsCrackshot = card("Thousand Moons Crackshot") {
         effect = Effects.ReflexiveTrigger(
             // "you may pay {2}{W}"
             action = Effects.PayMana("{2}{W}"),
-            optional = true,
+            optional = true) {
             // "When you do, tap target creature."
-            reflexiveEffect = Effects.Tap(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(Targets.Creature)
-        )
+            val creature = target("target creature", Targets.Creature)
+            effect = Effects.Tap(creature)
+        }
     }
 
     metadata {

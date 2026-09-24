@@ -35,7 +35,7 @@ val RendingFlame = card("Rending Flame") {
         effect = Effects.Composite(
             Effects.DealDamage(5, permanent),
             Effects.If(
-                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.withSubtype(Subtype.SPIRIT)),
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.withSubtype(Subtype.SPIRIT), permanent),
                 then = Effects.DealDamage(2, EffectTarget.TargetController)
             )
         )

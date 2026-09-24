@@ -8,8 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
-import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 /**
@@ -43,7 +41,7 @@ val Lobotomy = card("Lobotomy") {
             // 1. Target player reveals their hand.
             run(Effects.RevealHand(player))
             // 2. Gather their hand so the controller can choose a card.
-            val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val hand = gather(CardSource.FromZone(Zone.HAND, player.asPlayer))
             // 3. You choose a card other than a basic land card.
             val chosen = chooseExactly(
                 1, from = hand,
@@ -58,15 +56,15 @@ val Lobotomy = card("Lobotomy") {
             val toExile = gather(
                 CardSource.FromMultipleZones(
                     zones = listOf(Zone.GRAVEYARD, Zone.HAND, Zone.LIBRARY),
-                    player = Player.ContextPlayer(0),
+                    player = player.asPlayer,
                     filter = GameObjectFilter.Any.namedFromVariable(chosenName)
                 ),
                 search = true
             )
             // 6. Exile them.
-            exile(toExile, owner = Player.ContextPlayer(0))
+            exile(toExile, owner = player.asPlayer)
             // 7. That player shuffles.
-            run(Effects.ShuffleLibrary(target = EffectTarget.ContextTarget(0)))
+            run(Effects.ShuffleLibrary(target = player))
         }
     }
 

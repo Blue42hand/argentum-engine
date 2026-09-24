@@ -28,12 +28,8 @@ val Kapow = card("Kapow!") {
             .then(
                 Effects.If(
                     condition = Conditions.All(
-                        Conditions.TargetMatchesFilter(
-                            GameObjectFilter.Creature.youControl(), targetIndex = 0
-                        ),
-                        Conditions.TargetMatchesFilter(
-                            GameObjectFilter.Creature.opponentControls(), targetIndex = 1
-                        )
+                        Conditions.TargetMatchesFilter(GameObjectFilter.Creature.youControl(), yourCreature),
+                        Conditions.TargetMatchesFilter(GameObjectFilter.Creature.opponentControls(), theirCreature)
                     ),
                     then = Effects.Fight(yourCreature, theirCreature)
                 )

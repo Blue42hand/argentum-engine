@@ -31,12 +31,12 @@ val Wisecrack = card("Wisecrack") {
     spell {
         val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.DealDamage(
-            DynamicAmounts.targetPower(0),
+            DynamicAmounts.powerOf(creature),
             creature,
             damageSource = creature,
         ).then(
             Effects.If(
-                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.attacking()),
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.attacking(), creature),
                 then = Effects.DealDamage(2, EffectTarget.TargetController),
             ),
         )

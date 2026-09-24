@@ -107,9 +107,7 @@ val AKillerAmongUs = card("A Killer Among Us") {
         ))
         cost = Costs.Composite(Costs.SacrificeSelf, Costs.RevealNotedCreatureType)
         effect = Effects.If(
-            condition = Conditions.TargetMatchesFilter(
-                GameObjectFilter.Creature.withSubtypeFromVariable("chosenCreatureType")
-            ),
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtypeFromVariable("chosenCreatureType"), creature),
             then = Effects.Composite(
                 Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, creature),
                 Effects.GrantKeyword(Keyword.DEATHTOUCH, creature)

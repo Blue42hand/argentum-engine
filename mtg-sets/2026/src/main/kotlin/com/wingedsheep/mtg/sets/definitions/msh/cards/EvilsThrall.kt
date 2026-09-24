@@ -70,7 +70,7 @@ val EvilsThrall = card("Evil's Thrall") {
                         GameObjectFilter.Permanent.withSubtype(Subtype.VILLAIN)
                     ).maxManaValue(),
                     ComparisonOperator.GT,
-                    DynamicAmounts.targetManaValue()
+                    DynamicAmounts.manaValueOf(stolen)
                 ),
                 then = Effects.GainControl(stolen, Duration.EndOfYourNextTurn),
                 otherwise = Effects.GainControl(stolen, Duration.EndOfTurn)

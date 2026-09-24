@@ -39,7 +39,7 @@ val EagleOfDeliverance = card("Eagle of Deliverance") {
         )
         effect = Effects.AddCounters(CounterType.INDESTRUCTIBLE, 1, creature) then
             Effects.If(
-                condition = Conditions.TargetPowerAtMost(DynamicAmounts.fixed(2)),
+                condition = Conditions.TargetPowerAtMost(DynamicAmounts.fixed(2), creature),
                 then = Effects.DrawCards(1)
             )
     }

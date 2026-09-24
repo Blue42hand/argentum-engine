@@ -32,11 +32,11 @@ val TeyoDiamondbladeMage = card("Teyo, Diamondblade Mage") {
         effect = Effects.Composite(
             Effects.GrantKeyword(Keyword.DEATHTOUCH, permanent),
             Effects.If(
-                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature),
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature, permanent),
                 then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, permanent),
             ),
             Effects.If(
-                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Planeswalker),
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Planeswalker, permanent),
                 then = Effects.AddCounters(CounterType.LOYALTY, 1, permanent),
             ),
         )

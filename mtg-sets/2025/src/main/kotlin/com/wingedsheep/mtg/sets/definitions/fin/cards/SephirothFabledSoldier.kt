@@ -8,12 +8,12 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedTriggeredAbility
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -66,19 +66,18 @@ private val SephirothOneWingedAngel = card("Sephiroth, One-Winged Angel") {
         trigger = Triggers.TransformsToBack
         effect = Effects.CreateGlobalTriggeredAbility(
             duration = Duration.Permanent,
-            ability = TriggeredAbility.create(
-                trigger = Triggers.AnyCreatureDies.event,
-                binding = Triggers.AnyCreatureDies.binding,
+            ability = grantedTriggeredAbility {
+                trigger = Triggers.AnyCreatureDies
+                val opponent = target("target opponent", Targets.Opponent)
                 effect = Effects.Composite(
                     listOf(
-                        Effects.LoseLife(1, EffectTarget.ContextTarget(0)),
+                        Effects.LoseLife(1, opponent),
                         Effects.GainLife(1),
                     )
-                ),
-                targetRequirement = Targets.Opponent,
-                descriptionOverride = "Whenever a creature dies, target opponent loses 1 life and " +
-                    "you gain 1 life.",
-            ),
+                )
+                description = "Whenever a creature dies, target opponent loses 1 life and " +
+                    "you gain 1 life."
+            },
             descriptionOverride = "Whenever a creature dies, target opponent loses 1 life and you " +
                 "gain 1 life.",
         )

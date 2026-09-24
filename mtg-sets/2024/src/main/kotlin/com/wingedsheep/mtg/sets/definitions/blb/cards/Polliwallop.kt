@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Polliwallop
@@ -32,7 +31,7 @@ val Polliwallop = card("Polliwallop") {
         val myCreature = target("creature you control", Targets.CreatureYouControl)
         val theirCreature = target("creature you don't control", Targets.CreatureOpponentControls)
         effect = Effects.DealDamage(
-            amount = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)) * 2,
+            amount = DynamicAmounts.powerOf(myCreature) * 2,
             target = theirCreature,
             damageSource = myCreature
         )

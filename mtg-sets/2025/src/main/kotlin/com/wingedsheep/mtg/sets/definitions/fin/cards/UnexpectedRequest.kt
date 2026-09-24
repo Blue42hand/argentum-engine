@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
 /**
@@ -61,7 +60,7 @@ val UnexpectedRequest = card("Unexpected Request") {
                 // "If you do" — the ConditionEvaluator only dispatches ContextTarget (not the
                 // bound-variable handle), so gate on the equipment's positional slot.
                 condition = Conditions.EntityMatches(
-                    EffectTarget.ContextTarget(1),
+                    equipment,
                     GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT)
                 ),
                 then = Effects.Composite(

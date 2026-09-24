@@ -50,12 +50,13 @@ val IcewroughtSentry = card("Icewrought Sentry") {
         trigger = Triggers.Attacks
         effect = Effects.ReflexiveTrigger(
             action = Effects.PayMana("{1}{U}"),
-            optional = true,
-            reflexiveEffect = Effects.Tap(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(
+            optional = true) {
+            val creature = target(
+                "target creature",
                 TargetCreature(filter = TargetFilter.Creature.opponentControls())
             )
-        )
+            effect = Effects.Tap(creature)
+        }
         description = "Whenever this creature attacks, you may pay {1}{U}. When you do, tap target " +
             "creature an opponent controls."
     }

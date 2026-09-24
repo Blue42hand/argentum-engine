@@ -58,7 +58,7 @@ val MaralenFaeAscendant = card("Maralen, Fae Ascendant") {
         )
         val opponent = target("opponent", TargetOpponent())
         effect = Effects.Pipeline {
-            val exiled = gather(CardSource.TopOfLibrary(2, Player.ContextPlayer(0)))
+            val exiled = gather(CardSource.TopOfLibrary(2, opponent.asPlayer))
             exile(exiled, linkToSource = true)
         }
     }

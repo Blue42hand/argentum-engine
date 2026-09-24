@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Shire Shirriff
@@ -35,10 +34,13 @@ val ShireShirriff = card("Shire Shirriff") {
         trigger = Triggers.EntersBattlefield
         effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeOwn(filter = GameObjectFilter.Token),
-            optional = true,
-            reflexiveEffect = Effects.ExileUntilLeaves(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(Targets.CreatureOpponentControls)
-        )
+            optional = true) {
+            val creatureOpponentControls = target(
+                "target creature opponent controls",
+                Targets.CreatureOpponentControls
+            )
+            effect = Effects.ExileUntilLeaves(creatureOpponentControls)
+        }
     }
 
     // When this creature leaves the battlefield, return the exiled card.

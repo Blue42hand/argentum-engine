@@ -56,7 +56,7 @@ val ItzquinthFirstbornOfGishath = card("Itzquinth, Firstborn of Gishath") {
         // "you may pay {2}. When you do" → Gate.MayPay; if paid, t1 deals damage to t2.
         effect = Effects.MayPay(
             cost = ManaCost.parse("{2}"),
-            then = Effects.DealDamage(DynamicAmounts.targetPower(0), t2, damageSource = t1)
+            then = Effects.DealDamage(DynamicAmounts.powerOf(t1), t2, damageSource = t1)
         )
     }
 

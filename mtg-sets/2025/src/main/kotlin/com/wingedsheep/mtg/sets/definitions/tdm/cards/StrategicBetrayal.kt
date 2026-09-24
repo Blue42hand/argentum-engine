@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -26,12 +25,12 @@ val StrategicBetrayal = card("Strategic Betrayal") {
     oracleText = "Target opponent exiles a creature they control and their graveyard."
 
     spell {
-        target("target opponent", Targets.Opponent)
+        val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Pipeline {
             val creaturesCanExile = gather(
                 CardSource.BattlefieldMatching(
                     filter = GameObjectFilter.Creature,
-                    player = Player.ContextPlayer(0)
+                    player = opponent.asPlayer
                 )
             )
             ifNotEmpty(creaturesCanExile) {
@@ -42,10 +41,10 @@ val StrategicBetrayal = card("Strategic Betrayal") {
                     prompt = "Choose a creature to exile",
                     useTargetingUI = true
                 )
-                exile(chosenCreature, Player.ContextPlayer(0))
+                exile(chosenCreature, opponent.asPlayer)
             }
-            val opponentGraveyard = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.ContextPlayer(0)))
-            exile(opponentGraveyard, Player.ContextPlayer(0))
+            val opponentGraveyard = gather(CardSource.FromZone(Zone.GRAVEYARD, opponent.asPlayer))
+            exile(opponentGraveyard, opponent.asPlayer)
         }
     }
 

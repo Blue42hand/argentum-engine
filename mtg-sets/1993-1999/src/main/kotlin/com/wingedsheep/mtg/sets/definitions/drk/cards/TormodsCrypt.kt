@@ -17,10 +17,10 @@ val TormodsCrypt = card("Tormod's Crypt") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Tap, Costs.SacrificeSelf)
-        target("target player", Targets.Player)
+        val player = target("target player", Targets.Player)
         effect = Effects.Pipeline {
-            val cryptGraveyard = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.ContextPlayer(0)))
-            exile(cryptGraveyard, Player.ContextPlayer(0))
+            val cryptGraveyard = gather(CardSource.FromZone(Zone.GRAVEYARD, player.asPlayer))
+            exile(cryptGraveyard, player.asPlayer)
         }
     }
 

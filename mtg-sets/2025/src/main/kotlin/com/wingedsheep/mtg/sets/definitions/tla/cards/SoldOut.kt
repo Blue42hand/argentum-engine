@@ -31,11 +31,9 @@ val SoldOut = card("Sold Out") {
     spell {
         val creature = target("target creature", Targets.Creature)
         effect = Effects.If(
-            condition = Conditions.TargetMatchesFilter(
-                GameObjectFilter.Creature.copy(
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.copy(
                     statePredicates = listOf(StatePredicate.WasDealtDamageThisTurn),
-                ),
-            ),
+                ), creature),
             then = Effects.CreateClue(),
         ).then(Effects.Exile(creature))
     }

@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Hard-Hitting Question
@@ -27,7 +26,7 @@ val HardHittingQuestion = card("Hard-Hitting Question") {
             filter = TargetFilter(com.wingedsheep.sdk.scripting.GameObjectFilter.CreatureOrPlaneswalker.opponentControls())
         ))
         effect = Effects.DealDamage(
-            amount = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)),
+            amount = DynamicAmounts.powerOf(myCreature),
             target = theirTarget,
             damageSource = myCreature
         )

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Undercity Eliminator — Murders at Karlov Manor #108
@@ -45,9 +44,13 @@ val UndercityEliminator = card("Undercity Eliminator") {
         effect = Effects.ReflexiveTrigger(
             action = Effects.SacrificeOwn(filter = GameObjectFilter.CreatureOrArtifact),
             optional = true,
-            reflexiveEffect = Effects.Exile(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(Targets.CreatureOpponentControls),
-        )
+        ) {
+            val creatureOpponentControls = target(
+                "target creature opponent controls",
+                Targets.CreatureOpponentControls
+            )
+            effect = Effects.Exile(creatureOpponentControls)
+        }
         description = "When this creature enters, you may sacrifice an artifact or creature. " +
             "When you do, exile target creature an opponent controls."
     }

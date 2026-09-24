@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * HULK SMASH! — Marvel Super Heroes #135
@@ -64,7 +63,7 @@ val HulkSmash = card("HULK SMASH!") {
                     Targets.CreatureOpponentControls,
                 )
                 effect = Effects.DealDamage(
-                    amount = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)),
+                    amount = DynamicAmounts.powerOf(yours),
                     target = theirs,
                     damageSource = yours,
                 )

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -47,16 +46,18 @@ val CurseOfTheWerefox = card("Curse of the Werefox") {
                 Effects.ReflexiveTrigger(
                     action = Effects.CreateRoleToken("Monster Role", host),
                     optional = false,
-                    reflexiveEffect = Effects.Fight(
-                        enchanted.asTarget,
-                        EffectTarget.ContextTarget(0)
-                    ),
-                    reflexiveTargetRequirements = listOf(
-                        TargetCreature(optional = true, filter = TargetFilter.CreatureOpponentControls)
-                    ),
                     descriptionOverride = "When you do, that creature fights up to one target " +
                         "creature you don't control."
-                )
+                ) {
+                    val creatureOpponentControls = target(
+                        "target creature opponent controls",
+                        TargetCreature(optional = true, filter = TargetFilter.CreatureOpponentControls)
+                    )
+                    effect = Effects.Fight(
+                        enchanted.asTarget,
+                        creatureOpponentControls
+                    )
+                }
             )
         }
     }

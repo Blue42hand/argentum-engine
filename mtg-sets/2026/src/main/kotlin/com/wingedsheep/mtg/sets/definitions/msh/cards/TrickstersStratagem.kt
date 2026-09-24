@@ -42,7 +42,7 @@ val TrickstersStratagem = card("Trickster's Stratagem") {
             TargetCreature(optional = true, filter = TargetFilter.CreatureYouControl),
         )
         effect = Effects.PutSecondFromTopOrBottomOfLibrary(victim) then Effects.If(
-            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature, targetIndex = 1),
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature, conniver),
             then = Effects.Connive(conniver),
         )
     }

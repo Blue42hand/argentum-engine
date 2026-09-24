@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Kraven's Last Hunt — Marvel's Spider-Man (SPM #105)
@@ -48,14 +47,15 @@ val KravensLastHunt = card("Kraven's Last Hunt") {
         effect = Effects.ReflexiveTrigger(
             action = Patterns.Library.mill(5),
             optional = false,
-            reflexiveEffect = Effects.DealDamage(
-                DynamicAmounts.zone(Player.You, Zone.GRAVEYARD, GameObjectFilter.Creature).maxPower(),
-                EffectTarget.ContextTarget(0)
-            ),
-            reflexiveTargetRequirements = listOf(Targets.Creature),
             descriptionOverride = "Mill five cards. When you do, this Saga deals damage equal to " +
                 "the greatest power among creature cards in your graveyard to target creature."
-        )
+        ) {
+            val creature = target("target creature", Targets.Creature)
+            effect = Effects.DealDamage(
+                DynamicAmounts.zone(Player.You, Zone.GRAVEYARD, GameObjectFilter.Creature).maxPower(),
+                creature
+            )
+        }
     }
 
     // II — Target creature you control gets +2/+2 until end of turn.

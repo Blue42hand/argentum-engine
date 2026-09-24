@@ -43,23 +43,21 @@ val GrishnakhBrashInstigator = card("Grishnákh, Brash Instigator") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        val controlled = EffectTarget.ContextTarget(0)
-        effect = Effects.ReflexiveTrigger(
-            action = Effects.Amass(2, "Orc"),
-            optional = false,
-            reflexiveEffect = Effects.Composite(
-                Effects.GainControl(controlled, Duration.EndOfTurn),
-                Effects.Untap(controlled),
-                Effects.GrantKeyword(Keyword.HASTE, controlled, Duration.EndOfTurn)
-            ),
-            reflexiveTargetRequirements = listOf(
+        effect = Effects.ReflexiveTrigger(action = Effects.Amass(2, "Orc"), optional = false) {
+            val controlled = target(
+                "target nonlegendary creature an opponent controls",
                 TargetCreature(
                     filter = TargetFilter.CreatureOpponentControls
                         .nonlegendary()
                         .powerAtMostEntity(EffectTarget.AmassedArmy)
                 )
             )
-        )
+            effect = Effects.Composite(
+                Effects.GainControl(controlled, Duration.EndOfTurn),
+                Effects.Untap(controlled),
+                Effects.GrantKeyword(Keyword.HASTE, controlled, Duration.EndOfTurn)
+            )
+        }
     }
 
     metadata {

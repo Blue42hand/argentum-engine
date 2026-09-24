@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.references.Player
 
 /**
  * Deep-Cavern Bat
@@ -55,7 +54,7 @@ val DeepCavernBat = card("Deep-Cavern Bat") {
                 Effects.If(
                     condition = Conditions.SourceInZone(Zone.BATTLEFIELD),
                     then = Effects.Pipeline {
-                        val opponentHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+                        val opponentHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
                         val exiledCard = chooseUpTo(
                             1,
                             from = opponentHand,
@@ -65,7 +64,7 @@ val DeepCavernBat = card("Deep-Cavern Bat") {
                             showAllCards = true,
                             alwaysPrompt = true
                         )
-                        exile(exiledCard, Player.ContextPlayer(0), linkToSource = true)
+                        exile(exiledCard, opponent.asPlayer, linkToSource = true)
                     }
                 )
             )

@@ -4,10 +4,9 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Giantfall
@@ -26,20 +25,22 @@ val Giantfall = card("Giantfall") {
 
     spell {
         effect = ModalEffect.chooseOne(
-            Mode(
+            mode("Target creature you control deals damage equal to its power to target creature an opponent controls") {
+                val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+                val creatureOpponentControls = target(
+                    "target creature opponent controls",
+                    Targets.CreatureOpponentControls
+                )
                 effect = Effects.DealDamage(
-                    amount = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)),
-                    target = EffectTarget.ContextTarget(1),
-                    damageSource = EffectTarget.ContextTarget(0)
-                ),
-                targetRequirements = listOf(Targets.CreatureYouControl, Targets.CreatureOpponentControls),
-                description = "Target creature you control deals damage equal to its power to target creature an opponent controls"
-            ),
-            Mode.withTarget(
-                Effects.Destroy(EffectTarget.ContextTarget(0)),
-                Targets.Artifact,
-                "Destroy target artifact"
-            )
+                    amount = DynamicAmounts.powerOf(creatureYouControl),
+                    target = creatureOpponentControls,
+                    damageSource = creatureYouControl
+                )
+            },
+            mode("Destroy target artifact") {
+                val artifact = target("target artifact", Targets.Artifact)
+                effect = Effects.Destroy(artifact)
+            }
         )
     }
 

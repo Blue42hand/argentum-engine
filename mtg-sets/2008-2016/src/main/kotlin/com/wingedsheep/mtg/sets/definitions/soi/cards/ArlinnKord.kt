@@ -7,10 +7,9 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.grantedActivatedAbility
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.ActivatedAbility
-import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -20,13 +19,12 @@ import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 private const val ARLINN_EMBLEM = "Creatures you control have haste and '{T}: This creature deals damage equal to its power to any target.'"
 
-private val arlinnEmblemAbility = ActivatedAbility(
-    id = AbilityId.generate(),
-    cost = Costs.Tap,
-    targetRequirements = listOf(AnyTarget()),
-    effect = Effects.DealDamage(DynamicAmounts.sourcePower(), EffectTarget.ContextTarget(0)),
-    descriptionOverride = "{T}: This creature deals damage equal to its power to any target.",
-)
+private val arlinnEmblemAbility = grantedActivatedAbility {
+    cost = Costs.Tap
+    val anyTarget = target("target any", AnyTarget())
+    effect = Effects.DealDamage(DynamicAmounts.sourcePower(), anyTarget)
+    description = "{T}: This creature deals damage equal to its power to any target."
+}
 
 private val ArlinnEmbracedByTheMoon = card("Arlinn, Embraced by the Moon") {
     manaCost = ""

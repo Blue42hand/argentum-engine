@@ -48,7 +48,7 @@ val RatKingVerminister = card("Rat King, Verminister") {
     }
 
     activatedAbility {
-        target(
+        val creatureCardInYourGraveyard = target(
             "target creature card in your graveyard",
             TargetObject(filter = TargetFilter(GameObjectFilter.Creature.ownedByYou(), zone = Zone.GRAVEYARD))
         )
@@ -56,7 +56,7 @@ val RatKingVerminister = card("Rat King, Verminister") {
             Costs.Tap,
             Costs.SacrificeMultiple(3, GameObjectFilter.Creature.withSubtype(Subtype("Rat")))
         )
-        effect = Effects.ReturnSameNamedFromGraveyard(target = EffectTarget.ContextTarget(0))
+        effect = Effects.ReturnSameNamedFromGraveyard(target = creatureCardInYourGraveyard)
         description = "{T}, Sacrifice three Rats: Return target creature card and all other cards with the same name as that card from your graveyard to the battlefield tapped."
     }
 

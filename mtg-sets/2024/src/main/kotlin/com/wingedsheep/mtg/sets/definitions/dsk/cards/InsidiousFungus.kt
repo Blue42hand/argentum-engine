@@ -5,11 +5,11 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Insidious Fungus
@@ -42,16 +42,14 @@ val InsidiousFungus = card("Insidious Fungus") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.SacrificeSelf)
         effect = ModalEffect.chooseOne(
-            Mode.withTarget(
-                Effects.Destroy(EffectTarget.ContextTarget(0)),
-                Targets.Artifact,
-                "Destroy target artifact"
-            ),
-            Mode.withTarget(
-                Effects.Destroy(EffectTarget.ContextTarget(0)),
-                Targets.Enchantment,
-                "Destroy target enchantment"
-            ),
+            mode("Destroy target artifact") {
+                val artifact = target("target artifact", Targets.Artifact)
+                effect = Effects.Destroy(artifact)
+            },
+            mode("Destroy target enchantment") {
+                val enchantment = target("target enchantment", Targets.Enchantment)
+                effect = Effects.Destroy(enchantment)
+            },
             Mode.noTarget(
                 Effects.Composite(
                     Effects.DrawCards(1),

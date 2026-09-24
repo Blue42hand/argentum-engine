@@ -3,10 +3,10 @@ package com.wingedsheep.mtg.sets.definitions.tla.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Airbender's Reversal — {1}{W} Instant — Lesson
@@ -31,11 +31,10 @@ val AirbendersReversal = card("Airbender's Reversal") {
 
     spell {
         effect = ModalEffect.chooseOne(
-            Mode(
-                effect = Effects.Destroy(EffectTarget.ContextTarget(0)),
-                targetRequirements = listOf(Targets.AttackingCreature),
-                description = "Destroy target attacking creature"
-            ),
+            mode("Destroy target attacking creature") {
+                val attackingCreature = target("target attacking creature", Targets.AttackingCreature)
+                effect = Effects.Destroy(attackingCreature)
+            },
             Mode(
                 effect = Effects.Airbend(),
                 targetRequirements = listOf(Targets.CreatureYouControl),

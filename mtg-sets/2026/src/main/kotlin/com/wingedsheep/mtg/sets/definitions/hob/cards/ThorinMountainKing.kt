@@ -110,21 +110,20 @@ val ThorinMountainKing = card("Thorin, Mountain-king") {
                                 creatureTarget = equippedCreature
                             )
                         ),
-                        reflexiveEffect = Effects.ForEachInCollection(
-                            collection = creature,
-                            effect = Effects.DealDamage(
-                                amount = DynamicAmounts.powerOf(EffectTarget.IterationEntity),
-                                target = EffectTarget.ContextTarget(0),
-                                damageSource = EffectTarget.IterationEntity
-                            )
-                        ),
-                        reflexiveTargetRequirements = listOf(
-                            TargetCreature(optional = true)
-                        ),
                         descriptionOverride = "Attach the chosen Equipment to that creature. When " +
                             "one or more Equipment become attached to it this way, it deals damage " +
                             "equal to its power to up to one target creature."
-                    )
+                    ) {
+                        val creature2 = target("target creature", TargetCreature(optional = true))
+                        effect = Effects.ForEachInCollection(
+                            collection = creature,
+                            effect = Effects.DealDamage(
+                                amount = DynamicAmounts.powerOf(EffectTarget.IterationEntity),
+                                target = creature2,
+                                damageSource = EffectTarget.IterationEntity
+                            )
+                        )
+                    }
                 )
             )
         }

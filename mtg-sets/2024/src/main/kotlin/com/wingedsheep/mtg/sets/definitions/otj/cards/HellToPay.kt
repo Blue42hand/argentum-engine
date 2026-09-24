@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
@@ -35,7 +34,7 @@ val HellToPay = card("Hell to Pay") {
         effect = Effects.Composite(
             Effects.DealXDamage(creature),
             Effects.CreateTreasure(
-                count = DynamicAmounts.propertyOf(EffectTarget.ContextTarget(0), EntityNumericProperty.ExcessMarkedDamage),
+                count = DynamicAmounts.propertyOf(creature, EntityNumericProperty.ExcessMarkedDamage),
                 tapped = true
             )
         )

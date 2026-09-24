@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Guide of Souls
@@ -51,14 +50,15 @@ val GuideOfSouls = card("Guide of Souls") {
         effect = Effects.ReflexiveTrigger(
             action = Effects.PayFixedCounters(CounterType.ENERGY, 3),
             optional = true,
-            reflexiveEffect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.ContextTarget(0))
-                .then(Effects.AddCounters(CounterType.FLYING, 1, EffectTarget.ContextTarget(0)))
-                .then(Effects.AddCreatureType("Angel", EffectTarget.ContextTarget(0))),
-            reflexiveTargetRequirements = listOf(Targets.AttackingCreature),
             descriptionOverride = "You may pay {E}{E}{E}. When you do, put two +1/+1 counters " +
                 "and a flying counter on target attacking creature. It becomes an Angel in " +
                 "addition to its other types."
-        )
+        ) {
+            val attackingCreature = target("target attacking creature", Targets.AttackingCreature)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, attackingCreature)
+                .then(Effects.AddCounters(CounterType.FLYING, 1, attackingCreature))
+                .then(Effects.AddCreatureType("Angel", attackingCreature))
+        }
     }
 
     metadata {

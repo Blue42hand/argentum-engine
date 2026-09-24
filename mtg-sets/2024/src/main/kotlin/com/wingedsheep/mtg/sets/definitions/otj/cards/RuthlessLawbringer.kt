@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -43,10 +42,11 @@ val RuthlessLawbringer = card("Ruthless Lawbringer") {
                 run(Effects.SacrificeTarget(creatureToSacrifice.asTarget))
             },
             optional = true,
-            reflexiveEffect = Effects.Destroy(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(Targets.NonlandPermanent),
             descriptionOverride = "You may sacrifice another creature. When you do, destroy target nonland permanent."
-        )
+        ) {
+            val nonlandPermanent = target("target nonland permanent", Targets.NonlandPermanent)
+            effect = Effects.Destroy(nonlandPermanent)
+        }
         description = "When this creature enters, you may sacrifice another creature. When you do, destroy target nonland permanent."
     }
 

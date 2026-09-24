@@ -149,12 +149,9 @@ private val KrothussLordOfTheDeep = card("Krothuss, Lord of the Deep") {
         effect = Effects.CreateTokenCopyOfTarget(
             target = copied,
             count = DynamicAmounts.conditional(
-                condition = Conditions.TargetMatchesFilter(
-                    GameObjectFilter.Creature.withAnySubtype(
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withAnySubtype(
                         "Kraken", "Leviathan", "Octopus", "Serpent"
-                    ),
-                    targetIndex = 0,
-                ),
+                    ), copied),
                 ifTrue = 2,
                 ifFalse = 1,
             ),

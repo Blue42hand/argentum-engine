@@ -41,7 +41,7 @@ val Thoughtseize = card("Thoughtseize") {
         val player = target("target player", Targets.Player)
         effect = Effects.Pipeline {
             run(Effects.RevealHand(player))
-            val revealedHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val revealedHand = gather(CardSource.FromZone(Zone.HAND, player.asPlayer))
             val toDiscard = chooseExactly(
                 1,
                 from = revealedHand,
@@ -51,7 +51,7 @@ val Thoughtseize = card("Thoughtseize") {
                 alwaysPrompt = true,
                 showAllCards = true
             )
-            discard(toDiscard, Player.ContextPlayer(0))
+            discard(toDiscard, player.asPlayer)
             run(Effects.LoseLife(2, EffectTarget.PlayerRef(Player.You)))
         }
     }

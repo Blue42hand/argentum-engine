@@ -30,7 +30,7 @@ val FeedTheSwarm = card("Feed the Swarm") {
         effect = Effects.Composite(
             Effects.Destroy(t),
             Effects.LoseLife(
-                DynamicAmounts.manaValueOf(EffectTarget.ContextTarget(0)),
+                DynamicAmounts.manaValueOf(t),
                 EffectTarget.Controller
             )
         )

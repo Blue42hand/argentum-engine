@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Wedding Invitation
@@ -42,9 +41,7 @@ val WeddingInvitation = card("Wedding Invitation") {
         effect = Effects.Composite(
             Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, creature, Duration.EndOfTurn),
             Effects.If(
-                condition = Conditions.TargetMatchesFilter(
-                    GameObjectFilter.Creature.withSubtype(Subtype("Vampire"))
-                ),
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype("Vampire")), creature),
                 then = Effects.GrantKeyword(Keyword.LIFELINK, creature, Duration.EndOfTurn),
             ),
         )

@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
@@ -137,7 +136,7 @@ private val TheRiseOfSozinFront = card("The Rise of Sozin") {
     // II — Choose a card name. Search target opponent's graveyard, hand, and library for up to four
     // cards with that name and exile them. Then that player shuffles.
     sagaChapter(2) {
-        target("target opponent", TargetOpponent())
+        val opponent = target("target opponent", TargetOpponent())
         effect = Effects.Pipeline {
             // Choose a card name.
             val sozinChosenName = chooseCardName(prompt = "Choose a card name")
@@ -145,7 +144,7 @@ private val TheRiseOfSozinFront = card("The Rise of Sozin") {
             val sozinMatches = gather(
                 CardSource.FromMultipleZones(
                     zones = listOf(Zone.GRAVEYARD, Zone.HAND, Zone.LIBRARY),
-                    player = Player.ContextPlayer(0),
+                    player = opponent.asPlayer,
                     filter = GameObjectFilter.Any.namedFromVariable(sozinChosenName)
                 ),
                 search = true
@@ -158,9 +157,9 @@ private val TheRiseOfSozinFront = card("The Rise of Sozin") {
                 selectedLabel = "Exile"
             )
             // Exile them.
-            exile(sozinToExile, Player.ContextPlayer(0))
+            exile(sozinToExile, opponent.asPlayer)
             // Then that player shuffles.
-            run(Effects.ShuffleLibrary(target = EffectTarget.ContextTarget(0)))
+            run(Effects.ShuffleLibrary(target = opponent))
         }
     }
 

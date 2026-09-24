@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.references.Player
 
 /**
  * Visage of Dread // Dread Osseosaur (CR 702.167, The Lost Caverns of Ixalan)
@@ -60,7 +59,7 @@ private val VisageOfDreadFront = card("Visage of Dread") {
         val opponent = target("opponent", Targets.Opponent)
         effect = Effects.Pipeline {
             run(Effects.RevealHand(opponent))
-            val revealedHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val revealedHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
             val chosenCard = chooseExactly(
                 1,
                 from = revealedHand,
@@ -68,7 +67,7 @@ private val VisageOfDreadFront = card("Visage of Dread") {
                 filter = GameObjectFilter.CreatureOrArtifact,
                 prompt = "Choose an artifact or creature card to discard"
             )
-            discard(chosenCard, Player.ContextPlayer(0))
+            discard(chosenCard, opponent.asPlayer)
         }
     }
 

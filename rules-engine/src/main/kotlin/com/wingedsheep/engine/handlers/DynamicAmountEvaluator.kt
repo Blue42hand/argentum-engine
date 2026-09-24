@@ -1247,8 +1247,11 @@ class DynamicAmountEvaluator(
                 .distinct()
             is Player.Each -> state.activePlayers
             is Player.Any -> state.activePlayers
-            is Player.ContextPlayer -> {
-                val target = context.positionalTarget(player.index) ?: return emptyList()
+            is Player.ContextPlayer, is Player.BoundVariable -> {
+                val target = (
+                    if (player is Player.ContextPlayer) context.positionalTarget(player.index)
+                    else context.pipeline.namedTargets[(player as Player.BoundVariable).name]
+                    ) ?: return emptyList()
                 when (target) {
                     is com.wingedsheep.engine.state.components.stack.ChosenTarget.Player -> listOf(target.playerId)
                     else -> emptyList()

@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Rabid Bite
@@ -24,7 +23,7 @@ val RabidBite = card("Rabid Bite") {
         val myCreature = target("creature you control", Targets.CreatureYouControl)
         val theirCreature = target("creature you don't control", Targets.CreatureOpponentControls)
         effect = Effects.DealDamage(
-            amount = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)),
+            amount = DynamicAmounts.powerOf(myCreature),
             target = theirCreature,
             damageSource = myCreature
         )

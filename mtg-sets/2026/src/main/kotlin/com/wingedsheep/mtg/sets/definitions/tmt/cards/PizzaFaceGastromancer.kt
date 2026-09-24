@@ -54,7 +54,7 @@ val PizzaFaceGastromancer = card("Pizza Face, Gastromancer") {
             .then(
                 Effects.If(
                     condition = Conditions.Not(
-                        Conditions.TargetMatchesFilter(GameObjectFilter.Creature)
+                        Conditions.TargetMatchesFilter(GameObjectFilter.Creature, target)
                     ),
                     then = Effects.BecomeCreature(
                         target = target,

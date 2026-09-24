@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.references.Player
 
 /**
  * Appetite for Brains
@@ -36,7 +35,7 @@ val AppetiteForBrains = card("Appetite for Brains") {
             val mv4Plus = gather(
                 CardSource.FromZone(
                     zone = Zone.HAND,
-                    player = Player.ContextPlayer(0),
+                    player = opponent.asPlayer,
                     filter = GameObjectFilter.Any.manaValueAtLeast(4),
                 )
             )
@@ -46,7 +45,7 @@ val AppetiteForBrains = card("Appetite for Brains") {
                 chooser = Chooser.Controller,
                 prompt = "Choose a card with mana value 4 or greater to exile"
             )
-            exile(chosenCard, Player.ContextPlayer(0))
+            exile(chosenCard, opponent.asPlayer)
         }
     }
 

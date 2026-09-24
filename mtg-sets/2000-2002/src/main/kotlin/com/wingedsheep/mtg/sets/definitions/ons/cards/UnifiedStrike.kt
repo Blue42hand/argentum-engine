@@ -25,9 +25,7 @@ val UnifiedStrike = card("Unified Strike") {
     spell {
         val t = target("target", Targets.AttackingCreature)
         effect = Effects.If(
-            condition = Conditions.TargetPowerAtMost(
-                DynamicAmounts.creaturesWithSubtype(Subtype("Soldier"))
-            ),
+            condition = Conditions.TargetPowerAtMost(DynamicAmounts.creaturesWithSubtype(Subtype("Soldier")), t),
             then = Effects.Move(t, Zone.EXILE)
         )
     }

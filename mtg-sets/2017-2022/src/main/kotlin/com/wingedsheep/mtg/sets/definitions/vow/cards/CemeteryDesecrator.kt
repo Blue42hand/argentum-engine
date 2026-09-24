@@ -6,17 +6,16 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -82,32 +81,29 @@ private val desecrate: Effect =
             exile(exiledCard)
         },
         reflexiveEffect = ModalEffect.chooseOne(
-            Mode(
-                effect = Effects.RemoveCounterOfAnyKind(
-                    target = EffectTarget.ContextTarget(0),
-                    count = DynamicAmounts.manaValueOf(EXILED_CARD)
-                ),
-                targetRequirements = listOf(
+            mode("Remove X counters from target permanent, " +
+                "where X is the mana value of the exiled card") {
+                val permanent = target(
+                    "target permanent",
                     TargetObject(filter = TargetFilter.Permanent, id = "target permanent")
-                ),
-                description = "Remove X counters from target permanent, " +
-                    "where X is the mana value of the exiled card"
-            ),
-            Mode(
+                )
+                effect = Effects.RemoveCounterOfAnyKind(
+                    target = permanent,
+                    count = DynamicAmounts.manaValueOf(EXILED_CARD)
+                )
+            },
+            mode("Target creature an opponent controls gets -X/-X until end of turn, " +
+                "where X is the mana value of the exiled card") {
+                val creature = target("target creature", TargetObject(
+                    filter = TargetFilter.Creature.opponentControls(),
+                    id = "target creature an opponent controls"
+                ))
                 effect = Effects.ModifyStats(
                     -DynamicAmounts.manaValueOf(EXILED_CARD),
                     -DynamicAmounts.manaValueOf(EXILED_CARD),
-                    EffectTarget.ContextTarget(0)
-                ),
-                targetRequirements = listOf(
-                    TargetObject(
-                        filter = TargetFilter.Creature.opponentControls(),
-                        id = "target creature an opponent controls"
-                    )
-                ),
-                description = "Target creature an opponent controls gets -X/-X until end of turn, " +
-                    "where X is the mana value of the exiled card"
-            )
+                    creature
+                )
+            }
         ),
         descriptionOverride = "Exile another card from a graveyard. When you do, choose one — " +
             "remove X counters from target permanent, or target creature an opponent controls gets " +

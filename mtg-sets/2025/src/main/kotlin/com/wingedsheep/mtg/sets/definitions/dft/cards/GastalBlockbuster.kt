@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 
@@ -44,13 +43,15 @@ val GastalBlockbuster = card("Gastal Blockbuster") {
                 run(Effects.SacrificeTarget(toSacrifice.asTarget))
             },
             optional = true,
-            reflexiveEffect = Effects.Destroy(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(
-                TargetPermanent(filter = TargetFilter.Artifact.opponentControls())
-            ),
             descriptionOverride = "You may sacrifice a creature or Vehicle. When you do, destroy target " +
                 "artifact an opponent controls."
-        )
+        ) {
+            val artifact = target(
+                "target artifact",
+                TargetPermanent(filter = TargetFilter.Artifact.opponentControls())
+            )
+            effect = Effects.Destroy(artifact)
+        }
         description = "When this creature enters, you may sacrifice a creature or Vehicle. When you do, " +
             "destroy target artifact an opponent controls."
     }

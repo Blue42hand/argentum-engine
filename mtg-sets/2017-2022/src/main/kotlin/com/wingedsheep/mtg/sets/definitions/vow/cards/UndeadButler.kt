@@ -44,13 +44,15 @@ val UndeadButler = card("Undead Butler") {
         effect = Effects.ReflexiveTrigger(
             action = Effects.Exile(EffectTarget.Self),
             optional = true,
-            reflexiveEffect = Effects.Move(EffectTarget.ContextTarget(0), Zone.HAND),
-            reflexiveTargetRequirements = listOf(
-                TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
-            ),
             descriptionOverride = "You may exile this creature. When you do, return target " +
                 "creature card from your graveyard to your hand."
-        )
+        ) {
+            val creatureInYourGraveyard = target(
+                "target creature in your graveyard",
+                TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
+            )
+            effect = Effects.Move(creatureInYourGraveyard, Zone.HAND)
+        }
     }
 
     metadata {

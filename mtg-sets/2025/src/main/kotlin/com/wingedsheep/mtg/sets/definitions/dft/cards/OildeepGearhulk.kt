@@ -54,7 +54,7 @@ val OildeepGearhulk = card("Oildeep Gearhulk") {
         val player = target("target player", Targets.Player)
         effect = Effects.Pipeline {
             run(Effects.LookAtHand(player))
-            val targetHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val targetHand = gather(CardSource.FromZone(Zone.HAND, player.asPlayer))
             val chosenCard = chooseUpTo(
                 1,
                 from = targetHand,
@@ -64,7 +64,7 @@ val OildeepGearhulk = card("Oildeep Gearhulk") {
                 showAllCards = true
             )
             ifNotEmpty(chosenCard) {
-                discard(chosenCard, Player.ContextPlayer(0))
+                discard(chosenCard, player.asPlayer)
                 run(Effects.DrawCards(1, player))
             }
         }

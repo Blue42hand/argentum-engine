@@ -41,12 +41,12 @@ val TaleOfTinuviel = card("Tale of Tinúviel") {
     }
 
     sagaChapter(2) {
-        target(
+        val creatureCardFromYourGraveyard = target(
             "creature card from your graveyard",
             TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
         )
         effect = Effects.Move(
-            EffectTarget.ContextTarget(0),
+            creatureCardFromYourGraveyard,
             Zone.BATTLEFIELD,
             fromZone = Zone.GRAVEYARD
         )

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.CollectionFilter
-import com.wingedsheep.sdk.scripting.references.Player
 
 /**
  * The target opponent's creatures and planeswalkers are gathered, narrowed to those tied for the
@@ -23,11 +22,11 @@ val BreakUnderPressure = card("Break Under Pressure") {
         "among creatures and planeswalkers they control. You gain 2 life."
 
     spell {
-        target("target opponent", Targets.Opponent)
+        val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Pipeline {
             val candidates = gather(
                 CardSource.ControlledPermanents(
-                    player = Player.ContextPlayer(0),
+                    player = opponent.asPlayer,
                     filter = GameObjectFilter.CreatureOrPlaneswalker
                 )
             )

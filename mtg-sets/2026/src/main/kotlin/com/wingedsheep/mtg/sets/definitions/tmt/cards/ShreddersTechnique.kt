@@ -34,7 +34,7 @@ val ShreddersTechnique = card("Shredder's Technique") {
     spell {
         val t = target("target creature or enchantment", Targets.CreatureOrEnchantment)
         effect = Effects.If(
-            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Enchantment),
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Enchantment, t),
             then = Effects.Destroy(t).then(Effects.LoseLife(2, EffectTarget.Controller)),
             otherwise = Effects.Destroy(t)
         )

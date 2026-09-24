@@ -58,24 +58,23 @@ val SpiderManToTheRescue = card("Spider-Man, To the Rescue") {
         effect = Effects.ReflexiveTrigger(
             action = Effects.Tap(EffectTarget.Self),
             optional = true,
-            reflexiveEffect = Effects.GrantKeyword(
-                Keyword.INDESTRUCTIBLE,
-                EffectTarget.ContextTarget(0),
-                Duration.EndOfTurn,
-            ),
-            reflexiveTargetRequirements = listOf(
-                TargetCreature(
-                    filter = TargetFilter(
-                        baseFilter = GameObjectFilter.Creature.youControl().copy(
-                            statePredicates = listOf(StatePredicate.Not(StatePredicate.IsAttacking))
-                        ),
-                        excludeSelf = true,
-                    )
-                )
-            ),
             descriptionOverride = "You may tap Spider-Man. When you do, another target " +
                 "nonattacking creature you control gains indestructible until end of turn.",
-        )
+        ) {
+            val creature = target("target creature", TargetCreature(
+                filter = TargetFilter(
+                    baseFilter = GameObjectFilter.Creature.youControl().copy(
+                        statePredicates = listOf(StatePredicate.Not(StatePredicate.IsAttacking))
+                    ),
+                    excludeSelf = true,
+                )
+            ))
+            effect = Effects.GrantKeyword(
+                Keyword.INDESTRUCTIBLE,
+                creature,
+                Duration.EndOfTurn,
+            )
+        }
         description = "No One Dies! — When Spider-Man enters, you may tap him. When you do, " +
             "another target nonattacking creature you control gains indestructible until end of turn."
     }

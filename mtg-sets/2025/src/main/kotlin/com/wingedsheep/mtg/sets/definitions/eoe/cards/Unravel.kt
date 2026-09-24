@@ -29,9 +29,9 @@ val Unravel = card("Unravel") {
         val spell = target("target spell", Targets.Spell)
         effect = Effects.If(
             condition = Conditions.CompareAmounts(
-                left = DynamicAmounts.targetManaSpent(),
+                left = DynamicAmounts.manaSpentToCast(spell),
                 operator = ComparisonOperator.LT,
-                right = DynamicAmounts.targetManaValue()
+                right = DynamicAmounts.manaValueOf(spell)
             ),
             then = Effects.CounterSpell().then(Effects.DrawCards(1)),
             otherwise = Effects.CounterSpell()

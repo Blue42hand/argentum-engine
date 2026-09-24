@@ -15,7 +15,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -76,10 +75,10 @@ val TeferiTemporalPilgrim = card("Teferi, Temporal Pilgrim") {
     // −12: Target opponent chooses a permanent they control and returns it to its owner's
     //      hand. Then they shuffle each nonland permanent they control into its owner's library.
     loyaltyAbility(-12) {
-        target("opponent", Targets.Opponent)
+        val opponent = target("opponent", Targets.Opponent)
         effect = Effects.Pipeline {
             // Target opponent picks a permanent they control; return it to its owner's hand.
-            val theirPermanents = gather(CardSource.ControlledPermanents(Player.ContextPlayer(0)))
+            val theirPermanents = gather(CardSource.ControlledPermanents(opponent.asPlayer))
             val chosen = chooseExactly(
                 1,
                 from = theirPermanents,
@@ -87,11 +86,11 @@ val TeferiTemporalPilgrim = card("Teferi, Temporal Pilgrim") {
                 prompt = "Choose a permanent you control to return to its owner's hand",
                 useTargetingUI = true
             )
-            toHand(chosen, Player.ContextPlayer(0))
+            toHand(chosen, opponent.asPlayer)
             // Then shuffle each remaining nonland permanent they control into its owner's library.
             val theirNonlands = gather(
                 CardSource.ControlledPermanents(
-                    Player.ContextPlayer(0),
+                    opponent.asPlayer,
                     GameObjectFilter.NonlandPermanent
                 )
             )
@@ -99,7 +98,7 @@ val TeferiTemporalPilgrim = card("Teferi, Temporal Pilgrim") {
                 theirNonlands,
                 CardDestination.ToZone(
                     Zone.LIBRARY,
-                    Player.ContextPlayer(0),
+                    opponent.asPlayer,
                     ZonePlacement.Shuffled
                 )
             )

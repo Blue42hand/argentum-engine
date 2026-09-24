@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
@@ -40,7 +39,7 @@ val PoisonTheWaters = card("Poison the Waters") {
                 val t = target("target", TargetPlayer())
                 effect = Effects.Pipeline {
                     run(Effects.RevealHand(t))
-                    val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+                    val hand = gather(CardSource.FromZone(Zone.HAND, t.asPlayer))
                     val toDiscard = chooseExactly(
                         1,
                         from = hand,
@@ -50,7 +49,7 @@ val PoisonTheWaters = card("Poison the Waters") {
                         alwaysPrompt = true,
                         showAllCards = true
                     )
-                    discard(toDiscard, Player.ContextPlayer(0))
+                    discard(toDiscard, t.asPlayer)
                 }
             }
         }

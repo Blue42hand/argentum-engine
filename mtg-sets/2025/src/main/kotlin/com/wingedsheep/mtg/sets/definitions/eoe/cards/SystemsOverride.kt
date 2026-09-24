@@ -31,7 +31,7 @@ val SystemsOverride = card("Systems Override") {
                 Effects.Untap(target),
                 Effects.GrantKeyword(Keyword.HASTE, target),
                 Effects.If(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.withSubtype("Spacecraft")),
+                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Any.withSubtype("Spacecraft"), target),
                     then = Effects.Composite(
                         listOf(
                             Effects.AddCounters(CounterType.CHARGE, 10, target),

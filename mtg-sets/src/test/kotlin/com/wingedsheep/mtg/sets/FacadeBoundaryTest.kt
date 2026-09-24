@@ -95,6 +95,40 @@ class FacadeBoundaryTest : FunSpec({
         }
     }
 
+    /**
+     * A card names the targets it reads — `val creature = target("target creature", …)`, a mode's
+     * or reflexive trigger's own `target(…)`, `handle.asPlayer` for a player-typed slot — rather
+     * than counting positions with `ContextTarget(i)` / `Player.ContextPlayer(i)`, which silently
+     * shift when a requirement is added, made optional or reordered.
+     *
+     * The one exception is the body of `Effects.ForEachTarget(…)`: the engine runs it once per
+     * chosen target with the target list rebound to that one target, so `ContextTarget(0)` there
+     * *is* "the current target" — the handle of the whole requirement would be the wrong object.
+     */
+    test("card definitions read their targets through named handles, not positions") {
+        val positional = Regex("""\b(ContextTarget|ContextPlayer)\s*\(""")
+        val violations = mutableListOf<String>()
+
+        SetSourceRoots.definitionFiles().forEach { path ->
+            val code = blankStringLiterals(stripCommentsAndImports(path.readText()).joinToString("\n"))
+            val perTarget = spansOf(code, "Effects.ForEachTarget(")
+            positional.findAll(code).forEach { match ->
+                if (perTarget.none { match.range.first in it }) {
+                    val line = code.substring(0, match.range.first).count { it == '\n' } + 1
+                    violations += "${SetSourceRoots.relativize(path)}:$line  →  use a named target handle " +
+                        "instead of `${match.value}`"
+                }
+            }
+        }
+
+        withClue(
+            "Card definitions must read targets through named handles (target(…) / targets(…) / .asPlayer).\n" +
+                violations.joinToString("\n")
+        ) {
+            violations shouldBe emptyList()
+        }
+    }
+
     test("card definitions construct effects/costs via the Effects/Costs facades, not raw types") {
         val violations = mutableListOf<String>()
 
@@ -149,4 +183,46 @@ internal fun stripCommentsAndImports(source: String): List<String> {
         out += sb.toString()
     }
     return out
+}
+
+/** [code] with the contents of every string literal replaced by spaces (length preserved). */
+internal fun blankStringLiterals(code: String): String {
+    val out = StringBuilder(code)
+    var i = 0
+    while (i < code.length) {
+        if (code.startsWith("\"\"\"", i)) {
+            val end = code.indexOf("\"\"\"", i + 3).let { if (it < 0) code.length else it }
+            for (k in i + 3 until end) if (out[k] != '\n') out[k] = ' '
+            i = end + 3
+        } else if (code[i] == '"') {
+            var k = i + 1
+            while (k < code.length && code[k] != '"' && code[k] != '\n') {
+                if (code[k] == '\\') k++
+                k++
+            }
+            for (j in i + 1 until minOf(k, code.length)) out[j] = ' '
+            i = k + 1
+        } else i++
+    }
+    return out.toString()
+}
+
+/** The index ranges of every `[opener]…)` call in [code] (opener ends with `(`), paren-matched. */
+internal fun spansOf(code: String, opener: String): List<IntRange> {
+    val spans = mutableListOf<IntRange>()
+    var from = code.indexOf(opener)
+    while (from >= 0) {
+        var depth = 0
+        var k = from + opener.length - 1
+        while (k < code.length) {
+            when (code[k]) {
+                '(', '[', '{' -> depth++
+                ')', ']', '}' -> { depth--; if (depth == 0) break }
+            }
+            k++
+        }
+        spans += from..k
+        from = code.indexOf(opener, from + opener.length)
+    }
+    return spans
 }

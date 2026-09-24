@@ -8,9 +8,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 /**
  * Perfect Intimidation
  * {3}{B}
@@ -33,26 +32,26 @@ val PerfectIntimidation = card("Perfect Intimidation") {
         "• Target opponent exiles two cards from their hand.\n" +
         "• Remove all counters from target creature."
 
-    val opponentExilesTwo = Effects.Pipeline {
-        val handCards = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0), GameObjectFilter.Any))
+    fun opponentExilesTwo(opponent: EffectTarget.BoundVariable) = Effects.Pipeline {
+        val handCards = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer, GameObjectFilter.Any))
         val exiledCards = chooseExactly(
             2,
             from = handCards,
             chooser = Chooser.TargetPlayer,
             prompt = "Exile two cards from your hand"
         )
-        exile(exiledCards, Player.ContextPlayer(0))
+        exile(exiledCards, opponent.asPlayer)
     }
 
     spell {
         modal(chooseCount = 2, minChooseCount = 1) {
             mode("Target opponent exiles two cards from their hand") {
-                target("opponent", Targets.Opponent)
-                effect = opponentExilesTwo
+                val opponent = target("opponent", Targets.Opponent)
+                effect = opponentExilesTwo(opponent)
             }
             mode("Remove all counters from target creature") {
-                target("creature", Targets.Creature)
-                effect = Effects.RemoveAllCounters(EffectTarget.ContextTarget(0))
+                val creature = target("creature", Targets.Creature)
+                effect = Effects.RemoveAllCounters(creature)
             }
         }
     }

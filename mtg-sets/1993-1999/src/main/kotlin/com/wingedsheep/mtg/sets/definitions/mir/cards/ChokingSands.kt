@@ -36,14 +36,12 @@ val ChokingSands = card("Choking Sands") {
         // nonbasic status, matching the past-tense oracle phrasing ("if that land was
         // nonbasic").
         effect = Effects.If(
-            condition = Conditions.TargetMatchesFilter(
-                GameObjectFilter(
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter(
                     cardPredicates = listOf(
                         CardPredicate.IsLand,
                         CardPredicate.Not(CardPredicate.IsBasicLand),
                     )
-                )
-            ),
+                ), permanent),
             then = Effects.DealDamage(2, EffectTarget.TargetController)
         ) then Effects.Move(permanent, Zone.GRAVEYARD, byDestruction = true)
     }

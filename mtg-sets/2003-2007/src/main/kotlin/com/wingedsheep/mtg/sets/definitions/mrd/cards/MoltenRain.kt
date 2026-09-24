@@ -29,14 +29,12 @@ val MoltenRain = card("Molten Rain") {
         // target's current nonbasic status, which matches the past-tense oracle phrasing
         // ("if that land was nonbasic").
         effect = Effects.If(
-            condition = Conditions.TargetMatchesFilter(
-                GameObjectFilter(
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter(
                     cardPredicates = listOf(
                         CardPredicate.IsLand,
                         CardPredicate.Not(CardPredicate.IsBasicLand),
                     )
-                )
-            ),
+                ), land),
             then = Effects.DealDamage(2, EffectTarget.TargetController)
         ) then Effects.Move(land, Zone.GRAVEYARD, byDestruction = true)
     }

@@ -41,10 +41,13 @@ val ParameciaColoniex = card("Paramecia Coloniex") {
         triggerZone = Zone.GRAVEYARD
         effect = Effects.ReflexiveTrigger(
             action = Effects.Exile(EffectTarget.Self),
-            optional = true,
-            reflexiveEffect = Effects.PutOnTopOfLibrary(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(Targets.CreatureCardInYourGraveyard)
-        )
+            optional = true) {
+            val creatureCardInYourGraveyard = target(
+                "target creature card in your graveyard",
+                Targets.CreatureCardInYourGraveyard
+            )
+            effect = Effects.PutOnTopOfLibrary(creatureCardInYourGraveyard)
+        }
         description = "When this creature dies, you may exile it. When you do, put target creature card from your graveyard on top of your library."
     }
 

@@ -40,10 +40,7 @@ val VowToErebor = card("Vow to Erebor") {
             Effects.Untap(creatureYouControl),
             Effects.ModifyStats(2, 2, creatureYouControl, Duration.EndOfTurn),
             Effects.If(
-                condition = Conditions.TargetMatchesFilter(
-                    GameObjectFilter.Creature.withSubtype(Subtype.DWARF),
-                    targetIndex = 0
-                ),
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.DWARF), creatureYouControl),
                 then = Effects.Pipeline {
                     val equipment = gather(
                         filter = GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT),

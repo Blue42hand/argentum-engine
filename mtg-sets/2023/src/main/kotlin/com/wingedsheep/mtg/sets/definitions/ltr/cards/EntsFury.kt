@@ -26,10 +26,7 @@ val EntsFury = card("Ent's Fury") {
         val mine = target("creature you control", Targets.CreatureYouControl)
         val theirs = target("creature you don't control", Targets.CreatureOpponentControls)
         effect = Effects.If(
-            condition = Conditions.TargetMatchesFilter(
-                filter = GameObjectFilter.Creature.powerAtLeast(4),
-                targetIndex = 0
-            ),
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.powerAtLeast(4), mine),
             then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, mine)
         )
             .then(Effects.ModifyStats(1, 1, mine))

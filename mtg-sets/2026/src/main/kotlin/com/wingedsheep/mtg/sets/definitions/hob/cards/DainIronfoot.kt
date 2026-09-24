@@ -52,15 +52,16 @@ val DainIronfoot = card("Dáin Ironfoot") {
         effect = Effects.ReflexiveTrigger(
             action = Effects.CreatePredefinedToken("Axe"),
             optional = false,
-            reflexiveEffect = Effects.AttachTargetEquipmentToCreature(
-                equipmentTarget = EffectTarget.PipelineTarget(CREATED_TOKENS, 0),
-                creatureTarget = EffectTarget.ContextTarget(0),
-            ),
-            reflexiveTargetRequirements = listOf(Targets.CreatureYouControl),
             descriptionOverride = "Create a colorless Equipment artifact token named Axe with " +
                 "\"Equipped creature gets +1/+0\" and equip {2}. When you do, attach it to target " +
                 "creature you control.",
-        )
+        ) {
+            val creatureYouControl = target("target creature you control", Targets.CreatureYouControl)
+            effect = Effects.AttachTargetEquipmentToCreature(
+                equipmentTarget = EffectTarget.PipelineTarget(CREATED_TOKENS, 0),
+                creatureTarget = creatureYouControl,
+            )
+        }
         description = "When Dáin enters, create a colorless Equipment artifact token named Axe " +
             "with \"Equipped creature gets +1/+0\" and equip {2}. When you do, attach it to " +
             "target creature you control."

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.plus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Hobbit's Sting
@@ -26,11 +25,11 @@ val HobbitsSting = card("Hobbit's Sting") {
     oracleText = "Hobbit's Sting deals X damage to target creature, where X is the number of creatures you control plus the number of Foods you control."
 
     spell {
-        target("target creature", Targets.Creature)
+        val creature = target("target creature", Targets.Creature)
         effect = Effects.DealDamage(
             DynamicAmounts.count(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Creature) +
                 DynamicAmounts.count(Player.You, Zone.BATTLEFIELD, GameObjectFilter.Any.withSubtype("Food")),
-            EffectTarget.ContextTarget(0)
+            creature
         )
     }
 

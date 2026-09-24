@@ -51,10 +51,7 @@ private val DormantGroveFront = card("Dormant Grove") {
         trigger = Triggers.BeginCombat
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature) then Effects.If(
-            condition = Conditions.TargetMatchesFilter(
-                GameObjectFilter.Creature.toughnessAtLeast(6),
-                targetIndex = 0
-            ),
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.toughnessAtLeast(6), creature),
             then = Effects.Transform(EffectTarget.Self)
         )
         description = "At the beginning of combat on your turn, put a +1/+1 counter on target " +

@@ -24,9 +24,7 @@ val DispersalShield = card("Dispersal Shield") {
     spell {
         val spell = target("target spell", Targets.Spell)
         effect = Effects.If(
-            condition = Conditions.TargetSpellManaValueAtMost(
-                DynamicAmounts.battlefield(Player.You).maxManaValue()
-            ),
+            condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.battlefield(Player.You).maxManaValue(), spell),
             then = Effects.CounterSpell()
         )
     }

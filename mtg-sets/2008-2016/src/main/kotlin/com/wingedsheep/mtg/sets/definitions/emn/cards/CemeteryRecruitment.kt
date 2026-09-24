@@ -36,7 +36,7 @@ val CemeteryRecruitment = card("Cemetery Recruitment") {
             TargetObject(filter = TargetFilter.CreatureInYourGraveyard)
         )
         effect = Effects.If(
-            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.ZOMBIE)),
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.ZOMBIE), creature),
             then = Effects.Move(creature, Zone.HAND).then(Effects.DrawCards(1)),
             otherwise = Effects.Move(creature, Zone.HAND)
         )

@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -83,7 +82,7 @@ private val RevealingEye = card("Revealing Eye") {
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Pipeline {
             run(Effects.RevealHand(opponent))
-            val revealedHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val revealedHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
             val chosenCard = chooseUpTo(
                 1,
                 from = revealedHand,
@@ -94,7 +93,7 @@ private val RevealingEye = card("Revealing Eye") {
                 showAllCards = true
             )
             ifNotEmpty(chosenCard) {
-                discard(chosenCard, Player.ContextPlayer(0))
+                discard(chosenCard, opponent.asPlayer)
                 run(Effects.DrawCards(1, opponent))
             }
         }

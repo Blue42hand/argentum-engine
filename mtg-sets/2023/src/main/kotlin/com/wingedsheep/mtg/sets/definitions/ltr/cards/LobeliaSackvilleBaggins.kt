@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Lobelia Sackville-Baggins
@@ -63,7 +62,7 @@ val LobeliaSackvilleBaggins = card("Lobelia Sackville-Baggins") {
             destination = Zone.EXILE,
             fromZone = Zone.GRAVEYARD
         ).then(
-            Effects.CreateTreasure(DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)))
+            Effects.CreateTreasure(DynamicAmounts.powerOf(exileTarget))
         )
     }
 

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
 import com.wingedsheep.sdk.model.Rarity
@@ -57,13 +56,14 @@ val Anthropede = card("Anthropede") {
                     )
                 )
             ),
-            optional = true,
+            optional = true) {
             // "When you do, destroy target Room."
-            reflexiveEffect = Effects.Destroy(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(
+            val permanent = target(
+                "target permanent",
                 TargetPermanent(filter = TargetFilter(GameObjectFilter.Permanent.withSubtype("Room")))
             )
-        )
+            effect = Effects.Destroy(permanent)
+        }
     }
 
     metadata {

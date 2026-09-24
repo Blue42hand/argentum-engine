@@ -29,7 +29,7 @@ val RushTheRoom = card("Rush the Room") {
             .then(Effects.GrantKeyword(Keyword.FIRST_STRIKE, creature))
             .then(
                 Effects.If(
-                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withAnySubtype("Goblin", "Orc")),
+                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withAnySubtype("Goblin", "Orc"), creature),
                     then = Effects.GrantKeyword(Keyword.HASTE, creature)
                 )
             )

@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
@@ -15,7 +16,6 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -74,16 +74,15 @@ val GhostlyDancers = card("Ghostly Dancers") {
                 },
                 "Return an enchantment card from your graveyard to your hand",
             ),
-            Mode.withTarget(
-                Effects.UnlockDoor(EffectTarget.ContextTarget(0)),
-                TargetObject(
+            mode("Unlock a locked door of a Room you control") {
+                val targetedObject = target("target targeted object", TargetObject(
                     optional = true,
                     filter = TargetFilter(
                         GameObjectFilter.Any.withSubtype(Subtype.ROOM).youControl(),
                     ).hasLockedDoor(),
-                ),
-                "Unlock a locked door of a Room you control",
-            ),
+                ))
+                effect = Effects.UnlockDoor(targetedObject)
+            },
         )
         description = "When this creature enters, return an enchantment card from your graveyard to " +
             "your hand or unlock a locked door of a Room you control."

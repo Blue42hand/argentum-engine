@@ -12,8 +12,6 @@ import com.wingedsheep.sdk.dsl.div
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Jidoor, Aristocratic Capital // Overture
@@ -52,10 +50,10 @@ val JidoorAristocraticCapital = card("Jidoor, Aristocratic Capital") {
         oracleText = "Target opponent mills half their library, rounded down. " +
             "(Then exile this card. You may play the land later from exile.)"
         spell {
-            target = Targets.Opponent
+            val opponent = target("target opponent", Targets.Opponent)
             effect = Patterns.Library.mill(
-                count = DynamicAmounts.zone(Player.ContextPlayer(0), Zone.LIBRARY).count() / 2,
-                target = EffectTarget.ContextTarget(0)
+                count = DynamicAmounts.zone(opponent.asPlayer, Zone.LIBRARY).count() / 2,
+                target = opponent
             )
         }
     }

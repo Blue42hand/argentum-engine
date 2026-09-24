@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.references.Player
 
 /**
  * Gastal Raider — Aetherdrift #86
@@ -55,7 +54,7 @@ val GastalRaider = card("Gastal Raider") {
             val revealedInstantsAndSorceries = gather(
                 CardSource.FromZone(
                     Zone.HAND,
-                    Player.ContextPlayer(0),
+                    opponent.asPlayer,
                     GameObjectFilter.InstantOrSorcery
                 )
             )
@@ -65,7 +64,7 @@ val GastalRaider = card("Gastal Raider") {
                 chooser = Chooser.Controller,
                 prompt = "Choose an instant or sorcery card to discard"
             )
-            discard(toDiscard, Player.ContextPlayer(0))
+            discard(toDiscard, opponent.asPlayer)
         }
         description = "When this creature enters, target opponent reveals their hand. You choose " +
             "an instant or sorcery card from it. That player discards that card."

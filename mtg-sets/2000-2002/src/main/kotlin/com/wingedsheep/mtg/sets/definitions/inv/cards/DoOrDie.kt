@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -35,7 +34,7 @@ val DoOrDie = card("Do or Die") {
             val creatures = gather(
                 CardSource.BattlefieldMatching(
                     filter = GameObjectFilter.Creature,
-                    player = Player.ContextPlayer(0)
+                    player = player.asPlayer
                 )
             )
             // 2. You partition them into two piles by clicking creatures in

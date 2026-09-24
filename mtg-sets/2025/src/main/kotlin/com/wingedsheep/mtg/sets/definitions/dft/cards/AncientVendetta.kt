@@ -9,8 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.OptionType
-import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Ancient Vendetta — Aetherdrift #75
@@ -43,7 +41,7 @@ val AncientVendetta = card("Ancient Vendetta") {
         "up to four cards with that name and exile them. Then that player shuffles."
 
     spell {
-        target("opponent", Targets.Opponent)
+        val opponent = target("opponent", Targets.Opponent)
         effect = Effects.Pipeline {
             // 1. Choose a card name.
             val chosenName = chooseOption(
@@ -54,7 +52,7 @@ val AncientVendetta = card("Ancient Vendetta") {
             val matches = gather(
                 CardSource.FromMultipleZones(
                     zones = listOf(Zone.GRAVEYARD, Zone.HAND, Zone.LIBRARY),
-                    player = Player.ContextPlayer(0),
+                    player = opponent.asPlayer,
                     filter = GameObjectFilter.Any.namedFromVariable(chosenName)
                 ),
                 search = true
@@ -65,9 +63,9 @@ val AncientVendetta = card("Ancient Vendetta") {
                 prompt = "Exile up to four cards with the chosen name"
             )
             // 4. Exile them.
-            exile(toExile, owner = Player.ContextPlayer(0))
+            exile(toExile, owner = opponent.asPlayer)
             // 5. Then that player shuffles.
-            run(Effects.ShuffleLibrary(target = EffectTarget.ContextTarget(0)))
+            run(Effects.ShuffleLibrary(target = opponent))
         }
     }
 

@@ -3,9 +3,8 @@ package com.wingedsheep.mtg.sets.definitions.otj.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Explosive Derailment {R}
@@ -32,18 +31,16 @@ val ExplosiveDerailment = card("Explosive Derailment") {
     spell {
         effect = Effects.Modal(
             modes = listOf(
-                Mode(
-                    effect = Effects.DealDamage(4, EffectTarget.ContextTarget(0)),
-                    targetRequirements = listOf(Targets.Creature),
-                    description = "+ {2} — Explosive Derailment deals 4 damage to target creature.",
+                mode("+ {2} — Explosive Derailment deals 4 damage to target creature.") {
+                    val creature = target("target creature", Targets.Creature)
                     additionalManaCost = "{2}"
-                ),
-                Mode(
-                    effect = Effects.Destroy(EffectTarget.ContextTarget(0)),
-                    targetRequirements = listOf(Targets.Artifact),
-                    description = "+ {2} — Destroy target artifact.",
+                    effect = Effects.DealDamage(4, creature)
+                },
+                mode("+ {2} — Destroy target artifact.") {
+                    val artifact = target("target artifact", Targets.Artifact)
                     additionalManaCost = "{2}"
-                )
+                    effect = Effects.Destroy(artifact)
+                }
             ),
             chooseCount = 2,
             minChooseCount = 1

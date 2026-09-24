@@ -54,7 +54,7 @@ val AryelKnightOfWindgrace = card("Aryel, Knight of Windgrace") {
         // At resolution, destroy the target only if its power <= X
         effect = Effects.If(
             condition = Conditions.CompareAmounts(
-                left = DynamicAmounts.targetPower(0),
+                left = DynamicAmounts.powerOf(creature),
                 operator = ComparisonOperator.LTE,
                 right = DynamicAmounts.xValue()
             ),

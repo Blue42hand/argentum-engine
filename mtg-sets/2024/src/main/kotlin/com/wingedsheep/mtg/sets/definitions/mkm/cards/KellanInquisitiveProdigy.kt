@@ -38,7 +38,7 @@ val KellanInquisitiveProdigy = card("Kellan, Inquisitive Prodigy") {
             TargetObject(filter = TargetFilter.Artifact, optional = true),
         )
         effect = Effects.If(
-            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Artifact.youControl()),
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Artifact.youControl(), artifact),
             then = Effects.Destroy(artifact).then(Effects.DrawCards(1)),
             otherwise = Effects.Destroy(artifact),
         )

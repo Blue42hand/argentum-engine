@@ -39,9 +39,7 @@ val LittleBear = card("Little Bear") {
         effect = Effects.Composite(
             Effects.Untap(t),
             Effects.If(
-                condition = Conditions.TargetMatchesFilter(
-                    GameObjectFilter.Creature.withSubtype(Subtype.BEAR),
-                ),
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.BEAR), t),
                 then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t),
             ),
         )

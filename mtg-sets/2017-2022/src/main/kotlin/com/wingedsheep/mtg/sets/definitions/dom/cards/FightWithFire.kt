@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.targets.AnyTarget
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -30,8 +29,8 @@ val FightWithFire = card("Fight with Fire") {
 
     spell {
         // Unkicked: 5 damage to target creature
-        target = TargetCreature()
-        effect = Effects.DealDamage(5, EffectTarget.ContextTarget(0))
+        val creature = target("target creature", TargetCreature())
+        effect = Effects.DealDamage(5, creature)
 
         // Kicked: 10 damage divided among any number of targets (up to 10)
         kickerTarget = AnyTarget(count = 10, minCount = 1)

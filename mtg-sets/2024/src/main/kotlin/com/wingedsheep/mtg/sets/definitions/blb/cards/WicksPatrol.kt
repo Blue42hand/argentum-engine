@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Wick's Patrol
@@ -36,10 +35,13 @@ val WicksPatrol = card("Wick's Patrol") {
         val negX = -greatestMV
         effect = Effects.ReflexiveTrigger(
             action = Patterns.Library.mill(3),
-            optional = false,
-            reflexiveEffect = Effects.ModifyStats(negX, negX, EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(Targets.CreatureOpponentControls)
-        )
+            optional = false) {
+            val creatureOpponentControls = target(
+                "target creature opponent controls",
+                Targets.CreatureOpponentControls
+            )
+            effect = Effects.ModifyStats(negX, negX, creatureOpponentControls)
+        }
     }
 
     metadata {

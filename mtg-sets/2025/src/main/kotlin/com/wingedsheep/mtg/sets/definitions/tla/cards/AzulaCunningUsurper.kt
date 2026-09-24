@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.conditions.IsYourTurn
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.references.Player
 
 /**
  * Azula, Cunning Usurper
@@ -55,13 +54,13 @@ val AzulaCunningUsurper = card("Azula, Cunning Usurper") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        target("target opponent", Targets.Opponent)
+        val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Pipeline {
             // Opponent exiles a nontoken creature they control (their choice), linked to Azula.
             val azulaCreatures = gather(
                 CardSource.BattlefieldMatching(
                     filter = GameObjectFilter.Creature.nontoken(),
-                    player = Player.ContextPlayer(0)
+                    player = opponent.asPlayer
                 )
             )
             ifNotEmpty(azulaCreatures) {
@@ -72,13 +71,13 @@ val AzulaCunningUsurper = card("Azula, Cunning Usurper") {
                     prompt = "Choose a nontoken creature to exile",
                     useTargetingUI = true
                 )
-                exile(azulaChosenCreature, Player.ContextPlayer(0), linkToSource = true)
+                exile(azulaChosenCreature, opponent.asPlayer, linkToSource = true)
             }
             // Then they exile a nonland card from their graveyard (their choice), linked to Azula.
             val azulaGraveyard = gather(
                 CardSource.FromZone(
                     zone = Zone.GRAVEYARD,
-                    player = Player.ContextPlayer(0),
+                    player = opponent.asPlayer,
                     filter = GameObjectFilter.Nonland
                 )
             )
@@ -89,7 +88,7 @@ val AzulaCunningUsurper = card("Azula, Cunning Usurper") {
                     chooser = Chooser.TargetPlayer,
                     prompt = "Choose a nonland card in your graveyard to exile"
                 )
-                exile(azulaChosenGraveyardCard, Player.ContextPlayer(0), linkToSource = true)
+                exile(azulaChosenGraveyardCard, opponent.asPlayer, linkToSource = true)
             }
             // During your turn you may cast cards exiled with Azula, as though they had flash,
             // spending mana of any type. Gather the whole linked-exile pile and grant the play.

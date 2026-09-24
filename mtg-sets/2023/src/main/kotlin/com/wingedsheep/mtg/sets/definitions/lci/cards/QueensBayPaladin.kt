@@ -81,7 +81,7 @@ private fun TriggeredAbilityBuilder.returnVampireRider() {
         Effects.Move(returned, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
         Effects.AddCounters(counterType = CounterType.FINALITY, count = 1, target = returned),
         Effects.LoseLife(
-            DynamicAmounts.manaValueOf(EffectTarget.ContextTarget(0)),
+            DynamicAmounts.manaValueOf(returned),
             EffectTarget.Controller,
         ),
     )

@@ -60,19 +60,18 @@ val LeatherheadSwampStalker = card("Leatherhead, Swamp Stalker") {
         effect = Effects.ReflexiveTrigger(
             action = Effects.RemoveCounterOfAnyKind(EffectTarget.Self),
             optional = true,
-            reflexiveEffect = Effects.Destroy(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(
-                TargetPermanent(
-                    filter = TargetFilter(
-                        GameObjectFilter.ArtifactOrEnchantment.controlledByTriggeringPlayer()
-                    )
-                )
-            ),
             // The yes/no prompt should read as the card does, not as the composed
             // "remove up to 1 counter" primitive's own wording.
             descriptionOverride = "You may remove a counter from Leatherhead. When you do, " +
                 "destroy target artifact or enchantment that player controls."
-        )
+        ) {
+            val artifactOrEnchantment = target("target artifact or enchantment", TargetPermanent(
+                filter = TargetFilter(
+                    GameObjectFilter.ArtifactOrEnchantment.controlledByTriggeringPlayer()
+                )
+            ))
+            effect = Effects.Destroy(artifactOrEnchantment)
+        }
         description = "Whenever Leatherhead deals combat damage to a player, you may remove a counter from her. When you do, destroy target artifact or enchantment that player controls."
     }
 

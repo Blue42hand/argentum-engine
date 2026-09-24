@@ -43,7 +43,7 @@ val WarrenPilferers = card("Warren Pilferers") {
         )
         val returnToHand = Effects.Move(creatureCard, Zone.HAND)
         effect = Effects.If(
-            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.GOBLIN)),
+            condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.GOBLIN), creatureCard),
             then = returnToHand.then(Effects.GrantKeyword(Keyword.HASTE, EffectTarget.Self)),
             otherwise = returnToHand
         )

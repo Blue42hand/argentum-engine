@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.dsl.Effects
 
 /**
@@ -56,7 +55,7 @@ val SeverancePriest = card("Severance Priest") {
         val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Pipeline {
             run(Effects.RevealHand(opponent))
-            val revealedHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val revealedHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
             val exiledCard = chooseUpTo(
                 1,
                 from = revealedHand,
@@ -66,7 +65,7 @@ val SeverancePriest = card("Severance Priest") {
                 showAllCards = true,
                 alwaysPrompt = true
             )
-            exile(exiledCard, Player.ContextPlayer(0), linkToSource = true)
+            exile(exiledCard, opponent.asPlayer, linkToSource = true)
         }
     }
 

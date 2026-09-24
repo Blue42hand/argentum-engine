@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Knockout Maneuver — Tarkir: Dragonstorm #147
@@ -33,9 +32,9 @@ val KnockoutManeuver = card("Knockout Maneuver") {
         effect = Effects.Composite(listOf(
             Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, mine),
             Effects.DealDamage(
-                amount = DynamicAmounts.targetPower(0),
+                amount = DynamicAmounts.powerOf(mine),
                 target = theirs,
-                damageSource = EffectTarget.ContextTarget(0)
+                damageSource = mine
             )
         ))
     }

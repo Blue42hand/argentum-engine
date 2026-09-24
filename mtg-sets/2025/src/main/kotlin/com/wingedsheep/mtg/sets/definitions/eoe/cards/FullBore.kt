@@ -27,10 +27,7 @@ val FullBore = card("Full Bore") {
         effect = Effects.ModifyStats(3, 2, creature)
             .then(
                 Effects.If(
-                    condition = Conditions.TargetMatchesFilter(
-                        GameObjectFilter.Creature.castForWarp(),
-                        targetIndex = 0
-                    ),
+                    condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.castForWarp(), creature),
                     then = Effects.GrantKeyword(Keyword.TRAMPLE, creature)
                         .then(Effects.GrantKeyword(Keyword.HASTE, creature))
                 )

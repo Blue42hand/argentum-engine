@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
@@ -48,16 +49,15 @@ val BladeOfTheSwarm = card("Blade of the Swarm") {
                 Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self),
                 "Put two +1/+1 counters on this creature",
             ),
-            Mode.withTarget(
-                Effects.Move(EffectTarget.ContextTarget(0), Zone.LIBRARY, ZonePlacement.Bottom),
-                TargetObject(
+            mode("Put target exiled card with warp on the bottom of its owner's library") {
+                val targetedObject = target("target targeted object", TargetObject(
                     filter = TargetFilter(
                         GameObjectFilter.Any.warpExiled(),
                         zone = Zone.EXILE,
                     ),
-                ),
-                "Put target exiled card with warp on the bottom of its owner's library",
-            ),
+                ))
+                effect = Effects.Move(targetedObject, Zone.LIBRARY, ZonePlacement.Bottom)
+            },
         )
     }
 

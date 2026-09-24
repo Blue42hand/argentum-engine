@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -92,19 +91,18 @@ private fun zoralineReanimateEffect() = Effects.MayPay(
     then = Effects.ReflexiveTrigger(
         action = Effects.Composite(emptyList()),
         optional = false,
-        reflexiveTargetRequirements = listOf(
-            TargetObject(
-                filter = TargetFilter(
-                    GameObjectFilter.NonlandPermanent.ownedByYou().manaValueAtMost(3),
-                    zone = Zone.GRAVEYARD
-                )
-            )
-        ),
-        reflexiveEffect = Effects.Composite(
-            Effects.PutOntoBattlefieldFromGraveyard(EffectTarget.ContextTarget(0)),
-            Effects.AddCounters(CounterType.FINALITY, 1, EffectTarget.ContextTarget(0))
-        ),
         descriptionOverride = "return target nonland permanent card with mana value 3 or less " +
             "from your graveyard to the battlefield with a finality counter on it"
-    )
+    ) {
+        val nonlandPermanent = target("target nonland permanent", TargetObject(
+            filter = TargetFilter(
+                GameObjectFilter.NonlandPermanent.ownedByYou().manaValueAtMost(3),
+                zone = Zone.GRAVEYARD
+            )
+        ))
+        effect = Effects.Composite(
+            Effects.PutOntoBattlefieldFromGraveyard(nonlandPermanent),
+            Effects.AddCounters(CounterType.FINALITY, 1, nonlandPermanent)
+        )
+    }
 )

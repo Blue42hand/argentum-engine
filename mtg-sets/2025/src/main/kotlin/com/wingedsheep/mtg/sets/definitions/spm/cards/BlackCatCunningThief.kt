@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.effects.Chooser
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
-import com.wingedsheep.sdk.scripting.references.Player
 
 /**
  * Black Cat, Cunning Thief
@@ -51,12 +50,12 @@ val BlackCatCunningThief = card("Black Cat, Cunning Thief") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        target("target opponent", Targets.Opponent)
+        val opponent = target("target opponent", Targets.Opponent)
         effect = Effects.Pipeline {
             val topNine = gather(
                 CardSource.TopOfLibrary(
                     count = 9,
-                    player = Player.ContextPlayer(0),
+                    player = opponent.asPlayer,
                 )
             )
             val (exiled, rest) = chooseExactlySplit(
@@ -66,12 +65,12 @@ val BlackCatCunningThief = card("Black Cat, Cunning Thief") {
                 prompt = "Exile two of those cards face down.",
                 showAllCards = true
             )
-            exile(exiled, Player.ContextPlayer(0), faceDown = FaceDownMode.HIDDEN)
+            exile(exiled, opponent.asPlayer, faceDown = FaceDownMode.HIDDEN)
             move(
                 rest,
                 CardDestination.ToZone(
                     Zone.LIBRARY,
-                    Player.ContextPlayer(0),
+                    opponent.asPlayer,
                     ZonePlacement.Bottom,
                 ),
                 order = CardOrder.Random

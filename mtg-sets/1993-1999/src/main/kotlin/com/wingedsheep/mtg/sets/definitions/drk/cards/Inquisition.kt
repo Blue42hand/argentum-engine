@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 /**
@@ -37,7 +36,7 @@ val Inquisition = card("Inquisition") {
             Effects.RevealHand(victim),
             Effects.DealDamage(
                 DynamicAmounts.count(
-                    Player.ContextPlayer(0),
+                    victim.asPlayer,
                     Zone.HAND,
                     GameObjectFilter.Any.withColor(Color.WHITE),
                 ),

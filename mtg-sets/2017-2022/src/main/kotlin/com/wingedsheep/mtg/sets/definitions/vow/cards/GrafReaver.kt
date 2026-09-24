@@ -35,10 +35,10 @@ val GrafReaver = card("Graf Reaver") {
         "When this creature exploits a creature, destroy target planeswalker.\n" +
         "At the beginning of your upkeep, this creature deals 1 damage to you."
 
-    exploit(
-        onExploit = Effects.Destroy(EffectTarget.ContextTarget(0)),
-        onExploitTargets = listOf(Targets.Planeswalker)
-    )
+    exploit {
+        val planeswalker = target("target planeswalker", Targets.Planeswalker)
+        effect = Effects.Destroy(planeswalker)
+    }
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep

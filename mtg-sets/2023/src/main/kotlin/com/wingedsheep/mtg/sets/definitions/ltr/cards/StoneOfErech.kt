@@ -44,10 +44,10 @@ val StoneOfErech = card("Stone of Erech") {
             Costs.Tap,
             Costs.SacrificeSelf
         )
-        target("target player", Targets.Player)
+        val player = target("target player", Targets.Player)
         effect = Effects.Pipeline {
-            val targetGraveyard = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.ContextPlayer(0)))
-            exile(targetGraveyard, Player.ContextPlayer(0))
+            val targetGraveyard = gather(CardSource.FromZone(Zone.GRAVEYARD, player.asPlayer))
+            exile(targetGraveyard, player.asPlayer)
             run(Effects.DrawCards(1))
         }
     }

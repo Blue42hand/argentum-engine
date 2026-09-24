@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.namedFromVariable
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -43,10 +42,10 @@ val LammastideWeave = card("Lammastide Weave") {
         "Draw a card."
 
     spell {
-        target("target player", Targets.Player)
+        val player = target("target player", Targets.Player)
         effect = Effects.Pipeline {
             val weaveChosenName = chooseCardName(prompt = "Choose a card name")
-            run(Patterns.Library.mill(1, EffectTarget.ContextTarget(0)))
+            run(Patterns.Library.mill(1, player))
             run(Effects.If(
                 condition = Conditions.CollectionContainsMatch(Patterns.Library.milled,
                     GameObjectFilter.Any.namedFromVariable(weaveChosenName),

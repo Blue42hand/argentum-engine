@@ -80,17 +80,15 @@ val BloodSpatterAnalysis = card("Blood Spatter Analysis") {
                     condition = Conditions.SourceCounterCountAtLeast(CounterType.BLOODSTAIN, 5),
                     then = Effects.ReflexiveTrigger(
                         action = Effects.SacrificeTarget(EffectTarget.Self),
-                        optional = false,
-                        reflexiveEffect = Effects.ReturnToHand(EffectTarget.ContextTarget(0)),
-                        reflexiveTargetRequirements = listOf(
-                            TargetObject(
-                                filter = TargetFilter(
-                                    baseFilter = GameObjectFilter.Creature.ownedByYou(),
-                                    zone = Zone.GRAVEYARD
-                                )
+                        optional = false) {
+                        val creature = target("target creature", TargetObject(
+                            filter = TargetFilter(
+                                baseFilter = GameObjectFilter.Creature.ownedByYou(),
+                                zone = Zone.GRAVEYARD
                             )
-                        )
-                    )
+                        ))
+                        effect = Effects.ReturnToHand(creature)
+                    }
                 )
             )
         description = "Whenever one or more creatures die, mill a card and put a bloodstain " +

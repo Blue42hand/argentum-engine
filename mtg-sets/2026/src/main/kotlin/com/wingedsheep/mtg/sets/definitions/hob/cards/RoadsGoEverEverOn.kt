@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 
 /**
@@ -70,13 +69,17 @@ val RoadsGoEverEverOn = card("Roads Go Ever, Ever On") {
         ).count()
         effect = Effects.CreateDelayedTrigger(
             trigger = Triggers.YouAttack,
-            targetRequirement = TargetCreature(filter = TargetFilter.Creature.youControl()),
+        ) {
+            val creature = target(
+                "target creature",
+                TargetCreature(filter = TargetFilter.Creature.youControl())
+            )
             effect = Effects.ModifyStats(
                 power = plainsCount,
                 toughness = plainsCount,
-                target = EffectTarget.ContextTarget(0),
-            ),
-        )
+                target = creature,
+            )
+        }
     }
 
     metadata {

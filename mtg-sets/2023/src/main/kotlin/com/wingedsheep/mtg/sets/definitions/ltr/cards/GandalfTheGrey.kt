@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
@@ -46,19 +47,18 @@ val GandalfTheGrey = card("Gandalf the Grey") {
         trigger = Triggers.YouCastInstantOrSorcery
         effect = ModalEffect.chooseOneNotYetChosen(
             // • You may tap or untap target permanent.
-            Mode.withTarget(
-                Effects.May(
+            mode("You may tap or untap target permanent") {
+                val permanent = target("target permanent", Targets.Permanent)
+                effect = Effects.May(
                     Effects.ChooseAction(
                         listOf(
-                            EffectChoice("Tap it", Effects.Tap(EffectTarget.ContextTarget(0))),
-                            EffectChoice("Untap it", Effects.Untap(EffectTarget.ContextTarget(0)))
+                            EffectChoice("Tap it", Effects.Tap(permanent)),
+                            EffectChoice("Untap it", Effects.Untap(permanent))
                         )
                     ),
                     descriptionOverride = "You may tap or untap that permanent"
-                ),
-                Targets.Permanent,
-                "You may tap or untap target permanent"
-            ),
+                )
+            },
             // • Gandalf deals 3 damage to each opponent.
             Mode.noTarget(
                 Effects.DealDamage(
@@ -69,11 +69,13 @@ val GandalfTheGrey = card("Gandalf the Grey") {
                 "Gandalf deals 3 damage to each opponent"
             ),
             // • Copy target instant or sorcery spell you control. You may choose new targets for the copy.
-            Mode.withTarget(
-                Effects.CopyTargetSpell(target = EffectTarget.ContextTarget(0)),
-                Targets.InstantOrSorcerySpellYouControl,
-                "Copy target instant or sorcery spell you control. You may choose new targets for the copy"
-            ),
+            mode("Copy target instant or sorcery spell you control. You may choose new targets for the copy") {
+                val instantOrSorcerySpellYouControl = target(
+                    "target instant or sorcery spell you control",
+                    Targets.InstantOrSorcerySpellYouControl
+                )
+                effect = Effects.CopyTargetSpell(target = instantOrSorcerySpellYouControl)
+            },
             // • Put Gandalf on top of its owner's library.
             Mode.noTarget(
                 Effects.PutOnTopOfLibrary(EffectTarget.Self),

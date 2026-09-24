@@ -4,12 +4,12 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 val FulminousForte = card("Fulminous Forte") {
     manaCost = "{2}{R}"
@@ -24,11 +24,13 @@ val FulminousForte = card("Fulminous Forte") {
                     GroupFilter(GameObjectFilter.CreatureOrPlaneswalker.opponentControls())),
                 description = "Deal 1 damage to each creature and planeswalker your opponents control."
             ),
-            Mode.withTarget(
-                Effects.DealDamage(5, EffectTarget.ContextTarget(0)),
-                Targets.CreatureOrPlaneswalker,
-                "Deal 5 damage to target creature or planeswalker."
-            )
+            mode("Deal 5 damage to target creature or planeswalker.") {
+                val creatureOrPlaneswalker = target(
+                    "target creature or planeswalker",
+                    Targets.CreatureOrPlaneswalker
+                )
+                effect = Effects.DealDamage(5, creatureOrPlaneswalker)
+            }
         )
     }
 

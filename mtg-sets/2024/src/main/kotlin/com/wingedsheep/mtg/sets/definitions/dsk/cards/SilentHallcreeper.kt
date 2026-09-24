@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantBeBlocked
 import com.wingedsheep.sdk.scripting.Duration
@@ -64,15 +65,17 @@ val SilentHallcreeper = card("Silent Hallcreeper") {
                 "Draw a card"
             ),
             // • This creature becomes a copy of another target creature you control.
-            Mode.withTarget(
-                Effects.EachPermanentBecomesCopyOfTarget(
-                    target = EffectTarget.ContextTarget(0),
+            mode("This creature becomes a copy of another target creature you control") {
+                val otherCreatureYouControl = target(
+                    "target other creature you control",
+                    Targets.OtherCreatureYouControl
+                )
+                effect = Effects.EachPermanentBecomesCopyOfTarget(
+                    target = otherCreatureYouControl,
                     duration = Duration.Permanent,
                     affected = EffectTarget.Self,
-                ),
-                Targets.OtherCreatureYouControl,
-                "This creature becomes a copy of another target creature you control"
-            )
+                )
+            }
         )
         description = "Whenever this creature deals combat damage to a player, choose one that " +
             "hasn't been chosen — Put two +1/+1 counters on this creature; or draw a card; or this " +

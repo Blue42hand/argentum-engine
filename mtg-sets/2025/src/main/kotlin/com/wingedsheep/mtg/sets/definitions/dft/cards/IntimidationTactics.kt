@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -29,7 +28,7 @@ val IntimidationTactics = card("Intimidation Tactics") {
         val t = target("target", TargetOpponent())
         effect = Effects.Pipeline {
             run(Effects.RevealHand(t))
-            val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val hand = gather(CardSource.FromZone(Zone.HAND, t.asPlayer))
             val toExile = chooseExactly(
                 1,
                 from = hand,
@@ -37,7 +36,7 @@ val IntimidationTactics = card("Intimidation Tactics") {
                 filter = GameObjectFilter.Artifact or GameObjectFilter.Creature,
                 prompt = "Choose an artifact or creature card to exile"
             )
-            exile(toExile, Player.ContextPlayer(0))
+            exile(toExile, t.asPlayer)
         }
     }
 

@@ -40,7 +40,7 @@ val SoundTheTrumpets = card("Sound the Trumpets") {
     spell {
         val spell = target("target spell", Targets.Spell)
         effect = Effects.If(
-            condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(2)),
+            condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(2), spell),
             then = Effects.Composite(
                 Effects.CounterSpell(),
                 Patterns.Mechanic.recruit(),

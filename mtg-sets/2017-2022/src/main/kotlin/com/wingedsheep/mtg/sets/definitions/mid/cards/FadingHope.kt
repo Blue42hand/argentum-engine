@@ -25,7 +25,7 @@ val FadingHope = card("Fading Hope") {
         effect = Effects.ReturnToHand(creature)
             .then(
                 Effects.If(
-                    condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(3)),
+                    condition = Conditions.TargetSpellManaValueAtMost(DynamicAmounts.fixed(3), creature),
                     then = Patterns.Library.scry(1)
                 )
             )

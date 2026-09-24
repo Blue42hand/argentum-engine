@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 
 val StingingVitriol = card("Stinging Vitriol") {
@@ -22,7 +21,7 @@ val StingingVitriol = card("Stinging Vitriol") {
         effect = Effects.Pipeline {
             run(Effects.DealDamage(2, opponent))
             run(Effects.RevealHand(opponent))
-            val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val hand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
             val toDiscard = chooseExactly(
                 1,
                 from = hand,
@@ -32,7 +31,7 @@ val StingingVitriol = card("Stinging Vitriol") {
                 alwaysPrompt = true,
                 showAllCards = true
             )
-            discard(toDiscard, Player.ContextPlayer(0))
+            discard(toDiscard, opponent.asPlayer)
         }
     }
 

@@ -91,7 +91,7 @@ private val GarrukRelentlessFront = card("Garruk Relentless") {
             // "That creature deals damage equal to its power to him" — attributed to the creature,
             // so its power is read at resolution and its damage keywords apply.
             Effects.DealDamage(
-                DynamicAmounts.targetPower(0),
+                DynamicAmounts.powerOf(creature),
                 EffectTarget.Self,
                 damageSource = creature,
             ),

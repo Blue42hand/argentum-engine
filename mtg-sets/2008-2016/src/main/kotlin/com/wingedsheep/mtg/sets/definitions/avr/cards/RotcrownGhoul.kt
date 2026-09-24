@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Rotcrown Ghoul — Avacyn Restored #72
@@ -26,8 +25,8 @@ val RotcrownGhoul = card("Rotcrown Ghoul") {
 
     triggeredAbility {
         trigger = Triggers.Dies
-        target("target", Targets.Player)
-        effect = Patterns.Library.mill(5, EffectTarget.ContextTarget(0))
+        val player = target("target", Targets.Player)
+        effect = Patterns.Library.mill(5, player)
     }
 
     metadata {

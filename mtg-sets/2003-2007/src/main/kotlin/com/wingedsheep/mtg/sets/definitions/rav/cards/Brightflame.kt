@@ -24,7 +24,7 @@ val Brightflame = card("Brightflame") {
             val before = storeNumber(damageDealt)
             // Fix the radiance group before any damage or damage replacements happen.
             val others = gather(CardSource.BattlefieldMatching(
-                filter = GameObjectFilter.Creature.sharingColorWith(EffectTarget.ContextTarget(0)),
+                filter = GameObjectFilter.Creature.sharingColorWith(victim),
                 excludeChosenTargets = true
             ))
             run(Effects.DealDamage(DynamicAmounts.xValue(), victim))

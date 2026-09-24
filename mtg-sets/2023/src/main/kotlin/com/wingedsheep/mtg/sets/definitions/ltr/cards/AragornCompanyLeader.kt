@@ -77,13 +77,13 @@ val AragornCompanyLeader = card("Aragorn, Company Leader") {
 
     triggeredAbility {
         trigger = Triggers.CountersPlacedOnThis
-        target("up to one other target creature", TargetOther(TargetCreature(count = 1, minCount = 0, optional = true)))
+        val upToOneOtherCreature = target("up to one other target creature", TargetOther(TargetCreature(count = 1, minCount = 0, optional = true)))
         effect = Effects.Composite(
             listOf(
-                Effects.AddCounters(CounterType.FIRST_STRIKE, 1, EffectTarget.ContextTarget(0)),
-                Effects.AddCounters(CounterType.VIGILANCE, 1, EffectTarget.ContextTarget(0)),
-                Effects.AddCounters(CounterType.DEATHTOUCH, 1, EffectTarget.ContextTarget(0)),
-                Effects.AddCounters(CounterType.LIFELINK, 1, EffectTarget.ContextTarget(0)),
+                Effects.AddCounters(CounterType.FIRST_STRIKE, 1, upToOneOtherCreature),
+                Effects.AddCounters(CounterType.VIGILANCE, 1, upToOneOtherCreature),
+                Effects.AddCounters(CounterType.DEATHTOUCH, 1, upToOneOtherCreature),
+                Effects.AddCounters(CounterType.LIFELINK, 1, upToOneOtherCreature),
             )
         )
         description = "Whenever you put one or more counters on Aragorn, put one of each of those " +

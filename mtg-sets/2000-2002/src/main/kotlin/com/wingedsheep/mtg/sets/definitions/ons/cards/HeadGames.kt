@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetOpponent
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -27,11 +26,11 @@ val HeadGames = card("Head Games") {
     spell {
         val opponent = target("target opponent", TargetOpponent())
         effect = Effects.Pipeline {
-            val opponentHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
-            toLibraryTop(opponentHand, Player.ContextPlayer(0), order = CardOrder.Preserve)
-            val searchable = gather(CardSource.FromZone(Zone.LIBRARY, Player.ContextPlayer(0)), search = true)
+            val opponentHand = gather(CardSource.FromZone(Zone.HAND, opponent.asPlayer))
+            toLibraryTop(opponentHand, opponent.asPlayer, order = CardOrder.Preserve)
+            val searchable = gather(CardSource.FromZone(Zone.LIBRARY, opponent.asPlayer), search = true)
             val found = chooseUpTo(opponentHand.count, from = searchable, chooser = Chooser.Controller)
-            toHand(found, Player.ContextPlayer(0))
+            toHand(found, opponent.asPlayer)
             run(Effects.ShuffleLibrary(opponent))
         }
     }

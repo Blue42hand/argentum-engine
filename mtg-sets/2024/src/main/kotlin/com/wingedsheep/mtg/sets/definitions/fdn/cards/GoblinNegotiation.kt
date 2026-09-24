@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Goblin Negotiation
@@ -35,7 +34,7 @@ val GoblinNegotiation = card("Goblin Negotiation") {
         effect = Effects.Composite(
             Effects.DealXDamage(creature),
             Effects.CreateToken(
-                count = DynamicAmounts.propertyOf(EffectTarget.ContextTarget(0), EntityNumericProperty.ExcessMarkedDamage),
+                count = DynamicAmounts.propertyOf(creature, EntityNumericProperty.ExcessMarkedDamage),
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.RED),

@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 val CutPropulsion = card("Cut Propulsion") {
     manaCost = "{2}{R}"
@@ -19,13 +18,10 @@ val CutPropulsion = card("Cut Propulsion") {
 
     spell {
         val creature = target("creature", Targets.Creature)
-        val power = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0))
+        val power = DynamicAmounts.powerOf(creature)
         effect = Effects.DealDamage(
             amount = DynamicAmounts.conditional(
-                condition = Conditions.TargetMatchesFilter(
-                    filter = GameObjectFilter.Creature.withKeyword(Keyword.FLYING),
-                    targetIndex = 0
-                ),
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING), creature),
                 ifTrue = power * 2,
                 ifFalse = power
             ),

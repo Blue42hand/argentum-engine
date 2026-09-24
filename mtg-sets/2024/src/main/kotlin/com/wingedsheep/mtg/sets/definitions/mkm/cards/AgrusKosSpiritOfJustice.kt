@@ -109,7 +109,7 @@ val AgrusKosSpiritOfJustice = card("Agrus Kos, Spirit of Justice") {
 private fun TriggeredAbilityBuilder.exileIfSuspectedOtherwiseSuspect() {
     val suspect = target("up to one target creature", TargetCreature(optional = true))
     effect = Effects.If(
-        condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.suspected()),
+        condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.suspected(), suspect),
         then = Effects.Exile(suspect),
         otherwise = Effects.Suspect(suspect)
     )

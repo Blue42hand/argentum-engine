@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetSpellOrPermanent
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Press the Enemy — The Lord of the Rings: Tales of Middle-earth #65
@@ -48,7 +47,7 @@ val PressTheEnemy = card("Press the Enemy") {
         effect = Effects.Pipeline {
             // Capture the bounced object's mana value as the free-cast cap.
             val bouncedMv = storeNumber(
-                DynamicAmounts.manaValueOf(EffectTarget.ContextTarget(0))
+                DynamicAmounts.manaValueOf(t)
             )
             // Return the spell or nonland permanent to its owner's hand.
             run(Effects.ReturnSpellOrPermanentToOwnersHand(t))

@@ -55,7 +55,7 @@ val TerrificTeamUp = card("Terrific Team-Up") {
 
     spell {
         // Declared first so the victim is a stable target across the per-creature loop.
-        target("creature an opponent controls", Targets.CreatureOpponentControls)
+        val creatureOpponentControls = target("creature an opponent controls", Targets.CreatureOpponentControls)
         target(
             "one or two creatures you control",
             TargetCreature(
@@ -80,7 +80,7 @@ val TerrificTeamUp = card("Terrific Team-Up") {
                 collection = team,
                 effect = Effects.DealDamage(
                     amount = DynamicAmounts.powerOf(EffectTarget.IterationEntity),
-                    target = EffectTarget.ContextTarget(0),
+                    target = creatureOpponentControls,
                     damageSource = EffectTarget.IterationEntity,
                 ),
             ))

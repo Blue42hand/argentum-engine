@@ -4,9 +4,9 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -37,29 +37,26 @@ val RequisitionRaid = card("Requisition Raid") {
     spell {
         effect = Effects.Modal(
             modes = listOf(
-                Mode(
-                    effect = Effects.Destroy(EffectTarget.ContextTarget(0)),
-                    targetRequirements = listOf(Targets.Artifact),
-                    description = "+ {1} — Destroy target artifact.",
+                mode("+ {1} — Destroy target artifact.") {
+                    val artifact = target("target artifact", Targets.Artifact)
                     additionalManaCost = "{1}"
-                ),
-                Mode(
-                    effect = Effects.Destroy(EffectTarget.ContextTarget(0)),
-                    targetRequirements = listOf(Targets.Enchantment),
-                    description = "+ {1} — Destroy target enchantment.",
+                    effect = Effects.Destroy(artifact)
+                },
+                mode("+ {1} — Destroy target enchantment.") {
+                    val enchantment = target("target enchantment", Targets.Enchantment)
                     additionalManaCost = "{1}"
-                ),
-                Mode(
+                    effect = Effects.Destroy(enchantment)
+                },
+                mode("+ {1} — Put a +1/+1 counter on each creature target player controls.") {
+                    val player = target("target player", Targets.Player)
+                    additionalManaCost = "{1}"
                     effect = Effects.ForEachInGroup(
                         filter = GroupFilter(
-                            GameObjectFilter.Creature.targetPlayerControls(EffectTarget.ContextTarget(0))
+                            GameObjectFilter.Creature.targetPlayerControls(player)
                         ),
                         effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.IterationEntity)
-                    ),
-                    targetRequirements = listOf(Targets.Player),
-                    description = "+ {1} — Put a +1/+1 counter on each creature target player controls.",
-                    additionalManaCost = "{1}"
-                )
+                    )
+                }
             ),
             chooseCount = 3,
             minChooseCount = 1

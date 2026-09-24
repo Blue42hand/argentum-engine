@@ -72,20 +72,6 @@ val SarumanOfManyColors = card("Saruman of Many Colors") {
             "opponent's graveyard. Copy the exiled card. You may cast the copy without paying " +
             "its mana cost."
 
-        // The exile target is chosen when the reflexive trigger goes on the stack (after the
-        // mill), so it is supplied as a reflexive target requirement — NOT an ability-level
-        // target — and referenced as ContextTarget(0) in the reflexive effect (Wick's Patrol
-        // pattern). "that spell" is the triggering second spell (EffectTarget.TriggeringEntity).
-        val exiledCardTarget = TargetObject(
-            filter = TargetFilter(
-                baseFilter = enchantmentInstantSorcery
-                    .ownedByOpponent()
-                    .manaValueAtMostEntity(EffectTarget.TriggeringEntity),
-                zone = Zone.GRAVEYARD,
-            )
-        )
-        val exiledCard = EffectTarget.ContextTarget(0)
-
         effect = Effects.ReflexiveTrigger(
             // Each opponent mills two. Modeled as a flat Gather→Move mill aimed at every opponent
             // (rather than a ForEachPlayer wrapper) so the milled cards surface in the `"milled"`
@@ -93,8 +79,28 @@ val SarumanOfManyColors = card("Saruman of Many Colors") {
             // milled this way" gate reads.
             action = Patterns.Library.mill(2, EffectTarget.PlayerRef(Player.EachOpponent)),
             optional = false,
+            descriptionOverride = "Each opponent mills two cards. When one or more cards are " +
+                "milled this way, exile target enchantment, instant, or sorcery card with equal " +
+                "or lesser mana value than that spell from an opponent's graveyard. Copy the " +
+                "exiled card. You may cast the copy without paying its mana cost.",
+        ) {
+            // The exile target is chosen when the reflexive trigger goes on the stack (after the
+            // mill), so it is the reflexive trigger's own target — NOT an ability-level target
+            // (Wick's Patrol pattern). "that spell" is the triggering second spell
+            // (EffectTarget.TriggeringEntity).
+            val exiledCard = target(
+                "target enchantment, instant, or sorcery card",
+                TargetObject(
+                    filter = TargetFilter(
+                        baseFilter = enchantmentInstantSorcery
+                            .ownedByOpponent()
+                            .manaValueAtMostEntity(EffectTarget.TriggeringEntity),
+                        zone = Zone.GRAVEYARD,
+                    )
+                )
+            )
             // Gate on "one or more cards milled this way": only exile/copy/cast if a card was milled.
-            reflexiveEffect = Effects.If(
+            effect = Effects.If(
                 condition = Conditions.CollectionContainsMatch(Patterns.Library.milled),
                 then = Effects.Pipeline {
                     run(Effects.Move(exiledCard, Zone.EXILE))
@@ -104,13 +110,8 @@ val SarumanOfManyColors = card("Saruman of Many Colors") {
                         descriptionOverride = "You may cast the copy without paying its mana cost.",
                     ))
                 },
-            ),
-            reflexiveTargetRequirements = listOf(exiledCardTarget),
-            descriptionOverride = "Each opponent mills two cards. When one or more cards are " +
-                "milled this way, exile target enchantment, instant, or sorcery card with equal " +
-                "or lesser mana value than that spell from an opponent's graveyard. Copy the " +
-                "exiled card. You may cast the copy without paying its mana cost.",
-        )
+            )
+        }
     }
 
     metadata {

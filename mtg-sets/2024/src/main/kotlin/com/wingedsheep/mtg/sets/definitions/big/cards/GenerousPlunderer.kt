@@ -41,9 +41,10 @@ val GenerousPlunderer = card("Generous Plunderer") {
         effect = Effects.ReflexiveTrigger(
             action = Effects.CreateTreasure(1),
             optional = true,
-            reflexiveEffect = Effects.CreateTreasure(controller = EffectTarget.ContextTarget(0), tapped = true),
-            reflexiveTargetRequirements = listOf(Targets.Opponent),
-        )
+        ) {
+            val opponent = target("target opponent", Targets.Opponent)
+            effect = Effects.CreateTreasure(controller = opponent, tapped = true)
+        }
     }
 
     // "Whenever this creature attacks, it deals damage to defending player equal

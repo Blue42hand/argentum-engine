@@ -109,10 +109,10 @@ val AshiokWickedManipulator = card("Ashiok, Wicked Manipulator") {
     // −7: Target player exiles the top X cards of their library, where X is the total mana value
     //     of cards you own in exile.
     loyaltyAbility(-7) {
-        target("target player", Targets.Player)
+        val player = target("target player", Targets.Player)
         effect = Patterns.Library.exileTop(
             count = DynamicAmounts.zone(Player.You, Zone.EXILE).sumManaValue(),
-            target = EffectTarget.ContextTarget(0),
+            target = player,
         )
     }
 

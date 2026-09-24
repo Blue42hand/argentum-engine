@@ -3974,6 +3974,30 @@ object Effects {
     )
 
     /**
+     * [ReflexiveTrigger] whose "when you do" effect declares its own targets — chosen when the
+     * reflexive trigger goes on the stack, after [action] was done:
+     *
+     * ```kotlin
+     * Effects.ReflexiveTrigger(action = Effects.PayMana("{U}")) {
+     *     val attacker = target("another target attacking creature", Targets.OtherAttackingCreature)
+     *     effect = Effects.GrantKeyword(AbilityFlag.CANT_BE_BLOCKED, attacker)
+     * }
+     * ```
+     */
+    fun ReflexiveTrigger(
+        action: Effect,
+        optional: Boolean = true,
+        hint: String? = null,
+        descriptionOverride: String? = null,
+        whenYouDo: TargetedEffectBuilder.() -> Unit
+    ): Effect {
+        val body = TargetedEffectBuilder().apply(whenYouDo)
+        return com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect(
+            action, optional, body.requireEffect("A reflexive trigger"), body.declaredTargets, hint, descriptionOverride
+        )
+    }
+
+    /**
      * Create a delayed triggered ability (CR 603.7) — at the next [step] ("at the beginning of the
      * next end step, …") or on a [trigger] event (optionally [watchedTarget]-scoped), until [expiry].
      * See [com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect] for every field.
@@ -3996,6 +4020,32 @@ object Effects {
         step, effect, trigger, watchedTarget, watchedRecipient, expiry, fireOnce, repeatAtEachMatchingStep,
         timing, targetRequirement, additionalTargetRequirements, fireOnPlayer, carryCollections
     )
+
+    /**
+     * [CreateDelayedTrigger] whose effect declares its own targets, chosen when the delayed
+     * trigger fires ("at the beginning of the next combat, target creature you control …").
+     */
+    fun CreateDelayedTrigger(
+        step: com.wingedsheep.sdk.core.Step? = null,
+        trigger: TriggerSpec? = null,
+        watchedTarget: EffectTarget? = null,
+        watchedRecipient: EffectTarget? = null,
+        expiry: com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry = com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry.EndOfTurn,
+        fireOnce: Boolean = false,
+        repeatAtEachMatchingStep: Boolean = false,
+        timing: com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming = com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming.CURRENT_TURN_OR_LATER,
+        fireOnPlayer: EffectTarget? = null,
+        carryCollections: List<String> = emptyList(),
+        body: TargetedEffectBuilder.() -> Unit
+    ): Effect {
+        val built = TargetedEffectBuilder().apply(body)
+        val requirements = built.declaredTargets
+        return com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect(
+            step, built.requireEffect("A delayed trigger"), trigger, watchedTarget, watchedRecipient, expiry,
+            fireOnce, repeatAtEachMatchingStep, timing, requirements.firstOrNull(), requirements.drop(1),
+            fireOnPlayer, carryCollections
+        )
+    }
 
     /**
      * A modal effect — choose [chooseCount] (at least [minChooseCount]) of [modes]. The common

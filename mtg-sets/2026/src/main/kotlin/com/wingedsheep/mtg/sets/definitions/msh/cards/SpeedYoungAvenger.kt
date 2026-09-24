@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -50,20 +49,19 @@ val SpeedYoungAvenger = card("Speed, Young Avenger") {
             // "you may pay {1}"
             action = Effects.PayMana("{1}"),
             optional = true,
-            // "When you do, target creature with haste can't be blocked this turn except by
-            //  creatures with haste."
-            reflexiveEffect = Effects.GrantCantBeBlockedExceptBy(
-                EffectTarget.ContextTarget(0),
-                GameObjectFilter.Creature.withKeyword(Keyword.HASTE),
-            ),
-            reflexiveTargetRequirements = listOf(
-                TargetObject(
-                    filter = TargetFilter(GameObjectFilter.Creature.withKeyword(Keyword.HASTE))
-                )
-            ),
             descriptionOverride = "You may pay {1}. When you do, target creature with haste can't " +
                 "be blocked this turn except by creatures with haste.",
-        )
+        ) {
+            // "When you do, target creature with haste can't be blocked this turn except by
+            //  creatures with haste."
+            val creature = target("target creature", TargetObject(
+                filter = TargetFilter(GameObjectFilter.Creature.withKeyword(Keyword.HASTE))
+            ))
+            effect = Effects.GrantCantBeBlockedExceptBy(
+                creature,
+                GameObjectFilter.Creature.withKeyword(Keyword.HASTE),
+            )
+        }
         description = "Whenever you cast a noncreature spell, you may pay {1}. When you do, " +
             "target creature with haste can't be blocked this turn except by creatures with haste."
     }

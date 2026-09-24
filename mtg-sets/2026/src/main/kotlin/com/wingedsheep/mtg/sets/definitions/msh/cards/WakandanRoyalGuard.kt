@@ -42,7 +42,7 @@ val WakandanRoyalGuard = card("Wakandan Royal Guard") {
         val creature = target("target creature", Targets.Creature)
         effect = Effects.If(
             condition = Conditions.All(
-                Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.HERO)),
+                Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.HERO), creature),
                 Conditions.Not(Conditions.TargetIsSource())
             ),
             then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature),

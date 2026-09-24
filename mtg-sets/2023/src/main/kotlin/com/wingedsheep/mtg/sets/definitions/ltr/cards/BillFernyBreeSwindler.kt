@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.Mode
@@ -41,21 +42,18 @@ val BillFernyBreeSwindler = card("Bill Ferny, Bree Swindler") {
                 "Create a Treasure token"
             ),
             // Mode 2: Target opponent gains control of target Horse you control.
-            Mode(
+            mode("Target opponent gains control of target Horse you control. If they do, remove Bill Ferny from combat and create three Treasure tokens") {
+                val opponent = target("target opponent", Targets.Opponent)
+                val creature = target("target creature", TargetCreature(
+                    filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Horse").youControl())
+                ))
                 effect = Effects.GiveControl(
-                    permanent = EffectTarget.ContextTarget(1),
-                    newController = EffectTarget.ContextTarget(0)
+                    permanent = creature,
+                    newController = opponent
                 )
                     .then(Effects.RemoveFromCombat(EffectTarget.Self))
-                    .then(Effects.CreateTreasure(3)),
-                targetRequirements = listOf(
-                    Targets.Opponent,
-                    TargetCreature(
-                        filter = TargetFilter(GameObjectFilter.Creature.withSubtype("Horse").youControl())
-                    )
-                ),
-                description = "Target opponent gains control of target Horse you control. If they do, remove Bill Ferny from combat and create three Treasure tokens"
-            )
+                    .then(Effects.CreateTreasure(3))
+            }
         )
     }
 

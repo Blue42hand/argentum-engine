@@ -35,13 +35,13 @@ val InduceParanoia = card("Induce Paranoia") {
         "controller mills X cards, where X is the spell's mana value."
 
     spell {
-        target("target spell", Targets.Spell)
+        val spellTarget = target("target spell", Targets.Spell)
         effect = Effects.CounterSpell()
             .then(
                 Effects.If(
                     condition = Conditions.ManaSpentToCastIncludes(requiredBlack = 1),
                     then = Patterns.Library.mill(
-                        DynamicAmounts.targetManaValue(0),
+                        DynamicAmounts.manaValueOf(spellTarget),
                         EffectTarget.PlayerRef(Player.ControllerOf("target spell"))
                     )
                 )

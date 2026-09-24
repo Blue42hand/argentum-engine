@@ -34,7 +34,7 @@ val BuddingInsurgent = card("Budding Insurgent") {
         effect = Effects.Composite(
             Effects.Destroy(permanent),
             Effects.If(
-                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Enchantment.legendary()),
+                condition = Conditions.TargetMatchesFilter(GameObjectFilter.Enchantment.legendary(), permanent),
                 then = Effects.DrawCards(1),
             ),
         )

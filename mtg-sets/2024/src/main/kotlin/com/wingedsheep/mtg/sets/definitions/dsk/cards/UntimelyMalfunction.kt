@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.dsk.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -36,11 +37,10 @@ val UntimelyMalfunction = card("Untimely Malfunction") {
     spell {
         effect = Effects.Modal(
             modes = listOf(
-                Mode.withTarget(
-                    effect = Effects.Destroy(EffectTarget.ContextTarget(0)),
-                    target = Targets.Artifact,
-                    description = "Destroy target artifact"
-                ),
+                mode("Destroy target artifact") {
+                    val artifact = target("target artifact", Targets.Artifact)
+                    effect = Effects.Destroy(artifact)
+                },
                 Mode.withTarget(
                     effect = Effects.ChangeTarget(),
                     target = Targets.SpellOrAbilityWithSingleTarget,

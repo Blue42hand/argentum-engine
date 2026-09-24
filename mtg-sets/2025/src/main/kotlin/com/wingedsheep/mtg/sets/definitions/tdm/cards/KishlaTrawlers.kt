@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -39,13 +38,15 @@ val KishlaTrawlers = card("Kishla Trawlers") {
                 run(Effects.Exile(exiledCreature.asTarget))
             },
             optional = true,
-            reflexiveEffect = Effects.ReturnToHand(EffectTarget.ContextTarget(0)),
-            reflexiveTargetRequirements = listOf(
-                TargetObject(filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByYou())
-            ),
             descriptionOverride = "You may exile a creature card from your graveyard. " +
                 "When you do, return target instant or sorcery card from your graveyard to your hand."
-        )
+        ) {
+            val instantOrSorceryInGraveyard = target(
+                "target instant or sorcery in graveyard",
+                TargetObject(filter = TargetFilter.InstantOrSorceryInGraveyard.ownedByYou())
+            )
+            effect = Effects.ReturnToHand(instantOrSorceryInGraveyard)
+        }
     }
 
     metadata {

@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.scripting.OpponentsPlayWithHandsRevealed
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 import com.wingedsheep.sdk.dsl.Effects
 
@@ -48,7 +47,7 @@ val SeersVision = card("Seer's Vision") {
         val targetPlayer = target("target player", TargetPlayer())
         effect = Effects.Pipeline {
             // Look at target player's hand.
-            val targetHand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+            val targetHand = gather(CardSource.FromZone(Zone.HAND, targetPlayer.asPlayer))
             // You choose a card from it.
             val toDiscard = chooseExactly(
                 1,
@@ -59,7 +58,7 @@ val SeersVision = card("Seer's Vision") {
                 showAllCards = true
             )
             // That player discards that card.
-            discard(toDiscard, Player.ContextPlayer(0))
+            discard(toDiscard, targetPlayer.asPlayer)
         }
         description = "Sacrifice this enchantment: Look at target player's hand and choose a card from it. " +
             "That player discards that card. Activate only as a sorcery."

@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.mode
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
@@ -77,17 +78,18 @@ val TheRuinousWreckingCrew = card("The Ruinous Wrecking Crew") {
                 description = "Discard a card, then draw a card."
             ),
             // Mode 2 — target opponent loses 2 life.
-            Mode.withTarget(
-                Effects.LoseLife(2, EffectTarget.ContextTarget(0)),
-                Targets.Opponent,
-                description = "Target opponent loses 2 life."
-            ),
+            mode("Target opponent loses 2 life.") {
+                val opponent = target("target opponent", Targets.Opponent)
+                effect = Effects.LoseLife(2, opponent)
+            },
             // Mode 3 — destroy target token (any token permanent).
-            Mode.withTarget(
-                Effects.Destroy(EffectTarget.ContextTarget(0)),
-                TargetObject(filter = TargetFilter(GameObjectFilter.Permanent.token())),
-                description = "Destroy target token."
-            ),
+            mode("Destroy target token.") {
+                val permanent = target(
+                    "target permanent",
+                    TargetObject(filter = TargetFilter(GameObjectFilter.Permanent.token()))
+                )
+                effect = Effects.Destroy(permanent)
+            },
             // Mode 4 — edict on every player, each choosing their own creature.
             Mode.noTarget(
                 Effects.Sacrifice(

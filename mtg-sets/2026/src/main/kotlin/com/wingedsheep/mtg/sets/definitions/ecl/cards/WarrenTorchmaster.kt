@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
@@ -36,18 +35,17 @@ val WarrenTorchmaster = card("Warren Torchmaster") {
         effect = Effects.ReflexiveTrigger(
             action = Patterns.Mechanic.blight(1),
             optional = true,
-            reflexiveEffect = Effects.GrantKeyword(
-                keyword = Keyword.HASTE,
-                target = EffectTarget.ContextTarget(0)
-            ),
-            reflexiveTargetRequirements = listOf(
-                TargetObject(
-                    filter = TargetFilter.Creature,
-                    id = "target creature to gain haste"
-                )
-            ),
             descriptionOverride = "You may blight 1. When you do, target creature gains haste until end of turn"
-        )
+        ) {
+            val creature = target("target creature", TargetObject(
+                filter = TargetFilter.Creature,
+                id = "target creature to gain haste"
+            ))
+            effect = Effects.GrantKeyword(
+                keyword = Keyword.HASTE,
+                target = creature
+            )
+        }
     }
 
     metadata {

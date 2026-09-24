@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Bulk Up
@@ -31,7 +30,7 @@ val BulkUp = card("Bulk Up") {
     spell {
         val creature = target("creature", Targets.Creature)
         effect = Effects.ModifyStats(
-            power = DynamicAmounts.powerOf(EffectTarget.ContextTarget(0)),
+            power = DynamicAmounts.powerOf(creature),
             toughness = DynamicAmounts.fixed(0),
             target = creature
         )
