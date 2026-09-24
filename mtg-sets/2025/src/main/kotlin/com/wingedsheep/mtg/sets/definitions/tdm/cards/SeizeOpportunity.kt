@@ -1,19 +1,14 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -38,19 +33,11 @@ val SeizeOpportunity = card("Seize Opportunity") {
         effect = ModalEffect.chooseOne(
             // Exile top two and play until end of next turn.
             Mode.noTarget(
-                effect = Effects.Composite(
-                    listOf(
-                        GatherCardsEffect(
-                            source = CardSource.TopOfLibrary(DynamicAmount.Fixed(2)),
-                            storeAs = "exiledCards"
-                        ),
-                        MoveCollectionEffect(
-                            from = "exiledCards",
-                            destination = CardDestination.ToZone(Zone.EXILE)
-                        ),
-                        GrantMayPlayFromExileEffect("exiledCards", MayPlayExpiry.UntilEndOfNextTurn)
-                    )
-                ),
+                effect = Effects.Pipeline {
+                    val exiledCards = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(2)))
+                    exile(exiledCards)
+                    run(Effects.GrantMayPlayFromExile(exiledCards, MayPlayExpiry.UntilEndOfNextTurn))
+                },
                 description = "Exile the top two cards of your library. Until the end of your next turn, you may play those cards"
             ),
             // Up to two target creatures each get +2/+1 until end of turn.

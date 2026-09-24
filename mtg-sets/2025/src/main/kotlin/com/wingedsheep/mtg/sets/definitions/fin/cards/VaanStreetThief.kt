@@ -12,9 +12,6 @@ import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CastFromCollectionWithoutPayingCostEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -62,22 +59,15 @@ val VaanStreetThief = card("Vaan, Street Thief") {
             ),
             TriggerBinding.ANY
         )
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1), player = Player.TriggeringPlayer),
-                storeAs = "vaanLooked"
-            ),
-            MoveCollectionEffect(
-                from = "vaanLooked",
-                destination = CardDestination.ToZone(Zone.EXILE, Player.TriggeringPlayer),
-                storeMovedAs = "vaanExiled"
-            ),
-            Effects.May(
-                effect = CastFromCollectionWithoutPayingCostEffect(from = "vaanExiled", payManaCost = true),
+        effect = Effects.Pipeline {
+            val vaanLooked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1), player = Player.TriggeringPlayer))
+            val vaanExiled = moveTracked(vaanLooked, CardDestination.ToZone(Zone.EXILE, Player.TriggeringPlayer))
+            run(Effects.May(
+                effect = Effects.CastFromCollection(from = vaanExiled),
                 descriptionOverride = "Cast the exiled card",
                 otherwise = Effects.CreateTreasure(1)
-            )
-        )
+            ))
+        }
     }
 
     // Whenever you cast a spell you don't own, put a +1/+1 counter on each Scout, Pirate, and Rogue you control.

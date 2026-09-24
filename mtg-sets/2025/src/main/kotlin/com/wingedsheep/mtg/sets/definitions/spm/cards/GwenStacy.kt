@@ -16,11 +16,8 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.YouControlSource
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -84,23 +81,15 @@ private val GwenStacyFront = card("Gwen Stacy") {
     // long as you control this creature.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1)),
-                    storeAs = "gwenExiled",
-                ),
-                MoveCollectionEffect(
-                    from = "gwenExiled",
-                    destination = CardDestination.ToZone(Zone.EXILE),
-                ),
-                Effects.GrantMayPlayFromExile(
-                    from = "gwenExiled",
-                    expiry = MayPlayExpiry.Permanent,
-                    condition = YouControlSource,
-                ),
-            )
-        )
+        effect = Effects.Pipeline {
+            val gwenExiled = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            exile(gwenExiled)
+            run(Effects.GrantMayPlayFromExile(
+                from = gwenExiled,
+                expiry = MayPlayExpiry.Permanent,
+                condition = YouControlSource,
+            ))
+        }
         description = "When Gwen Stacy enters, exile the top card of your library. You may play " +
             "that card for as long as you control this creature."
     }

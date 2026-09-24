@@ -8,9 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -49,21 +46,17 @@ val FoggySwampVisions = card("Foggy Swamp Visions") {
             filter = TargetFilter.CreatureInGraveyard,
             dynamicMaxCount = DynamicAmount.XValue,
         ))
-        effect = Effects.Composite(
-            GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "exiled"),
-            MoveCollectionEffect(
-                from = "exiled",
-                destination = CardDestination.ToZone(Zone.EXILE),
-                storeMovedAs = "exiled",
-            ),
-            ForEachInCollectionEffect(
-                collection = "exiled",
+        effect = Effects.Pipeline {
+            val exiled = gather(CardSource.ChosenTargets)
+            val exiledCards = moveTracked(exiled, CardDestination.ToZone(Zone.EXILE))
+            run(Effects.ForEachInCollection(
+                collection = exiledCards,
                 effect = CreateTokenCopyOfTargetEffect(
                     target = EffectTarget.IterationEntity,
                     sacrificeAtStep = Step.END,
                 ),
-            ),
-        )
+            ))
+        }
     }
 
     metadata {

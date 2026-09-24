@@ -35,12 +35,10 @@ val KishlaTrawlers = card("Kishla Trawlers") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = ReflexiveTriggerEffect(
-            action = Effects.Composite(
-                listOf(
-                    Effects.SelectTarget(Targets.CreatureCardInYourGraveyard, storeAs = "exiledCreature"),
-                    Effects.Exile(EffectTarget.PipelineTarget("exiledCreature"))
-                )
-            ),
+            action = Effects.Pipeline {
+                val exiledCreature = selectTarget(Targets.CreatureCardInYourGraveyard)
+                run(Effects.Exile(exiledCreature.asTarget))
+            },
             optional = true,
             reflexiveEffect = Effects.ReturnToHand(EffectTarget.ContextTarget(0)),
             reflexiveTargetRequirements = listOf(

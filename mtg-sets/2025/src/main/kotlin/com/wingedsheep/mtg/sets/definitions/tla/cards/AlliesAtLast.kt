@@ -8,9 +8,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -54,21 +51,14 @@ val AlliesAtLast = card("Allies at Last") {
             ),
         )
 
-        effect = Effects.Composite(
+        effect = Effects.Pipeline {
             // Gather every chosen target, then keep only the creatures you control (the victim is
             // an opponent's creature, so it drops out).
-            GatherCardsEffect(
-                source = CardSource.ChosenTargets,
-                storeAs = "allTargets",
-            ),
-            FilterCollectionEffect(
-                from = "allTargets",
-                filter = GameObjectFilter.Creature.youControl(),
-                storeMatching = "allies",
-            ),
+            val allTargets = gather(CardSource.ChosenTargets)
+            val allies = filter(allTargets, GameObjectFilter.Creature.youControl())
             // Each chosen creature deals damage equal to its power to the opponent's creature.
-            ForEachInCollectionEffect(
-                collection = "allies",
+            run(Effects.ForEachInCollection(
+                collection = allies,
                 effect = Effects.DealDamage(
                     amount = DynamicAmount.EntityProperty(
                         EffectTarget.IterationEntity,
@@ -77,8 +67,8 @@ val AlliesAtLast = card("Allies at Last") {
                     target = EffectTarget.ContextTarget(0),
                     damageSource = EffectTarget.IterationEntity,
                 ),
-            ),
-        )
+            ))
+        }
     }
 
     metadata {

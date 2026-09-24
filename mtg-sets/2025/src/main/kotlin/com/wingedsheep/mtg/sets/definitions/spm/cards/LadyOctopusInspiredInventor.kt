@@ -10,13 +10,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CollectionFilter
-import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Lady Octopus, Inspired Inventor
@@ -64,26 +58,21 @@ val LadyOctopusInspiredInventor = card("Lady Octopus, Inspired Inventor") {
 
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                CardSource.FromZone(Zone.HAND, filter = GameObjectFilter.Artifact),
-                storeAs = "ladyOctopusCandidates",
-            ),
-            FilterCollectionEffect(
-                from = "ladyOctopusCandidates",
-                filter = GameObjectFilter.Any.manaValueAtMostDynamic(
+        effect = Effects.Pipeline {
+            val ladyOctopusCandidates = gather(CardSource.FromZone(Zone.HAND, filter = GameObjectFilter.Artifact))
+            val ladyOctopusEligible = filter(
+                ladyOctopusCandidates,
+                GameObjectFilter.Any.manaValueAtMostDynamic(
                     DynamicAmounts.countersOnSelf(CounterType.INGENUITY),
-                ),
-                storeMatching = "ladyOctopusEligible",
-            ),
-            SelectFromCollectionEffect(
-                from = "ladyOctopusEligible",
-                selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                storeSelected = "ladyOctopusChosen",
-                selectedLabel = "Cast without paying its mana cost",
-            ),
-            Effects.CastFromCollectionWithoutPayingCost("ladyOctopusChosen"),
-        )
+                )
+            )
+            val ladyOctopusChosen = chooseUpTo(
+                1,
+                from = ladyOctopusEligible,
+                selectedLabel = "Cast without paying its mana cost"
+            )
+            run(Effects.CastFromCollectionWithoutPayingCost(ladyOctopusChosen))
+        }
         description = "You may cast an artifact spell from your hand with mana value less than or " +
             "equal to the number of ingenuity counters on Lady Octopus without paying its mana cost."
     }

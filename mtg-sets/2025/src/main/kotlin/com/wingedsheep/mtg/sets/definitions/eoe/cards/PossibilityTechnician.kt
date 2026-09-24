@@ -10,11 +10,8 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.conditions.Exists
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -44,27 +41,19 @@ val PossibilityTechnician = card("Possibility Technician") {
             ),
             binding = TriggerBinding.ANY
         )
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1)),
-                    storeAs = "exiledCard"
-                ),
-                MoveCollectionEffect(
-                    from = "exiledCard",
-                    destination = CardDestination.ToZone(Zone.EXILE)
-                ),
-                Effects.GrantMayPlayFromExile(
-                    from = "exiledCard",
-                    expiry = MayPlayExpiry.Permanent,
-                    condition = Exists(
-                        player = Player.You,
-                        zone = Zone.BATTLEFIELD,
-                        filter = GameObjectFilter.Creature.withSubtype(Subtype.KAVU)
-                    )
+        effect = Effects.Pipeline {
+            val exiledCard = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(1)))
+            exile(exiledCard)
+            run(Effects.GrantMayPlayFromExile(
+                from = exiledCard,
+                expiry = MayPlayExpiry.Permanent,
+                condition = Exists(
+                    player = Player.You,
+                    zone = Zone.BATTLEFIELD,
+                    filter = GameObjectFilter.Creature.withSubtype(Subtype.KAVU)
                 )
-            )
-        )
+            ))
+        }
     }
 
     warp = "{1}{R}"

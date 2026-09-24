@@ -15,12 +15,7 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
-import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -106,32 +101,18 @@ private val AangAtTheCrossroadsFront = card("Aang, at the Crossroads") {
     // of your library in a random order.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(5)),
-                    storeAs = "looked"
-                ),
-                SelectFromCollectionEffect(
-                    from = "looked",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                    filter = GameObjectFilter.Creature.manaValueAtMost(4),
-                    storeSelected = "chosen",
-                    storeRemainder = "rest",
-                    selectedLabel = "Put onto the battlefield",
-                    remainderLabel = "Put on bottom"
-                ),
-                MoveCollectionEffect(
-                    from = "chosen",
-                    destination = CardDestination.ToZone(Zone.BATTLEFIELD)
-                ),
-                MoveCollectionEffect(
-                    from = "rest",
-                    destination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom),
-                    order = CardOrder.Random
-                )
+        effect = Effects.Pipeline {
+            val looked = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(5)))
+            val (chosen, rest) = chooseUpToSplit(
+                1,
+                from = looked,
+                filter = GameObjectFilter.Creature.manaValueAtMost(4),
+                selectedLabel = "Put onto the battlefield",
+                remainderLabel = "Put on bottom"
             )
-        )
+            move(chosen, CardDestination.ToZone(Zone.BATTLEFIELD))
+            toLibraryBottom(rest, order = CardOrder.Random)
+        }
     }
 
     // When another creature you control leaves the battlefield, transform Aang at the beginning

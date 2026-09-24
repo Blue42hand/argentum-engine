@@ -11,14 +11,9 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Bloomvine Regent // Claim Territory
@@ -70,45 +65,35 @@ val BloomvineRegent = card("Bloomvine Regent") {
             "onto the battlefield tapped and the other into your hand, then shuffle. " +
             "(Also shuffle this card.)"
         spell {
-            effect = Effects.Composite(
-                listOf(
-                    GatherCardsEffect(
-                        source = CardSource.FromZone(
-                            Zone.LIBRARY,
-                            Player.You,
-                            GameObjectFilter.BasicLand.withSubtype(Subtype.FOREST)
-                        ),
-                        storeAs = "searchable",
-                        search = true
+            effect = Effects.Pipeline {
+                val searchable = gather(
+                    CardSource.FromZone(
+                        Zone.LIBRARY,
+                        Player.You,
+                        GameObjectFilter.BasicLand.withSubtype(Subtype.FOREST)
                     ),
-                    SelectFromCollectionEffect(
-                        from = "searchable",
-                        selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(2)),
-                        storeSelected = "found",
-                        prompt = "Search your library for up to two basic Forest cards"
-                    ),
-                    SelectFromCollectionEffect(
-                        from = "found",
-                        selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                        storeSelected = "toBattlefield",
-                        storeRemainder = "toHand",
-                        selectedLabel = "Onto the battlefield tapped",
-                        remainderLabel = "Into your hand",
-                        prompt = "Choose which basic Forest enters the battlefield tapped; the other goes to your hand."
-                    ),
-                    MoveCollectionEffect(
-                        from = "toBattlefield",
-                        destination = CardDestination.ToZone(Zone.BATTLEFIELD, placement = ZonePlacement.Tapped),
-                        revealed = true
-                    ),
-                    MoveCollectionEffect(
-                        from = "toHand",
-                        destination = CardDestination.ToZone(Zone.HAND),
-                        revealed = true
-                    ),
-                    ShuffleLibraryEffect()
+                    search = true
                 )
-            )
+                val found = chooseUpTo(
+                    2,
+                    from = searchable,
+                    prompt = "Search your library for up to two basic Forest cards"
+                )
+                val (toBattlefield, toHandCards) = chooseExactlySplit(
+                    1,
+                    from = found,
+                    selectedLabel = "Onto the battlefield tapped",
+                    remainderLabel = "Into your hand",
+                    prompt = "Choose which basic Forest enters the battlefield tapped; the other goes to your hand."
+                )
+                move(
+                    toBattlefield,
+                    CardDestination.ToZone(Zone.BATTLEFIELD, placement = ZonePlacement.Tapped),
+                    revealed = true
+                )
+                toHand(toHandCards, revealed = true)
+                run(ShuffleLibraryEffect())
+            }
         }
     }
 

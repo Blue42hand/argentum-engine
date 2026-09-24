@@ -8,17 +8,12 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Price of Freedom — {1}{R} Sorcery — Lesson
@@ -49,34 +44,26 @@ val PriceOfFreedom = card("Price of Freedom") {
         effect = Effects.Destroy(permanent)
             .then(
                 Effects.May(
-                    effect = Effects.Composite(
-                        listOf(
-                            GatherCardsEffect(
-                                source = CardSource.FromZone(
-                                    zone = Zone.LIBRARY,
-                                    player = Player.ControllerOf("target"),
-                                    filter = GameObjectFilter.BasicLand,
-                                ),
-                                storeAs = "searchable",
-                                search = true,
+                    effect = Effects.Pipeline {
+                        val searchable = gather(
+                            CardSource.FromZone(
+                                zone = Zone.LIBRARY,
+                                player = Player.ControllerOf("target"),
+                                filter = GameObjectFilter.BasicLand,
                             ),
-                            SelectFromCollectionEffect(
-                                from = "searchable",
-                                selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                                chooser = Chooser.ControllerOfTarget,
-                                storeSelected = "found",
-                            ),
-                            MoveCollectionEffect(
-                                from = "found",
-                                destination = CardDestination.ToZone(
-                                    zone = Zone.BATTLEFIELD,
-                                    player = Player.ControllerOf("target"),
-                                    placement = ZonePlacement.Tapped,
-                                ),
-                            ),
-                            ShuffleLibraryEffect(target = EffectTarget.TargetController),
-                        ),
-                    ),
+                            search = true
+                        )
+                        val found = chooseUpTo(1, from = searchable, chooser = Chooser.ControllerOfTarget)
+                        move(
+                            found,
+                            CardDestination.ToZone(
+                                zone = Zone.BATTLEFIELD,
+                                player = Player.ControllerOf("target"),
+                                placement = ZonePlacement.Tapped,
+                            )
+                        )
+                        run(ShuffleLibraryEffect(target = EffectTarget.TargetController))
+                    },
                     decisionMaker = EffectTarget.TargetController,
                 ),
             )

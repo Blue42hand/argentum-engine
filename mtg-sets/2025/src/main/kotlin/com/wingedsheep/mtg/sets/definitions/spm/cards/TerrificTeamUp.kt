@@ -11,9 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -69,26 +66,19 @@ val TerrificTeamUp = card("Terrific Team-Up") {
             ),
         )
 
-        effect = Effects.Composite(
+        effect = Effects.Pipeline {
             // Gather every chosen target, then keep only the creatures you control (the victim is
             // an opponent's creature, so it drops out).
-            GatherCardsEffect(
-                source = CardSource.ChosenTargets,
-                storeAs = "allTargets",
-            ),
-            FilterCollectionEffect(
-                from = "allTargets",
-                filter = GameObjectFilter.Creature.youControl(),
-                storeMatching = "team",
-            ),
+            val allTargets = gather(CardSource.ChosenTargets)
+            val team = filter(allTargets, GameObjectFilter.Creature.youControl())
             // Each chosen creature gets +1/+0 until end of turn.
-            ForEachInCollectionEffect(
-                collection = "team",
+            run(Effects.ForEachInCollection(
+                collection = team,
                 effect = Effects.ModifyStats(1, 0, EffectTarget.IterationEntity),
-            ),
+            ))
             // Then each deals damage equal to its (boosted) power to the opponent's creature.
-            ForEachInCollectionEffect(
-                collection = "team",
+            run(Effects.ForEachInCollection(
+                collection = team,
                 effect = Effects.DealDamage(
                     amount = DynamicAmount.EntityProperty(
                         EffectTarget.IterationEntity,
@@ -97,8 +87,8 @@ val TerrificTeamUp = card("Terrific Team-Up") {
                     target = EffectTarget.ContextTarget(0),
                     damageSource = EffectTarget.IterationEntity,
                 ),
-            ),
-        )
+            ))
+        }
     }
 
     metadata {

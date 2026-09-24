@@ -58,14 +58,14 @@ val ShikoParagonOfTheWay = card("Shiko, Paragon of the Way") {
                 )
             )
         )
-        effect = Effects.Composite(
-            Effects.Move(exiledCard, Zone.EXILE),
-            Effects.CopyCardIntoCollection(exiledCard, storeAs = "copy"),
-            Effects.May(
-                Effects.CastFromCollectionWithoutPayingCost("copy"),
+        effect = Effects.Pipeline {
+            run(Effects.Move(exiledCard, Zone.EXILE))
+            val copy = copyCard(exiledCard)
+            run(Effects.May(
+                Effects.CastFromCollectionWithoutPayingCost(copy),
                 descriptionOverride = "You may cast the copy without paying its mana cost.",
-            ),
-        )
+            ))
+        }
     }
 
     metadata {

@@ -6,7 +6,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -37,17 +36,14 @@ val GastalBlockbuster = card("Gastal Blockbuster") {
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
         effect = ReflexiveTriggerEffect(
-            action = Effects.Composite(
-                listOf(
-                    SelectTargetEffect(
-                        requirement = TargetObject(
-                            filter = TargetFilter(GameObjectFilter.CreatureOrVehicle.youControl())
-                        ),
-                        storeAs = "toSacrifice"
-                    ),
-                    Effects.SacrificeTarget(EffectTarget.PipelineTarget("toSacrifice"))
+            action = Effects.Pipeline {
+                val toSacrifice = selectTarget(
+                    TargetObject(
+                        filter = TargetFilter(GameObjectFilter.CreatureOrVehicle.youControl())
+                    )
                 )
-            ),
+                run(Effects.SacrificeTarget(toSacrifice.asTarget))
+            },
             optional = true,
             reflexiveEffect = Effects.Destroy(EffectTarget.ContextTarget(0)),
             reflexiveTargetRequirements = listOf(

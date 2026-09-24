@@ -5,13 +5,10 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
 import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
@@ -76,16 +73,10 @@ val TheDeathOfGwenStacy = card("The Death of Gwen Stacy") {
     sagaChapter(3) {
         target("any number of target players", TargetPlayer(unlimited = true))
         effect = ForEachTargetEffect(
-            effects = listOf(
-                GatherCardsEffect(
-                    source = CardSource.FromZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),
-                    storeAs = "gwenTargetGraveyard"
-                ),
-                MoveCollectionEffect(
-                    from = "gwenTargetGraveyard",
-                    destination = CardDestination.ToZone(Zone.EXILE)
-                )
-            )
+            effects = listOf(Effects.Pipeline {
+                val gwenTargetGraveyard = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.ContextPlayer(0)))
+                exile(gwenTargetGraveyard)
+            })
         )
     }
 

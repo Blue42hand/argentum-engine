@@ -12,11 +12,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -107,13 +103,10 @@ private val FireLordSozin = card("Fire Lord Sozin") {
                 ),
                 // Put the chosen cards onto the battlefield under your control (owner stays the
                 // damaged player).
-                reflexiveEffect = Effects.Composite(
-                    GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "sozinReanimated"),
-                    MoveCollectionEffect(
-                        from = "sozinReanimated",
-                        destination = CardDestination.ToZone(Zone.BATTLEFIELD, Player.You)
-                    )
-                ),
+                reflexiveEffect = Effects.Pipeline {
+                    val sozinReanimated = gather(CardSource.ChosenTargets)
+                    move(sozinReanimated, CardDestination.ToZone(Zone.BATTLEFIELD, Player.You))
+                },
                 descriptionOverride = "put any number of target creature cards with total mana " +
                     "value X or less from that player's graveyard onto the battlefield under your control"
             )
@@ -147,40 +140,30 @@ private val TheRiseOfSozinFront = card("The Rise of Sozin") {
     // cards with that name and exile them. Then that player shuffles.
     sagaChapter(2) {
         target("target opponent", TargetOpponent())
-        effect = Effects.Composite(
-            listOf(
-                // Choose a card name.
-                Effects.ChooseCardName(
-                    storeAs = "sozinChosenName",
-                    prompt = "Choose a card name"
+        effect = Effects.Pipeline {
+            // Choose a card name.
+            val sozinChosenName = chooseCardName(prompt = "Choose a card name")
+            // Search the target opponent's graveyard, hand, and library for cards with that name.
+            val sozinMatches = gather(
+                CardSource.FromMultipleZones(
+                    zones = listOf(Zone.GRAVEYARD, Zone.HAND, Zone.LIBRARY),
+                    player = Player.ContextPlayer(0),
+                    filter = GameObjectFilter.Any.namedFromVariable(sozinChosenName)
                 ),
-                // Search the target opponent's graveyard, hand, and library for cards with that name.
-                GatherCardsEffect(
-                    source = CardSource.FromMultipleZones(
-                        zones = listOf(Zone.GRAVEYARD, Zone.HAND, Zone.LIBRARY),
-                        player = Player.ContextPlayer(0),
-                        filter = GameObjectFilter.Any.namedFromVariable("sozinChosenName")
-                    ),
-                    storeAs = "sozinMatches",
-                    search = true
-                ),
-                // Up to four of them.
-                SelectFromCollectionEffect(
-                    from = "sozinMatches",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(4)),
-                    storeSelected = "sozinToExile",
-                    prompt = "Choose up to four cards to exile",
-                    selectedLabel = "Exile"
-                ),
-                // Exile them.
-                MoveCollectionEffect(
-                    from = "sozinToExile",
-                    destination = CardDestination.ToZone(Zone.EXILE, Player.ContextPlayer(0))
-                ),
-                // Then that player shuffles.
-                ShuffleLibraryEffect(target = EffectTarget.ContextTarget(0))
+                search = true
             )
-        )
+            // Up to four of them.
+            val sozinToExile = chooseUpTo(
+                4,
+                from = sozinMatches,
+                prompt = "Choose up to four cards to exile",
+                selectedLabel = "Exile"
+            )
+            // Exile them.
+            exile(sozinToExile, Player.ContextPlayer(0))
+            // Then that player shuffles.
+            run(ShuffleLibraryEffect(target = EffectTarget.ContextTarget(0)))
+        }
     }
 
     // III — Exile this Saga, then return it to the battlefield transformed under your control.

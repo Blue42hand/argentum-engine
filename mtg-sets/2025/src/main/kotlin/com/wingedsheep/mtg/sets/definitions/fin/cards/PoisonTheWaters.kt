@@ -5,21 +5,14 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.RevealHandEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPlayer
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Poison the Waters
@@ -47,30 +40,20 @@ val PoisonTheWaters = card("Poison the Waters") {
             }
             mode("Target player reveals their hand; discard an artifact or creature card") {
                 val t = target("target", TargetPlayer())
-                effect = Effects.Composite(
-                    listOf(
-                        RevealHandEffect(t),
-                        GatherCardsEffect(
-                            source = CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)),
-                            storeAs = "hand"
-                        ),
-                        SelectFromCollectionEffect(
-                            from = "hand",
-                            selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                            chooser = Chooser.Controller,
-                            filter = GameObjectFilter.Artifact or GameObjectFilter.Creature,
-                            storeSelected = "toDiscard",
-                            prompt = "Choose an artifact or creature card to discard",
-                            alwaysPrompt = true,
-                            showAllCards = true
-                        ),
-                        MoveCollectionEffect(
-                            from = "toDiscard",
-                            destination = CardDestination.ToZone(Zone.GRAVEYARD, Player.ContextPlayer(0)),
-                            moveType = MoveType.Discard
-                        )
+                effect = Effects.Pipeline {
+                    run(RevealHandEffect(t))
+                    val hand = gather(CardSource.FromZone(Zone.HAND, Player.ContextPlayer(0)))
+                    val toDiscard = chooseExactly(
+                        1,
+                        from = hand,
+                        chooser = Chooser.Controller,
+                        filter = GameObjectFilter.Artifact or GameObjectFilter.Creature,
+                        prompt = "Choose an artifact or creature card to discard",
+                        alwaysPrompt = true,
+                        showAllCards = true
                     )
-                )
+                    discard(toDiscard, Player.ContextPlayer(0))
+                }
             }
         }
     }

@@ -2,21 +2,14 @@ package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -50,35 +43,22 @@ val Dragonologist = card("Dragonologist") {
 
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.Composite(listOf(
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(count = DynamicAmount.Fixed(6), player = Player.You),
-                storeAs = "looked"
-            ),
-            SelectFromCollectionEffect(
-                from = "looked",
-                selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
+        effect = Effects.Pipeline {
+            val looked = gather(CardSource.TopOfLibrary(count = DynamicAmount.Fixed(6), player = Player.You))
+            val (kept, toBottom) = chooseUpToSplit(
+                1,
+                from = looked,
                 chooser = Chooser.Controller,
                 filter = GameObjectFilter.InstantOrSorcery or
                     GameObjectFilter.Any.withSubtype(Subtype.DRAGON),
-                storeSelected = "kept",
-                storeRemainder = "toBottom",
                 showAllCards = true,
                 prompt = "You may reveal an instant, sorcery, or Dragon card to put into your hand.",
                 selectedLabel = "Put into hand",
                 remainderLabel = "Put on bottom"
-            ),
-            MoveCollectionEffect(
-                from = "kept",
-                destination = CardDestination.ToZone(Zone.HAND),
-                revealed = true
-            ),
-            MoveCollectionEffect(
-                from = "toBottom",
-                destination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Bottom),
-                order = CardOrder.Random
             )
-        ))
+            toHand(kept, revealed = true)
+            toLibraryBottom(toBottom, order = CardOrder.Random)
+        }
         description = "When this creature enters, look at the top six cards of your library. You may reveal " +
             "an instant, sorcery, or Dragon card from among them and put it into your hand. Put the rest on " +
             "the bottom of your library in a random order."

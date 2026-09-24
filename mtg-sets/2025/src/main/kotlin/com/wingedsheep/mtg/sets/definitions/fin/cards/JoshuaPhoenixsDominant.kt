@@ -12,12 +12,7 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.ReturnFace
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -90,16 +85,11 @@ private val PhoenixWardenOfFire = card("Phoenix, Warden of Fire") {
                 totalManaValueAtMost = DynamicAmount.Fixed(6),
             )
         )
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "toBattlefield"),
-                MoveCollectionEffect(
-                    from = "toBattlefield",
-                    destination = CardDestination.ToZone(Zone.BATTLEFIELD, Player.You),
-                ),
-                Effects.ExileAndReturnTransformed(EffectTarget.Self, ReturnFace.FRONT),
-            ),
-        )
+        effect = Effects.Pipeline {
+            val toBattlefield = gather(CardSource.ChosenTargets)
+            move(toBattlefield, CardDestination.ToZone(Zone.BATTLEFIELD, Player.You))
+            run(Effects.ExileAndReturnTransformed(EffectTarget.Self, ReturnFace.FRONT))
+        }
     }
 
     metadata {
@@ -123,26 +113,12 @@ private val JoshuaPhoenixsDominantFront = card("Joshua, Phoenix's Dominant") {
     // When Joshua enters, discard up to two cards, then draw that many cards.
     triggeredAbility {
         trigger = Triggers.EntersBattlefield
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.FromZone(Zone.HAND, Player.You),
-                    storeAs = "hand",
-                ),
-                SelectFromCollectionEffect(
-                    from = "hand",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(2)),
-                    storeSelected = "discarded",
-                    prompt = "Discard up to two cards",
-                ),
-                MoveCollectionEffect(
-                    from = "discarded",
-                    destination = CardDestination.ToZone(Zone.GRAVEYARD, Player.You),
-                    moveType = MoveType.Discard,
-                ),
-                DrawCardsEffect(DynamicAmount.VariableReference("discarded_count")),
-            ),
-        )
+        effect = Effects.Pipeline {
+            val hand = gather(CardSource.FromZone(Zone.HAND, Player.You))
+            val discarded = chooseUpTo(2, from = hand, prompt = "Discard up to two cards")
+            discard(discarded)
+            run(DrawCardsEffect(discarded.count))
+        }
         description = "When Joshua enters, discard up to two cards, then draw that many cards."
     }
 

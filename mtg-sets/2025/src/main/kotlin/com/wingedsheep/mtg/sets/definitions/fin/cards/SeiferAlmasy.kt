@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.events.AttackPredicate
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -69,19 +68,19 @@ val SeiferAlmasy = card("Seifer Almasy") {
             filter = TargetFilter.InstantOrSorceryInYourGraveyard.manaValueAtMost(3),
         ))
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = Effects.Composite(
+        effect = Effects.Pipeline {
             // Exile the targeted card from your graveyard so the free-cast grant keys off it.
-            Effects.Move(target, Zone.EXILE),
-            GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "fireCross"),
+            run(Effects.Move(target, Zone.EXILE))
+            val fireCross = gather(CardSource.ChosenTargets)
             // "You may cast ..." + "if it would be put into your graveyard, exile it instead."
-            Effects.GrantMayPlayFromExile(
-                from = "fireCross",
+            run(Effects.GrantMayPlayFromExile(
+                from = fireCross,
                 expiry = MayPlayExpiry.EndOfTurn,
                 exileAfterResolve = true,
-            ),
+            ))
             // "... without paying its mana cost."
-            Effects.GrantPlayWithoutPayingCost("fireCross"),
-        )
+            run(Effects.GrantPlayWithoutPayingCost(fireCross))
+        }
         description = "Fire Cross — Whenever Seifer Almasy deals combat damage to a player, you may cast " +
             "target instant or sorcery card with mana value 3 or less from your graveyard without paying " +
             "its mana cost. If that spell would be put into your graveyard, exile it instead."

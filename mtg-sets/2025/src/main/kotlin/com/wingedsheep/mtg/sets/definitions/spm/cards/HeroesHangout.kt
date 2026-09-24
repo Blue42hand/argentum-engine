@@ -1,22 +1,15 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -58,29 +51,20 @@ val HeroesHangout = card("Heroes' Hangout") {
     spell {
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
-                effect = Effects.Composite(
-                    listOf(
-                        GatherCardsEffect(
-                            source = CardSource.TopOfLibrary(DynamicAmount.Fixed(2)),
-                            storeAs = "exiledCards",
-                        ),
-                        SelectFromCollectionEffect(
-                            from = "exiledCards",
-                            selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                            storeSelected = "chosen",
-                            showAllCards = true,
-                            prompt = "Choose one of the exiled cards to play.",
-                        ),
-                        MoveCollectionEffect(
-                            from = "exiledCards",
-                            destination = CardDestination.ToZone(Zone.EXILE),
-                        ),
-                        GrantMayPlayFromExileEffect(
-                            from = "chosen",
-                            expiry = MayPlayExpiry.UntilEndOfNextTurn,
-                        ),
+                effect = Effects.Pipeline {
+                    val exiledCards = gather(CardSource.TopOfLibrary(DynamicAmount.Fixed(2)))
+                    val chosen = chooseExactly(
+                        1,
+                        from = exiledCards,
+                        showAllCards = true,
+                        prompt = "Choose one of the exiled cards to play."
                     )
-                ),
+                    exile(exiledCards)
+                    run(Effects.GrantMayPlayFromExile(
+                        from = chosen,
+                        expiry = MayPlayExpiry.UntilEndOfNextTurn,
+                    ))
+                },
                 description = "Date Night — Exile the top two cards of your library. Choose one of them. Until the end of your next turn, you may play that card.",
             ),
             Mode.withTarget(

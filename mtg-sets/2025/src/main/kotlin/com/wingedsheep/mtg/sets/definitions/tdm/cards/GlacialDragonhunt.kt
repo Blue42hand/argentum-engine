@@ -7,19 +7,11 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Glacial Dragonhunt — Tarkir: Dragonstorm #188
@@ -52,44 +44,32 @@ val GlacialDragonhunt = card("Glacial Dragonhunt") {
         "Then exile this spell.)"
 
     spell {
-        effect = Effects.Composite(
-            listOf(
-                Effects.DrawCards(1),
-                GatherCardsEffect(
-                    source = CardSource.FromZone(Zone.HAND, Player.You),
-                    storeAs = "hand"
-                ),
-                SelectFromCollectionEffect(
-                    from = "hand",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                    chooser = Chooser.Controller,
-                    storeSelected = "discarded",
-                    prompt = "You may discard a card"
-                ),
-                MoveCollectionEffect(
-                    from = "discarded",
-                    destination = CardDestination.ToZone(Zone.GRAVEYARD, Player.You),
-                    moveType = MoveType.Discard
-                ),
-                // "When you discard a nonland card this way" is a reflexive triggered ability
-                // (CR 603.12): it exists only when the discarded card is nonland, and its target
-                // creature is chosen as it goes on the stack, not picked during resolution.
-                ConditionalOnCollectionEffect(
-                    collection = "discarded",
-                    filter = GameObjectFilter.Nonland,
-                    ifNotEmpty = ReflexiveTriggerEffect(
-                        action = Effects.Composite(emptyList()),
-                        optional = false,
-                        reflexiveTargetRequirements = listOf(Targets.Creature),
-                        // No `damageSource = Self`: by the time the reflexive ability resolves the
-                        // spell has left the stack, so its source is the ability's recorded source
-                        // (the default), not the new graveyard object.
-                        reflexiveEffect = Effects.DealDamage(3, EffectTarget.ContextTarget(0)),
-                        descriptionOverride = "Glacial Dragonhunt deals 3 damage to target creature"
-                    )
-                )
+        effect = Effects.Pipeline {
+            run(Effects.DrawCards(1))
+            val hand = gather(CardSource.FromZone(Zone.HAND, Player.You))
+            val discarded = chooseUpTo(
+                1,
+                from = hand,
+                chooser = Chooser.Controller,
+                prompt = "You may discard a card"
             )
-        )
+            discard(discarded)
+            // "When you discard a nonland card this way" is a reflexive triggered ability
+            // (CR 603.12): it exists only when the discarded card is nonland, and its target
+            // creature is chosen as it goes on the stack, not picked during resolution.
+            ifNotEmpty(discarded, filter = GameObjectFilter.Nonland) {
+                run(ReflexiveTriggerEffect(
+                    action = Effects.Composite(emptyList()),
+                    optional = false,
+                    reflexiveTargetRequirements = listOf(Targets.Creature),
+                    // No `damageSource = Self`: by the time the reflexive ability resolves the
+                    // spell has left the stack, so its source is the ability's recorded source
+                    // (the default), not the new graveyard object.
+                    reflexiveEffect = Effects.DealDamage(3, EffectTarget.ContextTarget(0)),
+                    descriptionOverride = "Glacial Dragonhunt deals 3 damage to target creature"
+                ))
+            }
+        }
     }
 
     keywordAbility(KeywordAbility.harmonize("{4}{U}{R}"))

@@ -6,8 +6,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.CastFromCollectionWithoutPayingCostEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -50,16 +48,15 @@ val PlanetariumOfWanShiTong = card("Planetarium of Wan Shi Tong") {
     triggeredAbility {
         trigger = Triggers.WheneverYouScryOrSurveil
         effectOncePerTurn = true
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(
+        effect = Effects.Pipeline {
+            val top = gather(
+                CardSource.TopOfLibrary(
                     count = DynamicAmount.Fixed(1),
                     player = Player.You,
-                ),
-                storeAs = "top",
-            ),
-            Effects.May(CastFromCollectionWithoutPayingCostEffect(from = "top")),
-        )
+                )
+            )
+            run(Effects.May(Effects.CastFromCollectionWithoutPayingCost(from = top)))
+        }
     }
 
     metadata {

@@ -1,16 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -31,9 +27,9 @@ val MemorialVault = card("Memorial Vault") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Tap, Costs.SacrificeAnother(GameObjectFilter.Artifact))
-        effect = Effects.Composite(listOf(
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(
+        effect = Effects.Pipeline {
+            val exiledCards = gather(
+                CardSource.TopOfLibrary(
                     DynamicAmount.Add(
                         DynamicAmount.Fixed(1),
                         DynamicAmount.EntityProperty(
@@ -41,15 +37,11 @@ val MemorialVault = card("Memorial Vault") {
                             EntityNumericProperty.ManaValue
                         )
                     )
-                ),
-                storeAs = "exiledCards"
-            ),
-            MoveCollectionEffect(
-                from = "exiledCards",
-                destination = CardDestination.ToZone(Zone.EXILE)
-            ),
-            Effects.GrantMayPlayFromExile("exiledCards", MayPlayExpiry.EndOfTurn)
-        ))
+                )
+            )
+            exile(exiledCards)
+            run(Effects.GrantMayPlayFromExile(exiledCards, MayPlayExpiry.EndOfTurn))
+        }
     }
 
     metadata {

@@ -29,17 +29,19 @@ val Ouroboroid = card("Ouroboroid") {
         trigger = Triggers.BeginCombat
         // Snapshot source power before iteration so counter gains on Ouroboroid don't
         // increase X for the remaining creatures mid-loop.
-        effect = Effects.Composite(
-            Effects.StoreNumber("ouroboroid_power", DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power)),
-            Effects.ForEachInGroup(
+        effect = Effects.Pipeline {
+            val ouroboroidPower = storeNumber(
+                DynamicAmount.EntityProperty(EffectTarget.Self, EntityNumericProperty.Power)
+            )
+            run(Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreaturesYouControl,
                 effect = Effects.AddDynamicCounters(
                     counterType = CounterType.PLUS_ONE_PLUS_ONE,
-                    amount = DynamicAmount.VariableReference("ouroboroid_power"),
+                    amount = ouroboroidPower.amount,
                     target = EffectTarget.IterationEntity
                 )
-            )
-        )
+            ))
+        }
         description = "At the beginning of combat on your turn, put X +1/+1 counters on each creature you control, where X is this creature's power."
     }
 

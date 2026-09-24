@@ -3,6 +3,7 @@ package com.wingedsheep.mtg.sets.definitions.spm.cards
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.namedFromVariable
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
@@ -69,20 +70,20 @@ val TheCloneSaga = card("The Clone Saga") {
     // III — Choose a card name. Whenever a creature with the chosen name deals combat damage to a
     // player this turn, draw a card.
     sagaChapter(3) {
-        effect = Effects.Composite(
-            Effects.ChooseCardName(storeAs = "clonedName"),
-            CreateDelayedTriggerEffect(
+        effect = Effects.Pipeline {
+            val clonedName = chooseCardName()
+            run(CreateDelayedTriggerEffect(
                 trigger = Triggers.dealsDamage(
                     damageType = DamageType.Combat,
                     recipient = Recipient.AnyPlayer,
-                    sourceFilter = GameObjectFilter.Creature.namedFromVariable("clonedName"),
+                    sourceFilter = GameObjectFilter.Creature.namedFromVariable(clonedName),
                     binding = TriggerBinding.ANY,
                 ),
                 effect = Effects.DrawCards(1),
                 fireOnce = false,
                 expiry = DelayedTriggerExpiry.EndOfTurn,
-            ),
-        )
+            ))
+        }
     }
 
     metadata {

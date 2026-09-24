@@ -2,6 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -9,13 +10,8 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
-import com.wingedsheep.sdk.scripting.effects.ForEachInCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Garnet, Princess of Alexandria
@@ -49,41 +45,35 @@ val GarnetPrincessOfAlexandria = card("Garnet, Princess of Alexandria") {
 
     triggeredAbility {
         trigger = Triggers.Attacks
-        effect = Effects.Composite(
-            listOf(
-                // Gather the Sagas you control that still have a lore counter to remove.
-                GatherCardsEffect(
-                    source = CardSource.ControlledPermanents(
-                        player = Player.You,
-                        filter = GameObjectFilter.Enchantment.withSubtype("Saga").withCounter(CounterType.LORE)
-                    ),
-                    storeAs = "garnetSagas"
-                ),
-                // "you may … any number" — the controller chooses 0 or more of them.
-                SelectFromCollectionEffect(
-                    from = "garnetSagas",
-                    selection = SelectionMode.ChooseAnyNumber,
-                    chooser = Chooser.Controller,
-                    storeSelected = "garnetChosen",
-                    storeRemainder = "garnetRest",
-                    prompt = "Choose any number of Sagas to remove a lore counter from each",
-                    selectedLabel = "Remove a lore counter",
-                    remainderLabel = "Leave unchanged",
-                    useTargetingUI = true
-                ),
-                // Remove one lore counter from each chosen Saga.
-                ForEachInCollectionEffect(
-                    collection = "garnetChosen",
-                    effect = Effects.RemoveCounters(CounterType.LORE, 1, EffectTarget.IterationEntity)
-                ),
-                // Put a +1/+1 counter on Garnet for each lore counter removed this way.
-                Effects.AddDynamicCounters(
-                    CounterType.PLUS_ONE_PLUS_ONE,
-                    DynamicAmount.DistinctEntitiesInCollections(listOf("garnetChosen")),
-                    EffectTarget.Self
+        effect = Effects.Pipeline {
+            // Gather the Sagas you control that still have a lore counter to remove.
+            val garnetSagas = gather(
+                CardSource.ControlledPermanents(
+                    player = Player.You,
+                    filter = GameObjectFilter.Enchantment.withSubtype("Saga").withCounter(CounterType.LORE)
                 )
             )
-        )
+            // "you may … any number" — the controller chooses 0 or more of them.
+            val garnetChosen = chooseAnyNumber(
+                from = garnetSagas,
+                chooser = Chooser.Controller,
+                prompt = "Choose any number of Sagas to remove a lore counter from each",
+                selectedLabel = "Remove a lore counter",
+                remainderLabel = "Leave unchanged",
+                useTargetingUI = true
+            )
+            // Remove one lore counter from each chosen Saga.
+            run(Effects.ForEachInCollection(
+                collection = garnetChosen,
+                effect = Effects.RemoveCounters(CounterType.LORE, 1, EffectTarget.IterationEntity)
+            ))
+            // Put a +1/+1 counter on Garnet for each lore counter removed this way.
+            run(Effects.AddDynamicCounters(
+                CounterType.PLUS_ONE_PLUS_ONE,
+                DynamicAmounts.distinctEntitiesIn(garnetChosen),
+                EffectTarget.Self
+            ))
+        }
     }
 
     metadata {

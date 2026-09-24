@@ -13,10 +13,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.SelectionRestriction
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -140,37 +136,30 @@ private val VenomLethalProtector = card("Venom, Lethal Protector") {
         effect = Effects.May(
             Effects.SacrificeTarget(sacrificed) then
                 Effects.DrawCards(x) then
-                Effects.Composite(
-                    listOf(
-                        // Gather every permanent card in hand; the mana-value cap is enforced by
-                        // the selection restriction below rather than a card filter, because a
-                        // card-filter dynamic cap cannot read the sacrificed permanent's LKI
-                        // snapshot (its dynamic-cap evaluation runs in a stripped context), whereas
-                        // a SelectionRestriction resolves its amount against the full effect context.
-                        GatherCardsEffect(
-                            source = CardSource.FromZone(
-                                Zone.HAND,
-                                Player.You,
-                                GameObjectFilter.Permanent
-                            ),
-                            storeAs = "venomHand"
-                        ),
-                        // "you may put a permanent card with mana value X or less" — choose up to one
-                        // whose mana value is at most X (the sacrificed creature's mana value).
-                        SelectFromCollectionEffect(
-                            from = "venomHand",
-                            selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                            restrictions = listOf(SelectionRestriction.TotalManaValueAtMost(maxAmount = x)),
-                            storeSelected = "venomChosen",
-                            prompt = "You may put a permanent card with mana value X or less onto " +
-                                "the battlefield"
-                        ),
-                        MoveCollectionEffect(
-                            from = "venomChosen",
-                            destination = CardDestination.ToZone(Zone.BATTLEFIELD, Player.You)
+                Effects.Pipeline {
+                    // Gather every permanent card in hand; the mana-value cap is enforced by
+                    // the selection restriction below rather than a card filter, because a
+                    // card-filter dynamic cap cannot read the sacrificed permanent's LKI
+                    // snapshot (its dynamic-cap evaluation runs in a stripped context), whereas
+                    // a SelectionRestriction resolves its amount against the full effect context.
+                    val venomHand = gather(
+                        CardSource.FromZone(
+                            Zone.HAND,
+                            Player.You,
+                            GameObjectFilter.Permanent
                         )
                     )
-                )
+                    // "you may put a permanent card with mana value X or less" — choose up to one
+                    // whose mana value is at most X (the sacrificed creature's mana value).
+                    val venomChosen = chooseUpTo(
+                        1,
+                        from = venomHand,
+                        restrictions = listOf(SelectionRestriction.TotalManaValueAtMost(maxAmount = x)),
+                        prompt = "You may put a permanent card with mana value X or less onto " +
+                            "the battlefield"
+                    )
+                    move(venomChosen, CardDestination.ToZone(Zone.BATTLEFIELD, Player.You))
+                }
         )
         description = "Whenever Venom attacks, you may sacrifice another creature. If you do, draw " +
             "X cards, then you may put a permanent card with mana value X or less from your hand " +

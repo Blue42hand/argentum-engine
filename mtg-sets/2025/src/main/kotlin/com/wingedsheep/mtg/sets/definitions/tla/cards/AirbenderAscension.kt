@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -56,14 +55,11 @@ val AirbenderAscension = card("Airbender Ascension") {
         trigger = Triggers.YourEndStep
         effect = Effects.If(
             condition = Conditions.SourceCounterCountAtLeast(CounterType.QUEST, 4),
-            then = Effects.Composite(
-                SelectTargetEffect(
-                    requirement = TargetObject(filter = TargetFilter.CreatureYouControl, optional = true),
-                    storeAs = "flickered"
-                ),
-                Effects.Move(EffectTarget.PipelineTarget("flickered"), Zone.EXILE),
-                Effects.Move(EffectTarget.PipelineTarget("flickered"), Zone.BATTLEFIELD)
-            )
+            then = Effects.Pipeline {
+                val flickered = selectTarget(TargetObject(filter = TargetFilter.CreatureYouControl, optional = true))
+                run(Effects.Move(flickered.asTarget, Zone.EXILE))
+                run(Effects.Move(flickered.asTarget, Zone.BATTLEFIELD))
+            }
         )
         description = "At the beginning of your end step, if this enchantment has four or more quest counters on it, exile up to one target creature you control, then return it to the battlefield under its owner's control."
     }

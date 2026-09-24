@@ -1,20 +1,15 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.LookAudience
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.Recipient
 import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
@@ -89,27 +84,22 @@ val GontiNightMinister = card("Gonti, Night Minister") {
             sourceFilter = GameObjectFilter.Creature,
             binding = TriggerBinding.ANY,
         )
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.TopOfLibrary(
+        effect = Effects.Pipeline {
+            val stolenCard = gather(
+                CardSource.TopOfLibrary(
                     count = DynamicAmount.Fixed(1),
                     player = Player.TriggeringPlayer,
                 ),
-                storeAs = "stolenCard",
-                lookAudience = LookAudience.None,
-            ),
-            MoveCollectionEffect(
-                from = "stolenCard",
-                destination = CardDestination.ToZone(Zone.EXILE, Player.TriggeringPlayer),
-                faceDown = FaceDownMode.HIDDEN,
-            ),
-            GrantMayPlayFromExileEffect(
-                from = "stolenCard",
+                lookAudience = LookAudience.None
+            )
+            exile(stolenCard, Player.TriggeringPlayer, faceDown = FaceDownMode.HIDDEN)
+            run(Effects.GrantMayPlayFromExile(
+                from = stolenCard,
                 expiry = MayPlayExpiry.Permanent,
                 withAnyManaType = true,
                 recipient = EffectTarget.ControllerOfTriggeringEntity,
-            ),
-        )
+            ))
+        }
         description = "Whenever a creature deals combat damage to one of your opponents, its " +
             "controller looks at the top card of that opponent's library and exiles it face " +
             "down. They may play that card for as long as it remains exiled. Mana of any type " +

@@ -7,8 +7,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -40,14 +38,10 @@ val ScoutForSurvivors = card("Scout for Survivors") {
                 totalManaValueAtMost = DynamicAmount.Fixed(3)
             )
         )
-        effect = Effects.Composite(
-            GatherCardsEffect(source = CardSource.ChosenTargets, storeAs = "survivors"),
-            MoveCollectionEffect(
-                from = "survivors",
-                destination = CardDestination.ToZone(Zone.BATTLEFIELD),
-                addCounterType = CounterType.PLUS_ONE_PLUS_ONE
-            )
-        )
+        effect = Effects.Pipeline {
+            val survivors = gather(CardSource.ChosenTargets)
+            move(survivors, CardDestination.ToZone(Zone.BATTLEFIELD), addCounterType = CounterType.PLUS_ONE_PLUS_ONE)
+        }
     }
 
     metadata {

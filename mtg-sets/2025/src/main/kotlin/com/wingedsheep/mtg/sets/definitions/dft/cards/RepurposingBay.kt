@@ -10,11 +10,6 @@ import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
-import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.ShuffleLibraryEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -60,38 +55,25 @@ val RepurposingBay = card("Repurposing Bay") {
             Costs.SacrificeAnother(GameObjectFilter.Artifact)
         )
         timing = TimingRule.SorcerySpeed
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.FromZone(Zone.LIBRARY, Player.You, GameObjectFilter.Artifact),
-                    storeAs = "libraryArtifacts"
-                ),
-                FilterCollectionEffect(
-                    from = "libraryArtifacts",
-                    filter = GameObjectFilter.Any.manaValueEqualsDynamic(
-                        DynamicAmount.Add(
-                            DynamicAmount.EntityProperty(
-                                EffectTarget.SacrificedAsCost(0),
-                                EntityNumericProperty.ManaValue
-                            ),
-                            DynamicAmount.Fixed(1)
-                        )
-                    ),
-                    storeMatching = "candidates"
-                ),
-                SelectFromCollectionEffect(
-                    from = "candidates",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                    storeSelected = "found"
-                ),
-                MoveCollectionEffect(
-                    from = "found",
-                    destination = CardDestination.ToZone(Zone.BATTLEFIELD)
-                ),
-                ShuffleLibraryEffect(),
-                EmitLibrarySearchedEventEffect
+        effect = Effects.Pipeline {
+            val libraryArtifacts = gather(CardSource.FromZone(Zone.LIBRARY, Player.You, GameObjectFilter.Artifact))
+            val candidates = filter(
+                libraryArtifacts,
+                GameObjectFilter.Any.manaValueEqualsDynamic(
+                    DynamicAmount.Add(
+                        DynamicAmount.EntityProperty(
+                            EffectTarget.SacrificedAsCost(0),
+                            EntityNumericProperty.ManaValue
+                        ),
+                        DynamicAmount.Fixed(1)
+                    )
+                )
             )
-        )
+            val found = chooseUpTo(1, from = candidates)
+            move(found, CardDestination.ToZone(Zone.BATTLEFIELD))
+            run(ShuffleLibraryEffect())
+            run(EmitLibrarySearchedEventEffect)
+        }
         description = "{2}, {T}, Sacrifice another artifact: Search your library for an artifact " +
             "card with mana value equal to 1 plus the sacrificed artifact's mana value, put that " +
             "card onto the battlefield, then shuffle."

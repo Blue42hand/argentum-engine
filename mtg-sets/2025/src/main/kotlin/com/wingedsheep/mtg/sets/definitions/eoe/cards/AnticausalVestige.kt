@@ -8,11 +8,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
-import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -37,30 +32,22 @@ val AnticausalVestige = card("Anticausal Vestige") {
 
     triggeredAbility {
         trigger = Triggers.LeavesBattlefield
-        effect = Effects.Composite(listOf(
-            DrawCardsEffect(1),
-            GatherCardsEffect(
-                source = CardSource.FromZone(Zone.HAND, Player.You, GameObjectFilter.Permanent),
-                storeAs = "hand_permanents"
-            ),
-            FilterCollectionEffect(
-                from = "hand_permanents",
-                filter = GameObjectFilter.Any.manaValueAtMostDynamic(
+        effect = Effects.Pipeline {
+            run(DrawCardsEffect(1))
+            val handPermanents = gather(CardSource.FromZone(Zone.HAND, Player.You, GameObjectFilter.Permanent))
+            val eligiblePermanents = filter(
+                handPermanents,
+                GameObjectFilter.Any.manaValueAtMostDynamic(
                     DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Land)
-                ),
-                storeMatching = "eligible_permanents"
-            ),
-            SelectFromCollectionEffect(
-                from = "eligible_permanents",
-                selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                storeSelected = "chosen_permanent",
-                prompt = "Choose a permanent card to put onto the battlefield (optional)"
-            ),
-            MoveCollectionEffect(
-                from = "chosen_permanent",
-                destination = CardDestination.ToZone(Zone.BATTLEFIELD, Player.You, ZonePlacement.Tapped)
+                )
             )
-        ))
+            val chosenPermanent = chooseUpTo(
+                1,
+                from = eligiblePermanents,
+                prompt = "Choose a permanent card to put onto the battlefield (optional)"
+            )
+            move(chosenPermanent, CardDestination.ToZone(Zone.BATTLEFIELD, Player.You, ZonePlacement.Tapped))
+        }
         description = "When this creature leaves the battlefield, draw a card, then you may put a permanent card with mana value less than or equal to the number of lands you control from your hand onto the battlefield tapped."
     }
 

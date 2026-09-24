@@ -9,11 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -58,57 +54,40 @@ val ChocoSeekerOfParadise = card("Choco, Seeker of Paradise") {
     // Whenever one or more Birds you control attack, look at that many cards...
     triggeredAbility {
         trigger = Triggers.YouAttackWithFilter(GameObjectFilter.Creature.withSubtype(Subtype.BIRD))
-        effect = Effects.Composite(
-            listOf(
-                // Look at that many cards from the top of your library.
-                GatherCardsEffect(
-                    source = CardSource.TopOfLibrary(
-                        count = DynamicAmount.AggregateBattlefield(
-                            Player.You,
-                            GameObjectFilter.Creature.withSubtype(Subtype.BIRD).attacking()
-                        ),
-                        player = Player.You
+        effect = Effects.Pipeline {
+            // Look at that many cards from the top of your library.
+            val looked = gather(
+                CardSource.TopOfLibrary(
+                    count = DynamicAmount.AggregateBattlefield(
+                        Player.You,
+                        GameObjectFilter.Creature.withSubtype(Subtype.BIRD).attacking()
                     ),
-                    storeAs = "looked"
-                ),
-                // You may put one of them into your hand.
-                SelectFromCollectionEffect(
-                    from = "looked",
-                    selection = SelectionMode.ChooseUpTo(DynamicAmount.Fixed(1)),
-                    storeSelected = "toHand",
-                    storeRemainder = "remaining",
-                    showAllCards = true,
-                    prompt = "You may put one of them into your hand",
-                    selectedLabel = "Put into your hand",
-                    remainderLabel = "Keep among them"
-                ),
-                MoveCollectionEffect(
-                    from = "toHand",
-                    destination = CardDestination.ToZone(Zone.HAND, Player.You)
-                ),
-                // Then put any number of land cards from among them onto the battlefield tapped...
-                SelectFromCollectionEffect(
-                    from = "remaining",
-                    selection = SelectionMode.ChooseAnyNumber,
-                    filter = GameObjectFilter.Land,
-                    showAllCards = true,
-                    storeSelected = "toBattlefield",
-                    storeRemainder = "toGraveyard",
-                    prompt = "Put any number of land cards onto the battlefield tapped",
-                    selectedLabel = "Onto the battlefield tapped",
-                    remainderLabel = "Into your graveyard"
-                ),
-                MoveCollectionEffect(
-                    from = "toBattlefield",
-                    destination = CardDestination.ToZone(Zone.BATTLEFIELD, Player.You, ZonePlacement.Tapped)
-                ),
-                // ...and the rest into your graveyard.
-                MoveCollectionEffect(
-                    from = "toGraveyard",
-                    destination = CardDestination.ToZone(Zone.GRAVEYARD, Player.You)
+                    player = Player.You
                 )
             )
-        )
+            // You may put one of them into your hand.
+            val (toHandCards, remaining) = chooseUpToSplit(
+                1,
+                from = looked,
+                showAllCards = true,
+                prompt = "You may put one of them into your hand",
+                selectedLabel = "Put into your hand",
+                remainderLabel = "Keep among them"
+            )
+            toHand(toHandCards)
+            // Then put any number of land cards from among them onto the battlefield tapped...
+            val (toBattlefield, toGraveyardCards) = chooseAnyNumberSplit(
+                from = remaining,
+                filter = GameObjectFilter.Land,
+                showAllCards = true,
+                prompt = "Put any number of land cards onto the battlefield tapped",
+                selectedLabel = "Onto the battlefield tapped",
+                remainderLabel = "Into your graveyard"
+            )
+            move(toBattlefield, CardDestination.ToZone(Zone.BATTLEFIELD, Player.You, ZonePlacement.Tapped))
+            // ...and the rest into your graveyard.
+            toGraveyard(toGraveyardCards)
+        }
     }
 
     // Landfall — Whenever a land you control enters, Choco gets +1/+0 until end of turn.

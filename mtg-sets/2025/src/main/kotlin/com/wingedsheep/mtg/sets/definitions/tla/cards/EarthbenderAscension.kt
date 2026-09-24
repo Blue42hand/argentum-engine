@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
-import com.wingedsheep.sdk.scripting.effects.SelectTargetEffect
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -74,22 +73,19 @@ val EarthbenderAscension = card("Earthbender Ascension") {
             Effects.AddCounters(CounterType.QUEST, 1, EffectTarget.Self),
             Effects.If(
                 condition = Conditions.SourceCounterCountAtLeast(CounterType.QUEST, 4),
-                then = Effects.Composite(
-                    SelectTargetEffect(
-                        requirement = TargetObject(filter = TargetFilter.CreatureYouControl),
-                        storeAs = "boostedCreature"
-                    ),
-                    Effects.AddCounters(
+                then = Effects.Pipeline {
+                    val boostedCreature = selectTarget(TargetObject(filter = TargetFilter.CreatureYouControl))
+                    run(Effects.AddCounters(
                         CounterType.PLUS_ONE_PLUS_ONE,
                         1,
-                        EffectTarget.PipelineTarget("boostedCreature")
-                    ),
-                    Effects.GrantKeyword(
+                        boostedCreature.asTarget
+                    ))
+                    run(Effects.GrantKeyword(
                         Keyword.TRAMPLE,
-                        EffectTarget.PipelineTarget("boostedCreature"),
+                        boostedCreature.asTarget,
                         Duration.EndOfTurn
-                    )
-                )
+                    ))
+                }
             )
         )
         description = "Landfall — Whenever a land you control enters, put a quest counter on this enchantment. When you do, if it has four or more quest counters on it, put a +1/+1 counter on target creature you control. It gains trample until end of turn."

@@ -43,24 +43,21 @@ val MultiversalPassage = card("Multiversal Passage") {
 
     replacementEffect(
         OnEnterRunEffect(
-            Effects.Composite(
+            Effects.Pipeline {
                 // Choose a basic land type; this land becomes it permanently.
-                Effects.ChooseOption(
-                    optionType = OptionType.BASIC_LAND_TYPE,
-                    storeAs = "chosenLandType",
-                ),
-                Effects.SetLandType(
+                val chosenLandType = chooseOption(OptionType.BASIC_LAND_TYPE)
+                run(Effects.SetLandType(
                     target = EffectTarget.Self,
                     duration = Duration.Permanent,
-                    fromChosenValueKey = "chosenLandType",
-                ),
+                    fromChosen = chosenLandType,
+                ))
                 // Then you may pay 2 life. If you don't, it enters tapped.
-                Effects.MayPay(
+                run(Effects.MayPay(
                     cost = PayLifeEffect(2),
                     then = Effects.Composite(),
                     otherwise = Effects.Tap(EffectTarget.Self),
-                ),
-            )
+                ))
+            }
         )
     )
 

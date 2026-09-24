@@ -8,14 +8,7 @@ import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.effects.CardDestination
-import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
-import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -50,25 +43,12 @@ val StillnessInMotion = card("Stillness in Motion") {
                     ComparisonOperator.EQ,
                     DynamicAmount.Fixed(0)
                 ),
-                then = Effects.Composite(
-                    listOf(
-                        Effects.Exile(EffectTarget.Self),
-                        GatherCardsEffect(
-                            source = CardSource.FromZone(Zone.GRAVEYARD, Player.You),
-                            storeAs = "graveyardCards"
-                        ),
-                        SelectFromCollectionEffect(
-                            from = "graveyardCards",
-                            selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(5)),
-                            storeSelected = "toTop"
-                        ),
-                        MoveCollectionEffect(
-                            from = "toTop",
-                            destination = CardDestination.ToZone(Zone.LIBRARY, placement = ZonePlacement.Top),
-                            order = CardOrder.ControllerChooses
-                        )
-                    )
-                )
+                then = Effects.Pipeline {
+                    run(Effects.Exile(EffectTarget.Self))
+                    val graveyardCards = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.You))
+                    val toTop = chooseExactly(5, from = graveyardCards)
+                    toLibraryTop(toTop)
+                }
             )
         )
         description = "At the beginning of your upkeep, mill three cards. Then if your library has " +

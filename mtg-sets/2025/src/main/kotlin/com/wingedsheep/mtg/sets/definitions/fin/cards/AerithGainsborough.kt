@@ -7,9 +7,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.AddCountersToCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -54,19 +52,18 @@ val AerithGainsborough = card("Aerith Gainsborough") {
     // where X is the number of +1/+1 counters Aerith had as it last existed on the battlefield.
     triggeredAbility {
         trigger = Triggers.Dies
-        effect = Effects.Composite(
-            GatherCardsEffect(
-                source = CardSource.BattlefieldMatching(
+        effect = Effects.Pipeline {
+            val legendaryCreatures = gather(
+                CardSource.BattlefieldMatching(
                     filter = GameObjectFilter.Creature.youControl().legendary()
-                ),
-                storeAs = "legendaryCreatures"
-            ),
-            AddCountersToCollectionEffect(
-                collectionName = "legendaryCreatures",
+                )
+            )
+            run(Effects.AddCountersToCollection(
+                collection = legendaryCreatures,
                 counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = DynamicAmount.ContextProperty(ContextPropertyKey.LAST_KNOWN_PLUS_ONE_COUNTER_COUNT)
-            )
-        )
+            ))
+        }
     }
 
     metadata {

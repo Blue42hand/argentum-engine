@@ -9,11 +9,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
-import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
-import com.wingedsheep.sdk.scripting.effects.SelectionMode
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
@@ -54,40 +49,28 @@ val SidisiRegentOfTheMire = card("Sidisi, Regent of the Mire") {
         // {T}, Sacrifice a creature other than Sidisi. X is the sacrificed creature's mana value.
         cost = Costs.Composite(Costs.Tap, Costs.SacrificeAnother(Filters.Creature))
         timing = TimingRule.SorcerySpeed
-        effect = Effects.Composite(
-            listOf(
-                GatherCardsEffect(
-                    source = CardSource.FromZone(Zone.GRAVEYARD, Player.You, GameObjectFilter.Creature),
-                    storeAs = "graveyardCreatures"
-                ),
-                // Keep creature cards whose mana value is the sacrificed creature's MV (X) + 1.
-                FilterCollectionEffect(
-                    from = "graveyardCreatures",
-                    filter = GameObjectFilter.Any.manaValueEqualsDynamic(
-                        DynamicAmount.Add(
-                            DynamicAmount.EntityProperty(
-                                EffectTarget.SacrificedAsCost(0),
-                                EntityNumericProperty.ManaValue
-                            ),
-                            DynamicAmount.Fixed(1)
-                        )
-                    ),
-                    storeMatching = "returnable"
-                ),
-                // alwaysPrompt so the controller sees and confirms the returned card even
-                // when only one creature qualifies (zero candidates still resolves silently).
-                SelectFromCollectionEffect(
-                    from = "returnable",
-                    selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(1)),
-                    storeSelected = "chosen",
-                    alwaysPrompt = true
-                ),
-                MoveCollectionEffect(
-                    from = "chosen",
-                    destination = CardDestination.ToZone(Zone.BATTLEFIELD)
+        effect = Effects.Pipeline {
+            val graveyardCreatures = gather(
+                CardSource.FromZone(Zone.GRAVEYARD, Player.You, GameObjectFilter.Creature)
+            )
+            // Keep creature cards whose mana value is the sacrificed creature's MV (X) + 1.
+            val returnable = filter(
+                graveyardCreatures,
+                GameObjectFilter.Any.manaValueEqualsDynamic(
+                    DynamicAmount.Add(
+                        DynamicAmount.EntityProperty(
+                            EffectTarget.SacrificedAsCost(0),
+                            EntityNumericProperty.ManaValue
+                        ),
+                        DynamicAmount.Fixed(1)
+                    )
                 )
             )
-        )
+            // alwaysPrompt so the controller sees and confirms the returned card even
+            // when only one creature qualifies (zero candidates still resolves silently).
+            val chosen = chooseExactly(1, from = returnable, alwaysPrompt = true)
+            move(chosen, CardDestination.ToZone(Zone.BATTLEFIELD))
+        }
         description = "{T}, Sacrifice a creature you control with mana value X other than Sidisi: " +
             "Return target creature card with mana value X plus 1 from your graveyard to the battlefield. " +
             "Activate only as a sorcery."
