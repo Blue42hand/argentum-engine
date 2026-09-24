@@ -1411,7 +1411,13 @@ data class EachPlayerChoosesCreatureTypeEffect(
 @Serializable
 data class SelectTargetEffect(
     val requirement: TargetRequirement,
-    val storeAs: String = "pipelineTarget"
+    val storeAs: String = "pipelineTarget",
+    /**
+     * `true` for a plain *choice* that isn't targeting at all ("choose a player" — Spectral
+     * Searchlight): hexproof and shroud don't limit it, since only targeting is restricted by them
+     * (CR 702.11b / 702.18a). The requirement's other filters still apply.
+     */
+    val nonTargeting: Boolean = false
 ) : Effect {
     override val description: String = "Choose ${requirement.description}"
 

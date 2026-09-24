@@ -2438,7 +2438,7 @@ object Effects {
         val chosen = "chosenManaRecipient"
         return CompositeEffect(
             listOf(
-                SelectTargetEffect(requirement = TargetPlayer(descriptionOverride = "a player"), storeAs = chosen),
+                SelectTargetEffect(requirement = TargetPlayer(descriptionOverride = "a player"), storeAs = chosen, nonTargeting = true),
                 AddManaOfChoiceEffect(
                     ManaColorSet.AnyColor, DynamicAmount.Fixed(amount),
                     recipient = EffectTarget.PipelineTarget(chosen),

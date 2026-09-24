@@ -13553,7 +13553,8 @@
                                 "type": "TargetPlayer",
                                 "descriptionOverride": "a player"
                             },
-                            "storeAs": "chosenManaRecipient"
+                            "storeAs": "chosenManaRecipient",
+                            "nonTargeting": true
                         },
                         {
                             "type": "AddManaOfChoice",

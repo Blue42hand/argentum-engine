@@ -89,6 +89,25 @@ class SpectralSearchlightScenarioTest : ScenarioTestBase() {
             game.getPendingDecision() shouldBe null
         }
 
+        test("choosing isn't targeting: a hexproof opponent and a shrouded you can both be chosen") {
+            val game = board()
+            game.state = game.state
+                .updateEntity(game.player2Id) {
+                    it.with(com.wingedsheep.engine.state.components.player.PlayerHexproofComponent())
+                }
+                .updateEntity(game.player1Id) {
+                    it.with(com.wingedsheep.engine.state.components.player.PlayerShroudComponent())
+                }
+            game.activate().error shouldBe null
+            // choosePlayer asserts both players are offered.
+            game.choosePlayer(game.player2Id)
+
+            val colorDecision = game.getPendingDecision().shouldBeInstanceOf<ChooseColorDecision>()
+            colorDecision.playerId shouldBe game.player2Id
+            game.submitDecision(ColorChosenResponse(colorDecision.id, Color.RED)).error shouldBe null
+            game.pool(game.player2Id).red shouldBe 1
+        }
+
         test("choosing yourself lets you pick the color") {
             val game = board()
             game.activate().error shouldBe null
