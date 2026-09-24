@@ -437,6 +437,25 @@ data class HijackNextTurnEffect(
 }
 
 /**
+ * "You choose which creatures attack this turn. You choose which creatures block this turn and how
+ * those creatures block." (Master Warcraft.)
+ *
+ * For the rest of the turn the ability's controller makes every attack declaration and every block
+ * declaration, for every player, in every combat phase. Only the *declarations* move — unlike
+ * [HijackNextTurnEffect] (Mindslaver), no other decision, no priority and no hidden information
+ * changes hands. The chosen attackers and blockers must still be legal under the normal rules for
+ * the players who control them (ruling), and they stay those players' creatures.
+ *
+ * If two such effects apply in one turn, the one created last wins.
+ */
+@SerialName("ControlCombatDeclarationsThisTurn")
+@Serializable
+data object ControlCombatDeclarationsThisTurnEffect : Effect {
+    override val description: String =
+        "You choose which creatures attack this turn. You choose which creatures block this turn and how those creatures block"
+}
+
+/**
  * The future window during which a [HijackNextTurnEffect] hands input authority for the
  * affected player to the ability's controller.
  *

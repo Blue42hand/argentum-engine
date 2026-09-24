@@ -2076,6 +2076,14 @@ object Conditions {
         com.wingedsheep.sdk.scripting.conditions.IsFirstCombatPhaseOfTurn
 
     /**
+     * "Before attackers are declared" this turn — before the declare attackers step of the turn's
+     * first combat phase. Master Warcraft's "Cast this spell only before attackers are declared" is
+     * `castOnlyIf(Conditions.BeforeAttackersDeclared)` in its `spell { }` block.
+     */
+    val BeforeAttackersDeclared: ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.BeforeAttackersDeclaredThisTurn
+
+    /**
      * If it's your turn.
      */
     val IsYourTurn: ConditionInterface =

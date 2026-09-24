@@ -82,7 +82,7 @@
 - [x] Mnemonic Nexus
 - [x] Muddle the Mixture
 - [x] Peel from Reality
-- [ ] Quickchange
+- [x] Quickchange
 - [x] Remand
 - [x] Snapping Drake
 - [x] Spawnbroker
@@ -226,7 +226,7 @@
 - [x] Boros Swiftblade
 - [x] Brightflame
 - [x] Centaur Safeguard
-- [ ] Chorus of the Conclave
+- [x] Chorus of the Conclave
 - [x] Circu, Dimir Lobotomist
 - [x] Clutch of the Undercity
 - [x] Congregation at Dawn
@@ -251,7 +251,7 @@
 - [x] Lightning Helix
 - [x] Loxodon Hierarch
 - [x] Lurking Informant
-- [ ] Master Warcraft
+- [x] Master Warcraft
 - [x] Mindleech Mass
 - [x] Moroii
 - [x] Perplex
@@ -301,7 +301,7 @@
 - [x] Peregrine Mask
 - [x] Plague Boiler
 - [x] Selesnya Signet
-- [ ] Spectral Searchlight
+- [x] Spectral Searchlight
 - [x] Sunforger
 - [x] Terrarion
 - [x] Voyager Staff

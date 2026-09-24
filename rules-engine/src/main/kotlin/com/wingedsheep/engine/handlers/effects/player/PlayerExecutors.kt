@@ -72,6 +72,7 @@ class PlayerExecutors(
         GrantEvasionKeywordExecutor(),
         GrantPlayerProtectionExecutor(),
         HijackNextTurnExecutor(),
+        ControlCombatDeclarationsExecutor(),
         LockLifeGainExecutor(),
         openLifeBidExecutor,
         LoseGameExecutor(),

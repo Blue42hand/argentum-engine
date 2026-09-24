@@ -250,7 +250,6 @@ These are source-backed leads, not claims that every card needs a new executor.
 | Cards | Required investigation or capability |
 |---|---|
 | Mausoleum Turnkey | Opponent-chosen targets on triggers: TriggerProcessor currently substitutes the controller and CardLinter rejects the unsupported shape. |
-| Quickchange | Choice of any nonempty subset of colors; the current color decision is singular. |
 | Dream Leash | Casting-only tapped target restriction, independent from resolution legality. |
 | Belltower Sphinx | Retain damage-source controller information for its self-damaged trigger. |
 | Auratouched Mage, Flickerform | Legal attachment search, owner-controlled Aura return, and source-left fallback. |
@@ -259,10 +258,7 @@ These are source-backed leads, not claims that every card needs a new executor.
 | Blood Funnel | Optional creature sacrifice and counter-on-nonpayment, composed with existing reduction and counter effects. |
 | Crown of Convergence | Continuously compare creature colors with the current top library card. |
 | Circu, Dimir Lobotomist | Name matching over the whole linked exile pile for casting restrictions. |
-| Spectral Searchlight | Non-targeting player choice followed by that player's color choice, preserving mana-ability resolution. |
 | Sunforger, Leashling | Unattach-equipment and hand-to-library costs, paid before resolution. |
 | Brightflame | Aggregate actual damage dealt after prevention/replacement before life gain. |
-| Master Warcraft | Attack/block declaration choice ownership across engine, server, and client. |
 | Grifter’s Blade | Enter attached as a replacement, rather than an entry trigger. |
-| Chorus of the Conclave | Optional arbitrary extra mana for creature spells, carried into entry counters. |
 | Mindleech Mass | Existing hand selection and free-cast pipeline; prove timing and continuation behavior. |

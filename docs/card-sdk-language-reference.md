@@ -1713,7 +1713,8 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   **spell on the stack** or a permanent — the color projection reads the recolored entry in both
   zones, so a recolored spell's new color drives color-matching checks (e.g. protection) during
   resolution. Compose as `ChooseColorThen(then = ChangeColorToChosen(target))` for "target ...
-  becomes the color of your choice" (Blind Seer).
+  becomes the color of your choice" (Blind Seer). Under `ChooseColorsThen` it takes the whole chosen
+  set (`EffectContext.chosenColors`) — "the color **or colors** of your choice" (Quickchange).
 - `ChangeWordInText(target, duration)` — Layer-3 text change: the player picks one **color word**
   or **basic land type** on the target and a replacement of the same category, recorded as a
   `TextReplacement` on the target. A basic-land-type swap flows through the projected type line, so
@@ -1743,7 +1744,8 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   emptying (CR 500.5, `CleanupPhaseManager.emptyManaPools` → `ManaPoolComponent.emptyAtBoundary(...)`)
   the kept colours survive while everything else empties, until the marker clears at end-of-turn
   cleanup. The Last Agni Kai (`RetainUnspentMana(Color.RED)`).
-- `AddManaOfChoice(colorSet, amount?, restriction?, riders?, recipient?)` — **unified primitive.** Add N mana of one color the controller picks from a resolved [ManaColorSet](#manacolorset). All "any-color from a constrained pool" cards (any color, commander identity, among permanents, lands could produce, source-chosen color) are expressed as this effect plus a different `ManaColorSet`. `riders` is a `Set<ManaSpellRider>` consumed when the mana pays for a spell (e.g. Path of Ancestry tags its mana with `ScryOnSharedTypeWithCommander`); when riders are set without a `restriction`, the engine stores the entries under `ManaRestriction.AnySpend` to preserve the rider through the pool. `recipient` is an `EffectTarget` naming **whose pool** the mana lands in — it defaults to `EffectTarget.Controller` (the only shape a mana ability can have, CR 605.1a) and takes a chosen target for "**target player** adds …" (Radiant Lotus). Only the pool moves: the *colour* is still chosen by the ability's controller, because "Choose a color" names no other chooser. An ability with a non-default `recipient` targets, so by definition it isn't a mana ability — it uses the stack, can be responded to, and the mana arrives in the recipient's pool at resolution (and empties at end of step like any other mana, CR 500.4).
+- `AddManaOfChoice(colorSet, amount?, restriction?, riders?, recipient?, colorChosenByRecipient?)` — **unified primitive.** Add N mana of one color the controller picks from a resolved [ManaColorSet](#manacolorset). All "any-color from a constrained pool" cards (any color, commander identity, among permanents, lands could produce, source-chosen color) are expressed as this effect plus a different `ManaColorSet`. `riders` is a `Set<ManaSpellRider>` consumed when the mana pays for a spell (e.g. Path of Ancestry tags its mana with `ScryOnSharedTypeWithCommander`); when riders are set without a `restriction`, the engine stores the entries under `ManaRestriction.AnySpend` to preserve the rider through the pool. `recipient` is an `EffectTarget` naming **whose pool** the mana lands in — it defaults to `EffectTarget.Controller` (the only shape a mana ability can have, CR 605.1a) and takes a chosen target for "**target player** adds …" (Radiant Lotus). Only the pool moves: the *colour* is still chosen by the ability's controller, because "Choose a color" names no other chooser. An ability whose `recipient` is a *target* isn't a mana ability — it uses the stack, can be responded to, and the mana arrives in the recipient's pool at resolution (and empties at end of step like any other mana, CR 500.4). A recipient chosen **without targeting** (an `EffectTarget.PipelineTarget` filled by a preceding `SelectTarget`) keeps a `{T}:` ability a mana ability. `colorChosenByRecipient = true` hands the colour choice to the recipient too ("that player adds one mana of any color **they** choose"): the colour decision goes to that player at resolution, an activation-time `manaColorChoice` is discarded (`ManaColorChoiceTiming`), the legal action doesn't ask the activator for a colour, and auto-pay never taps such a source (who gets the mana is a real choice).
+- `ChoosePlayerThenTheyAddManaOfAnyColor(amount = 1)` — "Choose a player. That player adds one mana of any color they choose." (Spectral Searchlight): `SelectTarget(TargetPlayer("a player"), nonTargeting = true)` + `AddManaOfChoice(AnyColor, recipient = PipelineTarget(chosen), colorChosenByRecipient = true)`. Non-targeting, so usable as a `manaAbility`. Hexproof and shroud don't limit the choice.
 - `AddAnyColorMana(amount?, restriction?)` — sugar for `AddManaOfChoice(ManaColorSet.AnyColor, amount)`. "Add N mana of any **one** color" (Gilded Lotus): one chosen color, N of it. For "any **combination** of colors" use `AddManaInAnyCombination`.
 - `AddManaOfChosenColor(amount?)` — sugar for `AddManaOfChoice(ManaColorSet.SourceChosenColor, amount)`.
 - `AddManaOfColorAmong(filter)` — sugar for `AddManaOfChoice(ManaColorSet.AmongPermanents(filter))`.
@@ -2280,6 +2282,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   one is skipped. Per CR 614.10 a step already under way can no longer be skipped. Used by **Fatespinner**, whose upkeep trigger routes a three-option `ChooseAction` to
   `Player.TriggeringPlayer` and applies the chosen part to that same player.
 - `Effects.HijackNextTurn(target)` / `Effects.HijackNextCombatPhase(target)` (`HijackNextTurnEffect(target, scope)`, `scope` = `HijackScope.NextTurn` | `NextCombatPhase`) — Mindslaver-style: you make all decisions for the target player during their next whole turn, or during their next combat phase only. Moves *input authority* only (resource/permanent/spell ownership stays with the affected player); reuses `PlayerTurnHijackedComponent` + `GameState.actorFor`, so hand visibility and legal-action routing follow automatically. A scheduled hijack waits through skipped turns/combat phases and engages on the next one the player actually takes. Turn scope engages at turn start and clears at end-of-turn cleanup (**The Dominion Bracelet**); combat scope engages at beginning of combat and clears when that one combat phase ends — extra combat phases are not controlled (**Secret of Bloodbending**, whose optional waterbend upgrades combat→turn via `ConditionalEffect(Conditions.WaterbendWasPaid, HijackNextTurn, elseEffect = HijackNextCombatPhase)`).
+- `Effects.ChooseAttackersAndBlockersThisTurn()` (`ControlCombatDeclarationsThisTurnEffect`) — "You choose which creatures attack this turn. You choose which creatures block this turn and how those creatures block." (**Master Warcraft**). Moves only the attack and block *declarations*, for every player and every combat this turn, to the controller — never priority, other decisions, or hidden zones (it deliberately does **not** go through `actorFor`, which carries hand visibility). Marks the controller with a turn-stamped `CombatDeclarationControlComponent` (latest wins); `CombatDeclarationControl.declarerFor` / `inputActorFor` route the owed `DeclareAttackers` / `DeclareBlockers` legal action to the new declarer, and the game server refuses that declaration from anyone else. The declaration is still the owing player's action and is validated as theirs. Gap: when the defender controls a planeswalker or battle, the caster also picks each attacker's target (the ruling gives that choice to the active player).
 - `GrantCantBeBlockedByChosenColorEffect(target, duration)` — unblockable except by chosen color.
 - `Effects.GrantCantBeBlockedExceptBy(target, blockerFilter, duration = EndOfTurn)` (`GrantCantBeBlockedExceptByEffect`) —
   the floating, one-shot grant of "can't be blocked except by creatures matching `blockerFilter`". The dynamic
@@ -3026,6 +3029,11 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `GrantProtectionFromCardType(cardType, target, duration)` — the card-type sibling: grant protection from a **fixed** `CardType` (no player choice), a thin recipe over `GrantKeyword("PROTECTION_FROM_CARDTYPE_<TYPE>")` — the same projected keyword the printed `Protection(ProtectionScope.CardType(...))` static and the player-chosen `GrantProtectionFromChosenCardType` produce, so targeting, blocking, and combat damage all read one keyword. Reach for it when the card names the type outright rather than letting the player pick ("gains protection from artifacts" — Razor Barrier).
 - `GrantPlayerProtection(scope = ProtectionScope.Everything, duration = Duration.UntilYourNextTurn, target = Controller)` — grant a **player** protection from a `ProtectionScope` (CR 702.16); the player-level counterpart of the creature protection statics. For a player only the **D**amage and **T**argeting parts of DEBT apply: a protected player can't be the target of, nor be dealt damage by, a source matching the scope. Adds/merges a `PlayerProtectionComponent` (multiple grants stack their scopes); the targeting validator, target enumerator, and `DamageUtils` all consult the shared `PlayerProtectionRules`. `Duration.UntilYourNextTurn` clears it after the untap step of the player's next turn. "You gain protection from everything until your next turn." (The One Ring).
 - `ChooseColorThenEffect(whenChosen)` — pick a color, then run a function of that color.
+- `Effects.ChooseColorsThen(then, prompt)` — the multi-color form (`ChooseColorThenEffect.maxColors > 1`):
+  the player picks **any nonempty set** of colors ("the color or colors of your choice" — never colorless),
+  answered in one `ChooseColorDecision` (`maxColors`) with `ColorChosenResponse.colors`. `then` sees the set as
+  `EffectContext.chosenColors` (and one of them as `chosenColor`). Quickchange:
+  `ChooseColorsThen(ChangeColorToChosen(creature)) then DrawCards(1)`.
 - `Effects.ChooseNumberThen(then, minValue=0, maxValue=16, prompt)` — pick a number in `[minValue, maxValue]`,
   then run `then` once with the chosen number exposed via the effect context as **X**. Atomic effects and filters
   under `then` read it through `ManaValueEqualsX` (`.manaValueEqualsX()`). Compose with `CompositeEffect` for
@@ -3068,7 +3076,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `GrantProtectionFromChosenColorEffect(target)` — protection from chosen color. Must run inside `ChooseColorThen`; wrap in `ForEachInGroup` for the group case (Akroma's Blessing: "Creatures you control gain protection from the chosen color").
 - `Effects.GrantProtectionFromChosenCardType(target, duration)` — "gains protection from the card type of your choice" (Pippin, Guard of the Citadel). The card-type analogue of `GrantProtectionFromChosenColor`, but **self-contained**: its executor owns the choice — it presents a `ChooseOptionDecision` over the fixed protectable card-type set (Artifact, Creature, Enchantment, Instant, Land, Planeswalker, Sorcery, Battle) and, on response, grants a floating `PROTECTION_FROM_CARDTYPE_<TYPE>` keyword for `duration`. The targeting validator, `StackResolver` spell-targeting, `DamageUtils`, the combat-damage pipeline/manager, and a `ProtectionFromCardTypeRule` block-evasion rule all match the protected keyword against the source's projected card types. (The "can't be enchanted/equipped by that type" clause is reminder text and unenforced at attach time, mirroring color/subtype protection.)
 - `ChooseCreatureTypeEffect(...)` — pause for creature-type pick.
-- `SelectTargetEffect(...)` — have a player pick from a valid set.
+- `SelectTargetEffect(requirement, storeAs, nonTargeting = false)` — have a player pick from a valid set mid-resolution. `nonTargeting = true` makes it a plain "choose" that hexproof and shroud don't restrict (Spectral Searchlight's "choose a player"); `TargetFinder` honours `ignoreTargetingRestrictions` for player requirements too.
 
 > **Authoring rule:** prefer composing primitives over adding parameters to an existing effect. Use `CompositeEffect`
 > and the gather/select/move pipeline before writing a new executor.
@@ -8177,6 +8185,16 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
   wraps the ability in a `ConditionalStaticAbility`, and `WarpGrants` matches the bare type
   without unwrapping it — so the grant never applies rather than applying conditionally. Teach
   that read site to unwrap first; `FlashTypeGrants.activeGrant` is the worked example.
+- `AdditionalManaForEntryCounters(spellFilter = Creature, counterType = PlusOnePlusOne)` — "As an additional
+  cost to cast creature spells, you may pay any amount of mana. If you do, that creature enters with that many
+  additional +1/+1 counters on it." (Chorus of the Conclave). While the permanent is on the battlefield under
+  your control (abilities intact), each matching spell you cast may carry `CastSpell.additionalManaForCounters = N`:
+  `{N}` generic is added to the total cost (on top of free/alternative casts — it's an additional cost), the
+  handler rejects N < 0 or N > 0 without an applicable grant (or on a face-down cast), and the spell records
+  `SpellOnStackComponent.additionalEntryCounters` so the permanent enters with N counters even if the granter
+  has left. The legal action carries `maxAdditionalManaForCounters` (a picker bound; the client shows an
+  amount selector before mana payment). Only creature *spells* as cast — never a permanent put onto the
+  battlefield by an effect.
 - `GrantKeywordToOwnSpells(keyword, spellFilter = Creature)` — while this permanent is on the battlefield,
   spells its controller casts matching `spellFilter` effectively have `keyword` ("you cast" semantics). Read by
   the cast machinery via `GrantedKeywordResolver`:
@@ -10377,6 +10395,11 @@ that works in both resolution and static-ability (projection) contexts.
   projection. The loop guard for "there is an additional end step after this step" riders: gate the
   `Effects.AddAdditionalEndSteps` call on it so the spawned end step doesn't spawn another (Y'shtola
   Rhul).
+- `Conditions.BeforeAttackersDeclared` (`BeforeAttackersDeclaredThisTurn`) — "before attackers are
+  declared": the turn hasn't reached the declare attackers step of its *first* combat phase (true up
+  to and including that combat's beginning step; false from its declare attackers step on, in the
+  postcombat main phase, and in any inserted extra combat). Master Warcraft's timing line:
+  `castOnlyIf(Conditions.BeforeAttackersDeclared)`.
 - `IsFirstCombatPhaseOfTurn` — the combat analog of `IsFirstEndStepOfTurn`: it's the turn's first
   (natural) combat phase, i.e. *not* an extra combat phase inserted by `Effects.AddCombatPhase`.
   Board-derived (reads `state.phase == COMBAT` + the active player's "in an inserted combat phase"

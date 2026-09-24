@@ -223,6 +223,7 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
+import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
 /**
  * Facade object providing convenient factory methods for creating atomic Effects.
@@ -2243,6 +2244,8 @@ object Effects {
      * block — reads the chosen color from the effect context. The target may be a spell on the
      * stack or a permanent. Used by Blind Seer:
      * "{1}{U}: Target spell or permanent becomes the color of your choice until end of turn."
+     * Inside a [ChooseColorsThen] block it takes the whole chosen set (Quickchange: "the color or
+     * colors of your choice").
      */
     fun ChangeColorToChosen(
         target: EffectTarget = EffectTarget.ContextTarget(0),
@@ -2419,9 +2422,32 @@ object Effects {
         amount: Int = 1,
         restriction: ManaRestriction? = null,
         recipient: EffectTarget = EffectTarget.Controller,
+        colorChosenByRecipient: Boolean = false,
     ): Effect = AddManaOfChoiceEffect(
-        colorSet, DynamicAmount.Fixed(amount), restriction, recipient = recipient
+        colorSet, DynamicAmount.Fixed(amount), restriction, recipient = recipient,
+        colorChosenByRecipient = colorChosenByRecipient
     )
+
+    /**
+     * "Choose a player. That player adds [amount] mana of any color they choose." — a
+     * **non-targeting** player choice made as the ability resolves, then mana of the chosen
+     * player's chosen color into that player's pool (Spectral Searchlight). Because nothing is
+     * targeted this stays a mana ability (CR 605.1a) when used on a `{T}:` ability marked
+     * `manaAbility`. Choosing yourself is legal (ruling), in which case you pick the color.
+     */
+    fun ChoosePlayerThenTheyAddManaOfAnyColor(amount: Int = 1): Effect {
+        val chosen = "chosenManaRecipient"
+        return CompositeEffect(
+            listOf(
+                SelectTargetEffect(requirement = TargetPlayer(descriptionOverride = "a player"), storeAs = chosen, nonTargeting = true),
+                AddManaOfChoiceEffect(
+                    ManaColorSet.AnyColor, DynamicAmount.Fixed(amount),
+                    recipient = EffectTarget.PipelineTarget(chosen),
+                    colorChosenByRecipient = true
+                )
+            )
+        )
+    }
 
     /**
      * Dynamic-amount variant of [AddManaOfChoice].
@@ -3137,6 +3163,17 @@ object Effects {
         then: Effect,
         prompt: String = "Choose a color"
     ): Effect = ChooseColorThenEffect(then, prompt)
+
+    /**
+     * Choose **one or more** colors — "the color or colors of your choice" — then run [then] with
+     * the whole chosen set exposed via the effect context (`chosenColors`). Pair with
+     * [ChangeColorToChosen] for Quickchange: "Target creature becomes the color or colors of your
+     * choice until end of turn." Colorless is never a choice: at least one color is picked.
+     */
+    fun ChooseColorsThen(
+        then: Effect,
+        prompt: String = "Choose one or more colors"
+    ): Effect = ChooseColorThenEffect(then, prompt, maxColors = Color.entries.size)
 
     /**
      * Choose a number, then run [then] with the chosen number exposed via the effect
@@ -4516,6 +4553,15 @@ object Effects {
      */
     fun HijackNextCombatPhase(target: EffectTarget = EffectTarget.PlayerRef(com.wingedsheep.sdk.scripting.references.Player.TargetOpponent)): Effect =
         HijackNextTurnEffect(target, com.wingedsheep.sdk.scripting.effects.HijackScope.NextCombatPhase)
+
+    /**
+     * "You choose which creatures attack this turn. You choose which creatures block this turn and
+     * how those creatures block." (Master Warcraft.) Moves every attack and block *declaration* this
+     * turn to the controller — nothing else. Pair with
+     * `castOnlyIf(Conditions.BeforeAttackersDeclared)` for the card's timing line.
+     */
+    fun ChooseAttackersAndBlockersThisTurn(): Effect =
+        com.wingedsheep.sdk.scripting.effects.ControlCombatDeclarationsThisTurnEffect
 
     /**
      * Grant a flat damage bonus to a player's sources this turn.
