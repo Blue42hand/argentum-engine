@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
@@ -59,7 +59,7 @@ val TophHardheadedTeacher = card("Toph, Hardheaded Teacher") {
             Effects.Earthbend(1, land),
             Effects.If(
                 Conditions.TriggeringSpellMatches(GameObjectFilter.Any.withSubtype("Lesson")),
-                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, land),
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, land),
             ),
         )
     }

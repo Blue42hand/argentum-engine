@@ -12,7 +12,6 @@ import com.wingedsheep.engine.view.ClientStateTransformer
 import com.wingedsheep.mtg.sets.tokens.PredefinedTokens
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
@@ -61,7 +60,7 @@ class EmpowerJaceScenarioTest : FunSpec({
         typeLine = "Sorcery"
         spell {
             effect = CreatePredefinedTokenEffect("Jace")
-                .then(Effects.AddCountersToCollection(CREATED_TOKENS, Counters.LOYALTY, 1))
+                .then(Effects.AddCountersToCollection(CREATED_TOKENS, CounterType.LOYALTY, 1))
         }
     }
 

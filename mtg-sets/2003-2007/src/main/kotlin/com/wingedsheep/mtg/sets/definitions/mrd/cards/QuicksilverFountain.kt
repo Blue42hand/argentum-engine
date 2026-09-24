@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
@@ -82,14 +82,14 @@ val QuicksilverFountain = card("Quicksilver Fountain") {
                 chooser = TargetChooser.TriggeringPlayer
             )
         )
-        effect = Effects.AddCounters(Counters.FLOOD, 1, land)
+        effect = Effects.AddCounters(CounterType.FLOOD, 1, land)
         description = "At the beginning of each player's upkeep, that player puts a flood counter " +
             "on target non-Island land they control of their choice."
     }
 
     // "That land is an Island for as long as it has a flood counter on it."
     staticAbility {
-        ability = AddLandTypeByCounter(landType = "Island", counterType = Counters.FLOOD)
+        ability = AddLandTypeByCounter(landType = "Island", counterType = CounterType.FLOOD)
     }
 
     // "At the beginning of each end step, if all lands on the battlefield are Islands, remove all
@@ -106,7 +106,7 @@ val QuicksilverFountain = card("Quicksilver Fountain") {
         )
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllLands,
-            effect = Effects.RemoveAllCountersOfType(Counters.FLOOD, EffectTarget.Self)
+            effect = Effects.RemoveAllCountersOfType(CounterType.FLOOD, EffectTarget.Self)
         )
         description = "At the beginning of each end step, if all lands on the battlefield are " +
             "Islands, remove all flood counters from them."

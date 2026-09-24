@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.plc.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -46,7 +46,7 @@ val LavacoreElemental = card("Lavacore Elemental") {
             ),
             binding = TriggerBinding.ANY
         )
-        effect = Effects.AddCounters(Counters.TIME, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.TIME, 1, EffectTarget.Self)
     }
 
     metadata {

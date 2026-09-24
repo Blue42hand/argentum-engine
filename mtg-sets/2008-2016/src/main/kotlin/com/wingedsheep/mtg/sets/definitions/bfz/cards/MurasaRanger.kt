@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.bfz.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -32,7 +32,7 @@ val MurasaRanger = card("Murasa Ranger") {
         trigger = Triggers.LandYouControlEnters
         effect = Effects.MayPay(
             cost = ManaCost.parse("{3}{G}"),
-            then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self),
+            then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self),
         )
     }
 

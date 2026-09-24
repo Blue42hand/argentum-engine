@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -26,7 +26,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *   and `negate` inverts the existence test. Checked both when the trigger would go on the stack
  *   and again on resolution; if either check finds another Dinosaur, the trigger doesn't fire (or
  *   is removed before resolving).
- * - `Effects.AddCounters(Counters.STUN, 1, EffectTarget.Self)` places one stun counter on the
+ * - `Effects.AddCounters(CounterType.STUN, 1, EffectTarget.Self)` places one stun counter on the
  *   Hammerskull, keeping it from untapping (CR 122.1d / stun counter replacement).
  */
 val PugnaciousHammerskull = card("Pugnacious Hammerskull") {
@@ -44,7 +44,7 @@ val PugnaciousHammerskull = card("Pugnacious Hammerskull") {
             negate = true,
             excludeSelf = true
         )
-        effect = Effects.AddCounters(Counters.STUN, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.STUN, 1, EffectTarget.Self)
     }
 
     metadata {

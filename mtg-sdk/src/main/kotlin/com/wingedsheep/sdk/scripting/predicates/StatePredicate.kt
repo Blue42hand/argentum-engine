@@ -1,5 +1,6 @@
 package com.wingedsheep.sdk.scripting.predicates
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import kotlinx.serialization.SerialName
@@ -338,7 +339,7 @@ sealed interface StatePredicate {
      *
      * Both parameters default to the widest reading and narrow it along the two axes printed cards
      * vary:
-     *  - [counterType] (e.g. `Counters.PLUS_ONE_PLUS_ONE`) restricts it to one kind of counter, so a
+     *  - [counterType] (e.g. `CounterType.PLUS_ONE_PLUS_ONE`) restricts it to one kind of counter, so a
      *    stun or shield counter doesn't satisfy a "+1/+1 counters" clause.
      *  - [placedByController] restricts it to counters put on by the permanent's own controller —
      *    the "**you've** put" half. Named for the controller rather than "you" because that is what
@@ -354,7 +355,7 @@ sealed interface StatePredicate {
     @SerialName("ReceivedCounterThisTurn")
     @Serializable
     data class ReceivedCounterThisTurn(
-        val counterType: String? = null,
+        val counterType: CounterType? = null,
         val placedByController: Boolean = false
     ) : History {
         // Rendered in the adjective slot a GameObjectFilter puts state predicates in, ahead of the
@@ -713,8 +714,8 @@ sealed interface StatePredicate {
     /** Has a counter of the specified type */
     @SerialName("HasCounter")
     @Serializable
-    data class HasCounter(val counterType: String) : Entity {
-        override val description: String = "with a $counterType counter"
+    data class HasCounter(val counterType: CounterType) : Entity {
+        override val description: String = "with a ${counterType.printed} counter"
     }
 
     /** Has any counter of any type */

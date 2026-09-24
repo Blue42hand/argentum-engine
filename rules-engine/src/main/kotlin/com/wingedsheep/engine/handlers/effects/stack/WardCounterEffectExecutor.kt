@@ -31,6 +31,7 @@ import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.legalactions.TapForGenericPermanentData
 import com.wingedsheep.engine.mechanics.mana.TapForGeneric
 import com.wingedsheep.engine.legalactions.utils.CostEnumerationUtils
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.engine.mechanics.stack.StackResolver
 import com.wingedsheep.engine.registry.CardRegistry
@@ -264,7 +265,7 @@ class WardCounterEffectExecutor(
             state: GameState,
             spellEntityId: EntityId,
             payingPlayerId: EntityId,
-            counterType: String,
+            counterType: CounterType,
             amount: Int,
             remainingParts: List<WardCost>,
             wardSourceId: EntityId?,

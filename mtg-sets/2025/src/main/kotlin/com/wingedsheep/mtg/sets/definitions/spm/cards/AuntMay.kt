@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -37,7 +37,7 @@ val AuntMay = card("Aunt May") {
                         GameObjectFilter.Creature.withSubtype(Subtype.SPIDER),
                     ),
                     then = Effects.AddCounters(
-                        Counters.PLUS_ONE_PLUS_ONE,
+                        CounterType.PLUS_ONE_PLUS_ONE,
                         1,
                         EffectTarget.TriggeringEntity,
                     ),

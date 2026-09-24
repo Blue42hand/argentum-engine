@@ -7,7 +7,7 @@ import com.wingedsheep.engine.mechanics.layers.Layer
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.engine.mechanics.layers.addFloatingEffect
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
@@ -43,7 +43,7 @@ object AmassResolution {
         if (amount > 0) {
             val counterResult = executeEffect(
                 newState,
-                AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, amount, EffectTarget.SpecificEntity(armyId)),
+                AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, amount, EffectTarget.SpecificEntity(armyId)),
                 context
             )
             newState = counterResult.state

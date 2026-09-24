@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -44,7 +44,7 @@ val ScroungingSkyray = card("Scrounging Skyray") {
     triggeredAbility {
         trigger = Triggers.YouDiscardOneOrMore
         effect = Effects.AddDynamicCounters(
-            Counters.PLUS_ONE_PLUS_ONE,
+            CounterType.PLUS_ONE_PLUS_ONE,
             DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DISCARD_COUNT),
             EffectTarget.Self,
         )

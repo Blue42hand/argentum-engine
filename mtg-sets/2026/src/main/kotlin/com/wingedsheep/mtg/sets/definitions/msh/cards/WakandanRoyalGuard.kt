@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
@@ -45,8 +45,8 @@ val WakandanRoyalGuard = card("Wakandan Royal Guard") {
                 Conditions.TargetMatchesFilter(GameObjectFilter.Creature.withSubtype(Subtype.HERO)),
                 Conditions.Not(Conditions.TargetIsSource())
             ),
-            then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, creature),
-            otherwise = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+            then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature),
+            otherwise = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
         )
         description = "When this creature enters, put a +1/+1 counter on target creature. If " +
             "that creature is another Hero, put two +1/+1 counters on it instead."

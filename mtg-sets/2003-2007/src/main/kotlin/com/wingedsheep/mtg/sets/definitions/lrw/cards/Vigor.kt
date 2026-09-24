@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -42,7 +43,7 @@ val Vigor = card("Vigor") {
                 )
             ),
             onPrevented = Effects.AddDynamicCounters(
-                "+1/+1", DynamicAmounts.preventedDamage(), EffectTarget.TriggeringEntity
+                CounterType.PLUS_ONE_PLUS_ONE, DynamicAmounts.preventedDamage(), EffectTarget.TriggeringEntity
             )
         )
     )

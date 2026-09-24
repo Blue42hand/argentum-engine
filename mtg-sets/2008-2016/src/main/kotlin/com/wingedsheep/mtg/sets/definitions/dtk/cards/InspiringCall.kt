@@ -4,7 +4,7 @@
 
 package com.wingedsheep.mtg.sets.definitions.dtk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -32,7 +32,7 @@ val InspiringCall = card("Inspiring Call") {
         effect = Effects.Composite(
             DrawCardsEffect(DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature)),
             Effects.ForEachInGroup(
-                GroupFilter(GameObjectFilter.Creature.withCounter(Counters.PLUS_ONE_PLUS_ONE).youControl()),
+                GroupFilter(GameObjectFilter.Creature.withCounter(CounterType.PLUS_ONE_PLUS_ONE).youControl()),
                 Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.Self)
             )
         )

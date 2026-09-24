@@ -417,7 +417,7 @@ private fun EmitCtx.renderNumberCountersOnEach(arr: JsonArray?): Dsl? {
     return call("Effects.ForEachInGroup", arg(groupFilter), arg(perEntity))
 }
 
-/** A mtgish `_CounterType` node -> the `Counters.*` constant the AddCountersEffect facade takes, or null
+/** A mtgish `_CounterType` node -> the `CounterType` constant the AddCountersEffect facade takes, or null
  *  for a counter kind we can't name (-> the caller scaffolds rather than guess). Shared by every "put a
  *  counter" handler (single / N / each). Only the bare ±1/±1 PTCounter, modeled keyword counters, and
  *  engine-wired utility counters render. */
@@ -427,49 +427,49 @@ internal fun counterTypeDsl(counterNode: JsonElement?): String? {
         "PTCounter" -> {
             val pt = node["args"].asArr ?: return null
             when (Pair(pt.getOrNull(0).asInt(), pt.getOrNull(1).asInt())) {
-                Pair(1, 1) -> "Counters.PLUS_ONE_PLUS_ONE"
-                Pair(-1, -1) -> "Counters.MINUS_ONE_MINUS_ONE"
+                Pair(1, 1) -> "CounterType.PLUS_ONE_PLUS_ONE"
+                Pair(-1, -1) -> "CounterType.MINUS_ONE_MINUS_ONE"
                 else -> null
             }
         }
         // Keyword counters (CR 122.1b) that grant their keyword via the engine's keyword-counter
         // projection. Only the ones we can name render; anything else scaffolds.
-        "FlyingCounter" -> "Counters.FLYING"
+        "FlyingCounter" -> "CounterType.FLYING"
         // Haste / menace counters (CR 122.1b): the last two keyword counters to be wired into
         // StateProjector.KEYWORD_COUNTER_MAP. Adding one is a plain AddCounters (Super-Adaptoid).
-        "HasteCounter" -> "Counters.HASTE"
-        "MenaceCounter" -> "Counters.MENACE"
+        "HasteCounter" -> "CounterType.HASTE"
+        "MenaceCounter" -> "CounterType.MENACE"
         // Deathtouch counter (CR 122.1b): grants the DEATHTOUCH keyword via the StateProjector's
-        // keyword-counter projection. Adding one is a plain AddCounters(Counters.DEATHTOUCH, …)
+        // keyword-counter projection. Adding one is a plain AddCounters(CounterType.DEATHTOUCH, …)
         // (Vraska Joins Up: "put a deathtouch counter on each creature you control").
-        "DeathtouchCounter" -> "Counters.DEATHTOUCH"
+        "DeathtouchCounter" -> "CounterType.DEATHTOUCH"
         // Stun counter (CR 122.1d): a built-in replacement ("if a permanent with a stun counter would
         // become untapped, instead remove a stun counter from it"), engine-wired via `untapOrConsumeStun`.
-        // Adding one is a plain AddCounters(Counters.STUN, …) (Rapier Wit, Fractal Mascot).
-        "StunCounter" -> "Counters.STUN"
+        // Adding one is a plain AddCounters(CounterType.STUN, …) (Rapier Wit, Fractal Mascot).
+        "StunCounter" -> "CounterType.STUN"
         // Shield counter (CR 122.1c): a built-in replacement + prevention pair ("if this permanent
         // would be destroyed as the result of an effect, instead remove a shield counter"; "if damage
         // would be dealt to this permanent, prevent it and remove a shield counter"), engine-wired via
-        // `consumeShieldCounter`. Adding one is a plain AddCounters(Counters.SHIELD, …) (Boon of
+        // `consumeShieldCounter`. Adding one is a plain AddCounters(CounterType.SHIELD, …) (Boon of
         // Safety, Brokers Veteran, Captain America, Super-Soldier).
-        "ShieldCounter" -> "Counters.SHIELD"
-        "FinalityCounter" -> "Counters.FINALITY"
+        "ShieldCounter" -> "CounterType.SHIELD"
+        "FinalityCounter" -> "CounterType.FINALITY"
         // Loot counter (OTJ — Bandit's Haul): a passive storage counter with no inherent rule; the
         // card's own abilities accumulate it and spend it. Adding one is a plain AddCounters.
-        "LootCounter" -> "Counters.LOOT"
+        "LootCounter" -> "CounterType.LOOT"
         // Growth counter (SOS — Comforting Counsel): another passive storage counter with no inherent
         // rule; the card's own static ability reads the count ("as long as there are five or more
-        // growth counters …"). Adding one is a plain AddCounters(Counters.GROWTH, …).
-        "GrowthCounter" -> "Counters.GROWTH"
+        // growth counters …"). Adding one is a plain AddCounters(CounterType.GROWTH, …).
+        "GrowthCounter" -> "CounterType.GROWTH"
         // Nest counter (DSK — Twitching Doll): a passive storage counter with no inherent rule; the
         // card's own abilities accumulate it and read the count to scale a token payoff. Adding one
-        // is a plain AddCounters(Counters.NEST, …).
-        "NestCounter" -> "Counters.NEST"
+        // is a plain AddCounters(CounterType.NEST, …).
+        "NestCounter" -> "CounterType.NEST"
         // Page counter (SOS — Diary of Dreams): a passive storage counter with no inherent rule; the
         // card's cast-an-instant-or-sorcery trigger accumulates it and its activated ability reads the
-        // count to reduce its own cost. Adding one is a plain AddCounters(Counters.PAGE, …).
-        "PageCounter" -> "Counters.PAGE"
-        "SporeCounter" -> "Counters.SPORE"
+        // count to reduce its own cost. Adding one is a plain AddCounters(CounterType.PAGE, …).
+        "PageCounter" -> "CounterType.PAGE"
+        "SporeCounter" -> "CounterType.SPORE"
         else -> null
     }
 }

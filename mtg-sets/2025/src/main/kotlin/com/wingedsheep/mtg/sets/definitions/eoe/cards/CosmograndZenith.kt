@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -51,7 +51,7 @@ val CosmograndZenith = card("Cosmogrand Zenith") {
             Mode.noTarget(
                 Effects.ForEachInGroup(
                     filter = GroupFilter.AllCreaturesYouControl,
-                    effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                    effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
                 ),
                 "Put a +1/+1 counter on each creature you control"
             )

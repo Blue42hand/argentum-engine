@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -40,7 +40,7 @@ val BeastieBeatdown = card("Beastie Beatdown") {
             // Delirium — counters land first so the damage uses the buffed power.
             Effects.If(
                 condition = Conditions.Delirium(),
-                then = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 2, target = yours),
+                then = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = yours),
             ),
             DealDamageEffect(DynamicAmounts.targetPower(0), theirs, damageSource = yours),
         )

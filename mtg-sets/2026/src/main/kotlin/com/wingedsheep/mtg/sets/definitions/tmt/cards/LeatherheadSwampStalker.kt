@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetPermanent
@@ -37,7 +36,7 @@ val LeatherheadSwampStalker = card("Leatherhead, Swamp Stalker") {
 
     replacementEffect(
         EntersWithCounters(
-            counterType = CounterTypeFilter.Named(Counters.HEXPROOF),
+            counterType = CounterType.HEXPROOF,
             count = 1,
             selfOnly = true
         )
@@ -48,7 +47,7 @@ val LeatherheadSwampStalker = card("Leatherhead, Swamp Stalker") {
     //
     // "Remove a counter" is any kind, not just the hexproof one she enters with: once anything
     // has put +1/+1 counters on her (Ouroboroid's combat trigger, an Adapt) the controller
-    // chooses which kind to take off, and hardcoding `Counters.HEXPROOF` silently spent her
+    // chooses which kind to take off, and hardcoding `CounterType.HEXPROOF` silently spent her
     // hexproof every time. [Effects.RemoveCounterOfAnyKind] is the choice-carrying primitive — it
     // prompts per counter kind present for a total of exactly one. Not `RemoveCountersUpTo(1, …)`:
     // a bare ceiling lets the controller say yes and then answer 0 to every prompt, which under

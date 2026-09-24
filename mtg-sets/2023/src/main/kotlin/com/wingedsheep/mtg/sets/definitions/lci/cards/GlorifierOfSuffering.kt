@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -57,7 +57,7 @@ val GlorifierOfSuffering = card("Glorifier of Suffering") {
             )),
             optional = true,
             reflexiveEffect = ForEachTargetEffect(
-                listOf(Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
+                listOf(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
             ),
             reflexiveTargetRequirements = listOf(TargetCreature(count = 2, optional = true)),
             descriptionOverride = "You may sacrifice another creature or artifact. When you do, put a +1/+1 counter on each of up to two target creatures."

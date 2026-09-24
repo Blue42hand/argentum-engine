@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -44,9 +43,9 @@ val CheeringCrowd = card("Cheering Crowd") {
             Player.TriggeringPlayer,
             listOf(
                 Effects.May(
-                    Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
                         then Effects.AddColorlessMana(
-                            DynamicAmounts.countersOnSelf(CounterTypeFilter.Any)
+                            DynamicAmounts.countersOnSelf(null)
                         ),
                     descriptionOverride = "That player may put a +1/+1 counter on this creature. " +
                         "If they do, they add {C} for each counter on it."

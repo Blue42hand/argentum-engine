@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -46,13 +46,13 @@ val KnightOfWundagore = card("Knight of Wundagore") {
     triggeredAbility {
         trigger = Triggers.countersPlacedOn(
             filter = GameObjectFilter.Creature,
-            counterType = Counters.PLUS_ONE_PLUS_ONE,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             firstTimeEachTurn = false,
             binding = TriggerBinding.OTHER,
             placedBy = Player.You,
         )
         oncePerTurn = true
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever you put a +1/+1 counter on another creature, put a +1/+1 counter " +
             "on this creature. This ability triggers only once each turn."
     }

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fem.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
@@ -49,7 +49,7 @@ val SoulExchange = card("Soul Exchange") {
             .then(
                 Effects.If(
                     condition = Conditions.ExiledAsCostHadSubtype("Thrull"),
-                    then = Effects.AddCounters(Counters.PLUS_TWO_PLUS_TWO, 1, creatureCard)
+                    then = Effects.AddCounters(CounterType.PLUS_TWO_PLUS_TWO, 1, creatureCard)
                 )
             )
     }

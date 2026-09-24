@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -44,12 +44,12 @@ val AquitectsWill = card("Aquitect's Will") {
 
     spell {
         val land = target("target land", Targets.Land)
-        effect = Effects.AddCounters(Counters.FLOOD, 1, land)
+        effect = Effects.AddCounters(CounterType.FLOOD, 1, land)
             .then(
                 AddSubtypeEffect(
                     subtype = "Island",
                     target = land,
-                    duration = Duration.WhileAffectedHasCounter(Counters.FLOOD)
+                    duration = Duration.WhileAffectedHasCounter(CounterType.FLOOD)
                 )
             )
             .then(

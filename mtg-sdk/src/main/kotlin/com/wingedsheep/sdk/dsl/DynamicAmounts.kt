@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.values.EntityReference
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.TurnTracker
 
@@ -398,9 +398,8 @@ object DynamicAmounts {
      * counter on it", Nine-Lives Familiar). See [DynamicAmount.LastKnownSourceCounters]; use
      * [countersOnSelf] for a permanent that is still on the battlefield.
      */
-    fun lastKnownSourceCounters(
-        filter: com.wingedsheep.sdk.scripting.events.CounterTypeFilter
-    ): DynamicAmount = DynamicAmount.LastKnownSourceCounters(filter)
+    fun lastKnownSourceCounters(counterType: CounterType?): DynamicAmount =
+        DynamicAmount.LastKnownSourceCounters(counterType)
 
     /**
      * The total damage dealt to the source this turn, captured as last-known information when it
@@ -622,7 +621,7 @@ object DynamicAmounts {
      * How many counters of [counterType] a player currently has (CR 122.1 — counters placed on a
      * player rather than a permanent). Poison, energy, and rad counters all live here.
      */
-    fun playerCounterCount(counterType: String, player: Player = Player.You): DynamicAmount =
+    fun playerCounterCount(counterType: CounterType, player: Player = Player.You): DynamicAmount =
         DynamicAmount.PlayerCounterCount(counterType, player)
 
     /**
@@ -630,7 +629,7 @@ object DynamicAmounts {
      * counters you have" (Longtusk Cub, Electrostatic Pummeler).
      */
     fun energyCount(player: Player = Player.You): DynamicAmount =
-        DynamicAmount.PlayerCounterCount(com.wingedsheep.sdk.core.Counters.ENERGY, player)
+        DynamicAmount.PlayerCounterCount(com.wingedsheep.sdk.core.CounterType.ENERGY, player)
 
     // =========================================================================
     // Entity property shortcuts (composable entity + property)
@@ -689,10 +688,10 @@ object DynamicAmounts {
     fun sacrificedToughness(index: Int = 0): DynamicAmount =
         DynamicAmount.EntityProperty(EntityReference.Sacrificed(index), EntityNumericProperty.Toughness)
 
-    fun countersOnSelf(type: CounterTypeFilter): DynamicAmount =
+    fun countersOnSelf(type: CounterType?): DynamicAmount =
         DynamicAmount.EntityProperty(EntityReference.Source, EntityNumericProperty.CounterCount(type))
 
-    fun countersOnTarget(type: CounterTypeFilter, index: Int = 0): DynamicAmount =
+    fun countersOnTarget(type: CounterType?, index: Int = 0): DynamicAmount =
         DynamicAmount.EntityProperty(EntityReference.Target(index), EntityNumericProperty.CounterCount(type))
 
     /**
@@ -700,7 +699,7 @@ object DynamicAmounts {
      * permanent — "X is the number of counters on it" for an ANY-bound triggered ability such as
      * Spider-Man Noir's "whenever a creature you control attacks alone."
      */
-    fun countersOnTriggering(type: CounterTypeFilter = CounterTypeFilter.Any): DynamicAmount =
+    fun countersOnTriggering(type: CounterType? = null): DynamicAmount =
         DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.CounterCount(type))
 
     fun attachmentsOnSelf(): DynamicAmount =

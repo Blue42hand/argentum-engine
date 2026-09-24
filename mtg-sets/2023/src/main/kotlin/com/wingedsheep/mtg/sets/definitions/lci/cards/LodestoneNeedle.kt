@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -35,7 +35,7 @@ import com.wingedsheep.sdk.scripting.targets.TargetPermanent
  * Implementation:
  *  - Front ETB: "up to one target artifact or creature" is a [TargetPermanent] with
  *    `optional = true` (Queen's Bay Paladin idiom); the effect is a [Effects.Composite]
- *    of [Effects.Tap] plus [AddCountersEffect] with two [Counters.STUN] counters — the
+ *    of [Effects.Tap] plus [AddCountersEffect] with two [CounterType.STUN] counters — the
  *    tap + stun-counter pairing proven by Waylaying Pirates. If the target is declined,
  *    both steps are no-ops.
  *  - Craft: the `craft(...)` helper wires [com.wingedsheep.sdk.scripting.AbilityCost.Craft]
@@ -71,7 +71,7 @@ private val LodestoneNeedleFront = card("Lodestone Needle") {
         )
         effect = Effects.Composite(
             Effects.Tap(permanent),
-            AddCountersEffect(counterType = Counters.STUN, count = 2, target = permanent)
+            AddCountersEffect(counterType = CounterType.STUN, count = 2, target = permanent)
         )
     }
 

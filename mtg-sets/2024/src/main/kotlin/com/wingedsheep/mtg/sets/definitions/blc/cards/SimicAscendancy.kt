@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blc.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -40,13 +39,13 @@ val SimicAscendancy = card("Simic Ascendancy") {
     activatedAbility {
         cost = Costs.Mana("{1}{G}{U}")
         val creature = target("creature", Targets.CreatureYouControl)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }
 
     triggeredAbility {
         trigger = Triggers.PlusOneCountersPlacedOnYourCreature
         effect = Effects.AddDynamicCounters(
-            counterType = Counters.GROWTH,
+            counterType = CounterType.GROWTH,
             amount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_COUNTERS_PLACED_AMOUNT),
             target = EffectTarget.Self
         )
@@ -57,7 +56,7 @@ val SimicAscendancy = card("Simic Ascendancy") {
         interveningIf = Compare(
             DynamicAmount.EntityProperty(
                 EntityReference.Source,
-                EntityNumericProperty.CounterCount(CounterTypeFilter.Named(Counters.GROWTH))
+                EntityNumericProperty.CounterCount(CounterType.GROWTH)
             ),
             ComparisonOperator.GTE,
             DynamicAmount.Fixed(20)

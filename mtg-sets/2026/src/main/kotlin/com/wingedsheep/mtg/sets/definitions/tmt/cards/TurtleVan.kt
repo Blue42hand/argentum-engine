@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
@@ -37,7 +37,7 @@ val TurtleVan = card("Turtle Van") {
             "target creature that crewed it this turn",
             TargetCreature(filter = TargetFilter(GameObjectFilter.Creature.crewedOrSaddledSourceThisTurn()))
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, crewer)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, crewer)
             .then(
                 Effects.If(
                     condition = Conditions.TargetMatchesFilter(
@@ -45,7 +45,7 @@ val TurtleVan = card("Turtle Van") {
                             listOf(Subtype("Mutant"), Subtype("Ninja"), Subtype("Turtle"))
                         )
                     ),
-                    then = Effects.DoubleCounters(Counters.PLUS_ONE_PLUS_ONE, crewer)
+                    then = Effects.DoubleCounters(CounterType.PLUS_ONE_PLUS_ONE, crewer)
                 )
             )
         description = "Whenever this Vehicle attacks, put a +1/+1 counter on target creature that crewed it this turn. Then if that creature is a Mutant, Ninja, or Turtle, double the number of +1/+1 counters on it."

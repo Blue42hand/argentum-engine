@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
@@ -29,7 +28,7 @@ val BribersPurse = card("Briber's Purse") {
     oracleText = "Briber's Purse enters the battlefield with X gem counters on it.\n{1}, {T}, Remove a gem counter from Briber's Purse: Target creature can't attack or block this turn."
 
     replacementEffect(EntersWithDynamicCounters(
-        counterType = CounterTypeFilter.Named(Counters.GEM),
+        counterType = CounterType.GEM,
         count = DynamicAmount.XValue
     ))
 
@@ -37,7 +36,7 @@ val BribersPurse = card("Briber's Purse") {
         cost = Costs.Composite(
             Costs.Mana("{1}"),
             Costs.Tap,
-            Costs.RemoveCounterFromSelf(Counters.GEM)
+            Costs.RemoveCounterFromSelf(CounterType.GEM)
         )
         val creature = target("creature", Targets.Creature)
         effect = Effects.CantAttackOrBlock(creature)

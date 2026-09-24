@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Targets
@@ -38,12 +38,12 @@ val HighSentinelsOfArashin = card("High Sentinels of Arashin") {
             filter = GroupFilter.source(),
             powerBonus = DynamicAmount.AggregateBattlefield(
                 player = Player.You,
-                filter = GameObjectFilter.Creature.withCounter(Counters.PLUS_ONE_PLUS_ONE),
+                filter = GameObjectFilter.Creature.withCounter(CounterType.PLUS_ONE_PLUS_ONE),
                 excludeSelf = true
             ),
             toughnessBonus = DynamicAmount.AggregateBattlefield(
                 player = Player.You,
-                filter = GameObjectFilter.Creature.withCounter(Counters.PLUS_ONE_PLUS_ONE),
+                filter = GameObjectFilter.Creature.withCounter(CounterType.PLUS_ONE_PLUS_ONE),
                 excludeSelf = true
             )
         )
@@ -54,7 +54,7 @@ val HighSentinelsOfArashin = card("High Sentinels of Arashin") {
         cost = Costs.Mana("{3}{W}")
         val t = target("target creature", Targets.Creature)
         effect = AddCountersEffect(
-            counterType = Counters.PLUS_ONE_PLUS_ONE,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 1,
             target = t
         )

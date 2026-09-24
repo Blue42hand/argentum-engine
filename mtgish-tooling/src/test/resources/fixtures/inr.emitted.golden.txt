@@ -400,7 +400,7 @@ val AngelfireIgnition = card("Angelfire Ignition") {
     spell {
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
         effect = Effects.Composite(
-            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 2, target = t),
+            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 2, target = t),
             Effects.GrantKeyword(Keyword.VIGILANCE, t),
             Effects.GrantKeyword(Keyword.TRAMPLE, t),
             Effects.GrantKeyword(Keyword.LIFELINK, t),
@@ -1057,7 +1057,7 @@ val BloodmadVampire = card("Bloodmad Vampire") {
     toughness = 1
     triggeredAbility {
         trigger = Triggers.DealsCombatDamageToPlayer
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     madness("{1}{R}")
     metadata {
@@ -1652,7 +1652,7 @@ val CatharsCrusade = card("Cathars' Crusade") {
         )
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl()),
-            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         )
     }
     metadata {
@@ -5039,7 +5039,7 @@ val HopefulInitiate = card("Hopeful Initiate") {
     activatedAbility {
         cost = Costs.Composite(
             Costs.Mana("{2}{W}"),
-            Costs.RemoveCounters(2, Counters.PLUS_ONE_PLUS_ONE, GameObjectFilter.Creature)
+            Costs.RemoveCounters(2, CounterType.PLUS_ONE_PLUS_ONE, GameObjectFilter.Creature)
         )
         val t = target("target", TargetPermanent(filter = TargetFilter.ArtifactOrEnchantment))
         effect = Effects.Move(t, Zone.GRAVEYARD, byDestruction = true)
@@ -5259,7 +5259,7 @@ val IndulgentAristocrat = card("Indulgent Aristocrat") {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Sacrifice(GameObjectFilter.Creature))
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.withSubtype(Subtype.VAMPIRE).youControl()),
-            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         )
     }
     metadata {
@@ -6510,7 +6510,7 @@ val MoldgrafMillipede = card("Moldgraf Millipede") {
         effect = Effects.Composite(
             Patterns.Library.mill(3),
             Effects.AddDynamicCounters(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = DynamicAmount.Count(Player.You, Zone.GRAVEYARD, GameObjectFilter.Creature),
                 target = EffectTarget.Self
             )
@@ -8570,7 +8570,7 @@ val StensiaMasquerade = card("Stensia Masquerade") {
             sourceFilter = GameObjectFilter.Creature.withSubtype(Subtype.VAMPIRE).youControl(),
             binding = TriggerBinding.ANY
         )
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     madness("{2}{R}")
     metadata {
@@ -9628,7 +9628,7 @@ val TravelPreparations = card("Travel Preparations") {
     spell {
         val t = target("target", TargetCreature(optional = true, count = 2, filter = TargetFilter.Creature))
         effect = ForEachTargetEffect(
-            listOf(Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
+            listOf(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
         )
     }
     keywordAbility(KeywordAbility.flashback("{1}{W}"))
@@ -10221,24 +10221,24 @@ val VoiceOfTheBlessed = card("Voice of the Blessed") {
     toughness = 2
     triggeredAbility {
         trigger = Triggers.YouGainLife
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     staticAbility {
         ability = ConditionalStaticAbility(
             ability = GrantKeyword(Keyword.FLYING, Filters.Self),
-            condition = Conditions.SourceCounterCountAtLeast(Counters.PLUS_ONE_PLUS_ONE, 4)
+            condition = Conditions.SourceCounterCountAtLeast(CounterType.PLUS_ONE_PLUS_ONE, 4)
         )
     }
     staticAbility {
         ability = ConditionalStaticAbility(
             ability = GrantKeyword(Keyword.VIGILANCE, Filters.Self),
-            condition = Conditions.SourceCounterCountAtLeast(Counters.PLUS_ONE_PLUS_ONE, 4)
+            condition = Conditions.SourceCounterCountAtLeast(CounterType.PLUS_ONE_PLUS_ONE, 4)
         )
     }
     staticAbility {
         ability = ConditionalStaticAbility(
             ability = GrantKeyword(Keyword.INDESTRUCTIBLE, Filters.Self),
-            condition = Conditions.SourceCounterCountAtLeast(Counters.PLUS_ONE_PLUS_ONE, 10)
+            condition = Conditions.SourceCounterCountAtLeast(CounterType.PLUS_ONE_PLUS_ONE, 10)
         )
     }
     metadata {

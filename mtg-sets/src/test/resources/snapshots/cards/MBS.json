@@ -15,7 +15,7 @@
             },
             "body": {
                 "type": "AddDynamicCounters",
-                "counterType": "-1/-1",
+                "counterType": "MINUS_ONE_MINUS_ONE",
                 "amount": "XValue",
                 "target": "Self"
             }

@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -87,7 +87,7 @@ val Nashi = card("Nashi, Searcher in the Dark") {
                 // If you put no cards into your hand this way, put a +1/+1 counter on Nashi.
                 Effects.If(
                     condition = Conditions.Not(Conditions.CollectionContainsMatch("toHand")),
-                    then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                    then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                 ),
             ),
         )

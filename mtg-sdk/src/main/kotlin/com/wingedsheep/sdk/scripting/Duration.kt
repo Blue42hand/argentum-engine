@@ -1,5 +1,6 @@
 package com.wingedsheep.sdk.scripting
 
+import com.wingedsheep.sdk.core.CounterType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -175,14 +176,12 @@ sealed interface Duration {
      * '{T}: Add {C}.'" — where the transform is created by a resolving triggered ability and must
      * outlive Ultima leaving the battlefield.
      *
-     * @property counterType The counter kind that must remain present (matches
-     *   [com.wingedsheep.sdk.core.CounterType] names / the `Counters.*` string constants,
-     *   e.g. `Counters.BLIGHT`).
+     * @property counterType The counter kind that must remain present (e.g. `CounterType.BLIGHT`).
      */
     @SerialName("WhileAffectedHasCounter")
     @Serializable
-    data class WhileAffectedHasCounter(val counterType: String) : Duration {
-        override val description = "for as long as it has a $counterType counter on it"
+    data class WhileAffectedHasCounter(val counterType: CounterType) : Duration {
+        override val description = "for as long as it has a ${counterType.printed} counter on it"
     }
 
     /**
@@ -393,7 +392,7 @@ object Durations {
     fun whileYouControlSource(source: String = "this permanent") =
         Duration.WhileYouControlSource(source)
 
-    fun whileAffectedHasCounter(counterType: String) =
+    fun whileAffectedHasCounter(counterType: CounterType) =
         Duration.WhileAffectedHasCounter(counterType)
 
     fun untilPhase(phase: String) = Duration.UntilPhase(phase)

@@ -227,7 +227,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "quest",
+                        "counterType": "QUEST",
                         "count": 1,
                         "target": "Self"
                     }
@@ -252,10 +252,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "quest"
-                            }
+                            "counterType": "QUEST"
                         }
                     },
                     "operator": "GTE",
@@ -1868,13 +1865,13 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "CountersPlacedEvent",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "filter": "creature ctrl:you"
                 },
                 "binding": "ANY",
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "growth",
+                    "counterType": "GROWTH",
                     "amount": {
                         "type": "ContextProperty",
                         "key": "TRIGGER_COUNTERS_PLACED_AMOUNT"
@@ -1900,10 +1897,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "growth"
-                            }
+                            "counterType": "GROWTH"
                         }
                     },
                     "operator": "GTE",
@@ -1926,7 +1920,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -2026,7 +2020,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -2124,7 +2118,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "amount": {
                         "type": "EntityProperty",
                         "entity": "Target",

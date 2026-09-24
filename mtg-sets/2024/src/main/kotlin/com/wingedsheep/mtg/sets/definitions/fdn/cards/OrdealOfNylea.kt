@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -12,7 +12,6 @@ import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
@@ -47,12 +46,12 @@ val OrdealOfNylea = card("Ordeal of Nylea") {
         trigger = Triggers.attacks(binding = TriggerBinding.ATTACHED)
         // EntityReference.Triggering resolves to the enchanted (attacking) creature here —
         // AttachmentTriggerDetector sets triggeringEntityId to the attached entity.
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.EnchantedCreature) then
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.EnchantedCreature) then
             Effects.If(
                 condition = Compare(
                     left = DynamicAmount.EntityProperty(
                         entity = EntityReference.Triggering,
-                        numericProperty = EntityNumericProperty.CounterCount(CounterTypeFilter.PlusOnePlusOne)
+                        numericProperty = EntityNumericProperty.CounterCount(CounterType.PLUS_ONE_PLUS_ONE)
                     ),
                     operator = ComparisonOperator.GTE,
                     right = DynamicAmount.Fixed(3)

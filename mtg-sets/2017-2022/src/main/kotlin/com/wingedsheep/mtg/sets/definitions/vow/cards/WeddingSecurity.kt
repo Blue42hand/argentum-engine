@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -35,7 +35,7 @@ val WeddingSecurity = card("Wedding Security") {
         trigger = Triggers.Attacks
         effect = Effects.MayPay(
             cost = SacrificeEffect(filter = GameObjectFilter.Artifact.withSubtype("Blood")),
-            then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
                 .then(Effects.DrawCards(1))
         )
         description = "Whenever this creature attacks, you may sacrifice a Blood token. If you do, " +

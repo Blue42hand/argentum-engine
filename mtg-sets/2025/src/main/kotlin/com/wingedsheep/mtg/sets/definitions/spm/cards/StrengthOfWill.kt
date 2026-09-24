@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -45,7 +45,7 @@ val StrengthOfWill = card("Strength of Will") {
                     trigger = Triggers.TakesDamage.event,
                     binding = Triggers.TakesDamage.binding,
                     effect = Effects.AddDynamicCounters(
-                        Counters.PLUS_ONE_PLUS_ONE,
+                        CounterType.PLUS_ONE_PLUS_ONE,
                         DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DAMAGE_AMOUNT),
                         EffectTarget.Self
                     ),

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -23,7 +23,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Modeling notes:
  *  - "When the **fourth** plan counter is put on this enchantment" composes from existing
- *    vocabulary: a SELF-bound [Triggers.countersPlacedOn] on [Counters.PLAN] gated by
+ *    vocabulary: a SELF-bound [Triggers.countersPlacedOn] on [CounterType.PLAN] gated by
  *    `triggerRestriction = `[Conditions.SourceCounterCountAtLeast]`(PLAN, 4)`. The at-least gate is
  *    behaviourally exact here because the payoff **sacrifices its own source**, so the enchantment
  *    is gone before a fifth counter could ever land — the threshold can never fire twice. No
@@ -48,7 +48,7 @@ val DeathToOurEnemies = card("Death to Our Enemies") {
         trigger = Triggers.YouCastNoncreature
         effect = Effects.Composite(
             Effects.CreateTreasure(1, tapped = true),
-            Effects.AddCounters(Counters.PLAN, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self),
         )
         description = "Whenever you cast a noncreature spell, create a tapped Treasure token and " +
             "put a plan counter on this enchantment."
@@ -57,11 +57,11 @@ val DeathToOurEnemies = card("Death to Our Enemies") {
     triggeredAbility {
         trigger = Triggers.countersPlacedOn(
             filter = GameObjectFilter.Any,
-            counterType = Counters.PLAN,
+            counterType = CounterType.PLAN,
             firstTimeEachTurn = false,
             binding = TriggerBinding.SELF,
         )
-        triggerRestriction = Conditions.SourceCounterCountAtLeast(Counters.PLAN, 4)
+        triggerRestriction = Conditions.SourceCounterCountAtLeast(CounterType.PLAN, 4)
         effect = ReflexiveTriggerEffect(
             action = Effects.SacrificeTarget(EffectTarget.Self),
             optional = false,

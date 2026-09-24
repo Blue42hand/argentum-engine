@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
@@ -45,7 +45,7 @@ val LasydProwler = card("Lasyd Prowler") {
 
     renew("{1}{G}") {
         effect = Effects.AddDynamicCounters(
-            Counters.PLUS_ONE_PLUS_ONE,
+            CounterType.PLUS_ONE_PLUS_ONE,
             DynamicAmount.Count(Player.You, Zone.GRAVEYARD, Filters.Land),
             target("creature", Targets.Creature)
         )

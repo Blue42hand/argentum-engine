@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -34,14 +34,14 @@ val TrainingRegimen = card("Training Regimen") {
     staticAbility {
         ability = GrantKeyword(
             Keyword.TRAMPLE,
-            GroupFilter(GameObjectFilter.Creature.youControl().withCounter(Counters.PLUS_ONE_PLUS_ONE)),
+            GroupFilter(GameObjectFilter.Creature.youControl().withCounter(CounterType.PLUS_ONE_PLUS_ONE)),
         )
     }
 
     triggeredAbility {
         trigger = Triggers.BeginCombat
         val creature = target("target creature you control", Targets.CreatureYouControl)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
         description = "At the beginning of combat on your turn, put a +1/+1 counter on target creature you control."
     }
 

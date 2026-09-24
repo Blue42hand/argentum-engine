@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -72,7 +72,7 @@ val BoggartMischief = card("Boggart Mischief") {
                         useTargetingUI = true,
                         alwaysPrompt = true
                     ),
-                    AddCountersToCollectionEffect("blighted", Counters.MINUS_ONE_MINUS_ONE, 1),
+                    AddCountersToCollectionEffect("blighted", CounterType.MINUS_ONE_MINUS_ONE, 1),
                     ConditionalOnCollectionEffect(
                         collection = "blighted",
                         ifNotEmpty = createGoblinTokens

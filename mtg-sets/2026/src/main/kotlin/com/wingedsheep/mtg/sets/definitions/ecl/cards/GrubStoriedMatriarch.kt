@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Subtype
@@ -68,7 +68,7 @@ private val GrubNotoriousAuntie = card("Grub, Notorious Auntie") {
                         useTargetingUI = true,
                         alwaysPrompt = true
                     ),
-                    AddCountersToCollectionEffect("blighted", Counters.MINUS_ONE_MINUS_ONE, 1),
+                    AddCountersToCollectionEffect("blighted", CounterType.MINUS_ONE_MINUS_ONE, 1),
                     ConditionalOnCollectionEffect(
                         collection = "blighted",
                         ifNotEmpty = Effects.CreateTokenCopyOfTarget(

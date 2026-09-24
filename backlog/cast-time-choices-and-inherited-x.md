@@ -142,7 +142,7 @@ val HydroidKrasis = card("Hydroid Krasis") {
     keyword(Keyword.FLYING); keyword(Keyword.TRAMPLE)
 
     // Enters with X +1/+1 counters — reads the SAME binding, not a separate X.
-    replacementEffect(EntersWithDynamicCounters(CounterTypeFilter.PlusOnePlusOne, DynamicAmount.CastX))
+    replacementEffect(EntersWithDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE, DynamicAmount.CastX))
 }
 ```
 

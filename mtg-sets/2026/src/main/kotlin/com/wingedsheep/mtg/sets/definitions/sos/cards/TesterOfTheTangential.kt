@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -45,7 +45,7 @@ val TesterOfTheTangential = card("Tester of the Tangential") {
             then = Effects.SelectTarget(TargetCreature(filter = TargetFilter.OtherCreature), "moveTarget")
                 .then(
                     Effects.MoveCounters(
-                        counterType = Counters.PLUS_ONE_PLUS_ONE,
+                        counterType = CounterType.PLUS_ONE_PLUS_ONE,
                         amount = DynamicAmount.XValue,
                         source = EffectTarget.Self,
                         destination = EffectTarget.PipelineTarget("moveTarget"),

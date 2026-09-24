@@ -7,7 +7,7 @@ import com.wingedsheep.engine.handlers.effects.permanent.stats.SetBaseStatsExecu
 import com.wingedsheep.sdk.scripting.values.contextScopedReferenceIn
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.support.ScenarioTestBase
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Costs
@@ -122,7 +122,7 @@ class SetBaseStatsContinuousScenarioTest : ScenarioTestBase() {
         oracleText = "Put a +1/+1 counter on target creature."
         spell {
             val creature = target("creature", Targets.Creature)
-            effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+            effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
         }
     }
 

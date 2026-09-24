@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -49,7 +50,7 @@ val PartingGust = card("Parting Gust") {
                         step = Step.END,
                         effect = Effects.Composite(listOf(
                             Effects.Move(EffectTarget.ContextTarget(0), Zone.BATTLEFIELD),
-                            Effects.AddCounters("+1/+1", 1, EffectTarget.ContextTarget(0))
+                            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
                         ))
                     )
                 )),

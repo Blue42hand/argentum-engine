@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.DoubleCounterPlacement
 import com.wingedsheep.sdk.scripting.ModifyCounterPlacement
 import com.wingedsheep.sdk.scripting.PreventExtraTurns
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
 
 /**
@@ -85,7 +84,7 @@ object ReplacementEffectUtils {
                 }
                 if (placedByYouOnly && placerId != sourceControllerId) continue
 
-                if (!matchesCounterTypeFilter(counterEvent.counterType, counterType)) continue
+                if (counterEvent.counterType != null && counterEvent.counterType != counterType) continue
 
                 // Check recipient filter
                 val recipientMatches = matchesRecipientFilter(
@@ -107,7 +106,7 @@ object ReplacementEffectUtils {
         //    gate (only the controller's own counter placements get the bonus).
         for (modifier in state.activeCounterPlacementModifiers) {
             if (placerId != modifier.controllerId) continue
-            if (!matchesCounterTypeFilter(modifier.counterType, counterType)) continue
+            if (modifier.counterType != counterType) continue
             // No battlefield source entity — pass the controller as the "source entity" so
             // RecipientFilter.Self can't spuriously match, and the controller as controllerId.
             val recipientMatches = matchesRecipientFilter(
@@ -119,26 +118,6 @@ object ReplacementEffectUtils {
 
         return modifiedCount.coerceAtLeast(0)
     }
-
-    /** Whether a [CounterTypeFilter] from a replacement/modifier matches the concrete [counterType] being placed. */
-    private fun matchesCounterTypeFilter(filter: CounterTypeFilter, counterType: CounterType): Boolean =
-        when (filter) {
-            is CounterTypeFilter.Any -> true
-            is CounterTypeFilter.PlusOnePlusOne -> counterType == CounterType.PLUS_ONE_PLUS_ONE
-            is CounterTypeFilter.MinusOneMinusOne -> counterType == CounterType.MINUS_ONE_MINUS_ONE
-            is CounterTypeFilter.PlusOnePlusZero -> counterType == CounterType.PLUS_ONE_PLUS_ZERO
-            is CounterTypeFilter.PlusZeroPlusOne -> counterType == CounterType.PLUS_ZERO_PLUS_ONE
-            is CounterTypeFilter.MinusOneMinusZero -> counterType == CounterType.MINUS_ONE_MINUS_ZERO
-            is CounterTypeFilter.MinusZeroMinusOne -> counterType == CounterType.MINUS_ZERO_MINUS_ONE
-            is CounterTypeFilter.Loyalty -> counterType == CounterType.LOYALTY
-            is CounterTypeFilter.Named -> {
-                try {
-                    counterType == CounterType.valueOf(filter.name.uppercase().replace(' ', '_'))
-                } catch (_: IllegalArgumentException) {
-                    false
-                }
-            }
-        }
 
     private fun matchesRecipientFilter(
         recipient: RecipientFilter,

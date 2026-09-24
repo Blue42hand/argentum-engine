@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.jud.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -37,12 +36,12 @@ val SoulcatchersAerie = card("Soulcatchers' Aerie") {
             to = Zone.GRAVEYARD,
             binding = TriggerBinding.ANY
         )
-        effect = Effects.AddCounters(Counters.FEATHER, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.FEATHER, 1, EffectTarget.Self)
     }
 
     // Bird creatures (any controller) get +1/+1 for each feather counter on this enchantment.
     staticAbility {
-        val featherCount = DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.FEATHER))
+        val featherCount = DynamicAmounts.countersOnSelf(CounterType.FEATHER)
         ability = GrantDynamicStatsEffect(
             filter = GroupFilter.allCreaturesWithSubtype("Bird"),
             powerBonus = featherCount,

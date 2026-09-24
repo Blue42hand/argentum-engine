@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -54,15 +54,15 @@ val ReluctantRoleModel = card("Reluctant Role Model") {
             listOf(
                 EffectChoice(
                     label = "Flying counter",
-                    effect = Effects.AddCounters(Counters.FLYING, 1, EffectTarget.Self),
+                    effect = Effects.AddCounters(CounterType.FLYING, 1, EffectTarget.Self),
                 ),
                 EffectChoice(
                     label = "Lifelink counter",
-                    effect = Effects.AddCounters(Counters.LIFELINK, 1, EffectTarget.Self),
+                    effect = Effects.AddCounters(CounterType.LIFELINK, 1, EffectTarget.Self),
                 ),
                 EffectChoice(
                     label = "+1/+1 counter",
-                    effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                    effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                 ),
             )
         )

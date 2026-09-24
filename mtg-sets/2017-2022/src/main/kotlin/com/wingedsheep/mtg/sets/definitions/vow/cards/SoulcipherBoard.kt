@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
@@ -20,7 +20,6 @@ import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -41,7 +40,7 @@ import com.wingedsheep.sdk.scripting.values.DynamicAmount
  *   This creature can block only creatures with flying.
  *   {3}{U}: Draw two cards, then discard a card.
  *
- * Built from existing primitives. The countdown is the new passive [Counters.OMEN] counter placed
+ * Built from existing primitives. The countdown is the new passive [CounterType.OMEN] counter placed
  * by a self-only [EntersWithCounters]. The tap ability is
  * [Patterns.Library.lookAtTopAndKeep] with the *kept* card going to the graveyard and the
  * remainder back on top of the library — "look at the top two, put one of them into your graveyard"
@@ -77,7 +76,7 @@ private val SoulcipherBoardFront = card("Soulcipher Board") {
 
     replacementEffect(
         EntersWithCounters(
-            counterType = CounterTypeFilter.Named(Counters.OMEN),
+            counterType = CounterType.OMEN,
             count = 3,
             selfOnly = true,
         )
@@ -103,10 +102,10 @@ private val SoulcipherBoardFront = card("Soulcipher Board") {
             binding = TriggerBinding.ANY,
         )
         effect = Effects.Composite(
-            Effects.RemoveCounters(Counters.OMEN, 1, EffectTarget.Self),
+            Effects.RemoveCounters(CounterType.OMEN, 1, EffectTarget.Self),
             Effects.If(
                 condition = Compare(
-                    DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.OMEN)),
+                    DynamicAmounts.countersOnSelf(CounterType.OMEN),
                     ComparisonOperator.EQ,
                     DynamicAmount.Fixed(0),
                 ),

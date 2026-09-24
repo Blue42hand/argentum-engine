@@ -43,7 +43,7 @@ class MoveCountersExecutor : EffectExecutor<MoveCountersEffect> {
             ?: return EffectResult.success(state, emptyList())
         if (sourceId == destinationId) return EffectResult.success(state, emptyList())
 
-        val counterType = resolveCounterType(effect.counterType)
+        val counterType = effect.counterType
 
         val requested = DynamicAmountEvaluator().evaluate(state, effect.amount, context)
         if (requested <= 0) return EffectResult.success(state, emptyList())
@@ -71,7 +71,7 @@ class MoveCountersExecutor : EffectExecutor<MoveCountersEffect> {
 
         val newState = afterRemoval.updateEntity(destinationId) { container ->
             container.with(destCounters.withAdded(counterType, placedCount))
-        }.let { DamageUtils.markCounterPlacedOnCreature(it, context.controllerId, destinationId, counterTypeToString(counterType)) }
+        }.let { DamageUtils.markCounterPlacedOnCreature(it, context.controllerId, destinationId, counterType) }
 
         return EffectResult.success(
             newState,

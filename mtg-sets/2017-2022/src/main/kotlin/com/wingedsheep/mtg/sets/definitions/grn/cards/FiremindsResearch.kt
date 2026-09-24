@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.grn.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -27,19 +27,19 @@ val FiremindsResearch = card("Firemind's Research") {
 
     triggeredAbility {
         trigger = Triggers.YouCastInstantOrSorcery
-        effect = Effects.AddCounters(Counters.CHARGE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)
     }
     activatedAbility {
         cost = Costs.Composite(
             Costs.Mana("{1}{U}"),
-            Costs.RemoveCounterFromSelf(Counters.CHARGE, 2)
+            Costs.RemoveCounterFromSelf(CounterType.CHARGE, 2)
         )
         effect = Effects.DrawCards(1)
     }
     activatedAbility {
         cost = Costs.Composite(
             Costs.Mana("{1}{R}"),
-            Costs.RemoveCounterFromSelf(Counters.CHARGE, 5)
+            Costs.RemoveCounterFromSelf(CounterType.CHARGE, 5)
         )
         val any = target("target", Targets.Any)
         effect = Effects.DealDamage(5, any)

@@ -7,7 +7,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithExileCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.effects.CopyExceptions
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -37,7 +37,7 @@ val MimeoplasmReveredOne = card("Mimeoplasm, Revered One") {
             filter = GameObjectFilter.Creature,
             sourceZone = Zone.GRAVEYARD,
             maxCards = DynamicAmount.XValue,
-            counterType = CounterTypeFilter.PlusOnePlusOne,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             countersPerCard = 3,
         )
     )

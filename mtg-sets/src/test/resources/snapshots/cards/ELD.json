@@ -1484,7 +1484,7 @@
                         "optional": false,
                         "reflexiveEffect": {
                             "type": "AddDynamicCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "amount": "XValue",
                             "target": "Self"
                         },
@@ -1530,7 +1530,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "wish",
+                                "counterType": "WISH",
                                 "self": true
                             }
                         }
@@ -1597,10 +1597,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "wish"
-                },
+                "counterType": "WISH",
                 "count": 3,
                 "selfOnly": true
             }

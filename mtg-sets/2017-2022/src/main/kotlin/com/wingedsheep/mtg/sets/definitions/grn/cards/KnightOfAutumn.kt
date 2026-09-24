@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.grn.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
@@ -37,7 +37,7 @@ val KnightOfAutumn = card("Knight of Autumn") {
         effect = ModalEffect(
             modes = listOf(
                 Mode.noTarget(
-                    Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
+                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
                 ),
                 Mode.withTarget(
                     Effects.Destroy(EffectTarget.BoundVariable("target")),

@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.handlers.effects
 
 import com.wingedsheep.engine.state.components.stack.EntitySnapshot
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.values.EntityReference
 import io.kotest.core.spec.style.FunSpec
@@ -42,7 +43,7 @@ class LkiPolicyTest : FunSpec({
     test("snapshot counter accessors derive the former scalar counts from the counters map") {
         val snapshot = EntitySnapshot(
             entityId = EntityId("e1"),
-            counters = mapOf("+1/+1" to 3, "-1/-1" to 1, "loyalty" to 4),
+            counters = mapOf(CounterType.PLUS_ONE_PLUS_ONE to 3, CounterType.MINUS_ONE_MINUS_ONE to 1, CounterType.LOYALTY to 4),
         )
         snapshot.plusOnePlusOneCounters shouldBe 3
         snapshot.minusOneMinusOneCounters shouldBe 1

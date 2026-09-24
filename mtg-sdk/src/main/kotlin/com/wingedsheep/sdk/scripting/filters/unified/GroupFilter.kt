@@ -1,5 +1,6 @@
 package com.wingedsheep.sdk.scripting.filters.unified
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
@@ -235,11 +236,11 @@ data class GroupFilter(
     /** Add subtype by string */
     fun withSubtype(subtype: String) = copy(baseFilter = baseFilter.withSubtype(subtype))
 
-    /** Must have a counter of the given type (e.g. `Counters.PLUS_ONE_PLUS_ONE`) */
-    fun withCounter(counterType: String) = copy(baseFilter = baseFilter.withCounter(counterType))
+    /** Must have a counter of the given type (e.g. `CounterType.PLUS_ONE_PLUS_ONE`) */
+    fun withCounter(counterType: CounterType) = copy(baseFilter = baseFilter.withCounter(counterType))
 
     /** Must not have a counter of the given type; delegates to [GameObjectFilter.withoutCounter]. */
-    fun withoutCounter(counterType: String) = copy(baseFilter = baseFilter.withoutCounter(counterType))
+    fun withoutCounter(counterType: CounterType) = copy(baseFilter = baseFilter.withoutCounter(counterType))
 
     /** Add keyword requirement */
     fun withKeyword(keyword: Keyword) = copy(baseFilter = baseFilter.withKeyword(keyword))

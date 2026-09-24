@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -38,7 +38,7 @@ val MadameNullPowerBroker = card("Madame Null, Power Broker") {
         val enteringPower = DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.Power)
         effect = Effects.MayPay(
             cost = Effects.PayDynamicLife(enteringPower),
-            then = Effects.AddDynamicCounters(Counters.PLUS_ONE_PLUS_ONE, enteringPower, EffectTarget.TriggeringEntity)
+            then = Effects.AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE, enteringPower, EffectTarget.TriggeringEntity)
         )
         description = "Whenever another creature you control enters, you may pay life equal to its power. If you do, put that many +1/+1 counters on it."
     }

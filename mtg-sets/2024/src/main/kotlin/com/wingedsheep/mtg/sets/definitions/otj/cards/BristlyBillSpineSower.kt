@@ -1,13 +1,12 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -35,7 +34,7 @@ val BristlyBillSpineSower = card("Bristly Bill, Spine Sower") {
     triggeredAbility {
         trigger = Triggers.LandYouControlEnters
         val creature = target("creature", Targets.Creature)
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
     }
 
     // {3}{G}{G}: Double the number of +1/+1 counters on each creature you control
@@ -44,10 +43,10 @@ val BristlyBillSpineSower = card("Bristly Bill, Spine Sower") {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreaturesYouControl,
             effect = Effects.AddDynamicCounters(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = DynamicAmount.EntityProperty(
                     EntityReference.IterationEntity,
-                    EntityNumericProperty.CounterCount(CounterTypeFilter.PlusOnePlusOne)
+                    EntityNumericProperty.CounterCount(CounterType.PLUS_ONE_PLUS_ONE)
                 ),
                 target = EffectTarget.Self
             )

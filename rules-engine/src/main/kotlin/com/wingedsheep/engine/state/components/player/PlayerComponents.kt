@@ -3,6 +3,7 @@ package com.wingedsheep.engine.state.components.player
 import com.wingedsheep.engine.state.Component
 import com.wingedsheep.sdk.core.BendType
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.TurnPart
@@ -1469,10 +1470,10 @@ data class PermanentsEnteredUnderControlThisTurnComponent(
  */
 @Serializable
 data class PutCounterOnCreatureThisTurnComponent(
-    val kinds: Set<String> = emptySet()
+    val kinds: Set<CounterType> = emptySet()
 ) : Component {
     /** This turn's record plus one more placement of [kind]. */
-    fun with(kind: String): PutCounterOnCreatureThisTurnComponent =
+    fun with(kind: CounterType): PutCounterOnCreatureThisTurnComponent =
         if (kind in kinds) this else copy(kinds = kinds + kind)
 }
 

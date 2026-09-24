@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -50,7 +50,7 @@ val VengefulVillagers = card("Vengeful Villagers") {
                     filter = GameObjectFilter.Artifact.or(GameObjectFilter.Creature),
                     count = 1
                 ),
-                then = AddCountersEffect(counterType = Counters.STUN, count = 1, target = chosen)
+                then = AddCountersEffect(counterType = CounterType.STUN, count = 1, target = chosen)
             )
         )
         description = "Whenever this creature attacks, choose target creature an opponent controls. " +

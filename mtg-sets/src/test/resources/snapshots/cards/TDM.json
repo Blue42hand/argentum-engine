@@ -246,7 +246,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -366,7 +366,7 @@
                         },
                         "then": {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         }
@@ -419,7 +419,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 2,
                     "target": {
                         "type": "BoundVariable",
@@ -508,7 +508,7 @@
                 },
                 {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -622,7 +622,7 @@
                             },
                             "otherwise": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -676,7 +676,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "lifelink",
+                    "counterType": "LIFELINK",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -873,7 +873,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "stun",
+                            "counterType": "STUN",
                             "count": 3,
                             "target": "Self"
                         },
@@ -955,7 +955,7 @@
                     },
                     "then": {
                         "type": "AddDynamicCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "amount": {
                             "type": "Fixed",
                             "amount": 2
@@ -1161,7 +1161,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1438,7 +1438,7 @@
                     },
                     "body": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -2143,7 +2143,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "PipelineTarget",
@@ -2162,7 +2162,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "PipelineTarget",
@@ -2181,7 +2181,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "PipelineTarget",
@@ -2200,7 +2200,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "PipelineTarget",
@@ -2219,7 +2219,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "PipelineTarget",
@@ -2386,7 +2386,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -2395,7 +2395,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "trample",
+                            "counterType": "TRAMPLE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -2543,7 +2543,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "stun",
+                            "counterType": "STUN",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -2590,7 +2590,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "stun",
+                            "counterType": "STUN",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -3435,7 +3435,7 @@
                         },
                         "then": {
                             "type": "AddDynamicCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "amount": {
                                 "type": "Fixed",
                                 "amount": 1
@@ -4588,7 +4588,7 @@
                     },
                     "then": {
                         "type": "AddDynamicCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "amount": {
                             "type": "Fixed",
                             "amount": 3
@@ -4665,7 +4665,7 @@
                     },
                     "body": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -4780,7 +4780,7 @@
                             },
                             "body": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -5179,7 +5179,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 2,
                             "target": "Self"
                         }
@@ -5422,7 +5422,7 @@
                         },
                         "body": {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         }
@@ -5449,7 +5449,7 @@
                         },
                         "body": {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         }
@@ -5540,7 +5540,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -5885,7 +5885,7 @@
                     },
                     "then": {
                         "type": "AddDynamicCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "amount": {
                             "type": "Fixed",
                             "amount": 1
@@ -6996,7 +6996,7 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "CountersPlacedEvent",
-                    "counterType": "any",
+                    "counterType": null,
                     "filter": "creature ctrl:you"
                 },
                 "binding": "ANY",
@@ -7022,7 +7022,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -7261,10 +7261,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "finality"
-                },
+                "counterType": "FINALITY",
                 "count": 1,
                 "selfOnly": true,
                 "condition": {
@@ -7418,7 +7415,7 @@
                     },
                     "then": {
                         "type": "AddDynamicCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "amount": {
                             "type": "Fixed",
                             "amount": 2
@@ -7460,7 +7457,7 @@
                     },
                     "then": {
                         "type": "AddDynamicCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "amount": {
                             "type": "Fixed",
                             "amount": 2
@@ -8123,7 +8120,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 2,
                             "target": {
                                 "type": "BoundVariable",
@@ -8132,7 +8129,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "flying",
+                            "counterType": "FLYING",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -8208,7 +8205,7 @@
                     },
                     "then": {
                         "type": "AddDynamicCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "amount": {
                             "type": "Fixed",
                             "amount": 1
@@ -8496,7 +8493,7 @@
             "effects": [
                 {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -8744,7 +8741,7 @@
                     },
                     "then": {
                         "type": "AddDynamicCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "amount": "XValue",
                         "target": "Self"
                     },
@@ -8855,7 +8852,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "amount": {
                         "type": "Count",
                         "player": "You",
@@ -8970,7 +8967,7 @@
             "effects": [
                 {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -9183,7 +9180,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -10333,7 +10330,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -11004,7 +11001,7 @@
                 },
                 {
                     "type": "AddCounters",
-                    "counterType": "hexproof",
+                    "counterType": "HEXPROOF",
                     "count": 1,
                     "target": {
                         "type": "ContextTarget",
@@ -11013,7 +11010,7 @@
                 },
                 {
                     "type": "AddCounters",
-                    "counterType": "indestructible",
+                    "counterType": "INDESTRUCTIBLE",
                     "count": 1,
                     "target": {
                         "type": "ContextTarget",
@@ -11170,7 +11167,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -11344,7 +11341,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "flying",
+                            "counterType": "FLYING",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -11353,7 +11350,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "deathtouch",
+                            "counterType": "DEATHTOUCH",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -11362,7 +11359,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "lifelink",
+                            "counterType": "LIFELINK",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -11994,7 +11991,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "ContextTarget",
@@ -12019,7 +12016,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "ContextTarget",
@@ -12608,7 +12605,7 @@
                 },
                 {
                     "type": "AddCounters",
-                    "counterType": "stun",
+                    "counterType": "STUN",
                     "count": 3,
                     "target": {
                         "type": "BoundVariable",
@@ -12975,7 +12972,7 @@
                     "space": "IterationSpace.Targets",
                     "body": {
                         "type": "AddCounters",
-                        "counterType": "decayed",
+                        "counterType": "DECAYED",
                         "count": 1,
                         "target": {
                             "type": "ContextTarget",
@@ -13120,7 +13117,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -13158,7 +13155,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -13285,7 +13282,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 2,
                             "target": {
                                 "type": "BoundVariable",
@@ -13294,7 +13291,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "reach",
+                            "counterType": "REACH",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -13560,7 +13557,7 @@
                     },
                     "then": {
                         "type": "AddDynamicCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "amount": {
                             "type": "Fixed",
                             "amount": 2
@@ -13715,7 +13712,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -14456,7 +14453,7 @@
                             },
                             "then": {
                                 "type": "AddDynamicCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "amount": {
                                     "type": "Fixed",
                                     "amount": 1
@@ -14595,7 +14592,7 @@
                             },
                             {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": {
                                     "type": "ContextTarget",
@@ -15020,14 +15017,14 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "CountersPlacedEvent",
-                    "counterType": "any",
+                    "counterType": null,
                     "filter": "creature ctrl:you",
                     "firstTimeEachTurn": true
                 },
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "TriggeringEntity"
                 },
@@ -16284,7 +16281,7 @@
                             "effects": [
                                 {
                                     "type": "AddCounters",
-                                    "counterType": "time",
+                                    "counterType": "TIME",
                                     "count": 4,
                                     "target": "TriggeringEntity"
                                 },
@@ -17163,7 +17160,7 @@
                     },
                     "otherwise": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -17592,7 +17589,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -18494,7 +18491,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -18512,17 +18509,17 @@
                     "type": "Gated",
                     "gate": {
                         "type": "Gate.MayDecide",
-                        "hint": "Put it's the number of  counters +1/+1 counter(s) on that creature? If you don't, create a it's the number of  counters/it's the number of  counters white Spirit creature token."
+                        "hint": "Put it's the number of counters +1/+1 counter(s) on that creature? If you don't, create a it's the number of counters/it's the number of counters white Spirit creature token."
                     },
                     "then": {
                         "type": "AddDynamicCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "amount": {
                             "type": "EntityProperty",
                             "entity": "Source",
                             "numericProperty": {
                                 "type": "CounterCount",
-                                "counterType": "CounterAny"
+                                "counterType": null
                             }
                         },
                         "target": "TriggeringEntity"
@@ -18543,7 +18540,7 @@
                             "entity": "Source",
                             "numericProperty": {
                                 "type": "CounterCount",
-                                "counterType": "CounterAny"
+                                "counterType": null
                             }
                         },
                         "dynamicToughness": {
@@ -18551,11 +18548,11 @@
                             "entity": "Source",
                             "numericProperty": {
                                 "type": "CounterCount",
-                                "counterType": "CounterAny"
+                                "counterType": null
                             }
                         }
                     },
-                    "descriptionOverride": "Put it's the number of  counters +1/+1 counter(s) on that creature. If you don't, create a it's the number of  counters/it's the number of  counters white Spirit creature token."
+                    "descriptionOverride": "Put it's the number of counters +1/+1 counter(s) on that creature. If you don't, create a it's the number of counters/it's the number of counters white Spirit creature token."
                 },
                 "descriptionOverride": "Whenever another nontoken creature you control enters, it endures X, where X is the number of counters on this creature."
             }
@@ -18768,7 +18765,7 @@
             "script": {
                 "spellEffect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 3,
                     "target": {
                         "type": "BoundVariable",

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
@@ -65,7 +65,7 @@ val TheThingBenGrimm = card("The Thing, Ben Grimm") {
             binding = TriggerBinding.ANY,
             batch = true,
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
         description = "Whenever one or more Heroes you control deal damage to a player, put two " +
             "+1/+1 counters on The Thing."
     }

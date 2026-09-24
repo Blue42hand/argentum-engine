@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -47,7 +48,7 @@ private val WeddingAnnouncementFront = card("Wedding Announcement") {
     triggeredAbility {
         trigger = Triggers.YourEndStep
         effect = Effects.Composite(
-            Effects.AddCounters("invitation", 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.INVITATION, 1, EffectTarget.Self),
             Effects.If(
                 condition = Conditions.YouAttackedWithCreaturesThisTurn(GameObjectFilter.Creature, atLeast = 2),
                 then = Effects.DrawCards(1),
@@ -60,7 +61,7 @@ private val WeddingAnnouncementFront = card("Wedding Announcement") {
                 ),
             ),
             Effects.If(
-                condition = Conditions.SourceCounterCountAtLeast("invitation", 3),
+                condition = Conditions.SourceCounterCountAtLeast(CounterType.INVITATION, 3),
                 then = TransformEffect(EffectTarget.Self),
             ),
         )

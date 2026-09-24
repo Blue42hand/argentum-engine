@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.soi.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
@@ -41,7 +41,7 @@ val EssenceFlux = card("Essence Flux") {
                         ),
                         targetIndex = 0
                     ),
-                    then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature)
+                    then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
                 )
             )
     }

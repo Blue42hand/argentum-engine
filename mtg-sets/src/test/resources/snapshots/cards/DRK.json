@@ -887,7 +887,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "storage",
+                    "counterType": "STORAGE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -903,10 +903,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "storage"
-                            }
+                            "counterType": "STORAGE"
                         }
                     }
                 },
@@ -1839,7 +1836,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "hunger",
+                            "counterType": "HUNGER",
                             "count": 1,
                             "target": "Self"
                         },
@@ -1854,10 +1851,7 @@
                                         "entity": "Source",
                                         "numericProperty": {
                                             "type": "CounterCount",
-                                            "counterType": {
-                                                "type": "Named",
-                                                "name": "hunger"
-                                            }
+                                            "counterType": "HUNGER"
                                         }
                                     },
                                     "operator": "GTE",
@@ -2320,7 +2314,7 @@
                                     {
                                         "effect": {
                                             "type": "AddCounters",
-                                            "counterType": "+2/+0",
+                                            "counterType": "PLUS_TWO_PLUS_ZERO",
                                             "count": 1,
                                             "target": "Self"
                                         },
@@ -2329,7 +2323,7 @@
                                     {
                                         "effect": {
                                             "type": "AddCounters",
-                                            "counterType": "+1/+1",
+                                            "counterType": "PLUS_ONE_PLUS_ONE",
                                             "count": 1,
                                             "target": "Self"
                                         },
@@ -2338,7 +2332,7 @@
                                     {
                                         "effect": {
                                             "type": "AddCounters",
-                                            "counterType": "+0/+2",
+                                            "counterType": "PLUS_ZERO_PLUS_TWO",
                                             "count": 1,
                                             "target": "Self"
                                         },
@@ -3397,7 +3391,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "+0/+1",
+                    "counterType": "PLUS_ZERO_PLUS_ONE",
                     "amount": {
                         "type": "EntityProperty",
                         "entity": "Target",
@@ -3788,7 +3782,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "poison",
+                    "counterType": "POISON",
                     "count": 2,
                     "target": {
                         "type": "PlayerRef",
@@ -4318,7 +4312,7 @@
                         },
                         {
                             "type": "AddDynamicCounters",
-                            "counterType": "+0/+1",
+                            "counterType": "PLUS_ZERO_PLUS_ONE",
                             "amount": {
                                 "type": "ManaValueSumOfCollection",
                                 "collectionName": "necropolisFuel"

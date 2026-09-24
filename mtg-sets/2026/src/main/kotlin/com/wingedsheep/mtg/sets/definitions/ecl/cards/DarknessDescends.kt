@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
@@ -24,7 +24,7 @@ val DarknessDescends = card("Darkness Descends") {
         effect = Effects.ForEachInGroup(
             filter = GroupFilter.AllCreatures,
             effect = AddCountersEffect(
-                counterType = Counters.MINUS_ONE_MINUS_ONE,
+                counterType = CounterType.MINUS_ONE_MINUS_ONE,
                 count = 2,
                 target = EffectTarget.Self
             )

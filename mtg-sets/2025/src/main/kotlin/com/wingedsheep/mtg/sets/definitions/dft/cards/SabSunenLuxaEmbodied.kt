@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.CantAttackUnless
 import com.wingedsheep.sdk.scripting.CantBlockUnless
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -27,7 +27,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Two things the wording pins down and the model must honor:
  *
  * - **"counters on it" means counters of *every* kind**, not just +1/+1 — a stun, shield or oil
- *   counter shifts the parity. Hence [CounterTypeFilter.Any] rather than `PlusOnePlusOne`. The
+ *   counter shifts the parity. Hence `null` rather than `CounterType.PLUS_ONE_PLUS_ONE`. The
  *   reminder text "(Zero is even.)" is not an exception but a consequence: a freshly-resolved
  *   Sab-Sunen has zero counters, which is even, so it can attack immediately.
  * - **"Then if …" is checked on resolution, not as an intervening-if.** The draw is a
@@ -54,7 +54,7 @@ val SabSunenLuxaEmbodied = card("Sab-Sunen, Luxa Embodied") {
 
     keywords(Keyword.REACH, Keyword.TRAMPLE, Keyword.INDESTRUCTIBLE)
 
-    val countersOnSabSunen = DynamicAmounts.countersOnSelf(CounterTypeFilter.Any)
+    val countersOnSabSunen = DynamicAmounts.countersOnSelf(null)
     val hasEvenCounters = Conditions.AmountIsEven(countersOnSabSunen)
 
     staticAbility {
@@ -66,7 +66,7 @@ val SabSunenLuxaEmbodied = card("Sab-Sunen, Luxa Embodied") {
 
     triggeredAbility {
         trigger = Triggers.FirstMainPhase
-        effect = Effects.AddCounters("+1/+1", 1, EffectTarget.Self).then(
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self).then(
             Effects.If(
                 condition = Conditions.AmountIsOdd(countersOnSabSunen),
                 then = Effects.DrawCards(2),

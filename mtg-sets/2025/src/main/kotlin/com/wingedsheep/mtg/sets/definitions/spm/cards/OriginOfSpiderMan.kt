@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -35,7 +35,7 @@ val OriginOfSpiderMan = card("Origin of Spider-Man") {
     sagaChapter(2) {
         val creature = target("creature you control", Targets.CreatureYouControl)
         effect = Effects.Composite(listOf(
-            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, creature),
+            AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
             AddCardTypeEffect("LEGENDARY", creature, Duration.Permanent),
             Effects.AddCreatureType("Spider", creature, Duration.Permanent),
             Effects.AddCreatureType("Hero", creature, Duration.Permanent)

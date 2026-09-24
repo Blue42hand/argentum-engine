@@ -116,10 +116,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     }
                 }
@@ -155,7 +152,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "charge",
+                            "counterType": "CHARGE",
                             "count": 1,
                             "target": "Self"
                         }
@@ -595,7 +592,7 @@
                 "binding": "ATTACHED",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -643,10 +640,7 @@
                     "entity": "Source",
                     "numericProperty": {
                         "type": "CounterCount",
-                        "counterType": {
-                            "type": "Named",
-                            "name": "charge"
-                        }
+                        "counterType": "CHARGE"
                     }
                 },
                 "toughnessBonus": {
@@ -654,10 +648,7 @@
                     "entity": "Source",
                     "numericProperty": {
                         "type": "CounterCount",
-                        "counterType": {
-                            "type": "Named",
-                            "name": "charge"
-                        }
+                        "counterType": "CHARGE"
                     }
                 }
             }
@@ -731,7 +722,7 @@
     "script": {
         "spellEffect": {
             "type": "AddCounters",
-            "counterType": "+1/+1",
+            "counterType": "PLUS_ONE_PLUS_ONE",
             "count": 1,
             "target": {
                 "type": "BoundVariable",
@@ -1272,10 +1263,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     }
                 }
@@ -1284,10 +1272,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithDynamicCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "charge"
-                },
+                "counterType": "CHARGE",
                 "count": "CastX"
             }
         ]
@@ -1517,7 +1502,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "RemoveCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1588,7 +1573,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "RemoveCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1659,7 +1644,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "RemoveCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1701,7 +1686,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1750,7 +1735,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "RemoveCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1786,7 +1771,7 @@
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -3824,7 +3809,7 @@
     "script": {
         "spellEffect": {
             "type": "AddDynamicCounters",
-            "counterType": "+1/+1",
+            "counterType": "PLUS_ONE_PLUS_ONE",
             "amount": {
                 "type": "EntityProperty",
                 "entity": "Sacrificed",
@@ -5609,7 +5594,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "charge",
+                            "counterType": "CHARGE",
                             "count": 1,
                             "target": "Self"
                         }
@@ -5634,10 +5619,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "target": "Controller"
@@ -5678,7 +5660,7 @@
                                 "label": "Put a charge counter on Jinxed Choker",
                                 "effect": {
                                     "type": "AddCounters",
-                                    "counterType": "charge",
+                                    "counterType": "CHARGE",
                                     "count": 1,
                                     "target": "Self"
                                 }
@@ -5687,7 +5669,7 @@
                                 "label": "Remove a charge counter from Jinxed Choker",
                                 "effect": {
                                     "type": "RemoveCounters",
-                                    "counterType": "charge",
+                                    "counterType": "CHARGE",
                                     "count": 1,
                                     "target": "Self"
                                 }
@@ -5696,7 +5678,7 @@
                     },
                     "otherwise": {
                         "type": "AddCounters",
-                        "counterType": "charge",
+                        "counterType": "CHARGE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -6607,7 +6589,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -6630,16 +6612,13 @@
                                 "entity": "Source",
                                 "numericProperty": {
                                     "type": "CounterCount",
-                                    "counterType": {
-                                        "type": "Named",
-                                        "name": "charge"
-                                    }
+                                    "counterType": "CHARGE"
                                 }
                             }
                         },
                         {
                             "type": "RemoveAllCountersOfType",
-                            "counterType": "charge",
+                            "counterType": "CHARGE",
                             "target": "Self"
                         },
                         {
@@ -6671,10 +6650,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -8452,7 +8428,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -8467,10 +8443,7 @@
                     "entity": "Source",
                     "numericProperty": {
                         "type": "CounterCount",
-                        "counterType": {
-                            "type": "Named",
-                            "name": "+1/+1"
-                        }
+                        "counterType": "PLUS_ONE_PLUS_ONE"
                     }
                 }
             }
@@ -9332,7 +9305,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "fate",
+                    "counterType": "FATE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -9386,7 +9359,7 @@
                                                     "type": "StateNot",
                                                     "predicate": {
                                                         "type": "HasCounter",
-                                                        "counterType": "fate"
+                                                        "counterType": "FATE"
                                                     }
                                                 }
                                             ]
@@ -9417,7 +9390,7 @@
                                         "statePredicates": [
                                             {
                                                 "type": "HasCounter",
-                                                "counterType": "fate"
+                                                "counterType": "FATE"
                                             }
                                         ]
                                     }
@@ -9425,7 +9398,7 @@
                             },
                             "body": {
                                 "type": "RemoveAllCountersOfType",
-                                "counterType": "fate",
+                                "counterType": "FATE",
                                 "target": "Self"
                             }
                         }
@@ -9725,7 +9698,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "self": true
                             }
                         }
@@ -9770,7 +9743,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -9937,7 +9910,7 @@
                         {
                             "effect": {
                                 "type": "AddCounters",
-                                "counterType": "charge",
+                                "counterType": "CHARGE",
                                 "count": 1,
                                 "target": {
                                     "type": "ContextTarget",
@@ -9957,7 +9930,7 @@
                         {
                             "effect": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": {
                                     "type": "ContextTarget",
@@ -10490,7 +10463,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "flood",
+                    "counterType": "FLOOD",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -10534,7 +10507,7 @@
                     },
                     "body": {
                         "type": "RemoveAllCountersOfType",
-                        "counterType": "flood",
+                        "counterType": "FLOOD",
                         "target": "Self"
                     }
                 },
@@ -10566,7 +10539,7 @@
             {
                 "type": "AddLandTypeByCounter",
                 "landType": "Island",
-                "counterType": "flood"
+                "counterType": "FLOOD"
             }
         ]
     },
@@ -11551,7 +11524,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -11575,7 +11548,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "charge",
+                                "counterType": "CHARGE",
                                 "self": true
                             }
                         }
@@ -12034,7 +12007,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -12075,7 +12048,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -12136,7 +12109,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -12180,7 +12153,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -12233,7 +12206,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -13142,7 +13115,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": {
                         "type": "ContextProperty",
                         "key": "TRIGGER_DAMAGE_AMOUNT"
@@ -13183,7 +13156,7 @@
                             "effects": [
                                 {
                                     "type": "RemoveCounters",
-                                    "counterType": "charge",
+                                    "counterType": "CHARGE",
                                     "count": 1,
                                     "target": "Self"
                                 },
@@ -16098,7 +16071,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "amount": {
                         "type": "ContextProperty",
                         "key": "TRIGGER_DAMAGE_AMOUNT"

@@ -6867,7 +6867,7 @@ val OtherworldlyJourney = card("Otherworldly Journey") {
                 step = Step.END,
                 effect = Effects.Composite(
                     Effects.Move(t, Zone.BATTLEFIELD),
-                    AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+                    AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
                 )
             )
         )

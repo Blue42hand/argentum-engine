@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.isd.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -45,7 +45,7 @@ val OliviaVoldaren = card("Olivia Voldaren") {
             listOf(
                 Effects.DealDamage(1, creature),
                 Effects.AddSubtype("Vampire", creature, Duration.Permanent),
-                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             )
         )
         description = "{1}{R}: Olivia Voldaren deals 1 damage to another target creature. That creature becomes a Vampire in addition to its other types. Put a +1/+1 counter on Olivia Voldaren."

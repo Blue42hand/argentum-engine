@@ -1,7 +1,7 @@
 package com.wingedsheep.sdk.dsl
 
 import com.wingedsheep.sdk.core.BendType
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
@@ -1471,7 +1471,7 @@ object Triggers {
      */
     val PlusOneCountersPlacedOnYourCreature: TriggerSpec = TriggerSpec(
         event = CountersPlacedEvent(
-            counterType = Counters.PLUS_ONE_PLUS_ONE,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             filter = GameObjectFilter.Creature.youControl()
         ),
         binding = TriggerBinding.ANY
@@ -1500,7 +1500,7 @@ object Triggers {
      */
     fun countersPlacedOn(
         filter: GameObjectFilter = GameObjectFilter.Creature.youControl(),
-        counterType: String = Counters.ANY,
+        counterType: CounterType? = null,
         batch: Boolean = false,
         firstTimeEachTurn: Boolean = !batch,
         binding: TriggerBinding = TriggerBinding.ANY,
@@ -1524,7 +1524,7 @@ object Triggers {
      */
     val CountersPlacedOnThis: TriggerSpec = TriggerSpec(
         event = CountersPlacedEvent(
-            counterType = Counters.ANY,
+            counterType = null,
             filter = GameObjectFilter.Any,
             firstTimeEachTurn = false,
         ),
@@ -1542,7 +1542,7 @@ object Triggers {
      */
     fun countersRemovedFrom(
         filter: GameObjectFilter = GameObjectFilter.Any,
-        counterType: String = Counters.ANY,
+        counterType: CounterType? = null,
         lastRemoved: Boolean = false,
         byDamagePrevention: Boolean = false,
         binding: TriggerBinding = TriggerBinding.ANY,

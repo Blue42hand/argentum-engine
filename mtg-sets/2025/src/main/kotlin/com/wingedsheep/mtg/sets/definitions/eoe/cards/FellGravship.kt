@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
@@ -86,7 +86,7 @@ val FellGravship = card("Fell Gravship") {
     station()
 
     // 8+ charge counters: Flying and lifelink
-    val charge8 = Conditions.SourceCounterCountAtLeast(Counters.CHARGE, 8)
+    val charge8 = Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, 8)
 
     staticAbility {
         condition = charge8

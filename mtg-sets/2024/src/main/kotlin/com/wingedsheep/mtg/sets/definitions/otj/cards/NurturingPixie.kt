@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
@@ -57,7 +57,7 @@ val NurturingPixie = card("Nurturing Pixie") {
         effect = Effects.ReturnToHand(t).then(
             Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Permanent),
-                then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             ),
         )
         description = "When this creature enters, return up to one target non-Faerie, nonland " +

@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
@@ -45,7 +46,7 @@ val BoneyardDesecrator = card("Boneyard Desecrator") {
             Costs.Mana("{1}{B}"),
             Costs.SacrificeAnother(GameObjectFilter.Creature)
         )
-        effect = Effects.AddCounters("+1/+1", 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             .then(
                 Effects.If(
                     condition = Conditions.Any(

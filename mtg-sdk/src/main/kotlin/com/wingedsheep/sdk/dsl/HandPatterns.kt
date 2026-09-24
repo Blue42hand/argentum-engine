@@ -1,6 +1,6 @@
 package com.wingedsheep.sdk.dsl
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
@@ -694,7 +694,7 @@ object HandPatterns {
         subject = target,
         body = connivePipeline(
             AddCountersEffect(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 count = 1,
                 target = target
             )
@@ -728,7 +728,7 @@ object HandPatterns {
             listOf(
                 SelectTargetEffect(requirement = requirement, storeAs = storeAs),
                 AddCountersEffect(
-                    counterType = Counters.PLUS_ONE_PLUS_ONE,
+                    counterType = CounterType.PLUS_ONE_PLUS_ONE,
                     count = 1,
                     target = EffectTarget.PipelineTarget(storeAs)
                 )

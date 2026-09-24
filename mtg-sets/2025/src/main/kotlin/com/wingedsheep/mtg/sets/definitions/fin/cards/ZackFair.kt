@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -54,7 +54,7 @@ val ZackFair = card("Zack Fair") {
     // Zack Fair enters with a +1/+1 counter on it.
     replacementEffect(
         EntersWithCounters(
-            counterType = CounterTypeFilter.PlusOnePlusOne,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 1,
             selfOnly = true
         )

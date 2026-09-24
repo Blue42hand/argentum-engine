@@ -4,7 +4,7 @@
 
 package com.wingedsheep.mtg.sets.definitions.hob.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.card
@@ -31,7 +31,7 @@ val GuardianOfTheHalls = card("Guardian of the Halls") {
     keywords(Keyword.TRAMPLE)
     activatedAbility {
         cost = Costs.Mana("{5}{G}{G}")
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 3, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 3, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.COMMON

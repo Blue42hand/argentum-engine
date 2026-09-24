@@ -258,7 +258,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -545,7 +545,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "shield",
+                    "counterType": "SHIELD",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -737,7 +737,7 @@
                 "binding": "OTHER",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1275,10 +1275,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "shield"
-                },
+                "counterType": "SHIELD",
                 "count": 1,
                 "selfOnly": true
             }
@@ -1524,7 +1521,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -2902,10 +2899,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "shield"
-                },
+                "counterType": "SHIELD",
                 "count": 1,
                 "selfOnly": true
             }

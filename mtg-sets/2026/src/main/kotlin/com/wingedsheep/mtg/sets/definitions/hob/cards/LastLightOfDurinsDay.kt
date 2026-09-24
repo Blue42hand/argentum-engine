@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.hob.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
@@ -65,9 +65,9 @@ val LastLightOfDurinsDay = card("Last Light of Durin's Day") {
             binding = TriggerBinding.ANY
         )
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.QUEST, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.QUEST, 1, EffectTarget.Self),
             Effects.If(
-                condition = Conditions.SourceCounterCountAtLeast(Counters.QUEST, 6),
+                condition = Conditions.SourceCounterCountAtLeast(CounterType.QUEST, 6),
                 then = Effects.Composite(
                     Effects.SacrificeTarget(EffectTarget.Self),
                     Patterns.Library.searchMultipleZones(

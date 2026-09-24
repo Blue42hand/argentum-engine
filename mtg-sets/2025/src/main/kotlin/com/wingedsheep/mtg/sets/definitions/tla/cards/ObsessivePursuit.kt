@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -54,7 +54,7 @@ val ObsessivePursuit = card("Obsessive Pursuit") {
         val attacker = target("attacking creature", Targets.AttackingCreature)
         effect = Effects.Composite(
             Effects.AddDynamicCounters(
-                Counters.PLUS_ONE_PLUS_ONE,
+                CounterType.PLUS_ONE_PLUS_ONE,
                 DynamicAmounts.permanentsSacrificedThisTurn(),
                 attacker,
             ),

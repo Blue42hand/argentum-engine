@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mrd.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 import com.wingedsheep.sdk.scripting.values.EntityReference
@@ -33,7 +32,7 @@ val ChaliceOfTheVoid = card("Chalice of the Void") {
 
     replacementEffect(
         EntersWithDynamicCounters(
-            counterType = CounterTypeFilter.Named(Counters.CHARGE),
+            counterType = CounterType.CHARGE,
             count = DynamicAmount.CastX
         )
     )
@@ -43,7 +42,7 @@ val ChaliceOfTheVoid = card("Chalice of the Void") {
         triggerRestriction = Compare(
             DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.ManaValue),
             ComparisonOperator.EQ,
-            DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.CHARGE))
+            DynamicAmounts.countersOnSelf(CounterType.CHARGE)
         )
         effect = Effects.CounterTriggeringSpell()
     }

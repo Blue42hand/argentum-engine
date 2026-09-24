@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantDynamicStatsEffect
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -34,7 +33,7 @@ private const val SLUG_TOKEN_IMAGE =
  *
  * Modeling notes:
  *
- *  - **The slime counter is a pure marker** ([Counters.SLIME], added to `CounterType` with this
+ *  - **The slime counter is a pure marker** ([CounterType.SLIME], added to `CounterType` with this
  *    card). It carries no rule of its own — Toxrill's *second* ability is the only thing that turns
  *    a tally into a P/T change, and his third only asks whether one is present. That split is what
  *    the printed rulings require: both abilities "apply to all creatures you don't control with
@@ -76,7 +75,7 @@ val ToxrillTheCorrosive = card("Toxrill, the Corrosive") {
         trigger = Triggers.EachEndStep
         effect = Effects.ForEachInGroup(
             GroupFilter.AllCreaturesOpponentsControl,
-            Effects.AddCounters(Counters.SLIME, 1, EffectTarget.Self)
+            Effects.AddCounters(CounterType.SLIME, 1, EffectTarget.Self)
         )
         description = "At the beginning of each end step, put a slime counter on each creature " +
             "you don't control."
@@ -89,7 +88,7 @@ val ToxrillTheCorrosive = card("Toxrill, the Corrosive") {
             DynamicAmount.EntityProperty(
                 entity = EntityReference.AffectedEntity,
                 numericProperty = EntityNumericProperty.CounterCount(
-                    CounterTypeFilter.Named(Counters.SLIME)
+                    CounterType.SLIME
                 )
             ),
             -1
@@ -105,7 +104,7 @@ val ToxrillTheCorrosive = card("Toxrill, the Corrosive") {
     // Slug creature token.
     triggeredAbility {
         trigger = Triggers.leavesBattlefield(
-            filter = GameObjectFilter.Creature.opponentControls().withCounter(Counters.SLIME),
+            filter = GameObjectFilter.Creature.opponentControls().withCounter(CounterType.SLIME),
             to = Zone.GRAVEYARD,
             binding = TriggerBinding.ANY
         )

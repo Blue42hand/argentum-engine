@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -55,7 +55,7 @@ val LongstalkBrawl = card("Longstalk Brawl") {
                     controller = EffectTarget.PlayerRef(Player.ChosenOpponent),
                     imageUri = "https://cards.scryfall.io/normal/front/d/e/de0d6700-49f0-4233-97ba-cef7821c30ed.jpg?1721431109"
                 )
-                    .then(Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
+                    .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
                     .then(Effects.Fight(EffectTarget.ContextTarget(0), EffectTarget.ContextTarget(1)))
                     .then(Effects.GiftGiven()),
                 targetRequirements = listOf(Targets.CreatureYouControl, Targets.CreatureOpponentControls),

@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -51,7 +51,7 @@ val UnwillingVessel = card("Unwilling Vessel") {
             filter = GameObjectFilter.Enchantment.youControl(),
             binding = TriggerBinding.ANY,
         )
-        effect = Effects.AddCounters(Counters.POSSESSION, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.POSSESSION, 1, EffectTarget.Self)
         description = "Eerie — Whenever an enchantment you control enters, put a possession " +
             "counter on this creature."
     }
@@ -59,7 +59,7 @@ val UnwillingVessel = card("Unwilling Vessel") {
     // Eerie trigger — part 2: whenever you fully unlock a Room
     triggeredAbility {
         trigger = Triggers.RoomFullyUnlocked
-        effect = Effects.AddCounters(Counters.POSSESSION, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.POSSESSION, 1, EffectTarget.Self)
         description = "Eerie — Whenever you fully unlock a Room, put a possession counter on this " +
             "creature."
     }

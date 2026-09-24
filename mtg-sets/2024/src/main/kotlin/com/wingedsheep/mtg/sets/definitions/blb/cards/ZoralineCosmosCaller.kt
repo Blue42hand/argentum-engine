@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
@@ -125,7 +125,7 @@ private fun zoralineReanimateEffect() = Effects.Composite(
                         destination = CardDestination.ToZone(Zone.BATTLEFIELD)
                     ),
                     // Add finality counter
-                    AddCountersToCollectionEffect("chosen", Counters.FINALITY, 1)
+                    AddCountersToCollectionEffect("chosen", CounterType.FINALITY, 1)
                 )
             )
         )

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -49,7 +49,7 @@ val ZimoneParadoxSculptor = card("Zimone, Paradox Sculptor") {
             TargetCreature(count = 2, optional = true, filter = TargetFilter.Creature.youControl())
         )
         effect = ForEachTargetEffect(
-            listOf(Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
+            listOf(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0)))
         )
         description = "At the beginning of combat on your turn, put a +1/+1 counter on each of " +
             "up to two target creatures you control."

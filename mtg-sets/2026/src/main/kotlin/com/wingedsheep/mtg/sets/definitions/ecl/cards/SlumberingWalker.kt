@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -10,7 +10,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -38,16 +37,16 @@ val SlumberingWalker = card("Slumbering Walker") {
         "to the battlefield."
 
     replacementEffect(EntersWithCounters(
-        counterType = CounterTypeFilter.MinusOneMinusOne,
+        counterType = CounterType.MINUS_ONE_MINUS_ONE,
         count = 2,
         selfOnly = true
     ))
 
     triggeredAbility {
         trigger = Triggers.YourEndStep
-        triggerRestriction = Conditions.SourceHasCounter(CounterTypeFilter.MinusOneMinusOne)
+        triggerRestriction = Conditions.SourceHasCounter(CounterType.MINUS_ONE_MINUS_ONE)
         effect = ReflexiveTriggerEffect(
-            action = Effects.RemoveCounters(Counters.MINUS_ONE_MINUS_ONE, 1, EffectTarget.Self),
+            action = Effects.RemoveCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, EffectTarget.Self),
             optional = true,
             reflexiveEffect = Effects.Move(
                 target = EffectTarget.ContextTarget(0),

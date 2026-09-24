@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
@@ -57,7 +57,7 @@ private val HydaelynTheMothercrystal = card("Hydaelyn, the Mothercrystal") {
         trigger = Triggers.BeginCombat
         val creature = target("creature", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
             Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, creature, Duration.UntilYourNextTurn),
             Effects.If(
                 // "If that creature is legendary, draw a card." The +1/+1 target is the first (only)

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -49,7 +49,7 @@ val UndyingMalice = card("Undying Malice") {
                         placement = ZonePlacement.Tapped,
                         fromZone = Zone.GRAVEYARD
                     ),
-                    AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                    AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                 ),
                 descriptionOverride = "When this creature dies, return it to the battlefield tapped under its owner's control with a +1/+1 counter on it."
             ),

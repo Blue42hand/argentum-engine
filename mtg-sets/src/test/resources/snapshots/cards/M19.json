@@ -1177,7 +1177,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "gold",
+                    "counterType": "GOLD",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1195,7 +1195,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "gold",
+                                "counterType": "GOLD",
                                 "self": true
                             }
                         }
@@ -2767,7 +2767,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -86,7 +86,7 @@ val VannifarEvolvedEnigma = card("Vannifar, Evolved Enigma") {
                                 .withCardPredicate(CardPredicate.IsColorless)
                                 .youControl(),
                         ),
-                        Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                        Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                     ),
                     "Put a +1/+1 counter on each colorless creature you control",
                 ),

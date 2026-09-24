@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.card
@@ -77,7 +76,7 @@ val KarnScionOfUrza = card("Karn, Scion of Urza") {
                     source = CardSource.FromZone(
                         zone = Zone.EXILE,
                         player = Player.You,
-                        filter = GameObjectFilter.Any.withCounter(Counters.SILVER)
+                        filter = GameObjectFilter.Any.withCounter(CounterType.SILVER)
                     ),
                     storeAs = "silverExiled"
                 ),

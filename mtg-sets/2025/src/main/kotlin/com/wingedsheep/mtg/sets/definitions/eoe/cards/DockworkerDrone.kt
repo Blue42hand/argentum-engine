@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 
 /**
  * Dockworker Drone
@@ -25,7 +25,7 @@ val DockworkerDrone = card("Dockworker Drone") {
     oracleText = "This creature enters with a +1/+1 counter on it.\nWhen this creature dies, put its counters on target creature you control."
 
     replacementEffect(EntersWithCounters(
-        counterType = CounterTypeFilter.PlusOnePlusOne,
+        counterType = CounterType.PLUS_ONE_PLUS_ONE,
         count = 1,
         selfOnly = true
     ))

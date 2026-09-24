@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -50,7 +50,7 @@ val KutzilsFlanker = card("Kutzil's Flanker") {
         effect = ModalEffect.chooseOne(
             Mode.noTarget(
                 Effects.AddDynamicCounters(
-                    Counters.PLUS_ONE_PLUS_ONE,
+                    CounterType.PLUS_ONE_PLUS_ONE,
                     DynamicAmount.TurnTracking(Player.You, TurnTracker.CREATURES_LEFT_BATTLEFIELD),
                     EffectTarget.Self
                 ),

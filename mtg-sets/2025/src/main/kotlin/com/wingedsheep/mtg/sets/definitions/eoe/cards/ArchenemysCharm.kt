@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -50,7 +51,7 @@ val ArchenemysCharm = card("Archenemy's Charm") {
             }
             mode("Put two +1/+1 counters on target creature you control. It gains lifelink until end of turn") {
                 val target = target("target creature you control", Targets.CreatureYouControl)
-                effect = Effects.AddCounters("+1+1", 2, target) then Effects.GrantKeyword(com.wingedsheep.sdk.core.Keyword.LIFELINK, target)
+                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, target) then Effects.GrantKeyword(com.wingedsheep.sdk.core.Keyword.LIFELINK, target)
             }
         }
     }

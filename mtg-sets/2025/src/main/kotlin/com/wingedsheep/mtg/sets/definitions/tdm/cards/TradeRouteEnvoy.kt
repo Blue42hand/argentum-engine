@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -40,7 +40,7 @@ val TradeRouteEnvoy = card("Trade Route Envoy") {
                 )
             ),
             then = Effects.DrawCards(1),
-            otherwise = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+            otherwise = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         )
         description = "When this creature enters, draw a card if you control a creature with a counter on it. " +
             "If you don't draw a card this way, put a +1/+1 counter on this creature."

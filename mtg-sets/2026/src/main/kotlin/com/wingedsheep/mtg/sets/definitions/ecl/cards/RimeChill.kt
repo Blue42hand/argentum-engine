@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.vividCostReduction
@@ -33,7 +34,7 @@ val RimeChill = card("Rime Chill") {
         effect = ForEachTargetEffect(
             listOf(
                 Effects.Tap(EffectTarget.ContextTarget(0)),
-                Effects.AddCounters("STUN", 1, EffectTarget.ContextTarget(0))
+                Effects.AddCounters(CounterType.STUN, 1, EffectTarget.ContextTarget(0))
             )
         ).then(Effects.DrawCards(1))
     }

@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -34,7 +35,7 @@ val OtterballAntics = card("Otterball Antics") {
                 creatureTypes = setOf("Otter"),
                 keywords = setOf(Keyword.PROWESS),
                 imageUri = "https://cards.scryfall.io/normal/front/e/6/e6b2c465-c446-4dee-9101-763105dcf813.jpg?1724438155",
-                initialCounters = mapOf("+1/+1" to 1)
+                initialCounters = mapOf(CounterType.PLUS_ONE_PLUS_ONE to 1)
             ),
             // From hand: create token without counter
             otherwise = CreateTokenEffect(

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -60,7 +60,7 @@ val CaseOfTheTrampledGarden = card("Case of the Trampled Garden") {
             minCount = 1,
             filter = TargetFilter.Creature.youControl()
         )
-        effect = Effects.DistributeCountersAmongTargets(2, Counters.PLUS_ONE_PLUS_ONE)
+        effect = Effects.DistributeCountersAmongTargets(2, CounterType.PLUS_ONE_PLUS_ONE)
     }
 
     toSolve(
@@ -80,7 +80,7 @@ val CaseOfTheTrampledGarden = card("Case of the Trampled Garden") {
         val creature = target("target creature", TargetCreature(filter = TargetFilter.Creature.attacking()))
         trigger = Triggers.YouAttack
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature),
             Effects.GrantKeyword(Keyword.TRAMPLE, creature)
         )
         description = "Solved — Whenever you attack, put a +1/+1 counter on target attacking " +

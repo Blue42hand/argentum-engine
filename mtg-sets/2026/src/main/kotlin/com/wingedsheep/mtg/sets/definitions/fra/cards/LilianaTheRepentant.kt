@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -50,7 +50,7 @@ val LilianaTheRepentant = card("Liliana the Repentant") {
         )
         effect = Effects.Composite(
             Effects.Move(card, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
         )
         description = "Return target creature or planeswalker card from your graveyard to the battlefield. " +
             "Put a +1/+1 counter on Liliana."

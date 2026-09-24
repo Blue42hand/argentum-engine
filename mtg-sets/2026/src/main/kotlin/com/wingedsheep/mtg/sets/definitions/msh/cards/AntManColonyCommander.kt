@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Effects
@@ -65,7 +65,7 @@ val AntManColonyCommander = card("Ant-Man, Colony Commander") {
             optional = true,
             // "When you do, put a +1/+1 counter on target creature."
             reflexiveEffect = Effects.AddCounters(
-                Counters.PLUS_ONE_PLUS_ONE,
+                CounterType.PLUS_ONE_PLUS_ONE,
                 1,
                 EffectTarget.ContextTarget(0),
             ),
@@ -78,7 +78,7 @@ val AntManColonyCommander = card("Ant-Man, Colony Commander") {
     triggeredAbility {
         trigger = Triggers.countersPlacedOn(
             filter = GameObjectFilter.Creature,
-            counterType = Counters.PLUS_ONE_PLUS_ONE,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             firstTimeEachTurn = false,
             binding = TriggerBinding.ANY,
             placedBy = Player.You,

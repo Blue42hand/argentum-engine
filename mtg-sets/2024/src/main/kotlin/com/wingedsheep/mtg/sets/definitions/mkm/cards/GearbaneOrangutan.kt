@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -63,7 +63,7 @@ val GearbaneOrangutan = card("Gearbane Orangutan") {
                         count = 1,
                         target = EffectTarget.Controller
                     ),
-                    then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self),
+                    then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self),
                     successCriterion = SuccessCriterion.PermanentsSacrificed
                 ),
                 "Sacrifice an artifact — if you do, put two +1/+1 counters on this creature"

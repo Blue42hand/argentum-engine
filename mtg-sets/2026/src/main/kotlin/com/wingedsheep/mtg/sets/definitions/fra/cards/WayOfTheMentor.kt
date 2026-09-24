@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
@@ -26,7 +26,7 @@ val WayOfTheMentor = card("Way of the Mentor") {
         trigger = Triggers.YouGainLife
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Planeswalker.youControl()),
-            Effects.AddCounters(Counters.LOYALTY, 1, EffectTarget.Self)
+            Effects.AddCounters(CounterType.LOYALTY, 1, EffectTarget.Self)
         )
     }
 

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -30,7 +30,7 @@ val ChargeTheSanctum = card("Charge the Sanctum") {
                 effect = Effects.Composite(
                     Effects.ModifyStats(2, 0, t),
                     Effects.GrantKeyword(Keyword.FIRST_STRIKE, t),
-                    Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, t)
+                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, t)
                 )
             }
         }

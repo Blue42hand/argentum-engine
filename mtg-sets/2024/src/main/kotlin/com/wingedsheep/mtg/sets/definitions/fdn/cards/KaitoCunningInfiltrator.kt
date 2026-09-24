@@ -2,7 +2,7 @@ package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
@@ -76,7 +76,7 @@ val KaitoCunningInfiltrator = card("Kaito, Cunning Infiltrator") {
             sourceFilter = GameObjectFilter.Creature.youControl(),
             binding = TriggerBinding.ANY,
         )
-        effect = Effects.AddCounters(Counters.LOYALTY, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.LOYALTY, 1, EffectTarget.Self)
         description = "Whenever a creature you control deals combat damage to a player, put a " +
             "loyalty counter on Kaito."
     }

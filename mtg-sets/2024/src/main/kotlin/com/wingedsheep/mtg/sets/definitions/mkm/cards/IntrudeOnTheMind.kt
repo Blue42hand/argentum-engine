@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -76,7 +76,7 @@ val IntrudeOnTheMind = card("Intrude on the Mind") {
             run(
                 Effects.AddCountersToCollection(
                     CREATED_TOKENS,
-                    Counters.PLUS_ONE_PLUS_ONE,
+                    CounterType.PLUS_ONE_PLUS_ONE,
                     DynamicAmount.DistinctEntitiesInCollections(listOf(chosen.other.key))
                 )
             )

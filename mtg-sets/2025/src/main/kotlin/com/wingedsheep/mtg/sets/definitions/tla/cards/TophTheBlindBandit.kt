@@ -1,12 +1,11 @@
 package com.wingedsheep.mtg.sets.definitions.tla.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -37,7 +36,7 @@ val TophTheBlindBandit = card("Toph, the Blind Bandit") {
             player = Player.You,
             filter = GameObjectFilter.Land,
             aggregation = Aggregation.SUM,
-            counterType = CounterTypeFilter.Named(Counters.PLUS_ONE_PLUS_ONE),
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
         ),
     )
     toughness = 3

@@ -9,7 +9,7 @@ import com.wingedsheep.sdk.dsl.firebending
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 
 /**
  * Cruel Administrator
@@ -49,7 +49,7 @@ val CruelAdministrator = card("Cruel Administrator") {
 
     replacementEffect(
         EntersWithCounters(
-            counterType = CounterTypeFilter.PlusOnePlusOne,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 1,
             selfOnly = true,
             condition = Conditions.YouAttackedThisTurn

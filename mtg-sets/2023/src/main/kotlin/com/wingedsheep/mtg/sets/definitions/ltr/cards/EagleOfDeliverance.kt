@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -37,7 +37,7 @@ val EagleOfDeliverance = card("Eagle of Deliverance") {
             "another target creature you control",
             TargetCreature(filter = TargetFilter.OtherCreatureYouControl)
         )
-        effect = Effects.AddCounters(Counters.INDESTRUCTIBLE, 1, creature) then
+        effect = Effects.AddCounters(CounterType.INDESTRUCTIBLE, 1, creature) then
             Effects.If(
                 condition = Conditions.TargetPowerAtMost(DynamicAmount.Fixed(2)),
                 then = Effects.DrawCards(1)

@@ -1040,9 +1040,7 @@ class PayOrSufferExecutor(
                         state, atom.filter.youControl(),
                         PredicateContext(controllerId = playerId, sourceId = sourceId)
                     )
-                    val counterType = atom.counterType?.let {
-                        com.wingedsheep.engine.handlers.effects.permanent.counters.resolveCounterType(it)
-                    }
+                    val counterType = atom.counterType
                     val required = (atom.count as? com.wingedsheep.sdk.scripting.values.DynamicAmount.Fixed)?.amount ?: 0
                     val total = candidates.sumOf { permId ->
                         val counters = state.getEntity(permId)?.get<CountersComponent>() ?: return@sumOf 0

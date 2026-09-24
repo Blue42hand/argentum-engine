@@ -4,7 +4,7 @@
 
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -31,7 +31,7 @@ val RiteOfTheMoth = card("Rite of the Moth") {
         val t = target("target", TargetObject(filter = TargetFilter.CreatureInYourGraveyard))
         effect = Effects.Composite(
             Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
-            AddCountersEffect(counterType = Counters.FINALITY, count = 1, target = t)
+            AddCountersEffect(counterType = CounterType.FINALITY, count = 1, target = t)
         )
     }
     keywordAbility(KeywordAbility.flashback("{3}{W}{W}{B}"))

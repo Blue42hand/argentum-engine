@@ -1,5 +1,6 @@
 package com.wingedsheep.sdk.scripting
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.text.TextReplacer
@@ -258,10 +259,10 @@ data class GrantChosenColor(
 @Serializable
 data class AddCreatureTypeByCounter(
     val creatureType: String,
-    val counterType: String
+    val counterType: CounterType
 ) : StaticAbility {
     override val description: String =
-        "Each creature with a $counterType counter on it is a $creatureType in addition to its other creature types"
+        "Each creature with a ${counterType.printed} counter on it is a $creatureType in addition to its other creature types"
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
         val newCreatureType = replacer.replaceCreatureType(creatureType)
         return if (newCreatureType != creatureType) copy(creatureType = newCreatureType) else this
@@ -282,10 +283,10 @@ data class AddCreatureTypeByCounter(
 @Serializable
 data class AddLandTypeByCounter(
     val landType: String,
-    val counterType: String
+    val counterType: CounterType
 ) : StaticAbility {
     override val description: String =
-        "Each land with a $counterType counter on it is ${
+        "Each land with a ${counterType.printed} counter on it is ${
             if (landType.first().lowercaseChar() in "aeiou") "an" else "a"
         } $landType in addition to its other types"
 }

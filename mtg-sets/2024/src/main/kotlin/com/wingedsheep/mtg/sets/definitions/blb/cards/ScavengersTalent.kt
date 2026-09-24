@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -99,7 +99,7 @@ val ScavengersTalent = card("Scavenger's Talent") {
                             from = "chosen",
                             destination = CardDestination.ToZone(Zone.BATTLEFIELD)
                         ),
-                        AddCountersToCollectionEffect("chosen", Counters.FINALITY, 1)
+                        AddCountersToCollectionEffect("chosen", CounterType.FINALITY, 1)
                     )
                 )
             )

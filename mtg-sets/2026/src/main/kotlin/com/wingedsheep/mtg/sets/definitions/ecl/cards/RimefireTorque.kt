@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -42,11 +42,11 @@ val RimefireTorque = card("Rimefire Torque") {
             ),
             binding = TriggerBinding.OTHER
         )
-        effect = AddCountersEffect(Counters.CHARGE, 1, EffectTarget.Self)
+        effect = AddCountersEffect(CounterType.CHARGE, 1, EffectTarget.Self)
     }
 
     activatedAbility {
-        cost = Costs.Composite(Costs.Tap, Costs.RemoveCounterFromSelf(Counters.CHARGE, 3))
+        cost = Costs.Composite(Costs.Tap, Costs.RemoveCounterFromSelf(CounterType.CHARGE, 3))
         effect = Effects.CopyNextSpellCast(1)
     }
 

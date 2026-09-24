@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dsk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
@@ -67,7 +67,7 @@ val MolderingGymWeightRoom = card("Moldering Gym // Weight Room") {
                     ),
                     Effects.AddCountersToCollection(
                         collectionName = "weightRoomManifested",
-                        counterType = Counters.PLUS_ONE_PLUS_ONE,
+                        counterType = CounterType.PLUS_ONE_PLUS_ONE,
                         amount = DynamicAmount.Fixed(3)
                     )
                 )

@@ -9,7 +9,6 @@ import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.support.GameTestDriver
 import com.wingedsheep.engine.support.TestCards
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -152,7 +151,7 @@ class ReflexiveTriggerFeasibilityTest : FunSpec({
         triggeredAbility {
             trigger = Triggers.YouAttack
             effect = ReflexiveTriggerEffect(
-                action = Effects.RemoveCounters(Counters.MINUS_ONE_MINUS_ONE, 1, EffectTarget.Self),
+                action = Effects.RemoveCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, EffectTarget.Self),
                 optional = true,
                 reflexiveEffect = Effects.GainLife(3)
             )

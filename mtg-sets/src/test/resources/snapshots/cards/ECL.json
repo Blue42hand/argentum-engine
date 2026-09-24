@@ -34,7 +34,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "flying",
+                            "counterType": "FLYING",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -43,7 +43,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "first strike",
+                            "counterType": "FIRST_STRIKE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -52,7 +52,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "lifelink",
+                            "counterType": "LIFELINK",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -1218,7 +1218,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -1323,7 +1323,7 @@
     "script": {
         "spellEffect": {
             "type": "AddCounters",
-            "counterType": "-1/-1",
+            "counterType": "MINUS_ONE_MINUS_ONE",
             "count": 4,
             "target": {
                 "type": "BoundVariable",
@@ -1401,7 +1401,7 @@
                             {
                                 "type": "AddCountersToCollection",
                                 "collectionName": "blighted",
-                                "counterType": "-1/-1",
+                                "counterType": "MINUS_ONE_MINUS_ONE",
                                 "count": 2
                             },
                             {
@@ -1467,7 +1467,7 @@
                             {
                                 "type": "AddCountersToCollection",
                                 "collectionName": "blighted",
-                                "counterType": "-1/-1",
+                                "counterType": "MINUS_ONE_MINUS_ONE",
                                 "count": 2
                             },
                             {
@@ -1751,7 +1751,7 @@
                             {
                                 "type": "AddCountersToCollection",
                                 "collectionName": "blighted",
-                                "counterType": "-1/-1"
+                                "counterType": "MINUS_ONE_MINUS_ONE"
                             },
                             {
                                 "type": "ConditionalOnCollection",
@@ -2105,7 +2105,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "-1/-1",
+                                "counterType": "MINUS_ONE_MINUS_ONE",
                                 "self": true
                             }
                         }
@@ -2133,7 +2133,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": "MinusOneMinusOne",
+                "counterType": "MINUS_ONE_MINUS_ONE",
                 "count": 2,
                 "selfOnly": true
             }
@@ -2688,7 +2688,7 @@
                 "binding": "OTHER",
                 "effect": {
                     "type": "RemoveCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -2709,7 +2709,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": "MinusOneMinusOne",
+                "counterType": "MINUS_ONE_MINUS_ONE",
                 "count": 5,
                 "selfOnly": true
             }
@@ -2824,7 +2824,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "-1/-1",
+                                "counterType": "MINUS_ONE_MINUS_ONE",
                                 "self": true
                             }
                         }
@@ -2853,7 +2853,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": "MinusOneMinusOne",
+                "counterType": "MINUS_ONE_MINUS_ONE",
                 "count": 2,
                 "selfOnly": true
             }
@@ -3498,7 +3498,7 @@
                         {
                             "type": "AddCountersToCollection",
                             "collectionName": "blighted",
-                            "counterType": "-1/-1",
+                            "counterType": "MINUS_ONE_MINUS_ONE",
                             "count": 2
                         }
                     ]
@@ -3891,7 +3891,7 @@
                             {
                                 "type": "AddCountersToCollection",
                                 "collectionName": "blighted",
-                                "counterType": "-1/-1",
+                                "counterType": "MINUS_ONE_MINUS_ONE",
                                 "count": 2
                             }
                         ]
@@ -4262,7 +4262,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "RemoveCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -4294,7 +4294,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": "MinusOneMinusOne",
+                "counterType": "MINUS_ONE_MINUS_ONE",
                 "count": 3,
                 "selfOnly": true
             }
@@ -4482,7 +4482,7 @@
             },
             "body": {
                 "type": "AddCounters",
-                "counterType": "-1/-1",
+                "counterType": "MINUS_ONE_MINUS_ONE",
                 "count": 2,
                 "target": "Self"
             }
@@ -5399,7 +5399,7 @@
                             {
                                 "type": "AddCountersToCollection",
                                 "collectionName": "blighted",
-                                "counterType": "-1/-1",
+                                "counterType": "MINUS_ONE_MINUS_ONE",
                                 "count": 2
                             }
                         ]
@@ -5538,7 +5538,7 @@
                             {
                                 "type": "AddCountersToCollection",
                                 "collectionName": "blighted",
-                                "counterType": "-1/-1"
+                                "counterType": "MINUS_ONE_MINUS_ONE"
                             },
                             {
                                 "type": "ForEach",
@@ -6345,7 +6345,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 3,
                     "target": {
                         "type": "BoundVariable",
@@ -6396,7 +6396,7 @@
                 "trigger": "TapEvent",
                 "effect": {
                     "type": "RemoveCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -6417,7 +6417,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": "MinusOneMinusOne",
+                "counterType": "MINUS_ONE_MINUS_ONE",
                 "count": 3,
                 "selfOnly": true
             }
@@ -7352,7 +7352,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "-1/-1",
+                                "counterType": "MINUS_ONE_MINUS_ONE",
                                 "self": true
                             }
                         }
@@ -7382,7 +7382,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": "MinusOneMinusOne",
+                "counterType": "MINUS_ONE_MINUS_ONE",
                 "count": 1,
                 "selfOnly": true
             }
@@ -8349,7 +8349,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "-1/-1",
+                                "counterType": "MINUS_ONE_MINUS_ONE",
                                 "self": true
                             }
                         }
@@ -8384,7 +8384,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": "MinusOneMinusOne",
+                "counterType": "MINUS_ONE_MINUS_ONE",
                 "count": 1,
                 "selfOnly": true
             }
@@ -8663,7 +8663,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "-1/-1",
+                                "counterType": "MINUS_ONE_MINUS_ONE",
                                 "count": {
                                     "type": "Fixed",
                                     "amount": 2
@@ -8703,7 +8703,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": "MinusOneMinusOne",
+                "counterType": "MINUS_ONE_MINUS_ONE",
                 "count": 2,
                 "selfOnly": true
             }
@@ -8901,7 +8901,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "MarkSpellExileWithCounters",
-                    "counterType": "dream"
+                    "counterType": "DREAM"
                 }
             },
             {
@@ -8922,7 +8922,7 @@
                                     "statePredicates": [
                                         {
                                             "type": "HasCounter",
-                                            "counterType": "dream"
+                                            "counterType": "DREAM"
                                         }
                                     ]
                                 }
@@ -9496,7 +9496,7 @@
                                 {
                                     "type": "AddCountersToCollection",
                                     "collectionName": "blighted",
-                                    "counterType": "-1/-1"
+                                    "counterType": "MINUS_ONE_MINUS_ONE"
                                 },
                                 {
                                     "type": "ConditionalOnCollection",
@@ -9619,7 +9619,7 @@
                                 {
                                     "type": "AddCountersToCollection",
                                     "collectionName": "blighted",
-                                    "counterType": "-1/-1",
+                                    "counterType": "MINUS_ONE_MINUS_ONE",
                                     "count": 2
                                 }
                             ]
@@ -9733,7 +9733,7 @@
                         },
                         {
                             "type": "RemoveCounters",
-                            "counterType": "-1/-1",
+                            "counterType": "MINUS_ONE_MINUS_ONE",
                             "count": 1,
                             "target": "Self"
                         }
@@ -9744,7 +9744,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": "MinusOneMinusOne",
+                "counterType": "MINUS_ONE_MINUS_ONE",
                 "count": 2,
                 "selfOnly": true
             }
@@ -9874,7 +9874,7 @@
                             {
                                 "type": "AddCountersToCollection",
                                 "collectionName": "blighted",
-                                "counterType": "-1/-1"
+                                "counterType": "MINUS_ONE_MINUS_ONE"
                             }
                         ]
                     }
@@ -9937,7 +9937,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "-1/-1",
+                                "counterType": "MINUS_ONE_MINUS_ONE",
                                 "self": true
                             }
                         }
@@ -9987,7 +9987,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": "MinusOneMinusOne",
+                "counterType": "MINUS_ONE_MINUS_ONE",
                 "count": 2,
                 "selfOnly": true
             }
@@ -11204,7 +11204,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "-1/-1",
+                                "counterType": "MINUS_ONE_MINUS_ONE",
                                 "self": true
                             }
                         }
@@ -11234,7 +11234,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "-1/-1",
+                                "counterType": "MINUS_ONE_MINUS_ONE",
                                 "count": {
                                     "type": "Fixed",
                                     "amount": 2
@@ -11256,7 +11256,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "stun",
+                            "counterType": "STUN",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -11279,7 +11279,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": "MinusOneMinusOne",
+                "counterType": "MINUS_ONE_MINUS_ONE",
                 "count": 3,
                 "selfOnly": true
             }
@@ -12281,7 +12281,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "-1/-1",
+                                "counterType": "MINUS_ONE_MINUS_ONE",
                                 "self": true
                             }
                         }
@@ -12300,7 +12300,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": "MinusOneMinusOne",
+                "counterType": "MINUS_ONE_MINUS_ONE",
                 "count": 1,
                 "selfOnly": true
             }
@@ -12342,7 +12342,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "RemoveCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -12363,7 +12363,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": "MinusOneMinusOne",
+                "counterType": "MINUS_ONE_MINUS_ONE",
                 "count": 6,
                 "selfOnly": true
             }
@@ -12848,7 +12848,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -14092,7 +14092,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "-1/-1",
+                                "counterType": "MINUS_ONE_MINUS_ONE",
                                 "count": {
                                     "type": "Fixed",
                                     "amount": 2
@@ -14126,7 +14126,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": "MinusOneMinusOne",
+                "counterType": "MINUS_ONE_MINUS_ONE",
                 "count": 2,
                 "selfOnly": true
             }
@@ -14224,7 +14224,7 @@
                 "binding": "OTHER",
                 "effect": {
                     "type": "RemoveCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -14245,7 +14245,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": "MinusOneMinusOne",
+                "counterType": "MINUS_ONE_MINUS_ONE",
                 "count": 2,
                 "selfOnly": true
             }
@@ -14584,7 +14584,7 @@
                 "binding": "OTHER",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -14601,7 +14601,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "charge",
+                                "counterType": "CHARGE",
                                 "count": {
                                     "type": "Fixed",
                                     "amount": 3
@@ -15300,7 +15300,7 @@
                                 {
                                     "type": "AddCountersToCollection",
                                     "collectionName": "blighted",
-                                    "counterType": "-1/-1"
+                                    "counterType": "MINUS_ONE_MINUS_ONE"
                                 }
                             ]
                         }
@@ -15484,7 +15484,7 @@
                         {
                             "type": "AddCountersToCollection",
                             "collectionName": "blighted",
-                            "counterType": "-1/-1"
+                            "counterType": "MINUS_ONE_MINUS_ONE"
                         }
                     ]
                 }
@@ -15982,7 +15982,7 @@
                     "type": "ReflexiveTrigger",
                     "action": {
                         "type": "RemoveCounters",
-                        "counterType": "-1/-1",
+                        "counterType": "MINUS_ONE_MINUS_ONE",
                         "count": 1,
                         "target": "Self"
                     },
@@ -16021,7 +16021,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": "MinusOneMinusOne",
+                "counterType": "MINUS_ONE_MINUS_ONE",
                 "count": 2,
                 "selfOnly": true
             }
@@ -16235,7 +16235,7 @@
                             {
                                 "type": "AddCountersToCollection",
                                 "collectionName": "blighted",
-                                "counterType": "-1/-1",
+                                "counterType": "MINUS_ONE_MINUS_ONE",
                                 "count": 2
                             },
                             {
@@ -17300,7 +17300,7 @@
                             },
                             {
                                 "type": "AddCounters",
-                                "counterType": "stun",
+                                "counterType": "STUN",
                                 "count": 1,
                                 "target": {
                                     "type": "BoundVariable",
@@ -19849,7 +19849,7 @@
                             {
                                 "type": "AddCountersToCollection",
                                 "collectionName": "blighted",
-                                "counterType": "-1/-1"
+                                "counterType": "MINUS_ONE_MINUS_ONE"
                             }
                         ]
                     },

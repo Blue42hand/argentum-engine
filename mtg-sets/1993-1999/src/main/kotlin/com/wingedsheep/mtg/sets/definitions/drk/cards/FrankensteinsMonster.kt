@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.drk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -100,15 +100,15 @@ val FrankensteinsMonster = card("Frankenstein's Monster") {
                         modes = listOf(
                             Mode(
                                 description = "Put a +2/+0 counter on this creature",
-                                effect = Effects.AddCounters(Counters.PLUS_TWO_PLUS_ZERO, 1, EffectTarget.Self),
+                                effect = Effects.AddCounters(CounterType.PLUS_TWO_PLUS_ZERO, 1, EffectTarget.Self),
                             ),
                             Mode(
                                 description = "Put a +1/+1 counter on this creature",
-                                effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                             ),
                             Mode(
                                 description = "Put a +0/+2 counter on this creature",
-                                effect = Effects.AddCounters(Counters.PLUS_ZERO_PLUS_TWO, 1, EffectTarget.Self),
+                                effect = Effects.AddCounters(CounterType.PLUS_ZERO_PLUS_TWO, 1, EffectTarget.Self),
                             ),
                         ),
                         allowRepeat = true,

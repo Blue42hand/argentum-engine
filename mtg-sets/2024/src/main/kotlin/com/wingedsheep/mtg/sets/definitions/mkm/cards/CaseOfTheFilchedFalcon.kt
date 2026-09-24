@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
@@ -60,7 +60,7 @@ val CaseOfTheFilchedFalcon = card("Case of the Filched Falcon") {
         val permanent = target("target permanent", TargetPermanent(filter = TargetFilter(GameObjectFilter.Artifact.notCreature())))
         cost = Costs.Composite(Costs.Mana("{2}{U}"), Costs.SacrificeSelf)
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 4, permanent),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 4, permanent),
             Effects.BecomeCreature(
                 target = permanent,
                 power = 0,

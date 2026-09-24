@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -42,7 +42,7 @@ val RepeatOffender = card("Repeat Offender") {
         cost = Costs.Mana("{2}{B}")
         effect = Effects.If(
             condition = Conditions.SourceIsSuspected,
-            then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
             otherwise = Effects.Suspect(EffectTarget.Self)
         )
         description = "If this creature is suspected, put a +1/+1 counter on it. Otherwise, suspect it."

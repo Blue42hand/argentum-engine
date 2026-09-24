@@ -972,7 +972,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "gold",
+                    "counterType": "GOLD",
                     "count": 1,
                     "target": "TriggeringEntity"
                 }
@@ -993,7 +993,7 @@
                     },
                     "body": {
                         "type": "RemoveCounters",
-                        "counterType": "gold",
+                        "counterType": "GOLD",
                         "count": 2147483647,
                         "target": "Self"
                     }
@@ -1004,12 +1004,12 @@
             {
                 "type": "AddCreatureTypeByCounter",
                 "creatureType": "Wall",
-                "counterType": "gold"
+                "counterType": "GOLD"
             },
             {
                 "type": "GrantKeywordByCounter",
                 "keyword": "DEFENDER",
-                "counterType": "gold"
+                "counterType": "GOLD"
             }
         ]
     },
@@ -5547,7 +5547,7 @@
                 "binding": "OTHER",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -5817,7 +5817,7 @@
                             },
                             {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -9130,7 +9130,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": {
                             "type": "BoundVariable",
@@ -10110,7 +10110,7 @@
                                 },
                                 "then": {
                                     "type": "AddCounters",
-                                    "counterType": "+1/+1",
+                                    "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 2,
                                     "target": "Self"
                                 }
@@ -12433,10 +12433,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "dynamicToughness": {
@@ -12444,10 +12441,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "colorsFromChoice": "COLOR",
@@ -12466,10 +12460,7 @@
             },
             {
                 "type": "EntersWithDynamicCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "charge"
-                },
+                "counterType": "CHARGE",
                 "count": "XValue"
             }
         ]
@@ -17863,7 +17854,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "plague",
+                    "counterType": "PLAGUE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -17883,10 +17874,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "plague"
-                            }
+                            "counterType": "PLAGUE"
                         }
                     },
                     "multiplier": -1
@@ -17898,10 +17886,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "plague"
-                            }
+                            "counterType": "PLAGUE"
                         }
                     },
                     "multiplier": -1

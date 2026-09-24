@@ -1,7 +1,7 @@
 package com.wingedsheep.sdk.scripting.values
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -100,10 +100,12 @@ sealed interface EntityNumericProperty {
         override val description: String = "the amount chosen as it entered"
     }
 
+    /** The number of [counterType] counters on the entity — of every kind when `null`. */
     @SerialName("CounterCount")
     @Serializable
-    data class CounterCount(val counterType: CounterTypeFilter) : EntityNumericProperty {
-        override val description: String = "the number of ${counterType.description} counters"
+    data class CounterCount(val counterType: CounterType?) : EntityNumericProperty {
+        override val description: String =
+            counterType?.let { "the number of ${it.printed} counters" } ?: "the number of counters"
     }
 
     /**

@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
@@ -77,7 +77,7 @@ private fun copyChapterEffect(chosen: EffectTarget): Effect = Effects.Composite(
             CREATED_TOKENS,
             GameObjectFilter.Enchantment.withSubtype(Subtype.SAGA),
         ),
-        then = Effects.AddCountersUpTo(Counters.LORE, 3, EffectTarget.PipelineTarget(CREATED_TOKENS, 0)),
+        then = Effects.AddCountersUpTo(CounterType.LORE, 3, EffectTarget.PipelineTarget(CREATED_TOKENS, 0)),
     ),
 )
 

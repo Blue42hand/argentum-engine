@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -40,7 +40,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    Temporal Tyrant idiom, rather than `Effects.DrainLife`.
  *  - "When the **fifth** plan counter is put on this enchantment" composes from existing
  *    vocabulary, as with the rest of the Plan cycle: a SELF-bound [Triggers.countersPlacedOn] on
- *    [Counters.PLAN] gated by `triggerRestriction = `[Conditions.SourceCounterCountAtLeast]`(PLAN,
+ *    [CounterType.PLAN] gated by `triggerRestriction = `[Conditions.SourceCounterCountAtLeast]`(PLAN,
  *    5)`. The at-least gate is behaviourally exact because the payoff **sacrifices its own
  *    source**, so the enchantment is gone before a sixth counter could ever land — the threshold
  *    can never fire twice.
@@ -77,7 +77,7 @@ val DoomReignsSupreme = card("Doom Reigns Supreme") {
         effect = Effects.Composite(
             Effects.LoseLife(1, EffectTarget.PlayerRef(Player.EachOpponent)),
             Effects.GainLife(1),
-            Effects.AddCounters(Counters.PLAN, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.PLAN, 1, EffectTarget.Self),
         )
         description = "Whenever a Villain you control enters, each opponent loses 1 life and you " +
             "gain 1 life. Put a plan counter on this enchantment."
@@ -86,11 +86,11 @@ val DoomReignsSupreme = card("Doom Reigns Supreme") {
     triggeredAbility {
         trigger = Triggers.countersPlacedOn(
             filter = GameObjectFilter.Any,
-            counterType = Counters.PLAN,
+            counterType = CounterType.PLAN,
             firstTimeEachTurn = false,
             binding = TriggerBinding.SELF,
         )
-        triggerRestriction = Conditions.SourceCounterCountAtLeast(Counters.PLAN, 5)
+        triggerRestriction = Conditions.SourceCounterCountAtLeast(CounterType.PLAN, 5)
         effect = ReflexiveTriggerEffect(
             action = Effects.SacrificeTarget(EffectTarget.Self),
             optional = false,

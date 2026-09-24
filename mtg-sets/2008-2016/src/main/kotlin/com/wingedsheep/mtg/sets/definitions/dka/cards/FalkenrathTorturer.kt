@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dka.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
@@ -37,7 +38,7 @@ val FalkenrathTorturer = card("Falkenrath Torturer") {
             .then(
                 Effects.If(
                     condition = Conditions.SacrificedHadSubtype("Human"),
-                    then = Effects.AddCounters("+1/+1", 1, EffectTarget.Self)
+                    then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
                 )
             )
     }

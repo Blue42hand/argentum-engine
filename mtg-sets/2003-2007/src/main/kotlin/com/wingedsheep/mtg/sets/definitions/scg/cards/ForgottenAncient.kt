@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.scg.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -36,7 +36,7 @@ val ForgottenAncient = card("Forgotten Ancient") {
         )
         effect = Effects.May(
             AddCountersEffect(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 count = 1,
                 target = EffectTarget.Self
             )
@@ -45,7 +45,7 @@ val ForgottenAncient = card("Forgotten Ancient") {
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        effect = Effects.May(Effects.DistributeCountersFromSelf(Counters.PLUS_ONE_PLUS_ONE))
+        effect = Effects.May(Effects.DistributeCountersFromSelf(CounterType.PLUS_ONE_PLUS_ONE))
     }
 
     metadata {

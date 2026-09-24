@@ -4,7 +4,7 @@
 
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -33,7 +33,7 @@ val CostOfBrilliance = card("Cost of Brilliance") {
         effect = Effects.Composite(
             DrawCardsEffect(2, t1),
             LoseLifeEffect(2, t1),
-            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t2)
+            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t2)
         )
     }
     metadata {

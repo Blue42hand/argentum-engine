@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
@@ -37,7 +37,7 @@ val LilysplashMentor = card("Lilysplash Mentor") {
         val creature = target("another creature you control", TargetCreature(filter = TargetFilter.OtherCreatureYouControl))
         effect = Effects.Move(creature, Zone.EXILE)
             .then(Effects.Move(creature, Zone.BATTLEFIELD))
-            .then(Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, creature))
+            .then(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature))
     }
 
     metadata {

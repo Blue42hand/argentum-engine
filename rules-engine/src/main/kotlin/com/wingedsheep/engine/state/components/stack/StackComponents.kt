@@ -3,6 +3,7 @@ package com.wingedsheep.engine.state.components.stack
 import com.wingedsheep.engine.state.Component
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
@@ -190,7 +191,7 @@ data class SpellOnStackComponent(
  */
 @Serializable
 data class AdditionalEntryCounters(
-    val counterType: com.wingedsheep.sdk.scripting.events.CounterTypeFilter,
+    val counterType: com.wingedsheep.sdk.core.CounterType,
     val count: Int
 )
 
@@ -310,12 +311,12 @@ data class ActivatedAbilityOnStackComponent(
      */
     val exiledAsCostCards: List<EntityId> = emptyList(),
     /**
-     * Counters (counter-type-string → count) the source had the moment a self-exile /
+     * Counters (kind → count) the source had the moment a self-exile /
      * self-sacrifice cost was paid (CR 113.7a). Captured before the cost wipes them so the
      * resolving effect can read the pre-cost count via
      * [com.wingedsheep.sdk.scripting.values.DynamicAmount.LastKnownSourceCounters] (Lost Isle Calling).
      */
-    val lastKnownSourceCounters: Map<String, Int> = emptyMap(),
+    val lastKnownSourceCounters: Map<CounterType, Int> = emptyMap(),
     /**
      * Frozen projected P/T of the source captured before a self-exile / self-sacrifice cost moved
      * it off the battlefield (CR 113.7a). Mirrors [lastKnownSourceCounters]; read at resolution via

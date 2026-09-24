@@ -2,7 +2,7 @@ package com.wingedsheep.sdk.scripting.values
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.conditions.Condition
@@ -544,18 +544,18 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
      * [EntityProperty]'s [com.wingedsheep.sdk.scripting.values.EntityNumericProperty.CounterCount]
      * (which reads a permanent/object; `EntityReference` has no case for "a player" since players
      * aren't targeted the way permanents are). Counters placed directly on a player rather than a
-     * permanent (CR 122.1) — poison ([com.wingedsheep.sdk.core.Counters.POISON]), energy
-     * ([com.wingedsheep.sdk.core.Counters.ENERGY], CR 107.14), and rad counters all live here.
+     * permanent (CR 122.1) — poison ([com.wingedsheep.sdk.core.CounterType.POISON]), energy
+     * ([com.wingedsheep.sdk.core.CounterType.ENERGY], CR 107.14), and rad counters all live here.
      *
      * Examples:
      * ```kotlin
-     * PlayerCounterCount(Counters.ENERGY, Player.You)  // "your energy counters" — Longtusk Cub
+     * PlayerCounterCount(CounterType.ENERGY, Player.You)  // "your energy counters" — Longtusk Cub
      * ```
      */
     @SerialName("PlayerCounterCount")
     @Serializable
-    data class PlayerCounterCount(val counterType: String, val player: Player = Player.You) : DynamicAmount {
-        override val description: String = "${player.possessive} $counterType counters"
+    data class PlayerCounterCount(val counterType: CounterType, val player: Player = Player.You) : DynamicAmount {
+        override val description: String = "${player.possessive} ${counterType.printed} counters"
     }
 
     /**
@@ -634,7 +634,7 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
      *    own source — Lost Isle Calling: "{4}{U}{U}, Exile this enchantment: Draw a card for each
      *    verse counter on this enchantment. If it had seven or more verse counters on it, take an
      *    extra turn after this one." Both the draw amount and the seven-or-more test read
-     *    `LastKnownSourceCounters(CounterTypeFilter.Named(Counters.VERSE))`.
+     *    `LastKnownSourceCounters(CounterType.VERSE)`.
      *  - the **leaves-the-battlefield trigger** snapshot, for a dies/leaves ability reading the
      *    counters its source had as it died — Nine-Lives Familiar: "When this creature dies, if it
      *    had a revival counter on it, return it … with one fewer revival counter on it."
@@ -648,10 +648,10 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
     @SerialName("LastKnownSourceCounters")
     @Serializable
     data class LastKnownSourceCounters(
-        val counterType: com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+        val counterType: CounterType?
     ) : DynamicAmount {
         override val description: String =
-            "the number of ${counterType.description} counters on it".replace("  ", " ")
+            "the number of ${counterType?.printed ?: ""} counters on it".replace("  ", " ")
     }
 
     /**
@@ -1195,7 +1195,7 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
         val aggregation: Aggregation = Aggregation.COUNT,
         val property: CardNumericProperty? = null,
         val excludeSelf: Boolean = false,
-        val counterType: CounterTypeFilter? = null,
+        val counterType: CounterType? = null,
         val excludeTriggeringEntity: Boolean = false
     ) : DynamicAmount {
         override fun applyTextReplacement(replacer: TextReplacer): DynamicAmount {
@@ -1220,7 +1220,7 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
                     append(pluralize(filter.description))
                 }
                 Aggregation.SUM -> {
-                    val what = counterType?.let { "${it.description} counters" } ?: (property?.description ?: "value")
+                    val what = counterType?.let { "${it.printed} counters" } ?: (property?.description ?: "value")
                     append("the total $what ")
                     append(if (counterType != null) "among " else "of ")
                     if (excludeSelf || excludeTriggeringEntity) append("other ")
@@ -1440,7 +1440,7 @@ sealed interface DynamicAmount : TextReplaceable<DynamicAmount> {
      * EntityProperty(EntityReference.Source, EntityNumericProperty.Power)        // SourcePower
      * EntityProperty(EntityReference.Target(0), EntityNumericProperty.ManaValue) // TargetManaValue
      * EntityProperty(EntityReference.Sacrificed(), EntityNumericProperty.Power)  // SacrificedPermanentPower
-     * EntityProperty(EntityReference.Source, EntityNumericProperty.CounterCount(CounterTypeFilter.PlusOnePlusOne)) // CountersOnSelf
+     * EntityProperty(EntityReference.Source, EntityNumericProperty.CounterCount(CounterType.PLUS_ONE_PLUS_ONE)) // CountersOnSelf
      * ```
      */
     @SerialName("EntityProperty")

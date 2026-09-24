@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 
 /**
  * Selfless Police Captain
@@ -33,7 +33,7 @@ val SelflessPoliceCaptain = card("Selfless Police Captain") {
         "When this creature leaves the battlefield, put its +1/+1 counters on target creature you control."
 
     replacementEffect(EntersWithCounters(
-        counterType = CounterTypeFilter.PlusOnePlusOne,
+        counterType = CounterType.PLUS_ONE_PLUS_ONE,
         count = 1,
         selfOnly = true
     ))

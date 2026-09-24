@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
@@ -80,8 +80,8 @@ private val FaithboundJudgeFront = card("Faithbound Judge") {
     // put a judgment counter on it.
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        interveningIf = Conditions.SourceCounterCountAtMost(Counters.JUDGMENT, 2)
-        effect = Effects.AddCounters(Counters.JUDGMENT, 1, EffectTarget.Self)
+        interveningIf = Conditions.SourceCounterCountAtMost(CounterType.JUDGMENT, 2)
+        effect = Effects.AddCounters(CounterType.JUDGMENT, 1, EffectTarget.Self)
         description = "At the beginning of your upkeep, if this creature has two or fewer " +
             "judgment counters on it, put a judgment counter on it."
     }
@@ -90,7 +90,7 @@ private val FaithboundJudgeFront = card("Faithbound Judge") {
     // it didn't have defender.
     staticAbility {
         ability = CanAttackDespiteDefender(
-            condition = Conditions.SourceCounterCountAtLeast(Counters.JUDGMENT, 3)
+            condition = Conditions.SourceCounterCountAtLeast(CounterType.JUDGMENT, 3)
         )
     }
 
@@ -127,9 +127,9 @@ private val SinnersJudgment = card("Sinner's Judgment") {
     triggeredAbility {
         trigger = Triggers.YourUpkeep
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.JUDGMENT, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.JUDGMENT, 1, EffectTarget.Self),
             Effects.If(
-                condition = Conditions.SourceCounterCountAtLeast(Counters.JUDGMENT, 3),
+                condition = Conditions.SourceCounterCountAtLeast(CounterType.JUDGMENT, 3),
                 then = Effects.LoseGame(
                     target = EffectTarget.PlayerRef(Player.EnchantedPlayer),
                     message = "Sinner's Judgment"

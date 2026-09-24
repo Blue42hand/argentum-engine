@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -41,7 +41,7 @@ val MindspringMerfolk = card("Mindspring Merfolk") {
             Effects.DrawCards(DynamicAmount.XValue),
             Effects.ForEachInGroup(
                 GroupFilter(GameObjectFilter.Creature.withSubtype("Merfolk").youControl()),
-                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             )
         )
     }

@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.core
 
 import com.wingedsheep.sdk.core.BendType
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.TypeLine
@@ -1428,7 +1429,7 @@ data class PhasedInEvent(
 @SerialName("CountersAddedEvent")
 data class CountersAddedEvent(
     val entityId: EntityId,
-    val counterType: String,
+    val counterType: CounterType,
     val amount: Int,
     val entityName: String = "",
     /**
@@ -1465,7 +1466,7 @@ data class CountersAddedEvent(
 @SerialName("CountersRemovedEvent")
 data class CountersRemovedEvent(
     val entityId: EntityId,
-    val counterType: String,
+    val counterType: CounterType,
     val amount: Int,
     val entityName: String = "",
     val remainingCount: Int? = null,

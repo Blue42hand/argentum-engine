@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.scripting.conditions.Compare
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
 import com.wingedsheep.sdk.scripting.effects.RemoveCountersEffect
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -43,7 +42,7 @@ val DarigaazReincarnated = card("Darigaaz Reincarnated") {
     replacementEffect(
         RedirectZoneChangeWithEffect(
             newDestination = Zone.EXILE,
-            additionalEffect = AddCountersEffect(Counters.EGG, 3, EffectTarget.Self),
+            additionalEffect = AddCountersEffect(CounterType.EGG, 3, EffectTarget.Self),
             selfOnly = true,
             appliesTo = EventPattern.ZoneChangeEvent(
                 filter = GameObjectFilter.Any,
@@ -59,14 +58,14 @@ val DarigaazReincarnated = card("Darigaaz Reincarnated") {
         trigger = Triggers.YourUpkeep
         triggerZone = Zone.EXILE
         interveningIf = Compare(
-            DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.EGG)),
+            DynamicAmounts.countersOnSelf(CounterType.EGG),
             ComparisonOperator.GTE,
             DynamicAmount.Fixed(1)
         )
-        effect = RemoveCountersEffect(Counters.EGG, 1, EffectTarget.Self) then
+        effect = RemoveCountersEffect(CounterType.EGG, 1, EffectTarget.Self) then
             Effects.If(
                 condition = Compare(
-                    DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.EGG)),
+                    DynamicAmounts.countersOnSelf(CounterType.EGG),
                     ComparisonOperator.EQ,
                     DynamicAmount.Fixed(0)
                 ),

@@ -272,7 +272,7 @@ Sealed-hierarchy sizes: `Effect` about 344 subtypes, `StaticAbility` about 174, 
     - `SourceFilter.HasType(type: String)`;
     - `ControllerFilter`, `CollectionFilter` and `PreventionSourceFilter`.
 - **Three counter representations.** The `CounterType` enum, string constants
-  (`Counters.PLUS_ONE_PLUS_ONE = "+1/+1"`, which the facades actually take), and `CounterTypeFilter`
+  (`CounterType.PLUS_ONE_PLUS_ONE = "+1/+1"`, which the facades actually take), and `CounterTypeFilter`
   with `Named(name: String)`.
 - **Enumeration where a parameter belongs.**
   - About 15 `Effects.Prevent*` facades (`…FromChosenArtifactSource`, `…FromChosenCreatureType`,

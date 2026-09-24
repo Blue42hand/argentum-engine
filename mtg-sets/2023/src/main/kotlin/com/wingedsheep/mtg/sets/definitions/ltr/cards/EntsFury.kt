@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ltr.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -30,7 +30,7 @@ val EntsFury = card("Ent's Fury") {
                 filter = GameObjectFilter.Creature.powerAtLeast(4),
                 targetIndex = 0
             ),
-            then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, mine)
+            then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, mine)
         )
             .then(Effects.ModifyStats(1, 1, mine))
             .then(Effects.Fight(mine, theirs))

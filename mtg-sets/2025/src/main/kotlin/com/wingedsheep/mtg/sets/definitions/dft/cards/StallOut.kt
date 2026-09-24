@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -36,7 +36,7 @@ val StallOut = card("Stall Out") {
         )
         effect = Effects.Composite(
             Effects.Tap(t),
-            Effects.AddCounters(Counters.STUN, 3, t)
+            Effects.AddCounters(CounterType.STUN, 3, t)
         )
     }
 

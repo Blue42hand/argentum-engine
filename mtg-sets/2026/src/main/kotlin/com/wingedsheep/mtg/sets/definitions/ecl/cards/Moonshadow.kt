@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ecl.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -8,7 +8,6 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -36,15 +35,15 @@ val Moonshadow = card("Moonshadow") {
     keywords(Keyword.MENACE)
 
     replacementEffect(EntersWithCounters(
-        counterType = CounterTypeFilter.MinusOneMinusOne,
+        counterType = CounterType.MINUS_ONE_MINUS_ONE,
         count = 6,
         selfOnly = true
     ))
 
     triggeredAbility {
         trigger = Triggers.PermanentCardsPutIntoYourGraveyard
-        triggerRestriction = Conditions.SourceHasCounter(CounterTypeFilter.MinusOneMinusOne)
-        effect = Effects.RemoveCounters(Counters.MINUS_ONE_MINUS_ONE, 1, EffectTarget.Self)
+        triggerRestriction = Conditions.SourceHasCounter(CounterType.MINUS_ONE_MINUS_ONE)
+        effect = Effects.RemoveCounters(CounterType.MINUS_ONE_MINUS_ONE, 1, EffectTarget.Self)
     }
 
     metadata {

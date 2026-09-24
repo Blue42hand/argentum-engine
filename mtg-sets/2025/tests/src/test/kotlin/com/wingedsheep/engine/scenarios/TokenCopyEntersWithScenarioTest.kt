@@ -19,7 +19,6 @@ import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantKeyword
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -49,7 +48,7 @@ class TokenCopyEntersWithScenarioTest : FunSpec({
         toughness = 1
         replacementEffect(
             EntersWithCounters(
-                counterType = CounterTypeFilter.PlusOnePlusOne,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 count = 1,
                 selfOnly = true,
             )

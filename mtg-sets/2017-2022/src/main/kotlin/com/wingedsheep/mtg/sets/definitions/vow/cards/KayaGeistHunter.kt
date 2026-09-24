@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.vow.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -86,7 +86,7 @@ val KayaGeistHunter = card("Kaya, Geist Hunter") {
                 GroupFilter(GameObjectFilter.Creature.youControl()),
                 Effects.GrantKeyword(Keyword.DEATHTOUCH, EffectTarget.Self)
             ),
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, tokenCreature)
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, tokenCreature)
         )
         description = "Creatures you control gain deathtouch until end of turn. Put a +1/+1 " +
             "counter on up to one target creature token you control."

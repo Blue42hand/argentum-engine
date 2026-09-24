@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.rav.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -41,7 +41,7 @@ val SzadekLordOfSecrets = card("Szadek, Lord of Secrets") {
 
     replacementEffect(
         ReplaceDamageWithCounters(
-            counterType = Counters.PLUS_ONE_PLUS_ONE,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             appliesTo = EventPattern.DamageEvent(
                 recipient = RecipientFilter.AnyPlayer,
                 source = SourceFilter.Self,

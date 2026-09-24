@@ -22,7 +22,6 @@ import com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.handlers.effects.library.MillAmountModifier
 import com.wingedsheep.engine.handlers.effects.life.LifePaymentService
-import com.wingedsheep.engine.handlers.effects.permanent.counters.resolveCounterType
 import com.wingedsheep.engine.mechanics.mana.ManaPool
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.state.GameState
@@ -32,6 +31,7 @@ import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ExiledFromZoneComponent
 import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
@@ -427,7 +427,7 @@ class CostPaymentService(private val services: EngineServices) {
         var newState = state
         val events = mutableListOf<GameEvent>()
         val counterType = atom.counterType?.let {
-            resolveCounterType(it)
+            it
         }
 
         var remaining = required
@@ -444,7 +444,7 @@ class CostPaymentService(private val services: EngineServices) {
                 newState = newState.updateEntity(selfId) { c ->
                     c.with(counters.withRemoved(counterType, required))
                 }
-                events.add(CountersRemovedEvent(selfId, atom.counterType!!, required, container.get<CardComponent>()?.name ?: "Permanent"))
+                events.add(CountersRemovedEvent(selfId, counterType, required, container.get<CardComponent>()?.name ?: "Permanent"))
                 remaining = 0
             } else {
                 var selfRemaining = required
@@ -459,7 +459,7 @@ class CostPaymentService(private val services: EngineServices) {
                     events.add(
                         CountersRemovedEvent(
                             selfId,
-                            com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString(type),
+                            type,
                             toRemove,
                             container.get<CardComponent>()?.name ?: "Permanent"
                         )
@@ -474,7 +474,7 @@ class CostPaymentService(private val services: EngineServices) {
                 return CostPaymentExecution(state, emptyList(), success = false)
             }
             val removals = selected.map { (entityId, count) ->
-                DistributedCounterRemoval(entityId, atom.counterType!!, count)
+                DistributedCounterRemoval(entityId, counterType.printed, count)
             }
             return applyDistributedCounterRemovals(newState, payerId, atom, removals)
         } else {
@@ -504,8 +504,7 @@ class CostPaymentService(private val services: EngineServices) {
                     c.with(counters.withRemoved(removeType, toRemove))
                 }
                 val name = container.get<CardComponent>()?.name ?: "Permanent"
-                val typeName = atom.counterType ?: com.wingedsheep.engine.handlers.effects.permanent.counters.counterTypeToString(removeType)
-                events.add(CountersRemovedEvent(entityId, typeName, toRemove, name))
+                events.add(CountersRemovedEvent(entityId, removeType, toRemove, name))
                 remaining -= toRemove
             }
         }
@@ -695,11 +694,10 @@ class CostPaymentService(private val services: EngineServices) {
     private fun putCountersOnSelected(
         state: GameState,
         selected: List<EntityId>,
-        counterType: String,
+        counterType: CounterType,
         count: Int
     ): CostPaymentExecution {
         if (selected.isEmpty()) return CostPaymentExecution(state, emptyList(), success = false)
-        val resolved = resolveCounterType(counterType)
         var newState = state
         val events = mutableListOf<GameEvent>()
         for (permanentId in selected) {
@@ -708,7 +706,7 @@ class CostPaymentService(private val services: EngineServices) {
             // clobbering — no printed cost selects the same permanent twice, but the loop shouldn't
             // depend on that.
             newState = newState.updateEntity(permanentId) { c ->
-                c.with((c.get<CountersComponent>() ?: CountersComponent()).withAdded(resolved, count))
+                c.with((c.get<CountersComponent>() ?: CountersComponent()).withAdded(counterType, count))
             }
             events.add(
                 com.wingedsheep.engine.core.CountersAddedEvent(
@@ -824,11 +822,11 @@ class CostPaymentService(private val services: EngineServices) {
                         if (needed <= 0) return@canAfford true
                         if (atom.self) {
                             val counters = state.getEntity(sourceId)?.get<CountersComponent>() ?: return@canAfford false
-                            val ct = atom.counterType?.let { resolveCounterType(it) }
+                            val ct = atom.counterType?.let { it }
                             if (ct != null) counters.getCount(ct) >= needed
                             else counters.counters.values.sum() >= needed
                         } else {
-                            val counterType = atom.counterType?.let { resolveCounterType(it) }
+                            val counterType = atom.counterType?.let { it }
                             val candidates = domain(state, payerId, c, sourceId)
                             val total = candidates.sumOf { entityId ->
                                 val counters = state.getEntity(entityId)?.get<CountersComponent>() ?: return@sumOf 0
@@ -1012,9 +1010,7 @@ class CostPaymentService(private val services: EngineServices) {
             if (removals.isEmpty()) return CostPaymentExecution(state, emptyList(), success = true)
             val projected = state.projectedState
             val ctx = PredicateContext(controllerId = playerId)
-            val atomCounterType = atom.counterType?.let {
-                resolveCounterType(it)
-            }
+            val atomCounterType = atom.counterType
             var newState = state
             val events = mutableListOf<GameEvent>()
             for (removal in removals) {
@@ -1027,14 +1023,9 @@ class CostPaymentService(private val services: EngineServices) {
                 if (!predicateEvaluator.matches(state, projected, removal.entityId, atom.filter, ctx)) {
                     return CostPaymentExecution(state, emptyList(), success = false)
                 }
-                val resolvedType = if (atomCounterType != null) {
-                    val entryType = resolveCounterType(removal.counterType)
-                    if (entryType != atomCounterType) {
-                        return CostPaymentExecution(state, emptyList(), success = false)
-                    }
-                    atomCounterType
-                } else {
-                    resolveCounterType(removal.counterType)
+                val resolvedType = CounterType.of(removal.counterType)
+                if (atomCounterType != null && resolvedType != atomCounterType) {
+                    return CostPaymentExecution(state, emptyList(), success = false)
                 }
                 val counters = container.get<CountersComponent>()
                     ?: return CostPaymentExecution(state, emptyList(), success = false)
@@ -1045,9 +1036,8 @@ class CostPaymentService(private val services: EngineServices) {
                 newState = newState.updateEntity(removal.entityId) { c ->
                     c.with(counters.withRemoved(resolvedType, removal.count))
                 }
-                val typeName = atom.counterType ?: removal.counterType
                 val entityName = container.get<CardComponent>()?.name ?: "Permanent"
-                events.add(CountersRemovedEvent(removal.entityId, typeName, removal.count, entityName))
+                events.add(CountersRemovedEvent(removal.entityId, resolvedType, removal.count, entityName))
             }
             return CostPaymentExecution(newState, events, success = true)
         }

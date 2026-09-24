@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.isd.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
@@ -31,7 +31,7 @@ val TravelPreparations = card("Travel Preparations") {
         )
         effect = ForEachTargetEffect(
             effects = listOf(
-                AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
+                AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.ContextTarget(0))
             )
         )
     }

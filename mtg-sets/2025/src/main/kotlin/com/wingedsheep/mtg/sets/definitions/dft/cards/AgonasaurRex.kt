@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -48,7 +48,7 @@ val AgonasaurRex = card("Agonasaur Rex") {
             TargetPermanent(optional = true, filter = TargetFilter(GameObjectFilter.CreatureOrVehicle))
         )
         effect = Effects.Composite(
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, t),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, t),
             Effects.GrantKeyword(Keyword.TRAMPLE, t),
             Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, t),
         )

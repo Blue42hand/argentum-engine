@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.woe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.CantBeBlockedBy
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.RemoveCountersEffect
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -52,17 +51,17 @@ val IngeniousProdigy = card("Ingenious Prodigy") {
 
     replacementEffect(
         EntersWithDynamicCounters(
-            counterType = CounterTypeFilter.PlusOnePlusOne,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = DynamicAmount.CastX,
         )
     )
 
     triggeredAbility {
         trigger = Triggers.YourUpkeep
-        interveningIf = Conditions.SourceHasCounter(CounterTypeFilter.PlusOnePlusOne)
+        interveningIf = Conditions.SourceHasCounter(CounterType.PLUS_ONE_PLUS_ONE)
         effect = Effects.May(
             Effects.Composite(
-                RemoveCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                RemoveCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                 Effects.DrawCards(1),
             )
         )

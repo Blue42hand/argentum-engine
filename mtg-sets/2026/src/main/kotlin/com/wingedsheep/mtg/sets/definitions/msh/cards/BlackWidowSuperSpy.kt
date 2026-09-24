@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.msh.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -70,7 +70,7 @@ val BlackWidowSuperSpy = card("Black Widow, Super Spy") {
                 destination = CardDestination.ToZone(Zone.EXILE, Player.TriggeringPlayer),
             ),
             Effects.May(
-                effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                 descriptionOverride = "Put a +1/+1 counter on Black Widow",
                 otherwise = Effects.GrantMayPlayFromExile(
                     from = "widowNonland",

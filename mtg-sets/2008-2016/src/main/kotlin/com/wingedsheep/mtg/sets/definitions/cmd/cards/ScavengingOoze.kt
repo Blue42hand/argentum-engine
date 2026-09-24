@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.cmd.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
@@ -39,7 +39,7 @@ val ScavengingOoze = card("Scavenging Ooze") {
             Effects.If(
                 condition = Conditions.TargetIsCreatureCard(0),
                 then = Effects.Composite(
-                    Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                     Effects.GainLife(1),
                 ),
             ),

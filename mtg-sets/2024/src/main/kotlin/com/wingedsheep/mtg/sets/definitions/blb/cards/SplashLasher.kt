@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -45,7 +46,7 @@ val SplashLasher = card("Splash Lasher") {
         trigger = Triggers.EntersBattlefield
         val t = target("creature", Targets.UpToCreatures(1))
         effect = Effects.Tap(t)
-            .then(Effects.AddCounters("STUN", 1, t))
+            .then(Effects.AddCounters(CounterType.STUN, 1, t))
     }
 
     metadata {

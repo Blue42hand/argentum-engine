@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
@@ -78,7 +78,7 @@ val LostInTheMaze = card("Lost in the Maze") {
                                     GameObjectFilter.Creature.opponentControls()
                                 ),
                             then = Effects.AddCounters(
-                                Counters.STUN,
+                                CounterType.STUN,
                                 1,
                                 EffectTarget.ContextTarget(0)
                             )

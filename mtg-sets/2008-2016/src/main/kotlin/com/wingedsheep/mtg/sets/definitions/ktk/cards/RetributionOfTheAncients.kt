@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.ktk.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -24,7 +24,7 @@ val RetributionOfTheAncients = card("Retribution of the Ancients") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{B}"),
             Costs.RemoveXCounters(
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 filter = GameObjectFilter.Creature
             ))
         val creature = target("creature", Targets.Creature)

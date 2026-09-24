@@ -145,7 +145,7 @@ class EffectHandlerTest : StringSpec({
             "t",
         ) shouldBe "Effects.Composite(\n" +
             "            Effects.Move(t, Zone.BATTLEFIELD),\n" +
-            "            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)\n" +
+            "            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)\n" +
             "        )"
     }
 

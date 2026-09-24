@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.spm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -11,7 +11,6 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.predicates.StatePredicate
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -52,7 +51,7 @@ val CostumeCloset = card("Costume Closet") {
     // This artifact enters with two +1/+1 counters on it.
     replacementEffect(
         EntersWithCounters(
-            counterType = CounterTypeFilter.Named(Counters.PLUS_ONE_PLUS_ONE),
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             count = 2,
             selfOnly = true
         )
@@ -64,7 +63,7 @@ val CostumeCloset = card("Costume Closet") {
         timing = TimingRule.SorcerySpeed
         val creature = target("target creature you control", Targets.CreatureYouControl)
         effect = Effects.MoveCounters(
-            counterType = Counters.PLUS_ONE_PLUS_ONE,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             amount = DynamicAmount.Fixed(1),
             source = EffectTarget.Self,
             destination = creature
@@ -81,7 +80,7 @@ val CostumeCloset = card("Costume Closet") {
             },
             binding = TriggerBinding.ANY
         )
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
         description = "Whenever a modified creature you control leaves the battlefield, put a " +
             "+1/+1 counter on this artifact."
     }

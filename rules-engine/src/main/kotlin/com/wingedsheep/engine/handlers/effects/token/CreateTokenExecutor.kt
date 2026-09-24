@@ -20,7 +20,6 @@ import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
 import com.wingedsheep.engine.state.components.combat.AttackingComponent
 import com.wingedsheep.engine.state.components.identity.TokenComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
-import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.TypeLine
@@ -239,23 +238,11 @@ class CreateTokenExecutor(
                 // creation, not as a separate placement event.
                 var history = com.wingedsheep.engine.state.components.battlefield
                     .ReceivedCountersThisTurnComponent()
-                for ((counterTypeStr, amount) in effect.initialCounters) {
-                    val counterType = try {
-                        CounterType.valueOf(
-                            counterTypeStr.uppercase()
-                                .replace(' ', '_')
-                                .replace('+', 'P')
-                                .replace('-', 'M')
-                                .replace("/", "_")
-                        )
-                    } catch (e: IllegalArgumentException) {
-                        CounterType.PLUS_ONE_PLUS_ONE
-                    }
+                for ((counterType, amount) in effect.initialCounters) {
                     counters = counters.withAdded(counterType, amount)
                     if (amount > 0) {
                         history = history.with(
-                            com.wingedsheep.engine.handlers.effects.permanent.counters
-                                .counterTypeToString(counterType),
+                            counterType,
                             byController = true,
                         )
                     }

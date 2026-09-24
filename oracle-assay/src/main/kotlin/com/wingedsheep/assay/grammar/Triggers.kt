@@ -6,6 +6,7 @@ import com.wingedsheep.assay.syntax.alternate
 import com.wingedsheep.assay.syntax.bind
 import com.wingedsheep.assay.syntax.oneOf
 import com.wingedsheep.assay.syntax.phrase
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
@@ -627,7 +628,7 @@ object Triggers {
         recipient: Phrase<GameObjectFilter>?,
         placedBy: Player?,
     ): Prefix {
-        fun spec(kind: String, filter: GameObjectFilter) = SdkTriggers.countersPlacedOn(
+        fun spec(kind: CounterType, filter: GameObjectFilter) = SdkTriggers.countersPlacedOn(
             filter = filter,
             counterType = kind,
             firstTimeEachTurn = false,
@@ -644,8 +645,9 @@ object Triggers {
                 }
                 match { triggerSpec ->
                     val event = triggerSpec.event as? EventPattern.CountersPlacedEvent ?: return@match null
-                    if (spec(event.counterType, event.filter) != triggerSpec) return@match null
-                    bind("kind" to event.counterType, "recipient" to event.filter)
+                    val kind = event.counterType ?: return@match null
+                    if (spec(kind, event.filter) != triggerSpec) return@match null
+                    bind("kind" to kind, "recipient" to event.filter)
                 }
             },
             Steps.step,

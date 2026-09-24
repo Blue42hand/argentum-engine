@@ -4,7 +4,7 @@
 
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -39,7 +39,7 @@ val WaylayingPirates = card("Waylaying Pirates") {
         )
         effect = Effects.Composite(
             Effects.Tap(t),
-            AddCountersEffect(counterType = Counters.STUN, count = 1, target = t)
+            AddCountersEffect(counterType = CounterType.STUN, count = 1, target = t)
         )
     }
     metadata {

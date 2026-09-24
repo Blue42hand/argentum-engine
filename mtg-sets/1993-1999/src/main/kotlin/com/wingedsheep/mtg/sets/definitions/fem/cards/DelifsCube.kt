@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.fem.cards
 
 import com.wingedsheep.sdk.core.AbilityFlag
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -53,7 +53,7 @@ val DelifsCube = card("Delif's Cube") {
                     EffectTarget.TriggeringEntity,
                     Duration.EndOfTurn,
                 ),
-                Effects.AddCounters(Counters.CUBE, 1, EffectTarget.Self),
+                Effects.AddCounters(CounterType.CUBE, 1, EffectTarget.Self),
             ),
             expiry = DelayedTriggerExpiry.EndOfTurn,
             fireOnce = true,
@@ -62,7 +62,7 @@ val DelifsCube = card("Delif's Cube") {
     }
 
     activatedAbility {
-        cost = Costs.Composite(Costs.Mana("{2}"), Costs.RemoveCounterFromSelf(Counters.CUBE, 1))
+        cost = Costs.Composite(Costs.Mana("{2}"), Costs.RemoveCounterFromSelf(CounterType.CUBE, 1))
         val t = target("target creature", TargetCreature(filter = TargetFilter.Creature))
         effect = RegenerateEffect(t)
         description = "{2}, Remove a cube counter from this artifact: Regenerate target creature."

@@ -1,6 +1,6 @@
 package com.wingedsheep.sdk.scripting
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.scripting.effects.CardDestination
@@ -56,7 +56,7 @@ object Sieges {
     val defeatAbility: TriggeredAbility = TriggeredAbility(
         id = AbilityId("siege_defeat"),
         trigger = EventPattern.CountersRemovedEvent(
-            counterType = Counters.DEFENSE,
+            counterType = CounterType.DEFENSE,
             lastRemoved = true,
         ),
         binding = TriggerBinding.SELF,

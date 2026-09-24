@@ -4,7 +4,7 @@
 
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Patterns
@@ -39,7 +39,7 @@ val RubblebeltMaverick = card("Rubblebelt Maverick") {
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{G}"), Costs.ExileSelf)
         val t = target("target", TargetCreature(filter = TargetFilter.Creature))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = t)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = t)
         timing = TimingRule.SorcerySpeed
         activateFromZone = Zone.GRAVEYARD
     }

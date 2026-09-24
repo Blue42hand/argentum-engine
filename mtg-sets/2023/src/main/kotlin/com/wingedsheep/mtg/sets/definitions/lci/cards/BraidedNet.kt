@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lci.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.PreventActivatedAbilities
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -34,9 +33,9 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Implementation:
  *  - Enters-with-counters: [EntersWithCounters] replacement effect (`selfOnly = true`,
- *    `CounterTypeFilter.Named(Counters.NET)`, count 3) — applied as the Net enters, so it
+ *    `CounterType.NET`, count 3) — applied as the Net enters, so it
  *    works on cast entry and any other battlefield entry (same shape as Explorer's Cache).
- *    `Counters.NET` / `CounterType.NET` were added for this card (passive named counter,
+ *    `CounterType.NET` / `CounterType.NET` were added for this card (passive named counter,
  *    same pattern as `fire` / `conqueror`).
  *  - Craft: the `craft(...)` DSL helper wires the activated ability with an
  *    [com.wingedsheep.sdk.scripting.AbilityCost.Craft] material cost (exactly one artifact:
@@ -45,7 +44,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *    card transformed via
  *    [com.wingedsheep.sdk.scripting.effects.ReturnSelfFromExileTransformedEffect].
  *    The printed craft line carries no reminder text — oracleText is verbatim.
- *  - Tap-and-lock ability: `Costs.Composite(Costs.Tap, Costs.RemoveCounterFromSelf(Counters.NET, 1))`
+ *  - Tap-and-lock ability: `Costs.Composite(Costs.Tap, Costs.RemoveCounterFromSelf(CounterType.NET, 1))`
  *    with `Targets.OtherNonlandPermanent` ("another target nonland permanent" — excludes the
  *    Net itself and lands). Resolution taps the target, then grants it
  *    [PreventActivatedAbilities] scoped to the holder itself
@@ -75,7 +74,7 @@ private val BraidedNetFront = card("Braided Net") {
     // This artifact enters with three net counters on it.
     replacementEffect(
         EntersWithCounters(
-            counterType = CounterTypeFilter.Named(Counters.NET),
+            counterType = CounterType.NET,
             count = 3,
             selfOnly = true
         )
@@ -84,7 +83,7 @@ private val BraidedNetFront = card("Braided Net") {
     // {T}, Remove a net counter from this artifact: Tap another target nonland permanent.
     // Its activated abilities can't be activated for as long as it remains tapped.
     activatedAbility {
-        cost = Costs.Composite(Costs.Tap, Costs.RemoveCounterFromSelf(Counters.NET, 1))
+        cost = Costs.Composite(Costs.Tap, Costs.RemoveCounterFromSelf(CounterType.NET, 1))
         val netted = target("nonland permanent to tap", Targets.OtherNonlandPermanent)
         effect = Effects.Composite(
             Effects.Tap(netted),

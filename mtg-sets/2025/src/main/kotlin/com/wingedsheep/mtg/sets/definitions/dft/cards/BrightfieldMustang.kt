@@ -4,7 +4,7 @@
 
 package com.wingedsheep.mtg.sets.definitions.dft.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -35,7 +35,7 @@ val BrightfieldMustang = card("Brightfield Mustang") {
         triggerRestriction = Conditions.SourceIsSaddled
         effect = Effects.Composite(
             Effects.Untap(EffectTarget.Self),
-            AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+            AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
         )
     }
     keywordAbility(KeywordAbility.saddle(1))

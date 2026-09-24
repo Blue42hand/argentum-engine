@@ -1,5 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -35,7 +36,7 @@ val DreamdewEntrancer = card("Dreamdew Entrancer") {
         trigger = Triggers.EntersBattlefield
         val t = target("creature", Targets.UpToCreatures(1))
         effect = Effects.Tap(t)
-            .then(Effects.AddCounters("STUN", 3, t))
+            .then(Effects.AddCounters(CounterType.STUN, 3, t))
             .then(Effects.If(
                 condition = Conditions.TargetMatchesFilter(GameObjectFilter.Creature.youControl(), targetIndex = 0),
                 then = Effects.DrawCards(2)

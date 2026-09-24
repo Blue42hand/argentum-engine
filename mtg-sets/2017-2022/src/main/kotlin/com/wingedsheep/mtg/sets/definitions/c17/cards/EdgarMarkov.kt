@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.c17.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
@@ -77,7 +77,7 @@ val EdgarMarkov = card("Edgar Markov") {
         trigger = Triggers.Attacks
         effect = Effects.ForEachInGroup(
             GroupFilter(GameObjectFilter.Creature.youControl().withSubtype(Subtype.VAMPIRE)),
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
         )
         description = "Whenever Edgar attacks, put a +1/+1 counter on each Vampire you control."
     }

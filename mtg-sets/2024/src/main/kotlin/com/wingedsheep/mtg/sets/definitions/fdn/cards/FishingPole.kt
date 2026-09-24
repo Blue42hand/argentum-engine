@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.fdn.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -60,7 +60,7 @@ val FishingPole = card("Fishing Pole") {
                     Costs.Tap,
                     Costs.TapGrantingPermanent,
                 ),
-                effect = AddCountersEffect(Counters.BAIT, 1, EffectTarget.GrantingSource),
+                effect = AddCountersEffect(CounterType.BAIT, 1, EffectTarget.GrantingSource),
             )
             // filter defaults to GroupFilter.attachedCreature() — "equipped creature has ..."
         )
@@ -69,7 +69,7 @@ val FishingPole = card("Fishing Pole") {
     triggeredAbility {
         trigger = Triggers.becomesUntapped(binding = TriggerBinding.ATTACHED)
         effect = Effects.IfYouDo(
-            action = Effects.RemoveCounters(Counters.BAIT, 1, EffectTarget.Self),
+            action = Effects.RemoveCounters(CounterType.BAIT, 1, EffectTarget.Self),
             // A counter removal is not a zone move, so Auto can't infer it — and "if you do" here
             // really can fail: no bait counter means no Fish.
             successCriterion = SuccessCriterion.CountersRemoved,

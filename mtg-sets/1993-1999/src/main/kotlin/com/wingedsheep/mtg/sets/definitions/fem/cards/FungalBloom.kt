@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fem.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
@@ -31,7 +31,7 @@ val FungalBloom = card("Fungal Bloom") {
             "target Fungus",
             TargetPermanent(filter = TargetFilter(GameObjectFilter.Permanent.withSubtype(Subtype.FUNGUS)))
         )
-        effect = Effects.AddCounters(Counters.SPORE, 1, t)
+        effect = Effects.AddCounters(CounterType.SPORE, 1, t)
     }
 
     metadata {

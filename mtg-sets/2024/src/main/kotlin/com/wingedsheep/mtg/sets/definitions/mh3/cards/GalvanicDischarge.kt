@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mh3.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
@@ -31,7 +31,7 @@ val GalvanicDischarge = card("Galvanic Discharge") {
         val t = target("target", Targets.CreatureOrPlaneswalker)
         effect = Effects.Composite(
             Effects.GetEnergy(3),
-            Effects.PayCounters(Counters.ENERGY, storeAmountAs = "paid"),
+            Effects.PayCounters(CounterType.ENERGY, storeAmountAs = "paid"),
             Effects.DealDamage(DynamicAmount.VariableReference("paid"), t)
         )
     }

@@ -44,7 +44,6 @@ import com.wingedsheep.engine.state.components.identity.PutIntoGraveyardThisTurn
 import com.wingedsheep.engine.state.components.identity.TokenComponent
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.engine.state.components.stack.ActivatedAbilityOnStackComponent
 import com.wingedsheep.engine.state.components.stack.EntitySnapshot
 import com.wingedsheep.engine.state.components.stack.SpellOnStackComponent
@@ -1883,17 +1882,7 @@ class PredicateEvaluator {
             // Counter state
             is StatePredicate.HasCounter -> {
                 val countersComponent = container.get<CountersComponent>()
-                if (countersComponent == null) return false
-                val counterType = when (predicate.counterType) {
-                    "+1/+1" -> CounterType.PLUS_ONE_PLUS_ONE
-                    "-1/-1" -> CounterType.MINUS_ONE_MINUS_ONE
-                    else -> try {
-                        CounterType.valueOf(predicate.counterType.uppercase().replace(' ', '_'))
-                    } catch (_: IllegalArgumentException) {
-                        return false
-                    }
-                }
-                countersComponent.getCount(counterType) > 0
+                countersComponent != null && countersComponent.getCount(predicate.counterType) > 0
             }
             StatePredicate.HasAnyCounter -> {
                 val countersComponent = container.get<CountersComponent>()

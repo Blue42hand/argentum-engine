@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.otj.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -49,7 +49,7 @@ val RailwayBrawler = card("Railway Brawler") {
     triggeredAbility {
         trigger = Triggers.OtherCreatureEnters
         effect = Effects.AddDynamicCounters(
-            counterType = Counters.PLUS_ONE_PLUS_ONE,
+            counterType = CounterType.PLUS_ONE_PLUS_ONE,
             amount = DynamicAmount.EntityProperty(EntityReference.Triggering, EntityNumericProperty.Power),
             target = EffectTarget.TriggeringEntity
         )

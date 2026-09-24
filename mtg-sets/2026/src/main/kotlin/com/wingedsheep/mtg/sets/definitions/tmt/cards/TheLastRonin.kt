@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tmt.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -70,7 +70,7 @@ val TheLastRonin = card("The Last Ronin") {
             expiry = DelayedTriggerExpiry.EndOfTurn,
             effect = Effects.Composite(
                 listOf(
-                    Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 3, EffectTarget.TriggeringEntity),
+                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 3, EffectTarget.TriggeringEntity),
                     Effects.GrantKeyword(Keyword.TRAMPLE, EffectTarget.TriggeringEntity, Duration.EndOfTurn),
                     Effects.GrantKeyword(Keyword.LIFELINK, EffectTarget.TriggeringEntity, Duration.EndOfTurn),
                     Effects.GrantKeyword(Keyword.INDESTRUCTIBLE, EffectTarget.TriggeringEntity, Duration.EndOfTurn)

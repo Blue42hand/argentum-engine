@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.lrw.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.effects.IncrementAbilityResolutionCountEffect
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -57,7 +56,7 @@ val AshlingThePilgrim = card("Ashling the Pilgrim") {
 
     activatedAbility {
         cost = Costs.Mana("{1}{R}")
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             .then(IncrementAbilityResolutionCountEffect)
             .then(
                 Effects.If(
@@ -67,11 +66,11 @@ val AshlingThePilgrim = card("Ashling the Pilgrim") {
                             Effects.StoreNumber(
                                 "ashlingRemovedCounters",
                                 DynamicAmounts.countersOnSelf(
-                                    CounterTypeFilter.Named(Counters.PLUS_ONE_PLUS_ONE)
+                                    CounterType.PLUS_ONE_PLUS_ONE
                                 ),
                             ),
                             Effects.RemoveAllCountersOfType(
-                                Counters.PLUS_ONE_PLUS_ONE,
+                                CounterType.PLUS_ONE_PLUS_ONE,
                                 EffectTarget.Self,
                             ),
                             Effects.ForEachInGroup(

@@ -4,7 +4,7 @@
 
 package com.wingedsheep.mtg.sets.definitions.thb.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -31,7 +31,7 @@ val NessianHornbeetle = card("Nessian Hornbeetle") {
     triggeredAbility {
         trigger = Triggers.BeginCombat
         interveningIf = Conditions.YouControl(GameObjectFilter.Creature.powerAtLeast(4))
-        effect = AddCountersEffect(counterType = Counters.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
+        effect = AddCountersEffect(counterType = CounterType.PLUS_ONE_PLUS_ONE, count = 1, target = EffectTarget.Self)
     }
     metadata {
         rarity = Rarity.UNCOMMON

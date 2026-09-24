@@ -1151,7 +1151,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "time",
+                    "counterType": "TIME",
                     "count": 1,
                     "target": "Self"
                 }
@@ -1506,7 +1506,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -1546,7 +1546,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "spore",
+                    "counterType": "SPORE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1560,7 +1560,7 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomRemoveCounters",
-                        "counterType": "spore",
+                        "counterType": "SPORE",
                         "count": {
                             "type": "Fixed",
                             "amount": 3
@@ -2099,7 +2099,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "spore",
+                    "counterType": "SPORE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -2113,7 +2113,7 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomRemoveCounters",
-                        "counterType": "spore",
+                        "counterType": "SPORE",
                         "count": {
                             "type": "Fixed",
                             "amount": 3
@@ -2919,7 +2919,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "spore",
+                    "counterType": "SPORE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -2933,7 +2933,7 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomRemoveCounters",
-                        "counterType": "spore",
+                        "counterType": "SPORE",
                         "count": {
                             "type": "Fixed",
                             "amount": 3
@@ -3027,7 +3027,7 @@
                     },
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 6,
                         "target": "Self"
                     }

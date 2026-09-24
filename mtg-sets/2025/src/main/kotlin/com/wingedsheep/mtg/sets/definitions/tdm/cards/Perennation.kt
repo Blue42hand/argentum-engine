@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.tdm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -43,8 +43,8 @@ val Perennation = card("Perennation") {
             )
         )
         effect = Effects.PutOntoBattlefield(returnTarget)
-            .then(Effects.AddCounters(Counters.HEXPROOF, 1, EffectTarget.ContextTarget(0)))
-            .then(Effects.AddCounters(Counters.INDESTRUCTIBLE, 1, EffectTarget.ContextTarget(0)))
+            .then(Effects.AddCounters(CounterType.HEXPROOF, 1, EffectTarget.ContextTarget(0)))
+            .then(Effects.AddCounters(CounterType.INDESTRUCTIBLE, 1, EffectTarget.ContextTarget(0)))
     }
 
     metadata {

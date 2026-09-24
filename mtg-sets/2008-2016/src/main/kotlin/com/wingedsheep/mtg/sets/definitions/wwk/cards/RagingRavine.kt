@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.wwk.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.scripting.EventPattern.AttackEvent
@@ -70,7 +70,7 @@ val RagingRavine = card("Raging Ravine") {
                         trigger = AttackEvent(),
                         binding = TriggerBinding.SELF,
                         effect = AddCountersEffect(
-                            counterType = Counters.PLUS_ONE_PLUS_ONE,
+                            counterType = CounterType.PLUS_ONE_PLUS_ONE,
                             count = 1,
                             target = EffectTarget.Self,
                         ),

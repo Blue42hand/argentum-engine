@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fra.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -35,7 +35,7 @@ val VigorbloomCharm = card("Vigorbloom Charm") {
                 val yours = target("target creature you control", Targets.CreatureYouControl)
                 val theirs = target("target creature an opponent controls", Targets.CreatureOpponentControls)
                 effect = Effects.Composite(
-                    Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, yours),
+                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, yours),
                     Effects.Fight(yours, theirs)
                 )
             }

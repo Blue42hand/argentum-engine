@@ -1,6 +1,6 @@
 package com.wingedsheep.sdk.scripting
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.CardDefinition
@@ -81,7 +81,7 @@ object Renown {
             interveningIf = isNotRenowned,
             effect = CompositeEffect(
                 effects = listOf(
-                    AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, n, EffectTarget.Self),
+                    AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, n, EffectTarget.Self),
                     BecomeRenownedEffect(EffectTarget.Self),
                 ),
                 descriptionOverride = "put $n +1/+1 $counterWord on this creature and it becomes " +

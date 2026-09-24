@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.dom.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.KeywordAbility
@@ -23,11 +23,11 @@ val WildOnslaught = card("Wild Onslaught") {
             condition = WasKicked,
             then = Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreaturesYouControl,
-                effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
+                effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
             ),
             otherwise = Effects.ForEachInGroup(
                 filter = GroupFilter.AllCreaturesYouControl,
-                effect = AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                effect = AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
             )
         )
     }

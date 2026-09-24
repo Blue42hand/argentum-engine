@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
@@ -72,7 +72,7 @@ val RenderSpeechless = card("Render Speechless") {
                 ),
             ),
             // Two +1/+1 counters on the optional creature (target 1). No-ops when no creature is chosen.
-            Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, creature),
+            Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, creature),
         )
     }
 

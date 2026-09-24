@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.soi.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
@@ -13,7 +13,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -35,7 +34,7 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  *
  * Implementation:
  *  - "Enters with four ice counters" is a replacement effect (CR 614.1c), not an ETB trigger:
- *    [EntersWithCounters] over the new [Counters.ICE] counter, `selfOnly`.
+ *    [EntersWithCounters] over the new [CounterType.ICE] counter, `selfOnly`.
  *  - The cast trigger is [Triggers.YouCastInstantOrSorcery] → [Effects.RemoveCounters] of one ice
  *    counter, then a [Effects.If] on [Conditions.SourceCounterCountAtMost]`(ice, 0)` that
  *    flips it. Gating the transform on the *live* count after the removal is what makes the printed
@@ -65,7 +64,7 @@ private val ThingInTheIceFront = card("Thing in the Ice") {
 
     replacementEffect(
         EntersWithCounters(
-            counterType = CounterTypeFilter.Named(Counters.ICE),
+            counterType = CounterType.ICE,
             count = 4,
             selfOnly = true,
         )
@@ -74,9 +73,9 @@ private val ThingInTheIceFront = card("Thing in the Ice") {
     triggeredAbility {
         trigger = Triggers.YouCastInstantOrSorcery
         effect = Effects.Composite(
-            Effects.RemoveCounters(Counters.ICE, 1, EffectTarget.Self),
+            Effects.RemoveCounters(CounterType.ICE, 1, EffectTarget.Self),
             Effects.If(
-                condition = Conditions.SourceCounterCountAtMost(Counters.ICE, 0),
+                condition = Conditions.SourceCounterCountAtMost(CounterType.ICE, 0),
                 then = TransformEffect(EffectTarget.Self),
             ),
         )

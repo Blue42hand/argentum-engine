@@ -129,7 +129,7 @@ section; do not let SDK additions land without a corresponding doc update.
   identically; disguise is simply where it is printed.
 - `disguiseFaceUpEffect: Effect?` — the disguise-side sibling of `morphFaceUpEffect`, for the
   "As this creature is turned face up, …" replacement clause (Bubble Smuggler = "put four +1/+1
-  counters on it" → `Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 4, EffectTarget.Self)`). It is
+  counters on it" → `Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 4, EffectTarget.Self)`). It is
   applied **as part of the turn-up special action**, so it doesn't use the stack and can't be
   responded to — that is what separates it from a `Triggers.TurnedFaceUp` ability ("When this
   creature is turned face up, …", Granite Witness / Exit Specialist), which does use the stack.
@@ -218,7 +218,7 @@ The engine supplies the rest; **do not** write any of it onto the card:
   counter is removed from this permanent, exile it, then you may cast it transformed without paying its
   mana cost" (CR 310.12b), supplied as `com.wingedsheep.sdk.scripting.Sieges.defeatAbility` and granted by
   `TriggerAbilityResolver` to any permanent whose *projected* types make it a Siege. It is a
-  `countersRemovedFrom(counterType = Counters.DEFENSE, lastRemoved = true, binding = SELF)` trigger over a
+  `countersRemovedFrom(counterType = CounterType.DEFENSE, lastRemoved = true, binding = SELF)` trigger over a
   `GatherCards(Self) → MoveCollection(→ exile) → Effects.May(CastFromCollectionWithoutPayingCost(castTransformed = true))`
   pipeline. **A Siege card therefore only needs its `startingDefense` and its back face** — write the front
   face's own abilities and nothing else. Two consequences worth knowing: a Siege that never had a defense
@@ -716,7 +716,7 @@ exist in the cost and charges the life through the shared life-payment service.
   from among permanents matching `filter` you control. When `counterType` is set (e.g. `"+1/+1"`),
   only counters of that type are removed; when `null`, counters of any type may be removed in any
   combination (Tayam, Luminous Enigma).
-- `Costs.RemoveXCounters(counterType = "+1/+1", filter = Permanent, self = false)` — remove X
+- `Costs.RemoveXCounters(counterType = CounterType.PLUS_ONE_PLUS_ONE, filter = Permanent, self = false)` — remove X
   counters, where X is the activated ability's chosen variable-cost value. Use
   `Costs.RemoveXCounters()` (the default) to remove X counters of any type. By default the removal
   is spread across permanents matching `filter` — the player is asked to distribute it, the
@@ -1530,6 +1530,16 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 
 ### Counters
 
+- **`CounterType` is the one spelling of a counter kind** — every effect, cost, condition, trigger,
+  filter and event takes one: `Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target)`. It is an
+  open value type over a canonical id (`name` = `PLUS_ONE_PLUS_ONE`, `FIRST_STRIKE`, `CHARGE`), with
+  `printed` for the card spelling (`+1/+1`, `first strike`) and `CounterType.of(text)` as the only way
+  back from text (any case, id or printed; an unknown word is a new kind, never a `+1/+1` fallback).
+  Where a position means "counters of any kind" it is `CounterType?` and `null` is the wildcard
+  (`Triggers.countersPlacedOn(counterType = null)`, `Conditions.SourceHasCounter(null)`,
+  `DynamicAmounts.countersOnSelf(null)`). Every kind a card names must be one of `CounterType.KNOWN` —
+  `CounterTypeVocabularyTest` walks the corpus for it — so a new kind is a constant in `CounterType`
+  (plus the client's mirror in `web-client/src/types/enums.ts`), never a string on a card.
 - `AddCounters(type, count, target)` — add N counters of `type`.
 - `AddDynamicCounters(type, amount, target)` — count is computed at resolution.
 - `AddCountersUpTo(type, max, target)` — the effect's controller **chooses** how many (0 up to `max`, a
@@ -1539,24 +1549,20 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   Scales) and downstream triggers (Saga chapter abilities off lore counters) fire. No-op when the target
   can't receive counters or `max` ≤ 0; choosing 0 places none. Esper Terra's "if it's a Saga, put up to three
   lore counters on it" = `Effects.If(CollectionContainsMatch(CREATED_TOKENS, Enchantment.withSubtype(SAGA)),
-  AddCountersUpTo(Counters.LORE, 3, PipelineTarget(CREATED_TOKENS)))`.
+  AddCountersUpTo(CounterType.LORE, 3, PipelineTarget(CREATED_TOKENS)))`.
 - **Stat counters and the layer system.** Counters whose `type` is a P/T stat counter modify power/toughness in
-  layer 7c (CR 613.4c) via `EffectApplicator.applyCounters`. The symmetric pair is `Counters.PLUS_ONE_PLUS_ONE` /
-  `Counters.MINUS_ONE_MINUS_ONE`; the asymmetric counters `Counters.PLUS_ONE_PLUS_ZERO` (`+1/+0`),
-  `Counters.PLUS_ZERO_PLUS_ONE` (`+0/+1`), `Counters.MINUS_ONE_MINUS_ZERO` (`-1/-0`) and
-  `Counters.MINUS_ZERO_MINUS_ONE` (`-0/-1`) modify only the indicated stat (Clockwork Avian's four `+1/+0`
-  counters), and `Counters.PLUS_TWO_PLUS_ZERO` (`+2/+0`) / `Counters.PLUS_ZERO_PLUS_TWO` (`+0/+2`) are the
-  two-step versions of those (Frankenstein's Monster). `Counters.PLUS_ONE_PLUS_TWO` (`+1/+2`, Armor Thrull),
-  `Counters.PLUS_TWO_PLUS_TWO` (`+2/+2`, Soul Exchange) and `Counters.MINUS_TWO_MINUS_TWO` (`-2/-2`, Ebon
+  layer 7c (CR 613.4c) via `EffectApplicator.applyCounters`. The symmetric pair is `CounterType.PLUS_ONE_PLUS_ONE` /
+  `CounterType.MINUS_ONE_MINUS_ONE`; the asymmetric counters `CounterType.PLUS_ONE_PLUS_ZERO` (`+1/+0`),
+  `CounterType.PLUS_ZERO_PLUS_ONE` (`+0/+1`), `CounterType.MINUS_ONE_MINUS_ZERO` (`-1/-0`) and
+  `CounterType.MINUS_ZERO_MINUS_ONE` (`-0/-1`) modify only the indicated stat (Clockwork Avian's four `+1/+0`
+  counters), and `CounterType.PLUS_TWO_PLUS_ZERO` (`+2/+0`) / `CounterType.PLUS_ZERO_PLUS_TWO` (`+0/+2`) are the
+  two-step versions of those (Frankenstein's Monster). `CounterType.PLUS_ONE_PLUS_TWO` (`+1/+2`, Armor Thrull),
+  `CounterType.PLUS_TWO_PLUS_TWO` (`+2/+2`, Soul Exchange) and `CounterType.MINUS_TWO_MINUS_TWO` (`-2/-2`, Ebon
   Praetor) round out the Fallen Empires sizes. CR 122.1a defines a `+X/+Y` counter generally — X to power,
   Y to toughness, applied in layer 7c per CR 613.4c — but the engine enumerates the kinds it can sum, so
-  **each printed size needs its own constant**, declared in both `CounterType` and `Counters` *and* listed in
-  `CounterType.STAT_COUNTERS` so `fromName` can resolve its printed spelling. Miss that last step and the
-  counter works everywhere except by name, silently. `CounterTypeStatCoverageTest` guards it.
-  The **six one-step kinds** have a dedicated `CounterTypeFilter` case (`PlusOnePlusZero`, etc.) for
-  `EntersWithCounters`, counter-count dynamic amounts, and counter triggers; the asymmetric sizes
-  (`+1/+2`, `+2/+2`, `-2/-2`) have none and go through `CounterTypeFilter.Named("+1/+2")`. Only `+1/+1` and `-1/-1` annihilate each other as a
-  state-based action (CR 122.3); the asymmetric counters never cancel.
+  **each printed size needs its own constant** in `CounterType`. Its printed spelling is derived from the
+  id's shape (`PLUS_TWO_PLUS_ZERO` ↔ `+2/+0`), which `CounterTypeStatCoverageTest` pins. Only `+1/+1` and
+  `-1/-1` annihilate each other as a state-based action (CR 122.3); the asymmetric counters never cancel.
 - `DoubleCounters(type?, target?)` — one-shot doubling of the `type` counters (default `+1/+1`) already on the
   target: reads the current count and places that many more (so the total doubles). Distinct from the
   `DoubleCounterPlacement` replacement (which doubles *future* placements); the added counters still trigger
@@ -1596,14 +1602,14 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   energy, and rad counters instead live directly on a **player entity**, reusing the same `CountersComponent` —
   no separate component or data model. `AddCountersExecutor` already resolves player-shaped targets (`that
   player gets two poison counters`, Virulent Silencer), so a fixed grant needs no new vocabulary at all.
-  - `GetEnergy(amount, target = Controller)` — sugar for `AddCounters(Counters.ENERGY, amount, target)`. "You get
+  - `GetEnergy(amount, target = Controller)` — sugar for `AddCounters(CounterType.ENERGY, amount, target)`. "You get
     {E}{E}{E}" (three energy counters, CR 107.14) = `GetEnergy(3)`.
   - `PayCounters(counterType, player = Player.You, storeAmountAs)` — a player pays any amount of `counterType`
     counters they currently have (CR 107.14's "pay {E}" generalized to a player-chosen amount and to any
     player-scoped counter kind). One `ChooseNumberDecision` (0..their current total; no prompt at all when they
     have zero); paying is always optional down to 0. The paid amount is removed and stored in the pipeline under
     `storeAmountAs`, readable downstream via `VariableReference(storeAmountAs)` — same convention as
-    `DrawUpTo.storeNotDrawnAs`. Galvanic Discharge (MH3): `Composite(GetEnergy(3), PayCounters(Counters.ENERGY,
+    `DrawUpTo.storeNotDrawnAs`. Galvanic Discharge (MH3): `Composite(GetEnergy(3), PayCounters(CounterType.ENERGY,
     storeAmountAs = "paid"), DealDamage(VariableReference("paid"), target))`. Paying 0 is legal and does nothing
     (2024-06-07 ruling: "You may pay zero {E}... won't deal any damage"); if the spell's target becomes illegal
     before resolution the whole spell fizzles per the normal CR 608.2b check, so no energy is gained either.
@@ -1617,7 +1623,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
     recognizes `PayFixedCountersEffect` and checks the payer's current total before ever offering the "may pay"
     prompt, mirroring how it already gates `SacrificeEffect` — so the prompt never appears when unaffordable,
     it doesn't appear-then-fail. Guide of Souls (MH3): `ReflexiveTriggerEffect(action =
-    PayFixedCounters(Counters.ENERGY, 3), reflexiveEffect = AddCounters(PLUS_ONE_PLUS_ONE, 2, ContextTarget(0))
+    PayFixedCounters(CounterType.ENERGY, 3), reflexiveEffect = AddCounters(PLUS_ONE_PLUS_ONE, 2, ContextTarget(0))
     .then(AddCounters(FLYING, 1, ContextTarget(0))).then(AddCreatureType("Angel", ContextTarget(0))),
     reflexiveTargetRequirements = [Targets.AttackingCreature])`.
   - `DynamicAmount.PlayerCounterCount(counterType, player = Player.You)` / `DynamicAmounts.playerCounterCount(...)`
@@ -1631,7 +1637,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   Set `tokenFactory.stampCreator = true` to make the minted tokens recognizable later. The
   counters→tokens half of Tetravus; the reverse (exile any number of those tokens, add that many counters
   back) **composes** from a pipeline — `gather(CardSource.BattlefieldMatching(filter = ….createdBySource(),
-  player = You))` → `chooseAnyNumber` → `exile` → `run(AddDynamicCounters("+1/+1",
+  player = You))` → `chooseAnyNumber` → `exile` → `run(AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE,
   VariableReference("<slot>_count"), Self))` — so no dedicated token→counters effect exists.
 - `RemoveAllCounters(target)` — wipe every counter.
 - `RemoveAllCountersOfType(type, target)` — wipe one kind.
@@ -1651,40 +1657,38 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   number actually on `source`, and adding to `destination` honors counter-placement replacement effects
   (Hardened Scales). No-op when source/destination missing, they're the same permanent, amount ≤ 0, or source has
   none of that kind. The count-fixed counterpart to the interactive `MoveChosenCountersToTarget`.
-- `Counters.ANY` — wildcard counter-type string for "counters of any type" triggers/events (e.g.
-  `Triggers.countersPlacedOn`); not a real placeable counter, only a matcher sentinel.
 - **Passive named counters** — flavor counters with no inherent rule; the card that uses one accumulates
-  it (`AddCounters(Counters.X, …)`) and reads the count via `Conditions.SourceCounterCountAtLeast(Counters.X, …)`
-  or `DynamicAmounts.countersOnSelf(…)`, and may spend it as a cost (`Costs.RemoveCounterFromSelf(Counters.X, …)`).
-  Add a new one to both `enum class CounterType` and `object Counters` (SDK) plus the client's passive-counter
+  it (`AddCounters(CounterType.X, …)`) and reads the count via `Conditions.SourceCounterCountAtLeast(CounterType.X, …)`
+  or `DynamicAmounts.countersOnSelf(…)`, and may spend it as a cost (`Costs.RemoveCounterFromSelf(CounterType.X, …)`).
+  Add a new one as a `CounterType` constant (listed in `CounterType.KNOWN`) plus the client's passive-counter
   wiring (`PASSIVE_COUNTER_TYPES`, `passiveCounterBadgeStyle`, `counterManaClass`, `CounterTypeDisplayNames`);
   keep it out of `StateProjector.KEYWORD_COUNTER_MAP` since it grants no keyword. Recent examples:
-  `Counters.LANDMARK` (Treasure Map — three flip it into Treasure Cove), `Counters.DREAD` (Grasping Shadows —
-  three flip it into Shadows' Lair), `Counters.BORE` (Brass's Tunnel-Grinder — three flip it into Tecutlan),
-  `Counters.REVIVAL` (Nine-Lives Familiar — a "lives left" counter: it enters with eight if you cast it and its
+  `CounterType.LANDMARK` (Treasure Map — three flip it into Treasure Cove), `CounterType.DREAD` (Grasping Shadows —
+  three flip it into Shadows' Lair), `CounterType.BORE` (Brass's Tunnel-Grinder — three flip it into Tecutlan),
+  `CounterType.REVIVAL` (Nine-Lives Familiar — a "lives left" counter: it enters with eight if you cast it and its
   dies trigger reads the last-known count to come back with one fewer),
-  `Counters.JUDGMENT` (Faithbound Judge // Sinner's Judgment — both faces count to three, the
+  `CounterType.JUDGMENT` (Faithbound Judge // Sinner's Judgment — both faces count to three, the
   creature face to shed defender and the Aura face to make the enchanted player lose the game),
-  `Counters.NET`, `Counters.FIRE`, `Counters.CONQUEROR`, `Counters.POINT` (Contested Game Ball — its
+  `CounterType.NET`, `CounterType.FIRE`, `CounterType.CONQUEROR`, `CounterType.POINT` (Contested Game Ball — its
   `{2}, {T}` ability adds one per activation and, when five or more are present, sacrifices the artifact and
-  creates a Treasure), `Counters.WISH` (Wishclaw Talisman — see below), `Counters.INGENUITY` (Lady Octopus,
+  creates a Treasure), `CounterType.WISH` (Wishclaw Talisman — see below), `CounterType.INGENUITY` (Lady Octopus,
   Inspired Inventor — her first/second-draw triggers each add one and her `{T}` ability caps the mana value of
   the hand artifact she free-casts at the count via `CollectionFilter.ManaValueAtMost(DynamicAmounts.countersOnSelf(
-  CounterTypeFilter.Named(Counters.INGENUITY)))`), `Counters.FILM` (Peter Parker's Camera — enters with
-  three via `EntersWithCounters(CounterTypeFilter.Named(Counters.FILM), count = 3, selfOnly = true)` and its
-  `{2}, {T}` copy ability spends one per activation via `Costs.RemoveCounterFromSelf(Counters.FILM, 1)`),
-  `Counters.PLAN` (MSH's Plan enchantment cycle — each Plan's own "whenever …" trigger adds one, and a
-  second `Triggers.countersPlacedOn(filter = GameObjectFilter.Any, counterType = Counters.PLAN,
+  CounterType.INGENUITY))`), `CounterType.FILM` (Peter Parker's Camera — enters with
+  three via `EntersWithCounters(CounterType.FILM, count = 3, selfOnly = true)` and its
+  `{2}, {T}` copy ability spends one per activation via `Costs.RemoveCounterFromSelf(CounterType.FILM, 1)`),
+  `CounterType.PLAN` (MSH's Plan enchantment cycle — each Plan's own "whenever …" trigger adds one, and a
+  second `Triggers.countersPlacedOn(filter = GameObjectFilter.Any, counterType = CounterType.PLAN,
   firstTimeEachTurn = false, binding = TriggerBinding.SELF)` ability gated on
-  `triggerRestriction = Conditions.SourceCounterCountAtLeast(Counters.PLAN, N)` models "when the Nth plan
+  `triggerRestriction = Conditions.SourceCounterCountAtLeast(CounterType.PLAN, N)` models "when the Nth plan
   counter is put on this enchantment"; exact because every payoff sacrifices its own source, so the
   at-least gate can never fire a second time — no dedicated "Nth counter" trigger event is needed),
-  `Counters.INVASION` (Alien Invasion — a tally its begin-combat trigger reads via
-  `DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.INVASION))` to size the +1/+1 counters
+  `CounterType.INVASION` (Alien Invasion — a tally its begin-combat trigger reads via
+  `DynamicAmounts.countersOnSelf(CounterType.INVASION)` to size the +1/+1 counters
   on the Alien token it just made, then increments),
-  `Counters.UNLOCK` (MKM — Cryptex: its `{T}`, collect-evidence-3 **mana** ability adds one per activation
+  `CounterType.UNLOCK` (MKM — Cryptex: its `{T}`, collect-evidence-3 **mana** ability adds one per activation
   and its `Costs.SacrificeSelf` ability is gated on
-  `ActivationRestriction.OnlyIfCondition(Conditions.SourceCounterCountAtLeast(Counters.UNLOCK, 5))`; the
+  `ActivationRestriction.OnlyIfCondition(Conditions.SourceCounterCountAtLeast(CounterType.UNLOCK, 5))`; the
   rider on a mana ability doesn't change its classification — CR 605.1a asks whether the ability could
   add mana, whether it targets, whether it is a loyalty ability, and whether its cost or effect moves a
   card to or from a library; an unlock counter is none of those, so the counter lands at a moment nobody
@@ -1696,7 +1700,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   target creatures" (Grove's Bounty) pair it with
   `TargetObject(unlimited = true, dynamicMaxCount = DynamicAmount.XValue)` — the dynamic cap
   outranks `unlimited` in `TargetValidator`, enforcing CR 601.2d (no more targets than counters).
-- `DistributeCountersAmongFiltered(total, type?, filter, minPerTarget?)` — distribute N **new** counters among permanents matching `filter`, chosen at resolution (not the spell's targets); `minPerTarget = 0` models "among any number of". Unlike `DistributeCountersFromSelf` nothing is removed from a source. Crashing Wave: `DistributeCountersAmongFiltered(3, Counters.STUN, Filters.Creature.tapped().opponentControls())` — "distribute three stun counters among any number of tapped creatures your opponents control."
+- `DistributeCountersAmongFiltered(total, type?, filter, minPerTarget?)` — distribute N **new** counters among permanents matching `filter`, chosen at resolution (not the spell's targets); `minPerTarget = 0` models "among any number of". Unlike `DistributeCountersFromSelf` nothing is removed from a source. Crashing Wave: `DistributeCountersAmongFiltered(3, CounterType.STUN, Filters.Creature.tapped().opponentControls())` — "distribute three stun counters among any number of tapped creatures your opponents control."
 - `Proliferate(target?)` — give one more counter of each kind already there. With no argument it is
   proliferate proper (CR 701.34): the controller chooses any number of permanents and/or players with
   a counter when the effect *resolves*, nothing is targeted. Pass a `target` for the targeted
@@ -2100,7 +2104,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 
 ### Ability granting
 
-- `GrantTriggeredAbilityEffect(ability, target, duration = Duration.EndOfTurn)` — grant a triggered ability to a battlefield permanent for a duration; `Duration.Permanent` for "gains … " with no end (Carnage, Crimson Chaos). **Target-general — not creature-only.** Nothing in the rules restricts "gains '<triggered ability>'" to creatures, and the printed wording routinely names a noncreature permanent: Down in the Valley's chapter II is "*This Saga* gains 'Landfall — Whenever a land you control enters, create a 1/1 green Elf creature token'", authored as `GrantTriggeredAbilityEffect(ability, EffectTarget.Self, Duration.Permanent)`. Whether a noncreature is a *legal* pick is the `TargetRequirement`'s job; the executor only requires the target to be on the battlefield. Recorded in `GameState.grantedTriggeredAbilities` and merged into the entity's abilities by `TriggerAbilityResolver`, so a granted trigger is detected exactly like a printed one and dies with the permanent. **The conditional "for as long as …" durations work here too**, in the same two halves every such duration gets: `TriggerAbilityResolver` gates the grant per read (so it goes dark the instant the condition fails, even mid-resolution) and `EndedDurationExpiryCheck` physically removes it, one-way per CR 611.2b, so the condition becoming true again does not bring the ability back. Both halves ask the same `GrantDurationGate`. Makeshift Mannequin is the shape: `PutOntoBattlefieldFromGraveyard(target)` + `AddCountersEffect(Counters.MANNEQUIN, 1, target)` + `GrantTriggeredAbilityEffect(sacrificeOnBecomingTarget, target, Duration.WhileAffectedHasCounter(Counters.MANNEQUIN))` — remove the counter (Hex Parasite, Vampire Hexmage) and the drawback really is gone. Wiring that sentence as `Duration.Permanent` reads identically on the card and is wrong in exactly that case.
+- `GrantTriggeredAbilityEffect(ability, target, duration = Duration.EndOfTurn)` — grant a triggered ability to a battlefield permanent for a duration; `Duration.Permanent` for "gains … " with no end (Carnage, Crimson Chaos). **Target-general — not creature-only.** Nothing in the rules restricts "gains '<triggered ability>'" to creatures, and the printed wording routinely names a noncreature permanent: Down in the Valley's chapter II is "*This Saga* gains 'Landfall — Whenever a land you control enters, create a 1/1 green Elf creature token'", authored as `GrantTriggeredAbilityEffect(ability, EffectTarget.Self, Duration.Permanent)`. Whether a noncreature is a *legal* pick is the `TargetRequirement`'s job; the executor only requires the target to be on the battlefield. Recorded in `GameState.grantedTriggeredAbilities` and merged into the entity's abilities by `TriggerAbilityResolver`, so a granted trigger is detected exactly like a printed one and dies with the permanent. **The conditional "for as long as …" durations work here too**, in the same two halves every such duration gets: `TriggerAbilityResolver` gates the grant per read (so it goes dark the instant the condition fails, even mid-resolution) and `EndedDurationExpiryCheck` physically removes it, one-way per CR 611.2b, so the condition becoming true again does not bring the ability back. Both halves ask the same `GrantDurationGate`. Makeshift Mannequin is the shape: `PutOntoBattlefieldFromGraveyard(target)` + `AddCountersEffect(CounterType.MANNEQUIN, 1, target)` + `GrantTriggeredAbilityEffect(sacrificeOnBecomingTarget, target, Duration.WhileAffectedHasCounter(CounterType.MANNEQUIN))` — remove the counter (Hex Parasite, Vampire Hexmage) and the drawback really is gone. Wiring that sentence as `Duration.Permanent` reads identically on the card and is wrong in exactly that case.
 - `GrantStateTriggeredAbilityEffect(ability, target, duration = Duration.Permanent)` — grant a **state**-triggered ability (CR 603.8) to a battlefield permanent. The sibling of `GrantTriggeredAbilityEffect` for the abilities the `StateTriggerPoller` owns rather than the `TriggerIndex`: use it when the printed rider fires because a condition *becomes true*, with no event to match. **Olivia, Crimson Bride**: the reanimated creature gains `"When you don't control a legendary Vampire, exile this creature."` — nothing *happens* when the last legendary Vampire leaves, so a `GrantTriggeredAbilityEffect` has no event to hang off. Recorded in `GameState.grantedStateTriggeredAbilities`, folded into the per-permanent ability list by `StateTriggerPoller` beside the printed ones, latched per `(entityId, AbilityId)` exactly like a printed state trigger, dropped on battlefield re-entry (CR 400.7) and expired by `CleanupPhaseManager` for `Duration.EndOfTurn`. The default duration is `Permanent`, not `EndOfTurn` — a granted state trigger is a durable rider, where a granted event trigger is usually a one-turn pump. Like `GrantTriggeredAbilityEffect` it is **target-general, not creature-only**; legality is the `TargetRequirement`'s job.
 - `CreateGlobalTriggeredAbility(ability, duration = Duration.Permanent, descriptionOverride? = null)` — engine-wide triggered ability with no source permanent. `duration` is a plain parameter, so the one method covers every lifetime: `Duration.EndOfTurn` (False Cure, Death Frenzy), `Duration.UntilYourNextTurn` (Season of the Bold), `Duration.EndOfCombat`, `Duration.Permanent` (Dimensional Breach, planeswalker emblems), etc. `descriptionOverride` sets emblem display text. This is the right shape for a *floating* "until end of turn, whenever …" payoff that must outlive its own source — Mistway Spy's turned-face-up "whenever a creature you control deals combat damage to a player, investigate" keeps triggering even if the Spy is killed in response, which a `GrantTriggeredAbilityEffect` on the Spy would not. Because a global ability is attached to no permanent it lives outside every battlefield trigger index, so each specialized detector has to walk `GameState.globalGrantedTriggeredAbilities` itself; the ANY-bound `DealsDamageEvent` observers do (`DamageTriggerDetector.detectDamageObserverTriggers`), and a new detector that doesn't will silently never fire for a global ability.
 - `GrantSpellKeywordEffect` — grant a keyword to a spell on the stack.
@@ -2396,7 +2400,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
 - `ExileTargetSpellEffect(makePlotted = false, fixedAlternativeManaCost = null, linkToSource = false, spell = CounterTargetSource.Chosen)` (facade `Effects.ExileTargetSpell(makePlotted, fixedAlternativeManaCost, linkToSource)`; `Effects.ExileTriggeringSpell(linkToSource)` sets `spell = CounterTargetSource.TriggeringEntity` to exile the spell that fired a cast trigger without targeting it — Eye of the Storm's "whenever a player casts an instant or sorcery card, exile it") — exile target spell (CR 718 "exile target spell"). **Not a counter:** it removes the spell from the stack and exiles the card even if the spell *can't be countered* (so it works where `CounterEffect(destination = Exile())` no-ops), and it fires no "whenever a spell is countered" trigger — but the spell still fails to resolve because it left the stack. With `makePlotted = true` the exiled card becomes *plotted* for its **owner** (gains `PlottedComponent` + a permanent free-cast-on-a-later-turn `MayPlayPermission` gated by `SourcePlottedOnPriorTurn`, granted to the owner per CR 718.2), emitting a `CardPlottedEvent`. With `fixedAlternativeManaCost = {2}` the exiled card's **owner** instead gets a permanent `MayPlayPermission` + `PlayWithFixedAlternativeManaCostComponent`, letting them recast it for that fixed cost rather than its printed cost — the spell-on-stack form of the **Airbend** keyword (Aang, Swift Savior). `makePlotted` and `fixedAlternativeManaCost` are mutually exclusive. With `linkToSource = true` the exiled card is appended to the effect *source's* `LinkedExileComponent` — the stack-side counterpart of `ExileLinkedToSource` / `MoveCollection(linkToSource = true)`. It grants nothing on its own; it is only a handle so a later ability of the same source can say "the exiled card", and it survives the source's own zone change so a leaves-the-battlefield trigger still finds it. **Spell Queller** pairs it with a `LeavesBattlefield` trigger of `ForEachPlayer(Player.OwnersOfLinkedExile, gather(FromLinkedExile()) → Effects.May(CastFromCollectionWithoutPayingCost(...)))` — note that Spell Queller's payoff is a cast *during resolution* (its ruling: "The player can't wait to cast it later in the turn"), not a lingering `GrantMayPlayFromExile` permission. Pair with `Targets.Spell`. Used by **Aven Interrupter** ("…exile target spell. It becomes plotted."), **Spell Queller**, and the airbend stack branch.
 - `MarkSpellExileWithCountersEffect(target = TriggeringEntity, counterType, count = 1)` (facade `Effects.MarkSpellExileWithCounters(target, counterType, count)`) — mark a spell on the stack so that, **as it resolves**, it is exiled with `count` counters of `counterType` on it instead of being put into its owner's graveyard. Lets the spell resolve fully, then re-routes only its post-resolution destination via `ExileAfterResolveComponent(onlyIfResolved = true)` — so if the spell is countered or fizzles it goes to the graveyard normally. Used by **Goliath Daydreamer** ("exile that card with a dream counter on it instead of putting it into your graveyard as it resolves").
 - `MarkSpellPlotOnResolveEffect(target = TriggeringEntity)` (facade `Effects.MarkSpellPlotOnResolve(target)`) — the plot sibling of `MarkSpellExileWithCounters`: as the spell resolves it is exiled instead of going to the graveyard and **becomes plotted** for its owner (`PlottedComponent` + permanent free-cast-on-a-later-turn `MayPlayPermission` gated by `SourcePlottedOnPriorTurn`, emitting `CardPlottedEvent`). Also `onlyIfResolved` — a countered/fizzled spell is not exiled and doesn't become plotted. Distinct from `ExileTargetSpell(makePlotted = true)`, which removes a *targeted* spell from the stack now (it never resolves); this one only changes a self-cast spell's destination after it resolves. Used by **Lilah, Undefeated Slickshot** ("Whenever you cast a multicolored instant or sorcery spell from your hand, exile that spell instead of putting it into your graveyard as it resolves. If you do, it becomes plotted.").
-- `spell { returnTransformedFromGraveyard(vararg counters: CounterType) }` — **not** an effect but a resolution-destination flag on the spell's `CardScript` (`returnTransformedFromGraveyardOnResolve: ReturnTransformedFromGraveyard?`). Marks a double-faced card so that, when it resolves **after being cast from a graveyard**, it is exiled and then put onto the battlefield **transformed** (its back face up) under its owner's control, entering with the given `counters`, instead of going to its owner's graveyard. Models **Esper Origins** ("If this spell was cast from a graveyard, exile it, then put it onto the battlefield transformed under its owner's control with a finality counter on it"): `spell { effect = …; returnTransformedFromGraveyard(CounterType.FINALITY) }` on the sorcery front, joined to a Saga-creature back via `frontFace.copy(backFace = …)`. Like flashback's own graveyard-cast exile, the destination is derived from the spell's `castFromZone` at resolution time (in `StackResolver`), **not** from an effect run during resolution — so it survives a mid-resolution pause (e.g. an earlier Surveil in the same resolution) and is correctly inert when the spell is countered or fizzles. It **takes precedence over the flashback exile**: a graveyard-cast card that both has flashback and this flag returns transformed rather than exiling. Requires a permanent back face; a non-DFC or non-permanent back is a no-op (the card falls through to its normal graveyard/exile destination, per the official ruling on putting a non-double-faced card onto the battlefield transformed). The back-face flip + battlefield entry reuse the shared `returnDfcFaceFromExile` helper (a Saga back enters with a fresh lore counter, CR 714.2b; leaves/enters triggers fire, not transform triggers).
+- `spell { returnTransformedFromGraveyard(counters: List<CounterType>) }` — **not** an effect but a resolution-destination flag on the spell's `CardScript` (`returnTransformedFromGraveyardOnResolve: ReturnTransformedFromGraveyard?`). Marks a double-faced card so that, when it resolves **after being cast from a graveyard**, it is exiled and then put onto the battlefield **transformed** (its back face up) under its owner's control, entering with the given `counters`, instead of going to its owner's graveyard. Models **Esper Origins** ("If this spell was cast from a graveyard, exile it, then put it onto the battlefield transformed under its owner's control with a finality counter on it"): `spell { effect = …; returnTransformedFromGraveyard(listOf(CounterType.FINALITY)) }` on the sorcery front, joined to a Saga-creature back via `frontFace.copy(backFace = …)`. Like flashback's own graveyard-cast exile, the destination is derived from the spell's `castFromZone` at resolution time (in `StackResolver`), **not** from an effect run during resolution — so it survives a mid-resolution pause (e.g. an earlier Surveil in the same resolution) and is correctly inert when the spell is countered or fizzles. It **takes precedence over the flashback exile**: a graveyard-cast card that both has flashback and this flag returns transformed rather than exiling. Requires a permanent back face; a non-DFC or non-permanent back is a no-op (the card falls through to its normal graveyard/exile destination, per the official ruling on putting a non-double-faced card onto the battlefield transformed). The back-face flip + battlefield entry reuse the shared `returnDfcFaceFromExile` helper (a Saga back enters with a fresh lore counter, CR 714.2b; leaves/enters triggers fire, not transform triggers).
 - `OpenLifeBid(onWin, participant = Player.AnOpponent)` — open life-bidding auction between you and `participant` (resolved against the effect context). You open at a bid of 1; the two bidders alternate topping the high bid (yes/no to top, then a number for the amount, capped at the bidder's life) until one passes. The high bidder loses that much life; `onWin` runs **only if you win**, with the original targets in context. If `participant` resolves to you (or to nobody), you're the sole bidder and win at the opening bid. For Mages' Contest, bid against the targeted spell's controller and counter it: `Effects.OpenLifeBid(Effects.CounterSpell(), Player.ControllerOf("target spell"))` — pair with a `TargetSpell` requirement.
 - `DestroySourceOfTargetedAbilityEffect` — when the targeted stack object is a permanent's activated/triggered ability, destroy that source permanent. Compose *before* the counter step so the ability component is still readable (Teferi's Response).
 - `RemoveAbilitiesFromSourceOfTargetedAbilityEffect(duration = EndOfTurn, sourceCardTypes = emptySet())` (facade `Effects.RemoveAbilitiesFromSourceOfTargetedAbility(duration, sourceCardTypes)`) — the ability-strip sibling of `DestroySourceOfTargetedAbilityEffect`. When the targeted stack object is a permanent's activated/triggered ability whose source is still on the battlefield **and** (when `sourceCardTypes` is non-empty) has one of those projected card types, that source permanent gains a Layer-6 `RemoveAllAbilities` floating effect for `duration`. The floating effect is keyed to *this effect's* source, so `Duration.WhileSourceOnBattlefield` ends when that permanent (e.g. Tishana) leaves. No-op for a spell target, an already-gone source, or a type mismatch. Compose *before* the counter step so the ability's source component is still readable. Used by **Tishana's Tidebinder** ("If an ability of an artifact, creature, or planeswalker is countered this way, that permanent loses all abilities for as long as this creature remains on the battlefield") — pair with `CounterAbility()`, `Duration.WhileSourceOnBattlefield`, and `sourceCardTypes = {ARTIFACT, CREATURE, PLANESWALKER}`, targeting via an optional (`optional = true`) `Targets.ActivatedOrTriggeredAbility` slot for "up to one".
@@ -2555,7 +2559,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
   power and toughness each equal to X plus 1, losing all other colors and creature types"
   (`power = toughness = Add(XValue, Fixed(1))`, `creatureTypes = {"Fractal"}`, `colors = {GREEN, BLUE}`,
   `imageUri =` the Fractal token's Scryfall art).
-- `BecomeArtifactEffect(target, cardTypes = {"ARTIFACT"}, subtypes = emptySet(), colors = emptySet(), loseAllAbilities = true, name?, grantedAbility?, grantedStaticAbilities = [], duration = Permanent)` — the general "becomes a Treasure/Food/Clue/artifact" transform: stacks continuous floating effects on `target` — Layer 3 `SetName` when `name` is set, Layer 4 `SetCardTypes` (replaces *all* card types) + `SetAllSubtypes` (replaces *all* subtypes), Layer 5 color (`emptySet()` = colorless), Layer 6 `RemoveAllAbilities` when `loseAllAbilities` — plus an optional single `grantedAbility` recorded durably in `grantedActivatedAbilities` (so it survives the ability wipe; the enumerators read it after the projected `lostAllAbilities` check). That durable record honours source-keyed durations as well as `Permanent`/`EndOfTurn`: it carries the granting permanent's id, and `EndedDurationExpiryCheck` prunes it the moment a `Duration.WhileSourceOnBattlefield` gate closes, so the granted ability dies with its granter instead of outliving it (**Kitesail Larcenist**: the chosen permanents stop being sacrificeable Treasures the instant Kitesail leaves). `name` renames per CR 612.8 ("loses any names it had and has only the specified name"); only supertypes survive, so LEGENDARY stays but the permanent can now collide with a same-named permanent under the legend rule. `grantedStaticAbilities` is the **static** counterpart to `grantedAbility` — a static ability only does anything if it *projects*, so these are lowered to `ContinuousEffectData` and appended to the permanent's own `ContinuousEffectSourceComponent` (the channel a printed static uses), which is also what exempts them from the wipe: `StateProjector` never suppresses a source's own continuous effects with that source's own `RemoveAllAbilities`. Because that channel is the permanent's component, the grant lives exactly as long as the permanent stays on the battlefield — pair it with `Duration.Permanent`. **The Irencrag**: "you may have this become a legendary Equipment artifact named Everflame, Heroes' Legacy. If you do, it gains equip {3} and \"Equipped creature gets +3/+3\" and loses all other abilities" — `name = "Everflame, Heroes' Legacy"`, `subtypes = {"Equipment"}`, `colors = null` (keep colorless without recolouring), `grantedAbility =` the equip {3} `ActivatedAbility`, `grantedStaticAbilities = listOf(ModifyStats(3, 3))` (whose default `GroupFilter.attachedCreature()` scope makes it the equipped creature's bonus). `Duration.Permanent` ends only when the permanent leaves the battlefield. Differs from `BecomeCreatureEffect` (which *adds* CREATURE + sets P/T): this fully replaces types/subtypes so the result is exactly the named artifact. `cardTypes = null` **keeps** the permanent's card types unchanged (only subtypes/color/abilities are touched) — used when a land "loses all land types and abilities" but stays a land and keeps any other card types (Ultima, Origin of Oblivion: `cardTypes = null, subtypes = emptySet(), colors = null, grantedAbility = {T}: Add {C}, duration = Durations.whileAffectedHasCounter(Counters.BLIGHT)`). `subtypes = null` is the same skip one layer down — it **keeps** the permanent's existing subtypes, as distinct from `emptySet()` which strips them all; reach for it when the transform only renames or grants (**Tenth District Hero**: "it becomes a legendary creature named Mileva, the Stalwart … and it gains \"Other creatures you control have indestructible\"" — `cardTypes = null, subtypes = null, colors = null, loseAllAbilities = false, name = "Mileva, the Stalwart", grantedStaticAbilities = listOf(GrantKeyword(INDESTRUCTIBLE, OtherCreaturesYouControl))`, leaving the Human Detective types the card's *first* ability set). Note that this effect — not `Effects.GrantStaticAbility` — is the route for a runtime static that has to **project**: `GrantStaticAbility` writes to the point-of-use `grantedStaticAbilities` store, which combat/cast checks consult but the layer projector never reads, so a `SetName`, `GrantKeyword`, or `ModifyStats` handed over that way is silently inert. (Vraska, the Silencer: a dead opponent's creature returns as a bare colorless Treasure with the sac-for-mana ability.)
+- `BecomeArtifactEffect(target, cardTypes = {"ARTIFACT"}, subtypes = emptySet(), colors = emptySet(), loseAllAbilities = true, name?, grantedAbility?, grantedStaticAbilities = [], duration = Permanent)` — the general "becomes a Treasure/Food/Clue/artifact" transform: stacks continuous floating effects on `target` — Layer 3 `SetName` when `name` is set, Layer 4 `SetCardTypes` (replaces *all* card types) + `SetAllSubtypes` (replaces *all* subtypes), Layer 5 color (`emptySet()` = colorless), Layer 6 `RemoveAllAbilities` when `loseAllAbilities` — plus an optional single `grantedAbility` recorded durably in `grantedActivatedAbilities` (so it survives the ability wipe; the enumerators read it after the projected `lostAllAbilities` check). That durable record honours source-keyed durations as well as `Permanent`/`EndOfTurn`: it carries the granting permanent's id, and `EndedDurationExpiryCheck` prunes it the moment a `Duration.WhileSourceOnBattlefield` gate closes, so the granted ability dies with its granter instead of outliving it (**Kitesail Larcenist**: the chosen permanents stop being sacrificeable Treasures the instant Kitesail leaves). `name` renames per CR 612.8 ("loses any names it had and has only the specified name"); only supertypes survive, so LEGENDARY stays but the permanent can now collide with a same-named permanent under the legend rule. `grantedStaticAbilities` is the **static** counterpart to `grantedAbility` — a static ability only does anything if it *projects*, so these are lowered to `ContinuousEffectData` and appended to the permanent's own `ContinuousEffectSourceComponent` (the channel a printed static uses), which is also what exempts them from the wipe: `StateProjector` never suppresses a source's own continuous effects with that source's own `RemoveAllAbilities`. Because that channel is the permanent's component, the grant lives exactly as long as the permanent stays on the battlefield — pair it with `Duration.Permanent`. **The Irencrag**: "you may have this become a legendary Equipment artifact named Everflame, Heroes' Legacy. If you do, it gains equip {3} and \"Equipped creature gets +3/+3\" and loses all other abilities" — `name = "Everflame, Heroes' Legacy"`, `subtypes = {"Equipment"}`, `colors = null` (keep colorless without recolouring), `grantedAbility =` the equip {3} `ActivatedAbility`, `grantedStaticAbilities = listOf(ModifyStats(3, 3))` (whose default `GroupFilter.attachedCreature()` scope makes it the equipped creature's bonus). `Duration.Permanent` ends only when the permanent leaves the battlefield. Differs from `BecomeCreatureEffect` (which *adds* CREATURE + sets P/T): this fully replaces types/subtypes so the result is exactly the named artifact. `cardTypes = null` **keeps** the permanent's card types unchanged (only subtypes/color/abilities are touched) — used when a land "loses all land types and abilities" but stays a land and keeps any other card types (Ultima, Origin of Oblivion: `cardTypes = null, subtypes = emptySet(), colors = null, grantedAbility = {T}: Add {C}, duration = Durations.whileAffectedHasCounter(CounterType.BLIGHT)`). `subtypes = null` is the same skip one layer down — it **keeps** the permanent's existing subtypes, as distinct from `emptySet()` which strips them all; reach for it when the transform only renames or grants (**Tenth District Hero**: "it becomes a legendary creature named Mileva, the Stalwart … and it gains \"Other creatures you control have indestructible\"" — `cardTypes = null, subtypes = null, colors = null, loseAllAbilities = false, name = "Mileva, the Stalwart", grantedStaticAbilities = listOf(GrantKeyword(INDESTRUCTIBLE, OtherCreaturesYouControl))`, leaving the Human Detective types the card's *first* ability set). Note that this effect — not `Effects.GrantStaticAbility` — is the route for a runtime static that has to **project**: `GrantStaticAbility` writes to the point-of-use `grantedStaticAbilities` store, which combat/cast checks consult but the layer projector never reads, so a `SetName`, `GrantKeyword`, or `ModifyStats` handed over that way is silently inert. (Vraska, the Silencer: a dead opponent's creature returns as a bare colorless Treasure with the sac-for-mana ability.)
 - `BecomeSaddledEffect(target = Self)` (facade `Effects.BecomeSaddled()`) — target permanent becomes saddled until end of turn (CR 702.171b). The resolving half of a Saddle ability: stamps the transient `SaddledComponent` marker (cleared at end of turn / on leaving the battlefield; not copiable) and emits `BecameSaddledEvent`. No P/T or type change — read the marker with `Conditions.SourceIsSaddled` / `.saddled()`.
 - `BecomeRenownedEffect(target = Self)` (facade `Effects.BecomeRenowned()`) — target permanent gains the **renowned** designation (CR 702.112b), the second half of the renown trigger the engine derives from `Keyword.RENOWN`. Stamps the sticky `RenownedComponent` marker and emits `BecameRenownedEvent` / `ClientEvent.PermanentRenowned`. Like solved it survives cleanup and lasts until the permanent leaves the battlefield, with no inverse effect; not a copiable value, so a copy of a renowned creature is not renowned, and re-renowning is a silent no-op. Read it with `Conditions.SourceIsRenowned` / `.renowned()`. Supplied by the keyword derivation rather than written on a card.
 - `BecomeSolvedEffect(target = Self)` (facade `Effects.BecomeSolved()`) — target permanent gains the **solved** designation (CR 719.3b), the resolving half of a Case's "To solve" trigger. Stamps the sticky `SolvedComponent` marker and emits `CaseSolvedEvent` / `ClientEvent.CaseSolved`. Unlike saddled the marker survives cleanup — it lasts until the permanent leaves the battlefield, and there is no inverse effect. Not a copiable value, so a copy of a solved Case enters unsolved; re-solving is a silent no-op. Read it with `Conditions.SourceIsSolved` / `.solved()`. Authored through `toSolve(condition)` rather than called directly.
@@ -2760,7 +2764,7 @@ Atomic effect factories. For library/zone manipulation, prefer the pipelines in 
     `Auto` can't infer (no zone move) and `Always` would wrongly fire on an empty permanent.
     Fishing Pole: "Whenever equipped creature becomes untapped, remove a bait counter from this
     Equipment. If you do, create a 1/1 blue Fish creature token" → `Effects.IfYouDo(
-    RemoveCounters(Counters.BAIT, 1, Self), CreateToken(...), successCriterion = CountersRemoved)`.
+    RemoveCounters(CounterType.BAIT, 1, Self), CreateToken(...), successCriterion = CountersRemoved)`.
     `SuccessCriterion.PermanentsSacrificed` gates on whether the action **actually sacrificed
     something** (a `PermanentsSacrificedEvent` with a non-empty permanent list). A sacrifice *is* a
     zone move, but which permanent — and so whose graveyard — isn't known until the chooser decides at
@@ -4682,13 +4686,13 @@ This is the player-arm prerequisite for the planned composable mixed `TargetUnio
   counters have been removed again — "what you put on it this turn", not "what is on it now" (use
   `.withCounter(type)` for the latter). Cleared at end-of-turn cleanup. Both parameters default to the
   widest reading and narrow it along the two axes printed cards vary: `counterType` (e.g.
-  `Counters.PLUS_ONE_PLUS_ONE`) to one kind, and `placedByController` to counters the permanent's own
+  `CounterType.PLUS_ONE_PLUS_ONE`) to one kind, and `placedByController` to counters the permanent's own
   controller put on — the "**you've** put" half, which on the "creature you control" filters these clauses
   always carry means you. Every placement path records both axes: resolution effects, explore, moved and
   distributed counters, and wither combat damage record the actual placer, while a permanent that
   *entered* with counters — including a token created with counters on it — counts with its own
   controller as the placer (CR 122.6a). Kid Loki: `Filters.Group.creatures { youControl().receivedCounterThisTurn(
-  Counters.PLUS_ONE_PLUS_ONE, placedByController = true) }` for "each creature you control that you've put
+  CounterType.PLUS_ONE_PLUS_ONE, placedByController = true) }` for "each creature you control that you've put
   one or more +1/+1 counters on this turn has hexproof". The source-scoped view of the same predicate is
   `Conditions.SourceReceivedCounterThisTurn(...)`, which is just `SourceMatches` over it.
 - `.wasDealtDamageThisTurn()` — **passive**: was dealt damage this turn (marked-damage *history*, not
@@ -6522,8 +6526,8 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   gone by the time the event is observed, so only its last-known token-ness (`GameEvent.ExploitedEvent.sacrificedWasToken`,
   snapshotted before the zone change) is available. See the `Exploit` keyword entry for full wiring.
 - `PlusOneCountersPlacedOnYourCreature` — Hardened Scales shape (+1/+1 only).
-- `countersPlacedOn(filter = Creature.youControl(), counterType = Counters.ANY, batch = false, firstTimeEachTurn = !batch, binding = ANY, placedBy = null)`
-  — fires when counters of any type (`Counters.ANY` wildcard) land on a matching permanent;
+- `countersPlacedOn(filter = Creature.youControl(), counterType = null, batch = false, firstTimeEachTurn = !batch, binding = ANY, placedBy = null)`
+  — fires when counters of any type (a `null` `counterType`) land on a matching permanent;
   `firstTimeEachTurn` gates it to the first counter placement on *that* permanent this turn
   (engine-tracked via `ReceivedCountersThisTurnComponent`). `binding = SELF` restricts it to the
   source permanent (the `TriggerMatcher.CountersPlacedEvent` branch honors `SELF`/`OTHER`).
@@ -6565,7 +6569,7 @@ Dominant back faces that "stay" instead self-exile on their final chapter, dodgi
   executors also add the counters to the component), so don't rely on the batch to filter it.
 - `CountersPlacedOnThis` — "whenever you put one or more counters on ~" (any kind, SELF-bound).
   Aragorn, Company Leader.
-- `countersRemovedFrom(filter = Any, counterType = Counters.ANY, lastRemoved = false, binding = ANY)`
+- `countersRemovedFrom(filter = Any, counterType = null, lastRemoved = false, binding = ANY)`
   (`EventPattern.CountersRemovedEvent`) — the mirror of `countersPlacedOn`: fires when counters of
   `counterType` are **removed** from a permanent matching `filter`. `binding = SELF` restricts it to
   the source permanent; the permanent the counters left is `EffectTarget.TriggeringEntity` and how
@@ -6866,7 +6870,7 @@ staticAbility {
   suppression, so the lands still tap for the appropriate color. Gate behind a
   `ConditionalStaticAbility` for conditional variants. Blood Moon / Magus of the Moon
   (`filter = GroupFilter(GameObjectFilter.NonbasicLand)`, `landTypes = setOf("Mountain")`); Zhao,
-  the Moon Slayer gates the same on `Conditions.SourceCounterCountAtLeast(Counters.CONQUEROR, 1)`.
+  the Moon Slayer gates the same on `Conditions.SourceCounterCountAtLeast(CounterType.CONQUEROR, 1)`.
 - `SetEnchantedLandTypeFromChosen` — "Enchanted land is the chosen type" — same, but reads the
   type from the source's `ChosenLandTypeComponent` (paired with
   `EntersWithChoice(ChoiceType.BASIC_LAND_TYPE)`). Chosen-value counterpart to
@@ -6997,7 +7001,7 @@ staticAbility {
   `CantBeTargetedByOpponentAbilities`. Those are stamped as marker components once, as the permanent
   enters, rather than projected each pass, so the gate travels on the marker and every reader
   re-evaluates it against current state via `ControllerGrants` (Captain America, Super-Soldier:
-  `ConditionalStaticAbility(GrantHexproofToController, Conditions.SourceHasCounter(Named(Counters.SHIELD)))`).
+  `ConditionalStaticAbility(GrantHexproofToController, Conditions.SourceHasCounter(Named(CounterType.SHIELD)))`).
   Adding a new marker of this kind means stamping it through `StaticAbilityHandler.controllerGrant<A>()`
   and reading it through `ControllerGrants` — a bare `any { it is A }` at the stamp makes the gated form
   *silently inert*, and a bare `has<M>()` at the read leaves it stuck on. `ConditionalControllerGrantsTest`
@@ -7670,7 +7674,7 @@ staticAbility {
     - any battlefield filter → the source grants to *other* matching permanents ("Creatures you control
       with +1/+1 counters on them have all activated abilities of all creature cards exiled with this" —
       Agatha's Soul Cauldron →
-      `HasAllActivatedAbilitiesOfCards(donors = DonorCards.LINKED_EXILE, cardFilter = Filters.Creature, receivedBy = GroupFilter.AllCreaturesYouControl.withCounter(Counters.PLUS_ONE_PLUS_ONE))`).
+      `HasAllActivatedAbilitiesOfCards(donors = DonorCards.LINKED_EXILE, cardFilter = Filters.Creature, receivedBy = GroupFilter.AllCreaturesYouControl.withCounter(CounterType.PLUS_ONE_PLUS_ONE))`).
     - `cardFilter` narrows the donor pool by the *donor card's own* characteristics, for wordings that
       restrict which cards contribute: `Filters.Creature` for Agatha's "all **creature** cards exiled
       with", `GameObjectFilter.Any.withSubtype(Subtype.ELF)` for Thranduil's "all **Elf** cards in your
@@ -8200,7 +8204,7 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
   zone** rather than the cards linked to this permanent. Tinybones, Bauble Burglar = "During your turn,
   you may play cards you don't own with stash counters on them from exile, and mana of any type can be
   spent to cast those spells" =
-  `MayPlayCardsFromExile(GameObjectFilter.Any.ownedByOpponent().withCounter(Counters.STASH), condition = Conditions.IsYourTurn, withAnyManaType = true)`
+  `MayPlayCardsFromExile(GameObjectFilter.Any.ownedByOpponent().withCounter(CounterType.STASH), condition = Conditions.IsYourTurn, withAnyManaType = true)`
   (`ownedByOpponent()` is the engine's "not owned by you" predicate; cards in exile carry an owner but
   no controller, so ownership predicates are the ones that read correctly there). Filter-defined rather
   than card-remembered is load-bearing for its ruling: the permission covers every stash-countered card
@@ -8215,10 +8219,10 @@ riders, matching how the engine already treats e.g. City of Brass's damage durin
   cast handler, land handler, cost paths, and the client's `playableFromExile` ghost-card affordance)
   covers it with no separate code path.
   Grolnok, the Omnivore is the owner-scoped twin — `MayPlayCardsFromExile(GameObjectFilter.Any
-  .ownedByYou().withCounter(Counters.CROAK))`, no condition and no mana relaxation — reached by
+  .ownedByYou().withCounter(CounterType.CROAK))`, no condition and no mana relaxation — reached by
   exiling with `Effects.Exile(..., addCounterType = CounterType.CROAK)` off a per-card
-  `LIBRARY -> GRAVEYARD` `EventPattern.ZoneChangeEvent`. `Counters.CROAK` is a pure marker like
-  `Counters.STASH`: it grants nothing, it just gives the filter something to select on.
+  `LIBRARY -> GRAVEYARD` `EventPattern.ZoneChangeEvent`. `CounterType.CROAK` is a pure marker like
+  `CounterType.STASH`: it grants nothing, it just gives the filter something to select on.
 - `MayCastSelfFromZones(zones, condition = null, additionalCost = null)` — intrinsic *self*
   permission: this card may be cast from any of `zones` (graveyard/exile) following normal timing
   and for its normal mana cost. Squee, the Immortal = `MayCastSelfFromZones(listOf(GRAVEYARD,
@@ -8584,7 +8588,7 @@ things:
 activatedAbility {
     isPowerUp = true
     cost = Costs.Mana("{C}{W}{U}{B}{R}{G}")
-    effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
+    effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, EffectTarget.Self)
 }
 ```
 
@@ -9065,7 +9069,7 @@ composite abilities).
   one facade per rail.
   **Counter costs** ("Ward—Get five poison counters", The Serpent Society) are
   `WardCost.PlayerCounters(counterType, amount)` via
-  `KeywordAbility.wardPlayerCounters(Counters.POISON, 5)` — counters placed on the *paying player*
+  `KeywordAbility.wardPlayerCounters(CounterType.POISON, 5)` — counters placed on the *paying player*
   (CR 122.1). It is the one ward cost that is always payable (a player can always get counters), so
   it never counters for inability, and the counters go through the ordinary `AddCountersEffect`
   executor: counter-placement replacement effects apply and `CountersAddedEvent` is emitted, so the
@@ -9277,9 +9281,9 @@ composite abilities).
   paying the cost taps the creature out of combat.
 - `Modular(n)` — ETB with +1/+1 counters, transfer on death. Display-only; nothing in the engine
   reads `Keyword.MODULAR`. Lower it alongside the keyword ability as its two printed halves
-  (Arcbound Condor): `replacementEffect(EntersWithCounters(CounterTypeFilter.PlusOnePlusOne, n,
+  (Arcbound Condor): `replacementEffect(EntersWithCounters(CounterType.PLUS_ONE_PLUS_ONE, n,
   selfOnly = true))`, plus an **optional** `Triggers.Dies` trigger targeting an artifact creature
-  whose effect is `Effects.AddDynamicCounters(Counters.PLUS_ONE_PLUS_ONE,
+  whose effect is `Effects.AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE,
   DynamicAmount.ContextProperty(ContextPropertyKey.LAST_KNOWN_PLUS_ONE_COUNTER_COUNT), …)`. Read the
   last-known **+1/+1** count specifically rather than reaching for `Effects.MoveAllLastKnownCounters`
   (Servant of the Scale): that moves every counter kind, so a modular creature killed by -1/-1
@@ -9392,9 +9396,9 @@ composite abilities).
   Innistrad: Midnight Hunt). Display-only; wire the behavior with the `card { decayed() }` builder helper, which adds
   the keyword plus a `CantBlock(GroupFilter.source())` static ability and a "whenever this attacks" triggered
   `CreateDelayedTriggerEffect(step = Step.END_COMBAT, effect = Effects.SacrificeTarget(EffectTarget.Self))` (mirrors
-  Mardu Blazebringer's end-of-combat self-sacrifice). No parameter. The **decayed counter** (`Counters.DECAYED`,
+  Mardu Blazebringer's end-of-combat self-sacrifice). No parameter. The **decayed counter** (`CounterType.DECAYED`,
   Tarkir: Dragonstorm) grants the same Decayed ability to *any* creature that bears one (CR 702.147a) — put it with
-  `AddCounters(Counters.DECAYED, n, target)` (Rot-Curse Rakshasa's Renew). The engine realizes the behavior off the
+  `AddCounters(CounterType.DECAYED, n, target)` (Rot-Curse Rakshasa's Renew). The engine realizes the behavior off the
   counter directly: `StateProjector` projects the `DECAYED` keyword + `cantBlock = true`, and `TriggerDetector`
   schedules the end-of-combat self-sacrifice when a decayed-countered creature is declared as an attacker — no
   per-card static/trigger needed for the counter form.
@@ -9514,7 +9518,7 @@ composite abilities).
   power attack, put a +1/+1 counter on this creature.)" (CR 702.149, Innistrad: Midnight Hunt; also WHO, SLD). Display-only
   keyword; wire the behavior with the `card { training() }` builder helper. It adds the keyword plus one attack-triggered
   ability — `Triggers.attacks(requires = setOf(AttackPredicate.AttackedAlongsideGreaterPower))` (SELF) → a two-step
-  `CompositeEffect(Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self), EmitTrainedEventEffect)`. The predicate
+  `CompositeEffect(Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self), EmitTrainedEventEffect)`. The predicate
   reads **projected** power for every attacker (§8 `AttackPredicate`), so an anthem/aura on the *other* attacker can flip the
   trigger on; the comparison is strict. Multiple instances trigger separately (CR 702.149b) — call `training()` twice, or add a
   second `trainingTriggeredAbility()`, for two independent counters. The standalone `trainingTriggeredAbility()` factory (same
@@ -9846,13 +9850,13 @@ composite abilities).
   charge counters on this permanent equal to the tapped creature's power. Activate only as a sorcery." The ability is
   fully fixed by the rules, so the helper takes no arguments — it builds
   `AbilityCost.TapPermanents(count = 1, filter = Creature, excludeSelf = true)` →
-  `Effects.AddDynamicCounters(Counters.CHARGE, DynamicAmount.StationCharge, Self)` at `TimingRule.SorcerySpeed`. The
+  `Effects.AddDynamicCounters(CounterType.CHARGE, DynamicAmount.StationCharge, Self)` at `TimingRule.SorcerySpeed`. The
   charge amount is the dedicated `DynamicAmount.StationCharge` node (see §13), *not* a plain
   `EntityProperty(TappedAsCost, Power)` read, so the CR 702.184c "station using toughness" substitution
   (`StationUsingToughness`, Tapestry Warden) stays scoped to station abilities. What the card gains at each charge
   threshold (the `{N+}` station symbols, CR 721.2a) is authored separately per card — `staticAbility { }` rows for
   Spacecraft that grant `GrantKeyword(...)` / `GrantCardType("CREATURE", …)`, or threshold-gated activated abilities
-  for Planets — each gated on `Conditions.SourceCounterCountAtLeast(Counters.CHARGE, N)` (see §12). No dedicated
+  for Planets — each gated on `Conditions.SourceCounterCountAtLeast(CounterType.CHARGE, N)` (see §12). No dedicated
   `Keyword.STATION`: the layout/symbols are display-only and the ability is the whole mechanic.
   - **Multi-select activation shortcut.** Because the station ability has no chosen targets and its
     effect stacks, the player may station with several creatures in one gesture: the cost-selection
@@ -10107,7 +10111,7 @@ answer it and would silently return `false`.
   GTE, count)`. Used by Hundred-Battle Veteran ("three or more different kinds of counters among
   creatures you control").
 - `CounterKindAmongYouControlAtLeast(count, counterType, filter)` — true when the *total* number of
-  `counterType` counters (a `CounterTypeFilter`, e.g. `CounterTypeFilter.Named("lore")`, or `.Any`
+  `counterType` counters (e.g. `CounterType.LORE`, or `null`
   to total every kind) among permanents you control matching `filter` is at least `count`. Sums the
   kind across the whole group — three Sagas with one, two, and one lore counter total four.
   Board-derived only (gates a `ConditionalStaticAbility`; evaluates identically in resolution and
@@ -10453,16 +10457,15 @@ that works in both resolution and static-ability (projection) contexts.
   counters of `counterType` (a `Compare` on `EntityProperty(Source, CounterCount(filter))`). This is the gate
   behind a Station card's `{N+}` symbol (CR 721.2a — "As long as this permanent has N or more charge counters on it,
   it has [abilities]"): use it as the `condition` of a `staticAbility { }` or inside
-  `ActivationRestriction.OnlyIfCondition(...)`, with `Counters.CHARGE`. Generic over counter type, reads counters live.
-  Takes either a counter-type name (`Counters.CHARGE`) or a `CounterTypeFilter`; pass `CounterTypeFilter.Any` for
-  "N or more counters **of any kind**" gates (Warden of the Inner Sky), which sums every counter kind on the source.
+  `ActivationRestriction.OnlyIfCondition(...)`, with `CounterType.CHARGE`. Generic over counter type, reads counters live.
+  Pass `null` for "N or more counters **of any kind**" gates (Warden of the Inner Sky), which sums every counter kind on the source.
 - `SourceCounterCountAtMost(counterType, count)` — the downward-facing twin: a countdown gate rather than a
   threshold (an `LTE` `Compare` on the same `EntityProperty(Source, CounterCount(filter))`). `count = 0` is the
   "**if it has no [kind] counters on it**" clause that follows a remove-a-counter step — Thing in the Ice's
   "remove an ice counter from this creature. Then if it has no ice counters on it, transform it" is
-  `Composite(RemoveCounters(Counters.ICE, 1, Self), Effects.If(SourceCounterCountAtMost(Counters.ICE, 0),
-  TransformEffect(Self)))`. Reads the source live, so it sees the counter the same resolution just removed. Same
-  two overloads (name / `CounterTypeFilter`) as its `AtLeast` sibling.
+  `Composite(RemoveCounters(CounterType.ICE, 1, Self), Effects.If(SourceCounterCountAtMost(CounterType.ICE, 0),
+  TransformEffect(Self)))`. Reads the source live, so it sees the counter the same resolution just removed. `null`
+  totals every kind, as in its `AtLeast` sibling.
 
 ### Turn / phase
 
@@ -10994,10 +10997,10 @@ Numbers computed at resolution time.
   sorcery, and kindred never count (a kindred permanent contributes only its *other* type). Used for
   "N or more permanent types among …" (Matzalantli, the Great Door, via
   `Conditions.DistinctPermanentTypesInGraveyard`).
-  When `counterType` (a `CounterTypeFilter`) is set with `SUM`/`MAX`/`MIN`, the per-permanent value
+  When `counterType` is set with `SUM`/`MAX`/`MIN`, the per-permanent value
   aggregated is the count of *that kind* of counter on it — i.e. "the total <kind> counters among
   <filter>" (Tom Bombadil's lore-counter total; reach for it via
-  `Conditions.CounterKindAmongYouControlAtLeast`). `CounterTypeFilter.Any` totals every kind. Counters
+  `Conditions.CounterKindAmongYouControlAtLeast`). `null` totals every kind. Counters
   are read from base state (layer-independent).
   The `player` accepts the same references as elsewhere, including `Player.ControllerOf(desc)` /
   `Player.OwnerOf(desc)` — "the creatures **that [target]'s controller** controls" — which resolve
@@ -11187,20 +11190,20 @@ something other than the source.
 
 ### Last-known source counters (self-exile / self-sacrifice cost, dies/leaves triggers)
 
-- `LastKnownSourceCounters(CounterTypeFilter)` — the number of matching counters the *source* had as it last existed
+- `LastKnownSourceCounters(counterType)` — the number of `counterType` counters (every kind when `null`) the *source* had as it last existed
   on the battlefield (CR 113.7a / 608.2h). Counters cease to exist on a zone change (CR 122.2), so the value comes
   from whichever snapshot the resolution context carries — the two never both apply to one resolution:
   - the **cost-payment** snapshot, taken by `ActivateAbilityHandler` when an activated ability's cost exiles or
     sacrifices its own source. Lost Isle Calling: "{4}{U}{U}, Exile this enchantment: Draw a card for each verse
     counter on this enchantment. If it had seven or more verse counters on it, take an extra turn." Both the draw
-    amount (`DrawCards(lastKnownSourceCounters(Named(Counters.VERSE)))`) and the seven-or-more gate
-    (`Compare(lastKnownSourceCounters(Named(Counters.VERSE)), GTE, Fixed(7))`) read this node.
+    amount (`DrawCards(lastKnownSourceCounters(Named(CounterType.VERSE)))`) and the seven-or-more gate
+    (`Compare(lastKnownSourceCounters(Named(CounterType.VERSE)), GTE, Fixed(7))`) read this node.
   - the **leaves-the-battlefield** snapshot carried on a dies/leaves trigger (`TriggerContext.lastKnownCounters`),
     available both to the intervening-`if` (`interveningIf`) and to the resolving effect. Nine-Lives Familiar:
     "When this creature dies, if it had a revival counter on it, return it to the battlefield with one fewer revival
     counter on it at the beginning of the next end step."
 
-  `CounterTypeFilter.Any` sums all counter types; otherwise it reads the named/typed counter — naming the kind is
+  `null` sums all counter types; otherwise it reads the named/typed counter — naming the kind is
   what stops an unrelated +1/+1 counter from satisfying "if it had a revival counter on it". This is the
   parameterized sibling of `ContextPropertyKey.LAST_KNOWN_PLUS_ONE_COUNTER_COUNT` (fixed to +1/+1) and
   `LAST_KNOWN_TOTAL_COUNTER_COUNT` (sums every kind). Facade: `DynamicAmounts.lastKnownSourceCounters(filter)`.
@@ -11211,7 +11214,7 @@ something other than the source.
   `CreateDelayedTriggerEffect` fires, so `CreateDelayedTriggerExecutor` snapshots the `amount` of a nested
   `AddDynamicCountersEffect` into a `Fixed` literal at scheduling time (the same treatment `AddManaEffect` gets).
   That is how Nine-Lives Familiar's "with one fewer revival counter" —
-  `Subtract(lastKnownSourceCounters(Named(Counters.REVIVAL)), Fixed(1))` — survives to the end step.
+  `Subtract(lastKnownSourceCounters(Named(CounterType.REVIVAL)), Fixed(1))` — survives to the end step.
 
   **Pipeline-scoped counts get the same treatment, board-state counts deliberately do not.** A
   `CreateTokenEffect` scheduled into a delayed trigger has its `count` frozen at scheduling time *only
@@ -11338,7 +11341,7 @@ For triggered abilities whose effect reads a property of the entity that caused 
   "it deals damage equal to its power").
 - `DynamicAmounts.triggeringToughness()` — toughness of the triggering entity.
 - `DynamicAmounts.triggeringManaValue()` — mana value of the triggering entity.
-- `DynamicAmounts.countersOnTriggering(type = CounterTypeFilter.Any)` — number of counters (of `type`,
+- `DynamicAmounts.countersOnTriggering(type = null)` — number of counters (of `type`,
   default every kind) on the triggering permanent (e.g. Spider-Man Noir: "surveil X, where X is the
   number of counters on it").
 
@@ -12254,7 +12257,7 @@ The priority groups are (CR 616.1a–f):
   `onPrevented: Effect?` is what the prevention does with the damage it prevented (CR 615.5) — the
   Lorwyn Incarnations' "You gain life equal to the damage prevented this way" (Purity:
   `Effects.GainLife(DynamicAmounts.preventedDamage())`), "Put a +1/+1 counter on that creature for each
-  1 damage prevented this way" (Vigor: `Effects.AddDynamicCounters("+1/+1", preventedDamage(),
+  1 damage prevented this way" (Vigor: `Effects.AddDynamicCounters(CounterType.PLUS_ONE_PLUS_ONE, preventedDamage(),
   EffectTarget.TriggeringEntity)`) and Hostility's tokens. It is **not** a trigger: the engine queues it
   on `GameState.pendingReplacementRiders` and runs it as soon as the damaging effect finishes (or at the
   settle boundary for combat damage) — before SBAs and trigger detection, never on the stack. One run
@@ -12341,7 +12344,7 @@ The priority groups are (CR 616.1a–f):
   `dynamicModifier: DynamicAmount?` evaluated at damage time against the replacement's **source**
   permanent (so `DynamicAmount.EntityProperty(Source, …)` / `DynamicAmounts.countersOnSelf(…)` reads
   the source's own characteristics/counters). Fated Firepower: `dynamicModifier =
-  DynamicAmounts.countersOnSelf(CounterTypeFilter.Named("fire"))` with `appliesTo = DamageEvent(source =
+  DynamicAmounts.countersOnSelf(CounterType.FIRE)` with `appliesTo = DamageEvent(source =
   SourceFilter.YouControl, recipient = RecipientFilter.OpponentOrPermanentTheyControl)` — "a source you
   control deals that much damage plus the number of fire counters on this enchantment to an opponent or
   a permanent an opponent controls". Applied in `DamageUtils.applyStaticDamageAmplification` (both the
@@ -12825,123 +12828,123 @@ Amount-modifying replacements expose **both** `multiplier` (×) and `modifier` (
 
 ## 16. Counters
 
-String-keyed counter types — resolve via the central `resolveCounterType` helper rather than per-executor character
-substitution.
+Counter kinds are `CounterType` constants (see the Counters section of the effects catalog); the names below
+are their printed spellings (`CounterType.printed`). Text converts back only through `CounterType.of`.
 
 - `+1/+1`, `-1/-1` — power/toughness counters.
 - `loyalty` — planeswalker loyalty.
 - `charge`, `time`, `level`, `quest`, `fade`, `vanishing`, `experience`, `age`, `velocity`, `awakening`,
-  `blood`, `cage`, `doom`, `storage`, `divinity` (`Counters.DIVINITY`, a passive counter used by the Myojin
+  `blood`, `cage`, `doom`, `storage`, `divinity` (`CounterType.DIVINITY`, a passive counter used by the Myojin
   cycle), `charm`, `music`, `crumble`, `corpse`, `germ`, `ink`, `growth`,
   `hour`, `energy`, `scry`, `aura`, `chapter`, `citation`, `rune`, `scar`, `crux`, `omen`, `secret`, `feather`,
   `hourglass`, `hope`, `verse`, `influence`, `burden`, `loot`, `soul`, `bait` — assorted printed counter kinds. (`hourglass`: Temporal Distortion
   — a permanent with one doesn't untap during its controller's untap step; model the restriction with
-  `GrantKeyword(AbilityFlag.DOESNT_UNTAP.name, GroupFilter(... .withCounter(Counters.HOURGLASS)))` so it stays
+  `GrantKeyword(AbilityFlag.DOESNT_UNTAP.name, GroupFilter(... .withCounter(CounterType.HOURGLASS)))` so it stays
   projection-scoped.) (`hope` / `verse` / `influence` / `burden`: LTR — Dawn of a New Age / Lost Isle Calling /
   Palantír of Orthanc / The One Ring. `loot`: OTJ — Bandit's Haul. `wind`: ARN — Cyclone (accrued one-per-upkeep,
-  scales a pay-or-sacrifice cost + damage). `nest` (`Counters.NEST`): DSK — Twitching Doll,
+  scales a pay-or-sacrifice cost + damage). `nest` (`CounterType.NEST`): DSK — Twitching Doll,
   whose mana ability accumulates one per activation and whose sacrifice ability reads the count to scale a token
-  payoff. `page` (`Counters.PAGE`): SOS — Diary of Dreams, whose cast-an-instant-or-sorcery trigger accumulates one
+  payoff. `page` (`CounterType.PAGE`): SOS — Diary of Dreams, whose cast-an-instant-or-sorcery trigger accumulates one
   and whose `{5},{T}: draw` ability reads the count via `genericCostReduction` to cost `{1}` less per counter.
-  `hoofprint` (`Counters.HOOFPRINT`): LRW — Hoofprints of the Stag, whose "whenever you draw a card, you **may**"
+  `hoofprint` (`CounterType.HOOFPRINT`): LRW — Hoofprints of the Stag, whose "whenever you draw a card, you **may**"
   trigger accumulates one and whose `{2}{W}, Remove four hoofprint counters` ability
-  (`Costs.RemoveCounterFromSelf(Counters.HOOFPRINT, 4)`) spends them for a 4/4 flying Elemental.
-  `mannequin` (`Counters.MANNEQUIN`): LRW — Makeshift Mannequin, a pure marker that exists only so the reanimated
+  (`Costs.RemoveCounterFromSelf(CounterType.HOOFPRINT, 4)`) spends them for a 4/4 flying Elemental.
+  `mannequin` (`CounterType.MANNEQUIN`): LRW — Makeshift Mannequin, a pure marker that exists only so the reanimated
   creature's granted "when this becomes the target of a spell or ability, sacrifice it" ability has something to be
-  keyed to (`Duration.WhileAffectedHasCounter(Counters.MANNEQUIN)`); remove the counter and the drawback goes too.
+  keyed to (`Duration.WhileAffectedHasCounter(CounterType.MANNEQUIN)`); remove the counter and the drawback goes too.
   `doom`: ATQ — Armageddon Clock (accrued one-per-upkeep, scales the damage dealt to each player in the draw step;
-  a {4} ability removes one). `omen` (`Counters.OMEN`): VOW — Soulcipher Board, a *countdown* counter — the artifact
+  a {4} ability removes one). `omen` (`CounterType.OMEN`): VOW — Soulcipher Board, a *countdown* counter — the artifact
   enters with three and a per-card "whenever a creature card is put into your graveyard from anywhere" trigger removes
   one, transforming the artifact once a `Compare(countersOnSelf(Named(OMEN)), EQ, 0)` intervening check passes.
-  `suspect` (`Counters.SUSPECT`): VOW — Investigator's Journal, a passive store — the artifact enters with one per
+  `suspect` (`CounterType.SUSPECT`): VOW — Investigator's Journal, a passive store — the artifact enters with one per
   creature the most-creatured player controls (`EntersWithDynamicCounters` over
   `DynamicAmounts.greatestControlledBySinglePlayer(...)`) and a `{2}, {T}, Remove a suspect counter` ability spends
   them one at a time. Unrelated to the *suspected* keyword action (CR 701.58), which places no counter at all.
   Pure passive counters with no inherent rule; the cards that use them accumulate/spend them via their own
-  abilities and read the count via `DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.X))` — or, when a
+  abilities and read the count via `DynamicAmounts.countersOnSelf(CounterType.X)` — or, when a
   self-sacrifice/exile cost wipes them first, `DynamicAmounts.lastKnownSourceCounters(...)` (CR 113.7a; see §13).
-  `rev` (`Counters.REV`): DSK — Chainsaw, whose "whenever one or more creatures die" batched trigger accumulates one
+  `rev` (`CounterType.REV`): DSK — Chainsaw, whose "whenever one or more creatures die" batched trigger accumulates one
   per death batch and whose `+X/+0` static reads the count via `DynamicAmounts.countersOnSelf(...)` applied to the
   equipped creature — another pure passive counter with no inherent rule.
-  `bloodstain` (`Counters.BLOODSTAIN`): MKM — Blood Spatter Analysis, whose "whenever one or more creatures die"
+  `bloodstain` (`CounterType.BLOODSTAIN`): MKM — Blood Spatter Analysis, whose "whenever one or more creatures die"
   batched trigger accumulates one per death batch and then, *in the same resolution*, tests
-  `Conditions.SourceCounterCountAtLeast(Counters.BLOODSTAIN, 5)` to decide whether to sacrifice itself. The threshold
+  `Conditions.SourceCounterCountAtLeast(CounterType.BLOODSTAIN, 5)` to decide whether to sacrifice itself. The threshold
   deliberately lives inside the trigger rather than in a state trigger/SBA: per the card's ruling, a fifth counter
   arriving by any other route (proliferate, a doubler) does *not* sacrifice it — another pure passive counter with no
   inherent rule.
-  `blood` (`Counters.BLOOD`): RAV — Bloodletter Quill, whose `{2},{T}, put a blood counter on this artifact: draw a
+  `blood` (`CounterType.BLOOD`): RAV — Bloodletter Quill, whose `{2},{T}, put a blood counter on this artifact: draw a
   card` ability accrues one per activation as part of the *cost* (`Costs.PutCounterOnSelf`, always payable) and then
-  reads the running count on resolution via `DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.BLOOD))`
+  reads the running count on resolution via `DynamicAmounts.countersOnSelf(CounterType.BLOOD)`
   to size the life lost, while a second `{U}{B}` ability removes one as its *effect*. Note it is a counter, entirely
   unrelated to the MID Blood *token* — another pure passive counter with no inherent rule.
-  `soul` (`Counters.SOUL`): FDN — Ravenous Amulet, whose `{1},{T}, sacrifice a creature: draw` ability accumulates
+  `soul` (`CounterType.SOUL`): FDN — Ravenous Amulet, whose `{1},{T}, sacrifice a creature: draw` ability accumulates
   one per activation and whose `{4},{T}, sacrifice this: each opponent loses life` ability reads the count via
-  `DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.SOUL))` — another pure passive counter with no
+  `DynamicAmounts.countersOnSelf(CounterType.SOUL)` — another pure passive counter with no
   inherent rule.
-  `possession` (`Counters.POSSESSION`): DSK — Unwilling Vessel, whose Eerie triggers (an enchantment you control
+  `possession` (`CounterType.POSSESSION`): DSK — Unwilling Vessel, whose Eerie triggers (an enchantment you control
   entering / fully unlocking a Room) each accumulate one and whose dies trigger reads the total counter count via
   `DynamicAmount.ContextProperty(ContextPropertyKey.LAST_KNOWN_TOTAL_COUNTER_COUNT)` to size the X/X Spirit token it
   leaves behind — another pure passive counter with no inherent rule.)
-  `fire` (`Counters.FIRE`): TLA — War Balloon (a `{1}` ability accumulates one; a `ConditionalStaticAbility`
-  gated on `Conditions.SourceCounterCountAtLeast(Counters.FIRE, 3)` grants `GrantCardType("CREATURE")` so the
+  `fire` (`CounterType.FIRE`): TLA — War Balloon (a `{1}` ability accumulates one; a `ConditionalStaticAbility`
+  gated on `Conditions.SourceCounterCountAtLeast(CounterType.FIRE, 3)` grants `GrantCardType("CREATURE")` so the
   Vehicle is an artifact creature at 3+); reused by later Fated/Fated-Firepower cards — another pure passive
   counter with no inherent rule.
-  `conqueror` (`Counters.CONQUEROR`): TLA — Zhao, the Moon Slayer (a `{7}` ability accumulates one; a
-  `ConditionalStaticAbility` gated on `Conditions.SourceCounterCountAtLeast(Counters.CONQUEROR, 1)` switches on a
+  `conqueror` (`CounterType.CONQUEROR`): TLA — Zhao, the Moon Slayer (a `{7}` ability accumulates one; a
+  `ConditionalStaticAbility` gated on `Conditions.SourceCounterCountAtLeast(CounterType.CONQUEROR, 1)` switches on a
   `SetLandTypesForGroup` making all nonbasic lands Mountains) — another pure passive counter with no inherent rule.
-  `net` (`Counters.NET`): LCI — Braided Net (enters with three via an `EntersWithCounters` replacement; its tap
-  ability spends them via `Costs.RemoveCounterFromSelf(Counters.NET, 1)`) — another pure passive counter with no
+  `net` (`CounterType.NET`): LCI — Braided Net (enters with three via an `EntersWithCounters` replacement; its tap
+  ability spends them via `Costs.RemoveCounterFromSelf(CounterType.NET, 1)`) — another pure passive counter with no
   inherent rule.
-  `incubation` (`Counters.INCUBATION`): FDN — Drake Hatcher (a `DealsCombatDamageToPlayer` trigger accumulates
-  "that many" via `AddDynamicCounters(Counters.INCUBATION, DynamicAmount.ContextProperty(TRIGGER_DAMAGE_AMOUNT), Self)`;
-  an activated ability spends three via `Costs.RemoveCounterFromSelf(Counters.INCUBATION, 3)` to hatch a Drake token) —
+  `incubation` (`CounterType.INCUBATION`): FDN — Drake Hatcher (a `DealsCombatDamageToPlayer` trigger accumulates
+  "that many" via `AddDynamicCounters(CounterType.INCUBATION, DynamicAmount.ContextProperty(TRIGGER_DAMAGE_AMOUNT), Self)`;
+  an activated ability spends three via `Costs.RemoveCounterFromSelf(CounterType.INCUBATION, 3)` to hatch a Drake token) —
   a pure passive resource counter with no inherent rule. Not MTG's Incubate/incubator-token mechanic.
-  `bait` (`Counters.BAIT`): FDN — Fishing Pole (the Equipment's *granted* ability accrues one via
-  `Costs.PutCounterOnSelf(Counters.BAIT)` + `AddCountersEffect(..., EffectTarget.GrantingSource)`;
+  `bait` (`CounterType.BAIT`): FDN — Fishing Pole (the Equipment's *granted* ability accrues one via
+  `Costs.PutCounterOnSelf(CounterType.BAIT)` + `AddCountersEffect(..., EffectTarget.GrantingSource)`;
   its "equipped creature becomes untapped" trigger spends one through an `Effects.IfYouDo` gated on
   `SuccessCriterion.CountersRemoved` to make a Fish token) — another pure passive resource counter
   with no inherent rule.
-  `fellowship` (`Counters.FELLOWSHIP`): FDN — Banner of Kinship (enters with one per creature you control of
-  the as-enters chosen type via `EntersWithDynamicCounters(CounterTypeFilter.Named(Counters.FELLOWSHIP),
+  `fellowship` (`CounterType.FELLOWSHIP`): FDN — Banner of Kinship (enters with one per creature you control of
+  the as-enters chosen type via `EntersWithDynamicCounters(CounterType.FELLOWSHIP,
   DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature.withChosenSubtype()))`; a
   `GrantDynamicStatsEffect` sized by `DynamicAmounts.countersOnSelf(...)` reads the count back) — a pure
   passive resource counter with no inherent rule.
-  `ingenuity` (`Counters.INGENUITY`): SPM — Lady Octopus, Inspired Inventor (two `Triggers.NthCardDrawn`
-  triggers — first and second draw each turn — each add one via `AddCounters(Counters.INGENUITY, 1, EffectTarget.Self)`;
-  her `{T}` ability reads the count via `DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.INGENUITY))`
+  `ingenuity` (`CounterType.INGENUITY`): SPM — Lady Octopus, Inspired Inventor (two `Triggers.NthCardDrawn`
+  triggers — first and second draw each turn — each add one via `AddCounters(CounterType.INGENUITY, 1, EffectTarget.Self)`;
+  her `{T}` ability reads the count via `DynamicAmounts.countersOnSelf(CounterType.INGENUITY)`
   inside a `CollectionFilter.ManaValueAtMost` to gate which hand artifact she can free-cast) — a pure passive
   resource counter with no inherent rule.
-  `film` (`Counters.FILM`): SPM — Peter Parker's Camera (enters with three via an `EntersWithCounters(
-  CounterTypeFilter.Named(Counters.FILM), count = 3, selfOnly = true)` replacement; each activation of its
-  `{2}, {T}` copy ability spends one via `Costs.RemoveCounterFromSelf(Counters.FILM, 1)`). A pure "uses left"
+  `film` (`CounterType.FILM`): SPM — Peter Parker's Camera (enters with three via an `EntersWithCounters(
+  CounterType.FILM, count = 3, selfOnly = true)` replacement; each activation of its
+  `{2}, {T}` copy ability spends one via `Costs.RemoveCounterFromSelf(CounterType.FILM, 1)`). A pure "uses left"
   counter with no inherent rule — when it hits zero the activation cost is simply unpayable.
-  `wish` (`Counters.WISH`): ELD — Wishclaw Talisman (enters with three via an `EntersWithCounters(
-  CounterTypeFilter.Named(Counters.WISH), count = 3, selfOnly = true)` replacement; each activation of its
-  tutor ability spends one via `Costs.RemoveCounterFromSelf(Counters.WISH, 1)`). A pure "uses left" counter
+  `wish` (`CounterType.WISH`): ELD — Wishclaw Talisman (enters with three via an `EntersWithCounters(
+  CounterType.WISH, count = 3, selfOnly = true)` replacement; each activation of its
+  tutor ability spends one via `Costs.RemoveCounterFromSelf(CounterType.WISH, 1)`). A pure "uses left" counter
   with no inherent rule — when it hits zero the activation cost is simply unpayable, which is exactly the
   printed ruling that the Talisman then sits inert on the battlefield.
-  `skewer` (`Counters.SKEWER`): WOE — Rotisserie Elemental (its combat-damage trigger adds one via
-  `AddCounters(Counters.SKEWER, 1, EffectTarget.Self)`, and the optional self-sacrifice cashes the tally in
-  for an impulse-exile sized by `DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.SKEWER))`).
+  `skewer` (`CounterType.SKEWER`): WOE — Rotisserie Elemental (its combat-damage trigger adds one via
+  `AddCounters(CounterType.SKEWER, 1, EffectTarget.Self)`, and the optional self-sacrifice cashes the tally in
+  for an impulse-exile sized by `DynamicAmounts.countersOnSelf(CounterType.SKEWER)`).
   A pure tally counter with no inherent rule.
-  `ice` (`Counters.ICE`): SOI — Thing in the Ice (enters with four via an `EntersWithCounters(
-  CounterTypeFilter.Named(Counters.ICE), count = 4, selfOnly = true)` replacement; its
+  `ice` (`CounterType.ICE`): SOI — Thing in the Ice (enters with four via an `EntersWithCounters(
+  CounterType.ICE, count = 4, selfOnly = true)` replacement; its
   `Triggers.YouCastInstantOrSorcery` trigger removes one and then flips the permanent through a
-  `Effects.If(Conditions.SourceCounterCountAtMost(Counters.ICE, 0), TransformEffect(Self))`).
+  `Effects.If(Conditions.SourceCounterCountAtMost(CounterType.ICE, 0), TransformEffect(Self))`).
   A "countdown to zero" counter with no inherent rule — the inverse of the `wish`/`film` "uses left" shape:
   read down rather than spent as a cost. Gating the flip on the live count *inside the ability's resolution*
   is what makes the printed ruling hold — removing the last counter any other way never transforms it.
 - `stun` — CR 122.1d, a built-in replacement: "If a permanent with a stun counter on it would become untapped,
   instead remove a stun counter from it." Engine-wired through `untapOrConsumeStun` (`rules-engine/core/UntapHelpers.kt`),
   which is invoked from the untap step (`BeginningPhaseManager`), from `TapUntapExecutor`'s untap branch, and from the
-  sacrifice/pay continuation resumer. Adding stun counters is done by `AddCounters(Counters.STUN, n, target)`.
+  sacrifice/pay continuation resumer. Adding stun counters is done by `AddCounters(CounterType.STUN, n, target)`.
 - `shield` — CR 122.1c, a built-in replacement **and** prevention effect: "If this permanent would be destroyed
   as the result of an effect, instead remove a shield counter from it" and "If damage would be dealt to this
   permanent, prevent that damage and remove a shield counter from it." One or more counters create a *single*
   effect of each kind, so exactly **one** counter is consumed per damage or destruction event however many are on
-  the permanent and however large the damage. Add via `AddCounters(Counters.SHIELD, n, target)` or an
+  the permanent and however large the damage. Add via `AddCounters(CounterType.SHIELD, n, target)` or an
   `EntersWithCounters` replacement (Captain America, Super-Soldier); read the presence back with
-  `Conditions.SourceHasCounter` / `.withCounter(Counters.SHIELD)`.
+  `Conditions.SourceHasCounter` / `.withCounter(CounterType.SHIELD)`.
   Engine-wired at the four chokepoints in `rules-engine/core/ShieldCounterHelpers.kt`'s KDoc:
   `DamageUtils.dealDamageToTarget` and `CombatDamageManager` (prevention; combat damage applies it once for the
   whole simultaneous batch per CR 510.2, so a creature blocked by three creatures still spends one counter), and
@@ -12953,12 +12956,12 @@ substitution.
   still removes a counter. An indestructible permanent never "would be destroyed", so its counter stays unspent.
 - `storage` — a passive counter with no inherent rule, like `loot` and `nest`: the card that places
   them is the only thing that reads them. City of Shadows exiles a creature to add one
-  (`AddCounters(Counters.STORAGE, 1, Self)`) and taps to add {C} for each
-  (`AddColorlessMana(EntityProperty(Source, CounterCount(Named(Counters.STORAGE))))`).
+  (`AddCounters(CounterType.STORAGE, 1, Self)`) and taps to add {C} for each
+  (`AddColorlessMana(EntityProperty(Source, CounterCount(Named(CounterType.STORAGE))))`).
 - `hunger` — a pure bookkeeping counter, same no-inherent-rule shape as `storage`: the card counts
   its own pile and acts on the total. Fasting adds one each upkeep
-  (`AddCounters(Counters.HUNGER, 1, Self)`) and destroys itself at five, reading the count back
-  through `Conditions.SourceCounterCountAtLeast(Counters.HUNGER, 5)`.
+  (`AddCounters(CounterType.HUNGER, 1, Self)`) and destroys itself at five, reading the count back
+  through `Conditions.SourceCounterCountAtLeast(CounterType.HUNGER, 5)`.
 - `javelin`, `credit`, `cube`, `tide` — the Fallen Empires named counters, all in the no-inherent-rule
   family above. `javelin` (Icatian Javelineers) is a one-shot resource: the creature enters with one and
   removing it is part of the cost of its ping. `credit` (Icatian Moneychanger) accrues one per upkeep and is
@@ -12968,8 +12971,8 @@ substitution.
   permanent's static effect switches on at exactly one and again at exactly three and sheds all of them on
   reaching four — so read it with an equality condition, not `SourceCounterCountAtLeast`.
 - `hone` — CR 122.1j, a built-in Layer 7c pump aimed at a *different* object: "A hone counter on an Equipment
-  gives +1/+0 to any creature that Equipment is attached to." Add via `AddCounters(Counters.HONE, n, target)`
-  or `AddDynamicCounters(Counters.HONE, amount, target)` — and that is **all** a hone card does; the bonus is
+  gives +1/+0 to any creature that Equipment is attached to." Add via `AddCounters(CounterType.HONE, n, target)`
+  or `AddDynamicCounters(CounterType.HONE, amount, target)` — and that is **all** a hone card does; the bonus is
   never a `ModifyStats`/`GrantDynamicStats` on the Equipment. Like `shield` and `stun` the behavior belongs to
   the counter, which is what makes Dwalin, Weaponmaster ("put a hone counter on each Equipment you control")
   work: a Mirrodin Bonesplitter that has never heard of hone still pumps its equipped creature. Engine-wired in
@@ -12981,15 +12984,15 @@ substitution.
 - **Keyword counters** (Rule 122.1b) — `flying`, `first strike`, `double strike`, `vigilance`, `lifelink`,
   `indestructible`, `deathtouch`, `trample`, `hexproof`, `reach`, `haste`, `menace`. `StateProjector` grants the matching `Keyword`
   to any permanent carrying one (mapped in `KEYWORD_COUNTER_MAP`, re-applied after Layer 6 so "loses all abilities"
-  can't wipe a counter-granted keyword). Add via `AddCounters(Counters.DEATHTOUCH, ...)` etc.; no static ability needed.
+  can't wipe a counter-granted keyword). Add via `AddCounters(CounterType.DEATHTOUCH, ...)` etc.; no static ability needed.
   (`reach`: Sagu Pummeler's renew payoff puts a reach counter on a creature. `vigilance`: Aragorn, Company Leader.
   `double strike`: Mai, Jaded Edge's exhaust ability. `haste` / `menace`: Super-Adaptoid, which copies keywords
   off another creature as counters.)
-- **Ability counters beyond single keywords** — `decayed` (`Counters.DECAYED`, CR 702.147a, Tarkir: Dragonstorm) grants
+- **Ability counters beyond single keywords** — `decayed` (`CounterType.DECAYED`, CR 702.147a, Tarkir: Dragonstorm) grants
   the whole **Decayed** ability (a "can't block" static **and** an attack-triggered end-of-combat sacrifice) to any
   creature that bears one. `StateProjector` projects the `DECAYED` keyword + `cantBlock = true` (initial pass and the
   post-Layer-6 re-apply), and `TriggerDetector.detectDecayedCounterAttackTriggers` schedules the self-sacrifice when a
-  decayed-countered creature attacks. Add via `AddCounters(Counters.DECAYED, n, target)` (Rot-Curse Rakshasa's Renew).
+  decayed-countered creature attacks. Add via `AddCounters(CounterType.DECAYED, n, target)` (Rot-Curse Rakshasa's Renew).
 
 Counter effects live in §4 (`AddCounters`, `RemoveCounters`, `Proliferate`, `MoveAllLastKnownCounters`, etc.).
 

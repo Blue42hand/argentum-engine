@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.TargetCreature
@@ -50,7 +50,7 @@ val TheEarthCrystal = card("The Earth Crystal") {
         DoubleCounterPlacement(
             placedByYou = false,
             appliesTo = EventPattern.CounterPlacementEvent(
-                counterType = CounterTypeFilter.PlusOnePlusOne,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 recipient = RecipientFilter.Matching(GameObjectFilter.Creature.youControl())
             )
         )

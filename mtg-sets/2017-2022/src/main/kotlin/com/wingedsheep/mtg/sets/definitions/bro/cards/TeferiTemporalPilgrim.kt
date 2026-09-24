@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.bro.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
@@ -51,7 +51,7 @@ val TeferiTemporalPilgrim = card("Teferi, Temporal Pilgrim") {
     // Whenever you draw a card, put a loyalty counter on Teferi.
     triggeredAbility {
         trigger = Triggers.YouDraw
-        effect = Effects.AddCounters(Counters.LOYALTY, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.LOYALTY, 1, EffectTarget.Self)
     }
 
     // 0: Draw a card.
@@ -72,7 +72,7 @@ val TeferiTemporalPilgrim = card("Teferi, Temporal Pilgrim") {
                 TriggeredAbility.create(
                     trigger = Triggers.YouDraw.event,
                     binding = Triggers.YouDraw.binding,
-                    effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+                    effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
                 )
             ),
             imageUri = "https://cards.scryfall.io/normal/front/3/4/349e3241-8f9d-4c52-9848-e01b575fd372.jpg?1675455446"

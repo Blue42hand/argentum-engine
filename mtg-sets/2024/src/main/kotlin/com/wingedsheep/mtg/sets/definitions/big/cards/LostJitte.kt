@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.big.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -51,12 +51,12 @@ val LostJitte = card("Lost Jitte") {
             recipient = RecipientFilter.Any,
             binding = TriggerBinding.ATTACHED
         )
-        effect = Effects.AddCounters(Counters.CHARGE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.CHARGE, 1, EffectTarget.Self)
     }
 
     // Remove a charge counter from Lost Jitte: Choose one —
     activatedAbility {
-        cost = Costs.RemoveCounterFromSelf(Counters.CHARGE)
+        cost = Costs.RemoveCounterFromSelf(CounterType.CHARGE)
         effect = ModalEffect.chooseOne(
             Mode.withTarget(
                 Effects.Untap(EffectTarget.ContextTarget(0)),
@@ -69,7 +69,7 @@ val LostJitte = card("Lost Jitte") {
                 "Target creature can't block this turn"
             ),
             Mode.noTarget(
-                Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.EquippedCreature),
+                Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.EquippedCreature),
                 "Put a +1/+1 counter on equipped creature"
             ),
             countsAsModalSpell = false

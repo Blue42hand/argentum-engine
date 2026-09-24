@@ -1,7 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
 import com.wingedsheep.sdk.core.Color
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -32,7 +32,7 @@ val RalCracklingWit = card("Ral, Crackling Wit") {
     // Whenever you cast a noncreature spell, put a loyalty counter on Ral.
     triggeredAbility {
         trigger = Triggers.YouCastNoncreature
-        effect = Effects.AddCounters(Counters.LOYALTY, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.LOYALTY, 1, EffectTarget.Self)
     }
 
     // +1: Create a 1/1 blue and red Otter creature token with prowess.

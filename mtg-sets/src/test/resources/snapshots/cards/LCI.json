@@ -46,7 +46,7 @@
                 },
                 {
                     "type": "AddDynamicCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "amount": "XValue",
                     "target": {
                         "type": "BoundVariable",
@@ -594,7 +594,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1058,7 +1058,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -1069,7 +1069,7 @@
                                 "entity": "Source",
                                 "numericProperty": {
                                     "type": "CounterCount",
-                                    "counterType": "PlusOnePlusOne"
+                                    "counterType": "PLUS_ONE_PLUS_ONE"
                                 }
                             },
                             "power": 1,
@@ -1334,7 +1334,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -1449,7 +1449,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -1966,7 +1966,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "net",
+                                "counterType": "NET",
                                 "self": true
                             }
                         }
@@ -2042,10 +2042,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "net"
-                },
+                "counterType": "NET",
                 "count": 3,
                 "selfOnly": true
             }
@@ -2195,7 +2192,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "bore",
+                            "counterType": "BORE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -2210,10 +2207,7 @@
                                         "entity": "Source",
                                         "numericProperty": {
                                             "type": "CounterCount",
-                                            "counterType": {
-                                                "type": "Named",
-                                                "name": "bore"
-                                            }
+                                            "counterType": "BORE"
                                         }
                                     },
                                     "operator": "GTE",
@@ -2228,7 +2222,7 @@
                                 "effects": [
                                     {
                                         "type": "RemoveCounters",
-                                        "counterType": "bore",
+                                        "counterType": "BORE",
                                         "count": 3,
                                         "target": "Self"
                                     },
@@ -2830,7 +2824,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -3017,7 +3011,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -3104,7 +3098,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 2,
                     "target": {
                         "type": "BoundVariable",
@@ -3415,7 +3409,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -4111,7 +4105,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "point",
+                            "counterType": "POINT",
                             "count": 1,
                             "target": "Self"
                         },
@@ -4126,10 +4120,7 @@
                                         "entity": "Source",
                                         "numericProperty": {
                                             "type": "CounterCount",
-                                            "counterType": {
-                                                "type": "Named",
-                                                "name": "point"
-                                            }
+                                            "counterType": "POINT"
                                         }
                                     },
                                     "operator": "GTE",
@@ -4394,7 +4385,7 @@
                         "effects": [
                             {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 3,
                                 "target": {
                                     "type": "BoundVariable",
@@ -4893,7 +4884,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -6545,7 +6536,7 @@
                         "statePredicates": [
                             {
                                 "type": "HasCounter",
-                                "counterType": "+1/+1"
+                                "counterType": "PLUS_ONE_PLUS_ONE"
                             }
                         ],
                         "controllerPredicate": "ControlledByYou"
@@ -6556,7 +6547,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -6569,7 +6560,7 @@
                 "cost": "CostTap",
                 "effect": {
                     "type": "MoveCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "amount": {
                         "type": "Fixed",
                         "amount": 1
@@ -7305,7 +7296,7 @@
                         "space": "IterationSpace.Targets",
                         "body": {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "ContextTarget",
@@ -7574,7 +7565,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "dread",
+                            "counterType": "DREAD",
                             "count": 1,
                             "target": "Self"
                         },
@@ -7589,10 +7580,7 @@
                                         "entity": "Source",
                                         "numericProperty": {
                                             "type": "CounterCount",
-                                            "counterType": {
-                                                "type": "Named",
-                                                "name": "dread"
-                                            }
+                                            "counterType": "DREAD"
                                         }
                                     },
                                     "operator": "GTE",
@@ -7644,7 +7632,7 @@
                                 "type": "CostAtomWrapper",
                                 "atom": {
                                     "type": "AtomRemoveCounters",
-                                    "counterType": "dread",
+                                    "counterType": "DREAD",
                                     "self": true
                                 }
                             }
@@ -9088,7 +9076,7 @@
                         "effects": [
                             {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": {
                                     "type": "ContextTarget",
@@ -9429,7 +9417,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -10232,7 +10220,7 @@
                         {
                             "effect": {
                                 "type": "AddDynamicCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "amount": {
                                     "type": "TurnTracking",
                                     "player": "You",
@@ -10395,7 +10383,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "stun",
+                            "counterType": "STUN",
                             "count": 2,
                             "target": {
                                 "type": "BoundVariable",
@@ -10614,7 +10602,7 @@
                     },
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": {
                             "type": "ContextTarget",
@@ -10810,7 +10798,7 @@
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -10934,7 +10922,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "chorus",
+                            "counterType": "CHORUS",
                             "count": 1,
                             "target": "Self"
                         },
@@ -10986,10 +10974,7 @@
                                         "entity": "Source",
                                         "numericProperty": {
                                             "type": "CounterCount",
-                                            "counterType": {
-                                                "type": "Named",
-                                                "name": "chorus"
-                                            }
+                                            "counterType": "CHORUS"
                                         }
                                     },
                                     "operator": "GTE",
@@ -12025,7 +12010,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -12523,7 +12508,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "time",
+                            "counterType": "TIME",
                             "count": 3,
                             "target": "Self"
                         }
@@ -12552,7 +12537,7 @@
                             },
                             {
                                 "type": "RemoveCounters",
-                                "counterType": "time",
+                                "counterType": "TIME",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -12590,10 +12575,7 @@
                                         "entity": "Source",
                                         "numericProperty": {
                                             "type": "CounterCount",
-                                            "counterType": {
-                                                "type": "Named",
-                                                "name": "time"
-                                            }
+                                            "counterType": "TIME"
                                         }
                                     },
                                     "operator": "GTE",
@@ -14008,7 +13990,7 @@
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "stun",
+                    "counterType": "STUN",
                     "count": 1,
                     "target": "Self"
                 },
@@ -14067,7 +14049,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "finality",
+                            "counterType": "FINALITY",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -14112,7 +14094,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "finality",
+                            "counterType": "FINALITY",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -16584,7 +16566,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "finality",
+                            "counterType": "FINALITY",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -16718,7 +16700,7 @@
                     },
                     "body": {
                         "type": "AddDynamicCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "amount": {
                             "type": "Subtract",
                             "left": {
@@ -17153,7 +17135,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -18176,7 +18158,7 @@
                 "binding": "OTHER",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "EquippedCreature"
                 }
@@ -18308,7 +18290,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 7,
                             "target": {
                                 "type": "BoundVariable",
@@ -18948,7 +18930,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "time",
+                    "counterType": "TIME",
                     "amount": {
                         "type": "DistinctEntitiesInCollections",
                         "collections": [
@@ -18969,10 +18951,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "time"
-                            }
+                            "counterType": "TIME"
                         }
                     },
                     "operator": "GTE",
@@ -19022,7 +19001,7 @@
                 },
                 "effect": {
                     "type": "DoubleCounters",
-                    "counterType": "time",
+                    "counterType": "TIME",
                     "target": "Self"
                 },
                 "descriptionOverride": "Double the number of time counters on The Millennium Calendar."
@@ -19585,7 +19564,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -20425,7 +20404,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "finality",
+                            "counterType": "FINALITY",
                             "count": 1,
                             "target": "Self"
                         }
@@ -20972,7 +20951,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -21576,7 +21555,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -21607,7 +21586,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": "CounterAny"
+                            "counterType": null
                         }
                     },
                     "operator": "GTE",
@@ -21634,7 +21613,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": "CounterAny"
+                            "counterType": null
                         }
                     },
                     "operator": "GTE",
@@ -21854,7 +21833,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "stun",
+                            "counterType": "STUN",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",

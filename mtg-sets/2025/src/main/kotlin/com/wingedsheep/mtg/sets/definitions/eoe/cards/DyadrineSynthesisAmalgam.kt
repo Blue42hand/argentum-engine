@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -59,7 +59,7 @@ val DyadrineSynthesisAmalgam = card("Dyadrine, Synthesis Amalgam") {
                         source = CardSource.BattlefieldMatching(
                             filter = GameObjectFilter.Creature
                                 .youControl()
-                                .withCounter(Counters.PLUS_ONE_PLUS_ONE),
+                                .withCounter(CounterType.PLUS_ONE_PLUS_ONE),
                             player = Player.You,
                         ),
                         storeAs = "candidates",
@@ -72,12 +72,12 @@ val DyadrineSynthesisAmalgam = card("Dyadrine, Synthesis Amalgam") {
                         prompt = "Choose two creatures you control to remove a +1/+1 counter from",
                     ),
                     RemoveCountersEffect(
-                        counterType = Counters.PLUS_ONE_PLUS_ONE,
+                        counterType = CounterType.PLUS_ONE_PLUS_ONE,
                         count = 1,
                         target = EffectTarget.PipelineTarget("chosen", 0),
                     ),
                     RemoveCountersEffect(
-                        counterType = Counters.PLUS_ONE_PLUS_ONE,
+                        counterType = CounterType.PLUS_ONE_PLUS_ONE,
                         count = 1,
                         target = EffectTarget.PipelineTarget("chosen", 1),
                     ),

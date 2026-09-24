@@ -6445,7 +6445,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "feather",
+                    "counterType": "FEATHER",
                     "amount": "XValue",
                     "target": "Self"
                 },
@@ -6464,10 +6464,7 @@
                     "entity": "Source",
                     "numericProperty": {
                         "type": "CounterCount",
-                        "counterType": {
-                            "type": "Named",
-                            "name": "feather"
-                        }
+                        "counterType": "FEATHER"
                     }
                 },
                 "toughnessBonus": {
@@ -6475,10 +6472,7 @@
                     "entity": "Source",
                     "numericProperty": {
                         "type": "CounterCount",
-                        "counterType": {
-                            "type": "Named",
-                            "name": "feather"
-                        }
+                        "counterType": "FEATHER"
                     }
                 }
             }
@@ -6675,7 +6669,7 @@
                 "binding": "OTHER",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -14701,7 +14695,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "hourglass",
+                    "counterType": "HOURGLASS",
                     "count": 1,
                     "target": "TriggeringEntity"
                 }
@@ -14729,7 +14723,7 @@
                     },
                     "body": {
                         "type": "RemoveCounters",
-                        "counterType": "hourglass",
+                        "counterType": "HOURGLASS",
                         "count": 2147483647,
                         "target": "Self"
                     }
@@ -14748,7 +14742,7 @@
                         "statePredicates": [
                             {
                                 "type": "HasCounter",
-                                "counterType": "hourglass"
+                                "counterType": "HOURGLASS"
                             }
                         ]
                     }

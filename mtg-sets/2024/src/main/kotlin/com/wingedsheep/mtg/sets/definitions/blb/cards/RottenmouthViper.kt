@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.blb.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
@@ -16,7 +16,6 @@ import com.wingedsheep.sdk.scripting.effects.ForEachPlayerEffect
 import com.wingedsheep.sdk.scripting.effects.ForceSacrificeEffect
 import com.wingedsheep.sdk.scripting.effects.LoseLifeEffect
 import com.wingedsheep.sdk.scripting.effects.RepeatDynamicTimesEffect
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.dsl.Costs
@@ -91,11 +90,11 @@ val RottenmouthViper = card("Rottenmouth Viper") {
 private fun rottenmouthViperEffect(): Effect = Effects.Composite(
     listOf(
         // Step 1: Put a blight counter on Rottenmouth Viper
-        Effects.AddCounters(Counters.BLIGHT, 1, EffectTarget.Self),
+        Effects.AddCounters(CounterType.BLIGHT, 1, EffectTarget.Self),
 
         // Step 2: For each blight counter, each opponent chooses
         RepeatDynamicTimesEffect(
-            amount = DynamicAmounts.countersOnSelf(CounterTypeFilter.Named(Counters.BLIGHT)),
+            amount = DynamicAmounts.countersOnSelf(CounterType.BLIGHT),
             body = ForEachPlayerEffect(
                 players = Player.EachOpponent,
                 effects = listOf(

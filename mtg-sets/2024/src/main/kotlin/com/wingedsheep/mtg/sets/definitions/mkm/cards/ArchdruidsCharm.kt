@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.mkm.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
@@ -112,7 +112,7 @@ val ArchdruidsCharm = card("Archdruid's Charm") {
                     TargetCreature(filter = TargetFilter.Creature.opponentControls()),
                 )
                 effect = Effects.Composite(
-                    Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, yours),
+                    Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, yours),
                     Effects.DealDamage(
                         amount = DynamicAmount.EntityProperty(
                             EntityReference.Target(0),

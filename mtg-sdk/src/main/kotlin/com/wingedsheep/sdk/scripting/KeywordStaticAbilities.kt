@@ -1,5 +1,6 @@
 package com.wingedsheep.sdk.scripting
 
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -177,9 +178,9 @@ data class GrantLandwalkOfChosenType(
 @Serializable
 data class GrantKeywordByCounter(
     val keyword: Keyword,
-    val counterType: String,
+    val counterType: CounterType,
     val controllerOnly: Boolean = false
 ) : StaticAbility {
     override val description: String =
-        "Each creature ${if (controllerOnly) "you control " else ""}with a $counterType counter on it has ${keyword.name.lowercase().replace('_', ' ')}"
+        "Each creature ${if (controllerOnly) "you control " else ""}with a ${counterType.printed} counter on it has ${keyword.name.lowercase().replace('_', ' ')}"
 }

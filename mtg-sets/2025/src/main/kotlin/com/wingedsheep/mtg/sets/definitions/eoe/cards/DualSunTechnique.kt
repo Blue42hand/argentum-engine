@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 
 /**
  * Dual-Sun Technique
@@ -28,7 +28,7 @@ val DualSunTechnique = card("Dual-Sun Technique") {
             .then(
                 // Draw a card if the target has a +1/+1 counter
                 Effects.If(
-                    condition = Conditions.TargetHasCounter(CounterTypeFilter.PlusOnePlusOne),
+                    condition = Conditions.TargetHasCounter(CounterType.PLUS_ONE_PLUS_ONE),
                     then = Effects.DrawCards(1, com.wingedsheep.sdk.scripting.targets.EffectTarget.Controller)
                 )
             )

@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.eoe.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
@@ -45,7 +45,7 @@ val TezzeretCruelCaptain = card("Tezzeret, Cruel Captain") {
             filter = GameObjectFilter.Artifact.youControl(),
             binding = TriggerBinding.ANY
         )
-        effect = Effects.AddCounters(Counters.LOYALTY, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.LOYALTY, 1, EffectTarget.Self)
     }
 
     // 0: Untap target artifact or creature. If it's an artifact creature, put a +1/+1 counter on it.
@@ -58,7 +58,7 @@ val TezzeretCruelCaptain = card("Tezzeret, Cruel Captain") {
             .then(
                 Effects.If(
                     condition = Conditions.TargetMatchesFilter(GameObjectFilter.ArtifactCreature),
-                    then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, target)
+                    then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, target)
                 )
             )
     }
@@ -84,7 +84,7 @@ val TezzeretCruelCaptain = card("Tezzeret, Cruel Captain") {
                 trigger = Triggers.BeginCombat.event,
                 binding = Triggers.BeginCombat.binding,
                 effect = Effects.AddCounters(
-                    Counters.PLUS_ONE_PLUS_ONE,
+                    CounterType.PLUS_ONE_PLUS_ONE,
                     3,
                     EffectTarget.ContextTarget(0)
                 ).then(

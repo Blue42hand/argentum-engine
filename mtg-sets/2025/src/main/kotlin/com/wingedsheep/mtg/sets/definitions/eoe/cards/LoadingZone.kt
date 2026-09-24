@@ -5,7 +5,6 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.DoubleCounterPlacement
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
 
 /**
@@ -32,7 +31,7 @@ val LoadingZone = card("Loading Zone") {
         DoubleCounterPlacement(
             placedByYou = false,
             appliesTo = EventPattern.CounterPlacementEvent(
-                counterType = CounterTypeFilter.Any,
+                counterType = null,
                 recipient = RecipientFilter.Matching(
                     GameObjectFilter.Creature.youControl()
                         .or(GameObjectFilter.Permanent.withSubtype("Spacecraft").youControl())

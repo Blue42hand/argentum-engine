@@ -7,7 +7,6 @@ import com.wingedsheep.sdk.core.BendType
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Counters
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Speed
@@ -1429,7 +1428,7 @@ object Effects {
      */
     fun MarkSpellExileWithCounters(
         target: EffectTarget = EffectTarget.TriggeringEntity,
-        counterType: String = com.wingedsheep.sdk.core.Counters.PLUS_ONE_PLUS_ONE,
+        counterType: CounterType = com.wingedsheep.sdk.core.CounterType.PLUS_ONE_PLUS_ONE,
         count: Int = 1
     ): Effect = com.wingedsheep.sdk.scripting.effects.MarkSpellExileWithCountersEffect(
         target = target,
@@ -1841,13 +1840,13 @@ object Effects {
     /**
      * Add counters.
      */
-    fun AddCounters(counterType: String, count: Int, target: EffectTarget): Effect =
+    fun AddCounters(counterType: CounterType, count: Int, target: EffectTarget): Effect =
         AddCountersEffect(counterType, count, target)
 
     /**
      * Add a dynamic number of counters.
      */
-    fun AddDynamicCounters(counterType: String, amount: DynamicAmount, target: EffectTarget): Effect =
+    fun AddDynamicCounters(counterType: CounterType, amount: DynamicAmount, target: EffectTarget): Effect =
         AddDynamicCountersEffect(counterType, amount, target)
 
     /**
@@ -1855,11 +1854,11 @@ object Effects {
      * "Put up to N [counterType] counters on target" — the single-kind mirror of
      * [Effects.RemoveAnyNumberOfCounters] / [RemoveAnyNumberOfCountersEffect].
      */
-    fun AddCountersUpTo(counterType: String, max: Int, target: EffectTarget): Effect =
+    fun AddCountersUpTo(counterType: CounterType, max: Int, target: EffectTarget): Effect =
         AddCountersUpToEffect(counterType, DynamicAmount.Fixed(max), target)
 
     /** [AddCountersUpTo] with a dynamic ceiling ("put up to X counters"). */
-    fun AddCountersUpTo(counterType: String, max: DynamicAmount, target: EffectTarget): Effect =
+    fun AddCountersUpTo(counterType: CounterType, max: DynamicAmount, target: EffectTarget): Effect =
         AddCountersUpToEffect(counterType, max, target)
 
     /**
@@ -1889,8 +1888,8 @@ object Effects {
     fun GrantCounterPlacementModifier(
         modifier: Int = 1,
         duration: Duration = Duration.EndOfTurn,
-        counterType: com.wingedsheep.sdk.scripting.events.CounterTypeFilter =
-            com.wingedsheep.sdk.scripting.events.CounterTypeFilter.PlusOnePlusOne,
+        counterType: CounterType =
+            CounterType.PLUS_ONE_PLUS_ONE,
         recipient: com.wingedsheep.sdk.scripting.events.RecipientFilter =
             com.wingedsheep.sdk.scripting.events.RecipientFilter.CreatureYouControl
     ): Effect =
@@ -1908,7 +1907,7 @@ object Effects {
      * counters as they are placed in the future. Used by Sage of the Fang.
      */
     fun DoubleCounters(
-        counterType: String = Counters.PLUS_ONE_PLUS_ONE,
+        counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE,
         target: EffectTarget
     ): Effect =
         com.wingedsheep.sdk.scripting.effects.DoubleCountersEffect(counterType, target)
@@ -1928,7 +1927,7 @@ object Effects {
      * Remove counters of a given type from a target. No-op if the target has fewer
      * than `count` counters of that type.
      */
-    fun RemoveCounters(counterType: String, count: Int, target: EffectTarget): Effect =
+    fun RemoveCounters(counterType: CounterType, count: Int, target: EffectTarget): Effect =
         RemoveCountersEffect(counterType, count, target)
 
     /**
@@ -1989,7 +1988,7 @@ object Effects {
      * "You get {E}{E}{E}" (three energy counters) is `GetEnergy(3)`.
      */
     fun GetEnergy(amount: Int, target: EffectTarget = EffectTarget.Controller): Effect =
-        AddCountersEffect(Counters.ENERGY, amount, target)
+        AddCountersEffect(CounterType.ENERGY, amount, target)
 
     /**
      * [player] pays any amount of [counterType] counters they currently have (CR 107.14's "pay
@@ -1999,9 +1998,9 @@ object Effects {
      *
      * "you may pay any amount of {E}. [~] deals that much damage to that permanent." (Galvanic
      * Discharge) composes as
-     * `Composite(PayCounters(Counters.ENERGY, storeAmountAs = "paid"), DealDamage(VariableReference("paid"), target))`.
+     * `Composite(PayCounters(CounterType.ENERGY, storeAmountAs = "paid"), DealDamage(VariableReference("paid"), target))`.
      */
-    fun PayCounters(counterType: String, player: Player = Player.You, storeAmountAs: String): Effect =
+    fun PayCounters(counterType: CounterType, player: Player = Player.You, storeAmountAs: String): Effect =
         com.wingedsheep.sdk.scripting.effects.PayCountersEffect(counterType, player, storeAmountAs)
 
     /**
@@ -2011,7 +2010,7 @@ object Effects {
      * is the payment decision, and per the 2024-06-07 ruling on {E} you can't pay a partial amount
      * for a partial effect, so this fails outright rather than clamping when unaffordable.
      */
-    fun PayFixedCounters(counterType: String, amount: Int, player: Player = Player.You): Effect =
+    fun PayFixedCounters(counterType: CounterType, amount: Int, player: Player = Player.You): Effect =
         com.wingedsheep.sdk.scripting.effects.PayFixedCountersEffect(counterType, amount, player)
 
     /**
@@ -2059,7 +2058,7 @@ object Effects {
      * "move X +1/+1 counters from this creature onto another target creature".
      */
     fun MoveCounters(
-        counterType: String,
+        counterType: CounterType,
         amount: DynamicAmount,
         source: EffectTarget,
         destination: EffectTarget
@@ -2088,14 +2087,14 @@ object Effects {
 
     /** Remove every counter of [type] from [target], preserving counters of other kinds. */
     fun RemoveAllCountersOfType(
-        type: String,
+        type: CounterType,
         target: EffectTarget
     ): Effect = com.wingedsheep.sdk.scripting.effects.RemoveAllCountersOfTypeEffect(type, target)
 
     /**
      * Add counters to all entities in a named collection.
      */
-    fun AddCountersToCollection(collectionName: String, counterType: String, count: Int = 1): Effect =
+    fun AddCountersToCollection(collectionName: String, counterType: CounterType, count: Int = 1): Effect =
         AddCountersToCollectionEffect(collectionName, counterType, count)
 
     /**
@@ -2103,21 +2102,21 @@ object Effects {
      * "create a token, then put X counters on it, where X is [amount]" (Emil, Vastlands Roamer).
      * Pair with a token-creating effect that publishes the well-known `CREATED_TOKENS` collection.
      */
-    fun AddCountersToCollection(collectionName: String, counterType: String, amount: DynamicAmount): Effect =
+    fun AddCountersToCollection(collectionName: String, counterType: CounterType, amount: DynamicAmount): Effect =
         AddCountersToCollectionEffect(collectionName, counterType, amount = amount)
 
     /**
      * Distribute any number of counters from this creature onto other creatures.
      * Used for Forgotten Ancient's upkeep ability.
      */
-    fun DistributeCountersFromSelf(counterType: String = Counters.PLUS_ONE_PLUS_ONE): Effect =
+    fun DistributeCountersFromSelf(counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE): Effect =
         com.wingedsheep.sdk.scripting.effects.DistributeCountersFromSelfEffect(counterType)
 
     /**
      * Distribute counters among targets from context.
      * "Distribute N counters among one or more target creatures."
      */
-    fun DistributeCountersAmongTargets(totalCounters: Int, counterType: String = Counters.PLUS_ONE_PLUS_ONE, minPerTarget: Int = 1): Effect =
+    fun DistributeCountersAmongTargets(totalCounters: Int, counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE, minPerTarget: Int = 1): Effect =
         com.wingedsheep.sdk.scripting.effects.DistributeCountersAmongTargetsEffect(
             DynamicAmount.Fixed(totalCounters), counterType, minPerTarget
         )
@@ -2130,7 +2129,7 @@ object Effects {
      */
     fun DistributeCountersAmongTargets(
         totalCounters: DynamicAmount,
-        counterType: String = Counters.PLUS_ONE_PLUS_ONE,
+        counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE,
         minPerTarget: Int = 1,
     ): Effect =
         com.wingedsheep.sdk.scripting.effects.DistributeCountersAmongTargetsEffect(totalCounters, counterType, minPerTarget)
@@ -2138,11 +2137,11 @@ object Effects {
     /**
      * Distribute [totalCounters] new counters among permanents matching [filter], chosen at
      * resolution (not the spell's targets). `minPerTarget = 0` models "among any number of".
-     * Crashing Wave: `DistributeCountersAmongFiltered(3, Counters.STUN, Filters.Creature.tapped().opponentControls())`.
+     * Crashing Wave: `DistributeCountersAmongFiltered(3, CounterType.STUN, Filters.Creature.tapped().opponentControls())`.
      */
     fun DistributeCountersAmongFiltered(
         totalCounters: Int,
-        counterType: String = Counters.PLUS_ONE_PLUS_ONE,
+        counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE,
         filter: com.wingedsheep.sdk.scripting.GameObjectFilter,
         minPerTarget: Int = 0,
     ): Effect =
@@ -3792,7 +3791,7 @@ object Effects {
     fun Suspend(target: EffectTarget, timeCounters: Int): Effect =
         CompositeEffect(
             listOf(
-                AddCountersEffect(Counters.TIME, timeCounters, target),
+                AddCountersEffect(CounterType.TIME, timeCounters, target),
                 GrantSuspendEffect(target),
             )
         )
@@ -5099,7 +5098,7 @@ object Effects {
         CompositeEffect(listOf(
             AnimateLandEffect(target, 0, 0, Duration.Permanent),
             GrantKeywordEffect(Keyword.HASTE, target, Duration.Permanent),
-            AddCountersEffect(Counters.PLUS_ONE_PLUS_ONE, amount, target),
+            AddCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, amount, target),
             GrantTriggeredAbilityEffect(earthbendReturnTapped(), target, Duration.Permanent),
             // CR 701.66b: earthbending fires "whenever you earthbend" once the effect resolves.
             EmitBendEventEffect(BendType.EARTH),
@@ -5115,7 +5114,7 @@ object Effects {
         CompositeEffect(listOf(
             AnimateLandEffect(target, 0, 0, Duration.Permanent),
             GrantKeywordEffect(Keyword.HASTE, target, Duration.Permanent),
-            AddDynamicCountersEffect(Counters.PLUS_ONE_PLUS_ONE, amount, target),
+            AddDynamicCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, amount, target),
             GrantTriggeredAbilityEffect(earthbendReturnTapped(), target, Duration.Permanent),
             // CR 701.66b: earthbending fires "whenever you earthbend" once the effect resolves.
             EmitBendEventEffect(BendType.EARTH),
@@ -5204,7 +5203,7 @@ object Effects {
         amount: DynamicAmount,
         target: EffectTarget = EffectTarget.Self
     ): Effect = Effects.May(
-        effect = AddDynamicCountersEffect(Counters.PLUS_ONE_PLUS_ONE, amount, target),
+        effect = AddDynamicCountersEffect(CounterType.PLUS_ONE_PLUS_ONE, amount, target),
         otherwise = CreateTokenEffect(
             count = DynamicAmount.Fixed(1),
             power = 0,

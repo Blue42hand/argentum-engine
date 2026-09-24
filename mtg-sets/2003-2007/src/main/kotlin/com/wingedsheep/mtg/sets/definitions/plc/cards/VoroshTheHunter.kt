@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.plc.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.dsl.Effects
@@ -33,7 +33,7 @@ val VoroshTheHunter = card("Vorosh, the Hunter") {
         trigger = Triggers.DealsCombatDamageToPlayer
         effect = Effects.MayPay(
             cost = PayManaCostEffect(ManaCost.parse("{2}{G}")),
-            then = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 6, EffectTarget.Self)
+            then = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 6, EffectTarget.Self)
         )
     }
 

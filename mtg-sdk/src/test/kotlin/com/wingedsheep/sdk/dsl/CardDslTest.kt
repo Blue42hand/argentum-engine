@@ -24,7 +24,7 @@ import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.effects.WardCost
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
-import com.wingedsheep.sdk.scripting.events.CounterTypeFilter
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.events.RecipientFilter
 import com.wingedsheep.sdk.scripting.events.SourceFilter
@@ -802,7 +802,7 @@ class CardDslTest : DescribeSpec({
             val counterAdder = ModifyCounterPlacement(
                 modifier = 1,
                 appliesTo = EventPattern.CounterPlacementEvent(
-                    counterType = CounterTypeFilter.PlusOnePlusOne,
+                    counterType = CounterType.PLUS_ONE_PLUS_ONE,
                     recipient = RecipientFilter.CreatureYouControl
                 )
             )

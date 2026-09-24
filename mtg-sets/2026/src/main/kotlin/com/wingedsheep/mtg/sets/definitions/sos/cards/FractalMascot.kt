@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.sos.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -45,7 +45,7 @@ val FractalMascot = card("Fractal Mascot") {
             TargetCreature(filter = TargetFilter.CreatureOpponentControls)
         )
         effect = Effects.Tap(creature)
-            .then(Effects.AddCounters(Counters.STUN, 1, creature))
+            .then(Effects.AddCounters(CounterType.STUN, 1, creature))
         description = "When this creature enters, tap target creature an opponent controls. " +
             "Put a stun counter on it."
     }

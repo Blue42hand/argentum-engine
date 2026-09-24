@@ -4,6 +4,7 @@ import com.wingedsheep.assay.syntax.ParseOutcome
 import com.wingedsheep.assay.syntax.parseLine
 import com.wingedsheep.assay.syntax.printLine
 import com.wingedsheep.sdk.core.AbilityFlag
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.Duration
@@ -179,7 +180,7 @@ class SequencesTest : StringSpec({
                 spellEffect = Effects.Composite(
                     listOf(
                         Effects.DrawCards(1),
-                        Effects.AddCounters("+1/+1", 1, EffectTarget.Self),
+                        Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self),
                     )
                 )
             )
@@ -200,7 +201,7 @@ class SequencesTest : StringSpec({
             script = CardScript(
                 spellEffect = Effects.Composite(
                     listOf(
-                        Effects.AddCounters("+1/+1", 2, Targets.bound()),
+                        Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 2, Targets.bound()),
                         Effects.Untap(Targets.bound()),
                     )
                 ),

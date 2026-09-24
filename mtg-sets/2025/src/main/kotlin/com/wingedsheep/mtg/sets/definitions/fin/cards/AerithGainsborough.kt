@@ -1,6 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.fin.cards
 
-import com.wingedsheep.sdk.core.Counters
+import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -47,7 +47,7 @@ val AerithGainsborough = card("Aerith Gainsborough") {
     // Whenever you gain life, put a +1/+1 counter on Aerith.
     triggeredAbility {
         trigger = Triggers.YouGainLife
-        effect = Effects.AddCounters(Counters.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self)
     }
 
     // When Aerith dies, put X +1/+1 counters on each legendary creature you control,
@@ -63,7 +63,7 @@ val AerithGainsborough = card("Aerith Gainsborough") {
             ),
             AddCountersToCollectionEffect(
                 collectionName = "legendaryCreatures",
-                counterType = Counters.PLUS_ONE_PLUS_ONE,
+                counterType = CounterType.PLUS_ONE_PLUS_ONE,
                 amount = DynamicAmount.ContextProperty(ContextPropertyKey.LAST_KNOWN_PLUS_ONE_COUNTER_COUNT)
             )
         )
