@@ -7,6 +7,8 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.effects.PreventionDirection
+import com.wingedsheep.sdk.scripting.effects.PreventionSourceFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
@@ -54,8 +56,11 @@ val MournersShield = card("Mourner's Shield") {
     // shares a color with the exiled card."
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{2}"), Costs.Tap)
-        effect = Effects.PreventAllDamageFromChosenSourceMatching(
-            GameObjectFilter.Any.sharingColorWith(EffectTarget.LinkedExiledCard())
+        effect = Effects.PreventDamage(
+            direction = PreventionDirection.FromTarget,
+            sources = PreventionSourceFilter.Chosen(
+                GameObjectFilter.Any.sharingColorWith(EffectTarget.LinkedExiledCard())
+            )
         )
         description = "{2}, {T}: Prevent all damage that would be dealt this turn by a source of " +
             "your choice that shares a color with the exiled card."
