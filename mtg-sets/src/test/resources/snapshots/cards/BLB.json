@@ -3233,7 +3233,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "allRevealed",
-                            "filter": {
+                            "collectionFilter": {
                                 "type": "ExcludeOtherCollection",
                                 "otherCollectionName": "revealedLand"
                             },
@@ -6138,10 +6138,7 @@
                         {
                             "type": "FilterCollection",
                             "from": "looked",
-                            "filter": {
-                                "type": "MatchesFilter",
-                                "filter": "land"
-                            },
+                            "filter": "land",
                             "storeMatching": "landCards",
                             "storeNonMatching": "nonLandCards"
                         },
@@ -7458,7 +7455,10 @@
                         "trigger": {
                             "type": "DealsDamageEvent",
                             "damageType": "DamageCombat",
-                            "recipient": "AnyPlayer",
+                            "recipient": {
+                                "type": "RecipientPlayer",
+                                "player": "Any"
+                            },
                             "sourceFilter": "creature ctrl:you"
                         },
                         "binding": "ANY",
@@ -16719,7 +16719,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -19087,7 +19090,10 @@
                 "trigger": {
                     "type": "DealsDamageEvent",
                     "damageType": "DamageCombat",
-                    "recipient": "AnyPlayer"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
                 },
                 "effect": {
                     "type": "Composite",
@@ -19177,7 +19183,10 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "DealsDamageEvent",
-                    "recipient": "RecipientOpponent"
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "EachOpponent"
+                    }
                 },
                 "effect": {
                     "type": "DrawCards",
@@ -20312,22 +20321,19 @@
                 "appliesTo": {
                     "type": "DamageEvent",
                     "source": {
-                        "type": "SourceMatching",
-                        "filter": {
-                            "cardPredicates": [
-                                "IsCreature",
-                                {
-                                    "type": "HasAnyOfSubtypes",
-                                    "subtypes": [
-                                        "Lizard",
-                                        "Mouse",
-                                        "Otter",
-                                        "Raccoon"
-                                    ]
-                                }
-                            ],
-                            "controllerPredicate": "ControlledByYou"
-                        }
+                        "cardPredicates": [
+                            "IsCreature",
+                            {
+                                "type": "HasAnyOfSubtypes",
+                                "subtypes": [
+                                    "Lizard",
+                                    "Mouse",
+                                    "Otter",
+                                    "Raccoon"
+                                ]
+                            }
+                        ],
+                        "controllerPredicate": "ControlledByYou"
                     }
                 }
             }
