@@ -38,6 +38,28 @@ jobs:
           cat steel-overseer-status.txt
           cat steel-overseer-changed-files.txt
 
+      - name: Preserve modified snapshot files early
+        shell: bash
+        run: |
+          mkdir -p steel-overseer-modified
+          while IFS= read -r path; do
+            if [ -n "$path" ] && [ -f "$path" ]; then
+              mkdir -p "steel-overseer-modified/$(dirname "$path")"
+              cp "$path" "steel-overseer-modified/$path"
+            fi
+          done < steel-overseer-changed-files.txt
+
+      - name: Upload snapshot evidence early
+        uses: actions/upload-artifact@v4
+        with:
+          name: steel-overseer-snapshot-evidence
+          path: |
+            steel-overseer-status.txt
+            steel-overseer-changed-files.txt
+            steel-overseer-snapshot.patch
+            steel-overseer-modified/
+          if-no-files-found: error
+
       - name: Build with reblessed snapshot
         run: just build
 
@@ -54,20 +76,6 @@ jobs:
         run: |
           set -o pipefail
           just check-card-printing "Steel Overseer" 2>&1 | tee steel-overseer-printing-gate.txt
-
-      - name: Preserve modified snapshot files
-        if: always()
-        shell: bash
-        run: |
-          mkdir -p steel-overseer-modified
-          if [ -f steel-overseer-changed-files.txt ]; then
-            while IFS= read -r path; do
-              if [ -n "$path" ] && [ -f "$path" ]; then
-                mkdir -p "steel-overseer-modified/$(dirname "$path")"
-                cp "$path" "steel-overseer-modified/$path"
-              fi
-            done < steel-overseer-changed-files.txt
-          fi
 
       - name: Upload validation evidence
         if: always()
