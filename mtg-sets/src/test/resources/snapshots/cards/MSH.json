@@ -136,7 +136,7 @@
                                 "collection": "connive_discarded",
                                 "ifNotEmpty": {
                                     "type": "AddCounters",
-                                    "counterType": "+1/+1",
+                                    "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 1,
                                     "target": "Self"
                                 },
@@ -223,7 +223,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -391,7 +391,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 3,
                     "target": "Self"
                 },
@@ -478,7 +478,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -535,7 +535,7 @@
                     },
                     "body": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -743,22 +743,19 @@
                         {
                             "type": "AddCountersToCollection",
                             "collectionName": "createdTokens",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "amount": {
                                 "type": "EntityProperty",
                                 "entity": "Source",
                                 "numericProperty": {
                                     "type": "CounterCount",
-                                    "counterType": {
-                                        "type": "Named",
-                                        "name": "invasion"
-                                    }
+                                    "counterType": "INVASION"
                                 }
                             }
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "invasion",
+                            "counterType": "INVASION",
                             "count": 1,
                             "target": "Self"
                         }
@@ -855,7 +852,7 @@
                     },
                     "reflexiveEffect": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": {
                             "type": "ContextTarget",
@@ -877,7 +874,7 @@
                 "id": "ability_2",
                 "trigger": {
                     "type": "CountersPlacedEvent",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "filter": "creature",
                     "placedBy": "You"
                 },
@@ -1261,7 +1258,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -2028,7 +2025,7 @@
                                 "collection": "connive_discarded",
                                 "ifNotEmpty": {
                                     "type": "AddCounters",
-                                    "counterType": "+1/+1",
+                                    "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 1,
                                     "target": "Self"
                                 },
@@ -2179,7 +2176,7 @@
                                     "collection": "connive_discarded",
                                     "ifNotEmpty": {
                                         "type": "AddCounters",
-                                        "counterType": "+1/+1",
+                                        "counterType": "PLUS_ONE_PLUS_ONE",
                                         "count": 1,
                                         "target": "TriggeringEntity"
                                     },
@@ -2367,7 +2364,7 @@
                         "statePredicates": [
                             {
                                 "type": "ReceivedCounterThisTurn",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "placedByController": true
                             }
                         ]
@@ -2634,7 +2631,7 @@
                             "gate": "Gate.MayDecide",
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": "Self"
                             },
@@ -2689,7 +2686,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -2796,7 +2793,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 2,
                     "target": "Self"
                 },
@@ -2890,7 +2887,7 @@
                         "effects": [
                             {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": "Self"
                             },
@@ -3458,10 +3455,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "shield"
-                },
+                "counterType": "SHIELD",
                 "count": 1,
                 "selfOnly": true
             }
@@ -3628,13 +3622,13 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "indestructible",
+                            "counterType": "INDESTRUCTIBLE",
                             "count": 1,
                             "target": "Self"
                         }
@@ -3754,7 +3748,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -3763,7 +3757,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "plan",
+                            "counterType": "PLAN",
                             "count": 1,
                             "target": "Self"
                         }
@@ -3782,7 +3776,7 @@
                 "id": "ability_2",
                 "trigger": {
                     "type": "CountersPlacedEvent",
-                    "counterType": "plan"
+                    "counterType": "PLAN"
                 },
                 "effect": {
                     "type": "ReflexiveTrigger",
@@ -3793,7 +3787,7 @@
                     "optional": false,
                     "reflexiveEffect": {
                         "type": "AddCounters",
-                        "counterType": "indestructible",
+                        "counterType": "INDESTRUCTIBLE",
                         "count": 1,
                         "target": {
                             "type": "ContextTarget",
@@ -3817,10 +3811,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "plan"
-                            }
+                            "counterType": "PLAN"
                         }
                     },
                     "operator": "GTE",
@@ -4027,7 +4018,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -4088,7 +4079,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "plan",
+                            "counterType": "PLAN",
                             "count": 1,
                             "target": "Self"
                         }
@@ -4100,7 +4091,7 @@
                 "id": "ability_2",
                 "trigger": {
                     "type": "CountersPlacedEvent",
-                    "counterType": "plan"
+                    "counterType": "PLAN"
                 },
                 "effect": {
                     "type": "ReflexiveTrigger",
@@ -4128,10 +4119,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "plan"
-                            }
+                            "counterType": "PLAN"
                         }
                     },
                     "operator": "GTE",
@@ -4374,7 +4362,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -4820,7 +4808,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "plan",
+                            "counterType": "PLAN",
                             "count": 1,
                             "target": "Self"
                         }
@@ -4832,7 +4820,7 @@
                 "id": "ability_2",
                 "trigger": {
                     "type": "CountersPlacedEvent",
-                    "counterType": "plan"
+                    "counterType": "PLAN"
                 },
                 "effect": {
                     "type": "ReflexiveTrigger",
@@ -4862,10 +4850,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "plan"
-                            }
+                            "counterType": "PLAN"
                         }
                     },
                     "operator": "GTE",
@@ -5268,7 +5253,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "plan",
+                            "counterType": "PLAN",
                             "count": 1,
                             "target": "Self"
                         }
@@ -5280,7 +5265,7 @@
                 "id": "ability_2",
                 "trigger": {
                     "type": "CountersPlacedEvent",
-                    "counterType": "plan"
+                    "counterType": "PLAN"
                 },
                 "effect": {
                     "type": "ReflexiveTrigger",
@@ -5346,10 +5331,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "plan"
-                            }
+                            "counterType": "PLAN"
                         }
                     },
                     "operator": "GTE",
@@ -6003,7 +5985,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 2,
                             "target": "Self"
                         }
@@ -6487,7 +6469,7 @@
                 {
                     "effect": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": {
                             "type": "BoundVariable",
@@ -7696,7 +7678,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -7829,7 +7811,7 @@
                     "space": "IterationSpace.Targets",
                     "body": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": {
                             "type": "ContextTarget",
@@ -8135,7 +8117,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 5,
                     "target": "Self"
                 },
@@ -8197,7 +8179,7 @@
                 "binding": "OTHER",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -8306,7 +8288,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 3,
                     "target": "Self"
                 },
@@ -8453,7 +8435,7 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "CountersPlacedEvent",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "filter": "creature Hero ctrl:you",
                     "placedBy": "You",
                     "batch": true
@@ -9016,7 +8998,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPutCountersOnSelf",
-                                "counterType": "stun"
+                                "counterType": "STUN"
                             }
                         }
                     ]
@@ -9116,7 +9098,7 @@
                 "binding": "OTHER",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -9322,7 +9304,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -9413,7 +9395,7 @@
                                 "collection": "connive_discarded",
                                 "ifNotEmpty": {
                                     "type": "AddCounters",
-                                    "counterType": "+1/+1",
+                                    "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 1,
                                     "target": "Self"
                                 },
@@ -9492,7 +9474,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -9511,7 +9493,7 @@
                         "statePredicates": [
                             {
                                 "type": "ReceivedCounterThisTurn",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "placedByController": true
                             }
                         ],
@@ -9935,14 +9917,14 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "CountersPlacedEvent",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "filter": "creature",
                     "placedBy": "You"
                 },
                 "binding": "OTHER",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -10122,7 +10104,7 @@
                                 "collection": "connive_discarded",
                                 "ifNotEmpty": {
                                     "type": "AddCounters",
-                                    "counterType": "+1/+1",
+                                    "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 1,
                                     "target": {
                                         "type": "BoundVariable",
@@ -10235,7 +10217,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 2,
                     "target": "Self"
                 },
@@ -10493,7 +10475,7 @@
                                 "collection": "connive_discarded",
                                 "ifNotEmpty": {
                                     "type": "AddCounters",
-                                    "counterType": "+1/+1",
+                                    "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 1,
                                     "target": "Self"
                                 },
@@ -10556,7 +10538,7 @@
                 "binding": "OTHER",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -10696,7 +10678,7 @@
                                 "collection": "connive_discarded",
                                 "ifNotEmpty": {
                                     "type": "AddCounters",
-                                    "counterType": "+1/+1",
+                                    "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 1,
                                     "target": "Self"
                                 },
@@ -10819,7 +10801,7 @@
                         {
                             "effect": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": "Self"
                             },
@@ -11119,7 +11101,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -11301,7 +11283,7 @@
                         },
                         "body": {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         }
@@ -11802,7 +11784,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 2,
                             "target": "Self"
                         },
@@ -12038,7 +12020,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         }
@@ -12203,7 +12185,7 @@
                     },
                     "body": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -12407,7 +12389,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -12526,7 +12508,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "plan",
+                            "counterType": "PLAN",
                             "count": 1,
                             "target": "Self"
                         }
@@ -12538,7 +12520,7 @@
                 "id": "ability_2",
                 "trigger": {
                     "type": "CountersPlacedEvent",
-                    "counterType": "plan"
+                    "counterType": "PLAN"
                 },
                 "effect": {
                     "type": "Composite",
@@ -12564,7 +12546,7 @@
                             },
                             "body": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -12578,10 +12560,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "plan"
-                            }
+                            "counterType": "PLAN"
                         }
                     },
                     "operator": "GTE",
@@ -12974,13 +12953,13 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "double strike",
+                            "counterType": "DOUBLE_STRIKE",
                             "count": 1,
                             "target": "Self"
                         }
@@ -13244,7 +13223,7 @@
                     "type": "ReflexiveTrigger",
                     "action": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     },
@@ -13256,7 +13235,7 @@
                             "entity": "Source",
                             "numericProperty": {
                                 "type": "CounterCount",
-                                "counterType": "PlusOnePlusOne"
+                                "counterType": "PLUS_ONE_PLUS_ONE"
                             }
                         },
                         "target": {
@@ -13354,7 +13333,7 @@
                                 "collection": "connive_discarded",
                                 "ifNotEmpty": {
                                     "type": "AddCounters",
-                                    "counterType": "+1/+1",
+                                    "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 1,
                                     "target": "Self"
                                 },
@@ -13618,7 +13597,7 @@
                 },
                 {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -13716,7 +13695,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "plan",
+                            "counterType": "PLAN",
                             "count": 1,
                             "target": "Self"
                         }
@@ -13728,7 +13707,7 @@
                 "id": "ability_2",
                 "trigger": {
                     "type": "CountersPlacedEvent",
-                    "counterType": "plan"
+                    "counterType": "PLAN"
                 },
                 "effect": {
                     "type": "ReflexiveTrigger",
@@ -13769,10 +13748,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "plan"
-                            }
+                            "counterType": "PLAN"
                         }
                     },
                     "operator": "GTE",
@@ -13923,7 +13899,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "plan",
+                            "counterType": "PLAN",
                             "count": 1,
                             "target": "Self"
                         }
@@ -13935,7 +13911,7 @@
                 "id": "ability_2",
                 "trigger": {
                     "type": "CountersPlacedEvent",
-                    "counterType": "plan"
+                    "counterType": "PLAN"
                 },
                 "effect": {
                     "type": "Composite",
@@ -13969,10 +13945,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "plan"
-                            }
+                            "counterType": "PLAN"
                         }
                     },
                     "operator": "GTE",
@@ -14145,7 +14118,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -14674,7 +14647,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 2,
                     "target": "Self"
                 },
@@ -14789,7 +14762,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         }
@@ -15321,7 +15294,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "amount": "XValue",
                     "target": "Self"
                 },
@@ -15965,7 +15938,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "haste",
+                                "counterType": "HASTE",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -15998,7 +15971,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "flying",
+                                "counterType": "FLYING",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -16031,7 +16004,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "first strike",
+                                "counterType": "FIRST_STRIKE",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -16064,7 +16037,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "double strike",
+                                "counterType": "DOUBLE_STRIKE",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -16097,7 +16070,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "deathtouch",
+                                "counterType": "DEATHTOUCH",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -16130,7 +16103,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "indestructible",
+                                "counterType": "INDESTRUCTIBLE",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -16163,7 +16136,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "lifelink",
+                                "counterType": "LIFELINK",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -16196,7 +16169,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "menace",
+                                "counterType": "MENACE",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -16229,7 +16202,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "reach",
+                                "counterType": "REACH",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -16262,7 +16235,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "trample",
+                                "counterType": "TRAMPLE",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -16295,7 +16268,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "vigilance",
+                                "counterType": "VIGILANCE",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -16346,7 +16319,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "haste",
+                                "counterType": "HASTE",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -16379,7 +16352,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "flying",
+                                "counterType": "FLYING",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -16412,7 +16385,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "first strike",
+                                "counterType": "FIRST_STRIKE",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -16445,7 +16418,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "double strike",
+                                "counterType": "DOUBLE_STRIKE",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -16478,7 +16451,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "deathtouch",
+                                "counterType": "DEATHTOUCH",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -16511,7 +16484,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "indestructible",
+                                "counterType": "INDESTRUCTIBLE",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -16544,7 +16517,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "lifelink",
+                                "counterType": "LIFELINK",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -16577,7 +16550,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "menace",
+                                "counterType": "MENACE",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -16610,7 +16583,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "reach",
+                                "counterType": "REACH",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -16643,7 +16616,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "trample",
+                                "counterType": "TRAMPLE",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -16676,7 +16649,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "vigilance",
+                                "counterType": "VIGILANCE",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -17116,7 +17089,7 @@
                                 "collection": "connive_discarded",
                                 "ifNotEmpty": {
                                     "type": "AddCounters",
-                                    "counterType": "+1/+1",
+                                    "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 1,
                                     "target": "TriggeringEntity"
                                 },
@@ -17327,7 +17300,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 2,
                             "target": "Self"
                         },
@@ -17451,7 +17424,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -17476,7 +17449,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": "XValue",
                                 "self": true
                             }
@@ -17930,7 +17903,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "harness",
+                    "counterType": "HARNESS",
                     "count": 1,
                     "target": "Self"
                 },
@@ -18204,7 +18177,7 @@
             "type": "Ward",
             "cost": {
                 "type": "WardCost.PlayerCounters",
-                "counterType": "poison",
+                "counterType": "POISON",
                 "amount": 5
             }
         }
@@ -18471,7 +18444,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 2,
                     "target": "Self"
                 },
@@ -18980,7 +18953,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -19425,7 +19398,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -19454,7 +19427,7 @@
                         "statePredicates": [
                             {
                                 "type": "HasCounter",
-                                "counterType": "+1/+1"
+                                "counterType": "PLUS_ONE_PLUS_ONE"
                             }
                         ],
                         "controllerPredicate": "ControlledByYou"
@@ -19560,7 +19533,7 @@
                                     "collection": "connive_discarded",
                                     "ifNotEmpty": {
                                         "type": "AddCounters",
-                                        "counterType": "+1/+1",
+                                        "counterType": "PLUS_ONE_PLUS_ONE",
                                         "count": 1,
                                         "target": {
                                             "type": "BoundVariable",
@@ -19739,7 +19712,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 2,
                             "target": "Self"
                         },
@@ -19953,7 +19926,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 2,
                             "target": "Self"
                         }
@@ -20145,7 +20118,7 @@
                                 "collection": "connive_discarded",
                                 "ifNotEmpty": {
                                     "type": "AddCounters",
-                                    "counterType": "+1/+1",
+                                    "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 1,
                                     "target": {
                                         "type": "BoundVariable",
@@ -20237,7 +20210,7 @@
                 {
                     "type": "AddCountersToCollection",
                     "collectionName": "visionQuestCreature",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "amount": "XValue"
                 },
                 {
@@ -20494,7 +20467,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 2,
                     "target": "Self"
                 },
@@ -20539,7 +20512,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 2,
                     "target": "Self"
                 },
@@ -20645,7 +20618,7 @@
                     },
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 2,
                         "target": {
                             "type": "BoundVariable",
@@ -20654,7 +20627,7 @@
                     },
                     "otherwise": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": {
                             "type": "BoundVariable",
@@ -20918,7 +20891,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -20990,7 +20963,7 @@
                                 "space": "IterationSpace.Targets",
                                 "body": {
                                     "type": "AddCounters",
-                                    "counterType": "+1/+1",
+                                    "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 1,
                                     "target": {
                                         "type": "ContextTarget",
@@ -21284,7 +21257,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "finality",
+                            "counterType": "FINALITY",
                             "count": 1,
                             "target": "Self"
                         },
@@ -21449,7 +21422,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 2,
                     "target": "Self"
                 },
@@ -21514,7 +21487,7 @@
                 "chapter": 2,
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 3,
                     "target": {
                         "type": "BoundVariable",

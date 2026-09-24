@@ -261,7 +261,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -1146,7 +1146,7 @@
                 "binding": "ATTACHED",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -1159,7 +1159,7 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomRemoveCounters",
-                        "counterType": "charge",
+                        "counterType": "CHARGE",
                         "self": true
                     }
                 },
@@ -1206,7 +1206,7 @@
                         {
                             "effect": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": "EquippedCreature"
                             },
@@ -1835,7 +1835,7 @@
                             },
                             "body": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": "Self"
                             }

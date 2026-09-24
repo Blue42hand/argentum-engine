@@ -1946,7 +1946,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -2265,7 +2265,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -2697,7 +2697,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -2777,7 +2777,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -3220,7 +3220,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 4,
                     "target": "Self"
                 },
@@ -4221,7 +4221,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -4332,7 +4332,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }

@@ -28,7 +28,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -79,10 +79,7 @@
                                 "entity": "Source",
                                 "numericProperty": {
                                     "type": "CounterCount",
-                                    "counterType": {
-                                        "type": "Named",
-                                        "name": "charge"
-                                    }
+                                    "counterType": "CHARGE"
                                 }
                             },
                             "operator": "GTE",
@@ -601,7 +598,7 @@
                         "effects": [
                             {
                                 "type": "AddCounters",
-                                "counterType": "+1+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 2,
                                 "target": {
                                     "type": "BoundVariable",
@@ -758,7 +755,7 @@
                     },
                     "body": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -778,7 +775,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -799,10 +796,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -829,10 +823,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -859,10 +850,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -1289,7 +1277,7 @@
             "effects": [
                 {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -1437,7 +1425,7 @@
                         {
                             "effect": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 2,
                                 "target": "Self"
                             },
@@ -2447,7 +2435,7 @@
                                 },
                                 "body": {
                                     "type": "AddCounters",
-                                    "counterType": "+1/+1",
+                                    "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 1,
                                     "target": "Self"
                                 }
@@ -2817,10 +2805,7 @@
                                 "entity": "Source",
                                 "numericProperty": {
                                     "type": "CounterCount",
-                                    "counterType": {
-                                        "type": "Named",
-                                        "name": "charge"
-                                    }
+                                    "counterType": "CHARGE"
                                 }
                             },
                             "operator": "GTE",
@@ -2863,7 +2848,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -2884,10 +2869,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -2914,10 +2896,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -2971,7 +2950,7 @@
                     },
                     "body": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -3058,7 +3037,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -3101,10 +3080,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -3131,10 +3107,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -3614,7 +3587,7 @@
                 {
                     "effect": {
                         "type": "AddCounters",
-                        "counterType": "charge",
+                        "counterType": "CHARGE",
                         "count": 5,
                         "target": {
                             "type": "BoundVariable",
@@ -3721,7 +3694,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -3750,7 +3723,7 @@
                         "statePredicates": [
                             {
                                 "type": "HasCounter",
-                                "counterType": "+1/+1"
+                                "counterType": "PLUS_ONE_PLUS_ONE"
                             }
                         ],
                         "controllerPredicate": "ControlledByYou"
@@ -3859,7 +3832,7 @@
                                 "entity": "Target",
                                 "numericProperty": {
                                     "type": "CounterCount",
-                                    "counterType": "PlusOnePlusOne"
+                                    "counterType": "PLUS_ONE_PLUS_ONE"
                                 }
                             },
                             "operator": "GTE",
@@ -4051,7 +4024,7 @@
                                         "statePredicates": [
                                             {
                                                 "type": "HasCounter",
-                                                "counterType": "+1/+1"
+                                                "counterType": "PLUS_ONE_PLUS_ONE"
                                             }
                                         ],
                                         "controllerPredicate": "ControlledByYou"
@@ -4076,7 +4049,7 @@
                             },
                             {
                                 "type": "RemoveCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": {
                                     "type": "PipelineTarget",
@@ -4085,7 +4058,7 @@
                             },
                             {
                                 "type": "RemoveCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": {
                                     "type": "PipelineTarget",
@@ -4458,10 +4431,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -4550,7 +4520,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -4571,10 +4541,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -4601,10 +4568,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -4631,10 +4595,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -4777,7 +4738,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -4818,10 +4779,7 @@
                                 "entity": "Source",
                                 "numericProperty": {
                                     "type": "CounterCount",
-                                    "counterType": {
-                                        "type": "Named",
-                                        "name": "charge"
-                                    }
+                                    "counterType": "CHARGE"
                                 }
                             },
                             "operator": "GTE",
@@ -5010,7 +4968,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -5031,10 +4989,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -5061,10 +5016,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -5091,10 +5043,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -5435,7 +5384,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -5456,10 +5405,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -5486,10 +5432,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -5516,10 +5459,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -5755,7 +5695,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -5993,7 +5933,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -6014,10 +5954,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -6044,10 +5981,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -6074,10 +6008,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -6601,7 +6532,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -6622,7 +6553,7 @@
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -6649,7 +6580,7 @@
                         "statePredicates": [
                             {
                                 "type": "HasCounter",
-                                "counterType": "+1/+1"
+                                "counterType": "PLUS_ONE_PLUS_ONE"
                             }
                         ],
                         "controllerPredicate": "ControlledByYou"
@@ -6960,7 +6891,7 @@
             "effects": [
                 {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -7597,7 +7528,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -7689,7 +7620,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -7710,10 +7641,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -7740,10 +7668,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -7794,7 +7719,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -7861,7 +7786,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -7905,7 +7830,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -8125,7 +8050,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -8243,7 +8168,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -8282,10 +8207,7 @@
                                 "entity": "Source",
                                 "numericProperty": {
                                     "type": "CounterCount",
-                                    "counterType": {
-                                        "type": "Named",
-                                        "name": "charge"
-                                    }
+                                    "counterType": "CHARGE"
                                 }
                             },
                             "operator": "GTE",
@@ -8517,7 +8439,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -8538,10 +8460,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -8568,10 +8487,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -8669,7 +8585,7 @@
                 "binding": "OTHER",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -8990,7 +8906,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -9011,10 +8927,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -9042,10 +8955,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -9072,10 +8982,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -9102,10 +9009,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -9364,7 +9268,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "stun",
+                            "counterType": "STUN",
                             "count": 1,
                             "target": {
                                 "type": "ContextTarget",
@@ -9526,7 +9430,7 @@
                         "statePredicates": [
                             {
                                 "type": "HasCounter",
-                                "counterType": "+1/+1"
+                                "counterType": "PLUS_ONE_PLUS_ONE"
                             }
                         ],
                         "controllerPredicate": "ControlledByYou"
@@ -9989,7 +9893,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -10876,7 +10780,7 @@
                     },
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -10937,7 +10841,7 @@
                             },
                             "body": {
                                 "type": "AddDynamicCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "amount": {
                                     "type": "VariableReference",
                                     "variableName": "ouroboroid_power"
@@ -11244,7 +11148,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -11265,10 +11169,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -11295,10 +11196,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -11737,7 +11635,7 @@
                             },
                             "ifEmpty": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -12080,7 +11978,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -12108,7 +12006,7 @@
                         "statePredicates": [
                             {
                                 "type": "HasCounter",
-                                "counterType": "+1/+1"
+                                "counterType": "PLUS_ONE_PLUS_ONE"
                             }
                         ],
                         "controllerPredicate": "ControlledByYou"
@@ -12446,7 +12344,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -12467,10 +12365,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -12497,10 +12392,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -12759,7 +12651,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -13384,7 +13276,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -13614,7 +13506,7 @@
                         "effects": [
                             {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": {
                                     "type": "ContextTarget",
@@ -14067,7 +13959,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -14088,10 +13980,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -14118,10 +14007,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -14248,7 +14134,7 @@
                         {
                             "type": "AddCountersToCollection",
                             "collectionName": "returned_creature",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 2
                         }
                     ]
@@ -14437,7 +14323,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -14458,10 +14344,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -14488,10 +14371,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -14915,7 +14795,7 @@
                             "statePredicates": [
                                 {
                                     "type": "HasCounter",
-                                    "counterType": "+1/+1"
+                                    "counterType": "PLUS_ONE_PLUS_ONE"
                                 }
                             ],
                             "controllerPredicate": "ControlledByYou"
@@ -15146,7 +15026,7 @@
                 "trigger": "AttackEvent",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -15197,7 +15077,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -15244,7 +15124,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "filter": "creature ctrl:you"
                             }
                         }
@@ -15383,7 +15263,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -15548,7 +15428,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -15602,10 +15482,7 @@
                                 "entity": "Source",
                                 "numericProperty": {
                                     "type": "CounterCount",
-                                    "counterType": {
-                                        "type": "Named",
-                                        "name": "charge"
-                                    }
+                                    "counterType": "CHARGE"
                                 }
                             },
                             "operator": "GTE",
@@ -15688,7 +15565,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -15709,10 +15586,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -15739,10 +15613,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -15961,10 +15832,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -15988,7 +15856,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -16009,10 +15877,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -16039,10 +15904,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -16069,10 +15931,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -16143,7 +16002,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -16172,7 +16031,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -16449,7 +16308,7 @@
                         "effects": [
                             {
                                 "type": "AddCounters",
-                                "counterType": "charge",
+                                "counterType": "CHARGE",
                                 "count": 10,
                                 "target": {
                                     "type": "BoundVariable",
@@ -16461,7 +16320,7 @@
                                 "step": "END",
                                 "effect": {
                                     "type": "RemoveCounters",
-                                    "counterType": "charge",
+                                    "counterType": "CHARGE",
                                     "count": 10,
                                     "target": {
                                         "type": "BoundVariable",
@@ -16935,7 +16794,7 @@
                             "label": "Put two +1/+1 counters on this creature",
                             "effect": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 2,
                                 "target": "Self"
                             }
@@ -16977,7 +16836,7 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "CountersPlacedEvent",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "filter": "creature ctrl:you",
                     "placedBy": "You"
                 },
@@ -17088,7 +16947,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "loyalty",
+                    "counterType": "LOYALTY",
                     "count": 1,
                     "target": "Self"
                 }
@@ -17127,7 +16986,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": {
                                     "type": "BoundVariable",
@@ -17216,7 +17075,7 @@
                             "effects": [
                                 {
                                     "type": "AddCounters",
-                                    "counterType": "+1/+1",
+                                    "counterType": "PLUS_ONE_PLUS_ONE",
                                     "count": 3,
                                     "target": {
                                         "type": "ContextTarget",
@@ -17664,7 +17523,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -17680,10 +17539,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     }
                 },
@@ -17698,10 +17554,7 @@
                                 "entity": "Source",
                                 "numericProperty": {
                                     "type": "CounterCount",
-                                    "counterType": {
-                                        "type": "Named",
-                                        "name": "charge"
-                                    }
+                                    "counterType": "CHARGE"
                                 }
                             },
                             "operator": "GTE",
@@ -17802,7 +17655,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -17823,10 +17676,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -17853,10 +17703,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -18367,7 +18214,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -18388,10 +18235,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -18418,10 +18262,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -18474,7 +18315,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -18515,10 +18356,7 @@
                                 "entity": "Source",
                                 "numericProperty": {
                                     "type": "CounterCount",
-                                    "counterType": {
-                                        "type": "Named",
-                                        "name": "charge"
-                                    }
+                                    "counterType": "CHARGE"
                                 }
                             },
                             "operator": "GTE",
@@ -18663,7 +18501,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "poison",
+                    "counterType": "POISON",
                     "count": 2,
                     "target": {
                         "type": "PlayerRef",
@@ -18839,7 +18677,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -18860,10 +18698,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -18890,10 +18725,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -18997,7 +18829,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -19018,10 +18850,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -19048,10 +18877,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -19078,10 +18904,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -19133,7 +18956,7 @@
                     "space": "IterationSpace.Targets",
                     "body": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": {
                             "type": "ContextTarget",
@@ -19326,7 +19149,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "amount": "StationCharge",
                     "target": "Self"
                 },
@@ -19347,10 +19170,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",
@@ -19377,10 +19197,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "charge"
-                            }
+                            "counterType": "CHARGE"
                         }
                     },
                     "operator": "GTE",

@@ -3405,7 +3405,7 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomRemoveCounters",
-                        "counterType": "divinity",
+                        "counterType": "DIVINITY",
                         "self": true
                     }
                 },
@@ -3483,10 +3483,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "divinity"
-                },
+                "counterType": "DIVINITY",
                 "count": 1,
                 "selfOnly": true,
                 "condition": "WasCastFromHand"

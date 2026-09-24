@@ -75,7 +75,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+2",
+                    "counterType": "PLUS_ONE_PLUS_TWO",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -240,7 +240,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "storage",
+                    "counterType": "STORAGE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -263,7 +263,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "storage",
+                                "counterType": "STORAGE",
                                 "count": "XValue",
                                 "self": true
                             }
@@ -716,7 +716,7 @@
                             },
                             {
                                 "type": "AddCounters",
-                                "counterType": "cube",
+                                "counterType": "CUBE",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -759,7 +759,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "cube",
+                                "counterType": "CUBE",
                                 "self": true
                             }
                         }
@@ -927,7 +927,7 @@
                         {
                             "effect": {
                                 "type": "AddCounters",
-                                "counterType": "+0/+1",
+                                "counterType": "PLUS_ZERO_PLUS_ONE",
                                 "count": 1,
                                 "target": {
                                     "type": "BoundVariable",
@@ -939,7 +939,7 @@
                         {
                             "effect": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+0",
+                                "counterType": "PLUS_ONE_PLUS_ZERO",
                                 "count": 1,
                                 "target": {
                                     "type": "BoundVariable",
@@ -1042,7 +1042,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "storage",
+                    "counterType": "STORAGE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1065,7 +1065,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "storage",
+                                "counterType": "STORAGE",
                                 "count": "XValue",
                                 "self": true
                             }
@@ -1290,7 +1290,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "-2/-2",
+                    "counterType": "MINUS_TWO_MINUS_TWO",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1312,7 +1312,7 @@
                     "effects": [
                         {
                             "type": "RemoveCounters",
-                            "counterType": "-2/-2",
+                            "counterType": "MINUS_TWO_MINUS_TWO",
                             "count": 1,
                             "target": "Self"
                         },
@@ -1327,7 +1327,7 @@
                             },
                             "then": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+0",
+                                "counterType": "PLUS_ONE_PLUS_ZERO",
                                 "count": 1,
                                 "target": "Self"
                             }
@@ -1553,7 +1553,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "spore",
+                    "counterType": "SPORE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1567,7 +1567,7 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomRemoveCounters",
-                        "counterType": "spore",
+                        "counterType": "SPORE",
                         "count": {
                             "type": "Fixed",
                             "amount": 3
@@ -1985,7 +1985,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "spore",
+                    "counterType": "SPORE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1999,7 +1999,7 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomRemoveCounters",
-                        "counterType": "spore",
+                        "counterType": "SPORE",
                         "count": {
                             "type": "Fixed",
                             "amount": 3
@@ -2046,7 +2046,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "spore",
+                    "counterType": "SPORE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -2635,7 +2635,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "storage",
+                    "counterType": "STORAGE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -2658,7 +2658,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "storage",
+                                "counterType": "STORAGE",
                                 "count": "XValue",
                                 "self": true
                             }
@@ -2711,7 +2711,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "tide",
+                    "counterType": "TIDE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -2728,10 +2728,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "tide"
-                            }
+                            "counterType": "TIDE"
                         }
                     },
                     "operator": "GTE",
@@ -2742,7 +2739,7 @@
                 },
                 "effect": {
                     "type": "RemoveAllCountersOfType",
-                    "counterType": "tide",
+                    "counterType": "TIDE",
                     "target": "Self"
                 },
                 "descriptionOverride": "Whenever there are four or more tide counters on this creature, remove all tide counters from it."
@@ -2767,10 +2764,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "tide"
-                            }
+                            "counterType": "TIDE"
                         }
                     },
                     "operator": "EQ",
@@ -2798,10 +2792,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "tide"
-                            }
+                            "counterType": "TIDE"
                         }
                     },
                     "operator": "EQ",
@@ -2815,10 +2806,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "tide"
-                },
+                "counterType": "TIDE",
                 "count": 1,
                 "selfOnly": true
             }
@@ -3145,7 +3133,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "javelin",
+                                "counterType": "JAVELIN",
                                 "self": true
                             }
                         }
@@ -3174,10 +3162,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "javelin"
-                },
+                "counterType": "JAVELIN",
                 "count": 1,
                 "selfOnly": true
             }
@@ -3290,7 +3275,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "credit",
+                    "counterType": "CREDIT",
                     "count": 1,
                     "target": "Self"
                 },
@@ -3305,10 +3290,7 @@
                     "type": "GainLife",
                     "amount": {
                         "type": "LastKnownSourceCounters",
-                        "counterType": {
-                            "type": "Named",
-                            "name": "credit"
-                        }
+                        "counterType": "CREDIT"
                     }
                 },
                 "restrictions": [
@@ -3329,10 +3311,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "credit"
-                },
+                "counterType": "CREDIT",
                 "count": 3,
                 "selfOnly": true
             }
@@ -3568,7 +3547,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "storage",
+                    "counterType": "STORAGE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -3591,7 +3570,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "storage",
+                                "counterType": "STORAGE",
                                 "count": "XValue",
                                 "self": true
                             }
@@ -3780,7 +3759,7 @@
                 "cost": "AttachedPermanentManaCost",
                 "effect": {
                     "type": "RemoveCounters",
-                    "counterType": "net",
+                    "counterType": "NET",
                     "count": 1,
                     "target": "Self"
                 },
@@ -3824,10 +3803,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "net"
-                            }
+                            "counterType": "NET"
                         }
                     },
                     "operator": "GTE",
@@ -3841,10 +3817,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "net"
-                },
+                "counterType": "NET",
                 "count": 3,
                 "selfOnly": true
             }
@@ -4855,7 +4828,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "storage",
+                    "counterType": "STORAGE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -4878,7 +4851,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "storage",
+                                "counterType": "STORAGE",
                                 "count": "XValue",
                                 "self": true
                             }
@@ -5019,7 +4992,7 @@
                     },
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+2/+2",
+                        "counterType": "PLUS_TWO_PLUS_TWO",
                         "count": 1,
                         "target": {
                             "type": "BoundVariable",
@@ -5223,7 +5196,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "spore",
+                    "counterType": "SPORE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -5237,7 +5210,7 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomRemoveCounters",
-                        "counterType": "spore",
+                        "counterType": "SPORE",
                         "count": {
                             "type": "Fixed",
                             "amount": 3
@@ -5410,7 +5383,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "spore",
+                    "counterType": "SPORE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -5424,7 +5397,7 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomRemoveCounters",
-                        "counterType": "spore",
+                        "counterType": "SPORE",
                         "count": {
                             "type": "Fixed",
                             "amount": 3
@@ -5478,7 +5451,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "spore",
+                    "counterType": "SPORE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -5492,7 +5465,7 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomRemoveCounters",
-                        "counterType": "spore",
+                        "counterType": "SPORE",
                         "count": {
                             "type": "Fixed",
                             "amount": 3
@@ -5591,7 +5564,7 @@
                         "type": "PayAtom",
                         "atom": {
                             "type": "AtomPutCountersOnPermanent",
-                            "counterType": "-1/-1",
+                            "counterType": "MINUS_ONE_MINUS_ONE",
                             "filter": "creature"
                         }
                     },
@@ -5885,7 +5858,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "spore",
+                    "counterType": "SPORE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -5899,7 +5872,7 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomRemoveCounters",
-                        "counterType": "spore",
+                        "counterType": "SPORE",
                         "count": {
                             "type": "Fixed",
                             "amount": 3
@@ -6221,7 +6194,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "tide",
+                    "counterType": "TIDE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -6238,10 +6211,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "tide"
-                            }
+                            "counterType": "TIDE"
                         }
                     },
                     "operator": "GTE",
@@ -6252,7 +6222,7 @@
                 },
                 "effect": {
                     "type": "RemoveAllCountersOfType",
-                    "counterType": "tide",
+                    "counterType": "TIDE",
                     "target": "Self"
                 },
                 "descriptionOverride": "Whenever there are four or more tide counters on this enchantment, remove all tide counters from it."
@@ -6276,10 +6246,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "tide"
-                            }
+                            "counterType": "TIDE"
                         }
                     },
                     "operator": "EQ",
@@ -6306,10 +6273,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "tide"
-                            }
+                            "counterType": "TIDE"
                         }
                     },
                     "operator": "EQ",
@@ -6323,10 +6287,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "tide"
-                },
+                "counterType": "TIDE",
                 "count": 1,
                 "selfOnly": true
             }
@@ -6397,7 +6358,7 @@
                         "type": "PayAtom",
                         "atom": {
                             "type": "AtomPutCountersOnPermanent",
-                            "counterType": "-1/-1",
+                            "counterType": "MINUS_ONE_MINUS_ONE",
                             "filter": "creature"
                         }
                     },
@@ -6453,7 +6414,7 @@
                     "effects": [
                         {
                             "type": "RemoveCounters",
-                            "counterType": "time",
+                            "counterType": "TIME",
                             "count": 1,
                             "target": "Self"
                         },
@@ -6470,10 +6431,7 @@
                                             "entity": "Source",
                                             "numericProperty": {
                                                 "type": "CounterCount",
-                                                "counterType": {
-                                                    "type": "Named",
-                                                    "name": "time"
-                                                }
+                                                "counterType": "TIME"
                                             }
                                         },
                                         "operator": "GTE",
@@ -6503,7 +6461,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "time",
+                    "counterType": "TIME",
                     "count": 3,
                     "target": "Self"
                 },

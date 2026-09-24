@@ -33,7 +33,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddDynamicCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "amount": {
                             "type": "ContextProperty",
                             "key": "LAST_KNOWN_PLUS_ONE_COUNTER_COUNT"
@@ -108,7 +108,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddDynamicCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "amount": {
                             "type": "ContextProperty",
                             "key": "LAST_KNOWN_PLUS_ONE_COUNTER_COUNT"
@@ -184,7 +184,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddDynamicCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "amount": {
                             "type": "ContextProperty",
                             "key": "LAST_KNOWN_PLUS_ONE_COUNTER_COUNT"
@@ -301,7 +301,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddDynamicCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "amount": {
                             "type": "ContextProperty",
                             "key": "LAST_KNOWN_PLUS_ONE_COUNTER_COUNT"
@@ -1301,7 +1301,7 @@
                 "id": "ability_1",
                 "trigger": {
                     "type": "CountersPlacedEvent",
-                    "counterType": "+1/+1"
+                    "counterType": "PLUS_ONE_PLUS_ONE"
                 },
                 "effect": {
                     "type": "Gated",
@@ -1842,7 +1842,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "self": true
                             }
                         }
@@ -1903,7 +1903,7 @@
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",

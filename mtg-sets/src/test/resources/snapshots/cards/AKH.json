@@ -76,7 +76,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -380,7 +380,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "-1/-1",
+                        "counterType": "MINUS_ONE_MINUS_ONE",
                         "count": 1,
                         "target": {
                             "type": "BoundVariable",
@@ -681,7 +681,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 3,
                     "target": {
                         "type": "BoundVariable",
@@ -709,7 +709,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "-1/-1",
+                                "counterType": "MINUS_ONE_MINUS_ONE",
                                 "self": true
                             }
                         }
@@ -905,7 +905,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -1340,7 +1340,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "-1/-1",
+                        "counterType": "MINUS_ONE_MINUS_ONE",
                         "count": 1,
                         "target": {
                             "type": "BoundVariable",
@@ -1653,7 +1653,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -1748,7 +1748,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "-1/-1",
+                        "counterType": "MINUS_ONE_MINUS_ONE",
                         "count": 1,
                         "target": {
                             "type": "BoundVariable",
@@ -1768,7 +1768,7 @@
                 "id": "ability_2",
                 "trigger": {
                     "type": "CountersPlacedEvent",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "filter": "creature",
                     "placedBy": "You"
                 },
@@ -2200,7 +2200,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "-1/-1",
+                            "counterType": "MINUS_ONE_MINUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -2282,7 +2282,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "-1/-1",
+                            "counterType": "MINUS_ONE_MINUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -2540,7 +2540,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -3091,7 +3091,7 @@
         "replacementEffects": [
             {
                 "type": "ReplaceDamageWithCounters",
-                "counterType": "-1/-1",
+                "counterType": "MINUS_ONE_MINUS_ONE",
                 "appliesTo": {
                     "type": "DamageEvent",
                     "recipient": "CreatureOpponentControls",
@@ -3190,7 +3190,7 @@
     "script": {
         "spellEffect": {
             "type": "AddCounters",
-            "counterType": "-1/-1",
+            "counterType": "MINUS_ONE_MINUS_ONE",
             "count": 3,
             "target": {
                 "type": "BoundVariable",

@@ -288,7 +288,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 2,
                     "target": {
                         "type": "BoundVariable",
@@ -579,7 +579,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -886,7 +886,7 @@
                 "binding": "OTHER",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "TriggeringEntity"
                 }
@@ -2311,7 +2311,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddDynamicCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "amount": {
                             "type": "ContextProperty",
                             "key": "LAST_KNOWN_PLUS_ONE_COUNTER_COUNT"

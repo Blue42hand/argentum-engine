@@ -482,7 +482,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -1201,7 +1201,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -1532,7 +1532,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         }
@@ -2184,7 +2184,7 @@
             },
             "body": {
                 "type": "AddCounters",
-                "counterType": "+1/+1",
+                "counterType": "PLUS_ONE_PLUS_ONE",
                 "count": 4,
                 "target": "Self"
             }
@@ -2198,7 +2198,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 4,
                         "target": {
                             "type": "BoundVariable",
@@ -2271,7 +2271,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "depletion",
+                            "counterType": "DEPLETION",
                             "count": 1,
                             "target": "Self"
                         },
@@ -2286,10 +2286,7 @@
                                         "entity": "Source",
                                         "numericProperty": {
                                             "type": "CounterCount",
-                                            "counterType": {
-                                                "type": "Named",
-                                                "name": "depletion"
-                                            }
+                                            "counterType": "DEPLETION"
                                         }
                                     },
                                     "operator": "GTE",
@@ -3634,7 +3631,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "RemoveCounters",
-                    "counterType": "depletion",
+                    "counterType": "DEPLETION",
                     "count": 2147483647,
                     "target": "Self"
                 }
@@ -3643,7 +3640,7 @@
         "replacementEffects": [
             {
                 "type": "ReplaceDamageWithCounters",
-                "counterType": "depletion",
+                "counterType": "DEPLETION",
                 "sacrificeThreshold": 4
             }
         ]
@@ -3697,7 +3694,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -4527,7 +4524,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 3,
                     "target": "Self"
                 }
@@ -7183,7 +7180,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "trap",
+                    "counterType": "TRAP",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -7213,7 +7210,7 @@
                             "statePredicates": [
                                 {
                                     "type": "HasCounter",
-                                    "counterType": "trap"
+                                    "counterType": "TRAP"
                                 }
                             ]
                         }
@@ -7540,7 +7537,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",

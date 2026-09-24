@@ -1332,7 +1332,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -1355,7 +1355,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "charge",
+                                "counterType": "CHARGE",
                                 "count": {
                                     "type": "Fixed",
                                     "amount": 2
@@ -1389,7 +1389,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "charge",
+                                "counterType": "CHARGE",
                                 "count": {
                                     "type": "Fixed",
                                     "amount": 5
@@ -2007,7 +2007,7 @@
                         {
                             "effect": {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 2,
                                 "target": "Self"
                             }
@@ -2741,7 +2741,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -3225,7 +3225,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",

@@ -33,7 +33,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddDynamicCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "amount": {
                             "type": "ContextProperty",
                             "key": "LAST_KNOWN_PLUS_ONE_COUNTER_COUNT"
@@ -315,13 +315,13 @@
             "effects": [
                 {
                     "type": "AddCounters",
-                    "counterType": "energy",
+                    "counterType": "ENERGY",
                     "count": 3,
                     "target": "Controller"
                 },
                 {
                     "type": "PayCounters",
-                    "counterType": "energy",
+                    "counterType": "ENERGY",
                     "storeAmountAs": "paid"
                 },
                 {
@@ -401,7 +401,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "energy",
+                            "counterType": "ENERGY",
                             "count": 1,
                             "target": "Controller"
                         }
@@ -416,7 +416,7 @@
                     "type": "ReflexiveTrigger",
                     "action": {
                         "type": "PayFixedCounters",
-                        "counterType": "energy",
+                        "counterType": "ENERGY",
                         "amount": 3
                     },
                     "reflexiveEffect": {
@@ -424,7 +424,7 @@
                         "effects": [
                             {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 2,
                                 "target": {
                                     "type": "ContextTarget",
@@ -433,7 +433,7 @@
                             },
                             {
                                 "type": "AddCounters",
-                                "counterType": "flying",
+                                "counterType": "FLYING",
                                 "count": 1,
                                 "target": {
                                     "type": "ContextTarget",
@@ -1291,7 +1291,7 @@
                 },
                 {
                     "type": "AddCounters",
-                    "counterType": "flying",
+                    "counterType": "FLYING",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",

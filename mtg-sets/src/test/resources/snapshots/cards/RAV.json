@@ -741,7 +741,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPutCountersOnSelf",
-                                "counterType": "blood"
+                                "counterType": "BLOOD"
                             }
                         }
                     ]
@@ -763,10 +763,7 @@
                                 "entity": "Source",
                                 "numericProperty": {
                                     "type": "CounterCount",
-                                    "counterType": {
-                                        "type": "Named",
-                                        "name": "blood"
-                                    }
+                                    "counterType": "BLOOD"
                                 }
                             },
                             "target": "Controller"
@@ -786,7 +783,7 @@
                 },
                 "effect": {
                     "type": "RemoveCounters",
-                    "counterType": "blood",
+                    "counterType": "BLOOD",
                     "count": 1,
                     "target": "Self"
                 },
@@ -7367,7 +7364,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "self": true
                             }
                         }
@@ -7484,7 +7481,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -10774,7 +10771,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -10804,7 +10801,7 @@
                                                 "entity": "Source",
                                                 "numericProperty": {
                                                     "type": "CounterCount",
-                                                    "counterType": "PlusOnePlusOne"
+                                                    "counterType": "PLUS_ONE_PLUS_ONE"
                                                 }
                                             }
                                         }
@@ -11737,7 +11734,7 @@
         "replacementEffects": [
             {
                 "type": "ReplaceDamageWithCounters",
-                "counterType": "+1/+1",
+                "counterType": "PLUS_ONE_PLUS_ONE",
                 "appliesTo": {
                     "type": "DamageEvent",
                     "recipient": "RecipientSelf"
@@ -11789,7 +11786,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "plague",
+                    "counterType": "PLAGUE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -11806,10 +11803,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "plague"
-                            }
+                            "counterType": "PLAGUE"
                         }
                     },
                     "operator": "GTE",
@@ -11870,7 +11864,7 @@
                         {
                             "effect": {
                                 "type": "AddCounters",
-                                "counterType": "plague",
+                                "counterType": "PLAGUE",
                                 "count": 1,
                                 "target": "Self"
                             },
@@ -11879,7 +11873,7 @@
                         {
                             "effect": {
                                 "type": "RemoveCounters",
-                                "counterType": "plague",
+                                "counterType": "PLAGUE",
                                 "count": 1,
                                 "target": "Self"
                             },
@@ -14075,7 +14069,7 @@
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -15496,7 +15490,7 @@
         "replacementEffects": [
             {
                 "type": "ReplaceDamageWithCounters",
-                "counterType": "+1/+1",
+                "counterType": "PLUS_ONE_PLUS_ONE",
                 "appliesTo": {
                     "type": "DamageEvent",
                     "recipient": "AnyPlayer",
@@ -16355,7 +16349,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -16528,7 +16522,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -16552,7 +16546,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "self": true
                             }
                         }
@@ -17157,7 +17151,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -17379,7 +17373,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },

@@ -1596,7 +1596,7 @@
                 "cost": "CostSacrificeSelf",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -2129,7 +2129,7 @@
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -2145,7 +2145,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "charge",
+                                "counterType": "CHARGE",
                                 "count": {
                                     "type": "Fixed",
                                     "amount": 3
@@ -2289,7 +2289,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "charge",
+                                "counterType": "CHARGE",
                                 "self": true
                             }
                         }
@@ -2318,10 +2318,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "charge"
-                },
+                "counterType": "CHARGE",
                 "count": 2,
                 "selfOnly": true
             }
@@ -3129,7 +3126,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 3,
                     "target": {
                         "type": "BoundVariable",
@@ -3764,7 +3761,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -3786,7 +3783,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "charge",
+                                "counterType": "CHARGE",
                                 "self": true
                             }
                         }
@@ -3794,7 +3791,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "-1/-1",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -3815,10 +3812,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "charge"
-                },
+                "counterType": "CHARGE",
                 "count": 3,
                 "selfOnly": true
             }
@@ -3860,7 +3854,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -3883,7 +3877,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "charge",
+                                "counterType": "CHARGE",
                                 "self": true
                             }
                         }
@@ -3912,10 +3906,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "charge"
-                },
+                "counterType": "CHARGE",
                 "count": 3,
                 "selfOnly": true
             }
@@ -3957,7 +3948,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -3980,7 +3971,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "charge",
+                                "counterType": "CHARGE",
                                 "self": true
                             }
                         }
@@ -4016,10 +4007,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "charge"
-                },
+                "counterType": "CHARGE",
                 "count": 3,
                 "selfOnly": true
             }
@@ -4061,7 +4049,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "charge",
+                    "counterType": "CHARGE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -4083,7 +4071,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "charge",
+                                "counterType": "CHARGE",
                                 "self": true
                             }
                         }
@@ -4101,10 +4089,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "charge"
-                },
+                "counterType": "CHARGE",
                 "count": 3,
                 "selfOnly": true
             }

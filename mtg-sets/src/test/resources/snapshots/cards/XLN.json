@@ -743,7 +743,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -1875,7 +1875,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -1926,7 +1926,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -2201,7 +2201,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -3537,7 +3537,7 @@
                 "trigger": "DamageReceivedEvent",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -4029,7 +4029,7 @@
                         },
                         {
                             "type": "AddCounters",
-                            "counterType": "landmark",
+                            "counterType": "LANDMARK",
                             "count": 1,
                             "target": "Self"
                         },
@@ -4044,10 +4044,7 @@
                                         "entity": "Source",
                                         "numericProperty": {
                                             "type": "CounterCount",
-                                            "counterType": {
-                                                "type": "Named",
-                                                "name": "landmark"
-                                            }
+                                            "counterType": "LANDMARK"
                                         }
                                     },
                                     "operator": "GTE",
@@ -4062,7 +4059,7 @@
                                 "effects": [
                                     {
                                         "type": "RemoveCounters",
-                                        "counterType": "landmark",
+                                        "counterType": "LANDMARK",
                                         "count": 3,
                                         "target": "Self"
                                     },

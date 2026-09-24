@@ -267,7 +267,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "doom",
+                    "counterType": "DOOM",
                     "count": 1,
                     "target": "Self"
                 },
@@ -287,10 +287,7 @@
                         "entity": "Source",
                         "numericProperty": {
                             "type": "CounterCount",
-                            "counterType": {
-                                "type": "Named",
-                                "name": "doom"
-                            }
+                            "counterType": "DOOM"
                         }
                     },
                     "target": {
@@ -313,7 +310,7 @@
                 },
                 "effect": {
                     "type": "RemoveCounters",
-                    "counterType": "doom",
+                    "counterType": "DOOM",
                     "count": 1,
                     "target": "Self"
                 },
@@ -615,7 +612,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": {
                                 "type": "BoundVariable",
@@ -888,7 +885,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -971,7 +968,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "RemoveCounters",
-                    "counterType": "+1/+0",
+                    "counterType": "PLUS_ONE_PLUS_ZERO",
                     "count": 1,
                     "target": "Self"
                 },
@@ -1019,7 +1016,7 @@
                 },
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "+1/+0",
+                    "counterType": "PLUS_ONE_PLUS_ZERO",
                     "amount": {
                         "type": "IfPositive",
                         "amount": {
@@ -1036,7 +1033,7 @@
                                     "entity": "Source",
                                     "numericProperty": {
                                         "type": "CounterCount",
-                                        "counterType": "PlusOnePlusZero"
+                                        "counterType": "PLUS_ONE_PLUS_ZERO"
                                     }
                                 }
                             }
@@ -1057,7 +1054,7 @@
         "replacementEffects": [
             {
                 "type": "EntersWithCounters",
-                "counterType": "PlusOnePlusZero",
+                "counterType": "PLUS_ONE_PLUS_ZERO",
                 "count": 4,
                 "selfOnly": true
             }
@@ -1522,7 +1519,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -3927,7 +3924,7 @@
                             },
                             {
                                 "type": "AddDynamicCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "amount": {
                                     "type": "VariableReference",
                                     "variableName": "exiledTokens_count"
@@ -4293,7 +4290,7 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomRemoveCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "self": true
                     }
                 },

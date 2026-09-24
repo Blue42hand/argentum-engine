@@ -37,7 +37,7 @@
                     },
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     },
@@ -156,7 +156,7 @@
                         "effects": [
                             {
                                 "type": "AddCounters",
-                                "counterType": "+1/+1",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
                                 "count": 1,
                                 "target": "Self"
                             },
@@ -361,7 +361,7 @@
             "effects": [
                 {
                     "type": "AddCounters",
-                    "counterType": "flood",
+                    "counterType": "FLOOD",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -377,7 +377,7 @@
                     },
                     "duration": {
                         "type": "WhileAffectedHasCounter",
-                        "counterType": "flood"
+                        "counterType": "FLOOD"
                     }
                 },
                 {
@@ -513,7 +513,7 @@
                     "effects": [
                         {
                             "type": "AddCounters",
-                            "counterType": "+1/+1",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
                             "count": 1,
                             "target": "Self"
                         },
@@ -538,16 +538,13 @@
                                             "entity": "Source",
                                             "numericProperty": {
                                                 "type": "CounterCount",
-                                                "counterType": {
-                                                    "type": "Named",
-                                                    "name": "+1/+1"
-                                                }
+                                                "counterType": "PLUS_ONE_PLUS_ONE"
                                             }
                                         }
                                     },
                                     {
                                         "type": "RemoveAllCountersOfType",
-                                        "counterType": "+1/+1",
+                                        "counterType": "PLUS_ONE_PLUS_ONE",
                                         "target": "Self"
                                     },
                                     {
@@ -1363,7 +1360,7 @@
                     },
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     },
@@ -4637,7 +4634,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     },
@@ -7483,7 +7480,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddDynamicCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "amount": {
                             "type": "EntityProperty",
                             "entity": "Triggering",
@@ -7920,7 +7917,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "hoofprint",
+                        "counterType": "HOOFPRINT",
                         "count": 1,
                         "target": "Self"
                     }
@@ -7945,7 +7942,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "hoofprint",
+                                "counterType": "HOOFPRINT",
                                 "count": {
                                     "type": "Fixed",
                                     "amount": 4
@@ -8463,7 +8460,7 @@
                 },
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -8630,7 +8627,7 @@
                 "cost": "CostTap",
                 "effect": {
                     "type": "AddDynamicCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "amount": {
                         "type": "AggregateBattlefield",
                         "player": "You",
@@ -9007,7 +9004,7 @@
             "effects": [
                 {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -9016,7 +9013,7 @@
                 },
                 {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 2,
                     "target": {
                         "type": "BoundVariable",
@@ -9025,7 +9022,7 @@
                 },
                 {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 3,
                     "target": {
                         "type": "BoundVariable",
@@ -10052,7 +10049,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     },
@@ -10908,7 +10905,7 @@
                 },
                 {
                     "type": "AddCounters",
-                    "counterType": "mannequin",
+                    "counterType": "MANNEQUIN",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -10932,7 +10929,7 @@
                     },
                     "duration": {
                         "type": "WhileAffectedHasCounter",
-                        "counterType": "mannequin"
+                        "counterType": "MANNEQUIN"
                     }
                 }
             ]
@@ -12298,7 +12295,7 @@
                     },
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     },
@@ -12775,7 +12772,7 @@
                     },
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     },
@@ -12990,7 +12987,7 @@
                     },
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     },
@@ -17632,7 +17629,7 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": "Self"
                     }
@@ -17714,7 +17711,7 @@
                 },
                 "onPrevented": {
                     "type": "AddDynamicCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "amount": {
                         "type": "ContextProperty",
                         "key": "PREVENTED_DAMAGE_AMOUNT"
@@ -17782,7 +17779,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "charge",
+                                "counterType": "CHARGE",
                                 "self": true
                             }
                         }
@@ -17798,10 +17795,7 @@
             "EntersTapped",
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "charge"
-                },
+                "counterType": "CHARGE",
                 "count": 2,
                 "selfOnly": true
             }
@@ -17847,7 +17841,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "charge",
+                                "counterType": "CHARGE",
                                 "self": true
                             }
                         }
@@ -17863,10 +17857,7 @@
             "EntersTapped",
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "charge"
-                },
+                "counterType": "CHARGE",
                 "count": 2,
                 "selfOnly": true
             }
@@ -17912,7 +17903,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "charge",
+                                "counterType": "CHARGE",
                                 "self": true
                             }
                         }
@@ -17928,10 +17919,7 @@
             "EntersTapped",
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "charge"
-                },
+                "counterType": "CHARGE",
                 "count": 2,
                 "selfOnly": true
             }
@@ -17977,7 +17965,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "charge",
+                                "counterType": "CHARGE",
                                 "self": true
                             }
                         }
@@ -17993,10 +17981,7 @@
             "EntersTapped",
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "charge"
-                },
+                "counterType": "CHARGE",
                 "count": 2,
                 "selfOnly": true
             }
@@ -18042,7 +18027,7 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomRemoveCounters",
-                                "counterType": "charge",
+                                "counterType": "CHARGE",
                                 "self": true
                             }
                         }
@@ -18058,10 +18043,7 @@
             "EntersTapped",
             {
                 "type": "EntersWithCounters",
-                "counterType": {
-                    "type": "Named",
-                    "name": "charge"
-                },
+                "counterType": "CHARGE",
                 "count": 2,
                 "selfOnly": true
             }

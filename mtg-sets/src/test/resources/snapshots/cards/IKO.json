@@ -125,7 +125,7 @@
                 "trigger": "CycleEvent",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "flying",
+                    "counterType": "FLYING",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -994,7 +994,7 @@
                 },
                 {
                     "type": "AddCounters",
-                    "counterType": "trample",
+                    "counterType": "TRAMPLE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -1114,7 +1114,7 @@
                 },
                 {
                     "type": "AddCounters",
-                    "counterType": "first strike",
+                    "counterType": "FIRST_STRIKE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -1503,7 +1503,7 @@
                 {
                     "effect": {
                         "type": "AddCounters",
-                        "counterType": "+1/+1",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
                         "count": 1,
                         "target": {
                             "type": "ContextTarget",
@@ -1703,7 +1703,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 }
@@ -2044,7 +2044,7 @@
                 "trigger": "CycleEvent",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "first strike",
+                    "counterType": "FIRST_STRIKE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -2338,7 +2338,7 @@
                 "trigger": "CycleEvent",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "lifelink",
+                    "counterType": "LIFELINK",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -2393,7 +2393,7 @@
                 },
                 {
                     "type": "AddCounters",
-                    "counterType": "flying",
+                    "counterType": "FLYING",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -2508,7 +2508,7 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "+1/+1",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
                     "count": 1,
                     "target": "Self"
                 },
@@ -2632,7 +2632,7 @@
                 "trigger": "CycleEvent",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "trample",
+                    "counterType": "TRAMPLE",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
@@ -2686,7 +2686,7 @@
                 "trigger": "CycleEvent",
                 "effect": {
                     "type": "AddCounters",
-                    "counterType": "deathtouch",
+                    "counterType": "DEATHTOUCH",
                     "count": 1,
                     "target": {
                         "type": "BoundVariable",
