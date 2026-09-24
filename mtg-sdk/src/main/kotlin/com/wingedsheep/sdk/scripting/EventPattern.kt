@@ -1349,9 +1349,11 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
             append(" casts ")
             val wasKicked = SpellCastPredicate.WasKicked in requires
             val isModal = SpellCastPredicate.IsModal in requires
+            val isPrepared = SpellCastPredicate.CastAsPrepareSpell in requires
             val prefixedQualifiers = listOfNotNull(
                 "kicked".takeIf { wasKicked },
-                "modal".takeIf { isModal }
+                "modal".takeIf { isModal },
+                "prepared".takeIf { isPrepared }
             )
             val filterDesc = spellFilter.description
             val anyPrefix = prefixedQualifiers.isNotEmpty()
@@ -1369,7 +1371,10 @@ sealed interface EventPattern : TextReplaceable<EventPattern> {
             }
             // Suffix qualifiers (cast-from-zone, mana-source, …) in registration order.
             requires
-                .filter { it !is SpellCastPredicate.WasKicked && it !is SpellCastPredicate.IsModal }
+                .filter {
+                    it !is SpellCastPredicate.WasKicked && it !is SpellCastPredicate.IsModal &&
+                        it !is SpellCastPredicate.CastAsPrepareSpell
+                }
                 .forEach { append(" ").append(it.description) }
         }
     }

@@ -32,12 +32,20 @@ class LegendRuleCheck(
     private val predicateEvaluator = PredicateEvaluator()
 
     /**
-     * The filters of every [LegendRuleDoesNotApplyTo] static among [permanents] (a single player's
-     * battlefield). Collected once per player so the per-legendary exemption test doesn't re-scan
-     * the battlefield (Spider-Verse: "The 'legend rule' doesn't apply to Spiders you control").
+     * The filters of every [LegendRuleDoesNotApplyTo] static that applies to [playerId]'s
+     * [permanents] (a single player's battlefield). Collected once per player so the per-legendary
+     * exemption test doesn't re-scan the battlefield. Two sources:
+     *  - printed statics on those permanents (Spider-Verse: "The 'legend rule' doesn't apply to
+     *    Spiders you control");
+     *  - durational grants in [GameState.grantedStaticAbilities] anchored to the player or to one of
+     *    those permanents — the one-shot, turn-scoped form (Hall of Echoes: "The 'legend rule'
+     *    doesn't apply to permanents you control this turn" = a player-anchored
+     *    `GrantStaticAbility(LegendRuleDoesNotApplyTo(Permanent), Controller, EndOfTurn)`, which
+     *    outlives the permanent that created it and expires in the cleanup step).
      */
     private fun collectExemptionFilters(
         state: GameState,
+        playerId: EntityId,
         permanents: List<EntityId>
     ): List<GameObjectFilter> {
         val filters = mutableListOf<GameObjectFilter>()
@@ -46,6 +54,15 @@ class LegendRuleCheck(
                 ?.let { cardRegistry.getCard(it.cardDefinitionId) } ?: continue
             for (ability in cardDef.script.staticAbilities) {
                 if (ability is LegendRuleDoesNotApplyTo) filters.add(ability.filter)
+            }
+        }
+        if (state.grantedStaticAbilities.isNotEmpty()) {
+            val holders = permanents.toSet() + playerId
+            for (grant in state.grantedStaticAbilities) {
+                val ability = grant.ability
+                if (ability is LegendRuleDoesNotApplyTo && grant.entityId in holders) {
+                    filters.add(ability.filter)
+                }
             }
         }
         return filters
@@ -77,7 +94,7 @@ class LegendRuleCheck(
             val permanents = state.getZone(battlefieldZone)
 
             // Collect this player's legend-rule exemptions once, not per legendary permanent.
-            val exemptionFilters = collectExemptionFilters(state, permanents)
+            val exemptionFilters = collectExemptionFilters(state, playerId, permanents)
 
             val legendaryByName = mutableMapOf<String, MutableList<EntityId>>()
 
