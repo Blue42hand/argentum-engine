@@ -755,6 +755,8 @@ export interface DrawAnimation {
   cardId: EntityId
   cardName: string | null
   imageUri: string | null
+  /** The drawing player — picks *which* opponent's library and hand the card flies between. */
+  playerId: EntityId
   isOpponent: boolean
   startTime: number
 }
